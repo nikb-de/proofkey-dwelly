@@ -6,6 +6,8 @@ The original v2, v2.1 and v2.2 documents and their assessment packets are immuta
 
 **Review status:** the six adapter surfaces and design choices are confirmed. This revised written design requires review before the detailed implementation plan and product coding. No code, installation, live call or runtime drill is performed by this revision.
 
+**New source intake, 8 October:** [Drive workflow v3](drive-workflow-v3.md) adds original rescheduling/operator diagrams and a source-linked crosswalk. It is reference evidence, not an approved executable process or a replacement for the existing 18 decisions. Ten additional answers are pending; proposed cancel/resume/ownership/diagram-source changes are not silently activated by this import.
+
 ## Goals / Non-Goals
 
 **Goals:** Build a reusable harness and strong competition entry with both approved logistics workflows, six narrow adapters, multimodal evidence, bounded AI planning, durable recovery and verified output. The engineer can discover a connection, propose and test adapter/process changes, obtain human review and release a reproducible profile. Structured-only operation remains available when no text is supplied. Both scripted and interactive clarification are supported.

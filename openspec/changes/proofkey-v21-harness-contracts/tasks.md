@@ -7,6 +7,8 @@ Status: revised work breakdown for written review on 8 October 2026, Europe/Lond
 - [ ] 1.3 Assign local file owners, agent tasks, human review and go/no-go checkpoints; keep actual event people/registrations separate from development resources.
 - [ ] 1.4 Create the detailed Superpowers implementation plan in docs/superpowers/plans; review it and select subagent-driven or inline execution.
 - [ ] 1.5 Freeze initial approved ProcessSpec/schema examples, public contracts, shared file ownership and operation-by-failure fixture allocation before parallel consumers.
+- [ ] 1.6 Resolve the ten source-specific questions in follow-up-questions.md; preserve earlier decisions unless explicitly changed.
+- [ ] 1.7 Revise source-linked consent, stop/cancel, pre-effect/terminal recovery and ownership requirements; add the return companion, allocate regression tests and revisit effort before the next written-design review. Reminders/internal-case effects/native diagram sync remain pending scope choices.
 
 ## 2. Shared contracts and six-adapter bundle — adapter owner, 8–12 hours
 
