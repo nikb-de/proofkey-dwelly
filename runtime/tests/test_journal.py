@@ -253,6 +253,75 @@ class JournalTests(unittest.TestCase):
         with self.assertRaises(JournalFailure):
             self.store.intents("C1")
 
+    def test_disclosure_of_stopped_saved_generation_needs_no_effect(self):
+        self.store.set_stop("C1", "G1")
+        self.store.save_checkpoint(make_checkpoint(phase="stopped", next_gate="saved_result"))
+        result = make_result(stop=self.store.checkpoint("C1").stop)
+        self.store.save_result(result)
+        lease = self.store.begin_disclosure_read(make_binding(), NOW)
+        self.assertEqual(lease.kind, "disclosure_read")
+        self.assertEqual(lease.generation, "G1")
+        self.assertEqual(self.store.intents("C1"), ())
+        self.assertEqual(self.store.saved_result("C1", "G1"), result)
+        checkpoint = self.store.checkpoint("C1")
+        self.assertEqual(checkpoint.phase, "stopped")
+        self.assertEqual(checkpoint.next_gate, "saved_result")
+        self.assertTrue(checkpoint.stop.requested)
+        self.assertEqual(checkpoint.budget.tool_calls, 1)
+        self.assertEqual(checkpoint.budget.active_seconds, 10.0)
+        self.assertEqual(checkpoint.budget.effects, 0)
+        self.assertEqual(checkpoint.budget.reconciliation_reads, {})
+        with self.assertRaises(JournalFailure):
+            self.store.begin_read("C1", NOW)
+        self.reopen()
+        self.assertEqual(self.store.entry(lease.entry_id), lease)
+
+    def test_historical_disclosure_charges_current_case_without_reactivating_generation(self):
+        self.store.set_stop("C1", "G1")
+        result = make_result(stop=self.store.checkpoint("C1").stop)
+        self.store.save_result(result)
+        newer = make_binding(generation="G2", request_revision="v2", supersedes_generation="G1")
+        self.store.admit(newer, make_request(request_revision="v2"), make_checkpoint(binding=newer))
+        self.store.consume("C1", "tool_calls", 2, NOW)
+        self.store.consume("C1", "active_seconds", 3.0, NOW)
+        lease = self.store.begin_disclosure_read(make_binding(), NOW)
+        checkpoint = self.store.checkpoint("C1")
+        self.assertEqual(lease.generation, "G1")
+        self.assertEqual(checkpoint.binding, newer)
+        self.assertTrue(checkpoint.stop.requested)
+        self.assertEqual(checkpoint.budget.tool_calls, 3)
+        self.assertEqual(checkpoint.budget.active_seconds, 13.0)
+        self.assertEqual(checkpoint.budget.effects, 0)
+        self.assertEqual(checkpoint.budget.reconciliation_reads, {})
+        self.assertEqual(self.store.saved_result("C1", "G1"), result)
+        self.assertEqual(self.store.original_request("C1", "G1"), make_request())
+
+    def test_disclosure_requires_exact_historical_input_and_saved_result(self):
+        with self.assertRaises(JournalFailure):
+            self.store.begin_disclosure_read(make_binding(), NOW)
+        self.store.save_result(make_result())
+        with self.assertRaises(JournalFailure):
+            self.store.begin_disclosure_read(make_binding(fingerprint="0" * 64), NOW)
+        absent = make_binding(case_id="C2")
+        self.store.bind(absent)
+        self.store.save_checkpoint(make_checkpoint(binding=absent))
+        self.store.save_result(make_result(binding=absent))
+        with self.assertRaises(JournalFailure):
+            self.store.begin_disclosure_read(absent, NOW)
+        self.assertEqual(self.store.checkpoint("C1").budget.tool_calls, 0)
+        self.assertEqual(self.store.checkpoint("C2").budget.tool_calls, 0)
+
+    def test_disclosure_uses_existing_shared_deadline_and_call_allowance(self):
+        from proofkey.budget import BudgetExceeded
+        self.store.save_result(make_result())
+        with self.assertRaises(BudgetExceeded):
+            self.store.begin_disclosure_read(make_binding(), make_checkpoint().deadline)
+        self.store.consume("C1", "tool_calls", 24, NOW)
+        with self.assertRaises(BudgetExceeded):
+            self.store.begin_disclosure_read(make_binding(), NOW)
+        self.assertEqual(self.store.checkpoint("C1").budget.tool_calls, 24)
+        self.assertEqual(self.store.checkpoint("C1").budget.active_seconds, 0.0)
+
     def test_abrupt_kill_at_real_committed_boundaries(self):
         self.store.close()
         for stage, want_state, want_external, want_verification in (

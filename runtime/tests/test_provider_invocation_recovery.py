@@ -229,3 +229,23 @@ class InvocationTests(unittest.TestCase):
             self.store.reserve_invocation(invocation(grant), NOW)
         self.assertEqual(self.store.campaign_usage(grant.permit_hash)["invocations"], 0)
         self.assertEqual(self.store.checkpoint("C1").budget.tool_calls, 0)
+
+    def test_provider_lease_is_clamped_to_processor_deadline(self):
+        grant = permit()
+        self.store.register_campaign(grant)
+        deadline = NOW + timedelta(seconds=2)
+        self.store.reserve_invocation(invocation(grant, deadline=deadline), NOW)
+        lease = self.store.entry("invocation:invoke-1")
+        self.assertEqual(lease.reserved_seconds, 2.0)
+        self.assertEqual(lease.deadline, deadline)
+        self.assertEqual(self.store.checkpoint("C1").budget.active_seconds, 2.0)
+
+    def test_provider_lease_never_runs_beyond_campaign_expiry(self):
+        expiry = NOW + timedelta(seconds=3)
+        grant = permit(expires_at=expiry)
+        self.store.register_campaign(grant)
+        self.store.reserve_invocation(invocation(grant, deadline=expiry), NOW)
+        lease = self.store.entry("invocation:invoke-1")
+        self.assertEqual(lease.reserved_seconds, 3.0)
+        self.assertEqual(lease.deadline, expiry)
+        self.assertEqual(self.store.checkpoint("C1").budget.active_seconds, 3.0)

@@ -18,7 +18,7 @@ CREATE TABLE invocations(invocation_id TEXT PRIMARY KEY, case_id TEXT NOT NULL, 
  reservation_json TEXT NOT NULL, state TEXT NOT NULL CHECK(state IN ('consumed','outcome_unknown','completed','failed')),
  receipt_json TEXT, FOREIGN KEY(case_id,generation) REFERENCES requests(case_id,generation));
 CREATE TABLE entries(entry_id TEXT PRIMARY KEY, case_id TEXT NOT NULL, generation TEXT NOT NULL,
- kind TEXT NOT NULL CHECK(kind IN ('effect','provider','read')), subject_id TEXT,
+ kind TEXT NOT NULL CHECK(kind IN ('effect','provider','read','disclosure_read')), subject_id TEXT,
  lease_json TEXT NOT NULL, state TEXT NOT NULL CHECK(state IN ('active','settled','overrun')),
  FOREIGN KEY(case_id,generation) REFERENCES requests(case_id,generation));
 CREATE TABLE waits(question_id TEXT PRIMARY KEY, case_id TEXT NOT NULL, generation TEXT NOT NULL,

@@ -133,8 +133,6 @@ class BudgetTests(unittest.TestCase):
         intent = make_intent()
         self.store.prepare(intent)
         self.store.begin_dispatch(intent, NOW)
-        with self.assertRaises(JournalFailure):
-            self.store.begin_dispatch(intent, NOW, is_resend=True)
         self.store.record_verification(intent.action_id, VerificationResult(status="rejected"))
         self.store.begin_dispatch(intent, NOW, is_resend=True)
         self.store.record_verification(intent.action_id, VerificationResult(status="rejected"))
@@ -142,6 +140,69 @@ class BudgetTests(unittest.TestCase):
             self.store.begin_dispatch(intent, NOW, is_resend=True)
         self.assertEqual(self.store.checkpoint("C1").budget.effects, 1)
         self.assertEqual(self.store.checkpoint("C1").budget.tool_calls, 2)
+
+    def test_effect_lease_is_clamped_to_original_intent_deadline(self):
+        deadline = NOW + timedelta(seconds=2)
+        intent = make_intent(deadline=deadline)
+        self.store.prepare(intent)
+        lease = self.store.begin_dispatch(intent, NOW)
+        self.assertEqual(lease.reserved_seconds, 2.0)
+        self.assertEqual(lease.deadline, deadline)
+        self.assertEqual(self.store.checkpoint("C1").budget.active_seconds, 2.0)
+
+    def test_unresolved_resend_uses_same_intent_once_without_rejection_rewrite(self):
+        from proofkey.contracts import VerificationResult
+        for state in ("dispatching", "pending", "outcome_unknown", "rejected"):
+            with self.subTest(state=state), tempfile.TemporaryDirectory() as folder:
+                store = CaseStore(Path(folder) / "journal.sqlite")
+                try:
+                    store.admit(make_binding(), make_request(), make_checkpoint())
+                    intent = make_intent()
+                    store.prepare(intent)
+                    store.begin_dispatch(intent, NOW)
+                    if state != "dispatching":
+                        store.record_verification(intent.action_id, VerificationResult(status=state))
+                    self.assertEqual(store.intents("C1")[0].state, state)
+                    lease = store.begin_dispatch(intent, NOW, is_resend=True)
+                    self.assertEqual(lease.subject_id, intent.action_id)
+                    self.assertEqual(store.intents("C1")[0].intent, intent)
+                    self.assertEqual(store.intents("C1")[0].state, "dispatching")
+                    self.assertIsNone(store.intents("C1")[0].verification)
+                    self.assertEqual(store.checkpoint("C1").budget.effects, 1)
+                    self.assertEqual(store.checkpoint("C1").budget.tool_calls, 2)
+                    self.assertEqual(store.checkpoint("C1").budget.retries[intent.action_id], 1)
+                    with self.assertRaises(BudgetExceeded):
+                        store.begin_dispatch(intent, NOW, is_resend=True)
+                finally:
+                    store.close()
+
+    def test_resend_excludes_prepared_verified_conflict_and_current_fences(self):
+        from proofkey.contracts import VerificationResult
+        for state in ("prepared", "verified", "conflict", "stopped", "transfer_pending"):
+            with self.subTest(state=state), tempfile.TemporaryDirectory() as folder:
+                store = CaseStore(Path(folder) / "journal.sqlite")
+                try:
+                    store.admit(make_binding(), make_request(), make_checkpoint())
+                    intent = make_intent()
+                    store.prepare(intent)
+                    if state != "prepared":
+                        store.begin_dispatch(intent, NOW)
+                    if state == "verified":
+                        store.record_verification(intent.action_id, VerificationResult(status="verified", object_id="O1",
+                            action_id=intent.action_id, fingerprint=intent.argument_fingerprint, postcondition={"slot": "S1"},
+                            evidence_refs=["readback"], as_of=NOW))
+                    elif state == "conflict":
+                        store.record_verification(intent.action_id, VerificationResult(status="conflict"))
+                    elif state == "stopped":
+                        store.set_stop("C1", "G1")
+                    elif state == "transfer_pending":
+                        store.save_checkpoint(make_checkpoint(ownership_state="transfer_pending", ownership_state_revision="new-state"))
+                    before = store.checkpoint("C1").budget
+                    with self.assertRaises(JournalFailure):
+                        store.begin_dispatch(intent, NOW, is_resend=True)
+                    self.assertEqual(store.checkpoint("C1").budget, before)
+                finally:
+                    store.close()
 
     def test_shorter_checkpoint_deadline_bounds_all_reads(self):
         deadline = NOW + timedelta(seconds=4)

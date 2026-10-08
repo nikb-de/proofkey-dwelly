@@ -40,6 +40,7 @@ class TransferRecord(WireModel):
 class CheckpointAudit(WireModel):
     kind: Literal["checkpoint"] = "checkpoint"
     checkpoint_hash: Hash
+    entry_id: Identifier | None = None
 
 
 class CampaignUsage(WireModel):
@@ -59,7 +60,7 @@ class EntryLease(WireModel):
     entry_id: Identifier
     case_id: Identifier
     generation: Identifier
-    kind: Literal["effect", "provider", "read"]
+    kind: Literal["effect", "provider", "read", "disclosure_read"]
     subject_id: Identifier | None = None
     reserved_seconds: PositiveFloat
     started_at: Timestamp
@@ -285,15 +286,18 @@ class CaseStore:
         audit = self._db.execute("SELECT event_json FROM audit WHERE case_id=? ORDER BY sequence DESC LIMIT 1", (case_id,)).fetchone()
         if audit is None or _read(CheckpointAudit, audit[0]).checkpoint_hash != fingerprint(value.model_dump(mode="json")):
             raise JournalFailure("Checkpoint differs from committed accounting audit")
+        audited_entry = _read(CheckpointAudit, audit[0]).entry_id
+        if audited_entry is not None and self.entry(audited_entry).case_id != case_id:
+            raise JournalFailure("Checkpoint audit references another case entry")
         return value
 
     @staticmethod
     def _versions(value):
         return {key: getattr(value, key) for key in ("profile_version", "process_version", "policy_version")}
 
-    def _write_checkpoint(self, value):
+    def _write_checkpoint(self, value, *, entry_id=None):
         self._db.execute("UPDATE cases SET checkpoint_json=?,revision=revision+1 WHERE case_id=?", (value.model_dump_json(), value.binding.case_id))
-        audit = CheckpointAudit(checkpoint_hash=fingerprint(value.model_dump(mode="json")))
+        audit = CheckpointAudit(checkpoint_hash=fingerprint(value.model_dump(mode="json")), entry_id=entry_id)
         self._db.execute("INSERT INTO audit(case_id,event_json) VALUES(?,?)", (value.binding.case_id, audit.model_dump_json()))
 
     def save_checkpoint(self, checkpoint: PhaseCheckpoint):
@@ -402,8 +406,8 @@ class CaseStore:
                 raise BudgetExceeded("Intent deadline expired")
             budget = value.budget
             if is_resend:
-                if record.state != "rejected":
-                    raise JournalFailure("Resend requires rejected original effect and gateway contract proof")
+                if record.state not in {"dispatching", "pending", "outcome_unknown", "rejected"}:
+                    raise JournalFailure("Resend requires eligible unresolved/rejected original and fresh gateway contract proof")
                 budget = debit(budget, "retries:" + intent.action_id, 1, now)
             else:
                 if record.state != "prepared":
@@ -413,17 +417,22 @@ class CaseStore:
                     budget = debit(budget, "clarifications", 1, now)
             budget = debit(budget, "tool_calls", 1, now)
             attempt = budget.retries.get(intent.action_id, 0) + 1
-            budget, lease = self._reserve_entry(value, budget, now, "effect:" + intent.action_id + ":" + str(attempt), "effect", intent.action_id)
+            budget, lease = self._reserve_entry(value, budget, now, "effect:" + intent.action_id + ":" + str(attempt),
+                "effect", intent.action_id, scope_deadline=intent.deadline)
             self._write_checkpoint(PhaseCheckpoint.model_validate({**value.model_dump(), "budget": budget}))
             self._db.execute("UPDATE intents SET dispatch_state='dispatching',verification_json=NULL WHERE action_id=?", (intent.action_id,))
             return lease
 
-    def _reserve_entry(self, checkpoint, budget, now, entry_id, kind, subject_id=None):
-        seconds = tool_timeout(budget, now)
+    def _reserve_entry(self, checkpoint, budget, now, entry_id, kind, subject_id=None, *, scope_deadline=None, scope_binding=None):
+        deadline = min(budget.deadline, scope_deadline) if scope_deadline is not None else budget.deadline
+        seconds = min(tool_timeout(budget, now), (deadline - now).total_seconds())
+        if seconds <= 0:
+            raise BudgetExceeded("Original entry scope deadline exhausted")
         budget = debit(budget, "active_seconds", seconds, now)
-        lease = EntryLease(entry_id=entry_id, case_id=checkpoint.binding.case_id, generation=checkpoint.binding.generation,
+        binding = checkpoint.binding if scope_binding is None else scope_binding
+        lease = EntryLease(entry_id=entry_id, case_id=binding.case_id, generation=binding.generation,
             kind=kind, subject_id=subject_id, reserved_seconds=seconds, started_at=now,
-            deadline=min(budget.deadline, now + timedelta(seconds=seconds)))
+            deadline=min(deadline, now + timedelta(seconds=seconds)))
         self._db.execute("INSERT INTO entries VALUES(?,?,?,?,?,?,?)", (lease.entry_id, lease.case_id,
             lease.generation, lease.kind, lease.subject_id, lease.model_dump_json(), lease.state))
         return budget, lease
@@ -446,6 +455,29 @@ class CaseStore:
             self._write_checkpoint(PhaseCheckpoint.model_validate({**value.model_dump(), "budget": budget}))
             return lease
 
+    def begin_disclosure_read(self, binding: RequestBinding, now):
+        """Host-scoped saved-result disclosure entry; current ACL/purpose is external.
+
+        Historical binding/input/result scope is retained, while the current
+        shared case ledger pays for the read. This is not business recovery,
+        new authority intake, generation admission or a permission grant.
+        """
+        binding = _typed(RequestBinding, binding)
+        with self._transaction():
+            self._assert_binding(binding)
+            if self.original_request(binding.case_id, binding.generation) is None:
+                raise JournalFailure("Disclosure requires durable original historical input")
+            result = self.saved_result(binding.case_id, binding.generation)
+            if result is None:
+                raise JournalFailure("Disclosure requires the exact saved historical result")
+            current = self.checkpoint(binding.case_id)
+            budget = debit(current.budget, "tool_calls", 1, now)
+            result_hash = fingerprint(result.model_dump(mode="json"))
+            budget, lease = self._reserve_entry(current, budget, now, "disclosure:" + uuid4().hex,
+                "disclosure_read", result_hash, scope_binding=binding)
+            self._write_checkpoint(PhaseCheckpoint.model_validate({**current.model_dump(), "budget": budget}), entry_id=lease.entry_id)
+            return lease
+
     def entry(self, entry_id):
         self._schema()
         row = self._db.execute("SELECT * FROM entries WHERE entry_id=?", (entry_id,)).fetchone()
@@ -456,6 +488,11 @@ class CaseStore:
         if (lease.entry_id, lease.case_id, lease.generation, lease.kind, lease.subject_id, lease.state) != (
             row["entry_id"], row["case_id"], row["generation"], row["kind"], row["subject_id"], row["state"]):
             raise JournalFailure("Entry reservation index/scope conflict")
+        if lease.kind == "disclosure_read":
+            result = self.saved_result(lease.case_id, lease.generation)
+            if (self.original_request(lease.case_id, lease.generation) is None or result is None
+                    or lease.subject_id != fingerprint(result.model_dump(mode="json"))):
+                raise JournalFailure("Disclosure lease differs from immutable historical scope")
         return lease
 
     def finish_entry(self, entry_id, elapsed_seconds):
@@ -611,7 +648,8 @@ class CaseStore:
             data = budget.model_dump()
             data["role_allowances"][identity.role].update(invocations=role.invocations + 1, usage=usage, cost=role.cost + request.worst_case_cost)
             budget = type(budget).model_validate(data)
-            budget, _ = self._reserve_entry(value, budget, now, "invocation:" + request.invocation_id, "provider", request.invocation_id)
+            budget, _ = self._reserve_entry(value, budget, now, "invocation:" + request.invocation_id, "provider",
+                request.invocation_id, scope_deadline=min(identity.deadline, permit.expires_at))
             self._write_checkpoint(PhaseCheckpoint.model_validate({**value.model_dump(), "budget": budget}))
             shared = dict(invocations=consumed["invocations"] + 1, cost=consumed["cost"] + request.worst_case_cost, usage=shared_usage)
             self._db.execute("UPDATE campaigns SET consumed_json=?,revision=revision+1 WHERE permit_hash=?", (json.dumps(shared), permit.permit_hash))
@@ -772,5 +810,7 @@ class CaseStore:
             self.transfer(row[0])
         for row in self._db.execute("SELECT case_id,generation FROM results").fetchall():
             self.saved_result(*row)
-        for row in self._db.execute("SELECT event_json FROM audit").fetchall():
-            _read(CheckpointAudit, row[0])
+        for row in self._db.execute("SELECT case_id,event_json FROM audit").fetchall():
+            audit = _read(CheckpointAudit, row[1])
+            if audit.entry_id is not None and self.entry(audit.entry_id).case_id != row[0]:
+                raise JournalFailure("Audit references another case entry")
