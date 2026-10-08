@@ -401,6 +401,10 @@ class CaseStore:
         self._schema()
         return tuple(self._intent(row[0]) for row in self._db.execute("SELECT action_id FROM intents WHERE case_id=? ORDER BY rowid", (case_id,)).fetchall())
 
+    def intent(self, action_id):
+        """Trusted-host exact original lookup; never a public existence endpoint."""
+        return self._intent(action_id)
+
     def prepare(self, intent: EffectIntent):
         intent = _typed(EffectIntent, intent)
         with self._transaction():
