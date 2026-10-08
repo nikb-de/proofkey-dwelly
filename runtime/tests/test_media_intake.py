@@ -1,5 +1,8 @@
 """Breaks caught: fabricated decoding/ASR, forged records and lost failure states."""
 import unittest
+from unittest.mock import patch
+from pypdf import PdfReader
+from pypdf.generic import EncodedStreamObject
 
 from proofkey.evidence.intake import inspect_content, IntakeLimits
 from proofkey.evidence.catalog import EvidenceAccessDenied
@@ -82,3 +85,56 @@ class MediaTests(unittest.TestCase):
                                         (record, AUTH, None)):
             with self.subTest(candidate=candidate), self.assertRaises(EvidenceAccessDenied):
                 inspect_content(candidate, IntakeLimits(), catalog=catalog, auth=auth)
+
+    def test_actual_repeated_deep_cyclic_and_count_trees_fail(self):
+        for name in ("repeated-page.pdf", "repeated-subtree.pdf", "cyclic-pages.pdf",
+                     "deep-pages.pdf", "oversized-count.pdf", "too-many-pages.pdf"):
+            with self.subTest(name=name):
+                receipt = self.inspect(name)
+                self.assertEqual((receipt.status, receipt.mode), ("failed", "deterministic"))
+                self.assertIsNone(receipt.output)
+                self.assertEqual(receipt.available_coordinates, [])
+
+    def test_real_pdf_parser_never_uses_unbounded_flatten(self):
+        # Narrow unsafe-allocation trap: all actual PDF bytes/parser objects are real.
+        # Calling this dependency operation is the bug, even if rejection follows.
+        with patch.object(PdfReader, "_flatten", side_effect=AssertionError("unbounded_flatten_called")):
+            for name in ("repeated-subtree.pdf", "cyclic-pages.pdf", "deep-pages.pdf",
+                         "oversized-count.pdf", "too-many-pages.pdf"):
+                with self.subTest(name=name):
+                    receipt = self.inspect(name)
+                    self.assertEqual(receipt.status, "failed")
+                    self.assertEqual(receipt.reason, "Format decoding failed: ValueError")
+            receipt = self.inspect("two-pages.pdf")
+            self.assertEqual(receipt.status, "completed")
+            self.assertEqual([item.page for item in receipt.available_coordinates], [1, 2])
+
+    def test_page_tree_node_reference_and_depth_budgets_enforced(self):
+        for limits in (IntakeLimits(max_pdf_nodes=2), IntakeLimits(max_pdf_references=1),
+                       IntakeLimits(max_pdf_depth=1)):
+            with self.subTest(limits=limits):
+                receipt = self.inspect("two-pages.pdf", limits)
+                self.assertEqual(receipt.status, "failed")
+                self.assertIsNone(receipt.output)
+
+    def test_compressed_xref_and_object_stream_routes_unavailable_before_decode(self):
+        names = ("xref-stream-bomb.pdf", "escaped-xref-stream-bomb.pdf", "hybrid-xref-stream-bomb.pdf",
+                 "escaped-hybrid-xref-stream-bomb.pdf",
+                 "previous-xref-stream-bomb.pdf", "object-stream-bomb.pdf")
+        # Trap the exact unsafe dependency operation; input, xref dispatch and
+        # parser are real. A pre-limit get_data produces failed, not unavailable.
+        with patch.object(EncodedStreamObject, "get_data", side_effect=AssertionError("unbounded_stream_decode_called")):
+            for name in names:
+                with self.subTest(name=name):
+                    receipt = self.inspect(name)
+                    self.assertEqual((receipt.status, receipt.mode), ("unavailable", "unavailable"))
+                    self.assertIsNone(receipt.output)
+                    self.assertIn("compressed", receipt.reason)
+            self.assertEqual(self.inspect("synthetic.pdf").status, "completed")
+            self.assertEqual(self.inspect("classic-v15.pdf").status, "completed")
+
+    def test_untested_pdf_library_version_fails_closed(self):
+        with patch("importlib.metadata.version", return_value="6.11.0"):
+            receipt = self.inspect("synthetic.pdf")
+            self.assertEqual((receipt.status, receipt.mode), ("unavailable", "unavailable"))
+            self.assertIsNone(receipt.output)
