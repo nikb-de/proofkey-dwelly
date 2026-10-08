@@ -12,6 +12,8 @@
 
 **Approval record:** On 8 October 2026 the user replied “да делай автономно” to approval of the updated written design and proceeding to detailed planning. All 18 original and ten follow-up decisions are retained. This plan is prepared autonomously with independent read-only coverage review. It is not an implementation receipt or approval of paid/native/publication actions. Written plan review precedes product implementation under the preserved workflow; do not infer approval of a previously unwritten plan from design approval.
 
+**Execution approval:** The subsequent “да” approves this written plan and subagent-driven implementation; “да делай уже блять” confirms the managed worktree. Implementation runs in `/Users/nbk/.codex/worktrees/proofkey-runtime/Pitch project` on `codex/proofkey-runtime`, based on `e851629`. Routine local implementation continues autonomously; external/spend/publication boundaries remain unchanged. This approval is not a runtime completion receipt.
+
 ## Global Constraints
 
 The following project constraints are copied from the approved design; concrete implementation details below implement them, not relax them.
@@ -111,7 +113,7 @@ Task 1 defines the strict schemas below; its consumers must use these names/fiel
 
 | Type | Required public fields |
 |---|---|
-| `CanonicalRequest` | `case_id`, `object_id`, `principal_id`, `request_id`, `request_revision`, `consent_revision`, `kind`, `consent_mode`, `arguments`, `evidence_ids`, optional `narrative`; transport event ID is not business identity |
+| `CanonicalRequest` | `case_id`, `object_id`, `principal_id`, `request_id`, `request_revision`, `consent_revision`, `kind`, `consent_mode` (`window`, `exact_slot`, explicit `unknown`), `arguments`, `evidence_ids`, optional `narrative`; input modality/no-text is distinct from consent; transport event ID is not business identity |
 | `AuthContext` | `caller_id`, `proof_reference`; not permission flags supplied in a body |
 | `ReadRequest` / `ReadTarget` | case/object, caller/proof reference, purpose, bounded deadline and a tagged target: authority facts, original effect (operation/generation/action/provider key/fingerprint), transfer (transfer/packet/revision), operator packet or question; no hidden-world selector |
 | `RequestBinding` | case/object/principal/request identity, historical revisions, durable `generation`, intent `fingerprint`, optional supersession relation |
@@ -130,12 +132,12 @@ Task 1 defines the strict schemas below; its consumers must use these names/fiel
 | `ArtifactRecord` / `ProcessingReceipt` | original hash/MIME/source/case/access/time/lineage; invocation/role/provider/requested-and-observed model/prompt/version/input hashes/mode/status/latency/usage and typed output (assertions, transcript or bounded `ActionProposal`) plus output hashes/references/available coordinates |
 | `EvidenceAssertion` | artifact/content/lineage, tagged locator (text span, page/region, audio time or unknown), uncertainty and source-processing receipt; no invented coordinates |
 | `CampaignPermit` | exact input hashes/role/provider/model/endpoint, privacy/rights approval, finite cost/usage/invocation ceilings, expiry and approval receipt; simulated versus actual authorization distinct |
-| `ProcessorIdentity` / `InvocationRequest` / `InvocationReservation` | immutable case/generation/role, campaign/permit hash, input hashes, requested provider/model/endpoint/prompt/version, profile/process and deadline, reserved invocation/usage/worst-case cost; unique invocation ID, consumed/unknown status and shared case/role/campaign debits |
+| `ProcessorIdentity` / `InvocationRequest` / `InvocationReservation` | immutable case/generation/role (`extraction`, `transcription`, `planning`), campaign/permit hash, input hashes, requested provider/model/endpoint/prompt/version, profile/process and deadline, reserved invocation/usage/worst-case cost; unique invocation ID, consumed/unknown status and shared case/role/campaign debits |
 | `ActionProposal` | operation/stage/arguments/evidence references only; no permissions, adapter code or invented authority |
 | `GateDecision` | allowed flag, explicit reason and denied-path `VerificationResult`; a policy denial is not provider business acceptance |
 | `SavedResult` / `CaseResult` | saved authorized results require binding/fingerprint, result version/as-of, per-effect independent states, stop, wait/handoff/media status, evidence/policy references, concise rationale and historical flag; denied/error CaseResult has no stored binding/evidence/effects and only caller-supplied correlation ID plus generic reason. Read-only `case_id` delegates to authorized binding or supplied correlation ID; `exportable` means valid auditable response, not business success |
-| `ProcessSpec` / `EnvironmentProfile` | finite allowed phases/edges/operations, prerequisites/waits/approval/ack/readback/completion, mappings/authority/capabilities/policy hashes and original versioned releases |
-| `AdaptationProposal` / `ReviewPacket` / `ReleaseReceipt` | source/baseline/proposal/diff/test/migration and agent hashes; regression hash, affected pending contracts and actual/simulated human approval; immutable release hashes/version and preserved old contracts |
+| `ProcessSpec` / `EnvironmentProfile` | finite allowed phases/edges/operations, prerequisites/waits/approval/ack/readback/completion, mappings/authority/capabilities/policy hashes and original versioned releases; profile carries typed `processes` by request kind for frozen graph selection |
+| `AdaptationProposal` / `ReviewPacket` / `ReleaseReceipt` | source/baseline/proposal/diff/test/migration and agent hashes; regression hash, affected pending contracts and actual/simulated human approval; typed proposed profile/process bundle and compatibility material, fail closed if absent at release; immutable release hashes/version and preserved old contracts |
 | `HumanReviewApproval` | exact proposal/regression hashes, named reviewer identity/proof/scope, decision/time and actual-versus-simulated mode; neither runtime input nor model consensus can mint actual approval |
 | `ExportReceipt` / `BatchReceipt` | original supplied case IDs, safe output names/hashes or visible failures, every-case ledger, budget/deadline/as-of and measured reserve |
 | `LedgerAudit` / `CaseAssessment` / `QualificationReceipt` | source/reference/label/rubric/lineage hashes, complete denominators/ambiguity, per-effect verdicts, repeatability/sensitivity/noise results and explicit qualification limits |
@@ -322,7 +324,7 @@ except BaseException:
 
 **Files:** Create `runtime/src/proofkey/{journal,budget}.py`, `runtime/src/proofkey/schema.sql`, `runtime/tests/{test_journal,test_budgets,test_provider_invocation_recovery}.py`, `runtime/tests/crash_worker.py`.
 
-**Interfaces:** `CaseStore(path,before_commit=None)` exposes `bind(RequestBinding)`, `find_request(case_id,request_id,request_revision,consent_revision,fingerprint) -> RequestBinding | None`, `save_checkpoint(PhaseCheckpoint)`, `checkpoint(case_id) -> PhaseCheckpoint`, `prepare(EffectIntent)`, `begin_dispatch(intent,now,is_resend=False)` (atomic current stop/ownership eligibility, distinct-effect/call debit and dispatch mark), `mark_dispatch_started(action_id)` (test/recovery fixture construction only), `record_verification(action_id, VerificationResult)`, `intents(case_id)`, `set_stop(case_id,generation)`, `consume(case_id,kind,amount,now)`, `reserve_invocation(request: InvocationRequest,now) -> InvocationReservation`, `record_processing(invocation_id,ProcessingReceipt)`, `save_result(SavedResult)` and `saved_result(case_id,generation)`. `close()` releases the connection. One journal/accounting database owns all cases sharing a campaign: invocation reservation atomically binds exact inputs/route/permit and debits case, role and campaign invocation/usage/worst-case-cost allowances in one transaction. `BudgetExceeded` and `JournalFailure` never authorize transport. Optional `before_commit` is an injected host callback, never a runtime tool; support adds `CommitFault.arm()`/`__call__()` to raise `JournalFailure` on the next commit for an exact fault test.
+**Interfaces:** `CaseStore(path,before_commit=None)` exposes `bind(RequestBinding)`, `find_request(case_id,request_id,request_revision,consent_revision,fingerprint) -> RequestBinding | None`, `save_checkpoint(PhaseCheckpoint)`, `checkpoint(case_id) -> PhaseCheckpoint`, `prepare(EffectIntent)`, `begin_dispatch(intent,now,is_resend=False)` (atomic current stop/ownership eligibility, distinct-effect/call debit and dispatch mark), `record_verification(action_id, VerificationResult)`, `intents(case_id)`, `set_stop(case_id,generation)`, `consume(case_id,kind,amount,now)`, `reserve_invocation(request: InvocationRequest,now) -> InvocationReservation`, `record_processing(invocation_id,ProcessingReceipt)`, `save_result(SavedResult)` and `saved_result(case_id,generation)`. `close()` releases the connection. Fault fixtures use this production transaction, not a test-only public dispatch-state bypass. One journal/accounting database owns all cases sharing a campaign: invocation reservation atomically binds exact inputs/route/permit and debits case, role and campaign invocation/usage/worst-case-cost allowances in one transaction. `BudgetExceeded` and `JournalFailure` never authorize transport. Optional `before_commit` is an injected host callback, never a runtime tool; support adds `CommitFault.arm()`/`__call__()` to raise `JournalFailure` on the next commit for an exact fault test.
 
 - [ ] **Step 1 — failing durability and provider-debit tests.**
 
@@ -404,7 +406,7 @@ class GatewayTests(unittest.TestCase):
             store.save_checkpoint(make_checkpoint())
             intent = make_intent()
             store.prepare(intent)
-            store.mark_dispatch_started(intent.action_id)
+            store.begin_dispatch(intent, FakeClock().now())
             store.set_stop("C1", "G1")
             world.set_fault("read_schedule", "terminal_not_executed")
             gateway = ActionGateway(load_test_profile(), world.bundle(), store, FakeClock())
@@ -668,7 +670,7 @@ All four CLI helpers/properties are defined/validated here; `exportable` means a
 
 **Files:** Create `runtime/src/proofkey/evidence/{__init__,catalog,intake,redaction}.py`, `runtime/tests/{test_evidence_catalog,test_media_intake}.py`, synthetic `runtime/fixtures/development/media/` and its provenance manifest.
 
-**Interfaces:** `EvidenceCatalog(root,clock=None).register(path,case_id,source,scope) -> ArtifactRecord`, `.get(artifact_id,auth) -> ArtifactRecord`, `.assertion(artifact_id,content,locator) -> EvidenceAssertion`; `inspect_content(record, declared_limits) -> ProcessingReceipt`; `redact_derivative(record,rule_set,rights) -> ArtifactRecord`. Catalog owns the injected/default aware UTC clock. Task 1 defines `EvidenceAssertion` and explicit unknown locators. `declared_limits` and rights are trusted profile/review inputs, not narrative instructions. Registering the known synthetic input path is explicitly allowlisted in the test catalog; arbitrary caller-selected roots are not.
+**Interfaces:** `EvidenceCatalog(root,clock=None,*,allowed_input_roots,access_resolver).register(path,case_id,source,scope) -> ArtifactRecord`, `.get(artifact_id,auth) -> ArtifactRecord`, `.assertion(artifact_id,content,locator) -> EvidenceAssertion`; `inspect_content(record, declared_limits) -> ProcessingReceipt`; `redact_derivative(record,rule_set,rights) -> ArtifactRecord`. Catalog owns the injected/default aware UTC clock. Input roots and the proof-aware access resolver are trusted construction inputs, never request-body choices; absent proof/access fails closed. Task 1 defines `EvidenceAssertion` and explicit unknown locators. `declared_limits` and rights are trusted profile/review inputs, not narrative instructions. Registering the known synthetic input path is explicitly allowlisted in the test catalog; arbitrary caller-selected roots are not.
 
 - [ ] **Step 1 — red scoped access and supplied-transcript separation.**
 
@@ -681,14 +683,17 @@ from support import make_auth
 class EvidenceTests(unittest.TestCase):
     def test_new_owner_does_not_inherit_recording_scope(self):
         with tempfile.TemporaryDirectory() as folder:
-            catalog = EvidenceCatalog(Path(folder) / "evidence")
+            fixture_root = Path("runtime/fixtures/development/media").resolve()
+            catalog = EvidenceCatalog(Path(folder) / "evidence",
+                                      allowed_input_roots=[fixture_root],
+                                      access_resolver=synthetic_proof_resolver)
             record = catalog.register(Path("runtime/fixtures/development/media/synthetic.wav"),
                                       "C1", "synthetic_fixture", {"allowed_actors": ["OP1"]})
             with self.assertRaises(EvidenceAccessDenied):
                 catalog.get(record.artifact_id, make_auth(caller_id="OP2"))
 ```
 
-Also test original byte hash/MIME/source/scope/time, derivative hash/lineage, malformed/encrypted/unsupported/unavailable/failed media, text/span/page/region/audio locators without invented coordinates, conflicting assertions and no auto-delete/publication. Supported first formats: UTF-8 TXT/JSON, supplied transcript, JPEG/PNG, unencrypted PDF, WAV/MP3. Every missing decoder/content right remains visible. A supplied transcript is text, never proof of ASR.
+Define the trusted synthetic proof resolver in the fixture, not as a production test shortcut. Also test claimed authorized actor with wrong proof, allowlist escape/symlink, original byte hash/MIME/source/scope/time, derivative hash/lineage, malformed/encrypted/unsupported/unavailable/failed media, text/span/page/region/audio locators without invented coordinates, conflicting assertions and no auto-delete/publication. Supported first formats: UTF-8 TXT/JSON, supplied transcript, JPEG/PNG, unencrypted PDF, WAV/MP3. Every missing decoder/content right remains visible. A supplied transcript is text, never proof of ASR.
 - [ ] **Step 2 — red.** Run `PYTHONPATH=runtime/src:runtime/tests python3 -m unittest discover -s runtime/tests -p 'test_evidence_catalog.py' -v` and `test_media_intake.py` before implementation; reject unsafe paths/oversized content before decoder calls.
 - [ ] **Step 3 — implement catalog/intake/lineage, not synthetic semantic findings.**
 
@@ -977,4 +982,4 @@ R01 → 2/6; R02–R04 → 4/5/7/13; R05 → 6/7; R06/R08 → 7; R07 → 4/6/12;
 
 Root self-review covered the four capability specs against the table and each task's interface/test/code steps, checked consumer signatures and dependency order, resolved undefined schemas/helpers, and assigned all five Review Focus tests. Placeholder/link/fence/OpenSpec checks and two targeted same-model reviews are recorded in [the planning review receipt](2026-10-08-proofkey-runtime-review.md). Independent coverage/review agents supplement, not replace, this root self-review. The plan is not runtime code: code blocks are implementation/test anchors, and each owning task must implement and exercise **all listed independent failure drivers**, not only paste one green example.
 
-Recommended execution is subagent-driven development with frozen contracts and one owner per shared file, scoped parallel adapter/journal/evidence work, per-task spec/quality review and whole-candidate review. The user asked autonomous preparation; do not require them to answer the same discovery questions again. Preserve their accepted choices. Written plan review/execution handoff remains distinct from design approval; no new implementation or external permissions are fabricated by this file.
+Approved execution is subagent-driven development with frozen contracts and one owner per shared file, scoped parallel adapter/journal/evidence work, per-task spec/quality review and whole-candidate review. The user approved the written plan and worktree; do not require them to answer the same discovery or routine execution questions again. Preserve their accepted choices. Native/paid/publication/security gates remain separate; only actual implementation/review evidence can complete tasks.

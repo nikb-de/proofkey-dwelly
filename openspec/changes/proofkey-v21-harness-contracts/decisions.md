@@ -1,6 +1,6 @@
 # Design decision ledger — revision 8 October 2026
 
-Status: original 18 choices and all ten confirmed Drive follow-up choices recorded; the user's earlier “да” closes follow-up 5. The subsequent “да делай автономно” on 8 October approves the revised written design and autonomous detailed planning. New written-plan review/execution handoff remains separate. This ledger is not implementation evidence or permission to publish, contact the team, connect logistics systems or spend from providers.
+Status: original 18 choices and all ten confirmed Drive follow-up choices recorded; the user's earlier “да” closes follow-up 5. The subsequent “да делай автономно” on 8 October approves the revised written design and autonomous detailed planning. The later “да” approves the written plan/subagent execution, and “да делай уже блять” approves the managed worktree. Local implementation is active. This ledger is not implementation evidence or permission to publish, contact the team, connect logistics systems or spend from providers.
 
 | # | User decision | Design consequence / interpretation |
 |---|---|---|
@@ -46,4 +46,4 @@ The [original ten questions and reply ledger](follow-up-questions.md) preserve c
 
 ## Still not decided by these answers
 
-New written-plan review/execution handoff; exact dependencies/model identities, native operation/ownership contracts, bounded waiting policy values, cloud deployment/authentication, exact media retention duration, cost ceiling, native connected services, event team registrations, protected holdout custody and organizer freeze/eligibility clarification. Written design is approved; safe local implementation can proceed after the plan handoff without pretending these facts are known.
+Exact model identities, native operation/ownership contracts, bounded native waiting policy values, cloud deployment/authentication, exact media retention duration, live cost ceiling, native connected services, event team registrations, protected holdout custody and organizer freeze/eligibility clarification. Written design, plan and local execution/worktree are approved; safe local implementation proceeds without pretending these external facts are known. Tested dependency pins are captured during implementation, not inferred from planning.
