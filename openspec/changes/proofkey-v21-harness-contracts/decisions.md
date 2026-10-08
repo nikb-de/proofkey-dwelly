@@ -1,6 +1,6 @@
 # Design decision ledger — revision 8 October 2026
 
-Status: original 18 choices and all ten confirmed Drive follow-up choices recorded; the user's later “да” closes follow-up 5. The revised written design is pending review. This ledger is not implementation evidence or permission to publish, contact the team, connect logistics systems or spend from providers.
+Status: original 18 choices and all ten confirmed Drive follow-up choices recorded; the user's earlier “да” closes follow-up 5. The subsequent “да делай автономно” on 8 October approves the revised written design and autonomous detailed planning. New written-plan review/execution handoff remains separate. This ledger is not implementation evidence or permission to publish, contact the team, connect logistics systems or spend from providers.
 
 | # | User decision | Design consequence / interpretation |
 |---|---|---|
@@ -46,4 +46,4 @@ The [original ten questions and reply ledger](follow-up-questions.md) preserve c
 
 ## Still not decided by these answers
 
-Written-design approval; exact dependencies/model identities, native operation/ownership contracts, bounded waiting policy values, cloud deployment/authentication, exact media retention duration, cost ceiling, native connected services, event team registrations, protected holdout custody and organizer freeze/eligibility clarification. Safe local preparation can proceed after design/plan review without pretending these facts are known.
+New written-plan review/execution handoff; exact dependencies/model identities, native operation/ownership contracts, bounded waiting policy values, cloud deployment/authentication, exact media retention duration, cost ceiling, native connected services, event team registrations, protected holdout custody and organizer freeze/eligibility clarification. Written design is approved; safe local implementation can proceed after the plan handoff without pretending these facts are known.

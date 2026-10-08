@@ -4,7 +4,7 @@ ProofKey prepares an adaptive development and evaluation harness for an unfamili
 
 The original v2, v2.1 and v2.2 documents and their assessment packets are immutable preparation baselines. This active runtime design incorporates the user's 18 answers and all ten confirmed Drive follow-up choices; the later “да” clarified follow-up 5. Revised 8 October 2026, Europe/London. The engineer is the primary user; priorities are easy integration, rapid adaptation, then reliable resolution. Actual environment permissions and completion semantics remain discovery dependencies. See [decisions](decisions.md), [public research](research.md), [unknowns](discovery.md) and [acceptance](acceptance.md).
 
-**Review status:** the six adapter surfaces and design choices are confirmed. This revised written design requires review before the detailed implementation plan and product coding. No code, installation, live call or runtime drill is performed by this revision.
+**Review status:** the six adapter surfaces and design choices are confirmed. The user approved this revised written design and autonomous detailed planning on 8 October with “да делай автономно”. The [detailed implementation plan](../../../docs/superpowers/plans/2026-10-08-proofkey-runtime.md) is a separate review/execution handoff before product coding. No code, installation, live call or runtime drill is performed by this revision.
 
 **Drive revision, 8 October:** [Drive workflow v3](drive-workflow-v3.md) adds original rescheduling/operator diagrams and a source-linked crosswalk. Confirmed follow-up choices now specify both consent modes, durable stop/phase recovery, facts-only operator help, versioned owner transfer, bounded waiting, record-only internal-case disposition and ProcessSpec-first documentation. [Process views](process-profiles.md) add the goods refusal/return companion and source-linked regression obligations. These are written design artifacts, not implemented ProcessSpec/runtime evidence. Follow-up 5 now confirms authenticated saved-result replay without repeated actions/messages or automatic business-status refresh.
 
@@ -204,7 +204,7 @@ Before a live connection, record native authority/permissions, conditional-write
 
 ## Open questions
 
-- The user's choices are captured in [decisions](decisions.md). Approval of this revised written design and detailed-plan execution handoff remains outstanding.
+- The user's choices are captured in [decisions](decisions.md). Revised written-design approval is recorded; review/execution handoff of the newly written detailed plan remains outstanding.
 - What exact waiting expiry/transfer limits and evidence retention duration apply? Automatic reminders and native diagram synchronization are off; missing policy cannot be filled by guesswork.
 - Which event team registrations, review availability and dated go/no-go checkpoints are confirmed? Local coding can use the user and agents without waiting for five human developers.
 - Which native tools, fact authorities, retry/version guarantees and completion/handoff semantics will the organizers expose?
