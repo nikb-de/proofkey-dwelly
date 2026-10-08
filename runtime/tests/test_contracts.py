@@ -147,6 +147,25 @@ def wire_examples():
 
 
 class ContractTests(unittest.TestCase):
+    def test_processing_receipt_accepts_explicit_intake_deterministic_and_replay_modes(self):
+        payload = wire_examples()["ProcessingReceipt"]
+        for mode in ("intake_only", "deterministic", "recorded_replay", "replay", "synthetic", "actual", "unavailable"):
+            with self.subTest(mode=mode):
+                receipt = c.ProcessingReceipt.model_validate({**payload, "mode": mode})
+                self.assertEqual(receipt.mode, mode)
+                wire = receipt.model_dump_json()
+                self.assertEqual(json.loads(wire)["mode"], mode)
+                self.assertEqual(c.ProcessingReceipt.model_validate_json(wire).mode, mode)
+
+    def test_processing_receipt_rejects_unsupported_or_coerced_modes(self):
+        payload = wire_examples()["ProcessingReceipt"]
+        for mode in ("processed", "live", "provider-free", "", True, 1, None):
+            with self.subTest(mode=mode):
+                with self.assertRaises(ValueError):
+                    c.ProcessingReceipt.model_validate({**payload, "mode": mode})
+                with self.assertRaises(ValueError):
+                    c.ProcessingReceipt.model_validate_json(json.dumps({**payload, "mode": mode}))
+
     def test_denied_and_error_reason_reject_private_account_canary(self):
         for status in ("denied", "error"):
             payload = {"status": status, "correlation_id": "public-id",

@@ -635,7 +635,8 @@ class ProcessingReceipt(WireModel):
     prompt_hash: Hash
     version: Revision
     input_hashes: list[Hash]
-    mode: Literal["replay", "synthetic", "actual", "unavailable"]
+    # "actual" denotes the declared actual provider/coding role, not a parser.
+    mode: Literal["intake_only", "deterministic", "recorded_replay", "replay", "synthetic", "actual", "unavailable"]
     status: ProcessingStatus
     latency_seconds: NonnegativeFloat
     usage: dict[str, NonnegativeFloat]
