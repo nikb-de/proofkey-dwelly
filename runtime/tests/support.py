@@ -102,3 +102,18 @@ class FakeClock:
 
     def advance(self, seconds: float) -> None:
         self._now += timedelta(seconds=seconds)
+
+
+class CommitFault:
+    """Host-only transaction failure fixture, deliberately not a runtime tool."""
+    def __init__(self):
+        self._armed = False
+
+    def arm(self):
+        self._armed = True
+
+    def __call__(self):
+        if self._armed:
+            self._armed = False
+            from proofkey.journal import JournalFailure
+            raise JournalFailure("Injected host commit fault")

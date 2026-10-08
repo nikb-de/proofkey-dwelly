@@ -1,0 +1,776 @@
+"""Single SQLite authority for local intent recovery and shared pre-entry budgets.
+
+No external action is performed here. A successful pre-entry commit is required
+before a gateway enters transport; it is not proof of an external outcome.
+"""
+from contextlib import contextmanager
+from datetime import timedelta
+from pathlib import Path
+import json
+import math
+import sqlite3
+from typing import Literal
+from uuid import uuid4
+
+from pydantic import model_validator
+
+from .budget import BudgetExceeded, check_time, debit, initial_budget, preserve_budget, tool_timeout, validate_budget
+from .contracts import (CampaignPermit, CanonicalRequest, EffectIntent, InvocationRequest, InvocationReservation,
+                        Hash, Identifier, NonnegativeFloat, NonnegativeInt, PositiveFloat, Revision, Timestamp,
+                        PhaseCheckpoint, ProcessingReceipt, RequestBinding, SavedResult,
+                        StopState, TransferIntent, VerificationResult, WaitState, WireModel)
+from .identity import fingerprint, request_fingerprint
+
+
+class JournalFailure(RuntimeError):
+    """Storage/identity failure; never permission to enter a transport."""
+
+
+class IntentRecord(WireModel):
+    intent: EffectIntent
+    state: Literal["prepared", "dispatching", "verified", "rejected", "pending", "outcome_unknown", "conflict"]
+    verification: VerificationResult | None = None
+
+
+class TransferRecord(WireModel):
+    intent: TransferIntent
+    state: Literal["prepared", "pending", "accepted", "outcome_unknown", "rejected"]
+
+
+class CheckpointAudit(WireModel):
+    kind: Literal["checkpoint"] = "checkpoint"
+    checkpoint_hash: Hash
+
+
+class CampaignUsage(WireModel):
+    invocations: NonnegativeInt
+    cost: NonnegativeFloat
+    usage: dict[str, NonnegativeFloat]
+
+
+class FrozenVersions(WireModel):
+    profile_version: Revision
+    process_version: Revision
+    policy_version: Revision
+
+
+class EntryLease(WireModel):
+    """Host-only active-time reservation; a snapshot is never entry permission."""
+    entry_id: Identifier
+    case_id: Identifier
+    generation: Identifier
+    kind: Literal["effect", "provider", "read"]
+    subject_id: Identifier | None = None
+    reserved_seconds: PositiveFloat
+    started_at: Timestamp
+    deadline: Timestamp
+    state: Literal["active", "settled", "overrun"] = "active"
+    elapsed_seconds: NonnegativeFloat | None = None
+
+    @model_validator(mode="after")
+    def consistent_completion(self):
+        if self.reserved_seconds > 10.0 or self.deadline <= self.started_at or self.deadline > self.started_at + timedelta(seconds=self.reserved_seconds):
+            raise ValueError("Lease must retain its bounded entry deadline")
+        if self.state == "active" and self.elapsed_seconds is not None:
+            raise ValueError("Active lease cannot pretend observed completion")
+        if self.state != "active" and self.elapsed_seconds is None:
+            raise ValueError("Finished lease requires observed elapsed time")
+        if self.state == "settled" and self.elapsed_seconds > self.reserved_seconds:
+            raise ValueError("Overrun cannot refund capacity")
+        if self.state == "overrun" and self.elapsed_seconds <= self.reserved_seconds:
+            raise ValueError("Overrun must retain its observed violation")
+        return self
+
+
+def _json(raw):
+    def pairs(items):
+        result = {}
+        for key, value in items:
+            if key in result:
+                raise ValueError("Duplicate stored JSON key")
+            result[key] = value
+        return result
+    try:
+        return json.loads(raw, object_pairs_hook=pairs, parse_constant=lambda value: (_ for _ in ()).throw(ValueError("Nonfinite JSON")))
+    except (ValueError, TypeError) as error:
+        raise JournalFailure("Stored JSON is malformed") from error
+
+
+def _read(model, raw):
+    try:
+        return model.model_validate(_json(raw))
+    except (ValueError, TypeError) as error:
+        raise JournalFailure("Stored record incompatible with strict wire schema") from error
+
+
+def _typed(model, value):
+    if not isinstance(value, model):
+        raise JournalFailure("Expected typed immutable record")
+    return _read(model, value.model_dump_json())
+
+
+def _usage(raw):
+    return _read(CampaignUsage, raw).model_dump()
+
+
+class CaseStore:
+    SCHEMA_VERSION = 1
+
+    def __init__(self, path, before_commit=None):
+        self._db = None
+        self._before_commit = before_commit
+        try:
+            schema = Path(__file__).with_name("schema.sql").read_text()
+            reference = sqlite3.connect(":memory:")
+            try:
+                reference.executescript(schema)
+                self._expected_schema = reference.execute("SELECT type,name,sql FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' ORDER BY type,name").fetchall()
+            finally:
+                reference.close()
+            self._db = sqlite3.connect(str(path), isolation_level=None, timeout=10)
+            self._db.row_factory = sqlite3.Row
+            self._db.execute("PRAGMA foreign_keys=ON")
+            self._db.execute("PRAGMA journal_mode=WAL")
+            self._db.execute("PRAGMA synchronous=FULL")
+            if self.settings != {"journal_mode": "wal", "synchronous": 2, "foreign_keys": 1}:
+                raise JournalFailure("Required SQLite durability settings unavailable")
+            tables = {row[0] for row in self._db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+            if not tables:
+                self._db.executescript("BEGIN IMMEDIATE;\n" + schema + "\nCOMMIT;")
+            self._db.execute("BEGIN")
+            self._validate_all()
+            self._db.execute("COMMIT")
+        except (sqlite3.Error, OSError, ValueError, JournalFailure) as error:
+            self.close()
+            raise JournalFailure("Journal cannot be opened safely") from error
+
+    @property
+    def settings(self):
+        return {name: self._db.execute("PRAGMA " + name).fetchone()[0]
+                for name in ("journal_mode", "synchronous", "foreign_keys")}
+
+    def close(self):
+        if self._db is not None:
+            self._db.close()
+            self._db = None
+
+    def _schema(self):
+        if self._db is None:
+            raise JournalFailure("Journal is closed")
+        try:
+            actual = [tuple(row) for row in self._db.execute("SELECT type,name,sql FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' ORDER BY type,name")]
+            if actual != self._expected_schema:
+                raise JournalFailure("Incompatible journal table/constraint schema")
+            rows = self._db.execute("SELECT version FROM schema_meta").fetchall()
+            if len(rows) != 1 or type(rows[0][0]) is not int or rows[0][0] != self.SCHEMA_VERSION:
+                raise JournalFailure("Incompatible journal schema version")
+        except sqlite3.Error as error:
+            raise JournalFailure("Missing journal schema") from error
+
+    @contextmanager
+    def _transaction(self):
+        if self._db is not None and self._db.in_transaction:
+            # Atomic host admission composes the same production operations.
+            yield
+            return
+        try:
+            self._schema()
+            self._db.execute("BEGIN IMMEDIATE")
+            yield
+            if self._before_commit is not None:
+                self._before_commit()
+            self._db.execute("COMMIT")
+        except BaseException as error:
+            if self._db is not None and self._db.in_transaction:
+                self._db.execute("ROLLBACK")
+            if isinstance(error, sqlite3.Error):
+                raise JournalFailure("Journal transaction failed") from error
+            raise
+
+    def _binding(self, case_id, generation):
+        self._schema()
+        row = self._db.execute("SELECT * FROM requests WHERE case_id=? AND generation=?", (case_id, generation)).fetchone()
+        if row is None:
+            raise JournalFailure("Unknown request generation")
+        value = _read(RequestBinding, row["binding_json"])
+        if row["versions_json"] is not None:
+            _read(FrozenVersions, row["versions_json"])
+        if (value.case_id, value.generation, value.request_id, value.request_revision, value.consent_revision, value.fingerprint) != (
+            row["case_id"], row["generation"], row["request_id"], row["request_revision"], row["consent_revision"], row["fingerprint"]):
+            raise JournalFailure("Binding index differs from stored identity")
+        return value
+
+    def _assert_binding(self, binding):
+        if self._binding(binding.case_id, binding.generation) != binding:
+            raise JournalFailure("Immutable request binding conflict")
+
+    def bind(self, binding: RequestBinding):
+        binding = _typed(RequestBinding, binding)
+        with self._transaction():
+            row = self._db.execute("SELECT 1 FROM requests WHERE case_id=? AND generation=?", (binding.case_id, binding.generation)).fetchone()
+            if row:
+                self._assert_binding(binding)
+                return
+            old = self._db.execute("SELECT checkpoint_json FROM cases WHERE case_id=?", (binding.case_id,)).fetchone()
+            if old and old[0]:
+                current = self.checkpoint(binding.case_id)
+                if binding.supersedes_generation != current.binding.generation:
+                    raise JournalFailure("New generation requires exact supersession")
+                if (binding.object_id, binding.principal_id) != (current.binding.object_id, current.binding.principal_id):
+                    raise JournalFailure("Case identity cannot change")
+            self._db.execute("INSERT OR IGNORE INTO cases VALUES(?,NULL,0)", (binding.case_id,))
+            self._db.execute("INSERT INTO requests VALUES(?,?,?,NULL,0,?,?,?,?)", (binding.case_id, binding.generation,
+                binding.model_dump_json(), binding.request_id, binding.request_revision, binding.consent_revision, binding.fingerprint))
+
+    def find_request(self, case_id, request_id, request_revision, consent_revision, fingerprint):
+        self._schema()
+        row = self._db.execute("SELECT generation FROM requests WHERE case_id=? AND request_id=? AND request_revision=? AND consent_revision=? AND fingerprint=?",
+                              (case_id, request_id, request_revision, consent_revision, fingerprint)).fetchone()
+        return self._binding(case_id, row[0]) if row else None
+
+    def admit(self, binding: RequestBinding, request: CanonicalRequest, checkpoint: PhaseCheckpoint):
+        """Atomically persist original untrusted claims, binding and checkpoint."""
+        if _typed(PhaseCheckpoint, checkpoint).binding != _typed(RequestBinding, binding):
+            raise JournalFailure("Admission checkpoint differs from binding")
+        with self._transaction():
+            self.bind(binding)
+            self.save_request(binding, request)
+            self.save_checkpoint(checkpoint)
+
+    @staticmethod
+    def _request_identity(binding, request):
+        fields = ("case_id", "object_id", "principal_id", "request_id", "request_revision", "consent_revision")
+        if (any(getattr(binding, field) != getattr(request, field) for field in fields)
+                or binding.fingerprint != request_fingerprint(request)):
+            raise JournalFailure("Original input differs from historical business binding")
+
+    def save_request(self, binding: RequestBinding, request: CanonicalRequest):
+        binding, request = _typed(RequestBinding, binding), _typed(CanonicalRequest, request)
+        self._request_identity(binding, request)
+        with self._transaction():
+            self._assert_binding(binding)
+            old = self.original_request(binding.case_id, binding.generation)
+            if old is not None:
+                if old != request:
+                    raise JournalFailure("Historical input/lineage snapshot is immutable")
+                return
+            self._db.execute("INSERT INTO original_requests VALUES(?,?,?)", (binding.case_id, binding.generation, request.model_dump_json()))
+
+    def original_request(self, case_id, generation):
+        """Host-scoped recovery getter; user claims are never authority facts."""
+        binding = self._binding(case_id, generation)
+        row = self._db.execute("SELECT request_json FROM original_requests WHERE case_id=? AND generation=?", (case_id, generation)).fetchone()
+        if row is None:
+            return None
+        value = _read(CanonicalRequest, row[0])
+        self._request_identity(binding, value)
+        return value
+
+    def checkpoint(self, case_id):
+        self._schema()
+        row = self._db.execute("SELECT checkpoint_json FROM cases WHERE case_id=?", (case_id,)).fetchone()
+        if row is None or row[0] is None:
+            raise JournalFailure("Case has no checkpoint")
+        value = _read(PhaseCheckpoint, row[0])
+        try:
+            validate_budget(value.budget)
+        except ValueError as error:
+            raise JournalFailure("Stored budget incompatible with finite accounting") from error
+        self._assert_binding(value.binding)
+        if value.binding.case_id != case_id or value.deadline > value.budget.deadline:
+            raise JournalFailure("Checkpoint scope/deadline mismatch")
+        versions = self._db.execute("SELECT versions_json,stop_requested FROM requests WHERE case_id=? AND generation=?", (case_id, value.binding.generation)).fetchone()
+        if _json(versions[0]) != self._versions(value) or (versions[1] and not value.stop.requested):
+            raise JournalFailure("Checkpoint version/stop conflict")
+        audit = self._db.execute("SELECT event_json FROM audit WHERE case_id=? ORDER BY sequence DESC LIMIT 1", (case_id,)).fetchone()
+        if audit is None or _read(CheckpointAudit, audit[0]).checkpoint_hash != fingerprint(value.model_dump(mode="json")):
+            raise JournalFailure("Checkpoint differs from committed accounting audit")
+        return value
+
+    @staticmethod
+    def _versions(value):
+        return {key: getattr(value, key) for key in ("profile_version", "process_version", "policy_version")}
+
+    def _write_checkpoint(self, value):
+        self._db.execute("UPDATE cases SET checkpoint_json=?,revision=revision+1 WHERE case_id=?", (value.model_dump_json(), value.binding.case_id))
+        audit = CheckpointAudit(checkpoint_hash=fingerprint(value.model_dump(mode="json")))
+        self._db.execute("INSERT INTO audit(case_id,event_json) VALUES(?,?)", (value.binding.case_id, audit.model_dump_json()))
+
+    def save_checkpoint(self, checkpoint: PhaseCheckpoint):
+        value = _typed(PhaseCheckpoint, checkpoint)
+        with self._transaction():
+            self._assert_binding(value.binding)
+            row = self._db.execute("SELECT checkpoint_json FROM cases WHERE case_id=?", (value.binding.case_id,)).fetchone()
+            versions = self._db.execute("SELECT versions_json,stop_requested FROM requests WHERE case_id=? AND generation=?", (value.binding.case_id, value.binding.generation)).fetchone()
+            if versions[0] is not None and _json(versions[0]) != self._versions(value):
+                raise JournalFailure("Frozen generation versions changed")
+            data = value.model_dump()
+            try:
+                if row[0]:
+                    current = self.checkpoint(value.binding.case_id)
+                    if value.binding != current.binding and value.binding.supersedes_generation != current.binding.generation:
+                        raise JournalFailure("Checkpoint cannot reactivate old generation")
+                    if value.deadline > current.deadline:
+                        raise JournalFailure("Absolute deadline cannot extend")
+                    data["budget"] = preserve_budget(value.budget, current.budget)
+                    if current.stop.requested:
+                        data["stop"] = current.stop
+                else:
+                    initial_budget(value.budget)
+                if value.deadline > value.budget.deadline:
+                    raise JournalFailure("Checkpoint deadline exceeds case budget")
+            except ValueError as error:
+                raise JournalFailure("Invalid checkpoint accounting") from error
+            if versions[1]:
+                data["stop"] = StopState(requested=True)
+            budget_data = data["budget"].model_dump() if isinstance(data["budget"], WireModel) else data["budget"]
+            budget_data["deadline"] = min(budget_data["deadline"], value.deadline)
+            data["budget"] = budget_data
+            value = PhaseCheckpoint.model_validate(data)
+            self._db.execute("UPDATE requests SET versions_json=?,stop_requested=? WHERE case_id=? AND generation=?",
+                (json.dumps(self._versions(value)), int(value.stop.requested), value.binding.case_id, value.binding.generation))
+            self._write_checkpoint(value)
+
+    def set_stop(self, case_id, generation):
+        with self._transaction():
+            self._binding(case_id, generation)
+            value = self.checkpoint(case_id)
+            self._db.execute("UPDATE requests SET stop_requested=1 WHERE case_id=? AND generation=?", (case_id, generation))
+            if value.binding.generation == generation:
+                data = value.model_dump()
+                data["stop"] = StopState(requested=True)
+                self._write_checkpoint(PhaseCheckpoint.model_validate(data))
+
+    def _intent(self, action_id):
+        self._schema()
+        row = self._db.execute("SELECT * FROM intents WHERE action_id=?", (action_id,)).fetchone()
+        if row is None:
+            raise JournalFailure("Unknown prepared action")
+        intent = _read(EffectIntent, row["intent_json"])
+        self._assert_binding(intent.binding)
+        versions = self._db.execute("SELECT versions_json FROM requests WHERE case_id=? AND generation=?", (intent.binding.case_id, intent.binding.generation)).fetchone()[0]
+        if versions is None or _json(versions) != self._versions(intent):
+            raise JournalFailure("Intent differs from original frozen versions")
+        if (intent.action_id, intent.binding.case_id, intent.binding.generation, intent.argument_fingerprint) != (
+            row["action_id"], row["case_id"], row["generation"], row["fingerprint"]):
+            raise JournalFailure("Intent indexed identity mismatch")
+        verification = _read(VerificationResult, row["verification_json"]) if row["verification_json"] else None
+        record = IntentRecord(intent=intent, state=row["dispatch_state"], verification=verification)
+        if verification is not None:
+            self._verification_identity(intent, verification)
+        if record.state in {"verified", "rejected", "pending", "outcome_unknown", "conflict"} and (verification is None or verification.status != record.state):
+            raise JournalFailure("Intent state/verification mismatch")
+        if record.state in {"prepared", "dispatching"} and verification is not None:
+            raise JournalFailure("Unverified intent state carries incompatible verification")
+        return record
+
+    def intents(self, case_id):
+        self._schema()
+        return tuple(self._intent(row[0]) for row in self._db.execute("SELECT action_id FROM intents WHERE case_id=? ORDER BY rowid", (case_id,)).fetchall())
+
+    def prepare(self, intent: EffectIntent):
+        intent = _typed(EffectIntent, intent)
+        with self._transaction():
+            self._assert_binding(intent.binding)
+            checkpoint = self.checkpoint(intent.binding.case_id)
+            if intent.binding != checkpoint.binding or self._versions(intent) != self._versions(checkpoint) or intent.deadline > checkpoint.deadline:
+                raise JournalFailure("Intent differs from current frozen execution scope")
+            if self._db.execute("SELECT 1 FROM intents WHERE action_id=?", (intent.action_id,)).fetchone():
+                if self._intent(intent.action_id).intent != intent:
+                    raise JournalFailure("Prepared immutable intent conflict")
+                return
+            self._db.execute("INSERT INTO intents VALUES(?,?,?,?,?,'prepared',NULL)", (intent.action_id, intent.binding.case_id,
+                intent.binding.generation, intent.argument_fingerprint, intent.model_dump_json()))
+
+    def begin_dispatch(self, intent: EffectIntent, now, is_resend=False):
+        intent = _typed(EffectIntent, intent)
+        if type(is_resend) is not bool:
+            raise JournalFailure("Resend mode must be strict boolean")
+        with self._transaction():
+            record = self._intent(intent.action_id)
+            if record.intent != intent:
+                raise JournalFailure("Dispatch intent substitution")
+            value = self.checkpoint(intent.binding.case_id)
+            if self.original_request(intent.binding.case_id, intent.binding.generation) is None:
+                raise JournalFailure("Original input must be durable before external entry")
+            if value.binding != intent.binding or value.stop.requested or value.ownership_state in {"pending", "transfer_pending", "stopped"}:
+                raise JournalFailure("Current stop/generation/ownership fences dispatch")
+            if ((intent.ownership_epoch is not None and intent.ownership_epoch != value.ownership_epoch)
+                    or (intent.ownership_state_revision is not None and intent.ownership_state_revision != value.ownership_state_revision)):
+                raise JournalFailure("Prepared ownership decision is stale")
+            if now >= intent.deadline:
+                raise BudgetExceeded("Intent deadline expired")
+            budget = value.budget
+            if is_resend:
+                if record.state != "rejected":
+                    raise JournalFailure("Resend requires rejected original effect and gateway contract proof")
+                budget = debit(budget, "retries:" + intent.action_id, 1, now)
+            else:
+                if record.state != "prepared":
+                    raise JournalFailure("Entry already consumed; reconcile original action")
+                budget = debit(budget, "effects", 1, now, handoff=intent.operation == "enqueue_handoff")
+                if intent.operation == "send_clarification":
+                    budget = debit(budget, "clarifications", 1, now)
+            budget = debit(budget, "tool_calls", 1, now)
+            attempt = budget.retries.get(intent.action_id, 0) + 1
+            budget, lease = self._reserve_entry(value, budget, now, "effect:" + intent.action_id + ":" + str(attempt), "effect", intent.action_id)
+            self._write_checkpoint(PhaseCheckpoint.model_validate({**value.model_dump(), "budget": budget}))
+            self._db.execute("UPDATE intents SET dispatch_state='dispatching',verification_json=NULL WHERE action_id=?", (intent.action_id,))
+            return lease
+
+    def _reserve_entry(self, checkpoint, budget, now, entry_id, kind, subject_id=None):
+        seconds = tool_timeout(budget, now)
+        budget = debit(budget, "active_seconds", seconds, now)
+        lease = EntryLease(entry_id=entry_id, case_id=checkpoint.binding.case_id, generation=checkpoint.binding.generation,
+            kind=kind, subject_id=subject_id, reserved_seconds=seconds, started_at=now,
+            deadline=min(budget.deadline, now + timedelta(seconds=seconds)))
+        self._db.execute("INSERT INTO entries VALUES(?,?,?,?,?,?,?)", (lease.entry_id, lease.case_id,
+            lease.generation, lease.kind, lease.subject_id, lease.model_dump_json(), lease.state))
+        return budget, lease
+
+    def begin_read(self, case_id, now, action_id=None):
+        """Pre-debit one physical read and its active slice, including failures."""
+        with self._transaction():
+            value = self.checkpoint(case_id)
+            if self.original_request(case_id, value.binding.generation) is None:
+                raise JournalFailure("Original input must be durable before external read")
+            if action_id is None:
+                if value.stop.requested:
+                    raise JournalFailure("Stopped recovery requires original intent scope")
+                budget = debit(value.budget, "tool_calls", 1, now)
+            else:
+                if self._intent(action_id).intent.binding.case_id != case_id:
+                    raise JournalFailure("Read action belongs to another case")
+                budget = debit(value.budget, "reconciliation_reads:" + action_id, 1, now)
+            budget, lease = self._reserve_entry(value, budget, now, "read:" + uuid4().hex, "read", action_id)
+            self._write_checkpoint(PhaseCheckpoint.model_validate({**value.model_dump(), "budget": budget}))
+            return lease
+
+    def entry(self, entry_id):
+        self._schema()
+        row = self._db.execute("SELECT * FROM entries WHERE entry_id=?", (entry_id,)).fetchone()
+        if row is None:
+            raise JournalFailure("Unknown entry reservation")
+        lease = _read(EntryLease, row["lease_json"])
+        self._binding(lease.case_id, lease.generation)
+        if (lease.entry_id, lease.case_id, lease.generation, lease.kind, lease.subject_id, lease.state) != (
+            row["entry_id"], row["case_id"], row["generation"], row["kind"], row["subject_id"], row["state"]):
+            raise JournalFailure("Entry reservation index/scope conflict")
+        return lease
+
+    def finish_entry(self, entry_id, elapsed_seconds):
+        """Trusted host settles observed completed calls once; never exceptions/unknowns.
+
+        Interrupted/timeout/nonterminal calls retain the full slice. An observed
+        timeout violation durably forfeits the remaining active allowance.
+        """
+        if type(elapsed_seconds) not in (int, float) or not math.isfinite(elapsed_seconds) or elapsed_seconds < 0:
+            raise JournalFailure("Completion requires finite nonnegative elapsed time")
+        overrun = False
+        with self._transaction():
+            lease = self.entry(entry_id)
+            if lease.state != "active":
+                raise JournalFailure("Entry completion already consumed")
+            if self._db.execute("SELECT 1 FROM entries WHERE case_id=? AND state='overrun'", (lease.case_id,)).fetchone():
+                raise BudgetExceeded("Observed overrun permanently exhausted case active capacity")
+            checkpoint = self.checkpoint(lease.case_id)
+            data = checkpoint.model_dump()
+            if elapsed_seconds > lease.reserved_seconds:
+                overrun = True
+                data["budget"]["active_seconds"] = checkpoint.budget.max_active_seconds
+                state = "overrun"
+            else:
+                data["budget"]["active_seconds"] -= lease.reserved_seconds - elapsed_seconds
+                state = "settled"
+                if data["budget"]["active_seconds"] < 0:
+                    raise JournalFailure("Completion would roll back unrelated accounting")
+            finished = EntryLease.model_validate({**lease.model_dump(), "state": state, "elapsed_seconds": elapsed_seconds})
+            self._db.execute("UPDATE entries SET lease_json=?,state=? WHERE entry_id=?", (finished.model_dump_json(), state, entry_id))
+            self._write_checkpoint(PhaseCheckpoint.model_validate(data))
+        if overrun:
+            raise BudgetExceeded("Observed external entry exceeded reserved timeout; capacity exhausted")
+
+    @staticmethod
+    def _verification_identity(intent, verification):
+        pairs = ((verification.object_id, intent.binding.object_id), (verification.action_id, intent.action_id),
+                 (verification.fingerprint, intent.argument_fingerprint), (verification.postcondition, intent.postcondition))
+        if any(actual is not None and actual != expected for actual, expected in pairs):
+            raise JournalFailure("Verification differs from immutable effect identity/postcondition")
+
+    def record_verification(self, action_id, verification: VerificationResult):
+        verification = _typed(VerificationResult, verification)
+        with self._transaction():
+            record = self._intent(action_id)
+            if record.state == "prepared":
+                raise JournalFailure("Unentered intent cannot have provider verification")
+            self._verification_identity(record.intent, verification)
+            if record.state == "verified" and record.verification != verification:
+                raise JournalFailure("Verified result is immutable")
+            self._db.execute("UPDATE intents SET dispatch_state=?,verification_json=? WHERE action_id=?",
+                             (verification.status, verification.model_dump_json(), action_id))
+
+    def consume(self, case_id, kind, amount, now):
+        with self._transaction():
+            value = self.checkpoint(case_id)
+            if kind.startswith(("reconciliation_reads:", "retries:")):
+                record = self._intent(kind.split(":", 1)[1])
+                if record.intent.binding.case_id != case_id:
+                    raise JournalFailure("Accounting action belongs to another case")
+            try:
+                budget = debit(value.budget, kind, amount, now)
+            except ValueError as error:
+                raise JournalFailure("Invalid debit") from error
+            self._write_checkpoint(PhaseCheckpoint.model_validate({**value.model_dump(), "budget": budget}))
+
+    def register_campaign(self, permit: CampaignPermit):
+        """Trusted host registration only; request bodies cannot call this grant API."""
+        permit = _typed(CampaignPermit, permit)
+        data = permit.model_dump(mode="json")
+        if permit.permit_hash != fingerprint({k: v for k, v in data.items() if k != "permit_hash"}):
+            raise JournalFailure("Campaign permit self-hash mismatch")
+        if not permit.input_hashes or len(permit.input_hashes) != len(set(permit.input_hashes)):
+            raise JournalFailure("Campaign requires a distinct input allowlist")
+        with self._transaction():
+            row = self._db.execute("SELECT permit_json FROM campaigns WHERE permit_hash=?", (permit.permit_hash,)).fetchone()
+            if row:
+                if _read(CampaignPermit, row[0]) != permit:
+                    raise JournalFailure("Immutable permit conflict")
+                return
+            self._db.execute("INSERT INTO campaigns VALUES(?,?,?, ?,0)", (permit.permit_hash, permit.campaign_id,
+                permit.model_dump_json(), json.dumps({"invocations": 0, "cost": 0.0, "usage": {}})))
+
+    def _campaign(self, permit_hash):
+        self._schema()
+        row = self._db.execute("SELECT * FROM campaigns WHERE permit_hash=?", (permit_hash,)).fetchone()
+        if row is None:
+            raise JournalFailure("Campaign not registered by trusted host")
+        permit = _read(CampaignPermit, row["permit_json"])
+        data = permit.model_dump(mode="json")
+        if (permit.permit_hash != permit_hash or permit.campaign_id != row["campaign_id"]
+                or fingerprint({k: v for k, v in data.items() if k != "permit_hash"}) != permit_hash):
+            raise JournalFailure("Stored permit identity/hash conflict")
+        usage = _usage(row["consumed_json"])
+        if (usage["invocations"] > permit.max_invocations or usage["cost"] > permit.max_cost
+                or any(key not in permit.max_usage or val > permit.max_usage[key] for key, val in usage["usage"].items())):
+            raise JournalFailure("Stored campaign exceeds permit")
+        reservations = [_read(InvocationReservation, row[0]) for row in self._db.execute(
+            "SELECT reservation_json FROM invocations WHERE permit_hash=? ORDER BY rowid", (permit_hash,)).fetchall()]
+        expected = {"invocations": len(reservations), "cost": 0.0, "usage": {}}
+        for reservation in reservations:
+            expected["cost"] += reservation.worst_case_cost
+            for key, amount in reservation.reserved_usage.items():
+                expected["usage"][key] = expected["usage"].get(key, 0.0) + amount
+        if usage != expected:
+            raise JournalFailure("Campaign accounting differs from committed reservation debts")
+        return permit, usage
+
+    def campaign_usage(self, permit_hash):
+        return self._campaign(permit_hash)[1]
+
+    def reserve_invocation(self, request: InvocationRequest, now):
+        request = _typed(InvocationRequest, request)
+        identity = request.identity
+        with self._transaction():
+            if self._db.execute("SELECT 1 FROM invocations WHERE invocation_id=?", (request.invocation_id,)).fetchone():
+                raise JournalFailure("Invocation ID already consumed; new entry needs a new ID")
+            value = self.checkpoint(identity.case_id)
+            if self.original_request(identity.case_id, identity.generation) is None:
+                raise JournalFailure("Original input must be durable before provider entry")
+            if value.binding.generation != identity.generation or value.stop.requested or value.ownership_state in {"pending", "transfer_pending", "stopped"}:
+                raise JournalFailure("Current scope fences provider entry")
+            permit, consumed = self._campaign(identity.permit_hash)
+            if ((identity.campaign_id, identity.role, identity.provider, identity.model, identity.endpoint) !=
+                    (permit.campaign_id, permit.role, permit.provider, permit.model, permit.endpoint)
+                    or not identity.input_hashes or len(identity.input_hashes) != len(set(identity.input_hashes))
+                    or not set(identity.input_hashes) <= set(permit.input_hashes)
+                    or identity.profile_version != value.profile_version or identity.process_version != value.process_version
+                    or identity.deadline > value.deadline or identity.deadline > permit.expires_at):
+                raise JournalFailure("Invocation differs from exact permit/execution scope")
+            check_time(value.budget, now)
+            if now >= identity.deadline or now >= permit.expires_at:
+                raise BudgetExceeded("Provider permit/deadline expired")
+            role = value.budget.role_allowances.get(identity.role)
+            if role is None:
+                raise BudgetExceeded("Provider role disabled by trusted case configuration")
+            for count, cap in ((role.invocations + 1, role.max_invocations), (role.cost + request.worst_case_cost, role.max_cost),
+                               (consumed["invocations"] + 1, permit.max_invocations), (consumed["cost"] + request.worst_case_cost, permit.max_cost)):
+                if count > cap:
+                    raise BudgetExceeded("Provider invocation/cost allowance exhausted")
+            usage = dict(role.usage)
+            shared_usage = dict(consumed["usage"])
+            for name, amount in request.requested_usage.items():
+                if (name not in role.usage_allowances or name not in permit.max_usage
+                        or usage.get(name, 0) + amount > role.usage_allowances[name]
+                        or shared_usage.get(name, 0) + amount > permit.max_usage[name]):
+                    raise BudgetExceeded("Provider usage allowance exhausted")
+                usage[name] = usage.get(name, 0) + amount
+                shared_usage[name] = shared_usage.get(name, 0) + amount
+            budget = debit(value.budget, "tool_calls", 1, now)
+            if identity.role == "planning":
+                budget = debit(budget, "planner_calls", 1, now)
+            data = budget.model_dump()
+            data["role_allowances"][identity.role].update(invocations=role.invocations + 1, usage=usage, cost=role.cost + request.worst_case_cost)
+            budget = type(budget).model_validate(data)
+            budget, _ = self._reserve_entry(value, budget, now, "invocation:" + request.invocation_id, "provider", request.invocation_id)
+            self._write_checkpoint(PhaseCheckpoint.model_validate({**value.model_dump(), "budget": budget}))
+            shared = dict(invocations=consumed["invocations"] + 1, cost=consumed["cost"] + request.worst_case_cost, usage=shared_usage)
+            self._db.execute("UPDATE campaigns SET consumed_json=?,revision=revision+1 WHERE permit_hash=?", (json.dumps(shared), permit.permit_hash))
+            reserved = InvocationReservation(identity=identity, invocation_id=request.invocation_id,
+                reserved_usage=request.requested_usage, worst_case_cost=request.worst_case_cost, status="consumed",
+                case_debit=1, role_debit=1, campaign_debit=1, reserved_at=now)
+            self._db.execute("INSERT INTO invocations VALUES(?,?,?,?,?,?,'consumed',NULL)", (request.invocation_id,
+                identity.case_id, identity.generation, identity.role, permit.permit_hash, reserved.model_dump_json()))
+            return reserved
+
+    def _invocation(self, invocation_id):
+        self._schema()
+        row = self._db.execute("SELECT * FROM invocations WHERE invocation_id=?", (invocation_id,)).fetchone()
+        if row is None:
+            raise JournalFailure("Unknown consumed invocation")
+        reservation = _read(InvocationReservation, row["reservation_json"])
+        if ((reservation.invocation_id, reservation.identity.case_id, reservation.identity.generation, reservation.identity.role,
+             reservation.identity.permit_hash, reservation.status) != (row["invocation_id"], row["case_id"], row["generation"], row["role"], row["permit_hash"], row["state"])):
+            raise JournalFailure("Invocation indexed identity mismatch")
+        self._binding(row["case_id"], row["generation"])
+        permit, _ = self._campaign(row["permit_hash"])
+        identity = reservation.identity
+        versions = _json(self._db.execute("SELECT versions_json FROM requests WHERE case_id=? AND generation=?", (identity.case_id, identity.generation)).fetchone()[0])
+        if ((identity.campaign_id, identity.role, identity.provider, identity.model, identity.endpoint) !=
+                (permit.campaign_id, permit.role, permit.provider, permit.model, permit.endpoint)
+                or not identity.input_hashes or not set(identity.input_hashes) <= set(permit.input_hashes)
+                or identity.profile_version != versions["profile_version"] or identity.process_version != versions["process_version"]
+                or (reservation.case_debit, reservation.role_debit, reservation.campaign_debit) != (1, 1, 1)):
+            raise JournalFailure("Reservation differs from original permit/frozen scope/debits")
+        receipt = _read(ProcessingReceipt, row["receipt_json"]) if row["receipt_json"] else None
+        if receipt:
+            self._receipt_identity(reservation, receipt)
+            state = "failed" if receipt.status == "unavailable" else receipt.status
+            if receipt.status not in {"completed", "failed", "outcome_unknown", "unavailable"} or state != reservation.status:
+                raise JournalFailure("Reservation/receipt recovery state mismatch")
+        elif reservation.status != "consumed":
+            raise JournalFailure("Finished reservation has no processing receipt")
+        return reservation, receipt
+
+    def invocation(self, invocation_id):
+        """Recovery inspection is evidence only, never a reusable entry grant."""
+        return self._invocation(invocation_id)
+
+    @staticmethod
+    def _receipt_identity(reservation, receipt):
+        identity = reservation.identity
+        if ((receipt.invocation_id, receipt.role, receipt.provider, receipt.requested_model, receipt.prompt_hash,
+             receipt.version, receipt.input_hashes) != (reservation.invocation_id, identity.role, identity.provider,
+             identity.model, identity.prompt_hash, identity.version, identity.input_hashes)):
+            raise JournalFailure("Processing receipt input/route identity mismatch")
+        if any(name not in reservation.reserved_usage or amount > reservation.reserved_usage[name] for name, amount in receipt.usage.items()):
+            raise JournalFailure("Receipt exceeds pre-reserved worst-case usage")
+
+    def record_processing(self, invocation_id, receipt: ProcessingReceipt):
+        receipt = _typed(ProcessingReceipt, receipt)
+        with self._transaction():
+            reservation, old_receipt = self._invocation(invocation_id)
+            self._receipt_identity(reservation, receipt)
+            if old_receipt is not None:
+                if old_receipt != receipt:
+                    raise JournalFailure("Processing receipt already recorded")
+                return
+            if receipt.status not in {"completed", "failed", "outcome_unknown", "unavailable"}:
+                raise JournalFailure("Processing receipt must retain terminal/unknown attempt")
+            state = "failed" if receipt.status == "unavailable" else receipt.status
+            updated = InvocationReservation.model_validate({**reservation.model_dump(), "status": state})
+            self._db.execute("UPDATE invocations SET reservation_json=?,state=?,receipt_json=? WHERE invocation_id=?",
+                (updated.model_dump_json(), state, receipt.model_dump_json(), invocation_id))
+
+    def save_result(self, result: SavedResult):
+        result = _typed(SavedResult, result)
+        with self._transaction():
+            self._assert_binding(result.binding)
+            existing = self.saved_result(result.case_id, result.binding.generation)
+            if existing is not None:
+                if existing != result:
+                    raise JournalFailure("Saved generation result is immutable")
+                return
+            self._db.execute("INSERT INTO results VALUES(?,?,?)", (result.case_id, result.binding.generation, result.model_dump_json()))
+
+    def saved_result(self, case_id, generation):
+        self._schema()
+        row = self._db.execute("SELECT result_json FROM results WHERE case_id=? AND generation=?", (case_id, generation)).fetchone()
+        if row is None:
+            return None
+        value = _read(SavedResult, row[0])
+        self._assert_binding(value.binding)
+        if (value.case_id, value.binding.generation) != (case_id, generation):
+            raise JournalFailure("Result scope mismatch")
+        return value
+
+    def save_wait(self, wait: WaitState):
+        wait = _typed(WaitState, wait)
+        with self._transaction():
+            self._assert_binding(wait.binding)
+            old = self.wait(wait.question_id)
+            if old is not None:
+                if old != wait:
+                    raise JournalFailure("Immutable question conflict")
+                return
+            self._db.execute("INSERT INTO waits VALUES(?,?,?,?)", (wait.question_id, wait.binding.case_id,
+                wait.binding.generation, wait.model_dump_json()))
+
+    def wait(self, question_id):
+        self._schema()
+        row = self._db.execute("SELECT * FROM waits WHERE question_id=?", (question_id,)).fetchone()
+        if row is None:
+            return None
+        value = _read(WaitState, row["wait_json"])
+        self._assert_binding(value.binding)
+        if (value.question_id, value.binding.case_id, value.binding.generation) != (row["question_id"], row["case_id"], row["generation"]):
+            raise JournalFailure("Wait scope mismatch")
+        return value
+
+    def save_transfer(self, intent: TransferIntent, state="prepared"):
+        intent = _typed(TransferIntent, intent)
+        record = TransferRecord(intent=intent, state=state)
+        with self._transaction():
+            self._assert_binding(intent.binding)
+            old = self.transfer(intent.transfer_id)
+            if old is not None and old.intent != intent:
+                raise JournalFailure("Immutable transfer conflict")
+            self._db.execute("INSERT INTO transfers VALUES(?,?,?,?,?) ON CONFLICT(transfer_id) DO UPDATE SET state=excluded.state",
+                (intent.transfer_id, intent.case_id, intent.binding.generation, intent.model_dump_json(), record.state))
+
+    def transfer(self, transfer_id):
+        self._schema()
+        row = self._db.execute("SELECT * FROM transfers WHERE transfer_id=?", (transfer_id,)).fetchone()
+        if row is None:
+            return None
+        value = _read(TransferIntent, row["transfer_json"])
+        self._assert_binding(value.binding)
+        if (value.transfer_id, value.case_id, value.binding.generation) != (row["transfer_id"], row["case_id"], row["generation"]):
+            raise JournalFailure("Transfer scope mismatch")
+        return TransferRecord(intent=value, state=row["state"])
+
+    def _validate_all(self):
+        self._schema()
+        if self._db.execute("PRAGMA integrity_check").fetchone()[0] != "ok" or self._db.execute("PRAGMA foreign_key_check").fetchall():
+            raise JournalFailure("Journal integrity constraints failed")
+        for row in self._db.execute("SELECT case_id,generation FROM requests").fetchall():
+            self._binding(*row)
+        for row in self._db.execute("SELECT case_id,generation FROM original_requests").fetchall():
+            self.original_request(*row)
+        for row in self._db.execute("SELECT case_id FROM cases WHERE checkpoint_json IS NOT NULL").fetchall():
+            self.checkpoint(row[0])
+        for row in self._db.execute("SELECT action_id FROM intents").fetchall():
+            self._intent(row[0])
+        for row in self._db.execute("SELECT permit_hash FROM campaigns").fetchall():
+            self._campaign(row[0])
+        for row in self._db.execute("SELECT invocation_id FROM invocations").fetchall():
+            self._invocation(row[0])
+        for row in self._db.execute("SELECT entry_id FROM entries").fetchall():
+            self.entry(row[0])
+        for row in self._db.execute("SELECT question_id FROM waits").fetchall():
+            self.wait(row[0])
+        for row in self._db.execute("SELECT transfer_id FROM transfers").fetchall():
+            self.transfer(row[0])
+        for row in self._db.execute("SELECT case_id,generation FROM results").fetchall():
+            self.saved_result(*row)
+        for row in self._db.execute("SELECT event_json FROM audit").fetchall():
+            _read(CheckpointAudit, row[0])
