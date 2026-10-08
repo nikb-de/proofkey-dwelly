@@ -29,3 +29,12 @@ CREATE TABLE transfers(transfer_id TEXT PRIMARY KEY, case_id TEXT NOT NULL, gene
 CREATE TABLE results(case_id TEXT NOT NULL, generation TEXT NOT NULL, result_json TEXT NOT NULL,
  PRIMARY KEY(case_id,generation), FOREIGN KEY(case_id,generation) REFERENCES requests(case_id,generation));
 CREATE TABLE audit(sequence INTEGER PRIMARY KEY, case_id TEXT NOT NULL REFERENCES cases(case_id), event_json TEXT NOT NULL);
+CREATE TABLE admission_accounts(claimed_case_id TEXT PRIMARY KEY, account_json TEXT NOT NULL, revision INTEGER NOT NULL CHECK(revision >= 0));
+CREATE TABLE admission_attempts(attempt_id TEXT PRIMARY KEY, claimed_case_id TEXT NOT NULL REFERENCES admission_accounts(claimed_case_id),
+ dedup_hash TEXT NOT NULL UNIQUE, attempt_json TEXT NOT NULL, state TEXT NOT NULL CHECK(state IN ('unbound','transferred')),
+ UNIQUE(attempt_id,claimed_case_id));
+CREATE TABLE admission_entries(entry_id TEXT PRIMARY KEY, attempt_id TEXT NOT NULL, claimed_case_id TEXT NOT NULL,
+ charge_generation TEXT, lease_json TEXT NOT NULL, state TEXT NOT NULL CHECK(state IN ('active','settled','overrun')),
+ FOREIGN KEY(attempt_id,claimed_case_id) REFERENCES admission_attempts(attempt_id,claimed_case_id),
+ FOREIGN KEY(claimed_case_id,charge_generation) REFERENCES requests(case_id,generation));
+CREATE TABLE admission_audit(sequence INTEGER PRIMARY KEY, claimed_case_id TEXT NOT NULL REFERENCES admission_accounts(claimed_case_id), event_json TEXT NOT NULL);

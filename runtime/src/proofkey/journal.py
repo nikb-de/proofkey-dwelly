@@ -155,6 +155,34 @@ class CaseStore:
             self._db.close()
             self._db = None
 
+    @property
+    def _admission(self):
+        from .admission import AdmissionLedger
+        if not hasattr(self, "_admission_helper"):
+            self._admission_helper = AdmissionLedger(self)
+        return self._admission_helper
+
+    def start_admission(self, attempt_id, auth, request, now, deadline):
+        return self._admission.start(attempt_id, auth, request, now, deadline)
+
+    def begin_admission_read(self, attempt_id, now):
+        return self._admission.begin(attempt_id, now)
+
+    def finish_admission_read(self, entry_id, elapsed_seconds):
+        return self._admission.finish(entry_id, elapsed_seconds)
+
+    def admission_account(self, claimed_case_id):
+        return self._admission.account(claimed_case_id)
+
+    def admission_attempt(self, attempt_id):
+        return self._admission.attempt(attempt_id)
+
+    def admission_entry(self, entry_id):
+        return self._admission.entry(entry_id)
+
+    def admit_from_attempt(self, attempt_id, binding, request, checkpoint):
+        return self._admission.admit(attempt_id, binding, request, checkpoint)
+
     def _schema(self):
         if self._db is None:
             raise JournalFailure("Journal is closed")
@@ -237,6 +265,7 @@ class CaseStore:
             self.bind(binding)
             self.save_request(binding, request)
             self.save_checkpoint(checkpoint)
+            self._admission.import_pending(binding.case_id)
 
     @staticmethod
     def _request_identity(binding, request):
@@ -391,6 +420,7 @@ class CaseStore:
         if type(is_resend) is not bool:
             raise JournalFailure("Resend mode must be strict boolean")
         with self._transaction():
+            self._admission.require_imported(intent.binding.case_id)
             record = self._intent(intent.action_id)
             if record.intent != intent:
                 raise JournalFailure("Dispatch intent substitution")
@@ -440,6 +470,7 @@ class CaseStore:
     def begin_read(self, case_id, now, action_id=None):
         """Pre-debit one physical read and its active slice, including failures."""
         with self._transaction():
+            self._admission.require_imported(case_id)
             value = self.checkpoint(case_id)
             if self.original_request(case_id, value.binding.generation) is None:
                 raise JournalFailure("Original input must be durable before external read")
@@ -464,6 +495,7 @@ class CaseStore:
         """
         binding = _typed(RequestBinding, binding)
         with self._transaction():
+            self._admission.require_imported(binding.case_id)
             self._assert_binding(binding)
             if self.original_request(binding.case_id, binding.generation) is None:
                 raise JournalFailure("Disclosure requires durable original historical input")
@@ -508,6 +540,8 @@ class CaseStore:
             lease = self.entry(entry_id)
             if lease.state != "active":
                 raise JournalFailure("Entry completion already consumed")
+            if self._admission.exhausted(lease.case_id):
+                raise BudgetExceeded("Observed admission overrun permanently exhausted case active capacity")
             if self._db.execute("SELECT 1 FROM entries WHERE case_id=? AND state='overrun'", (lease.case_id,)).fetchone():
                 raise BudgetExceeded("Observed overrun permanently exhausted case active capacity")
             checkpoint = self.checkpoint(lease.case_id)
@@ -608,6 +642,7 @@ class CaseStore:
         request = _typed(InvocationRequest, request)
         identity = request.identity
         with self._transaction():
+            self._admission.require_imported(identity.case_id)
             if self._db.execute("SELECT 1 FROM invocations WHERE invocation_id=?", (request.invocation_id,)).fetchone():
                 raise JournalFailure("Invocation ID already consumed; new entry needs a new ID")
             value = self.checkpoint(identity.case_id)
@@ -814,3 +849,4 @@ class CaseStore:
             audit = _read(CheckpointAudit, row[1])
             if audit.entry_id is not None and self.entry(audit.entry_id).case_id != row[0]:
                 raise JournalFailure("Audit references another case entry")
+        self._admission.validate_all()

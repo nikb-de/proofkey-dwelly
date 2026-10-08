@@ -17,6 +17,14 @@ def boundary(stage, wanted):
 
 def main():
     folder, wanted = Path(sys.argv[1]), sys.argv[2]
+    if wanted == "admission":
+        from support import make_auth
+        store = CaseStore(folder / "journal.sqlite")
+        attempt = store.start_admission("attempt-1", make_auth(), make_request(), NOW, make_checkpoint().deadline)
+        lease = store.begin_admission_read(attempt.attempt_id, NOW)
+        print("ENTRY " + lease.entry_id, flush=True)
+        boundary("admission", wanted)
+        return
     if wanted.startswith("provider:"):
         from proofkey.contracts import BudgetLedger, RoleAllowance
         from test_provider_invocation_recovery import permit, invocation
