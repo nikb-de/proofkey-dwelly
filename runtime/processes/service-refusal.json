@@ -1,7 +1,7 @@
 {
   "process_id": "service-refusal-v1",
   "version": "v1",
-  "release_hash": "4eb6d448f810518c63a7b4a484152d02be8e1cba354901685490545ae99adaa2",
+  "release_hash": "8d4dd177465ce7e411bf5f1b4000eacd2790c4c8ac2d0bbc7e141d8afae8bc66",
   "phases": [
     "intake",
     "extraction",
@@ -13,14 +13,19 @@
     "expired",
     "operator_facts",
     "dispatch",
-    "verification",
-    "outcome_unknown",
     "stop",
     "stopped",
     "complete",
     "refusal_gate",
     "verify_refusal",
-    "refusal_complete"
+    "refusal_complete",
+    "outcome_unknown_refusal",
+    "wait_refusal_operator",
+    "handoff_attempted",
+    "handoff_pending",
+    "handoff_blocked",
+    "handoff_outcome_unknown",
+    "handoff_accepted"
   ],
   "edges": [
     {
@@ -79,16 +84,6 @@
       "target": "wait_operator"
     },
     {
-      "origin": "outcome_unknown",
-      "operation": "read_effect",
-      "target": "verification"
-    },
-    {
-      "origin": "verification",
-      "operation": "ask_operator",
-      "target": "wait_operator"
-    },
-    {
       "origin": "stop",
       "operation": "record_stop",
       "target": "stopped"
@@ -112,11 +107,6 @@
       "origin": "verify_refusal",
       "operation": "verify_refusal",
       "target": "refusal_complete"
-    },
-    {
-      "origin": "refusal_complete",
-      "operation": "finish",
-      "target": "complete"
     },
     {
       "origin": "intake",
@@ -169,16 +159,6 @@
       "target": "stop"
     },
     {
-      "origin": "verification",
-      "operation": "request_stop",
-      "target": "stop"
-    },
-    {
-      "origin": "outcome_unknown",
-      "operation": "request_stop",
-      "target": "stop"
-    },
-    {
       "origin": "refusal_gate",
       "operation": "request_stop",
       "target": "stop"
@@ -226,12 +206,7 @@
     {
       "origin": "dispatch",
       "operation": "ask_operator",
-      "target": "wait_operator"
-    },
-    {
-      "origin": "outcome_unknown",
-      "operation": "ask_operator",
-      "target": "wait_operator"
+      "target": "wait_refusal_operator"
     },
     {
       "origin": "refusal_gate",
@@ -241,7 +216,7 @@
     {
       "origin": "verify_refusal",
       "operation": "ask_operator",
-      "target": "wait_operator"
+      "target": "wait_refusal_operator"
     },
     {
       "origin": "refusal_complete",
@@ -251,7 +226,302 @@
     {
       "origin": "dispatch",
       "operation": "mark_unknown",
-      "target": "outcome_unknown"
+      "target": "outcome_unknown_refusal"
+    },
+    {
+      "origin": "verify_refusal",
+      "operation": "read_effect",
+      "target": "verify_refusal"
+    },
+    {
+      "origin": "verify_refusal",
+      "operation": "mark_unknown",
+      "target": "outcome_unknown_refusal"
+    },
+    {
+      "origin": "outcome_unknown_refusal",
+      "operation": "read_effect",
+      "target": "verify_refusal"
+    },
+    {
+      "origin": "outcome_unknown_refusal",
+      "operation": "ask_operator",
+      "target": "wait_refusal_operator"
+    },
+    {
+      "origin": "wait_refusal_operator",
+      "operation": "accept_operator_facts",
+      "target": "verify_refusal"
+    },
+    {
+      "origin": "wait_refusal_operator",
+      "operation": "expire_wait",
+      "target": "outcome_unknown_refusal"
+    },
+    {
+      "origin": "stop",
+      "operation": "read_effect",
+      "target": "stop"
+    },
+    {
+      "origin": "stopped",
+      "operation": "read_effect",
+      "target": "stopped"
+    },
+    {
+      "origin": "refusal_complete",
+      "operation": "enqueue_handoff",
+      "target": "handoff_attempted"
+    },
+    {
+      "origin": "handoff_attempted",
+      "operation": "record_handoff_pending",
+      "target": "handoff_pending"
+    },
+    {
+      "origin": "handoff_pending",
+      "operation": "finish",
+      "target": "complete"
+    },
+    {
+      "origin": "handoff_attempted",
+      "operation": "record_handoff_blocked",
+      "target": "handoff_blocked"
+    },
+    {
+      "origin": "handoff_blocked",
+      "operation": "finish",
+      "target": "complete"
+    },
+    {
+      "origin": "handoff_attempted",
+      "operation": "record_handoff_outcome_unknown",
+      "target": "handoff_outcome_unknown"
+    },
+    {
+      "origin": "handoff_outcome_unknown",
+      "operation": "finish",
+      "target": "complete"
+    },
+    {
+      "origin": "handoff_attempted",
+      "operation": "record_handoff_accepted",
+      "target": "handoff_accepted"
+    },
+    {
+      "origin": "handoff_accepted",
+      "operation": "finish",
+      "target": "complete"
+    },
+    {
+      "origin": "completeness",
+      "operation": "send_clarification",
+      "target": "wait_customer"
+    },
+    {
+      "origin": "expired",
+      "operation": "enqueue_handoff",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "intake",
+      "operation": "enqueue_handoff",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "extraction",
+      "operation": "enqueue_handoff",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "completeness",
+      "operation": "enqueue_handoff",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "auth_gate",
+      "operation": "enqueue_handoff",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "read_authority",
+      "operation": "enqueue_handoff",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "wait_customer",
+      "operation": "enqueue_handoff",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "dispatch",
+      "operation": "enqueue_handoff",
+      "target": "wait_refusal_operator"
+    },
+    {
+      "origin": "refusal_gate",
+      "operation": "enqueue_handoff",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "verify_refusal",
+      "operation": "enqueue_handoff",
+      "target": "wait_refusal_operator"
+    },
+    {
+      "origin": "outcome_unknown_refusal",
+      "operation": "enqueue_handoff",
+      "target": "wait_refusal_operator"
+    },
+    {
+      "origin": "intake",
+      "operation": "send_status",
+      "target": "intake"
+    },
+    {
+      "origin": "extraction",
+      "operation": "send_status",
+      "target": "extraction"
+    },
+    {
+      "origin": "completeness",
+      "operation": "send_status",
+      "target": "completeness"
+    },
+    {
+      "origin": "auth_gate",
+      "operation": "send_status",
+      "target": "auth_gate"
+    },
+    {
+      "origin": "read_authority",
+      "operation": "send_status",
+      "target": "read_authority"
+    },
+    {
+      "origin": "wait_customer",
+      "operation": "send_status",
+      "target": "wait_customer"
+    },
+    {
+      "origin": "wait_operator",
+      "operation": "send_status",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "wait_operator",
+      "operation": "transfer_owner",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "expired",
+      "operation": "send_status",
+      "target": "expired"
+    },
+    {
+      "origin": "operator_facts",
+      "operation": "send_status",
+      "target": "operator_facts"
+    },
+    {
+      "origin": "dispatch",
+      "operation": "send_status",
+      "target": "dispatch"
+    },
+    {
+      "origin": "refusal_gate",
+      "operation": "send_status",
+      "target": "refusal_gate"
+    },
+    {
+      "origin": "verify_refusal",
+      "operation": "send_status",
+      "target": "verify_refusal"
+    },
+    {
+      "origin": "refusal_complete",
+      "operation": "send_status",
+      "target": "refusal_complete"
+    },
+    {
+      "origin": "outcome_unknown_refusal",
+      "operation": "request_stop",
+      "target": "stop"
+    },
+    {
+      "origin": "outcome_unknown_refusal",
+      "operation": "send_status",
+      "target": "outcome_unknown_refusal"
+    },
+    {
+      "origin": "wait_refusal_operator",
+      "operation": "request_stop",
+      "target": "stop"
+    },
+    {
+      "origin": "wait_refusal_operator",
+      "operation": "send_status",
+      "target": "wait_refusal_operator"
+    },
+    {
+      "origin": "wait_refusal_operator",
+      "operation": "transfer_owner",
+      "target": "wait_refusal_operator"
+    },
+    {
+      "origin": "handoff_attempted",
+      "operation": "request_stop",
+      "target": "stop"
+    },
+    {
+      "origin": "handoff_attempted",
+      "operation": "send_status",
+      "target": "handoff_attempted"
+    },
+    {
+      "origin": "handoff_pending",
+      "operation": "request_stop",
+      "target": "stop"
+    },
+    {
+      "origin": "handoff_pending",
+      "operation": "send_status",
+      "target": "handoff_pending"
+    },
+    {
+      "origin": "handoff_blocked",
+      "operation": "request_stop",
+      "target": "stop"
+    },
+    {
+      "origin": "handoff_blocked",
+      "operation": "send_status",
+      "target": "handoff_blocked"
+    },
+    {
+      "origin": "handoff_outcome_unknown",
+      "operation": "request_stop",
+      "target": "stop"
+    },
+    {
+      "origin": "handoff_outcome_unknown",
+      "operation": "send_status",
+      "target": "handoff_outcome_unknown"
+    },
+    {
+      "origin": "handoff_accepted",
+      "operation": "request_stop",
+      "target": "stop"
+    },
+    {
+      "origin": "handoff_accepted",
+      "operation": "send_status",
+      "target": "handoff_accepted"
+    },
+    {
+      "origin": "handoff_accepted",
+      "operation": "transfer_owner",
+      "target": "handoff_accepted"
     }
   ],
   "operations": [
@@ -265,14 +535,22 @@
     "accept_operator_facts",
     "reenter_facts",
     "ask_operator",
-    "read_effect",
     "record_stop",
     "check_refusal",
     "register_service_refusal",
+    "read_effect",
     "verify_refusal",
-    "finish",
     "request_stop",
-    "mark_unknown"
+    "mark_unknown",
+    "enqueue_handoff",
+    "record_handoff_pending",
+    "finish",
+    "record_handoff_blocked",
+    "record_handoff_outcome_unknown",
+    "record_handoff_accepted",
+    "send_clarification",
+    "send_status",
+    "transfer_owner"
   ],
   "prerequisites": [
     {
@@ -298,6 +576,42 @@
       "authority": "customer",
       "fact": "refusal_scope",
       "expected": "service"
+    },
+    {
+      "phase": "refusal_complete",
+      "authority": "service",
+      "fact": "refusal",
+      "expected": "verified"
+    },
+    {
+      "phase": "handoff_attempted",
+      "authority": "operator",
+      "fact": "handoff_attempt",
+      "expected": "recorded"
+    },
+    {
+      "phase": "handoff_pending",
+      "authority": "operator",
+      "fact": "handoff_disposition",
+      "expected": "pending"
+    },
+    {
+      "phase": "handoff_blocked",
+      "authority": "operator",
+      "fact": "handoff_disposition",
+      "expected": "blocked"
+    },
+    {
+      "phase": "handoff_outcome_unknown",
+      "authority": "operator",
+      "fact": "handoff_disposition",
+      "expected": "outcome_unknown"
+    },
+    {
+      "phase": "handoff_accepted",
+      "authority": "operator",
+      "fact": "handoff_disposition",
+      "expected": "accepted"
     }
   ],
   "waits": [
@@ -315,6 +629,16 @@
       "next_gate": "operator_facts",
       "awaited_fields": [
         "case.operator_facts"
+      ],
+      "recipient_role": "operator",
+      "expiry_seconds": 300
+    },
+    {
+      "phase": "wait_refusal_operator",
+      "next_gate": "verify_refusal",
+      "awaited_fields": [
+        "journal.original_effect",
+        "case.reconciliation_facts"
       ],
       "recipient_role": "operator",
       "expiry_seconds": 300
@@ -437,6 +761,54 @@
       "basis": "synthetic-test-policy-v1: offline world contract only",
       "covered_fields": [],
       "evidence_ref": "synthetic-manifest-v1"
+    },
+    "enqueue_handoff": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "record_handoff_pending": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "record_handoff_blocked": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "record_handoff_outcome_unknown": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "record_handoff_accepted": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "send_clarification": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "send_status": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "transfer_owner": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
     }
   },
   "readbacks": {
@@ -547,12 +919,61 @@
       "basis": "synthetic-test-policy-v1: offline world contract only",
       "covered_fields": [],
       "evidence_ref": "synthetic-manifest-v1"
+    },
+    "enqueue_handoff": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "record_handoff_pending": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "record_handoff_blocked": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "record_handoff_outcome_unknown": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "record_handoff_accepted": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "send_clarification": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "send_status": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "transfer_owner": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
     }
   },
   "completion": {
     "phase": "complete",
     "required_operations": [
-      "register_service_refusal"
+      "register_service_refusal",
+      "enqueue_handoff"
     ]
   }
 }

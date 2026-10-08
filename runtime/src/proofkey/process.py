@@ -5,13 +5,35 @@ Synthetic manifests describe test-world guarantees and enable no native route.
 """
 from collections.abc import Mapping
 
-from .contracts import EnvironmentProfile, ProcessSpec
+from .contracts import EnvironmentProfile, ProcessSpec, ReadTarget
 
 
-BASE_MATERIAL = frozenset({"case.binding", "case.request_revision", "customer.consent",
+BASE_MATERIAL = frozenset({"case.binding", "case.request_revision", "case.authorization", "case.generation", "customer.consent",
                           "customer.consent_revision", "delivery.risk", "delivery.stage",
                           "policy.version", "ownership.state_revision"})
-_ESCAPE_OPERATIONS = frozenset({"request_stop", "ask_operator", "ask_customer", "expire_wait", "read_effect"})
+_COMMUNICATION_OPERATIONS = frozenset({"send_clarification", "send_status", "enqueue_handoff", "transfer_owner"})
+_ESCAPE_OPERATIONS = frozenset({"request_stop", "ask_operator", "ask_customer", "expire_wait", "read_effect", "mark_unknown"}) | _COMMUNICATION_OPERATIONS
+_EFFECT_OPERATIONS = frozenset({"reschedule", "register_goods_refusal", "register_service_refusal", "create_return"}) | _COMMUNICATION_OPERATIONS
+
+
+def _scoped_reconciliation(spec: ProcessSpec, phase: str, observations: Mapping[str, object]) -> bool:
+    target = observations.get("journal.original_effect")
+    if not isinstance(target, ReadTarget) or target.kind != "original_effect":
+        return False
+    allowed_effects = _EFFECT_OPERATIONS.intersection(spec.operations)
+    if target.operation not in allowed_effects:
+        return False
+    if phase in {"stop", "stopped"}:
+        return True
+    if phase in {"return_dispatch", "verify_return", "outcome_unknown_return", "wait_return_operator"}:
+        return target.operation == "create_return"
+    if phase in {"verify_refusal", "outcome_unknown_refusal", "wait_refusal_operator"}:
+        return target.operation in {"register_goods_refusal", "register_service_refusal"}
+    if phase == "dispatch":
+        return target.operation in allowed_effects - {"create_return"} - _COMMUNICATION_OPERATIONS
+    if phase in {"verification", "outcome_unknown", "wait_reschedule_operator"}:
+        return target.operation == "reschedule"
+    return False
 
 
 def material_fields(operation: str) -> frozenset[str]:
@@ -20,6 +42,10 @@ def material_fields(operation: str) -> frozenset[str]:
         "reschedule": {"scheduling.capacity", "scheduling.slot", "delivery.status"},
         "register_goods_refusal": {"goods.inventory", "goods.quantity", "delivery.status"},
         "create_return": {"goods.inventory", "goods.quantity", "goods.refusal", "delivery.status", "returns.destination"},
+        "send_clarification": {"messaging.permission", "messaging.recipient", "case.question_revision"},
+        "send_status": {"messaging.permission", "messaging.recipient", "case.result_revision"},
+        "enqueue_handoff": {"operator.recipient", "operator.packet_revision", "operator.packet_hash"},
+        "transfer_owner": {"ownership.state", "ownership.owner", "ownership.epoch", "operator.packet_revision", "operator.packet_hash"},
     }
     return BASE_MATERIAL | extra.get(operation, set())
 
@@ -41,8 +67,12 @@ def validate_process(spec: ProcessSpec) -> None:
         if key in pairs:
             raise ValueError("A phase/operation must select exactly one edge")
         pairs.add(key)
-        if edge.origin in {spec.completion.phase, "stopped"}:
+        readonly_stopped = edge.origin == "stopped" and edge.operation == "read_effect" and edge.target == "stopped"
+        if edge.origin == spec.completion.phase or (edge.origin == "stopped" and not readonly_stopped):
             raise ValueError("Terminal phases cannot dispatch further operations")
+        if edge.origin == "stop" and not (edge.operation == "record_stop" and edge.target == "stopped") and not (
+                edge.operation == "read_effect" and edge.target == "stop"):
+            raise ValueError("Stop recovery cannot reenter a business phase")
     for requirement in spec.prerequisites:
         if requirement.phase not in phases:
             raise ValueError("Prerequisite phase is undeclared")
@@ -82,6 +112,21 @@ class ProcessController:
         if len(matches) != 1:
             return None
         spec, edge = matches[0]
+        if operation in _COMMUNICATION_OPERATIONS and (
+                observed_prerequisites.get("case.authorization") != "verified" or
+                observed_prerequisites.get("case.generation") != "current" or
+                observed_prerequisites.get("case.authority") != "fresh"):
+            return None
+        if operation in {"send_clarification", "send_status"} and observed_prerequisites.get("messaging.permission") != "granted":
+            return None
+        if operation in {"enqueue_handoff", "transfer_owner"} and observed_prerequisites.get("operator.packet") != "current":
+            return None
+        if operation == "transfer_owner" and observed_prerequisites.get("ownership.state") != "accepted":
+            return None
+        if operation == "enqueue_handoff" and "register_service_refusal" in spec.operations and phase == "refusal_complete" and observed_prerequisites.get("service.refusal") != "verified":
+            return None
+        if operation == "read_effect" and not _scoped_reconciliation(spec, phase, observed_prerequisites):
+            return None
         if edge.condition is not None and observed_prerequisites.get(edge.condition) is not True:
             return None
         for requirement in spec.prerequisites:

@@ -1,9 +1,15 @@
 import unittest
 from pathlib import Path
 
-from proofkey.contracts import EnvironmentProfile, ProcessSpec
+from proofkey.contracts import EnvironmentProfile, ProcessSpec, ReadTarget
 from proofkey.process import ProcessController
 from support import load_test_profile
+
+
+def original_scope(operation):
+    return {"journal.original_effect": ReadTarget(kind="original_effect", operation=operation,
+                generation="G1", action_id="original-action", provider_key="original-provider-key",
+                fingerprint="a" * 64)}
 
 
 class ProcessTests(unittest.TestCase):
@@ -39,14 +45,18 @@ class ProcessTests(unittest.TestCase):
             with self.subTest(kind=kind):
                 self.assertEqual(ProcessSpec.model_validate_json(spec.model_dump_json()), spec)
                 self.assertTrue({"intake", "extraction", "completeness", "auth_gate", "wait_customer",
-                                 "wait_operator", "expired", "operator_facts", "dispatch", "verification",
-                                 "outcome_unknown", "stop", "stopped", "complete"}.issubset(spec.phases))
+                                 "wait_operator", "expired", "operator_facts", "dispatch",
+                                 "stop", "stopped", "complete"}.issubset(spec.phases))
+                expected_verify = "verification" if kind.startswith("reschedule") else "verify_refusal"
+                expected_unknown = "outcome_unknown" if kind.startswith("reschedule") else "outcome_unknown_refusal"
+                self.assertIn(expected_verify, spec.phases)
+                self.assertIn(expected_unknown, spec.phases)
                 self.assertFalse(ProcessController(profile, kind=kind).permits("complete", "create_return", {"refusal": "verified"}))
         goods = profile.processes["goods_refusal"]
         self.assertIn("refusal_complete", goods.phases)
         self.assertIn("verify_return", goods.phases)
         self.assertEqual(goods.completion.required_operations, ["register_goods_refusal"])
-        self.assertEqual(profile.processes["service_refusal"].completion.required_operations, ["register_service_refusal"])
+        self.assertEqual(profile.processes["service_refusal"].completion.required_operations, ["register_service_refusal", "enqueue_handoff"])
 
     def test_unknown_phase_operation_kind_and_native_contracts_denied(self):
         controller = ProcessController(load_test_profile())
@@ -116,3 +126,132 @@ class ProcessTests(unittest.TestCase):
         self.assertTrue(controller.permits("wait_confirmation", "expire_wait", {}))
         self.assertFalse(controller.permits("auth_gate", "read_authority", {}))
         self.assertTrue(controller.permits("auth_gate", "read_authority", {"case.authorization": "verified"}))
+
+    def test_unknown_reconciliation_resumes_original_refusal_or_return(self):
+        for kind, dispatch, unknown, verify, operation in (
+            ("goods_refusal", "dispatch", "outcome_unknown_refusal", "verify_refusal", "register_goods_refusal"),
+            ("service_refusal", "dispatch", "outcome_unknown_refusal", "verify_refusal", "register_service_refusal"),
+            ("goods_refusal", "return_dispatch", "outcome_unknown_return", "verify_return", "create_return"),
+            ("reschedule_window", "dispatch", "outcome_unknown", "verification", "reschedule"),
+            ("reschedule_exact", "dispatch", "outcome_unknown", "verification", "reschedule")):
+            with self.subTest(kind=kind, operation=operation):
+                controller = ProcessController(load_test_profile(), kind=kind)
+                self.assertEqual(controller.next_phase(dispatch, "mark_unknown", {}), unknown)
+                self.assertEqual(controller.next_phase(unknown, "read_effect", original_scope(operation)), verify)
+                self.assertIsNone(controller.next_phase(unknown, operation, original_scope(operation)))
+                self.assertIsNone(controller.next_phase(unknown, "extract_input", original_scope(operation)))
+
+    def test_pending_verification_allows_repeat_reads_and_mark_unknown(self):
+        for kind, verify, unknown, operation in (
+            ("goods_refusal", "verify_refusal", "outcome_unknown_refusal", "register_goods_refusal"),
+            ("service_refusal", "verify_refusal", "outcome_unknown_refusal", "register_service_refusal"),
+            ("goods_refusal", "verify_return", "outcome_unknown_return", "create_return"),
+            ("reschedule_window", "verification", "outcome_unknown", "reschedule"),
+            ("reschedule_exact", "verification", "outcome_unknown", "reschedule")):
+            with self.subTest(kind=kind, operation=operation):
+                controller = ProcessController(load_test_profile(), kind=kind)
+                self.assertEqual(controller.next_phase(verify, "read_effect", original_scope(operation)), verify)
+                self.assertEqual(controller.next_phase(verify, "mark_unknown", {}), unknown)
+                self.assertIsNone(controller.next_phase(verify, "read_effect", original_scope("different_effect")))
+
+    def test_operator_reconciliation_preserves_original_verification_gate(self):
+        for kind, verify, wait, unknown, operation in (
+            ("goods_refusal", "verify_refusal", "wait_refusal_operator", "outcome_unknown_refusal", "register_goods_refusal"),
+            ("service_refusal", "verify_refusal", "wait_refusal_operator", "outcome_unknown_refusal", "register_service_refusal"),
+            ("goods_refusal", "verify_return", "wait_return_operator", "outcome_unknown_return", "create_return"),
+            ("reschedule_window", "verification", "wait_reschedule_operator", "outcome_unknown", "reschedule"),
+            ("reschedule_exact", "verification", "wait_reschedule_operator", "outcome_unknown", "reschedule")):
+            with self.subTest(kind=kind, operation=operation):
+                controller = ProcessController(load_test_profile(), kind=kind)
+                self.assertEqual(controller.next_phase(verify, "ask_operator", {}), wait)
+                self.assertEqual(controller.next_phase(wait, "accept_operator_facts", {}), verify)
+                self.assertEqual(controller.next_phase(wait, "expire_wait", {}), unknown)
+                self.assertIsNone(controller.next_phase(wait, "reenter_facts", {}))
+
+    def test_stopped_recovery_is_scoped_readonly_and_retains_stop(self):
+        for kind, operation in (("goods_refusal", "create_return"), ("service_refusal", "register_service_refusal"),
+                                ("reschedule_window", "reschedule"), ("reschedule_exact", "reschedule")):
+            controller = ProcessController(load_test_profile(), kind=kind)
+            for phase in ("stop", "stopped"):
+                with self.subTest(kind=kind, phase=phase):
+                    self.assertEqual(controller.next_phase(phase, "read_effect", original_scope(operation)), phase)
+                    self.assertIsNone(controller.next_phase(phase, "read_effect", {}))
+                    self.assertIsNone(controller.next_phase(phase, "read_effect", original_scope("different_effect")))
+                    for forbidden in (operation, "authenticate", "extract_input", "ask_operator", "reenter_facts", "finish"):
+                        self.assertIsNone(controller.next_phase(phase, forbidden, original_scope(operation)))
+
+    def test_stopped_terminal_exception_cannot_reenter_business_phase(self):
+        for phase in ("stop", "stopped"):
+            data = load_test_profile().model_dump(mode="json")
+            for edge in data["processes"]["goods_refusal"]["edges"]:
+                if edge["origin"] == phase and edge["operation"] == "read_effect":
+                    edge["target"] = "verify_return"
+            with self.subTest(phase=phase), self.assertRaises(ValueError):
+                ProcessController(EnvironmentProfile.model_validate(data), kind="goods_refusal")
+
+    def test_service_requires_handoff_attempt_and_preserves_partial_disposition(self):
+        controller = ProcessController(load_test_profile(), kind="service_refusal")
+        self.assertIsNone(controller.next_phase("refusal_complete", "finish", {"service.refusal": "verified"}))
+        self.assertEqual(controller.next_phase("refusal_complete", "enqueue_handoff", {"service.refusal": "verified",
+                         "case.authorization": "verified", "case.generation": "current", "case.authority": "fresh",
+                         "operator.packet": "current"}), "handoff_attempted")
+        for disposition in ("pending", "blocked", "outcome_unknown", "accepted"):
+            with self.subTest(disposition=disposition):
+                saved_phase = "handoff_" + disposition
+                observations = {"operator.handoff_attempt": "recorded", "operator.handoff_disposition": disposition}
+                self.assertEqual(controller.next_phase("handoff_attempted", "record_handoff_" + disposition, observations), saved_phase)
+                self.assertEqual(controller.next_phase(saved_phase, "finish", observations), "complete")
+                self.assertIsNone(controller.next_phase(saved_phase, "finish", {"operator.handoff_disposition": "unverified"}))
+                self.assertIsNone(controller.next_phase(saved_phase, "create_return", observations))
+        self.assertIn("enqueue_handoff", controller.profile.processes["service_refusal"].completion.required_operations)
+
+    def test_unknown_effect_can_finish_its_original_verified_path(self):
+        goods = ProcessController(load_test_profile(), kind="goods_refusal")
+        self.assertEqual(goods.next_phase("outcome_unknown_refusal", "read_effect", original_scope("register_goods_refusal")), "verify_refusal")
+        self.assertEqual(goods.next_phase("verify_refusal", "verify_refusal", {"goods.refusal": "verified"}), "refusal_complete")
+        self.assertEqual(goods.next_phase("refusal_complete", "finish", {}), "complete")
+        self.assertEqual(goods.next_phase("outcome_unknown_return", "read_effect", original_scope("create_return")), "verify_return")
+        self.assertEqual(goods.next_phase("verify_return", "verify_return", {"returns.return": "verified"}), "complete")
+        self.assertIsNone(goods.next_phase("verify_return", "verify_return", {"returns.return": "acknowledged"}))
+
+    def test_physical_message_handoff_transfer_edges_are_explicit(self):
+        profile = load_test_profile()
+        current = {"case.authorization": "verified", "case.generation": "current", "case.authority": "fresh",
+                   "messaging.permission": "granted", "operator.packet": "current", "ownership.state": "accepted"}
+        for kind in profile.processes:
+            controller = ProcessController(profile, kind=kind)
+            self.assertEqual(controller.next_phase("completeness", "send_clarification", current), "wait_customer")
+            self.assertEqual(controller.next_phase("wait_operator", "send_status", current), "wait_operator")
+            self.assertEqual(controller.next_phase("auth_gate", "enqueue_handoff", current), "wait_operator")
+            self.assertEqual(controller.next_phase("wait_operator", "transfer_owner", current), "wait_operator")
+            for operation in ("send_clarification", "send_status", "enqueue_handoff", "transfer_owner"):
+                self.assertIn(operation, profile.capabilities)
+                self.assertEqual(profile.capabilities[operation].operation, operation)
+                self.assertIsNone(controller.next_phase("stopped", operation, {}))
+            for observations in ({}, {"case.authorization": "verified"},
+                                 {"case.authorization": "verified", "case.generation": "stale"}):
+                self.assertIsNone(controller.next_phase("wait_operator", "send_status", observations))
+            for missing in ("case.authority", "messaging.permission"):
+                self.assertIsNone(controller.next_phase("wait_operator", "send_status", {k: v for k, v in current.items() if k != missing}))
+            for state in ("unowned", "pending", "transfer_pending", "stopped"):
+                self.assertIsNone(controller.next_phase("wait_operator", "transfer_owner", {**current, "ownership.state": state}))
+            self.assertIsNone(controller.next_phase("wait_operator", "transfer_owner", {**current, "operator.packet": "stale"}))
+
+    def test_physical_capabilities_cover_recipient_question_packet_and_owner(self):
+        required = {
+            "send_clarification": {"case.authorization", "case.generation", "messaging.permission", "messaging.recipient", "case.question_revision"},
+            "send_status": {"case.authorization", "case.generation", "messaging.permission", "messaging.recipient", "case.result_revision"},
+            "enqueue_handoff": {"case.authorization", "case.generation", "operator.recipient", "operator.packet_revision", "operator.packet_hash"},
+            "transfer_owner": {"case.authorization", "case.generation", "ownership.state", "ownership.owner", "ownership.epoch", "operator.packet_revision", "operator.packet_hash"},
+        }
+        for operation, fields in required.items():
+            for missing in fields:
+                data = load_test_profile().model_dump(mode="json")
+                capability = data["capabilities"].get(operation)
+                self.assertIsNotNone(capability, operation)
+                capability["conditional_coverage"]["covered_fields"] = [x for x in capability["conditional_coverage"]["covered_fields"] if x != missing]
+                phase = "completeness" if operation == "send_clarification" else "auth_gate" if operation == "enqueue_handoff" else "wait_operator"
+                with self.subTest(operation=operation, missing=missing):
+                    self.assertFalse(ProcessController(EnvironmentProfile.model_validate(data), kind="goods_refusal").permits(
+                        phase, operation, {"case.authorization": "verified", "case.generation": "current", "case.authority": "fresh",
+                                           "messaging.permission": "granted", "operator.packet": "current", "ownership.state": "accepted"}))

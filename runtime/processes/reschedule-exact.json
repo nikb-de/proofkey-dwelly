@@ -1,7 +1,7 @@
 {
   "process_id": "reschedule-exact-v1",
   "version": "v1",
-  "release_hash": "d2dcd17164a148e23058464ac6fcc7ff161a30ce15aac9495e57b0f822ff6e8a",
+  "release_hash": "b2e78ac7e7c830e204a1c68850827b50e9ae506ea622d6e971bec361e3c541f1",
   "phases": [
     "intake",
     "extraction",
@@ -20,7 +20,8 @@
     "complete",
     "slot_selection",
     "wait_confirmation",
-    "exact_gate"
+    "exact_gate",
+    "wait_reschedule_operator"
   ],
   "edges": [
     {
@@ -86,7 +87,7 @@
     {
       "origin": "verification",
       "operation": "ask_operator",
-      "target": "wait_operator"
+      "target": "wait_reschedule_operator"
     },
     {
       "origin": "stop",
@@ -236,12 +237,12 @@
     {
       "origin": "dispatch",
       "operation": "ask_operator",
-      "target": "wait_operator"
+      "target": "wait_reschedule_operator"
     },
     {
       "origin": "outcome_unknown",
       "operation": "ask_operator",
-      "target": "wait_operator"
+      "target": "wait_reschedule_operator"
     },
     {
       "origin": "slot_selection",
@@ -262,6 +263,206 @@
       "origin": "dispatch",
       "operation": "mark_unknown",
       "target": "outcome_unknown"
+    },
+    {
+      "origin": "verification",
+      "operation": "read_effect",
+      "target": "verification"
+    },
+    {
+      "origin": "verification",
+      "operation": "mark_unknown",
+      "target": "outcome_unknown"
+    },
+    {
+      "origin": "wait_reschedule_operator",
+      "operation": "accept_operator_facts",
+      "target": "verification"
+    },
+    {
+      "origin": "wait_reschedule_operator",
+      "operation": "expire_wait",
+      "target": "outcome_unknown"
+    },
+    {
+      "origin": "stop",
+      "operation": "read_effect",
+      "target": "stop"
+    },
+    {
+      "origin": "stopped",
+      "operation": "read_effect",
+      "target": "stopped"
+    },
+    {
+      "origin": "completeness",
+      "operation": "send_clarification",
+      "target": "wait_customer"
+    },
+    {
+      "origin": "expired",
+      "operation": "enqueue_handoff",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "verification",
+      "operation": "enqueue_handoff",
+      "target": "wait_reschedule_operator"
+    },
+    {
+      "origin": "slot_selection",
+      "operation": "send_clarification",
+      "target": "wait_confirmation"
+    },
+    {
+      "origin": "intake",
+      "operation": "enqueue_handoff",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "extraction",
+      "operation": "enqueue_handoff",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "completeness",
+      "operation": "enqueue_handoff",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "auth_gate",
+      "operation": "enqueue_handoff",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "read_authority",
+      "operation": "enqueue_handoff",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "wait_customer",
+      "operation": "enqueue_handoff",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "dispatch",
+      "operation": "enqueue_handoff",
+      "target": "wait_reschedule_operator"
+    },
+    {
+      "origin": "outcome_unknown",
+      "operation": "enqueue_handoff",
+      "target": "wait_reschedule_operator"
+    },
+    {
+      "origin": "slot_selection",
+      "operation": "enqueue_handoff",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "wait_confirmation",
+      "operation": "enqueue_handoff",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "exact_gate",
+      "operation": "enqueue_handoff",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "intake",
+      "operation": "send_status",
+      "target": "intake"
+    },
+    {
+      "origin": "extraction",
+      "operation": "send_status",
+      "target": "extraction"
+    },
+    {
+      "origin": "completeness",
+      "operation": "send_status",
+      "target": "completeness"
+    },
+    {
+      "origin": "auth_gate",
+      "operation": "send_status",
+      "target": "auth_gate"
+    },
+    {
+      "origin": "read_authority",
+      "operation": "send_status",
+      "target": "read_authority"
+    },
+    {
+      "origin": "wait_customer",
+      "operation": "send_status",
+      "target": "wait_customer"
+    },
+    {
+      "origin": "wait_operator",
+      "operation": "send_status",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "wait_operator",
+      "operation": "transfer_owner",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "expired",
+      "operation": "send_status",
+      "target": "expired"
+    },
+    {
+      "origin": "operator_facts",
+      "operation": "send_status",
+      "target": "operator_facts"
+    },
+    {
+      "origin": "dispatch",
+      "operation": "send_status",
+      "target": "dispatch"
+    },
+    {
+      "origin": "verification",
+      "operation": "send_status",
+      "target": "verification"
+    },
+    {
+      "origin": "outcome_unknown",
+      "operation": "send_status",
+      "target": "outcome_unknown"
+    },
+    {
+      "origin": "slot_selection",
+      "operation": "send_status",
+      "target": "slot_selection"
+    },
+    {
+      "origin": "wait_confirmation",
+      "operation": "send_status",
+      "target": "wait_confirmation"
+    },
+    {
+      "origin": "exact_gate",
+      "operation": "send_status",
+      "target": "exact_gate"
+    },
+    {
+      "origin": "wait_reschedule_operator",
+      "operation": "request_stop",
+      "target": "stop"
+    },
+    {
+      "origin": "wait_reschedule_operator",
+      "operation": "send_status",
+      "target": "wait_reschedule_operator"
+    },
+    {
+      "origin": "wait_reschedule_operator",
+      "operation": "transfer_owner",
+      "target": "wait_reschedule_operator"
     }
   ],
   "operations": [
@@ -282,7 +483,11 @@
     "reschedule",
     "finish",
     "request_stop",
-    "mark_unknown"
+    "mark_unknown",
+    "send_clarification",
+    "enqueue_handoff",
+    "send_status",
+    "transfer_owner"
   ],
   "prerequisites": [
     {
@@ -349,6 +554,16 @@
         "scheduling.slot"
       ],
       "recipient_role": "customer",
+      "expiry_seconds": 300
+    },
+    {
+      "phase": "wait_reschedule_operator",
+      "next_gate": "verification",
+      "awaited_fields": [
+        "journal.original_effect",
+        "case.reconciliation_facts"
+      ],
+      "recipient_role": "operator",
       "expiry_seconds": 300
     }
   ],
@@ -469,6 +684,30 @@
       "basis": "synthetic-test-policy-v1: offline world contract only",
       "covered_fields": [],
       "evidence_ref": "synthetic-manifest-v1"
+    },
+    "send_clarification": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "enqueue_handoff": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "send_status": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "transfer_owner": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
     }
   },
   "readbacks": {
@@ -575,6 +814,30 @@
       "evidence_ref": "synthetic-manifest-v1"
     },
     "mark_unknown": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "send_clarification": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "enqueue_handoff": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "send_status": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "transfer_owner": {
       "status": "supported",
       "basis": "synthetic-test-policy-v1: offline world contract only",
       "covered_fields": [],
