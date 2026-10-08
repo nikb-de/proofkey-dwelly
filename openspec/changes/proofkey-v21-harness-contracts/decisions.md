@@ -1,6 +1,6 @@
 # Design decision ledger — revision 8 October 2026
 
-Status: original 18 choices and nine confirmed Drive follow-up choices recorded; follow-up 5 remains ambiguous and the revised written design is pending review. This ledger is not implementation evidence or permission to publish, contact the team, connect logistics systems or spend from providers.
+Status: original 18 choices and all ten confirmed Drive follow-up choices recorded; the user's later “да” closes follow-up 5. The revised written design is pending review. This ledger is not implementation evidence or permission to publish, contact the team, connect logistics systems or spend from providers.
 
 | # | User decision | Design consequence / interpretation |
 |---|---|---|
@@ -37,7 +37,7 @@ The [original ten questions and reply ledger](follow-up-questions.md) preserve c
 | D2 | Stop further attempts; refusal can follow | Persist stop disposition independently of original effect outcome. Reconcile without resending/undoing. A subsequent refusal needs a separate authorized generation and safe current object state. |
 | D3 | Adopt facts-only operator help | Save origin/missing fields; return through completeness and current authority checks. Any delegated authority needs explicit profile evidence. |
 | D4 | Save and continue all workflow phases | Durable pre-confirmation checkpoints include awaited question, next gate, versions and remaining budgets. Restart is not a jump to execution. |
-| D5 | **Unresolved: “давай без”** | Clarification requested; do not infer terminal replay/status-refresh semantics. Duplicate-effect prevention remains required regardless of the answer. |
+| D5 | Saved-result replay only; confirmed by “да” | Match the completed request/generation and check current scoped disclosure access. Return the historical saved result/as-of state without effects, messages, model processing, automatic business readback or a new generation; preserve budgets and uncertainties. |
 | D6 | Durable versioned owner transfer | Same case/packet, stable transfer identity and acceptance receipt. Old owner remains accountable until confirmed acceptance; uncertain transfer fences action authorization and stale decisions are rejected. |
 | D7 | Durable waiting/expiry first | Scoped transfer modeled within the existing operator port. Automatic reminders off by default; unknown expiry/recipient/cadence/count policy cannot authorize effects or indefinite polling. |
 | D8 | Internal-case record-only | Record an operator disposition; actual creation is deferred/disabled. Do not confuse this with the existing handoff queue case. |
@@ -46,4 +46,4 @@ The [original ten questions and reply ledger](follow-up-questions.md) preserve c
 
 ## Still not decided by these answers
 
-Follow-up 5; exact dependencies/model identities, native operation/ownership contracts, bounded waiting policy values, cloud deployment/authentication, exact media retention duration, cost ceiling, native connected services, event team registrations, protected holdout custody and organizer freeze/eligibility clarification. Safe local preparation can proceed after design/plan review without pretending these facts are known.
+Written-design approval; exact dependencies/model identities, native operation/ownership contracts, bounded waiting policy values, cloud deployment/authentication, exact media retention duration, cost ceiling, native connected services, event team registrations, protected holdout custody and organizer freeze/eligibility clarification. Safe local preparation can proceed after design/plan review without pretending these facts are known.

@@ -1,6 +1,6 @@
 # Drive decision revision — written review receipt
 
-Date: 8 October 2026, Europe/London. Scope: current written design, requirements, process projections and OpenSpec work breakdown. Nine follow-up choices are recorded; D5 is unresolved. This supplements, not replaces, the earlier review.md and frozen five-provider assessments. It is **not** a new five-model panel, runtime pass, timing receipt, calibrated evaluation or user approval.
+Date: 8 October 2026, Europe/London. Original review scope: written design, requirements, process projections and OpenSpec work breakdown at commit `b517a34`. At that time nine follow-up choices were recorded and D5 was unresolved; the later user “да” closes D5 as recorded in the addendum below. This supplements, not replaces, the earlier review.md and frozen five-provider assessments. It is **not** a new five-model panel, runtime pass, timing receipt, calibrated evaluation or whole-design user approval.
 
 ## Independent targeted review
 
@@ -24,9 +24,17 @@ These are two agent reviews on the same model route, not model diversity. Root c
 
 ## Remaining gates
 
-1. Clarify D5's “давай без”; mandatory duplicate-effect prevention remains fixed, while terminal response/replay/refresh semantics are not inferred.
+1. **Resolved after the original review:** user “да” confirms D5's saved-result replay without repeated actions/messages or automatic status refresh. See the clarification ledger and addendum; whole written-design approval remains separate.
 2. User reviews this written design. Then prepare the detailed Superpowers implementation plan; review it and select execution before product coding.
 3. Supply approved finite wait/transfer policy values and per-role provider caps before the affected executable path is enabled; exact original-evidence retention policy is required before native service use.
 4. Retain separate native-authority/conditional-guarantee, provider access/budget/privacy, event eligibility/freeze, human registration and protected-evaluation gates.
 
 Superpowers brainstorming preserved the architectural approval stages; parallel review and receiving-code-review shaped the safety refinements; build-eval kept source-linked regressions, ambiguous labels and timed denominators honest; verification-before-completion required fresh structure/hash checks. Specifications remain under OpenSpec as requested. No skill recommendation overrides the user's choices or grants external permissions.
+
+## D5 confirmation addendum — 8 October 2026
+
+The user answered “да” to the explicit completed-case replay clarification. Active design/specs/decision ledger/task breakdown now require matching historical request/generation/fingerprint, current scoped disclosure permission, saved result/version/as-of and retained per-effect uncertainty/stop. Duplicate replay triggers no model/effect/message/handoff, automatic business readback/reconciliation, new generation or budget reset. Current bounded access-authority verification is not business-status refresh; revoked/unverifiable access withholds details. New business intent requires separate authentication, not a consent change alone.
+
+R15 now has explicit planned controls for revoked access, later business change and final output retaining unknown effects; these are not executable fixtures or passed tests. The original review snapshot is retained above rather than retroactively claiming its reviewers saw this clarification. No runtime work, new paid campaign or whole-design approval follows from the answer. Strict OpenSpec/whitespace/link checks apply only to documentation; detailed planning still awaits written-design approval.
+
+The separate read-only `completed_replay_review` agent (declared `gpt-6.1-sol`, medium effort) checked the saved D5 requirement/scenarios, process projection, ledger and task boundary and reported no blocking written inconsistency in that narrow scope. Root independently read back the requirement and checked strict OpenSpec validity, whitespace and 36 local links; five explanatory Mermaid blocks and R01–R15 IDs are retained. These are structure/content checks, not rendered-diagram or runtime test passes.

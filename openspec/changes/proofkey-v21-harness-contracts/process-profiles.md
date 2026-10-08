@@ -1,6 +1,6 @@
 # Process profiles and source-linked regression obligations
 
-Design revision: 8 October 2026, Europe/London. These are explanatory projections of the proposed contracts, **not executable ProcessSpec, repaired native diagrams or test results**. Reviewed runtime ProcessSpec + contract tests will be canonical; released views must identify their profile/process release hash. Imported v3 originals remain unchanged. Follow-up 5 (completed-duplicate response) is unresolved and deliberately has no approved replay/refresh branch here.
+Design revision: 8 October 2026, Europe/London. These are explanatory projections of the proposed contracts, **not executable ProcessSpec, repaired native diagrams or test results**. Reviewed runtime ProcessSpec + contract tests will be canonical; released views must identify their profile/process release hash. Imported v3 originals remain unchanged. Follow-up 5 now confirms historical saved-result replay without repeated actions/messages or automatic business-status refresh; a separate view below makes its disclosure gate explicit.
 
 ## 1. Rescheduling — main demo first, two consent profiles
 
@@ -94,7 +94,21 @@ flowchart TD
 
 Old-owner accountability and executor ownership are different. Pending transfer fences new action-bearing decisions and earlier prepared/undispatched decision intents; already-started effects remain possibly executed and must be reconciled. Decision-based dispatch must conditionally protect material ownership state/revision including pending transfer; an unchanged epoch or fresh local read is insufficient. A stale packet/ownership revision blocks transfer acceptance. No duplicate case, renewed budget or automatic ownership change follows from expiry. Ownership never grants unrestricted access to raw evidence. Reminders are disabled initially; enabled transfer needs bounded, reviewed profile rules. Missing wait/transfer expiry values disable the unsupported path, not the entire separately authorized read-only case view.
 
-## 5. Required untimed regressions before the timed candidate freezes
+## 5. Completed duplicate — saved-result replay, not new execution
+
+```mermaid
+flowchart TD
+    Duplicate[Duplicate input] --> Match[Match completed case / object / generation / fingerprint]
+    Match --> Access[Check current scoped permission to disclose saved result]
+    Access -- denied / unavailable --> Deny[Withhold case details]
+    Access -- allowed --> Saved[Return saved result / version / as-of timestamp]
+    Saved --> History[Historical per-effect states, including unknown and stop]
+    History --> NoAction[No model / effect / message / handoff / business readback / new generation]
+```
+
+A bounded current access-authority read is permitted; it is not a refresh of delivery/schedule/return status. Historical consent identifies the saved request, while current disclosure permission controls release of its result. Execution budgets/deadlines are not renewed or reset; any permitted access reads are recorded and consume their applicable saved call/read allowance. If current access cannot be established within its bounds, no case details are disclosed. Unfinished-effect recovery is separately scoped, not triggered by the replay. A genuinely new business request requires separate authenticated intent, not a duplicate event or consent change alone.
+
+## 6. Required untimed regressions before the timed candidate freezes
 
 These are **planned obligations**, not existing fixtures/test passes. The detailed implementation plan must assign exact test files/inputs/hashes and independent failure drivers. Source node IDs refer to the preserved XML inspected in drive-workflow-v3.md. Related variants remain one source family for split/contamination reporting; LLM-proposed labels remain provisional.
 
@@ -114,6 +128,6 @@ These are **planned obligations**, not existing fixtures/test passes. The detail
 | R12 | Old decision vs transfer / stale packet race | Conditional ownership-state/revision winner; fence old-owner intent prepared before pending transfer despite unchanged epoch; no stale effect, duplicate case or packet acceptance | Core + conditional adapter fixtures |
 | R13 | Waiting/reminders; C `5:323`, `5:404` | Saved owner/expiry/budgets; no automatic reminder/transfer/financial creation on timeout | Interfaces + core |
 | R14 | Record-only internal case / private originals / view drift | No internal-case creation; scoped evidence access; no raw auto-publication/deletion; diagram cannot activate behavior | Interfaces + evidence + adaptation |
-| R15 | Completed duplicate; B `4:187`, `4:193`, `4:163` | No repeat business effect; response/replay/refresh expectation **pending follow-up 5** | Core; resolve D5 before fixture freeze |
+| R15 | Completed duplicate; B `4:187`, `4:193`, `4:163` | Exact saved-request match/current disclosure scope; historical as-of replay without model/effect/message/business refresh/new generation or budget reset. Revoked/unverifiable access withheld; saved unknown stays unknown after later business change | Core + output/access contracts; confirmed D5 |
 
 The four existing 600-second exercises retain their declared 7/4/12 execution workloads until an exact new workload is reviewed and frozen. The untimed obligations above do not inherit historical receipts or silently inflate those timed denominators. They are mandatory regression coverage before measuring the complete revised candidate. Missing fixtures, runtime implementation, campaign access or actual processing remain unfinished. No native diagram synchronization, live logistics connection or paid model call is introduced here.

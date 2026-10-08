@@ -112,7 +112,7 @@ A resend SHALL require verified provider idempotency or authoritative terminal e
 
 ### Requirement: Logical identity distinguishes duplicates and supersession
 
-The runtime SHALL persist authorized request generations and derive distinct operation/stage logical IDs independently of transport event IDs. It SHALL retain an immutable argument fingerprint, original provider key and explicit supersession relation. A duplicate semantic request SHALL reuse its existing generation; unresolved original effects SHALL block conflicting replacement writes. An unknown request identity SHALL NOT authorize a new generation merely to repeat a business effect. A human decision SHALL NOT create non-execution proof or idempotency, erase uncertainty or bypass a material dependency. Completed-duplicate response policy remains undecided; this SHALL NOT weaken duplicate-effect prevention.
+The runtime SHALL persist authorized request generations and derive distinct operation/stage logical IDs independently of transport event IDs. It SHALL retain an immutable argument fingerprint, original provider key and explicit supersession relation. A duplicate semantic request SHALL reuse its existing generation; unresolved original effects SHALL block conflicting replacement writes. An unknown request identity SHALL NOT authorize a new generation merely to repeat a business effect. A human decision SHALL NOT create non-execution proof or idempotency, erase uncertainty or bypass a material dependency. A consent change SHALL NOT turn a duplicate into a new business request without separately authenticated new intent.
 
 #### Scenario: Duplicate arrives with another event ID
 - **WHEN** a second authenticated input has the same request identity, consent revision and canonical business intent
@@ -129,6 +129,22 @@ The runtime SHALL persist authorized request generations and derive distinct ope
 #### Scenario: Duplicate old request arrives after a subsequent refusal
 - **WHEN** the stopped original reschedule input is repeated after a separate refusal request
 - **THEN** it binds to the stopped generation without resuming scheduling or resetting case budgets
+
+### Requirement: Completed duplicates replay historical results without actions
+
+A duplicate matching a completed case/object/request generation and immutable intent fingerprint SHALL return the saved result only after current scoped disclosure authorization. Historical request/consent identity SHALL identify the stored generation without requiring current business-action consent for pure disclosure. Missing/revoked access SHALL withhold case details; bounded access-authority reads MAY occur without business-status refresh. Replay SHALL retain result/version, as-of time, independent verified/partial/pending/unknown outcomes and stop, and SHALL be labeled historical. It SHALL NOT invoke models, business effects, customer messages, handoff, automatic business readback/reconciliation, a new request generation or reset execution budgets/deadlines. Recovery of unfinished effects SHALL remain separately scoped, not triggered by the duplicate replay. Automatic status refresh SHALL be excluded.
+
+#### Scenario: Duplicate completed request after a later business change
+- **WHEN** an authorized duplicate matches the saved completed request and external business state has since changed
+- **THEN** the saved as-of result is replayed as historical without reading current business status, creating a new generation or repeating actions/messages
+
+#### Scenario: Original caller loses access before replay
+- **WHEN** a matching duplicate arrives but current scoped disclosure permission is revoked or cannot be established
+- **THEN** case details are withheld without relying on historical access permission
+
+#### Scenario: Final saved output retains an unknown effect
+- **WHEN** a completed response/output retains an unknown original effect and a matching authorized duplicate arrives
+- **THEN** replay preserves that as-of unknown state without inventing verification or automatically reconciling/resending the original effect
 
 ### Requirement: Budgets survive recovery
 

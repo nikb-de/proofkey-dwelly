@@ -1,4 +1,4 @@
-Status: revised work breakdown for written review on 8 October 2026, Europe/London, incorporating the user's 18 answers and nine confirmed Drive follow-ups; follow-up 5 is pending clarification. No runtime task is complete. Development uses the user and coding agents; actual event people/registrations remain unconfirmed. Revised estimate: 59–94 additive person-hours (+5–8 from 54–86), not agent wall-clock time or an event promise. This file is input to, not a replacement for, the detailed Superpowers implementation plan.
+Status: revised work breakdown for written review on 8 October 2026, Europe/London, incorporating the user's 18 answers and all ten confirmed Drive follow-ups. No runtime task is complete. Development uses the user and coding agents; actual event people/registrations remain unconfirmed. Revised estimate: 59–94 additive person-hours (+5–8 from 54–86), not agent wall-clock time or an event promise. This file is input to, not a replacement for, the detailed Superpowers implementation plan.
 
 ## 1. Design approval and execution planning — user + agents, 2–4 hours
 
@@ -7,8 +7,8 @@ Status: revised work breakdown for written review on 8 October 2026, Europe/Lond
 - [ ] 1.3 Assign local file owners, agent tasks, human review and go/no-go checkpoints; keep actual event people/registrations separate from development resources.
 - [ ] 1.4 Create the detailed Superpowers implementation plan in docs/superpowers/plans; review it and select subagent-driven or inline execution.
 - [ ] 1.5 Freeze initial approved ProcessSpec/schema examples, public contracts, shared file ownership and operation-by-failure fixture allocation before parallel consumers.
-- [ ] 1.6 Close the sole ambiguous answer, follow-up 5 (completed-duplicate response). Nine confirmed follow-up choices are recorded in decisions.md; preserve their exact scope and the prior decisions.
-- [x] 1.7 Revise source-linked consent, stop/cancel, pre-effect recovery and ownership requirements; add process-profiles.md with the return companion and regression obligations, and rebaseline effort. Evidence: this written revision, 8 October 2026. This is documentation work only, not implemented/approved runtime. Automatic reminders off, internal-case creation deferred/record-only, native diagram sync excluded; follow-up 5 remains open.
+- [x] 1.6 Close follow-up 5: user replied “да” to saved-result replay without repeated actions/messages or automatic status refresh, 8 October 2026. All ten choices are recorded; this is clarification, not whole-design approval.
+- [x] 1.7 Revise source-linked consent, stop/cancel, pre-effect recovery and ownership requirements; add process-profiles.md with the return companion and regression obligations, and rebaseline effort. Evidence: this written revision, 8 October 2026. This is documentation work only, not implemented/approved runtime. Automatic reminders off, internal-case creation deferred/record-only, native diagram sync excluded; D5 now confirms historical saved-result replay.
 
 ## 2. Shared contracts and six-adapter bundle — adapter owner, 9–14 hours
 
@@ -44,7 +44,7 @@ Status: revised work breakdown for written review on 8 October 2026, Europe/Lond
 - [ ] 4.5 Verify unsupported request classes cannot trigger a business write and separately authorized clarification/handoff remain possible.
 - [ ] 4.6 Verify forged, replayed, expired, wrong-case, stale and scope-expanding operator decisions cannot resume effects.
 - [ ] 4.7 Implement explicit later goods/service refusal as a separate authenticated generation after stop; retain original outcome/uncertainty, check material dependencies and never reset case budgets or revive scheduling.
-- [ ] 4.8 Implement completed-duplicate response only after follow-up 5 is resolved; mandatory no-repeat-effect behavior does not depend on that presentation choice.
+- [ ] 4.8 Implement confirmed completed-duplicate historical saved-result replay: exact request/fingerprint binding, current scoped access, retained as-of/partial/unknown/stop states, no automatic business readback, model/effect/message/handoff or budget reset; test unavailable/revoked access and later business changes.
 
 ## 5. Common entry points and clarification — interface owner, 6–10 hours
 
@@ -81,13 +81,13 @@ Status: revised work breakdown for written review on 8 October 2026, Europe/Lond
 - [ ] 8.6 Enforce oracle isolation with denied-access/canary probes and assign independent human custody before protected holdout; otherwise explicitly report rehearsal.
 - [ ] 8.7 Independently review/reproduce the frozen candidate, verify actual requirements and report missing runtime/native/provider evidence as unfinished.
 - [ ] 8.8 Prepare a clean source/license/rights package, reproducible instructions, sixty-second video and unsent LinkedIn/X drafts without publication/submission.
-- [ ] 8.9 Turn process-profiles.md R01–R15 into exact independent regression fixtures/inputs/hashes and failing tests; resolve R15 response semantics before fixture freeze. Exercise stop, early operator, all-phase recovery, ownership/packet races, expiry and scope/access gates before timed candidate measurement.
+- [ ] 8.9 Turn process-profiles.md R01–R15 into exact independent regression fixtures/inputs/hashes and failing tests, including confirmed saved-result replay R15. Exercise stop, early operator, all-phase recovery, ownership/packet races, expiry and scope/access gates before timed candidate measurement.
 
 ## Dependency and scope delta
 
 Freeze foundation contracts (1.5/2.2) before adapter/core/interface consumers. Operator transfer authority is adapter work (2.9); durable stop/phase/transfer reconciliation is core work (3.7–3.9); facts-only re-entry and waits are interface work (5.4); regression allocation is acceptance work (8.9). Bounded planning waits for ProcessSpec enforcement (3.4); adaptation changes an existing baseline (7.1). No seven-port expansion or diagram-service dependency is introduced.
 
-The +5–8 h allocation is adapter contracts +1–2 h, core controls +2–4 h, regressions +2 h. Initial ownership/expiry fixtures are offline reviewed policies, not invented native permissions. Existing timed workloads remain 7 positive / 4 recovery / 12 unsafe cases unless separately revised/frozen. Required new untimed regressions cannot be skipped or claimed from old receipts. Follow-up 5 and policy values remain gates; detailed file-level implementation planning begins after written-design review.
+The +5–8 h allocation is adapter contracts +1–2 h, core controls +2–4 h, regressions +2 h. Initial ownership/expiry fixtures are offline reviewed policies, not invented native permissions. Existing timed workloads remain 7 positive / 4 recovery / 12 unsafe cases unless separately revised/frozen. Required new untimed regressions cannot be skipped or claimed from old receipts. Policy values and written-design approval remain gates; detailed file-level implementation planning begins after written-design review. Confirming D5 creates no execution receipt or new effort measurement.
 
 ## 9. Native/event enablement and archival — separate evidence/authorization gates
 

@@ -1,6 +1,6 @@
 # Ten additional design questions — Drive workflow v3
 
-Status: nine choices confirmed by the user's numbered reply on 8 October 2026; question 5 needs clarification of “давай без”. The earlier 18 answers remain recorded in decisions.md. The original questions below are retained as context; their suggested defaults are not automatically approved where the reply is ambiguous. The resulting written design still requires review before the detailed implementation plan and product coding.
+Status: all ten choices confirmed, 8 October 2026. The user's later “да” clarified question 5: saved-result replay without repeated actions/messages or automatic status refresh. The earlier 18 answers remain recorded in decisions.md. The original questions and initial reply below are retained as history. The resulting written design still requires review before the detailed implementation plan and product coding; the clarification does not imply approval of that whole document.
 
 1. **Consent mode:** The new A2 requires exact-slot confirmation, while our earlier decision permits autonomous choice within an authenticated window. Should both be explicit profiles, and which is the main demo mode? Suggested default: authorized-window selection for the main positive profile; exact-slot confirmation when the profile/policy requires it.
 2. **Stop/cancel while outcome is unknown:** Does cancel mean no further attempts, or a real cancellation/undo of the order or original operation? Suggested default: persist no-further-business-writes, reconcile the existing attempt and report what happened; no resend or compensating undo without a separate authorized capability.
@@ -23,11 +23,11 @@ After answers: update decisions/design/spec deltas and task dependencies, revisi
 | 2 | “давай, отказ может быть как следующий шаг” | Persist stop/no-further-business-writes and reconcile the original; refusal may be a separate later authorized request, not an automatic undo or conversion. |
 | 3 | “Давай твое предложение” | Operator supplies missing facts; re-enter completeness and current authority checks. Notes do not manufacture customer consent. |
 | 4 | “Давай сохранять и продолжать” | Persist/resume pre-confirmation phases, awaited question/fields, next gate, versions and budgets. |
-| 5 | “давай без” | **Pending:** what is omitted is not explicit. Asked whether this means saved-result replay without repeated effects/messages or automatic status refresh. Existing duplicate-effect prevention remains mandatory. |
+| 5 | Initial “давай без”; later “да” to the explicit clarification | **Confirmed:** authenticated saved-result replay only, without repeated actions/messages or automatic business-status refresh. Current scoped access is still checked; a replay is historical, not a claim about present business state. |
 | 6 | “да” | Old owner remains accountable until durable new-owner acceptance of the same case/packet; versioned ownership change rejects stale decisions. |
 | 7 | “давай твое предложение” | Durable waiting/expiry first. Automatic reminders are off by default; transfer/reminder effects need bounded profile rules, scoped authority and independent receipts. No numeric expiry/cadence/maximum was supplied. |
 | 8 | “Давай так и сделаем” | Internal-case disposition is record-only initially; actual creation is deferred, with no financial execution. |
 | 9 | “Давай так и сделаем” | Private scoped originals, synthetic/redacted public derivatives; no automatic publication/deletion. Exact retention duration is still unknown. |
 | 10 | “давай первой, пока интеграция не нужна” | Reviewed ProcessSpec + contract tests canonical; versioned explanatory diagrams. No native Draw.io/Figma synchronization now. The six logistics adapter surfaces remain in scope. |
 
-Question 5 is the only ambiguous numbered answer. Native authority/guarantees, bounded waiting policy values and retention duration remain explicit environment/release gates, not answers inferred from “yes”.
+All ten numbered choices are closed. Native authority/guarantees, bounded waiting policy values and retention duration remain explicit environment/release gates. Written-design review and detailed-plan approval remain distinct from the answer to question 5.
