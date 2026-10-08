@@ -18,6 +18,10 @@ The original v2, v2.1 and v2.2 documents and their assessment packets are immuta
 
 ### Code location and implementation baseline
 
+**Implementation clarifications, 9 October:** Initial identity reads use a durable unbound admission-attempt ledger, not authenticated case history. Claimed-case correlation is an accounting selector only; different attempts, proofs or request fingerprints cannot reset its finite caps. Existing cases charge their current shared ledger without replacing binding, original input, phase, stop or ownership. Authentic admission imports aggregate unbound debt exactly once. Interrupted reads retain reserved debt, and an overrun cannot be reopened by an older outstanding settlement.
+
+Explicit synthetic `flat-v1.1`/`nested-v1.1` profiles add source-held canonical-request commitments and aware slot intervals. The four business effects require current request-fingerprint and consent-mode revision coverage; rescheduling also requires slot details. The legacy v1 artifacts and default provider behavior remain unchanged, but the new core cannot authorize a business effect from their generic granted-consent/slot-ID facts alone. A later version cannot drop required scope coverage; communications retain their separately verified permission/recipient/packet contracts. These are offline contracts, not evidence of native permissions or a reviewed adaptation release.
+
 Use a clean `runtime/` subtree containing the `proofkey` package, project metadata, tests, public development fixtures, README and LICENSE. This is a source-release boundary within the current repository, not a new nested Git repository. Private `work/` and `outputs/` are not automatically releasable.
 
 The proposed bet is Python 3.11+, Pydantic canonical schemas, typing protocols, SQLite, argparse and unittest. A thin FastAPI loopback service exposes the same pipeline as the Python library and CLI; it is not another workflow engine. Anthropic is the first text/vision/PDF extraction and bounded planning route; ElevenLabs is the first raw-audio transcription route. Both sit behind provider-neutral protocols, with fixture replay and unavailable modes clearly labeled. Package versions, exact model IDs, usable credentials and spend caps require preflight, not copying documentation examples.
@@ -47,6 +51,8 @@ flowchart LR
 ```
 
 CLI, library and loopback API are the proposed interpretation of “Combination”. They share schemas, gates, journal and export semantics. HTTP access or a local caller is not customer authentication; effect envelopes require authoritative scoped principal binding. Outbound effect ports stay offline initially. Non-loopback deployment, multi-user service and UI require further security design.
+
+Implementation clarification, 9 October: the trusted host supplies an explicit `AuthContext` to the gateway for each authenticated run/recovery scope. Missing context fails closed. The context carries caller/proof, not body permission flags; provider-scoped reads still validate current access. A binding principal or saved request cannot manufacture an authentication proof.
 
 ### Six integration surfaces, one action discipline
 
@@ -147,9 +153,13 @@ A safe resend requires verified provider idempotency or authoritative terminal e
 
 Counters and active deadlines are persisted. Reusing a logical ID with different arguments is a conflict. Restart never resets budgets. The baseline is explicitly not a distributed journal; SQLite durability settings, storage behavior and fault probes require verification in the selected environment.
 
+Implementation clarification, 9 October: admission durably binds the original canonical request and checkpoint before external entry. The saved request is an immutable untrusted source claim, including original arguments/evidence/no-text lineage, not business authority. Recovery must not reconstruct it from latest provider state or repeat intake to replace history. Shared-account concurrency reservations use finite durable leases; expiry releases only concurrency, not consumed quota or an unknown effect disposition.
+
 ### Finite provisional budgets
 
 For calibration use 120 seconds active execution per case, 4 planner calls, 24 total tool calls including readbacks and failures, 6 distinct logical effects with one reserved for handoff, 3 reconciliation reads per intent, at most one contract-safe resend, and 2 clarification requests. A tool call is bounded by 10 seconds or the remaining active budget. Structured-only has zero planner calls. Waiting is persisted with an owner and policy-supplied expiry; an unknown expiry never authorizes unbounded polling. Live provider spend stays zero until a separately approved campaign. Calibrate on validation and freeze before holdout.
+
+Implementation clarification, 9 October: reserve a bounded active-time slice durably before every external tool/provider entry, atomically with the applicable call/effect/invocation debit. Trusted observed completion may settle unused time once through an audited accounting transaction; generic checkpoints cannot roll counters back. Interrupted/unknown entries retain their full reserved slice on restart. Timing overrun is exhausted/accounted conservatively, not clipped into fresh capacity. These are implementation requirements under active review, not a measured calibration or live-provider receipt.
 
 ### Reviewed process adaptation and isolation
 
