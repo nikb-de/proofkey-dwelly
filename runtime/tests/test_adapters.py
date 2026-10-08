@@ -5,6 +5,8 @@ import os
 import subprocess
 import sys
 import textwrap
+from contextlib import contextmanager
+from datetime import timedelta
 import tempfile
 import unittest
 from concurrent.futures import ThreadPoolExecutor
@@ -427,6 +429,45 @@ class AdapterTests(unittest.TestCase):
         self.world.set_fault("reschedule", "none")
         self.assertEqual(self.dispatch(intent).status, "rejected")
         self.assertEqual(self.world.effect_count("reschedule"), 0)
+
+    def test_terminal_proof_deadline_expiry_during_fence_lookup_exposes_no_identity(self):
+        for advance, request_seconds in [(11, 7200), (2, 1)]:
+            with self.subTest(advance=advance, request_seconds=request_seconds):
+                clock = FakeClock()
+                expired = []
+
+                class ExpiringFenceWorld(SimulatedWorld):
+                    @contextmanager
+                    def _connect(self):
+                        with super()._connect() as connection:
+                            def trace(statement):
+                                if statement.startswith("SELECT * FROM final_rejections") and not expired:
+                                    expired.append(True)
+                                    clock.advance(advance)
+
+                            connection.set_trace_callback(trace)
+                            yield connection
+
+                world = ExpiringFenceWorld(Path(self.folder.name) / f"fence-expiry-{advance}.sqlite", FIXTURE, clock=clock)
+                intent = make_intent(expected_revisions=world.material_revisions())
+                world.set_fault("reschedule", "business_rejection")
+                self.assertEqual(world.bundle().scheduling.reschedule(intent).status, "rejected")
+                world.set_fault("read_schedule", "terminal_not_executed")
+                request = ReadRequest(case_id="C1", object_id="O1", caller_id="U1", proof_reference="synthetic-proof",
+                                      purpose="reconcile", deadline=clock.now() + timedelta(seconds=request_seconds),
+                                      target=self.original(intent))
+                reply = world.bundle().scheduling.read_schedule(request)
+                self.assertTrue(expired, "real provider rejection-fence lookup did not run")
+                self.assertEqual(reply.nonexecution.status, "unknown")
+                self.assertEqual(reply.observations, [])
+                self.assertIsNone(reply.action_id)
+                self.assertIsNone(reply.fingerprint)
+                self.assertIsNone(reply.provider_request_id)
+                self.assertEqual(reply.evidence_refs, [])
+                # Expiry must suppress the response, not delete the durable fence.
+                fresh = ReadRequest(**{**request.model_dump(), "deadline": clock.now() + timedelta(seconds=5)})
+                self.assertEqual(world.bundle().scheduling.read_schedule(fresh).nonexecution.status, "proven")
+                self.assertEqual(world.effect_count("reschedule"), 0)
 
     def test_trusted_manifest_extra_material_fact_is_in_snapshot_and_enforced(self):
         from proofkey.contracts import EnvironmentProfile

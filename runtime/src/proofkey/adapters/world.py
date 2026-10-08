@@ -521,13 +521,16 @@ class SimulatedWorld:
                         rejections = connection.execute("SELECT * FROM final_rejections WHERE " + where, params).fetchall()
                         terminal = self._profile.capabilities[target.operation].terminal_nonexecution_basis
                         if len(rejections) == 1 and terminal.status == "supported":
+                            as_of = self._now()
+                            if as_of >= tool_deadline:
+                                return empty()
                             record = rejections[0]
                             evidence = "synthetic-provider:terminal-rejection:" + record["request_id"]
                             return AuthorityReadback(operation=record["operation"], object_id=request.object_id, observations=[],
                                 provider_request_id=record["request_id"], action_id=record["action_id"], fingerprint=record["fingerprint"],
                                 stage="terminally_rejected", nonexecution=NonexecutionProof(status="proven", basis=terminal.basis,
                                                                                           evidence_ref=evidence),
-                                as_of=self._now(), evidence_refs=[evidence])
+                                as_of=as_of, evidence_refs=[evidence])
                     # A reusable business ID is ambiguous, never resolved by latest.
                     if len(records) != 1:
                         return empty("unknown")
