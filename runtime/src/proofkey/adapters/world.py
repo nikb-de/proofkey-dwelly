@@ -238,6 +238,9 @@ class SimulatedWorld:
         try:
             with self._connect() as connection:
                 connection.execute("BEGIN IMMEDIATE")
+                now = self._now().timestamp()
+                if now >= deadline.timestamp():
+                    return None
                 connection.execute("INSERT OR IGNORE INTO pressure VALUES(?,0,0,'[]',0)", (account,))
                 connection.execute("DELETE FROM reservations WHERE account_id=? AND expires_at<=?", (account, now))
                 active = connection.execute("SELECT COUNT(*) FROM reservations WHERE account_id=?", (account,)).fetchone()[0]
@@ -254,6 +257,9 @@ class SimulatedWorld:
                 connection.execute("INSERT INTO reservations VALUES(?,?,?)", (token, account, deadline.timestamp()))
                 connection.execute("UPDATE pressure SET used=used+1,active=active+1,ticks=? WHERE account_id=?",
                                    (json.dumps(ticks), account))
+                if self._now() >= deadline:
+                    connection.rollback()
+                    return None
                 return account, token
         except sqlite3.OperationalError:
             return None
@@ -307,16 +313,28 @@ class SimulatedWorld:
                     and commitment == binding.fingerprint)
         return identity_matches
 
-    def _dispatch(self, operation, intent: EffectIntent) -> DispatchResult:
+    def _dispatch(self, operation, intent: EffectIntent, *, deadline: datetime | None = None) -> DispatchResult:
+        """Apply a trusted transport scope without changing saved provider identity."""
         intent = EffectIntent.model_validate(intent.model_dump())
         behavior = self._call(operation, "dispatch")
         reject = lambda reason: DispatchResult(status="rejected", reason=reason, evidence_refs=["synthetic-provider:dispatch"])
+        if deadline is not None:
+            try:
+                if not isinstance(deadline, datetime) or deadline.utcoffset() is None or not math.isfinite(deadline.timestamp()):
+                    return reject("invalid_deadline")
+                deadline = deadline.astimezone(timezone.utc)
+            except (ValueError, TypeError, OverflowError):
+                return reject("invalid_deadline")
         if operation != intent.operation or operation not in _EFFECTS:
             return reject("unsupported_operation")
         capability = self._profile.capabilities.get(operation)
         if capability is None or capability.timeout_seconds is None:
             return reject("unsupported_guarantee")
         tool_deadline = min(intent.deadline, self._now() + timedelta(seconds=min(10, capability.timeout_seconds)))
+        if deadline is not None:
+            tool_deadline = min(tool_deadline, deadline)
+        if self._now() >= tool_deadline:
+            return reject("deadline_expired")
         reservation = self._reserve(operation, tool_deadline, behavior)
         if reservation is None:
             return reject("provider_unavailable")
@@ -328,6 +346,8 @@ class SimulatedWorld:
                     return reject("deadline_expired")
                 if not self._write_identity_allowed(connection, intent):
                     return reject("identity_scope_rejected")
+                if self._now() >= tool_deadline:
+                    return reject("deadline_expired")
                 required = required_material_keys(connection, self._profile, operation, intent.stage)
                 if required is None:
                     return reject("unsupported_guarantee")
@@ -335,6 +355,8 @@ class SimulatedWorld:
                 existing = connection.execute("SELECT identity_hash,request_id FROM effects WHERE account_id=? AND provider_key=?",
                                               (account, intent.provider_key)).fetchone()
                 if existing:
+                    if self._now() >= tool_deadline:
+                        return reject("deadline_expired")
                     if existing["identity_hash"] != identity_hash:
                         return reject("idempotency_conflict")
                     return DispatchResult(status="acknowledged", provider_request_id=existing["request_id"],
@@ -342,6 +364,8 @@ class SimulatedWorld:
                 fenced = connection.execute("SELECT identity_hash FROM final_rejections WHERE account_id=? AND provider_key=?",
                                             (account, intent.provider_key)).fetchone()
                 if fenced:
+                    if self._now() >= tool_deadline:
+                        return reject("deadline_expired")
                     return reject("terminally_rejected" if fenced[0] == identity_hash else "idempotency_conflict")
                 expected = intent.expected_revisions.revisions
                 if not required <= expected.keys():
@@ -349,12 +373,17 @@ class SimulatedWorld:
                 current = read_material_revisions(connection, required, intent.binding.case_id, intent.binding.object_id)
                 if current != {key: expected[key] for key in required}:
                     return reject("stale_material_revision")
+                if self._now() >= tool_deadline:
+                    return reject("deadline_expired")
                 if behavior in {"business_rejection", "final_rejection_unknown"}:
                     request_id = "provider:" + fingerprint({"account": account, "provider_key": intent.provider_key})[:24]
                     connection.execute("INSERT INTO final_rejections VALUES(?,?,?,?,?,?,?,?,?,?,?)",
                         (account, intent.provider_key, intent.binding.case_id, intent.binding.object_id, operation,
                          intent.binding.generation, intent.action_id, intent.argument_fingerprint, identity_hash,
                          request_id, self._now().isoformat()))
+                    if self._now() >= tool_deadline:
+                        connection.rollback()
+                        return reject("deadline_expired")
                     if behavior == "final_rejection_unknown":
                         return DispatchResult(status="outcome_unknown", evidence_refs=["synthetic-provider:transport"])
                     return reject("business_rejected")
@@ -375,6 +404,9 @@ class SimulatedWorld:
                      request_id, stage, json.dumps([o.model_dump(mode="json") for o in observations]),
                      self._now().isoformat(), intent.arguments.get("question_id"), intent.arguments.get("transfer_id"),
                      intent.arguments.get("packet_id"), intent.arguments.get("packet_revision")))
+                if self._now() >= tool_deadline:
+                    connection.rollback()
+                    return reject("deadline_expired")
             return DispatchResult(status="outcome_unknown" if behavior == "timeout_after" else "acknowledged",
                                   provider_request_id=None if behavior == "timeout_after" else request_id,
                                   evidence_refs=["synthetic-provider:transport" if behavior == "timeout_after" else "synthetic-provider:acknowledgement"])

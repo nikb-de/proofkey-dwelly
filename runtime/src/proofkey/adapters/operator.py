@@ -1,4 +1,6 @@
 """Scoped operator port for the independent simulated provider."""
+from datetime import datetime
+
 from ..contracts import AuthorityReadback, DispatchResult, EffectIntent, ReadRequest
 
 
@@ -15,8 +17,8 @@ class OperatorAdapter:
     def read_owner(self, request: ReadRequest) -> AuthorityReadback:
         return self._world._read("read_owner", request)
 
-    def enqueue_handoff(self, intent: EffectIntent) -> DispatchResult:
-        return self._world._dispatch("enqueue_handoff", intent)
+    def enqueue_handoff(self, intent: EffectIntent, *, deadline: datetime | None = None) -> DispatchResult:
+        return self._world._dispatch("enqueue_handoff", intent, deadline=deadline)
 
-    def transfer_owner(self, intent: EffectIntent) -> DispatchResult:
-        return self._world._dispatch("transfer_owner", intent)
+    def transfer_owner(self, intent: EffectIntent, *, deadline: datetime | None = None) -> DispatchResult:
+        return self._world._dispatch("transfer_owner", intent, deadline=deadline)

@@ -1,4 +1,6 @@
 """Scoped returns port for the independent simulated provider."""
+from datetime import datetime
+
 from ..contracts import AuthorityReadback, DispatchResult, EffectIntent, ReadRequest
 
 
@@ -12,5 +14,5 @@ class ReturnsAdapter:
     def read_return(self, request: ReadRequest) -> AuthorityReadback:
         return self._world._read("read_return", request)
 
-    def create_return(self, intent: EffectIntent) -> DispatchResult:
-        return self._world._dispatch("create_return", intent)
+    def create_return(self, intent: EffectIntent, *, deadline: datetime | None = None) -> DispatchResult:
+        return self._world._dispatch("create_return", intent, deadline=deadline)

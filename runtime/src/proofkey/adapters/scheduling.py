@@ -1,4 +1,6 @@
 """Scoped scheduling port for the independent simulated provider."""
+from datetime import datetime
+
 from ..contracts import AuthorityReadback, DispatchResult, EffectIntent, ReadRequest
 
 
@@ -12,5 +14,5 @@ class SchedulingAdapter:
     def read_schedule(self, request: ReadRequest) -> AuthorityReadback:
         return self._world._read("read_schedule", request)
 
-    def reschedule(self, intent: EffectIntent) -> DispatchResult:
-        return self._world._dispatch("reschedule", intent)
+    def reschedule(self, intent: EffectIntent, *, deadline: datetime | None = None) -> DispatchResult:
+        return self._world._dispatch("reschedule", intent, deadline=deadline)
