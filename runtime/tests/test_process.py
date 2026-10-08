@@ -255,3 +255,75 @@ class ProcessTests(unittest.TestCase):
                     self.assertFalse(ProcessController(EnvironmentProfile.model_validate(data), kind="goods_refusal").permits(
                         phase, operation, {"case.authorization": "verified", "case.generation": "current", "case.authority": "fresh",
                                            "messaging.permission": "granted", "operator.packet": "current", "ownership.state": "accepted"}))
+
+    def test_saved_communications_have_original_scoped_readonly_recovery(self):
+        for kind in ("reschedule_window", "reschedule_exact", "goods_refusal", "service_refusal"):
+            controller = ProcessController(load_test_profile(), kind=kind)
+            for phase, operation in (("wait_customer", "send_clarification"), ("completeness", "send_status"),
+                                     ("wait_operator", "enqueue_handoff"), ("wait_operator", "transfer_owner")):
+                with self.subTest(kind=kind, phase=phase, operation=operation):
+                    scope = {**original_scope(operation), "ownership.state": "transfer_pending"}
+                    self.assertEqual(controller.next_phase(phase, "read_communication", scope), phase)
+                    self.assertIsNone(controller.next_phase(phase, "read_communication", {}))
+                    self.assertIsNone(controller.next_phase(phase, "read_communication", original_scope("create_return")))
+                    self.assertIsNone(controller.next_phase(phase, "read_effect", scope))
+            for phase in ("stop", "stopped"):
+                for operation in ("send_clarification", "send_status", "enqueue_handoff", "transfer_owner"):
+                    with self.subTest(kind=kind, phase=phase, operation=operation):
+                        self.assertEqual(controller.next_phase(phase, "read_communication", original_scope(operation)), phase)
+                        self.assertIsNone(controller.next_phase(phase, operation, original_scope(operation)))
+            self.assertIsNone(controller.next_phase("complete", "read_communication", original_scope("send_status")))
+
+    def test_confirmation_and_service_dispositions_keep_message_receipt_scope(self):
+        exact = ProcessController(load_test_profile(), kind="reschedule_exact")
+        self.assertEqual(exact.next_phase("wait_confirmation", "read_communication", original_scope("send_clarification")), "wait_confirmation")
+        self.assertIsNone(exact.next_phase("wait_confirmation", "read_communication", original_scope("transfer_owner")))
+        service = ProcessController(load_test_profile(), kind="service_refusal")
+        for phase in ("handoff_attempted", "handoff_pending", "handoff_blocked", "handoff_outcome_unknown", "handoff_accepted"):
+            with self.subTest(phase=phase):
+                self.assertEqual(service.next_phase(phase, "read_communication", original_scope("enqueue_handoff")), phase)
+        self.assertEqual(service.next_phase("handoff_accepted", "read_communication", original_scope("transfer_owner")), "handoff_accepted")
+        self.assertIsNone(service.next_phase("handoff_pending", "read_communication", original_scope("transfer_owner")))
+
+    def test_every_physical_effect_saved_destination_can_read_its_receipt(self):
+        profile = load_test_profile()
+        physical = {"send_clarification", "send_status", "enqueue_handoff", "transfer_owner"}
+        for kind, spec in profile.processes.items():
+            controller = ProcessController(profile, kind=kind)
+            for edge in spec.edges:
+                if edge.operation not in physical:
+                    continue
+                with self.subTest(kind=kind, destination=edge.target, operation=edge.operation):
+                    self.assertEqual(controller.next_phase(edge.target, "read_communication",
+                                     original_scope(edge.operation)), edge.target)
+
+    def test_handoff_record_requires_exact_qualified_disposition_cross_product(self):
+        controller = ProcessController(load_test_profile(), kind="service_refusal")
+        dispositions = ("pending", "blocked", "outcome_unknown", "accepted")
+        for recorded in dispositions:
+            for observed in dispositions:
+                with self.subTest(recorded=recorded, observed=observed):
+                    actual = controller.next_phase("handoff_attempted", "record_handoff_" + recorded,
+                        {"operator.handoff_attempt": "recorded", "operator.handoff_disposition": observed})
+                    self.assertEqual(actual, "handoff_" + recorded if recorded == observed else None)
+        for recorded in dispositions:
+            for observations in ({"operator.handoff_attempt": "recorded"},
+                                 {"operator.handoff_attempt": "recorded", "handoff_disposition": recorded}):
+                with self.subTest(recorded=recorded, observations=observations):
+                    self.assertIsNone(controller.next_phase("handoff_attempted", "record_handoff_" + recorded, observations))
+
+    def test_communication_read_control_cannot_change_phase_or_infer_receipts(self):
+        for phase in ("wait_operator", "stop", "stopped"):
+            data = load_test_profile().model_dump(mode="json")
+            spec = data["processes"]["goods_refusal"]
+            existing = next((e for e in spec["edges"] if e["origin"] == phase and e["operation"] == "read_communication"), None)
+            if existing:
+                existing["target"] = "return_gate"
+            else:
+                spec["edges"].append({"origin": phase, "operation": "read_communication", "target": "return_gate"})
+                spec["operations"].append("read_communication")
+            with self.subTest(phase=phase), self.assertRaises(ValueError):
+                ProcessController(EnvironmentProfile.model_validate(data), kind="goods_refusal")
+        controller = ProcessController(load_test_profile(), kind="goods_refusal")
+        malformed = {"journal.original_effect": {"kind": "original_effect", "operation": "send_status"}}
+        self.assertIsNone(controller.next_phase("wait_operator", "read_communication", malformed))

@@ -12,8 +12,29 @@ BASE_MATERIAL = frozenset({"case.binding", "case.request_revision", "case.author
                           "customer.consent_revision", "delivery.risk", "delivery.stage",
                           "policy.version", "ownership.state_revision"})
 _COMMUNICATION_OPERATIONS = frozenset({"send_clarification", "send_status", "enqueue_handoff", "transfer_owner"})
-_ESCAPE_OPERATIONS = frozenset({"request_stop", "ask_operator", "ask_customer", "expire_wait", "read_effect", "mark_unknown"}) | _COMMUNICATION_OPERATIONS
+_ESCAPE_OPERATIONS = frozenset({"request_stop", "ask_operator", "ask_customer", "expire_wait", "read_effect", "read_communication", "mark_unknown"}) | _COMMUNICATION_OPERATIONS
 _EFFECT_OPERATIONS = frozenset({"reschedule", "register_goods_refusal", "register_service_refusal", "create_return"}) | _COMMUNICATION_OPERATIONS
+_HANDOFF_DISPOSITIONS = {"record_handoff_" + disposition: disposition for disposition in
+                        ("pending", "blocked", "outcome_unknown", "accepted")}
+
+
+def _scoped_communication(spec: ProcessSpec, phase: str, observations: Mapping[str, object]) -> bool:
+    """Read a saved communication receipt without proposing a new effect."""
+    target = observations.get("journal.original_effect")
+    if not isinstance(target, ReadTarget) or target.kind != "original_effect":
+        return False
+    if target.operation not in _COMMUNICATION_OPERATIONS.intersection(spec.operations):
+        return False
+    if phase in {"stop", "stopped"}:
+        return True
+    # A physical effect's saved destination determines its original read scope.
+    if any(edge.operation == target.operation and edge.target == phase for edge in spec.edges):
+        return True
+    # Local disposition recording preserves the original handoff receipt, even
+    # when the independent saved disposition is pending, blocked or unknown.
+    return (target.operation == "enqueue_handoff" and "register_service_refusal" in spec.operations
+            and phase in {"handoff_attempted", "handoff_pending", "handoff_blocked",
+                          "handoff_outcome_unknown", "handoff_accepted"})
 
 
 def _scoped_reconciliation(spec: ProcessSpec, phase: str, observations: Mapping[str, object]) -> bool:
@@ -67,11 +88,13 @@ def validate_process(spec: ProcessSpec) -> None:
         if key in pairs:
             raise ValueError("A phase/operation must select exactly one edge")
         pairs.add(key)
-        readonly_stopped = edge.origin == "stopped" and edge.operation == "read_effect" and edge.target == "stopped"
+        if edge.operation == "read_communication" and edge.origin != edge.target:
+            raise ValueError("Communication recovery must retain the saved phase")
+        readonly_stopped = edge.origin == "stopped" and edge.operation in {"read_effect", "read_communication"} and edge.target == "stopped"
         if edge.origin == spec.completion.phase or (edge.origin == "stopped" and not readonly_stopped):
             raise ValueError("Terminal phases cannot dispatch further operations")
         if edge.origin == "stop" and not (edge.operation == "record_stop" and edge.target == "stopped") and not (
-                edge.operation == "read_effect" and edge.target == "stop"):
+                edge.operation in {"read_effect", "read_communication"} and edge.target == "stop"):
             raise ValueError("Stop recovery cannot reenter a business phase")
     for requirement in spec.prerequisites:
         if requirement.phase not in phases:
@@ -126,6 +149,10 @@ class ProcessController:
         if operation == "enqueue_handoff" and "register_service_refusal" in spec.operations and phase == "refusal_complete" and observed_prerequisites.get("service.refusal") != "verified":
             return None
         if operation == "read_effect" and not _scoped_reconciliation(spec, phase, observed_prerequisites):
+            return None
+        if operation == "read_communication" and not _scoped_communication(spec, phase, observed_prerequisites):
+            return None
+        if operation in _HANDOFF_DISPOSITIONS and observed_prerequisites.get("operator.handoff_disposition") != _HANDOFF_DISPOSITIONS[operation]:
             return None
         if edge.condition is not None and observed_prerequisites.get(edge.condition) is not True:
             return None
