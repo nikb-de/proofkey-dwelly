@@ -117,3 +117,56 @@ class CommitFault:
             self._armed = False
             from proofkey.journal import JournalFailure
             raise JournalFailure("Injected host commit fault")
+
+
+def make_fixture_campaign(**overrides):
+    """Injected-transport authorization only; no endpoint, rights or live approval."""
+    from proofkey.contracts import CampaignPermit
+    from hashlib import sha256
+    data = dict(campaign_id="fixture-campaign-" + overrides.get("role", "extraction"), input_hashes=[sha256(b"fixture_hash").hexdigest()],
+        role="extraction", provider="injected-provider", model="fixture-model", endpoint="injected://role",
+        privacy_approval="synthetic-privacy", rights_approval="synthetic-rights", max_cost=4.0,
+        max_usage={"tokens": 40.0}, max_invocations=4, expires_at=DEADLINE,
+        approval_receipt="synthetic-campaign-not-live-approval", mode="simulated")
+    data.update(overrides)
+    data.pop("permit_hash", None)
+    permit = CampaignPermit(permit_hash="0" * 64, **data)
+    wire = permit.model_dump(mode="json")
+    wire["permit_hash"] = fingerprint({key: value for key, value in wire.items() if key != "permit_hash"})
+    return CampaignPermit.model_validate(wire)
+
+
+def make_processor_identity(**overrides):
+    """Trusted synthetic descriptor with exact fixture input; not provider output."""
+    from proofkey.contracts import ProcessorIdentity
+    role = overrides.get("role", "extraction")
+    grant = make_fixture_campaign(role=role)
+    data = dict(case_id="C1", generation="G1", role=role, campaign_id=grant.campaign_id,
+        permit_hash=grant.permit_hash, input_hashes=grant.input_hashes, provider=grant.provider,
+        model=grant.model, endpoint=grant.endpoint, prompt_hash=fingerprint({"prompt": "fixture"}),
+        version="v1", profile_version="v1", process_version="v1", deadline=DEADLINE)
+    return ProcessorIdentity.model_validate({**data, **overrides})
+
+
+def make_processing_receipt(**overrides):
+    """Complete synthetic role result; hashes are rederived after validated overrides."""
+    from proofkey.contracts import ProcessingReceipt
+    from hashlib import sha256
+    role = overrides.get("role", "extraction")
+    identity = make_processor_identity(role=role)
+    output = {"kind": "assertions", "assertions": []}
+    if role == "transcription":
+        output = {"kind": "transcript", "text": "Synthetic speech", "segments": []}
+    elif role == "planning":
+        output = {"kind": "proposal", "proposal": {"operation": "reschedule", "stage": "commit",
+            "arguments": {"slot": "S1"}, "evidence_refs": []}}
+    data = dict(invocation_id="fixture-invocation", role=role, provider=identity.provider,
+        requested_model=identity.model, observed_model="fixture-observed-model", provider_request_id="fixture-request",
+        prompt_hash=identity.prompt_hash, version=identity.version, input_hashes=identity.input_hashes,
+        mode="synthetic", status="completed", latency_seconds=0.0, usage={"tokens": 1.0},
+        output=output, processed_at=NOW)
+    receipt = ProcessingReceipt.model_validate({**data, **overrides})
+    if "output_hashes" not in overrides:
+        receipt = ProcessingReceipt.model_validate({**receipt.model_dump(), "output_hashes":
+            [sha256(receipt.output.model_dump_json().encode()).hexdigest()] if receipt.output else []})
+    return receipt
