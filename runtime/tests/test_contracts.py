@@ -147,6 +147,49 @@ def wire_examples():
 
 
 class ContractTests(unittest.TestCase):
+    def test_denied_and_error_reason_reject_private_account_canary(self):
+        for status in ("denied", "error"):
+            payload = {"status": status, "correlation_id": "public-id",
+                       "reason": "private-account-canary-secret-detail"}
+            for validate in (c.CaseResult.model_validate,
+                             lambda value: c.CaseResult.model_validate_json(json.dumps(value))):
+                with self.subTest(status=status, validate=validate):
+                    with self.assertRaises(ValueError):
+                        validate(payload)
+
+    def test_denied_and_error_json_roundtrip_has_closed_generic_reason(self):
+        for status in ("denied", "error"):
+            for reason in ("denied", "unavailable", "invalid_request", "runtime_error", "deadline_exceeded"):
+                with self.subTest(status=status, reason=reason):
+                    result = c.CaseResult(status=status, correlation_id="public-id", reason=reason)
+                    expected = {"status": status, "correlation_id": "public-id", "reason": reason}
+                    self.assertEqual(json.loads(result.model_dump_json()), expected)
+                    self.assertEqual(c.CaseResult.model_validate_json(result.model_dump_json()).model_dump(mode="json"), expected)
+        with self.assertRaises(ValueError):
+            c.CaseResult(status="error", correlation_id="public-id", reason="unavailable: private-account-canary").model_dump_json()
+
+    def test_synthetic_return_builder_accepts_all_verification_statuses(self):
+        for status in ("verified", "rejected", "pending", "outcome_unknown", "conflict"):
+            with self.subTest(status=status):
+                result = make_result(return_status=status)
+                self.assertEqual(result.effects["create_return"].status, status)
+                self.assertEqual(c.SavedResult.model_validate_json(result.model_dump_json()).effects["create_return"].status, status)
+
+    def test_synthetic_verified_return_builder_binds_complete_record(self):
+        binding = make_binding(case_id="C9", generation="G2")
+        when = datetime(2026, 10, 8, 11, tzinfo=timezone.utc)
+        result = make_result(binding=binding, return_status="verified", as_of=when)
+        effect = result.effects["create_return"]
+        self.assertEqual(effect.object_id, "O1")
+        # Independently hashed canonical create_return/initiate identity and inventory.
+        self.assertEqual(effect.action_id, "94074a32586ce8b8999efe0527e9c23dc2683e543d05f8a973bf32762584ba2a")
+        self.assertEqual(effect.fingerprint, "34f96779d7ba2c0d523ff38019669cb33b5765ee5755f06fc94b8f8bddff599c")
+        self.assertEqual(effect.postcondition, {"return_status": "created", "inventory": {"item-1": 1}})
+        self.assertEqual(effect.evidence_refs, ["synthetic-return-verification"])
+        self.assertEqual(effect.as_of, when)
+        self.assertEqual(result.binding.case_id, "C9")
+        self.assertIn("Synthetic", result.rationale)
+
     def test_binding_fingerprint_captures_business_kind_and_consent_not_transport_noise(self):
         first = make_binding(request=make_request(arguments={"slot": "S1"}, consent_mode="window"))
         consent = make_binding(request=make_request(arguments={"slot": "S1"}, consent_mode="exact_slot"))

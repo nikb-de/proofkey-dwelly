@@ -37,6 +37,7 @@ PositiveFloat = Annotated[float, Field(gt=0)]
 ProcessingStatus = Literal["pending", "running", "completed", "failed", "outcome_unknown", "unavailable"]
 DispatchStatus = Literal["rejected", "acknowledged", "outcome_unknown"]
 VerificationStatus = Literal["verified", "rejected", "pending", "outcome_unknown", "conflict"]
+GenericReasonCode = Literal["denied", "unavailable", "invalid_request", "runtime_error", "deadline_exceeded"]
 EvidenceMode = Literal["unknown", "synthetic", "replay", "actual"]
 ApprovalMode = Literal["simulated", "actual"]
 ProcessorRole = Literal["extraction", "transcription", "planning"]
@@ -715,7 +716,7 @@ class GateDecision(WireModel):
 class CaseResult(WireModel):
     status: Literal["authorized", "denied", "error"]
     correlation_id: Identifier | None = None
-    reason: Identifier | None = None
+    reason: GenericReasonCode | None = None
     binding: RequestBinding | None = None
     fingerprint: Hash | None = None
     result_version: Revision | None = None

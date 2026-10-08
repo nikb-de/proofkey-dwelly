@@ -72,7 +72,16 @@ def make_result(binding=None, **overrides) -> SavedResult:
                 effects={}, rationale="Synthetic offline fixture", evidence_refs=["synthetic-evidence"], policy_refs=["synthetic-policy"])
     data.update(overrides)
     if return_status is not None:
-        data["effects"] = {**data["effects"], "create_return": VerificationResult(status=return_status)}
+        verification = {"status": return_status}
+        if return_status == "verified":
+            # Complete public synthetic goods inventory, not provider authority.
+            arguments = {"inventory": {"item-1": 1}}
+            verification.update(object_id=binding.object_id,
+                action_id=stable_action_id(binding, "create_return", "initiate"),
+                fingerprint=fingerprint(arguments),
+                postcondition={"return_status": "created", "inventory": arguments["inventory"]},
+                evidence_refs=["synthetic-return-verification"], as_of=data["as_of"])
+        data["effects"] = {**data["effects"], "create_return": VerificationResult.model_validate(verification)}
     return SavedResult.model_validate(data)
 
 
