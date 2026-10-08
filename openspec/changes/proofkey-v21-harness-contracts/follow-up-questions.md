@@ -1,6 +1,6 @@
 # Ten additional design questions — Drive workflow v3
 
-Status: awaiting user answers, 8 October 2026. The earlier 18 answers remain recorded in decisions.md. These questions resolve new source-specific ambiguities before revising the plan. Suggested defaults are not approved decisions. Answer using numbers 1–10; no implementation starts from unanswered recommendations.
+Status: nine choices confirmed by the user's numbered reply on 8 October 2026; question 5 needs clarification of “давай без”. The earlier 18 answers remain recorded in decisions.md. The original questions below are retained as context; their suggested defaults are not automatically approved where the reply is ambiguous. The resulting written design still requires review before the detailed implementation plan and product coding.
 
 1. **Consent mode:** The new A2 requires exact-slot confirmation, while our earlier decision permits autonomous choice within an authenticated window. Should both be explicit profiles, and which is the main demo mode? Suggested default: authorized-window selection for the main positive profile; exact-slot confirmation when the profile/policy requires it.
 2. **Stop/cancel while outcome is unknown:** Does cancel mean no further attempts, or a real cancellation/undo of the order or original operation? Suggested default: persist no-further-business-writes, reconcile the existing attempt and report what happened; no resend or compensating undo without a separate authorized capability.
@@ -14,3 +14,20 @@ Status: awaiting user answers, 8 October 2026. The earlier 18 answers remain rec
 10. **Canonical process artifact:** Is the reviewed ProcessSpec the source of truth, with Draw.io/Figma as versioned explanatory views, or do we maintain a diagram-first workflow? Is native synchronization required now? Suggested default: reviewed ProcessSpec + contract tests is canonical; retain original diagrams and derive explanatory views, with native sync optional.
 
 After answers: update decisions/design/spec deltas and task dependencies, revisit effort/workloads, review the revised written design and then prepare the detailed implementation plan. No recommendations here override financial, authority, safe-retry or publication boundaries.
+
+## Recorded answers and scope
+
+| # | User reply | Recorded consequence |
+|---|---|---|
+| 1 | “делай первым для демо, оставь оба” | Both consent profiles; authenticated-window agent choice is the main demo, exact-slot customer confirmation is the second mode. |
+| 2 | “давай, отказ может быть как следующий шаг” | Persist stop/no-further-business-writes and reconcile the original; refusal may be a separate later authorized request, not an automatic undo or conversion. |
+| 3 | “Давай твое предложение” | Operator supplies missing facts; re-enter completeness and current authority checks. Notes do not manufacture customer consent. |
+| 4 | “Давай сохранять и продолжать” | Persist/resume pre-confirmation phases, awaited question/fields, next gate, versions and budgets. |
+| 5 | “давай без” | **Pending:** what is omitted is not explicit. Asked whether this means saved-result replay without repeated effects/messages or automatic status refresh. Existing duplicate-effect prevention remains mandatory. |
+| 6 | “да” | Old owner remains accountable until durable new-owner acceptance of the same case/packet; versioned ownership change rejects stale decisions. |
+| 7 | “давай твое предложение” | Durable waiting/expiry first. Automatic reminders are off by default; transfer/reminder effects need bounded profile rules, scoped authority and independent receipts. No numeric expiry/cadence/maximum was supplied. |
+| 8 | “Давай так и сделаем” | Internal-case disposition is record-only initially; actual creation is deferred, with no financial execution. |
+| 9 | “Давай так и сделаем” | Private scoped originals, synthetic/redacted public derivatives; no automatic publication/deletion. Exact retention duration is still unknown. |
+| 10 | “давай первой, пока интеграция не нужна” | Reviewed ProcessSpec + contract tests canonical; versioned explanatory diagrams. No native Draw.io/Figma synchronization now. The six logistics adapter surfaces remain in scope. |
+
+Question 5 is the only ambiguous numbered answer. Native authority/guarantees, bounded waiting policy values and retention duration remain explicit environment/release gates, not answers inferred from “yes”.

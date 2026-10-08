@@ -1,6 +1,6 @@
 # Design decision ledger — revision 8 October 2026
 
-Status: user choices recorded; revised written design pending review. This ledger is not implementation evidence or permission to publish, contact the team, connect logistics systems or spend from providers.
+Status: original 18 choices and nine confirmed Drive follow-up choices recorded; follow-up 5 remains ambiguous and the revised written design is pending review. This ledger is not implementation evidence or permission to publish, contact the team, connect logistics systems or spend from providers.
 
 | # | User decision | Design consequence / interpretation |
 |---|---|---|
@@ -25,8 +25,25 @@ Status: user choices recorded; revised written design pending review. This ledge
 
 ## Changes from the preceding runtime draft
 
-Required multimodal processing replaces the structured-only completion target. Reviewed process adaptation is now distinct from schema mapping. The code-release boundary moves into `runtime/` to separate owned releasable source from private historical evidence. The scoped estimate rises from 34–54 to **54–86 additive person-hours**; this is an unmeasured planning range, not an agent-time forecast.
+Required multimodal processing replaces the structured-only completion target. Reviewed process adaptation is now distinct from schema mapping. The code-release boundary moves into `runtime/` to separate owned releasable source from private historical evidence. The previous scoped estimate rose from 34–54 to 54–86 additive person-hours. The Drive follow-up delta provisionally adds 5–8 hours, producing **59–94 additive person-hours**: adapter ownership contracts +1–2, durable phase/stop controls +2–4, regression allocation +2. These are unmeasured planning ranges, not agent-time forecasts or an event commitment. No code or test result follows from the estimate.
+
+## Drive follow-up decisions — 8 October 2026
+
+The [original ten questions and reply ledger](follow-up-questions.md) preserve context. These choices revise the design, not the immutable source diagrams.
+
+| Follow-up | Confirmed choice | Boundary / design consequence |
+|---|---|---|
+| D1 | Both consent modes; window selection first demo | Separate immutable profile modes: authenticated window selection versus explicit exact-slot confirmation. No inferred consent or address change. |
+| D2 | Stop further attempts; refusal can follow | Persist stop disposition independently of original effect outcome. Reconcile without resending/undoing. A subsequent refusal needs a separate authorized generation and safe current object state. |
+| D3 | Adopt facts-only operator help | Save origin/missing fields; return through completeness and current authority checks. Any delegated authority needs explicit profile evidence. |
+| D4 | Save and continue all workflow phases | Durable pre-confirmation checkpoints include awaited question, next gate, versions and remaining budgets. Restart is not a jump to execution. |
+| D5 | **Unresolved: “давай без”** | Clarification requested; do not infer terminal replay/status-refresh semantics. Duplicate-effect prevention remains required regardless of the answer. |
+| D6 | Durable versioned owner transfer | Same case/packet, stable transfer identity and acceptance receipt. Old owner remains accountable until confirmed acceptance; uncertain transfer fences action authorization and stale decisions are rejected. |
+| D7 | Durable waiting/expiry first | Scoped transfer modeled within the existing operator port. Automatic reminders off by default; unknown expiry/recipient/cadence/count policy cannot authorize effects or indefinite polling. |
+| D8 | Internal-case record-only | Record an operator disposition; actual creation is deferred/disabled. Do not confuse this with the existing handoff queue case. |
+| D9 | Private originals, redacted/synthetic public derivatives | Scoped operator access, retained provenance, no auto-publication/deletion. No exact retention duration was chosen. |
+| D10 | ProcessSpec/tests canonical; no diagram integration now | Native Draw.io/Figma sync is out of the first scope, not the six logistics ports. Explanatory views carry release/version references and do not activate policy. |
 
 ## Still not decided by these answers
 
-Exact dependencies/model identities, native operation contracts, cloud deployment/authentication, media retention policy, cost ceiling, native connected services, event team registrations, protected holdout custody and organizer freeze/eligibility clarification. Safe local preparation can proceed after design/plan review without pretending these facts are known.
+Follow-up 5; exact dependencies/model identities, native operation/ownership contracts, bounded waiting policy values, cloud deployment/authentication, exact media retention duration, cost ceiling, native connected services, event team registrations, protected holdout custody and organizer freeze/eligibility clarification. Safe local preparation can proceed after design/plan review without pretending these facts are known.

@@ -10,11 +10,15 @@ The runtime SHALL determine a typed route and verify authoritative case, object,
 
 ### Requirement: Slot choice remains within authenticated scope
 
-The runtime MAY autonomously select a feasible permitted slot within an authenticated customer's window, timezone and constraints. It SHALL require current lifecycle/capacity eligibility, business policy and conditional-write guarantees. Listing SHALL NOT imply reservation. It SHALL NOT infer an address change, select outside consent or treat a local API caller as the customer principal. Unresolved mandatory preferences SHALL route to permitted clarification or handoff.
+The runtime SHALL support explicit `authorized_window` and `exact_slot` consent profiles and persist the selected mode/version. The main demo SHALL use authorized-window selection; the second profile SHALL require current authenticated confirmation bound to the specific slot and consent revision. Autonomous selection SHALL remain within the authenticated window, timezone and constraints. Both modes SHALL require current lifecycle/capacity eligibility, business policy and conditional-write guarantees. Listing SHALL NOT imply reservation. The runtime SHALL NOT broaden consent mode, infer an address change, select outside consent or treat a local API caller as the customer principal. Unresolved mandatory preferences SHALL route to permitted clarification or handoff.
 
 #### Scenario: Earliest visible slot is outside consent
 - **WHEN** the first listed slot is outside the authenticated permitted window
 - **THEN** that slot is not selected and the runtime considers only eligible authorized alternatives or permitted clarification/handoff
+
+#### Scenario: Exact confirmed slot becomes unavailable
+- **WHEN** the exact-slot profile's confirmed slot or material constraints change before dispatch
+- **THEN** the runtime requests applicable fresh authenticated confirmation or hands off without switching to window-selection consent
 
 ### Requirement: Whole-order refusal binds all inventory
 
@@ -26,7 +30,7 @@ Goods refusal/return SHALL initially operate on the whole authoritative order wi
 
 ### Requirement: Clarification and human decisions preserve boundaries
 
-The runtime SHALL support scripted rehearsal and interactive authenticated clarification with persisted owner, recipient/request binding, awaited fields, expiry and budget. Scripted responses SHALL be labeled simulated. Operator packets SHALL contain all permitted relevant original artifacts, source-linked extracts, conflicts, unknowns, policy and per-effect history. Human refund/coverage/internal-case dispositions SHALL NOT enable autonomous financial adjudication or execution. Internal-case creation, if enabled, SHALL require a separately scoped effect and verified receipt; resumed logistics effects SHALL be freshly gated.
+The runtime SHALL support scripted rehearsal and interactive authenticated clarification with persisted question identity, owner/epoch, recipient/request binding, origin phase, next gate, awaited fields, expiry and budget. Scripted responses SHALL be labeled simulated. Operator-supplied facts SHALL return through completeness and fresh authority checks, not directly to execution; operator identity or notes SHALL NOT manufacture customer consent. Operator packets SHALL contain all permitted relevant original artifacts, source-linked extracts, conflicts, unknowns, policy and per-effect history. Human refund/coverage/internal-case dispositions SHALL NOT enable autonomous financial adjudication or execution. Internal-case disposition SHALL be record-only in the initial profile; actual creation SHALL remain disabled. Resumed logistics effects SHALL be freshly gated.
 
 #### Scenario: Operator records a refund disposition
 - **WHEN** an authenticated operator requests refund review after inspecting case evidence
@@ -35,6 +39,46 @@ The runtime SHALL support scripted rehearsal and interactive authenticated clari
 #### Scenario: Interactive reply is missing at expiry
 - **WHEN** no authenticated reply arrives within the persisted clarification deadline
 - **THEN** waiting expires without a fabricated response, budgets remain persisted and only separately permitted bounded handoff may be attempted
+
+#### Scenario: Operator fills missing data without customer authority
+- **WHEN** an early operator reply supplies the missing order facts but current customer scope or consent is absent
+- **THEN** the runtime re-enters completeness/authority checks without dispatching a business effect or treating the reply as customer consent
+
+#### Scenario: Repeated invalid clarification replies
+- **WHEN** stale, mismatched or unauthenticated replies repeatedly arrive
+- **THEN** they do not reset question/call/deadline budgets and a bounded expiry or permitted handoff remains visible
+
+### Requirement: All workflow phases recover without bypassing gates
+
+The runtime SHALL persist pre-confirmation and effect phases with next gate, profile/process/policy versions, evidence/processing status, case/request/consent revisions, question/awaited fields, human ownership state/revision, stop disposition and budgets. Each external extraction/transcription/planner role SHALL have finite profile-defined invocation/usage caps under shared limits. Before provider entry it SHALL durably reserve/debit invocation and capped usage allowance with identity/status; journal failure SHALL prevent the call. Interrupted invocations SHALL remain consumed/unknown, not free retries or completed processing. Restart SHALL restore the saved phase, invalidate stale observations and revalidate material authority before effects; execution/reconciliation checkpoints SHALL NOT restart intake/extraction. Missing or incompatible checkpoints SHALL fail closed. Resume SHALL NOT automatically repeat messages, model-processing calls or business effects, or fabricate processing/verification receipts. Any necessary repeated processing SHALL be a recorded attempt within remaining authorized budget.
+
+#### Scenario: Crash while awaiting exact-slot confirmation
+- **WHEN** the runtime restarts with an outstanding confirmation question
+- **THEN** it restores the same question, mode, phase and budgets without resending a message or entering execution without current confirmation
+
+#### Scenario: Crash during extraction or authority checks
+- **WHEN** a pre-confirmation checkpoint is restored after interrupted processing or authentication
+- **THEN** interrupted processing remains unverified, current authority is checked and no checkpoint grants permission to skip the missing gate
+
+#### Scenario: Crash after transcription dispatch before result save
+- **WHEN** external transcription was entered after its durable invocation debit and the runtime crashed before retaining the result
+- **THEN** the original attempt remains consumed/unknown and any necessary new attempt is separately recorded within the remaining authorized budget, without a fabricated transcript or a free retry
+
+### Requirement: Stop persists independently of effect outcome
+
+An authenticated stop SHALL durably mark the request generation non-dispatchable independently of original effect status. An accepted stop before dispatch SHALL prevent prepared/undispatched business intents from being sent. Already-started transport SHALL retain possible execution and bounded authoritative reconciliation with the original key. Reconciliation, duplicate input, operator resume or migration SHALL NOT clear stop or authorize resend, even with idempotency or terminal non-execution evidence. Stop SHALL NOT imply order/delivery cancellation, compensation or goods/service refusal. Separately scoped reads/status/handoff MAY remain permitted without inheriting business permission from the stopped generation. Local serialization SHALL NOT be presented as cancellation of an in-flight native write.
+
+#### Scenario: Stopped unknown request is proven not executed
+- **WHEN** authoritative reconciliation proves a stopped scheduling request did not execute and cannot execute later
+- **THEN** the original generation remains stopped and no resend occurs
+
+#### Scenario: Original operation executes after stop
+- **WHEN** readback shows an already-started scheduling operation executed after stop was recorded
+- **THEN** execution is reported independently of the retained stop, without automatic undo, retry or fabricated cancellation
+
+#### Scenario: Crash after stop commit before transport
+- **WHEN** a prepared business intent is restored after its stop disposition was durably committed
+- **THEN** it remains non-dispatchable and saved counters/deadlines are retained
 
 ### Requirement: Partial outcomes remain independent
 
@@ -52,7 +96,7 @@ The runtime SHALL independently verify goods refusal registration, return initia
 
 The runtime SHALL durably commit immutable intent metadata and dispatch state before transport, serialize execution per case and reconcile interrupted writes after restart. Reusing an ID with a changed fingerprint SHALL be rejected. Unknown non-idempotent effects SHALL NOT be retried automatically.
 
-A resend SHALL require verified provider idempotency or authoritative terminal evidence that the original request did not execute and cannot execute later. A negative or eventually consistent readback SHALL NOT establish safe retry by itself.
+A resend SHALL require verified provider idempotency or authoritative terminal evidence that the original request did not execute and cannot execute later, plus an active non-stopped authorized generation and fresh gates. A negative or eventually consistent readback SHALL NOT establish safe retry by itself.
 
 #### Scenario: Crash after external write
 - **WHEN** the external effect exists but the runtime crashes before persisting its verification
@@ -68,7 +112,7 @@ A resend SHALL require verified provider idempotency or authoritative terminal e
 
 ### Requirement: Logical identity distinguishes duplicates and supersession
 
-The runtime SHALL persist authorized request generations and derive distinct operation/stage logical IDs independently of transport event IDs. It SHALL retain an immutable argument fingerprint, original provider key and explicit supersession relation. A duplicate semantic request SHALL reuse its existing generation; unresolved original effects SHALL block conflicting replacement writes. An unknown request identity SHALL NOT authorize a new generation merely to repeat a business effect.
+The runtime SHALL persist authorized request generations and derive distinct operation/stage logical IDs independently of transport event IDs. It SHALL retain an immutable argument fingerprint, original provider key and explicit supersession relation. A duplicate semantic request SHALL reuse its existing generation; unresolved original effects SHALL block conflicting replacement writes. An unknown request identity SHALL NOT authorize a new generation merely to repeat a business effect. A human decision SHALL NOT create non-execution proof or idempotency, erase uncertainty or bypass a material dependency. Completed-duplicate response policy remains undecided; this SHALL NOT weaken duplicate-effect prevention.
 
 #### Scenario: Duplicate arrives with another event ID
 - **WHEN** a second authenticated input has the same request identity, consent revision and canonical business intent
@@ -76,7 +120,15 @@ The runtime SHALL persist authorized request generations and derive distinct ope
 
 #### Scenario: New slot requested during an unknown reschedule
 - **WHEN** an authorized changed request supersedes a generation whose reschedule outcome is unknown
-- **THEN** the replacement is retained but not dispatched until reconciliation or a separately authorized decision establishes a safe next action
+- **THEN** the replacement is retained but not dispatched until authoritative evidence establishes a safe next action; human authorization alone does not erase the original uncertainty
+
+#### Scenario: Explicit refusal follows a stopped reschedule
+- **WHEN** the authenticated customer separately requests goods/service refusal after stopping scheduling
+- **THEN** the runtime creates a distinct authorized generation, checks current object/stage/inventory/policy/consent, preserves the original stop/outcome and blocks any dependent effect whose prerequisites remain uncertain
+
+#### Scenario: Duplicate old request arrives after a subsequent refusal
+- **WHEN** the stopped original reschedule input is repeated after a separate refusal request
+- **THEN** it binds to the stopped generation without resuming scheduling or resetting case budgets
 
 ### Requirement: Budgets survive recovery
 

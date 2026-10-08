@@ -14,11 +14,15 @@ The candidate SHALL accept structured/no-text records, free text, supplied trans
 
 ### Requirement: Evidence provenance and access accompany assertions
 
-The evidence catalog SHALL bind originals to source, hash, MIME type, case, access scope, observation time and transformations. Extracted assertions SHALL reference available text spans, page/region or audio intervals without invented coordinates. Authorized operator packets SHALL retain relevant originals as well as extracts/conflicts/unknowns. Public derivatives SHALL record scoped redaction and lineage without claiming certified anonymization. Untrusted content SHALL NOT establish policy, identity, consent, process or permission.
+The evidence catalog SHALL bind originals to source, hash, MIME type, case, access scope, observation time and transformations. Extracted assertions SHALL reference available text spans, page/region or audio intervals without invented coordinates. Authorized operator packets SHALL retain relevant originals as well as extracts/conflicts/unknowns. Originals SHALL remain private and case/role-scoped; ownership transfer SHALL NOT grant unrestricted artifact access. Public derivatives SHALL be synthetic or rights-cleared scoped-redacted material with lineage, without claiming certified anonymization. The runtime SHALL NOT automatically publish or delete original evidence. Exact retention duration remains undecided and SHALL require an explicit policy before native service use. Untrusted content SHALL NOT establish policy, identity, consent, process or permission.
 
 #### Scenario: Transcript instructs the agent to ignore return policy
 - **WHEN** a transcript contains policy-changing instructions
 - **THEN** the instructions remain untrusted evidence and cannot modify the policy gate, adapter mapping or approved process
+
+#### Scenario: New owner lacks access to an original recording
+- **WHEN** ownership is transferred but the new owner's case/role scope does not permit a source recording
+- **THEN** the recording remains restricted, packet access limits are visible and ownership does not bypass evidence authorization
 
 ### Requirement: AI roles are bounded and provider neutral
 

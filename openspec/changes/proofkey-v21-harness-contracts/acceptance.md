@@ -17,6 +17,12 @@ The proposed counts are planning workloads, not an estimate of official case cou
 
 All three entrypoints require semantic parity tests. A timed run declares which entrypoint it used; it does not establish the other interfaces' speed. Fixture/scripted clarification is explicitly simulated; interactive completion depends on a real authenticated reply and its wall-clock wait counts.
 
+## Drive revision: mandatory regression coverage, not new passes
+
+Before freezing the complete revised candidate, allocate and execute the [R01–R15 source-linked obligations](process-profiles.md): both consent modes; stop before/during unknown dispatch; separate later refusal; early facts-only operator re-entry; all-phase checkpoints; bounded stale/auth replies; durable handoff/transfer/epoch/packet races; waiting expiry with reminders off; record-only internal case; scoped private evidence; canonical process/view separation. R15's completed-duplicate response expectation is pending follow-up 5; no-repeat-effect safety is already mandatory.
+
+Each obligation needs exact case/input hashes, authority assumptions, independent failure drivers and expected per-effect state before measurement. Include positive and insufficient-evidence controls as well as unsafe cases. Variants derived from the imported flow are one related source family, not independent observations; all feedback-used variants are validation/rehearsal. Missing expectations remain ambiguous, not forced into LLM gold labels. Untimed regressions are additional coverage, not hidden additions to the 7/4/12 timed batches and not new receipts. A later timed workload change requires a new frozen version and full denominator.
+
 ## Readiness must be multidimensional
 
 | Dimension | Evidence required | Insufficient evidence |
@@ -29,6 +35,8 @@ All three entrypoints require semantic parity tests. A timed run declares which 
 | Bounded AI planning | Exact declared model route proposes steps that remain inside approved process and deterministic policy | Coding-agent subscription or deterministic planner described as model-backed |
 | Development adaptation | Actual declared AI/coding-agent proposal receipt, diff, source basis, changed tests, reviewed release and migration compatibility | Manual-only or replayed proposal presented as AI-backed, or schema-only change |
 | Operator boundary | All permitted originals/extracts, contradictions and per-effect states; durable packet/owner receipt and scoped decisions | Queue acknowledgement, a proposed refund or a decision record described as money execution |
+| Phase/stop recovery | Every saved phase/next gate restored; original keys, stop and budgets preserved; no resend after stop, current authority rechecked | Resuming every saved case at execution or safe-idempotency evidence treated as renewed consent |
+| Ownership transfer | Same case/packet, conditional ownership epoch, durable target acceptance, unknown fencing and race/crash receipts | Queue ID, local deadline expiry or a stale old-owner decision treated as accepted transfer |
 | CLI/library/API | Same schemas, gate, journal and export; adversarial auth/path and parity tests | HTTP200 or localhost treated as principal authorization |
 | Public release | Owned-source/license/dependency notices, synthetic safe fixtures, clean reproduction and rights inventory | Copying the private workspace or declaring all archives Apache |
 
@@ -45,9 +53,9 @@ Per input class report `intake_only`, `deterministic_processed`, `actual_provide
 
 ## Receipt and stop rules
 
-Receipt fields: run ID/date, starting baseline/resulting release hashes for A or frozen execution candidate for B/C/D, profile/process/policy/prompt/input/label-set/rubric/lineage hashes, processing mode and observed model IDs, interface/commands, declared setup/workload, start/finish elapsed seconds, queue/human/provider time, persisted budgets, per-effect intents/dispatches/readbacks, every case/output/error, unsupported capabilities, forbidden-effect count and reviewer/approval state. Missing evidence remains unknown. No score compression that hides partial effects or denied controls.
+Receipt fields: run ID/date, starting baseline/resulting release hashes for A or frozen execution candidate for B/C/D, profile/process/policy/prompt/input/label-set/rubric/lineage hashes, processing mode and observed model IDs, interface/commands, declared setup/workload, start/finish elapsed seconds, queue/human/provider time, persisted phase/next gate/question/consent mode/stop/ownership epoch and budgets, per-effect intents/dispatches/readbacks, every case/output/error, unsupported capabilities, forbidden-effect count and reviewer/approval state. Missing evidence remains unknown. No score compression that hides partial effects or denied controls.
 
-Stop dispatch on journal failure, authority/conflict failure, mandatory-guarantee absence, exhausted deadline/budget or unsafe unknown write. Preserve reconciliation state and attempt only separately permitted bounded handoff. A handoff failure is visible; it is not completion. Stop a paid campaign at its authorized cap; never switch silently to another paid provider.
+Stop dispatch on journal failure, authority/conflict failure, recorded request stop, mandatory-guarantee absence, exhausted deadline/budget or unsafe unknown write. Unknown ownership transfer fences action-bearing decisions. Preserve reconciliation state and attempt only separately permitted bounded status/handoff; no retry or undo follows merely from stop. A handoff failure is visible; it is not completion. Stop a paid campaign at its authorized cap; never switch silently to another paid provider.
 
 ## Official batch and competition evidence
 

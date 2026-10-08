@@ -50,7 +50,7 @@ The integration bundle SHALL support explicit versioned mappings for flat JSON a
 
 ### Requirement: Message and operator outcomes remain distinct
 
-Customer messages SHALL use constrained kinds, authorized recipients and wording grounded in observed per-effect state. Message acceptance SHALL NOT imply delivery. Operator receipt SHALL verify case, packet identity, owner and receipt evidence independently of any decision. Resume SHALL require authenticated, scoped, fresh case/version-bound decisions with expiry and replay checks.
+Customer messages SHALL use constrained kinds, authorized recipients and wording grounded in observed per-effect state. Message acceptance SHALL NOT imply delivery. Operator receipt SHALL verify case, packet identity, owner and receipt evidence independently of any decision. Resume SHALL require authenticated, scoped, fresh case/packet/version/ownership-state-bound decisions with expiry and replay checks. A decision-based resumed effect SHALL protect current material ownership state/revision including pending transfer, not only epoch, with an evidenced conditional guarantee or remain disabled; a local ownership read alone SHALL NOT establish protection from a transfer race.
 
 #### Scenario: Return request is only acknowledged
 - **WHEN** return initiation is acknowledged but unverified
@@ -59,6 +59,38 @@ Customer messages SHALL use constrained kinds, authorized recipients and wording
 #### Scenario: Queue acknowledges without durable owner receipt
 - **WHEN** transport accepts a handoff but authoritative receipt is missing
 - **THEN** handoff remains pending or unknown and does not authorize resume or final completion
+
+### Requirement: Scoped owner transfer uses the existing operator port
+
+The operator-inbox port SHALL model transfer and authoritative owner readback without creating a seventh port or writing case records. Human ownership SHALL be distinct from runtime executor ownership. Transfer SHALL bind a stable ID/key, the same case and packet revisions, expected old ownership state/revision, target scoped owner and bounded expiry. Only an authoritative conditional ownership transition, durable target acceptance and matching readback SHALL establish the new epoch. Old-owner accountability SHALL remain until acceptance is confirmed; new action-bearing decisions and all undispatched intents derived from earlier decisions SHALL be fenced while transfer is pending/unknown. Already-started effects SHALL retain possible execution and be reconciled under original identities, not be declared cancelled by local fencing. A verified transfer SHALL reject stale-owner decisions. Unknown acceptance SHALL be reconciled with the original identity, not replaced with a fresh transfer or duplicate handoff case. Transfer SHALL preserve unresolved effects, request generations, stop and budgets. Native transfer SHALL remain disabled absent these guarantees.
+
+#### Scenario: Transfer is acknowledged but acceptance is unknown
+- **WHEN** transport accepts a transfer without durable matching target-owner acceptance/readback
+- **THEN** the old owner remains accountable, neither contender can authorize a resumed action while uncertainty persists, and bounded reconciliation preserves the transfer key
+
+#### Scenario: Late old-owner decision follows acceptance
+- **WHEN** target acceptance and the new ownership epoch are verified before a decision from the old owner arrives
+- **THEN** the stale decision is rejected without effects or a new handoff case
+
+#### Scenario: Accepted decision is prepared before transfer begins
+- **WHEN** an old-owner decision has a prepared but undispatched business intent and a transfer is then committed as pending
+- **THEN** the prepared intent is fenced, an unchanged old epoch alone does not authorize dispatch and any already-started effect is reconciled rather than assumed cancelled
+
+#### Scenario: Decision races a transfer on an old packet
+- **WHEN** an already-started decision changes a material case/packet revision before a pending transfer can conditionally accept it
+- **THEN** the stale transfer cannot establish acceptance, and neither local queue acknowledgement nor a stale decision authorizes a resumed effect under the wrong epoch
+
+#### Scenario: Transfer expires without proof of non-execution
+- **WHEN** the local transfer deadline expires while authoritative acceptance remains unknown
+- **THEN** expiry is recorded without treating the transfer as rejected or permitting an unsafe new owner/transfer; uncertainty remains fenced until reconciled
+
+### Requirement: Durable waits do not invent automatic effects
+
+Waiting SHALL persist owner/epoch, question/request binding, phase, policy-supplied expiry and budgets. Automatic reminders SHALL be disabled in the initial profile. Expiry SHALL NOT fabricate consent/completion, automatically reassign ownership or create financial/internal-case effects. Any enabled transfer or future reminder SHALL have explicit bounded profile authority, target/recipient, deadline, count/attempt limits, stable effect identity and independent receipt. Unknown required policy values SHALL disable the automatic effect or unsupported waiting path instead of permitting unbounded polling. Exercise elapsed time SHALL include waits.
+
+#### Scenario: Reminder limits or recipient are unknown
+- **WHEN** a waiting case has no approved reminder recipient/cadence/maximum policy
+- **THEN** no reminder is dispatched and the saved wait/expiry remains visible without resetting active budgets
 
 ### Requirement: Public patterns do not establish native capability
 
@@ -70,7 +102,7 @@ Offline profiles MAY resemble first-party public task/order, inventory, time-win
 
 ### Requirement: Reviewed process versions govern adaptation
 
-The integration bundle SHALL provide a finite versioned ProcessSpec covering allowed operations, prerequisites, approval/wait states, acknowledgement interpretation, authoritative readback and completion. Adapter/process/policy activation SHALL require a source-grounded proposal, changed tests, regression, migration impact and human approval. Pending intents SHALL retain original process/policy versions, fingerprints, keys and postconditions until authoritative reconciliation or explicit compatible migration. Runtime content SHALL NOT activate changes.
+The integration bundle SHALL provide a finite versioned ProcessSpec covering allowed operations, prerequisites, consent modes, durable phases/stop, ownership epochs, approval/wait states, acknowledgement interpretation, authoritative readback and completion. Reviewed ProcessSpec and contract tests SHALL be canonical. Imported diagrams SHALL remain source evidence; versioned explanatory projections SHALL NOT activate behavior or override contracts. Native diagram synchronization SHALL NOT be required initially. Adapter/process/policy activation SHALL require a source-grounded proposal, changed tests, regression, migration impact and human approval. Pending intents SHALL retain original process/policy versions, fingerprints, keys, stop, ownership state, budgets and postconditions until authoritative reconciliation or explicit compatible migration. Runtime content SHALL NOT activate changes.
 
 #### Scenario: Business rejection uses successful HTTP transport
 - **WHEN** a changed profile acknowledges transport successfully but rejects the requested operation in its business envelope

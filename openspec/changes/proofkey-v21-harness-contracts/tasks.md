@@ -1,4 +1,4 @@
-Status: revised work breakdown for written review on 8 October 2026, Europe/London, incorporating the user's 18 answers. No runtime task is complete. Development uses the user and coding agents; actual event people/registrations remain unconfirmed. Revised estimate: 54–86 additive person-hours, not agent wall-clock time or an event promise. This file is input to, not a replacement for, the detailed Superpowers implementation plan.
+Status: revised work breakdown for written review on 8 October 2026, Europe/London, incorporating the user's 18 answers and nine confirmed Drive follow-ups; follow-up 5 is pending clarification. No runtime task is complete. Development uses the user and coding agents; actual event people/registrations remain unconfirmed. Revised estimate: 59–94 additive person-hours (+5–8 from 54–86), not agent wall-clock time or an event promise. This file is input to, not a replacement for, the detailed Superpowers implementation plan.
 
 ## 1. Design approval and execution planning — user + agents, 2–4 hours
 
@@ -7,23 +7,23 @@ Status: revised work breakdown for written review on 8 October 2026, Europe/Lond
 - [ ] 1.3 Assign local file owners, agent tasks, human review and go/no-go checkpoints; keep actual event people/registrations separate from development resources.
 - [ ] 1.4 Create the detailed Superpowers implementation plan in docs/superpowers/plans; review it and select subagent-driven or inline execution.
 - [ ] 1.5 Freeze initial approved ProcessSpec/schema examples, public contracts, shared file ownership and operation-by-failure fixture allocation before parallel consumers.
-- [ ] 1.6 Resolve the ten source-specific questions in follow-up-questions.md; preserve earlier decisions unless explicitly changed.
-- [ ] 1.7 Revise source-linked consent, stop/cancel, pre-effect/terminal recovery and ownership requirements; add the return companion, allocate regression tests and revisit effort before the next written-design review. Reminders/internal-case effects/native diagram sync remain pending scope choices.
+- [ ] 1.6 Close the sole ambiguous answer, follow-up 5 (completed-duplicate response). Nine confirmed follow-up choices are recorded in decisions.md; preserve their exact scope and the prior decisions.
+- [x] 1.7 Revise source-linked consent, stop/cancel, pre-effect recovery and ownership requirements; add process-profiles.md with the return companion and regression obligations, and rebaseline effort. Evidence: this written revision, 8 October 2026. This is documentation work only, not implemented/approved runtime. Automatic reminders off, internal-case creation deferred/record-only, native diagram sync excluded; follow-up 5 remains open.
 
-## 2. Shared contracts and six-adapter bundle — adapter owner, 8–12 hours
+## 2. Shared contracts and six-adapter bundle — adapter owner, 9–14 hours
 
 - [ ] 2.1 Create the clean runtime/ source-release subtree, package/tests/public fixtures and Apache-2.0 owned-code boundary; preserve all archived evidence.
-- [ ] 2.2 Implement Pydantic request, authority, binding, capability, initial versioned ProcessSpec, intent, dispatch and verification schemas with failing tests first; pin dependencies and retain notices.
+- [ ] 2.2 Implement Pydantic request, authority, binding, capability, initial versioned ProcessSpec, consent-mode, phase/stop checkpoint, ownership-epoch/transfer, waiting, intent, dispatch and verification schemas with failing tests first; pin dependencies and retain notices. Freeze these foundations before parallel consumers.
 - [ ] 2.3 Implement flat/nested normalization with no-text parity, malformed-input rejection and explicit evidence-processing status; cite source-inspired offline shapes without claiming native integrations.
 - [ ] 2.4 Implement read-only case/principal adapter and scope-specific authority/consent/risk observations.
 - [ ] 2.5 Implement delivery stage/refusal adapter with independent goods and completed-service registration/readback contracts.
 - [ ] 2.6 Implement slot discovery and one authoritative conditional rescheduling adapter.
 - [ ] 2.7 Implement return-policy/create/readback adapter with item, quantity, destination and initiation-versus-receipt checks.
 - [ ] 2.8 Implement bounded customer clarification/status adapter, authenticated recipient binding and distinct message receipt stages.
-- [ ] 2.9 Implement operator enqueue/readback/resume adapter with packet identity, owner receipt and authenticated version-bound decision fixtures.
+- [ ] 2.9 Implement operator enqueue/readback/resume and scoped transfer/read-owner contracts inside this sixth port: same case/packet, stable transfer identity, conditional epoch, durable target acceptance, bounded readback and stale-decision fixtures. Keep native transfer disabled without evidence; case records stay read-only.
 - [ ] 2.10 Verify unsupported/unknown capabilities, conditional-write races, shared account quota/concurrency/backpressure and bounded rate-limit handling; adapters cannot bypass the action gateway.
 
-## 3. Durable runtime, both workflows and recovery — core owner, 12–18 hours including section 4
+## 3. Durable runtime, both workflows and recovery — core owner, 14–22 hours including section 4
 
 - [ ] 3.1 Implement request generations, stable logical action IDs, separate fingerprints, duplicate binding and explicit supersession.
 - [ ] 3.2 Implement the SQLite intent journal with immutable prepared/dispatch state committed before transport and failure-closed dispatch.
@@ -31,25 +31,31 @@ Status: revised work breakdown for written review on 8 October 2026, Europe/Lond
 - [ ] 3.4 Enforce the approved baseline ProcessSpec graph/prerequisites and fresh route/permission/risk/consent/version gates before every business, message and operator effect, before enabling model-backed effect planning.
 - [ ] 3.5 Implement operation-specific verifier and the two-condition safe-resend rule; preserve original keys and never retry unresolved unsafe effects.
 - [ ] 3.6 Run journal-failure, pre-send, post-send/pre-verification and post-verification restart tests, recording actual outputs and limitations.
+- [ ] 3.7 Persist/restore every pre-confirmation phase, next gate, processing status, question, consent mode, owner epoch, versions and budgets; pre-debit provider invocation/usage allowance durably before entry, interrupted processing is consumed/unknown rather than success/free retry, and resume cannot repeat external effects by default.
+- [ ] 3.8 Persist generation-scoped stop independently of original effect status; block prepared dispatch/resend and preserve stop through crash, reconciliation, duplicates, operator resume and process migration.
+- [ ] 3.9 Implement transfer pending/unknown fencing and bounded original-key reconciliation; conditional owner/packet checks prevent stale decisions and local expiry cannot become non-execution proof.
 
 ## 4. Workflow controls — included in core estimate, no additional effort allocation
 
-- [ ] 4.1 Implement positive structured/no-text rescheduling and autonomous selection inside authenticated window/timezone/constraints, native lifecycle/capacity and conditional-write gates.
+- [ ] 4.1 Implement both explicit consent profiles: authorized-window selection leads the demo, exact-slot confirmation second. Persist mode; changed exact slot cannot silently broaden consent. Keep native lifecycle/capacity and conditional-write gates.
 - [ ] 4.2 Implement whole-order goods refusal/return with authoritative complete inventory/quantity binding, independent effects and partial-item operator routing.
 - [ ] 4.3 Verify refusal-success/return-pending, rejected, unknown and wrong-object/item/quantity/destination outcomes without replaying refusal.
-- [ ] 4.4 Implement service-refusal registration and evidence-rich operator delivery; record scoped human refund/coverage/internal-case dispositions without autonomous financial adjudication or execution.
+- [ ] 4.4 Implement service-refusal registration and evidence-rich operator delivery; record scoped human refund/coverage/internal-case dispositions without autonomous financial adjudication/execution or actual internal-case creation.
 - [ ] 4.5 Verify unsupported request classes cannot trigger a business write and separately authorized clarification/handoff remain possible.
 - [ ] 4.6 Verify forged, replayed, expired, wrong-case, stale and scope-expanding operator decisions cannot resume effects.
+- [ ] 4.7 Implement explicit later goods/service refusal as a separate authenticated generation after stop; retain original outcome/uncertainty, check material dependencies and never reset case budgets or revive scheduling.
+- [ ] 4.8 Implement completed-duplicate response only after follow-up 5 is resolved; mandatory no-repeat-effect behavior does not depend on that presentation choice.
 
 ## 5. Common entry points and clarification — interface owner, 6–10 hours
 
 - [ ] 5.1 Implement one shared library/CLI/loopback FastAPI pipeline and canonical response/export contract; localhost is not principal authentication.
 - [ ] 5.2 Implement scripted and interactive authenticated clarification, persisted waiting owner/deadline/binding/budget and clearly simulated fixture replies.
 - [ ] 5.3 Verify interface parity, scope/authentication checks, partial/pending waiting states and no hidden effect shortcuts.
+- [ ] 5.4 Route early operator facts through saved completeness/current-authority gates; do not manufacture customer consent. Require reviewed wait/transfer expiry values; automatic reminders and automatic expiry-triggered reassignment are off by default.
 
 ## 6. Required evidence processing and model roles — evidence/model owner, 12–20 hours
 
-- [ ] 6.1 Implement artifact catalog with MIME/hash/source/access/case binding, original references and transformation/assertion lineage.
+- [ ] 6.1 Implement artifact catalog with MIME/hash/source/access/case binding, private original references and transformation/assertion lineage; owner transfer does not bypass artifact permissions. No automatic publication/deletion; exact retention policy remains to decide before native service use.
 - [ ] 6.2 Implement declared TXT/JSON, supplied transcript, JPEG/PNG, unencrypted PDF and WAV/MP3 intake with malformed/encrypted/unsupported states and scoped redaction.
 - [ ] 6.3 Implement provider-neutral extraction/planning/transcription protocols, explicit replay/unavailable modes, versioned prompts and processor/usage receipts.
 - [ ] 6.4 Preflight exact Anthropic/ElevenLabs API routes, observed model identity, privacy rights and a capped authorized campaign; do not infer API access from subscriptions or execute unapproved paid work.
@@ -63,8 +69,9 @@ Status: revised work breakdown for written review on 8 October 2026, Europe/Lond
 - [ ] 7.3 Require human approval before activation; verify runtime content cannot rewrite mappings/process/policy or expand permission.
 - [ ] 7.4 Reconcile pending old-version intents or use explicit compatible migration; preserve original keys/fingerprints/postconditions/budgets.
 - [ ] 7.5 Execute the 600-second new-profile drill changing semantics AND process; retain schema/no-text regressions and full clock/human review evidence.
+- [ ] 7.6 Keep reviewed ProcessSpec/tests canonical; explanatory views identify release/source versions and cannot activate behavior. No native Draw.io/Figma synchronization is required.
 
-## 8. Output, acceptance, labels and release preparation — review/eval owner, 8–12 hours
+## 8. Output, acceptance, labels and release preparation — review/eval owner, 10–14 hours
 
 - [ ] 8.1 Implement system-generated ANSWERS/<case>/ANSWER.md and REASONING.md with auditable facts, per-effect/evidence states and all failures retained; verify path/collision safety.
 - [ ] 8.2 Implement incremental batch saves, shared deadline and measured export reserve; rehearse declared workloads with complete denominators.
@@ -74,6 +81,13 @@ Status: revised work breakdown for written review on 8 October 2026, Europe/Lond
 - [ ] 8.6 Enforce oracle isolation with denied-access/canary probes and assign independent human custody before protected holdout; otherwise explicitly report rehearsal.
 - [ ] 8.7 Independently review/reproduce the frozen candidate, verify actual requirements and report missing runtime/native/provider evidence as unfinished.
 - [ ] 8.8 Prepare a clean source/license/rights package, reproducible instructions, sixty-second video and unsent LinkedIn/X drafts without publication/submission.
+- [ ] 8.9 Turn process-profiles.md R01–R15 into exact independent regression fixtures/inputs/hashes and failing tests; resolve R15 response semantics before fixture freeze. Exercise stop, early operator, all-phase recovery, ownership/packet races, expiry and scope/access gates before timed candidate measurement.
+
+## Dependency and scope delta
+
+Freeze foundation contracts (1.5/2.2) before adapter/core/interface consumers. Operator transfer authority is adapter work (2.9); durable stop/phase/transfer reconciliation is core work (3.7–3.9); facts-only re-entry and waits are interface work (5.4); regression allocation is acceptance work (8.9). Bounded planning waits for ProcessSpec enforcement (3.4); adaptation changes an existing baseline (7.1). No seven-port expansion or diagram-service dependency is introduced.
+
+The +5–8 h allocation is adapter contracts +1–2 h, core controls +2–4 h, regressions +2 h. Initial ownership/expiry fixtures are offline reviewed policies, not invented native permissions. Existing timed workloads remain 7 positive / 4 recovery / 12 unsafe cases unless separately revised/frozen. Required new untimed regressions cannot be skipped or claimed from old receipts. Follow-up 5 and policy values remain gates; detailed file-level implementation planning begins after written-design review.
 
 ## 9. Native/event enablement and archival — separate evidence/authorization gates
 

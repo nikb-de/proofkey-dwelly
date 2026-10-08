@@ -2,7 +2,7 @@
 
 The completed cross-provider review found useful design gaps in partial outcomes, routing authority, recovery and assessment isolation. The v2.2 manuscript and fresh review provide the preparation baseline, not an executable competition entry. On 7 October the user agreed to begin an offline MVP and requested more connections and an updated plan. This change now describes the implementation candidate, while preserving the two logistics workflow families and keeping document review separate from runtime evidence.
 
-The user confirmed six integration adapters and answered 18 design questions. This revision is dated 8 October 2026, Europe/London. Product priorities are now explicit: easy integration into existing systems, rapid adaptation to an unfamiliar environment, then reliable case resolution. The primary user is the engineer connecting the platform. This is a reusable harness and competition entry, not another vertical chatbot. The updated written design and tasks remain review candidates; answers approve the stated choices, not an unseen design or completed implementation.
+The user confirmed six integration adapters, answered 18 design questions and supplied nine clear source-specific follow-up choices; follow-up 5 is ambiguous. This revision is dated 8 October 2026, Europe/London. Product priorities are now explicit: easy integration into existing systems, rapid adaptation to an unfamiliar environment, then reliable case resolution. The primary user is the engineer connecting the platform. This is a reusable harness and competition entry, not another vertical chatbot. The updated written design and tasks remain review candidates; answers approve the stated choices, not an unseen design or completed implementation.
 
 ## What Changes
 
@@ -16,7 +16,11 @@ The user confirmed six integration adapters and answered 18 design questions. Th
 - Retain flat/nested no-text profiles while adding required free-text, transcript, image, PDF and raw-audio intake with explicit processing/provenance status.
 - Select a Python modular monolith, Pydantic, SQLite, CLI/library/local API, provider-neutral extraction/planning interfaces, an Anthropic text/vision/PDF route and ElevenLabs transcription route as the proposed engineering bet.
 - Add versioned process contracts and AI-proposed adapter/process changes that require regression and human approval before release; runtime cannot rewrite itself.
-- Permit constrained autonomous slot selection, whole-order goods refusal/return, both clarification modes and evidence-rich operator decisions without autonomous financial execution.
+- Retain two explicit consent profiles: authenticated-window slot selection leads the demo, exact-slot confirmation second; both retain current eligibility and conditional-write gates.
+- Add durable generation-scoped stop, all-phase checkpoints and facts-only operator re-entry. A later refusal is a separate authorized generation, never automatic undo or a bypass of unknown original effects.
+- Model conditional versioned owner transfer inside the sixth operator-inbox port, with durable acceptance and pending/unknown action fencing; automatic reminders off initially, policy values explicit.
+- Keep whole-order goods refusal/return, both clarification modes and evidence-rich operator decisions without autonomous financial execution; internal-case disposition record-only, actual creation deferred.
+- Make reviewed ProcessSpec/tests canonical, preserve source diagrams and add versioned explanatory/refusal-return views without native Draw.io/Figma synchronization. Keep private originals/scoped redaction separate from public code; exact retention remains a policy gate.
 - Define four separate 600-second acceptance targets: new-profile adaptation, positive-case completion, crash recovery and unsafe-action rejection. Define LLM labels as provisional pending team revalidation.
 - Ground offline provider shapes in public Dwelly and logistics documentation without claiming a native Dwelly API or live vendor integration.
 - Add system-generated official case output, bounded batch preparation and independent reproduction gates.

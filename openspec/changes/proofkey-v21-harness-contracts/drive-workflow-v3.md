@@ -1,6 +1,6 @@
 # Drive workflow v3 — source integration and design implications
 
-Imported 8 October 2026, Europe/London, from the [user-supplied folder](https://drive.google.com/drive/folders/1MPwvVnAIhDVEcQ8V-iAy63pjPKC4M_Pa). Status: source incorporated; ten follow-up decisions pending. This does not approve a new implementation plan or replace the user's existing 18 decisions.
+Imported 8 October 2026, Europe/London, from the [user-supplied folder](https://drive.google.com/drive/folders/1MPwvVnAIhDVEcQ8V-iAy63pjPKC4M_Pa). Status: source incorporated and nine confirmed follow-up choices reconciled in the written design; follow-up 5 is ambiguous. This does not approve an unseen implementation plan or replace the user's existing 18 decisions.
 
 ## Source package and provenance
 
@@ -35,30 +35,30 @@ The three-page flow makes human / agent / deterministic-program roles explicit, 
 
 The diagram is a **rescheduling example**. It does not supply the goods refusal/return counterpart, multimodal processor path, six-port capability map or engineer adaptation loop. Those remain required by the existing design, not removed by importing this source.
 
-## Crosswalk and unresolved issues
+## Source crosswalk and confirmed design consequences
 
 | Source location | Observed issue / useful pattern | Consequence for a revised profile / tests |
 |---|---|---|
-| A `2:196`, `2:199` | Human confirms the exact slot; current approved choice allows agent selection within an authenticated window. | Declare exact-slot and authorized-window consent modes explicitly; do not silently revoke the prior decision. Question 1. |
-| C `5:329` → `5:332` via `5:432`/`5:416`; B `4:310` → retry path | Stop/cancel disposition can disappear when an unknown write is reconciled as non-executed. Source notes flag this as unfixed. | Persist no-further-write intent independently of outcome; reconciliation is not consent to retry or undo. Question 2. |
-| Early A clarification/auth failure → C; C `5:424` → `5:338` (A1) | Operator-supplied data can return after completeness/authentication gates. Source notes flag early re-entry as unfixed. | Restore origin/missing fields and pass A0/current authority checks before effects; operator notes cannot manufacture customer authority. Question 3. |
-| B0 `4:163` saved-state switch | No explicit checkpoint route for intake/extraction/completeness/authentication before confirmation. | Persist pre-effect phase, next gate, awaited question and versions; never resume every existing request at execution. Question 4. |
-| B verified result `4:187`, `4:193`; B0 `4:163` | Saved terminal success has no explicit replay branch. Source notes distinguish this from restoring unfinished steps. | Authenticated duplicate replay returns the retained outcome/evidence without repeating effects or messages; current-status read is separate. Question 5. |
+| A `2:196`, `2:199` | Human confirms the exact slot; prior approved choice permits agent selection within an authenticated window. | D1: retain both modes; window mode leads the demo, exact-slot cannot silently broaden consent. |
+| C `5:329` → `5:332` via `5:432`/`5:416`; B `4:310` → retry path | Stop/cancel disposition can disappear when an unknown write is reconciled as non-executed. Source notes flag this as unfixed. | D2: persist stop independently of outcome; no resend/undo. A later refusal is a separate authenticated generation with material dependency checks. |
+| Early A clarification/auth failure → C; C `5:424` → `5:338` (A1) | Operator-supplied data can return after completeness/authentication gates. Source notes flag early re-entry as unfixed. | D3: restore origin/missing fields and pass completeness/current authority checks; facts are not customer consent. |
+| B0 `4:163` saved-state switch | No explicit checkpoint route for intake/extraction/completeness/authentication before confirmation. | D4: persist/resume exact phase, next gate, question, processing status, versions and budgets; never jump directly to execution. |
+| B verified result `4:187`, `4:193`; B0 `4:163` | Saved terminal success has no explicit replay branch. Source notes distinguish this from restoring unfinished steps. | D5 pending clarification of “давай без”: saved-result replay was proposed, not confirmed. No repeat business effects remains mandatory; do not add implicit refresh/new-request behavior. |
 | C2 `5:308` → `5:317`, edge `5:368` | “Case ID exists” may be read as sufficient handoff acceptance. | Existing canonical contract remains stronger: case + packet identity/version + durable owner receipt, not queue acknowledgement alone. |
-| C `5:341`, `5:353` | Owner transfer is named, but ownership generation, stale decisions and in-flight acceptance are unspecified. | Define versioned transfer and accepted new owner; old-owner decisions must not race a new accepted ownership epoch. Question 6. |
-| C `5:323`, `5:404` | Waiting/reminders/expiry appear without exact limits or effect permissions. | Scoped recipient, cadence, maximum reminder effects, deadline and safe expiry; include waiting in clock. Question 7. |
-| Existing design's internal-case disposition | Source C has a case queue but no distinct internal-case creation contract. | Distinguish recording a decision from a new scoped creation effect; initial case-record port remains read-only absent a reviewed change. Question 8. |
-| Source notes / all artifacts | Private originals, derivative previews and a Figma pointer have different access/readiness. | Define original-evidence access/retention; exclude from automatic public release. Question 9. |
-| Draw.io / Figma versus ProcessSpec | Multiple editable views can drift; notes acknowledge incomplete Figma routes. | Choose canonical reviewed process artifact and versioned derived views; do not assume native synchronization. Question 10. |
+| C `5:341`, `5:353` | Owner transfer is named, but ownership generation, stale decisions and in-flight acceptance are unspecified. | D6: same case/packet, stable transfer/epoch, durable target acceptance; old owner accountable, pending/unknown actions fenced, stale decisions rejected. Within sixth port. |
+| C `5:323`, `5:404` | Waiting/reminders/expiry appear without exact limits or effect permissions. | D7: durable waits/expiry first; automatic reminders off. Transfer needs bounded authority/receipt rules. Exact policy values remain unknown. |
+| Existing design's internal-case disposition | Source C has a case queue but no distinct internal-case creation contract. | D8: record-only initially; real internal-case creation deferred/disabled. Case-record port remains read-only. |
+| Source notes / all artifacts | Private originals, derivative previews and a Figma pointer have different access/readiness. | D9: scoped private originals and synthetic/redacted public derivatives, no auto-publication/deletion. Exact retention duration remains unknown. |
+| Draw.io / Figma versus ProcessSpec | Multiple editable views can drift; notes acknowledge incomplete Figma routes. | D10: reviewed ProcessSpec/tests canonical; native diagram sync excluded now, six logistics ports unchanged. |
 
-No original diagram route was repaired during this import. Missing explicit stop/checkpoint/terminal/ownership requirements are recorded for the next reviewed design; the source cannot be activated unchanged as a runtime profile.
+No original diagram route was repaired. Confirmed missing stop/checkpoint/ownership routes are now specified in design/spec deltas and [process views/regression obligations](process-profiles.md), not implemented. Completed-duplicate response remains unresolved. The source cannot be activated unchanged as a runtime profile.
 
-## Proposed planning delta — awaiting the ten answers
+## Revised planning delta — written review candidate
 
 ```mermaid
 flowchart LR
-    Source[Preserve v3 originals + hashes] --> Questions[Ten follow-up decisions]
-    Questions --> Process[Revised consent / stop / resume / ownership contracts]
+    Source[Preserve v3 originals + hashes] --> Questions[Nine confirmed choices + D5 pending]
+    Questions --> Process[Written consent / stop / resume / ownership contracts]
     Process --> Tests[Source-linked test allocation + return counterpart]
     Tests --> Review[Written-design review]
     Review --> Plan[Detailed implementation plan]
@@ -67,10 +67,10 @@ flowchart LR
 ```
 
 1. Retain this capture and crosswalk without changing past artifacts or confirmed platform scope.
-2. Resolve [ten follow-up questions](follow-up-questions.md); recommendations there are proposals, not user answers.
-3. Revise ProcessSpec/safety requirements for the missing routes and operator semantics. Add a goods refusal/return companion using independent initiation/receipt/financial boundaries. Do not present the rescheduling diagram as coverage of returns.
-4. Allocate positive, cancel-during-unknown, early-operator, pre-confirmation-crash, terminal-duplicate, ownership-race and reminder-budget tests. Preserve both main positive workflows and complete timed denominators.
-5. Revisit workload and the unmeasured 54–86 person-hour estimate after deciding whether reminders, reassignment, actual internal-case creation and native diagram synchronization are required now. Do not hide expanded scope inside the old estimate.
-6. Review the revised written design, then write/review the detailed Superpowers implementation plan. Native API, provider budget, event eligibility and protected-evaluation gates remain separate.
+2. Nine choices are recorded; resolve the sole ambiguous [follow-up 5](follow-up-questions.md) before freezing completed-duplicate response fixtures.
+3. Written ProcessSpec/safety requirements now cover consent modes, stop, pre-effect recovery, facts-only re-entry and scoped owner transfer. The goods refusal/return companion retains independent initiation/receipt/financial boundaries.
+4. R01–R15 allocate planned source-linked positive/unsafe/unknown regression obligations. Both autonomous workflow families and existing timed denominators remain required; these are not executed tests.
+5. Rebaseline 54–86 to **59–94 additive person-hours**: adapter ownership contracts +1–2 h, core phase/stop controls +2–4 h, regressions +2 h. Unmeasured, not an event promise. Automatic reminders, real internal-case creation and native diagram sync excluded. D5 may change the scope.
+6. Review this written design, then prepare/review the detailed Superpowers implementation plan and select execution. Native API, bounded policy values, retention duration, provider budget, event eligibility and protected-evaluation gates remain separate.
 
-The four 600-second targets remain targets, not new timing receipts. No model campaign, runtime execution, diagram edit, external message or public release was performed.
+The four 600-second targets remain targets, not new timing receipts. No model campaign, runtime execution, native diagram edit, external message or public release was performed.
