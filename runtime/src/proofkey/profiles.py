@@ -60,7 +60,7 @@ def load_profile(path: str | Path) -> EnvironmentProfile:
     intact so the controller/policy can deny the corresponding operation.
     """
     path = Path(path)
-    if str(path) in {"flat-v1", "nested-v1"}:
+    if str(path) in {"flat-v1", "nested-v1", "flat-v1.1", "nested-v1.1"}:
         path = _ROOT / "profiles" / f"{path.name}.json"
     try:
         raw = json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=_strict_json)

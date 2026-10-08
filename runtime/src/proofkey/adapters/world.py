@@ -23,14 +23,17 @@ from ..profiles import load_profile
 
 _EFFECTS = frozenset({"reschedule", "register_goods_refusal", "register_service_refusal", "create_return",
                       "send_clarification", "send_status", "enqueue_handoff", "transfer_owner"})
+_BUSINESS_EFFECTS = frozenset({"reschedule", "register_goods_refusal", "register_service_refusal", "create_return"})
+_SCOPE_MATERIAL = frozenset({"customer.request_fingerprint", "customer.consent_mode"})
+_NEW_FACTS = frozenset({"customer.request_fingerprint", "scheduling.slot_details"})
 _FACT_SCOPES = {
     "read_case": {"case": {"binding", "request_revision", "authorization", "generation", "question_revision",
                             "result_revision", "completeness"}, "policy": {"version"}},
-    "read_principal": {"customer": {"consent", "consent_revision", "consent_mode"}},
+    "read_principal": {"customer": {"consent", "consent_revision", "consent_mode", "request_fingerprint"}},
     "read_delivery": {"delivery": {"status", "risk", "stage"}, "goods": {"inventory", "quantity"}},
     "read_refusal": {"goods": {"refusal", "inventory", "quantity"}, "service": {"refusal"}},
-    "list_permitted_slots": {"scheduling": {"capacity", "slot"}},
-    "read_schedule": {"scheduling": {"capacity", "slot"}},
+    "list_permitted_slots": {"scheduling": {"capacity", "slot", "slot_details"}},
+    "read_schedule": {"scheduling": {"capacity", "slot", "slot_details"}},
     "read_return_policy": {"returns": {"destination"}, "policy": {"version"}},
     "read_return": {"returns": {"status", "destination"}},
     "read_message": {"messaging": {"permission", "recipient"}},
@@ -62,10 +65,20 @@ class _FixtureClock:
         return self._start
 
 
+def _scope_contract(profile):
+    # Only frozen legacy v1 retains its original scope semantics. A new version
+    # or an explicitly designated commitment cannot silently drop protection.
+    return profile.version != "v1" or "customer.request_fingerprint" in profile.authorities
+
+
 def required_material_keys(connection, profile, operation, stage):
     """Trusted manifest plus minimum provider coverage; never caller keys."""
     capability = profile.capabilities.get(operation)
     minimum = material_fields(operation)
+    if _scope_contract(profile) and operation in _BUSINESS_EFFECTS:
+        minimum |= _SCOPE_MATERIAL
+        if operation == "reschedule":
+            minimum |= {"scheduling.slot_details"}
     if operation not in _EFFECTS or capability is None or not stage:
         return None
     contracts = (capability.permission_basis, capability.acknowledgement, capability.readback,
@@ -281,12 +294,18 @@ class SimulatedWorld:
         facts = self._facts(connection, binding.case_id, binding.object_id)
         values = {key: json.loads(row["value"]) for key, row in facts.items()}
         original = values.get("case.binding")
-        return (isinstance(original, dict) and all(original.get(field) == getattr(binding, field)
+        identity_matches = (isinstance(original, dict) and all(original.get(field) == getattr(binding, field)
                 for field in ("case_id", "object_id", "principal_id", "request_id"))
                 and values.get("case.request_revision") == binding.request_revision
                 and values.get("customer.consent_revision") == binding.consent_revision
                 and values.get("case.generation") == binding.generation
                 and values.get("case.authorization") == "verified")
+        if _scope_contract(self._profile) and intent.operation in _BUSINESS_EFFECTS:
+            commitment = values.get("customer.request_fingerprint")
+            return (identity_matches and isinstance(commitment, str) and len(commitment) == 64
+                    and all(char in "0123456789abcdef" for char in commitment)
+                    and commitment == binding.fingerprint)
+        return identity_matches
 
     def _dispatch(self, operation, intent: EffectIntent) -> DispatchResult:
         intent = EffectIntent.model_validate(intent.model_dump())
@@ -370,7 +389,8 @@ class SimulatedWorld:
         facts = self._facts(connection, case, obj)
         values = {key: json.loads(row["value"]) for key, row in facts.items()}
         args, operation = intent.arguments, intent.operation
-        if (values["customer.consent"] != "granted" or values["delivery.risk"] != "safe"
+        requires_business_consent = not _scope_contract(self._profile) or operation in _BUSINESS_EFFECTS
+        if ((requires_business_consent and values["customer.consent"] != "granted") or values["delivery.risk"] != "safe"
                 or values["delivery.stage"] != "eligible" or values["policy.version"] != intent.policy_version
                 or intent.profile_version != self._profile.version or intent.process_version != "v1"):
             return None
@@ -487,6 +507,10 @@ class SimulatedWorld:
                 if target.kind == "authority_facts":
                     allowed = _FACT_SCOPES.get(operation, {}).get(target.authority, set())
                     if not set(target.facts) <= allowed:
+                        return empty("scope_rejected")
+                    if any(target.authority + "." + fact in _NEW_FACTS
+                           and self._profile.authorities.get(target.authority + "." + fact) != target.authority
+                           for fact in target.facts):
                         return empty("scope_rejected")
                     facts = self._facts(connection, request.case_id, request.object_id)
                     for fact in target.facts:
