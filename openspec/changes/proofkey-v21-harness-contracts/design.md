@@ -22,6 +22,20 @@ The original v2, v2.1 and v2.2 documents and their assessment packets are immuta
 
 Explicit synthetic `flat-v1.1`/`nested-v1.1` profiles add source-held canonical-request commitments and aware slot intervals. The four business effects require current request-fingerprint and consent-mode revision coverage; rescheduling also requires slot details. The legacy v1 artifacts and default provider behavior remain unchanged, but the new core cannot authorize a business effect from their generic granted-consent/slot-ID facts alone. A later version cannot drop required scope coverage; communications retain their separately verified permission/recipient/packet contracts. These are offline contracts, not evidence of native permissions or a reviewed adaptation release.
 
+The gateway may build an immutable intent from a trusted pure host proposal builder after one complete just-in-time designated read set. It alone supplies bindings, original versions, material revision coverage, ownership binding, IDs and deadlines, and uses the same gated prepare/mark/dispatch/readback sequence as an existing intent. This avoids duplicate planning/gating reads exceeding the24-call baseline; anticipated synthetic positive costs are10 calls for reschedule and19 for whole-order refusal/return, including bootstrap and readbacks. These are design counts, not executed workflow receipts. Model-backed proposals still need their separately debited durable processing receipt; the builder cannot invoke an unguarded model or supply observations/grants. Shared-account pacing uses only a trusted bounded wait clock and never overrides provider backpressure or refunds unknown debt.
+
+Physical action stages are distinct from observed completion stages:
+
+| Physical operation | Stable dispatch stage | Stronger/different readback meaning |
+|---|---|---|
+| reschedule / goods-refusal / service-refusal registration | commit | Committed scoped outcome, not broad delivery/service resolution |
+| create_return | initiate | Physical received status needs independent evidence on the original identity |
+| send_clarification / send_status | send | Delivered is distinct from sent |
+| enqueue_handoff | enqueue | Queue receipt is not human acceptance/resolution |
+| transfer_owner | request | Pending is not durable target acceptance/advanced epoch |
+
+Receive/deliver/accept are not new action stages/keys authorizing another physical write. Conceptual graph consent/confirmation/refusal predicates are derived only after designated source commitment, mode and exact arguments/full scope validate; verified-result predicates come only from original same-binding verifier/journal results. Raw observations/revisions remain unchanged. Initial customer-origin binding requires current scoped proof/read access and caller matching designated principal; operator help/recovery requires its separate verified authority rather than impersonating the customer. The pure policy observation API is a trusted-host boundary, never a caller/model-controlled observations endpoint.
+
 Use a clean `runtime/` subtree containing the `proofkey` package, project metadata, tests, public development fixtures, README and LICENSE. This is a source-release boundary within the current repository, not a new nested Git repository. Private `work/` and `outputs/` are not automatically releasable.
 
 The proposed bet is Python 3.11+, Pydantic canonical schemas, typing protocols, SQLite, argparse and unittest. A thin FastAPI loopback service exposes the same pipeline as the Python library and CLI; it is not another workflow engine. Anthropic is the first text/vision/PDF extraction and bounded planning route; ElevenLabs is the first raw-audio transcription route. Both sit behind provider-neutral protocols, with fixture replay and unavailable modes clearly labeled. Package versions, exact model IDs, usable credentials and spend caps require preflight, not copying documentation examples.
