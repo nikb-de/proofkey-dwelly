@@ -4,6 +4,15 @@ ProofKey is an offline adaptive logistics contract harness, built for easy integ
 
 The default executable exposes two registered **synthetic replay** examples. This guide documents current interfaces; its commands were not executed as part of this documentation change. It does not certify a complete runtime, source release, live provider connection or event-ready system.
 
+## Start here
+
+- **Run the existing demo:** use the two source-checkout examples below with already installed dependencies and separate fresh state directories.
+- **Connect a system:** first read the [public / registered / core support matrix](../docs/verification/judge-remediation-2026-10-09/support-matrix.md). Six interfaces exist; no native logistics connection is established. The default public path accepts two fixed cases, not an arbitrary profile.
+- **Understand a result:** read [Read results](#read-results). Acknowledged, verified, pending, physically received and paid are different outcomes. Do not retry an unknown effect with a new key.
+- **Work on remaining capabilities:** use the [complete remediation register](../docs/verification/judge-remediation-2026-10-09/README.md), not the historical panel score, to find the next dependency and its exit evidence.
+
+The latest recorded full-suite baseline is **1,646 tests with 14 errors**, all at the factory's historical implementation gate; see [baseline corrections](../docs/verification/2026-10-09-baseline-corrections.md). This README edit does not rerun that suite. The fixed-case CLI, registered admission bridge, core engine and live integrations have different support boundaries.
+
 ## Source-checkout quickstart
 
 Python **>=3.11** is declared in [pyproject.toml](pyproject.toml). Earlier scoped observations used CPython **3.12.14 on macOS arm64**; other interpreters/platforms and a fresh console-script installation remain unqualified. These examples require the runtime dependencies to be already available to `python3`: pydantic 2.13.5, pillow 12.3.0, pypdf 6.10.0 and their dependencies. This is not an installation recipe or a clean-environment reproduction.
@@ -94,7 +103,7 @@ Reads take `ReadRequest` and return `AuthorityReadback`; effects take `EffectInt
 
 Adaptation requires a source-grounded proposal, changed contract tests, review and a compatible release/migration decision. Incoming content cannot activate a profile or expand permissions. The registry/route foundation now has an opt-in library bridge for the fixed synthetic runtime: `RuntimeFactory.create_registered` plus `RuntimeResources.run_registered`. Trusted bootstrap code supplies the exact registered code/profile/resource binding and an explicitly synthetic review grant; case content cannot supply this authority. The host persists the original request, seals its route/binding before importing case debt, then records observed admission after execution.
 
-First adoption requires a new isolated resource root and fresh dedicated control stores. Marked roots cannot use the legacy factory; reopening requires the original stores and exact binding. Missing stores, pending claims and uncertain cleanup deny entry rather than silently repairing or retrying. Registered recovery/reply/stop, arbitrary profile loading and migration remain unavailable; the unmarked legacy path is unchanged. This bridge is not exposed as a CLI default. See the [engineering handoff](../docs/verification/2026-10-09-registered-host-admission.md) for current test results, including seventeen pre-existing whole-suite failures. Actual human review, authenticated snapshot origin, a multi-resource atomic switch and complete runtime closure are not established.
+First adoption requires a new isolated resource root and fresh dedicated control stores. Marked roots cannot use the legacy factory; reopening requires the original stores and exact binding. Missing stores, pending claims and uncertain cleanup deny entry rather than silently repairing or retrying. Registered recovery/reply/stop, arbitrary profile loading and migration remain unavailable; the unmarked legacy path is unchanged. This bridge is not exposed as a CLI default. The [engineering handoff](../docs/verification/2026-10-09-registered-host-admission.md) records its historical test results; [baseline corrections](../docs/verification/2026-10-09-baseline-corrections.md) and the [timing correction](../docs/verification/2026-10-09-admission-phase-budgets.md) record subsequent scoped verification. Actual human review, authenticated snapshot origin, a multi-resource atomic switch and complete runtime closure are not established.
 
 [Source preparation](src/proofkey/release.py) requires a trusted `SourceReleaseContextV1`. `verify_release_static` means static source readback; actual `verify_release` is unavailable. Source preparation is not clean installation or permission to distribute. The current CLI does not expose release preparation or activation.
 

@@ -66,6 +66,20 @@ checkout after import. A reused/preloaded module or replacement/monkeypatch of
 those six modules invalidates the lane. Add a negative probe for a preloaded
 stale module; an on-disk hash alone must not grant a current-source receipt.
 
+Require optimization level zero in both launcher and child, remove inherited
+`PYTHONOPTIMIZE`, and record the effective flag. Existing behavioral helpers use
+assertions; optimized execution cannot produce passing evidence. The inner
+suite is exactly `test_adaptation_factory` and `test_factory_registration`,
+never the qualifier's own tests. Record the test-ID inventory and require every
+planned test once with no skipped, expected-failure or failed positions.
+
+The broader snapshot includes added/untracked executing files, the qualifier
+and selected fixtures, not only Git-tracked files. Validate origins and retained
+identities for loaded project-local factory, contracts and test/helper modules
+against the selected snapshot as well as the six pins. External distribution
+identity is reported separately. These checks are trusted-test provenance,
+not hostile-code isolation or complete transitive closure.
+
 Record the observed broader source/test/fixture inventory, Python/dependency
 identity and pre/post stability in a separate run manifest. That manifest also
 enumerates exact regression-receipt byte SHA-256 values, execution IDs, proposal
@@ -94,6 +108,11 @@ historical materials, timestamps, receipts and inventory. Add an explicit-path
 golden vector for the registration object and digest preimage;
 historical material may be used only for serialization tests, never as evidence
 that historical source executed in the current runtime.
+
+Legacy vector generation supplies fixed synthetic regression rows directly,
+without calling current behavioral helpers through `reviewed()` or the default
+`evidence()` path. The fixed historical material, time and case hashes are
+serialization inputs; they are not a historical execution receipt.
 
 Verify deterministic reordered inventories, different-ID hash separation,
 cross-registration receipt rejection, consistent prepare/resolve/check/stage

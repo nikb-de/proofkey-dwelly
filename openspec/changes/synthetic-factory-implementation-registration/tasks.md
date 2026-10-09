@@ -1,6 +1,6 @@
 ## 1. Design and implementation gate
 
-- [ ] 1.1 Obtain explicit review of the proposed trust-interface extension.
+- [x] 1.1 Obtain explicit review of the proposed trust-interface extension.
 - [ ] 1.2 Write and review the implementation plan from this approved scope.
 
 ## 2. Implement and verify

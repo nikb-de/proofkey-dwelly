@@ -1,0 +1,125 @@
+# Judge remediation: complete work register
+
+Updated: 9 October 2026. Code baseline: `69738ea`; planning/docs changes are not a new runtime qualification. **Four narrow items are closed, one is partial, 27 remain open.** This register covers every recommendation, not a claim that all recommendations have been implemented.
+
+## Decision
+
+Keep the product bet: **easy integration → rapid adaptation → reliable case resolution**, for the engineer connecting an unfamiliar delivery/logistics environment. Fix the failed baseline first, then implement thin executable slices. Do not expand into a generic arbitrary-code agent platform, real money execution, or live customer contact.
+
+The first business demonstrations remain rescheduling and whole-order refusal/return. Service refusal and operator handoff are the next public-path evidence slice; a queued handoff is not an operator's acceptance. Six provider-neutral interfaces remain in scope; six live integrations do not.
+
+The original five-provider assessment and ZIP are immutable. This register is a response to those findings, **not a new judge score**. The complete original-to-work-item mapping is in [source-map.json](source-map.json). That file is a preserved discovery snapshot; its references to approval being pending precede the user's current instruction. Current execution status is below.
+
+## What has actually changed
+
+| Work | Evidence | Scope |
+| --- | --- | --- |
+| Late final-observation timeout corrected | `15453e1`; [timing verification](../2026-10-09-admission-phase-budgets.md) | 34 focused tests and 3 independent real-component probes; not general registered recovery |
+| Evidence regression expectations corrected | `9c1ea1c`; [baseline verification](../2026-10-09-baseline-corrections.md) | Real original evidence, malformed/missing/revoked references and unavailable processing are distinguished; production behavior unchanged |
+| API environment selected and checked | Same baseline verification | Existing isolated environment, 24 API tests; no new installation claim |
+| Full recommendation inventory and source-backed design inputs | This directory | 31 findings, 31 recommendations, 15 next actions, 40 rubric explanations and 24 declined-scope entries mapped; discovery/documentation only |
+| Synthetic factory registration plan prepared and corrected after independent review | [implementation plan](../../superpowers/plans/2026-10-09-synthetic-factory-registration.md), [plan review](factory-plan-review.md) | User accepted the design; written-plan confirmation is pending. No factory code changed yet |
+
+Last full runtime run: **1,646 tests, 14 errors, no failures**, 396.912 seconds. All 14 errors stop at the historical factory implementation gate. The current suite is not green. Selected passing tests are not a substitute for fixing that gate and rerunning the complete suite.
+
+## Execution order
+
+```mermaid
+flowchart TD
+  B[W0: current factory registration + green baseline] --> P[W1: package + supported launch]
+  B --> D[W1: truthful support docs + registry inventory]
+  P --> C[W2: trusted nonbuiltin case + observed-route controls]
+  C --> R[W3: restart timing + interrupted-claim recovery]
+  C --> A[W3: executable process + response-contract delta]
+  P --> M[W2: meaningful bounded content observation]
+  M --> G[W3: observation to planning to existing action gates]
+  R --> E[W4: public evidence + independent grading + timed rehearsals]
+  A --> E
+  G --> E
+  D --> E
+  H[Human/provider/rights/custody gates] --> Q[W5: actual qualification + final review]
+  E --> Q
+```
+
+These are dependency waves, not promises of hours or completion dates. Independent analysis, fixtures and documentation can run in parallel. Host/admission implementation is serialized because its slices change the same authority boundary. Each behavior change gets its own OpenSpec delta, approved plan, RED/GREEN tests, independent review and leaf archive. The umbrella and unfinished parent stay open.
+
+## All work items
+
+State meanings: **closed** = named evidence meets the narrow criterion; **partial** = measured progress but criterion unmet; **open** = not yet established, not necessarily missing code. “Prepared” below describes planning output, never implementation completion.
+
+| ID | State | Wave / owner | Next action and required exit evidence |
+| --- | --- | --- | --- |
+| J01 | partial | W0 / implementer + independent verifier | Run the entire suite on a frozen candidate, retaining environment, every selector and pre/post source inventory. No skipped old failures. |
+| J02 | open | W0 / factory implementer | Implement explicit immutable synthetic registration and fresh-process receipt binding. Preserve historical pins, legacy bytes, denied non-v1 execution and no activation. Written plan prepared. |
+| J03 | closed | W0 / regression verifier | Retain the corrected evidence tests and contract; future work must not turn recovery into implicit evidence intake. |
+| J04 | closed | W0 / verifier | Keep using the verified existing API environment. Fresh installation remains J13. |
+| J05 | open | W3 / process-adaptation implementer | Actually execute a finite changed response-envelope parser and readiness phase under a new registered version, then prove baseline/candidate differences, preserved old routes and reviewed release. Metadata-only version changes do not pass. |
+| J06 | open | W2 / integration implementer | Add a trusted provisioning/launch path for a nonbuiltin case, not a case-body path/import/approval override. Execute a positive public example without editing source pins. |
+| J07 | open | W2–3 / admission implementer | First permit recover/reply/stop only for fully observed original routes, with original identity, authority, debt and deadlines. Classify interrupted claims separately. Record remaining denials. |
+| J08 | open | W1 / documentation reviewer | [Support matrix](support-matrix.md) prepared from current source. Validate and publish a short public version; link positive cells to current receipts rather than merely syntax/tests. |
+| J09 | open | W4 / independent verifier | Capture public service-refusal/handoff, exact-slot and retained reply/stop cases with independent per-effect expectations. Queued, accepted, initiated and physically received remain distinct. |
+| J10 | open | W3–4 / recovery implementer + verifier | Fresh-process fault campaign preserving original route/key/generation/time/debt; include uncertain partial effects, wait, stop and ownership races. Do not erase sealed claims. |
+| J11 | open | W2–3 / processing implementer | First meaningful bounded UTF-8/transcript/text-PDF observations, then an explicit observation-to-plan phase. Images/audio stay unavailable until a real authorized processor is exercised. |
+| J12 | open | External gate / human provider owner | Prepare disabled-by-default native adapters and exact contract probes; execute only with approved account, budget and data scope. Retain native IDs/usage/semantic readback. Synthetic transport is not provider participation. |
+| J13 | open | W1 / packaging implementer | Package schema/profiles/fixtures deliberately, build exact artifacts and execute installed CLI/module/API outside checkout from a fresh offline environment. Missing local artifacts are a reported prerequisite, not permission to download. |
+| J14 | open | W1–4 / release verifier | Separate static copied-byte validation from executable reproduction. Bind exact source/resources/dependencies/build artifact and installed execution. Never return a full-verification label from static hashes alone. |
+| J15 | open | External gate / human rights owner | Prepare exact artifact/input/dependency provenance and notice checklist; obtain actual contributor/employer/data permissions where required. No inferred legal clearance. |
+| J16 | open | W4 / platform verifier | Run the same installed artifact on an available Linux environment, retaining filesystem/security guarantees. macOS results are not Linux results; Windows remains unverified. No image pull without scope. |
+| J17 | open | External gate / independent human custodian | Separate identities, mounts, labels and access paths; execute denial/leak probes and record custody. Same-UID directories stay rehearsal. Do not expose withheld labels to development agents. |
+| J18 | open | External gate / authorized human reviewer | Review the exact executable candidate and activation scope. User design/plan approval and simulated review do not equal runtime release signoff. |
+| J19 | open | W4–5 / run controller + independent grader | Freeze and run A=1, B=7, C=4, D=12 positions, each complete exercise within one measured 600-second target. Include setup, waits and export; record misses honestly. A also needs real review. |
+| J20 | open | W4 / eval implementer | Version and execute all declared workload positions and R01–R15 obligations, using independent expected effects. Keep failure, timeout, denied and unsupported rows in the denominator. |
+| J21 | open | External gate / unfamiliar engineer and operator | Observe real onboarding and packet use, task outcome and effort. Model review is not user research. Prepared script first; actual observation later. |
+| J22 | open | W1 / bounded API implementer | Replace direct `_releases` coupling with a detached immutable public commitment inventory. Preserve one-composition invariants and add mutation/invariant tests. |
+| J23 | open | W4 / evidence implementer | Render a content-free correlated trace from existing receipts: admission → authorization → dispatch → original readback → publication/shutdown. No hosted collector required. Redact credentials and raw content. |
+| J24 | open | W1 / documentation reviewer | Add a short outcome-first quickstart with supported path, output interpretation and safe failure handling. Prepared matrix exists; real unfamiliar-user validation remains J21. |
+| J25 | open | External gate / human team lead | Confirm actual event acceptance, eligible work, five human participants, ownership and availability. Existing conversation names are not current confirmation. |
+| J26 | open | W5 / human demo owner | Approve realistic dated exit gates, then produce and review an actual demo/video from the frozen working path. No submission, upload or publication inferred. |
+| J27 | open | W1–5 / nonauthor auditors | Review full relevant modules and cross-module paths, recording exact covered hashes/lines and omissions. A source inventory is not a security review. |
+| J28 | closed | W0 / timing verifier | Preserve original bounded parent time and separate final-observation phase. J32 extends coverage without reopening this verified fix. |
+| J29 | closed | All / every author and reviewer | Keep original scores and all synthetic/actual/unverified labels truthful. Closure applies to reviewed artifacts, not automatic approval of future claims. |
+| J30 | open | W5 / nonauthor reviewer + root | Whole-change review after implementation and evidence; archive only genuinely complete leaves, then the parent when all its requirements are met. |
+| J31 | open | W4 + external gate / label author and human validator | Generate versioned provisional development labels, preserve provenance/disagreement, and obtain separate revalidation. These are not protected truth labels. |
+| J32 | open | W0 / timing-test author | Add an independent positive-but-under-five-second parent remainder probe; final observation must use only the remaining original parent window. No fresh budget. |
+
+The four closed rows stay in the register. No item is removed because another judge omitted it or because it is an optional suggestion. Optional items may be explicitly deferred, but currently remain open.
+
+## Chosen defaults for the next specifications
+
+1. **Provisioning:** finite trusted manifest/composition selected by release ID. Business JSON cannot supply a Python import, path, approval, clock or authority. Start with library + CLI parity; API selection follows the same trusted object, never a body-selected release.
+2. **Registered controls:** observed routes first; interrupted prepared/sealed claims require a different state-classification change. Reconcile original effects; never re-admit as a fresh case.
+3. **Process adaptation:** one reviewed finite version adding a real readiness read and changed response-envelope normalization. Keep permissions and policies identical. Preserve the old registered executable for unfinished old work; no in-place migration in the first slice.
+4. **Time:** a trusted continuation timeline must not move before observed state or extend the saved business deadline. A fresh process's monotonic origin is not the old process's clock.
+5. **Packaging:** one explicit installed-resource strategy, initially exact local macOS/Python target. Linux must be actually run. Do not weaken no-follow/owner/alias checks for portability.
+6. **Content:** deterministic text observations first with explicit source coordinates and bounds. Processing is a separate authorized phase, not a side effect of intake. Model/ASR rows require real evidence separately.
+7. **Evaluation:** extend the existing capture/ledger/reference components, do not create a parallel scoring system. Agent-generated labels are provisional development material. No score increases inferred from fixing bugs.
+
+These defaults are proposed implementation directions grounded in [integration discovery](integration-discovery.md) and [qualification discovery](qualification-discovery.md). They do not silently amend the parent contracts. Each larger interface change still needs its own written design/plan review.
+
+## Human and external decisions to prepare, not fabricate
+
+| Decision package | Prepared artifact should contain | Required actual decision/evidence |
+| --- | --- | --- |
+| Provider pilot | Exact account/provider, input classes, operations, cap, stop conditions, redaction and retention | Authorized account owner approval and actual request/response/usage receipt |
+| Rights/release | File hashes, author/source, dependency artifact/license/notice, excluded material | Relevant rights holder/contributor/employer decisions; publishing authority if later requested |
+| Release review | Candidate and plan hashes, regression results, new vs preserved behavior, unresolved risks | Named authorized human disposition on that exact candidate |
+| Custody | Public/private interfaces, identity map, denied paths, leakage probes, frozen split families | Independent custodian and enforced access evidence |
+| Usability | Clean environment and input, task instruction, timing start/stop, no coaching rule, observed problems | Actual unfamiliar engineer/operator run |
+| Event/demo | Rules/eligibility checklist, human roles, staged exits, demo source and evidence links | Current organizer/team confirmations and human presentation review |
+
+Creating these packs does not authorize sending them, enrolling accounts, buying credits, running live providers, opening hidden holdouts, publishing code or submitting to the event.
+
+## Stop rules and claims
+
+- A failed or absent check remains visible. No deletion of an old receipt or failed position to improve the score.
+- If authority, account scope, install artifact, real human decision or isolated environment is missing, continue independent offline work and report that exact gate.
+- No blanket “all fixed”, “production-ready”, “protected assessment passed” or “six integrations connected” label from this program's planning or unit tests.
+- Next runtime action is the **factory registration plan**, once its written-plan review is confirmed. Its independent review issues F1–F4 have been incorporated; the old review is retained for provenance.
+
+## Reading order
+
+1. This register — decisions, scope, all J-IDs and sequencing.
+2. [Factory implementation plan](../../superpowers/plans/2026-10-09-synthetic-factory-registration.md) — the next bounded code leaf.
+3. [Support matrix](support-matrix.md) — exact current public/registered/core boundaries, source-reviewed draft.
+4. [Integration discovery](integration-discovery.md) and [qualification discovery](qualification-discovery.md) — source-backed seams, prohibited shortcuts and independent slice proposals.
+5. [source-map.json](source-map.json) — all original source text/mappings and observed seat identity limits.

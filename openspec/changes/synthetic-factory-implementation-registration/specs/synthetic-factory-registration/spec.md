@@ -39,6 +39,13 @@ and verify imported source identity before producing behavioral receipts.
 Evidence SHALL describe its actual observed source/dependency scope, not claim
 a complete runtime closure or production qualification.
 
+#### Scenario: Execution preflight is not trustworthy
+- **WHEN** Python assertions are disabled, selected tests are omitted or skipped,
+  or executing project-local modules do not match the recorded source inventory
+- **THEN** the lane SHALL NOT emit a successful current-source qualification
+- **AND** the source inventory SHALL include new executing files regardless of
+  their Git tracking state
+
 #### Scenario: Current synthetic control completes staging
 - **WHEN** all existing control checks and explicit source binding pass
 - **THEN** the result SHALL remain staged_simulation with unmet requirements
