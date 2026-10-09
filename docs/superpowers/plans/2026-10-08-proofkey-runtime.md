@@ -924,6 +924,15 @@ Prepare private `work/runtime-release-<run-id>/demo-script.md`, `linkedin-draft.
 - [ ] **Step 4 — green and reproduction.** Reproduce from the allowlisted package in a fresh task-owned directory/venv, run full tests and new synthetic demo, compare expected receipt/source hashes and inspect output. Disclose infrastructure/media/native/isolation failures; preparing a package does not establish event eligibility.
 - [ ] **Step 5 — commit.** Stage Task 15 files and dependency notices only; commit `docs: package owned source with reproducible gated operation`.
 
+#### Task15 closed internal staging refinement — 9 October 2026
+
+Read [release-preparation.md](../../../openspec/changes/proofkey-v21-harness-contracts/release-preparation.md): caller rights flags/bare receipt hashes do not provide trusted source/root/rights context, and static copying is not actual reproduction. This is internal15 implementation, not new authority or fresh user approval.
+
+- [ ] 15A: only new release.py/test_release_manifest.py. Trusted immutable exact SourceReleaseContextV1; complete hash/rights/notice/artifact inventory join, bounded no-follow new-output copy/readback/failure visibility. prepare_release missingcontext denies; verify_release_static returns explicitly static evidence; actual verify_release remains unavailable. Focused TDD on task-owned synthetic trees and independent review, no scan/package/qualification of actively changing candidate. This pure stage may run parallel10B with disjoint imports/files and coordinated peer-review savepoints.
+- [ ] 15B: after combined source/10C packaging/dependency/rights freeze, explicitly assign real owned manifest/context, README/LICENSE/NOTICE/RIGHTS/.gitignore/CLI prepare-release, artifact-hashed notices/installer inventory, no-index fresh source-editable install/full packaged tests/new positive demo with nonempty actual command/timing/hash receipts. Wheel/all-interpreter/platform support unclaimed without its own evidence. Actual60-second video/playback/hash receipt and unsent local social drafts; no publication/submission/live calls. Retain failure/timeout/partial denominators and actual source custody limits.
+
+Every stage keeps shared receipts unchanged and separates actual expected candidate/release hash recipes from differently scoped assessment hashes. Root exactstages exit-gated checks; different nonauthor spec/quality review is required. No static test/context fixture can complete real rights, dependency/install/media/event/production obligations.
+
 ### Task 16: Independent final review, gated drills and living-spec closure
 
 **Files:** Create `runtime/src/proofkey/assessment/audit.py`, `runtime/tests/test_audit.py`; modify active OpenSpec `tasks.md` only for verified completions; create new private run receipts under a unique `work/runtime-verification-<run-id>/` directory; add an implementation review receipt alongside this plan. Do not overwrite any prior proposal/model assessment or source capture.
