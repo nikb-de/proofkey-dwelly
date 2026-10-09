@@ -1812,6 +1812,210 @@ Define these helpers here; release artifacts pin adapter/process/policy/contract
 - [ ] **Step 4 — green and adaptation review.** Run profile/core/workflow regressions against old and candidate releases; preserve all affected pending contracts. Prepare an unsent human review packet with precise source basis and incompatibilities. Human approval is not replaced by agent consensus.
 - [ ] **Step 5 — commit.** Stage Task 13 files and approved schema/CLI additions only; commit `feat: release reviewed compatible adapter and process changes`.
 
+
+#### Task13B3 — complete registered declarations and durable original-route foundation
+
+Internal Task13 refinement; binding [registered-release-routes.md](../../../openspec/changes/proofkey-v21-harness-contracts/registered-release-routes.md). Existing approved adaptation/preserved-contract scope; no activation/migration/pre-debt-host-integration/actual human approval. Three NEW files only: registered_releases.py pure artifacts/registry; admission_routes.py independent control-store bookkeeping; test_release_route_foundation.py public synthetic TDD. Existing modules, source/journal DDL, old tests/fixtures/recipes unchanged. Original author owns corrections; root owns formal/plan/commits, DIFFERENT NONAUTHOR separate Spec/Quality gate.
+
+**Interfaces:** Exact frozen ReleaseBlobV1/ResourceSetV1/KnownFactoryV1/ReleaseArtifactV1/RegisteredReleaseV1/ReleaseRegistryV1/RouteLimitsV1/RouteRecordV1/ObservationV1 and AdmissionRouteStoreV1 APIs/grammars/hash recipes in the formal. `reserve` retains full host-declared binding/request + hashed claim, `observe_admitted` records integrity-only admission_observed, `get/for_generation` return detached row or None. No importable factory, active pointer, actual admission permission or source/journal opening. Registry completeness unestablished and all component declarations synthetic; five historical implementation pins remain historical, not silently repaired.
+
+**Review focus:** Conflicting originals versus identical retries; pre-binding debt without false route inference; same business fingerprint with changed narrative/evidence/supersession; first-observation idempotence across consistent newer images versus invalid later ones; exact FULL stored row size (including duplicated index projections) before/after observation; observed path/lock/clock/cleanup/commit-without-return failures. The fixtures and explicit guard groups below own these cases.
+
+- [ ] **Step1 — literal public fixture scaffolding and behavioral RED.** Write the complete code below in NEWtest only, with exact public imports; missing module alone is not sufficient. After an API scaffold, both persistence/original-identity and full-public-admission/nonmutation assertions must fail before minimal behavior. No old unittest method invocation, private originals injection or fabricated current source/approval positive.
+
+```python
+from datetime import timedelta
+from hashlib import sha256
+import json
+from pathlib import Path
+import tempfile
+import unittest
+from proofkey.contracts import AuthContext
+from proofkey.execution import ExecutionContext
+from proofkey.identity import fingerprint
+from proofkey.journal import CaseStore
+from proofkey.profiles import load_profile
+from proofkey.registered_releases import (ReleaseBlobV1, ResourceSetV1,
+    KnownFactoryV1, ReleaseArtifactV1, ReleaseRegistryV1)
+from proofkey.admission_routes import AdmissionRouteStoreV1, RouteFoundationFailure
+from support import NOW, make_request, make_binding, make_checkpoint
+
+def cj(value):
+    return json.dumps(value, sort_keys=True, separators=(",", ":"),
+                      ensure_ascii=False, allow_nan=False).encode()
+
+class Clock:
+    def now(self): return NOW
+    def monotonic(self): return 10.0
+
+def registry_at(root):
+    profile = load_profile("flat-v1.3")
+    policy = dict(policy_id="synthetic-test-policy-v1", version="v1",
+        evidence_mode="synthetic", native_routes_enabled=False,
+        live_roles=dict(extraction=False, transcription=False, planning=False),
+        wait_expiry_seconds=300, internal_case_creation=False, automatic_reminders=False)
+    impl = ReleaseBlobV1("fixture/never_executed.txt", b"synthetic declaration only")
+    source = cj({"kind":"route-source-declaration-v1","mode":"synthetic",
+                 "source_id":"fixture-source","documents":[{"source_id":"D1","text":"synthetic"}]})
+    proposal = cj({"kind":"route-proposal-declaration-v1","mode":"synthetic",
+                   "baseline_profile_hash":profile.release_hash,
+                   "candidate_profile_hash":profile.release_hash,"diff":[]})
+    tests = cj({"kind":"route-test-declaration-v1","mode":"synthetic","cases":[]})
+    regression = cj({"kind":"route-regression-declaration-v1","mode":"synthetic",
+                     "execution":"unestablished","tests_hash":sha256(tests).hexdigest(),"case_ids":[]})
+    migration = cj({"kind":"route-migration-declaration-v1","mode":"synthetic",
+                    "strategy":"preserve","affected_contracts":[]})
+    agent = cj({"kind":"route-agent-declaration-v1","mode":"synthetic",
+                "authorship":"unestablished","agent_label":"fixture-agent"})
+    dependency = cj({"kind":"route-closure-declaration-v1","mode":"synthetic_declaration",
+                     "completeness":"unestablished","entries":[{"name":impl.name,
+                     "sha256":sha256(impl.data).hexdigest(),"role":"data"}]})
+    stat = root.stat()
+    resource = ResourceSetV1("R1", str(root), stat.st_dev, stat.st_ino,
+        "journal.sqlite", "world.sqlite",
+        tuple(sorted({c.shared_limits.account_id for c in profile.capabilities.values()
+                      if c.shared_limits.account_id is not None})), "claimed_case_id")
+    factory = KnownFactoryV1("fixture-never-invoked-v1",
+        ((impl.name, sha256(impl.data).hexdigest()),), sha256(dependency).hexdigest(),
+        "offline_synthetic")
+    artifact = ReleaseArtifactV1("L1", factory.factory_id, resource.resource_id,
+        cj(profile.model_dump(mode="json")), cj(policy),
+        source, proposal, tests, regression, migration, agent, dependency, (impl,))
+    return ReleaseRegistryV1(artifacts=(artifact,), factories=(factory,), resources=(resource,))
+
+class ReleaseRouteTests(unittest.TestCase):
+    def test_reserved_route_survives_restart_and_cannot_rebind(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d); registry = registry_at(root); clock = Clock()
+            control = root / 'route-control'; control.mkdir()
+            scope = ExecutionContext(NOW+timedelta(seconds=5), NOW, 10.0, 15.0)
+            request = make_request(); binding = make_binding(request)
+            claim = AuthContext(caller_id="U1", proof_reference="synthetic-proof")
+            routes = AdmissionRouteStoreV1(control, database_name="routes.sqlite",
+                registry=registry, clock=clock, execution=scope)
+            first = routes.reserve("RES1", attempt_id="A1", release_id="L1",
+                binding=binding, request=request, auth_claim=claim, execution=scope)
+            routes.close()
+            routes = AdmissionRouteStoreV1(control, database_name="routes.sqlite",
+                registry=registry, clock=clock, execution=scope)
+            try:
+                self.assertEqual(routes.get("RES1", execution=scope), first)
+                self.assertEqual(routes.reserve("RES1", attempt_id="A1", release_id="L1",
+                    binding=binding, request=request, auth_claim=claim, execution=scope), first)
+                with self.assertRaises(RouteFoundationFailure) as failure:
+                    routes.reserve("RES2", attempt_id="A1", release_id="L1",
+                        binding=binding, request=request, auth_claim=claim, execution=scope)
+                self.assertEqual(failure.exception.code, "conflict")
+                self.assertEqual(first.state, "reserved")
+                self.assertFalse((root/"journal.sqlite").exists())
+                self.assertFalse((root/"world.sqlite").exists())
+            finally: routes.close()
+
+    def test_admitted_observation_joins_original_and_preserves_journal(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d); registry = registry_at(root); clock = Clock()
+            control = root / 'route-control'; control.mkdir()
+            scope = ExecutionContext(NOW+timedelta(seconds=5), NOW, 10.0, 15.0)
+            request = make_request(); binding = make_binding(request)
+            claim = AuthContext(caller_id="U1", proof_reference="synthetic-proof")
+            routes = AdmissionRouteStoreV1(control, database_name="routes.sqlite",
+                registry=registry, clock=clock, execution=scope)
+            journal = CaseStore(root/"journal.sqlite")
+            try:
+                reserved = routes.reserve("RES1", attempt_id="A1", release_id="L1",
+                    binding=binding, request=request, auth_claim=claim, execution=scope)
+                journal.start_admission("A1", claim, request, NOW, NOW+timedelta(seconds=5))
+                checkpoint = make_checkpoint(binding=binding, profile_version="v1.3",
+                    process_version="v1", policy_version="v1")
+                journal.admit_from_attempt("A1", binding, request, checkpoint)
+                before = journal.capture_retained_state(execution=scope, clock=clock)
+                admitted = routes.observe_admitted("RES1", snapshot=before, execution=scope)
+                self.assertEqual(admitted.state, "admission_observed")
+                self.assertEqual(admitted.binding, binding)
+                self.assertEqual(admitted.artifact_hash, reserved.artifact_hash)
+                self.assertEqual(journal.capture_retained_state(execution=scope,
+                    clock=clock).payload, before.payload)
+                self.assertEqual(routes.observe_admitted("RES1", snapshot=before,
+                    execution=scope), admitted)
+            finally:
+                journal.close(); routes.close()
+```
+
+
+- [ ] **Step2 — pure registry RED/minimal GREEN.** Add NEW methods using registry_at: one-byte implementation/dependency/profile/policy/process drift; noncanonical/duplicate-key JSON; unknown/duplicate/unused factory/resource; omitted/extra/misordered/case-NFC-colliding pins; blob count/base64/1MiB/8MiB/32MiB exact limits; alleged actual/passed/approved/verified modes; subclass/serializer aliases and mutable caller profile. Produce only closed canonical RegisteredReleaseV1 bytes, independently constructor-pinned factory/dependency equality, matching capability-account resource declarations, fresh profile projections. Expected denial finite invalid/unregistered/limit, with no I/O/factory invocation; exact synthetic declaration positive has completeness/authorship/execution unestablished.
+
+- [ ] **Step3 — persistent route RED/minimal GREEN.** Implement three literal NEWcontrol tables from formal, exclusive single owner/creator guard, public source/journal content never opened. Reserve validates all six identities/business fingerprint plus FULL immutable request/binding/hashed claim. Commit complete original route atomically; same complete retry returns original row/time/state. NEW tests collide reservation/attempt/natural key independently and alter narrative/evidence order/consent/revisions/supersession with unchanged or changed business fingerprint; assert conflict and exact first-row retention. Different legitimate generation separate; no generation authorization inferred.
+
+- [ ] **Step4 — admission-observation RED/minimal GREEN.** Revalidate complete public RetainedStateSnapshotV1 under4MiB first, then strict bounded requests/original_requests/transferred admission_attempts joins with actual public column order/plain scalar grammar. NEW public journal fixtures cover missing attempt, wrong original narrative/evidence/supersession and versions, old generation with successor checkpoint, stopped state and legitimate debt changes. Failure invalid/observation_mismatch leaves reserved/first observed row untouched. A consistent later snapshot at NOW+1/11mono with a newly caller-captured<=5second context returns the FIRST observation/content/time/record hash; wrong later image still rejects. No current permission/private encoder or forged-origin certification.
+
+- [ ] **Step5 — full stored bounds and original-window/storage guards RED/minimal GREEN.** NEW tests calculate C(full stored route projection) from the formal, not merely record_json, exact threshold then one-lower denial; observation-expanded overcap leaves reserved. Aggregate route/release count and full-byte limits; every stored payload preflight before eagerparse; foreign/extra/truncated schema/column/index/FK/metadata/data and giant DB fields deny without overwrite. Creator/foreign/reentrant/closed use, lower-limit reconstruction, UTC/mono reversal/preusedtime/finalexpiry, SQLitebusy/VM interruption/rollback and progress restoration, real close faults guaranteed release; successcommit then response failure persists row for idempotentretry under a NEW explicit original caller context. Expired reserved rows never deleted. Safe parent/DB/lock/resource alias/symlink/replacement/hardlink and simultaneousowner tests; existing unknown empty/partial DB never repaired. All writes only owned NEWcontrol+lock; old source/journal rows/debt/currentfactory unchanged.
+
+- [ ] **Step6 — freeze/finite final/independent gate.** Preserve complete original raw commands/receipts/RED-GREEN/fixture failures. Qualified bundled interpreter3.12.14/Pydantic2.13.5; no installs/servers/live providers/spend. Author ONE development discovery of NEWmodule plus only a root-justified unchanged source control; freeze exact3/full actual imports-opens-source-data-private-interpreter-platform closure with explicit literal IDs and absent outputs/cache. Root reads evidence then separately authorizes ONE finite final; proportional NEWroot checks and exact3 local commit; different nonauthor separate Spec/Quality decisions. No broad old-suite reruns, posthoc flags, imported old receipt as current registration, full activation/Task13/16/archive claim.
+
+
+**Additional literal guard bodies (NEW test file; inside ReleaseRouteTests):**
+
+```python
+    def test_rehashed_implementation_drift_cannot_match_registered_inventory(self):
+        import base64
+        from proofkey.registered_releases import RegisteredReleaseV1
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d); registered = registry_at(root).resolve("L1")
+            body = json.loads(registered.wire_bytes)
+            blob = body["implementations"][0]
+            blob["base64"] = base64.b64encode(b"different synthetic bytes").decode("ascii")
+            blob["sha256"] = sha256(b"different synthetic bytes").hexdigest()
+            body["artifact_hash"] = fingerprint({k:v for k,v in body.items() if k != "artifact_hash"})
+            with self.assertRaises(RouteFoundationFailure):
+                RegisteredReleaseV1(cj(body))
+            profile = registered.profile
+            object.__setattr__(profile, "profile_id", "caller-mutated")
+            self.assertEqual(registered.profile.profile_id, "flat-v1.3")
+
+    def test_same_business_fingerprint_does_not_hide_changed_narrative(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d); control = root / "route-control"; control.mkdir()
+            clock = Clock(); scope = ExecutionContext(NOW+timedelta(seconds=5), NOW, 10.0, 15.0)
+            request = make_request(narrative="first")
+            binding = make_binding(request)
+            claim = AuthContext(caller_id="U1", proof_reference="synthetic-proof")
+            routes = AdmissionRouteStoreV1(control, database_name="routes.sqlite",
+                registry=registry_at(root), clock=clock, execution=scope)
+            try:
+                first = routes.reserve("RES1", attempt_id="A1", release_id="L1",
+                    binding=binding, request=request, auth_claim=claim, execution=scope)
+                changed = make_request(narrative="second")
+                self.assertEqual(make_binding(changed).fingerprint, binding.fingerprint)
+                with self.assertRaises(RouteFoundationFailure) as failure:
+                    routes.reserve("RES1", attempt_id="A1", release_id="L1",
+                        binding=binding, request=changed, auth_claim=claim, execution=scope)
+                self.assertEqual(failure.exception.code, "conflict")
+                self.assertEqual(routes.get("RES1", execution=scope), first)
+            finally: routes.close()
+
+    def test_foreign_empty_database_is_not_repaired_or_overwritten(self):
+        import sqlite3
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d); control = root / "route-control"; control.mkdir()
+            database = control / "routes.sqlite"
+            with sqlite3.connect(database) as db:
+                db.execute("CREATE TABLE foreign_data(value TEXT)")
+                db.execute("INSERT INTO foreign_data VALUES('retain me')")
+            before = database.read_bytes()
+            clock = Clock(); scope = ExecutionContext(NOW+timedelta(seconds=5), NOW, 10.0, 15.0)
+            with self.assertRaises(RouteFoundationFailure) as failure:
+                AdmissionRouteStoreV1(control, database_name="routes.sqlite",
+                    registry=registry_at(root), clock=clock, execution=scope)
+            self.assertEqual(failure.exception.code, "storage")
+            self.assertEqual(database.read_bytes(), before)
+            with sqlite3.connect(database) as db:
+                self.assertEqual(db.execute("SELECT value FROM foreign_data").fetchall(), [("retain me",)])
+```
+
+**Exact development command shape:** after preparation is read by root, use the qualified bundled executable, `-B -m unittest -v test_release_route_foundation.ReleaseRouteTests.<literal_method>`, `PYTHONPATH=runtime/src:runtime/tests`, `PYTHONDONTWRITEBYTECODE=1` and a unique absent private cache. Initially run only the newly added method(s) to establish genuine failure and their finite affected controls. The final IDs are frozen from actual NEW discovery, not invented now. No dependency install or old broad discovery is authorized.
+
+The approved internal sequence stops this boundary at independently testable bookkeeping; next host owner/barrier/admission-claim-seal/review integration gets its own exact refinement. This is not an assertion of actual factory completeness, route-before-debt execution or authenticated journal origin.
+
 ### Task 14: Case ledger, provisional labels, complete clocks and isolation checks
 
 - [x] 14B1 bounded additive public-driver pilot f7b4ff5 plus exact2 required-dependency FIX1 70cbfb55 independently Approved Spec/Quality: I1 ADDRESSED, newC0/I0/M0. Genuine tuple-omission RED retained; author final8/1.471s and root2/0.696s SAME44/private2 include9 pre-entry rejection positions and matching actual public positive. Full24 records/3actual/21controls verified. Original39/root6 and288records/8actual remain historical; original truncated output stays unqualified. Governed by [runtime-driver-foundation.md](../../../openspec/changes/proofkey-v21-harness-contracts/runtime-driver-foundation.md), reference-free registered input and independent expected data. Inner43 recipes still omit schema; outer44/52 do not retroactively repair them. Old15/provisional labels unchanged; full14/allR01–R15/calibration/timed/native/role/custody/readiness not completed.
