@@ -19,7 +19,13 @@ and a registered but unauthorized artifact. Each SHALL produce the canonical
 generic denial before any prepared consumer, processing attempt or effect.
 
 #### Scenario: Artifact access is invalid or unauthorized
-- **WHEN** one of those invalid references is submitted or its saved case is
-  recovered without repairing its original authority
+- **WHEN** one of those invalid references is submitted to fresh run
 - **THEN** the test SHALL verify denial without disclosing artifact contents
 - **AND** the test SHALL not weaken runtime access or recovery checks to pass
+
+#### Scenario: Recovering the saved case does not grant evidence access
+- **WHEN** that saved case is recovered under valid case authorization
+- **THEN** an authorized case observation MAY retain unavailable media and
+  processing without performing fresh intake
+- **AND** tests SHALL verify no original reads, evidence disclosure, prepared
+  consumer invocation, processing attempts, planner calls or business effects

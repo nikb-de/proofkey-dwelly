@@ -161,19 +161,81 @@ class EngineProcessingInjectionTests(EngineFixture):
                 self.assertEqual(cp.budget.planner_calls, 0)
                 self.assertEqual(fx.store.processing_attempts(cp.binding), ())
 
-    def test_text_evidence_and_recovery_do_not_call_prepared_consumer(self):
-        for changes in ({'narrative': 'synthetic text'}, {'evidence_ids': ['unavailable-artifact']}):
-            fx = self.fixture(make_request(**changes))
-            with patch.object(fx.processing, 'plan_prepared', side_effect=AssertionError('prepared consumer entered')):
-                result = fx.engine.run(fx.request, fx.auth, execution=self.execution(fx))
-                self.assertEqual(result.status, 'authorized')
+    def test_narrative_and_recovery_do_not_call_prepared_consumer(self):
+        fx = self.fixture(make_request(narrative='synthetic text'))
+        with patch.object(fx.processing, 'plan_prepared', side_effect=AssertionError('prepared consumer entered')):
+            result = fx.engine.run(fx.request, fx.auth, execution=self.execution(fx))
+            self.assertEqual(result.status, 'authorized')
+            self.assertEqual(result.media_status, 'unavailable')
+            cp = fx.store.checkpoint('C1')
+            self.assertEqual(cp.processing_status, 'unavailable')
+            recovered = fx.engine.recover('C1', fx.auth, execution=self.execution(fx))
+            self.assertEqual(recovered.status, 'authorized')
+            self.assertEqual(recovered.media_status, 'unavailable')
+        self.assertEqual(fx.store.original_request('C1', cp.binding.generation), fx.request)
+        self.assertEqual(fx.store.processing_attempts(cp.binding), ())
+        self.assertEqual(fx.store.checkpoint('C1').budget.planner_calls, 0)
+        self.assertEqual(fx.world.effect_count('reschedule'), 0)
+
+    def test_real_catalog_original_and_recovery_do_not_call_prepared_consumer(self):
+        fx = self.fixture(make_request())
+        source = fx.root / 'original.txt'
+        original_bytes = b'synthetic original bytes; not semantic proof.\n'
+        source.write_bytes(original_bytes)
+        record = fx.catalog.register(source, 'C1', 'synthetic-intake-evidence',
+            {'allowed_actors': ['U1'], 'scope_id': 'saved-scope'})
+        fx.request = make_request(evidence_ids=[record.artifact_id])
+        fx.world.mutate('customer.request_fingerprint', request_fingerprint(fx.request))
+        with patch.object(fx.processing, 'plan_prepared', side_effect=AssertionError('prepared consumer entered')):
+            result = fx.engine.run(fx.request, fx.auth, execution=self.execution(fx))
+            self.assertEqual(result.status, 'authorized')
+            self.assertEqual(result.media_status, 'unavailable')
+            cp = fx.store.checkpoint('C1')
+            self.assertEqual(cp.processing_status, 'unavailable')
+            recovered = fx.engine.recover('C1', fx.auth, execution=self.execution(fx))
+            self.assertEqual(recovered.status, 'authorized')
+            self.assertEqual(recovered.media_status, 'unavailable')
+        self.assertEqual(fx.catalog.get(record.artifact_id, fx.auth), record)
+        self.assertEqual(fx.catalog.read_original(record.artifact_id, fx.auth), original_bytes)
+        self.assertEqual(fx.store.original_request('C1', cp.binding.generation), fx.request)
+        self.assertEqual(fx.store.processing_attempts(cp.binding), ())
+        self.assertEqual(fx.store.checkpoint('C1').budget.planner_calls, 0)
+        self.assertEqual(fx.world.effect_count('reschedule'), 0)
+
+    def test_malformed_missing_and_revoked_originals_are_denied_without_processing(self):
+        scenarios = ('unavailable-artifact', 'artifact-' + '0' * 32, 'revoked-scope')
+        for label in scenarios:
+            with self.subTest(reference=label):
+                fx = self.fixture(make_request())
+                if label == 'revoked-scope':
+                    source = fx.root / 'revoked-original.txt'
+                    source.write_bytes(b'synthetic revoked original bytes\n')
+                    record = fx.catalog.register(source, 'C1', 'synthetic-intake-evidence',
+                        {'allowed_actors': ['U1'], 'scope_id': 'saved-scope'})
+                    identifier = record.artifact_id
+                    fx.revoked.add('saved-scope')
+                else:
+                    identifier = label
+                fx.request = make_request(evidence_ids=[identifier])
+                fx.world.mutate('customer.request_fingerprint', request_fingerprint(fx.request))
+                with patch.object(fx.processing, 'plan_prepared', side_effect=AssertionError('prepared consumer entered')):
+                    result = fx.engine.run(fx.request, fx.auth, execution=self.execution(fx))
+                    self.assertEqual(result.model_dump(mode='json'),
+                        CaseResult(status='denied', correlation_id='C1', reason='denied').model_dump(mode='json'))
+                    with patch.object(fx.catalog, 'get', side_effect=AssertionError('recovery repeated catalog get')), \
+                            patch.object(fx.catalog, 'read_original', side_effect=AssertionError('recovery repeated original read')), \
+                            patch.object(fx.catalog, 'register_saved_narrative', side_effect=AssertionError('recovery repeated narrative intake')):
+                        recovered = fx.engine.recover('C1', fx.auth, execution=self.execution(fx))
+                    self.assertEqual(recovered.status, 'authorized')
+                    self.assertEqual(recovered.media_status, 'unavailable')
+                    self.assertEqual(recovered.effects, {})
+                    self.assertEqual(recovered.evidence_refs, [])
                 cp = fx.store.checkpoint('C1')
                 self.assertEqual(cp.processing_status, 'unavailable')
-                recovered = fx.engine.recover('C1', fx.auth, execution=self.execution(fx))
-                self.assertEqual(recovered.status, 'authorized')
-            self.assertEqual(fx.store.processing_attempts(cp.binding), ())
-            self.assertEqual(fx.world.effect_count('reschedule'), 0)
-            self.assertEqual(fx.store.checkpoint('C1').budget.planner_calls, 0)
+                self.assertEqual(fx.store.original_request('C1', cp.binding.generation), fx.request)
+                self.assertEqual(fx.store.processing_attempts(cp.binding), ())
+                self.assertEqual(cp.budget.planner_calls, 0)
+                self.assertEqual(fx.world.effect_count('reschedule'), 0)
 
     def test_missing_host_allowances_deny_real_reservation_without_repair(self):
         fx = self.fixture(make_request(narrative='synthetic text'))

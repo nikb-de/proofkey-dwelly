@@ -25,7 +25,7 @@ the absence of processing/accounting/effects in both paths.
 
 - Well-formed missing IDs must be separate from malformed IDs.
 - Access denial must use a real registered record with rejected scope.
-- Recovery must not upgrade a rejected saved original to authority.
+- Recovery may authorize case observation, never rejected evidence access.
 - Valid evidence must prove real stored bytes, not merely a mocked call.
 - Test loops must identify the failed scenario using `subTest`.
 
@@ -67,9 +67,12 @@ self.assertEqual(result.model_dump(mode='json'),
 
 Run and recovery under a `plan_prepared` trap must not enter it. Use `subTest`
 labels. Assert zero processing attempts, zero planner calls and zero reschedule
-effects; do not assert positive processing status for denied originals. Use
-actual observed recovery semantics and flag any contract mismatch instead of
-altering runtime behavior. Retain the original saved request identity.
+effects. Fresh run is denied; existing recovery performs no intake and returns
+authorized case observation with unavailable media/processing, empty effects
+and evidence refs. Trap catalog `get`, `read_original` and
+`register_saved_narrative` during recovery to prove this is not evidence access.
+Retain the original saved request identity. Both positive cases must check
+unavailable processing in the saved checkpoint and unavailable media.
 
 - [ ] **Step 3: Run GREEN with focused coverage.**
 
