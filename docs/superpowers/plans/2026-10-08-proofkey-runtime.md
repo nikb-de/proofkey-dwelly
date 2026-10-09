@@ -2315,9 +2315,89 @@ class ReleaseRouteTests(unittest.TestCase):
 
 The approved internal sequence stops this boundary at independently testable bookkeeping; next host owner/barrier/admission-claim-seal/review integration gets its own exact refinement. This is not an assertion of actual factory completeness, route-before-debt execution or authenticated journal origin.
 
+#### Task13B4a — one cooperative creator per fixed runtime resource
+
+**Binding:** [runtime-writer-lease.md](../../../openspec/changes/proofkey-v21-harness-contracts/runtime-writer-lease.md). This narrows the privately prepared13B4 host-composition slice to its necessary writer prerequisite; fresh-original claim/seal/review/registered execution remain next, not implemented here.
+
+**Files:** NEW host_writer.py, MODIFY host.py, NEW test_host_writer.py only under runtime. Preserve existing constructor signatures/custom factory compatibility and every other source/test/profile/fixture. Root owns spec/plan/ledger/commits.
+
+- [ ] Step1 — full binding/source preparation, place literal two real-factory tests first. No dependency install, provider or prior test-method invocation. These tests need no new module import to exhibit actual behavioral failure.
+
+```python
+from datetime import timedelta
+from pathlib import Path
+import tempfile
+import unittest
+from proofkey.clock import SyntheticReplayClock
+from proofkey.execution import ExecutionContext
+from proofkey.host import ProfileRegistry, RuntimeFactory
+
+class RuntimeWriterTests(unittest.TestCase):
+    def setup_release(self, base):
+        clock = SyntheticReplayClock()
+        release = ProfileRegistry.builtin(base / "resources").resolve("host-window-replay-v1")
+        return release, clock
+
+    def images(self, runtime, clock):
+        execution = ExecutionContext.capture(clock.now() + timedelta(seconds=5), clock)
+        journal = runtime.store.capture_retained_state(execution=execution, clock=clock)
+        execution = ExecutionContext.capture(clock.now() + timedelta(seconds=5), clock)
+        source = runtime.world.capture_retained_state(execution=execution, clock=clock)
+        return journal.payload, source.payload
+
+    def test_second_builtin_owner_denied_before_database_entry(self):
+        with tempfile.TemporaryDirectory() as folder:
+            release, clock = self.setup_release(Path(folder).resolve())
+            first = RuntimeFactory().create(release, clock)
+            second = None
+            try:
+                before = self.images(first, clock)
+                try:
+                    with self.assertRaisesRegex(ValueError, "^writer_busy$"):
+                        second = RuntimeFactory().create(release, clock)
+                finally:
+                    if second is not None:
+                        second.close()
+                self.assertEqual(self.images(first, clock), before)
+                self.assertEqual(first.world.effect_count("reschedule"), 0)
+            finally:
+                first.close()
+
+    def test_clean_close_retains_lock_identity_and_permits_new_owner(self):
+        with tempfile.TemporaryDirectory() as folder:
+            release, clock = self.setup_release(Path(folder).resolve())
+            first = RuntimeFactory().create(release, clock)
+            lock = release.resource_root / ".proofkey-resource-writer.lock"
+            try:
+                self.assertTrue(lock.is_file())
+                before = lock.stat()
+                images = self.images(first, clock)
+            finally:
+                first.close()
+            first.close()
+            after = lock.stat()
+            self.assertEqual((before.st_dev, before.st_ino), (after.st_dev, after.st_ino))
+            next_owner = RuntimeFactory().create(release, clock)
+            try:
+                self.assertEqual(self.images(next_owner, clock), images)
+                again = lock.stat()
+                self.assertEqual((before.st_dev, before.st_ino), (again.st_dev, again.st_ino))
+                self.assertEqual(next_owner.world.effect_count("reschedule"), 0)
+            finally:
+                next_owner.close()
+```
+
+- [ ] Step2 — run the literal two methods before production. Preserve actual exclusion assertion RED and missing retained-lock assertion RED. Close any unexpectedly constructed second runtime in test cleanup. Fixture/loader/public capture errors are separate, not claimed behavioral failures.
+- [ ] Step3 — implement small lease module and fixed factory/resource integration. Exact closed failures, original retained inode/flock/owner, no-follow ancestry checks, creator lifecycle, pre-DB acquisition and final checks; no serializable authorization. Existing release.validate and SQLite checks remain.
+- [ ] Step4 — itemwise focused guards before minimal fixes: lock symlink/hardlink/nonregular/foreign permission, broad/aliased root rejection before write; replacement after acquiring lease; wrong-thread check/close; independent goods/window roots; public constructor entry counter on busy denial; failed world/store/final validation releases ordinary owned resources. Do not imply hostile writer or cross-DB atomicity from these tests. Actual store-close failure retains lease and permits owner retry, not successful clean close.
+- [ ] Step5 — one NEW test_host_writer.py discovery, complete raw history and actual finite closure/literal-ID freeze. Root separately authorizes ONE final only after full-read report/new code/test/observer/recipe/current inputs. No old full-host/full-runtime cohort repeat, no silent recipe repin.
+- [ ] Step6 — root NEW proportional checks/exact3 local commit/different-nonauthor Spec then Quality. Only bounded writer prerequisite closes. Admission claim/seal/actual human approval, changed process/ack/readback adaptation, routes/recovery, native/providers/rights/reproduction/drills/whole13/16/archive stay open.
+
 ### Task 14: Case ledger, provisional labels, complete clocks and isolation checks
 
 #### Task14B2 — pure captured-evidence collection, exact TWO
+
+- [x] Exact2 stageea853d9 + original-author exact2 identity FIX1dda5130 independently Spec Approved/Quality Approved by original DIFFERENT NONAUTHOR runtime_candidate_audit_review; I1 addressed/newC0/I0/M0. Root FULLread task-14b2-fix1-independent-review.md and independently joined authorONE7/.021s/rootNEW1/.003s/current249+253/actual249+250 original receipts and all hashes. Original28/root2 remain historical after correction, not current full-cohort claims. Pure declared collector only; all25 whole-candidate dimensions remain missing. Full14/16/Rxx/roles/custody/activation/rights/repro/drills/finalwholebranch/archive remain open. Following original recipe retained historically, not instruction to repeat completed cohorts.
 
 **Binding:** [candidate-evidence-audit.md](../../../openspec/changes/proofkey-v21-harness-contracts/candidate-evidence-audit.md). Only NEW `runtime/src/proofkey/assessment/audit.py` and NEW `runtime/tests/test_audit.py`. Existing assessment/driver/engine/provider/catalog/factory/schema/contracts/helpers/oldtests/fixtures are read-only. This collects a declared roster, not whole candidate readiness.
 
@@ -2777,6 +2857,16 @@ git diff --check
 ```
 
 Root-owned exact commit: `docs: explain offline harness use and scoped rights`. Public checkboxes stay open until this document-only gate. Later Task15B requires coherent source/rights/dependency freeze and actual assigned fresh reproduction/media; this stage neither invents those facts nor blocks truthful team instructions on unavailable live services.
+
+#### Task15B1 — runnable two-case operator recipe, documentation only
+
+**Binding:** [two-case-demo-guide.md](../../../openspec/changes/proofkey-v21-harness-contracts/two-case-demo-guide.md). Exactly NEW runtime/DEMO.md, no source/test/lock/README change. This supplements B0 with a complete bounded recorder/manual-review recipe but does not execute it or certify reproduction.
+
+- [ ] Step1 — author full-reads binding and private task-15b1-release-preparation.md; verifies actual CLI flags and complete public receipt/export fields as text. Existing fixed synthetic registrations and dependency/rights limits stay unchanged.
+- [ ] Step2 — write English DEMO.md: prerequisites/future root source-freeze GO; complete two-position recorder; original request/raw output/UTC/wall/exit/timeout/hash retention; per-position manual business/manifest/export/shutdown checks; two-position denominators; known limits and README/RIGHTS links. Exact eight request fields plus three default fields, both full JSON bodies from binding/preparation, no credential/private source path. Retain separate runtime-created state.
+- [ ] Step3 — static only: AST recorder/body syntax; parse requests as data and compare fixed canonical business fingerprints using standard-library hashing, no product import; flags/field/link readback. Record actual commands/full raw results/hash identities and unexecuted status. No old57/parity/suite/SQL/install/server/provider/network/paid work.
+- [ ] Step4 — root full-read/proportional static checks/exactONE local commit, DIFFERENT NONAUTHOR separate Spec/Quality. Guide gate only; later actual two-position observation waits coherent source hold release/qualified environment/root separate finite GO and different business readback.
+- [ ] Step5 — future observation has attempted/exited/timeout/error/missing denominators, raw receipts and actual exports. This step is NOT authorized by documentation GO. Fresh installation/package/rights/repro/recovery/adaptation/four drills/video/event/whole15/16/archive stay open.
 
 ### Task 16: Independent final review, gated drills and living-spec closure
 
