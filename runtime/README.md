@@ -2,6 +2,8 @@
 
 ProofKey is an offline adaptive logistics contract harness, built for easy integration, fast reviewed adaptation and reliable resolution. Six provider-neutral surfaces share policy gates, an intent journal and postcondition verification. Model proposals do not grant permission to act. Refund and coverage dispositions are record-only; no money is executed.
 
+For a captured receipt and content-free execution trace, follow the [short source quickstart](QUICKSTART.md).
+
 The default executable exposes two registered **synthetic replay** examples. Installed console/module/library/API checks now cover these two cases on the target described below. Other commands remain bounded by their separate support contracts; this is not a complete runtime, source-release, live-provider or event-readiness certification.
 
 ## Start here
