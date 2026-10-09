@@ -176,6 +176,7 @@ class AdmissionLedger:
             raise BudgetExceeded("Admission allowance exhausted")
         material = _material(auth, request)
         with self.store._transaction():
+            now, deadline = self.store._entry_window(now, deadline)
             row = self.store._db.execute("SELECT 1 FROM admission_accounts WHERE claimed_case_id=?", (request.case_id,)).fetchone()
             current = self._current(request.case_id)
             if row is None:
@@ -213,11 +214,13 @@ class AdmissionLedger:
         _aware(now)
         try:
             with self.store._transaction():
+                now, _ = self.store._entry_window(now)
                 attempt = self.attempt(attempt_id)
                 if attempt.state != "unbound":
                     raise JournalFailure("Admission attempt already transferred")
                 account = self.account(attempt.claimed_case_id)
                 deadline = min(account.deadline, attempt.deadline)
+                now, deadline = self.store._entry_window(now, deadline)
                 if account.exhausted or account.tool_calls >= 24 or account.active_seconds >= 120.0 or now >= deadline:
                     raise BudgetExceeded("Admission allowance exhausted")
                 seconds = min(10.0, 120.0 - account.active_seconds, (deadline - now).total_seconds())

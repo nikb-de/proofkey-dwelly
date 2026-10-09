@@ -9,6 +9,7 @@ from pathlib import Path
 import json
 import math
 import sqlite3
+import threading
 from typing import Literal
 from uuid import uuid4
 
@@ -20,6 +21,7 @@ from .contracts import (CampaignPermit, CanonicalRequest, EffectIntent, Invocati
                         PhaseCheckpoint, ProcessingReceipt, ReadTarget, RequestBinding, SavedResult,
                         ScopedReply, StopState, TransferIntent, VerificationResult, WaitState, WireModel)
 from .identity import fingerprint, request_fingerprint
+from .execution import ExecutionContext
 from .wait_contracts import ControlReadScopeV1, RefusalAdmissionHistoryV1, WaitRecordV1
 from .ownership_contracts import OwnershipEventV1, OwnershipProcessRegistryV1
 
@@ -129,6 +131,8 @@ class CaseStore:
 
     def __init__(self, path, before_commit=None, *, ownership_processes=None):
         self._db = None
+        self._owner_thread = threading.get_ident()
+        self._execution = None
         self._before_commit = before_commit
         self._ownership_processes = (None if ownership_processes is None else
             _typed(OwnershipProcessRegistryV1, ownership_processes))
@@ -166,6 +170,34 @@ class CaseStore:
         if self._db is not None:
             self._db.close()
             self._db = None
+
+    @contextmanager
+    def execution_scope(self, execution, clock):
+        """Trusted creator-thread window; no auth grant or reentrant scope."""
+        if (threading.get_ident() != self._owner_thread or self._db is None
+                or self._execution is not None or self._db.in_transaction or type(execution) is not ExecutionContext):
+            raise JournalFailure("Execution scope unavailable")
+        ExecutionContext(execution.deadline, execution.captured_at,
+                         execution.captured_monotonic, execution.monotonic_deadline)
+        now, cutoff = execution.window(clock)
+        previous = self._db.execute("PRAGMA busy_timeout").fetchone()[0]
+        self._db.execute("PRAGMA busy_timeout=" + str(min(previous, max(0, int((cutoff - now).total_seconds() * 1000)))))
+        self._execution = (execution, clock, previous)
+        try:
+            yield
+        finally:
+            self._execution = None
+            if self._db is not None:
+                self._db.execute("PRAGMA busy_timeout=" + str(previous))
+
+    def _entry_window(self, now, deadline=None):
+        if self._execution is not None:
+            execution, clock, _ = self._execution
+            now, cutoff = execution.window(clock)
+            if cutoff <= now:
+                raise BudgetExceeded("Host execution window exhausted")
+            deadline = cutoff if deadline is None else min(deadline, cutoff)
+        return now, deadline
 
     @property
     def _ownership(self):
@@ -287,6 +319,13 @@ class CaseStore:
 
     @contextmanager
     def _transaction(self):
+        if threading.get_ident() != self._owner_thread:
+            raise JournalFailure("Journal creator thread required")
+        if self._execution is not None:
+            execution, clock, previous = self._execution
+            now, cutoff = execution.window(clock)
+            timeout = min(previous, max(0, int((cutoff - now).total_seconds() * 1000)))
+            self._db.execute("PRAGMA busy_timeout=" + str(timeout))
         if self._db is not None and self._db.in_transaction:
             # Atomic host admission composes the same production operations.
             yield
@@ -570,6 +609,7 @@ class CaseStore:
         if type(is_resend) is not bool:
             raise JournalFailure("Resend mode must be strict boolean")
         with self._transaction():
+            now, _ = self._entry_window(now)
             self._admission.require_imported(intent.binding.case_id)
             record = self._intent(intent.action_id)
             if record.intent != intent:
@@ -597,6 +637,7 @@ class CaseStore:
     def _enter_effect(self, record, value, now, is_resend=False):
         """Shared debt/lease accounting, called only inside an entry transaction."""
         intent = record.intent
+        now, _ = self._entry_window(now)
         budget = value.budget
         if is_resend:
             if record.state not in {"dispatching", "pending", "outcome_unknown", "rejected"}:
@@ -617,7 +658,10 @@ class CaseStore:
         return lease
 
     def _reserve_entry(self, checkpoint, budget, now, entry_id, kind, subject_id=None, *, scope_deadline=None, scope_binding=None, control_scope=None):
-        deadline = min(budget.deadline, scope_deadline) if scope_deadline is not None else budget.deadline
+        deadline = min(budget.deadline, checkpoint.deadline)
+        if scope_deadline is not None:
+            deadline = min(deadline, scope_deadline)
+        now, deadline = self._entry_window(now, deadline)
         seconds = min(tool_timeout(budget, now), (deadline - now).total_seconds())
         if seconds <= 0:
             raise BudgetExceeded("Original entry scope deadline exhausted")
@@ -633,6 +677,7 @@ class CaseStore:
     def begin_read(self, case_id, now, action_id=None):
         """Pre-debit one physical read and its active slice, including failures."""
         with self._transaction():
+            now, _ = self._entry_window(now)
             self._admission.require_imported(case_id)
             value = self.checkpoint(case_id)
             if self.original_request(case_id, value.binding.generation) is None:
@@ -645,7 +690,9 @@ class CaseStore:
                 if self._intent(action_id).intent.binding.case_id != case_id:
                     raise JournalFailure("Read action belongs to another case")
                 budget = debit(value.budget, "reconciliation_reads:" + action_id, 1, now)
-            budget, lease = self._reserve_entry(value, budget, now, "read:" + uuid4().hex, "read", action_id)
+            scope_deadline = None if action_id is None else self._intent(action_id).intent.deadline
+            budget, lease = self._reserve_entry(value, budget, now, "read:" + uuid4().hex, "read", action_id,
+                                              scope_deadline=scope_deadline)
             self._write_checkpoint(PhaseCheckpoint.model_validate({**value.model_dump(), "budget": budget}))
             return lease
 
@@ -658,6 +705,7 @@ class CaseStore:
         """
         binding = _typed(RequestBinding, binding)
         with self._transaction():
+            now, _ = self._entry_window(now)
             self._admission.require_imported(binding.case_id)
             self._assert_binding(binding)
             if self.original_request(binding.case_id, binding.generation) is None:
@@ -677,6 +725,7 @@ class CaseStore:
         """Pre-charge narrow physical identity/control reads, including stopped originals."""
         binding, target = _typed(RequestBinding, binding), _typed(ReadTarget, target)
         with self._transaction():
+            now, _ = self._entry_window(now)
             self._admission.require_imported(binding.case_id)
             self._assert_binding(binding)
             original = self.original_request(binding.case_id, binding.generation)
@@ -834,6 +883,7 @@ class CaseStore:
         request = _typed(InvocationRequest, request)
         identity = request.identity
         with self._transaction():
+            now, _ = self._entry_window(now)
             self._admission.require_imported(identity.case_id)
             if self._db.execute("SELECT 1 FROM invocations WHERE invocation_id=?", (request.invocation_id,)).fetchone():
                 raise JournalFailure("Invocation ID already consumed; new entry needs a new ID")
