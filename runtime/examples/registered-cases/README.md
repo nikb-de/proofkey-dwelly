@@ -11,6 +11,15 @@ The JSON files are literal inputs authored independently of the packaged builtin
 fixtures. The empty operator packet catalog/access facts satisfy the existing
 retained-source contract; they do not grant access to original documents.
 
+Input fixtures must contain no actual carriage-return character (CR, U+000D):
+use LF line endings, not CRLF or bare CR. Preparation rejects actual CR as
+`invalid_input` before allocating any child. JSON-escaped `\r` inside strings
+is accepted. This limit keeps the exact source bytes representable by the
+existing admission consumer, whose text reads normalize actual CR/CRLF.
+Preparation never normalizes accepted input; staging, hash and source declaration
+retain the same exact bytes. The existing 1 MiB and nesting/declaration limits
+also apply.
+
 Keep the parent `registered_case_bootstrap.py` and this directory together outside
 the installed package. In a trusted Python application with the package installed:
 

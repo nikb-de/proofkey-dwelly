@@ -44,6 +44,12 @@ The helper SHALL support only the packaged flat-v1.3 profile, process-v1 fixed s
 - **THEN** preparation rejects the input before private child allocation
 - **AND** no registered-release limit or executable pin is changed
 
+#### Scenario: Fixture line endings cannot be represented exactly
+- **WHEN** decoded fixture text contains an actual CR character (U+000D), including CRLF or bare-CR whitespace
+- **THEN** preparation rejects it as `invalid_input` before any child allocation
+- **AND** JSON-escaped `\r` string content remains accepted and accepted bytes are never normalized
+- **AND** this restriction preserves exact comparison with the unchanged admission consumer that normalizes actual CR in text reads
+
 ### Requirement: Provisioning has a private exclusive filesystem boundary
 Preparation SHALL allocate only a fresh opaque private child beneath an explicit validated parent using no-follow traversal, exclusive creation and pinned identities. It SHALL NOT overwrite/adopt existing state, derive paths from request IDs, place state under site-packages or automatically remove/repair partial preparations.
 
@@ -71,6 +77,11 @@ The system SHALL permit an exact optional registered composition in trusted `Cli
 - **WHEN** the requested host release is absent or differs from the prepared binding, including an omitted custom release option selecting the unchanged builtin default
 - **THEN** execution fails closed without implicitly selecting another release
 - **AND** the prepared host registry and registered registry each contain exactly their corresponding bound release
+
+#### Scenario: Fixture changes during configuration validation
+- **WHEN** a fixture name, private regular-file metadata or ancestor changes across host-release validation or the subsequent snapshot
+- **THEN** configuration rejects the changed input without following aliases or blocking on a FIFO
+- **AND** its descriptor read remains nonblocking and bounded to the existing 1 MiB limit, with single-link private metadata, named/ancestry identity and committed fixture hash checked across the snapshot
 
 #### Scenario: Authority injected through public input
 - **WHEN** run JSON or command-line arguments attempt to select a module, profile path, factory, clock, grant, executable pins or admission composition

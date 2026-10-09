@@ -17,6 +17,7 @@
 - No profile path, module path, factory selection or implementation byte override in the input.
 - The helper never constructs a review grant, transport handle, database, admission attempt, claim, route or effect.
 - Use one immutable byte snapshot for source validation, hash, private fixture file and source declaration.
+- Final-review amendment: reject actual CR (U+000D), including CRLF/bare-CR formatting, as `invalid_input` before child allocation; accept JSON-escaped `\r` strings and never normalize accepted bytes. This preserves representability under the unchanged admission consumer's newline-normalizing text read.
 - Both helpers require the exact `SyntheticReplayClock`; configuration requires the original clock object and a fresh bounded context, not an expired preparation context.
 - Unknown top-level/scope/fact-envelope fields are rejected. Raw fixture maximum: 1 MiB; maximum container depth: 64 with root at depth 1. Existing encoded declaration limits remain unchanged.
 - Never overwrite or adopt existing children, follow aliases, derive paths from request identifiers, or create runtime state beneath site-packages.
@@ -28,6 +29,8 @@
 - No merge, push, publication or dependency acquisition. One frozen full regression run after focused tests; every failure and attempt remains recorded.
 
 ## Review Focus
+
+Final-review fix wave: replace the new configuration fixture text reread with an existing-primitives bounded, no-follow, nonblocking descriptor snapshot. Hold and recheck ancestry/name identity across release validation/read, require private single-link regular metadata and verify the committed fixture hash. Reproduce same-content symlink, no-writer FIFO, changed/oversize regular file, metadata and ancestor substitutions at the actual configuration boundary. Add CRLF/bare-CR preallocation negatives and an escaped-string positive control. Run only the two focused provisioning modules, retain RED/GREEN logs, then commit and obtain a fresh four-positive/seven-negative installed attempt in a new private directory. Preserve prior attempts and retain a byte-verified mirror. Correct the support-matrix batch description without adding registered batch acceptance. The controller owns scoped re-review, frozen full regression and archival.
 
 1. Raw fixture fits 1 MiB but embedding it exceeds the existing 1 MiB source declaration limit: reject before allocation (Task 1).
 2. Caller mutates a nested request after constructing the spec or replaces a parent between I/O operations: detach input and reject changed identities, without adopting replacement state (Tasks 1–2).

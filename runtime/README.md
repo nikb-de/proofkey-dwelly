@@ -33,6 +33,11 @@ independent structured requests and source fixtures, then uses the installed
 execution authority. The application separately supplies a synthetic review
 grant and transport resolver before calling the existing library or CLI entrypoint.
 
+Fixture text must contain no actual CR (U+000D), including CRLF or bare-CR line
+endings; use LF. The existing admission consumer normalizes actual CR, so
+preparation rejects it as `invalid_input` before child allocation. JSON-escaped
+`\r` string content is accepted, and accepted bytes are never normalized.
+
 See [the two literal examples and usage](examples/registered-cases/README.md).
 Their acceptance requires four fresh installed positions, exact persisted
 effects/claim/route/export joins and actual owner closure. Current evidence and

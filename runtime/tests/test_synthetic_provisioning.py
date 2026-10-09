@@ -105,6 +105,35 @@ class ProvisioningTests(unittest.TestCase):
             with self.subTest(raw_type=type(raw), size=len(raw)):
                 self.invalid(raw=raw)
 
+    def test_actual_cr_line_endings_fail_before_child_allocation(self):
+        from proofkey.synthetic_provisioning import prepare_synthetic_release
+        request, fixture = case_data()
+        for ending in ("\r\n", "\r"):
+            with self.subTest(ending=repr(ending)):
+                raw = json.dumps(fixture, indent=2).replace("\n", ending).encode()
+                with self.assertRaises(SyntheticPreparationFailureV1) as caught:
+                    prepare_synthetic_release(self.spec(request, raw=raw), parent=self.parent,
+                        clock=self.clock, execution=context(self.clock))
+                self.assertEqual(caught.exception.code, "invalid_input")
+                self.assertIsNone(caught.exception.retained_root)
+                self.assertEqual(tuple(self.parent.iterdir()), ())
+
+    def test_escaped_cr_string_preserves_exact_prepared_bytes(self):
+        from proofkey.synthetic_provisioning import prepare_synthetic_release
+        request, fixture = case_data()
+        fixture["facts"]["goods.quantity"]["evidence_ref"] = "synthetic:escaped\rcontent"
+        raw = cj(fixture)
+        self.assertIn(b"\\r", raw)
+        self.assertNotIn(b"\r", raw)
+        prepared = prepare_synthetic_release(self.spec(request, raw=raw), parent=self.parent,
+            clock=self.clock, execution=context(self.clock))
+        self.assertEqual(prepared.host_release.fixture_path.read_bytes(), raw)
+        self.assertEqual(prepared.host_release.fixture_hash, sha256(raw).hexdigest())
+        self.assertEqual(tuple(prepared.control_parent.iterdir()), ())
+        self.assertEqual(tuple(prepared.host_release.resource_root.iterdir()), ())
+        self.assertEqual(tuple(prepared.inventory_parent.iterdir()), ())
+        self.assertEqual(tuple(prepared.output_parent.iterdir()), ())
+
     def test_duplicate_keys_at_every_envelope_level(self):
         _, fixture = case_data()
         raw = cj(fixture)

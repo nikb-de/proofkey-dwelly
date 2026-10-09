@@ -5,7 +5,9 @@ from datetime import timedelta
 from hashlib import sha256
 import io
 import json
+import os
 from pathlib import Path
+import signal
 import sqlite3
 import tempfile
 import unittest
@@ -16,7 +18,7 @@ from proofkey.bootstrap import CliConfiguration, CliReceiptV1
 from proofkey.cli import main
 from proofkey.clock import SyntheticReplayClock
 from proofkey.contracts import AuthContext
-from proofkey.host import AuthResolver, ProfileRegistry, RuntimeFactory
+from proofkey.host import ApprovedProfileRelease, AuthResolver, ProfileRegistry, RuntimeFactory
 from proofkey.host_admission import (LocalAdmissionCompositionV1, ProvisionedReviewResolverV1,
     SyntheticReviewGrantV1)
 from proofkey.host_contracts import HostLimitsV1, InterfaceLimitsV1
@@ -122,6 +124,108 @@ class RegisteredCliTests(unittest.TestCase):
             self.assertEqual(len(observed), 1)
             self.assertIs(observed[0][1]["admission_composition"], composition)
             self.assert_no_runtime(prepared)
+
+    def test_fixture_substitution_after_release_validation_is_rejected(self):
+        # The configuration boundary must reject aliases and replaced identities,
+        # even when the replacement contains exactly the committed bytes.
+        for mutation in ("symlink", "fifo", "changed", "oversize", "same_bytes",
+                         "hardlink", "public_mode", "ancestor_symlink", "ancestor_directory"):
+            with self.subTest(mutation=mutation), paced_clock() as (clock, state):
+                prepared, request = self.prepare(clock)
+                configuration = self.configure(prepared, self.options(prepared, request, clock))
+                path = prepared.host_release.fixture_path
+                raw = path.read_bytes()
+                original_validate = ApprovedProfileRelease.validate
+                fired, timed_out = [], []
+
+                def substitute(release):
+                    profile = original_validate(release)
+                    fired.append(True)
+                    if mutation.startswith("ancestor_"):
+                        moved = path.parent.with_name("moved-data")
+                        path.parent.rename(moved)
+                        if mutation == "ancestor_symlink":
+                            path.parent.symlink_to(moved, target_is_directory=True)
+                        else:
+                            path.parent.mkdir(mode=0o700)
+                            path.write_bytes(raw)
+                            path.chmod(0o600)
+                    elif mutation == "public_mode":
+                        path.chmod(0o644)
+                    elif mutation == "hardlink":
+                        os.link(path, path.with_name("alias.json"))
+                    else:
+                        path.rename(path.with_name("original.json"))
+                        if mutation == "symlink":
+                            path.symlink_to(path.with_name("original.json"))
+                        elif mutation == "fifo":
+                            os.mkfifo(path, 0o600)
+                        else:
+                            path.write_bytes(raw if mutation == "same_bytes" else
+                                             (b" " * 1048577 if mutation == "oversize" else b"{}"))
+                            path.chmod(0o600)
+                    return profile
+
+                def alarm(signum, frame):
+                    timed_out.append(True)
+                    raise TimeoutError("configuration fixture read blocked")
+
+                previous = signal.signal(signal.SIGALRM, alarm)
+                try:
+                    signal.setitimer(signal.ITIMER_REAL, 1.0)
+                    with patch.object(ApprovedProfileRelease, "validate", substitute):
+                        with self.assertRaises(ValueError):
+                            replace(configuration)
+                finally:
+                    signal.setitimer(signal.ITIMER_REAL, 0)
+                    signal.signal(signal.SIGALRM, previous)
+                self.assertEqual(fired, [True])
+                self.assertFalse(timed_out, "configuration blocked on the replacement FIFO")
+                self.assert_no_runtime(prepared)
+
+    def test_fixture_identity_and_ancestry_are_rechecked_after_snapshot_read(self):
+        # Bounded reads alone must not accept a renamed file or parent mid-read.
+        for mutation in ("file", "mode", "hardlink", "ancestor"):
+            with self.subTest(mutation=mutation), paced_clock() as (clock, state):
+                prepared, request = self.prepare(clock)
+                configuration = self.configure(prepared, self.options(prepared, request, clock))
+                path = prepared.host_release.fixture_path
+                raw = path.read_bytes()
+                identity = (path.stat().st_dev, path.stat().st_ino)
+                original_read, original_validate = os.read, ApprovedProfileRelease.validate
+                validated, fired = [], []
+
+                def validate(release):
+                    profile = original_validate(release)
+                    validated.append(True)
+                    return profile
+
+                def read(descriptor, size):
+                    data = original_read(descriptor, size)
+                    value = os.fstat(descriptor)
+                    if validated and not fired and (value.st_dev, value.st_ino) == identity:
+                        fired.append(True)
+                        if mutation == "mode":
+                            path.chmod(0o644)
+                        elif mutation == "hardlink":
+                            os.link(path, path.with_name("alias.json"))
+                        elif mutation == "ancestor":
+                            moved = path.parent.with_name("moved-data")
+                            path.parent.rename(moved)
+                            path.parent.mkdir(mode=0o700)
+                            path.write_bytes(raw)
+                            path.chmod(0o600)
+                        else:
+                            path.rename(path.with_name("original.json"))
+                            path.write_bytes(raw)
+                            path.chmod(0o600)
+                    return data
+
+                with patch.object(ApprovedProfileRelease, "validate", validate), patch("os.read", read):
+                    with self.assertRaises(ValueError):
+                        replace(configuration)
+                self.assertEqual(fired, [True])
+                self.assert_no_runtime(prepared)
 
     def test_new_cases_execute_registered_cli_and_preserve_effects_and_claims(self):
         # Falling back to builtin execution, bypassing claims, or duplicate effects fails these checks.

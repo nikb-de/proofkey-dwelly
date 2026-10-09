@@ -2,6 +2,7 @@
 from base64 import b64decode
 from dataclasses import asdict, dataclass, field
 from datetime import timedelta
+from hashlib import sha256
 import json
 import math
 import os
@@ -17,6 +18,7 @@ from .host import ApprovedProfileRelease, AuthResolver, ProfileRegistry, Runtime
 from .host_admission import LocalAdmissionCompositionV1
 from .host_contracts import (BatchRunReceiptV1, CommandRunReceiptV1, ShutdownReceiptV1,
                              HostLimitsV1, InterfaceLimitsV1)
+from .host_files import _read
 
 
 def _duration(value):
@@ -97,6 +99,39 @@ class _PathPins:
         self.private_fds = set()
 
 
+def _registered_fixture_snapshot(release):
+    """Pin the fixture across release validation and a bounded exact-byte read."""
+    path = release.fixture_path
+    pins = _PathPins(path.parent)
+    try:
+        parent = pins.entries[-1][0]
+        pins.private_fds.add(parent)
+        pins.check()
+        attributes = ("st_dev", "st_ino", "st_mode", "st_uid", "st_nlink",
+                      "st_size", "st_mtime_ns", "st_ctime_ns")
+
+        def identity():
+            value = os.stat(path.name, dir_fd=parent, follow_symlinks=False)
+            if (not stat.S_ISREG(value.st_mode) or value.st_nlink != 1
+                    or value.st_uid != os.geteuid() or stat.S_IMODE(value.st_mode) != 0o600
+                    or not 0 < value.st_size <= 1048576):
+                raise ValueError
+            return tuple(getattr(value, name) for name in attributes)
+
+        before = identity()
+        profile = release.validate()
+        pins.check()
+        if identity() != before:
+            raise ValueError
+        raw = _read(parent, path.name, 1048576)
+        pins.check()
+        if identity() != before or sha256(raw).hexdigest() != release.fixture_hash:
+            raise ValueError
+        return profile, raw.decode("utf-8")
+    finally:
+        pins.close()
+
+
 @dataclass(frozen=True, slots=True)
 class CliConfiguration:
     factory: RuntimeFactory
@@ -170,9 +205,8 @@ class CliConfiguration:
         release = ApprovedProfileRelease(**asdict(release))
         registered = composition.registry.resolve(binding.registered_release_id)
         factory, resource = registered.factory, registered.resource
-        profile = release.validate()
+        profile, fixture = _registered_fixture_snapshot(release)
         source = json.loads(b64decode(json.loads(registered.wire_bytes)["blobs"]["source"]["base64"], validate=True))
-        fixture = release.fixture_path.read_text()
         identity = os.lstat(release.resource_root)
         if (release.release_id != binding.host_release_id
                 or registered.artifact_hash != binding.artifact_hash

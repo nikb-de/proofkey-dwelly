@@ -106,6 +106,10 @@ class _ValidatedInput:
 def _fixture_json(raw):
     # Count containers before the recursive decoder sees untrusted input.
     text = raw.decode("utf-8")
+    # The fixed admission consumer normalizes literal CR/CRLF in text reads.
+    # Reject unrepresentable input rather than changing the committed bytes;
+    # JSON string escapes such as \\r contain no actual CR and remain valid.
+    _require("\r" not in text)
     depth, quoted, escaped = 0, False, False
     for char in text:
         if quoted:
