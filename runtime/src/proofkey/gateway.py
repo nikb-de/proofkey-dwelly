@@ -10,7 +10,7 @@ from pydantic import TypeAdapter
 
 from .contracts import (ActionProposal, AuthContext, AuthorityReadback, CanonicalRequest, EffectIntent, Hash, Identifier,
                         NonnegativeInt, OwnerState, PhaseCheckpoint, ReadRequest, RequestBinding,
-                        ReadTarget, Revision, RevisionVector, StopState, VerificationResult)
+                        ReadTarget, Revision, RevisionVector, RoleAllowance, StopState, VerificationResult)
 from .identity import fingerprint, request_fingerprint, stable_action_id
 from .journal import JournalFailure
 from .policy import (BUSINESS, GateDenied, IDENTITY_FIELDS, OWNER_FIELDS, PolicyGate,
@@ -23,6 +23,7 @@ from .wait_contracts import WaitRecordV1
 from .execution_consumer import ExecutionTiming
 from .ownership_contracts import OwnershipPacketV1, OwnershipGrantV1, ownership_enabled
 from .ownership_gateway import OwnershipGateway
+from .processing import RoleAdmissionLimits, freeze_processing_allowances
 
 
 @dataclass(frozen=True)
@@ -46,7 +47,9 @@ _AUTHORITY_READS = {"case": ("case", "read_case"), "customer": ("case", "read_pr
 
 
 class ActionGateway(OwnershipGateway):
-    def __init__(self, profile, bundle, store, clock, auth=None):
+    def __init__(self, profile, bundle, store, clock, auth=None, *,
+                 processing_allowances: tuple[RoleAdmissionLimits, ...] | None = None):
+        self._processing_allowances = freeze_processing_allowances(processing_allowances)
         self.profile, self.bundle, self.store, self.clock, self.auth = profile, bundle, store, clock, auth
         self.gate = PolicyGate(profile)
         self._owner_thread = get_ident()
@@ -887,11 +890,19 @@ class ActionGateway(OwnershipGateway):
                     if initialize_process and values["ownership.owner"] != self.auth.caller_id:
                         raise GateDenied("scope_denied")
                     structured = not (request.narrative and request.narrative.strip()) and not request.evidence_ids
-                    planning_cap = 0 if structured else 4
+                    if self._processing_allowances is None:
+                        planning_cap = 0 if structured else 4
+                        role_allowances = {"planning": RoleAllowance(max_invocations=planning_cap)}
+                    else:
+                        role_allowances = {item.role: RoleAllowance(max_invocations=item.max_invocations,
+                            usage_allowances=dict(item.usage_allowances), max_cost=item.max_cost)
+                            for item in self._processing_allowances}
+                        planning = role_allowances.get("planning")
+                        planning_cap = 0 if structured or planning is None else planning.max_invocations
                     checkpoint = PhaseCheckpoint(binding=binding, phase="intake", next_gate="intake", profile_version=self.profile.version,
                         process_version=spec.version, policy_version="v1", processing_status="pending",
                         budget={"case_id": binding.case_id, "deadline": attempt.deadline, "max_planner_calls": planning_cap,
-                                "role_allowances": {"planning": {"max_invocations": planning_cap}}}, deadline=attempt.deadline)
+                                "role_allowances": role_allowances}, deadline=attempt.deadline)
                     if initialize_process:
                         checkpoint = PhaseCheckpoint.model_validate({**checkpoint.model_dump(), "observations": list(observations),
                             "ownership_state": values["ownership.state"], "ownership_state_revision": values["ownership.state_revision"],
