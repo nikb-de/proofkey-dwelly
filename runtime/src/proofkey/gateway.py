@@ -4,6 +4,7 @@ from contextlib import contextmanager, nullcontext
 from threading import get_ident
 import math
 from uuid import uuid4
+from dataclasses import dataclass
 
 from pydantic import TypeAdapter
 
@@ -20,6 +21,14 @@ from .packet_contracts import (packet_enabled, packet_postcondition, validate_pa
 from .packets import PacketService, PacketSources
 from .wait_contracts import WaitRecordV1
 from .execution_consumer import ExecutionTiming
+from .ownership_contracts import OwnershipPacketV1, OwnershipGrantV1, ownership_enabled
+from .ownership_gateway import OwnershipGateway
+
+
+@dataclass(frozen=True)
+class _LeasedRead:
+    reply: AuthorityReadback
+    entry_id: str
 
 _PORTS = {"reschedule": "scheduling", "register_goods_refusal": "delivery", "register_service_refusal": "delivery",
           "create_return": "returns", "send_clarification": "messaging", "send_status": "messaging",
@@ -36,7 +45,7 @@ _AUTHORITY_READS = {"case": ("case", "read_case"), "customer": ("case", "read_pr
                     "operator": ("operator", "read_receipt")}
 
 
-class ActionGateway:
+class ActionGateway(OwnershipGateway):
     def __init__(self, profile, bundle, store, clock, auth=None):
         self.profile, self.bundle, self.store, self.clock, self.auth = profile, bundle, store, clock, auth
         self.gate = PolicyGate(profile)
@@ -128,6 +137,10 @@ class ActionGateway:
             raise GateDenied("scope_denied")
 
     def _read(self, scope, target, port, method, *, purpose, action_id=None, attempt_id=None, deadline=None, control=False, validate=None):
+        return self._leased_read(scope, target, port, method, purpose=purpose, action_id=action_id,
+            attempt_id=attempt_id, deadline=deadline, control=control, validate=validate).reply
+
+    def _leased_read(self, scope, target, port, method, *, purpose, action_id=None, attempt_id=None, deadline=None, control=False, validate=None):
         limit = deadline or self.store.checkpoint(scope.case_id).deadline
         self._pace(limit)
         anchor = self._timing.monotonic_anchor() if self._timing is not None else None
@@ -180,11 +193,41 @@ class ActionGateway:
                     completed = verify(original, reply, profile=self.profile).status in {"verified", "rejected", "pending"}
             if validate is not None and not rejection:
                 validate(reply)
+            if not rejection and target.kind == "authority_facts" and ownership_enabled(self.profile):
+                registered = {}
+                for key, schema in (("operator.ownership_packet", OwnershipPacketV1),
+                                    ("operator.ownership_grant", OwnershipGrantV1)):
+                    if key in indexed:
+                        item = indexed[key]
+                        value = schema.model_validate(item.value)
+                        registered[key] = value
+                        if value.binding != scope or value.simulated is not True:
+                            raise GateDenied("scope_denied")
+                        if key.endswith("packet") and value.accepted_at > item.observed_at:
+                            raise GateDenied("scope_denied")
+                        if key.endswith("grant") and (value.actor_id != self.auth.caller_id
+                                or value.evidence_ref != item.evidence_ref
+                                or not value.issued_at <= self.clock.now() < value.expires_at):
+                            raise GateDenied("scope_denied")
+                packet = registered.get("operator.ownership_packet")
+                grant = registered.get("operator.ownership_grant")
+                if packet is not None:
+                    for key, field, schema in (("operator.packet_hash", "packet_hash", Hash),
+                                               ("operator.packet_revision", "packet_revision", Revision)):
+                        if key in indexed:
+                            actual = TypeAdapter(schema).validate_python(indexed[key].value, strict=True)
+                            if actual != getattr(packet, field):
+                                raise GateDenied("scope_denied")
+                if packet is not None and grant is not None and (grant.packet_id, grant.packet_hash,
+                        grant.packet_revision, grant.content_hash, grant.owner, grant.epoch, grant.state_revision) != (
+                        packet.packet_id, packet.packet_hash, packet.packet_revision, packet.content_hash,
+                        packet.accepted_owner, packet.accepted_epoch, packet.accepted_state_revision):
+                    raise GateDenied("scope_denied")
         except Exception:
             self._settle(lease, False, admission=attempt_id is not None, anchor=anchor)
             raise GateDenied("scope_denied") from None
         self._settle(lease, completed, admission=attempt_id is not None, anchor=anchor)
-        return reply
+        return _LeasedRead(reply=reply, entry_id=lease.entry_id)
 
     def _facts(self, scope, fields, *, attempt_id=None, deadline=None, purpose=None, validators=None):
         observations = []
@@ -565,7 +608,13 @@ class ActionGateway:
             raise GateDenied("scope_denied")
         return record.wait.expires_at
 
-    def _run(self, intent, observations, *, is_resend=False):
+    def _run(self, intent, observations, *, is_resend=False, decision_source=None, decision_submission=None):
+        decision_limit = None
+        if intent.decision_id is not None and ownership_enabled(self.profile):
+            if decision_source is None or decision_submission is None or is_resend:
+                raise GateDenied("scope_denied")
+            self.gate.validate_registered_decision(decision_submission, intent, decision_source, self.clock.now())
+            decision_limit = min(decision_submission.decision.expires_at, decision_source.grant.expires_at)
         checkpoint = self._active(intent.binding.case_id, intent.binding, intent)
         original = self.store.original_request(intent.binding.case_id, intent.binding.generation)
         values = {key: obs.value for key, obs in qualified_observations(self.profile, intent.binding.object_id, observations).items()}
@@ -591,13 +640,16 @@ class ActionGateway:
                     raise GateDenied("scope_denied")
         if not is_resend:
             self.store.prepare(intent)
-        self._pace(min(intent.deadline, self.store.checkpoint(intent.binding.case_id).deadline))
+        self._pace(min(intent.deadline, self.store.checkpoint(intent.binding.case_id).deadline,
+            decision_limit or intent.deadline))
         wait_expiry = self._communication_wait_expiry(intent)
         anchor = self._timing.monotonic_anchor() if self._timing is not None else None
         lease = self.store.begin_dispatch(intent, self.clock.now(), is_resend=is_resend)
         try:
-            deadline = self._transport_deadline(min(lease.deadline, wait_expiry)
-                if wait_expiry is not None else lease.deadline, lease, anchor)
+            deadline = self._transport_deadline(min(lease.deadline, wait_expiry or lease.deadline,
+                decision_limit or lease.deadline), lease, anchor)
+            if decision_limit is not None and self.clock.now() >= deadline:
+                raise GateDenied("scope_denied")
         except (GateDenied, ValueError):
             result = VerificationResult(status="outcome_unknown", reason="entry_unresolved")
             self.store.record_verification(intent.action_id, result)
@@ -608,6 +660,8 @@ class ActionGateway:
             return self._read_and_verify(intent)[0]
         try:
             deadline = self._transport_deadline(deadline, lease, anchor)
+            if decision_limit is not None and self.clock.now() >= deadline:
+                raise GateDenied("scope_denied")
         except (GateDenied, ValueError):
             result = VerificationResult(status="outcome_unknown", reason="entry_unresolved")
             self.store.record_verification(intent.action_id, result)
@@ -657,6 +711,8 @@ class ActionGateway:
             intent = EffectIntent.model_validate(intent.model_dump())
             self._authenticated()
             required_fields(self.profile, intent.operation)
+            if ownership_enabled(self.profile) and (intent.operation == "transfer_owner" or intent.decision_id is not None):
+                raise GateDenied("scope_denied")
             try:
                 record = self.store.intent(intent.action_id)
             except JournalFailure:
@@ -719,6 +775,8 @@ class ActionGateway:
     def execute_proposal(self, case_id, declared_operation, build_proposal):
         intent = None
         try:
+            if declared_operation == "transfer_owner" and ownership_enabled(self.profile):
+                raise GateDenied("scope_denied")
             if declared_operation == "enqueue_handoff" and packet_enabled(self.profile):
                 raise GateDenied("scope_denied")
             checkpoint = self._active(case_id)

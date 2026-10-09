@@ -3,6 +3,10 @@ from .contracts import AuthorityReadback, EffectIntent, VerificationResult
 from .packet_contracts import (PacketContentV1, PacketContentReceiptV1, packet_enabled,
                                 packet_postcondition, validate_packet_arguments, validate_packet_policy)
 from .identity import fingerprint
+from .ownership_contracts import (ownership_enabled, TransferArgumentsV1, TransferPostconditionV1,
+    OriginalTransferIdentityV1, TransferSourceReceiptV1, TransferPendingV1, TransferAcceptedV1,
+    TransferRejectedV1, TRANSFER_FIELDS_V1)
+from pydantic import TypeAdapter
 
 
 _FACTS = {
@@ -87,6 +91,8 @@ def expected_facts(intent, *, profile=None):
 def verify(intent, authoritative_readback, *, profile=None):
     intent = EffectIntent.model_validate(intent.model_dump())
     read = AuthorityReadback.model_validate(authoritative_readback.model_dump())
+    if intent.operation == "transfer_owner" and ownership_enabled(profile):
+        return verify_registered_transfer(intent, read, profile=profile)
 
     def result(status, reason, evidence=False):
         return VerificationResult(status=status, object_id=intent.binding.object_id,
@@ -154,6 +160,77 @@ def verify(intent, authoritative_readback, *, profile=None):
     if pending:
         return result("pending", "independent_completion_pending", True)
     return result("verified", "authoritative_original_verified", True)
+
+
+def verify_registered_transfer(intent, authoritative_readback, *, profile):
+    """Historical exact source receipt only; current ownership requires separate CAS."""
+    intent = EffectIntent.model_validate(intent.model_dump())
+    read = AuthorityReadback.model_validate(authoritative_readback.model_dump())
+    def result(status, reason, evidence=False):
+        return VerificationResult(status=status, reason=reason, object_id=intent.binding.object_id,
+            action_id=intent.action_id, fingerprint=intent.argument_fingerprint,
+            postcondition=intent.postcondition, evidence_refs=read.evidence_refs if evidence else [],
+            as_of=read.as_of if evidence else None)
+    try:
+        args = TransferArgumentsV1.model_validate(intent.arguments)
+        post = TransferPostconditionV1.model_validate(intent.postcondition)
+        original = OriginalTransferIdentityV1(binding=intent.binding, transfer_id=args.intent.transfer_id,
+            action_id=intent.action_id, provider_key=intent.provider_key, argument_fingerprint=intent.argument_fingerprint)
+        if (not ownership_enabled(profile) or intent.profile_version != profile.version
+                or intent.operation != "transfer_owner" or intent.stage != "request" or intent.decision_id is not None
+                or post.original != original or args.intent.binding != intent.binding
+                or post.target_owner != args.intent.target_owner or post.packet.content_hash != args.content_hash
+                or intent.deadline != args.intent.expires_at
+                or (args.intent.expected_owner, args.intent.expected_epoch, args.intent.expected_state_revision,
+                    args.intent.packet_id, args.intent.packet_hash, args.intent.packet_revision) !=
+                   (post.packet.accepted_owner, post.packet.accepted_epoch, post.packet.accepted_state_revision,
+                    post.packet.packet_id, post.packet.packet_hash, post.packet.packet_revision)
+                or (intent.ownership_state_revision, intent.ownership_epoch) !=
+                   (args.intent.expected_state_revision, args.intent.expected_epoch)
+                or not TRANSFER_FIELDS_V1 <= intent.expected_revisions.revisions.keys()
+                or intent.expected_revisions.revisions["operator.ownership_grant"] != args.grant_revision):
+            return result("conflict", "registered_original_conflict")
+        if any(actual is not None and actual != wanted for actual, wanted in (
+                (read.object_id, intent.binding.object_id), (read.action_id, intent.action_id),
+                (read.fingerprint, intent.argument_fingerprint))):
+            return result("conflict", "original_identity_conflict")
+        if read.action_id is None or read.fingerprint is None or not read.evidence_refs:
+            return result("outcome_unknown", "original_evidence_missing")
+        if read.operation != intent.operation:
+            return result("conflict", "original_identity_conflict")
+        facts = {}
+        for obs in read.observations:
+            key = obs.authority+"."+obs.fact
+            if key in facts or obs.object_id != intent.binding.object_id or obs.observed_at > read.as_of:
+                return result("conflict", "observation_identity_conflict")
+            if obs.provider_at is None or obs.provider_at > obs.observed_at:
+                return result("conflict", "observation_time_conflict")
+            facts[key] = obs
+        obs = facts.get("operator.transfer_receipt")
+        if obs is None:
+            return result("outcome_unknown", "registered_receipt_missing")
+        receipt = TypeAdapter(TransferSourceReceiptV1).validate_python(obs.value)
+        if (receipt.original != original or receipt.packet != post.packet or receipt.target_owner != post.target_owner
+                or receipt.expected_revisions != intent.expected_revisions
+                or isinstance(receipt, TransferPendingV1) and receipt.evidence_ref != obs.evidence_ref
+                or isinstance(receipt, TransferRejectedV1) and receipt.nonexecution.evidence_ref != receipt.evidence_ref):
+            return result("conflict", "registered_receipt_conflict")
+        at = receipt.accepted_at if isinstance(receipt, TransferAcceptedV1) else receipt.pending_at if isinstance(receipt, TransferPendingV1) else receipt.rejected_at
+        if at > read.as_of or obs.provider_at != at or at < post.packet.accepted_at:
+            return result("conflict", "registered_receipt_time_conflict")
+        if isinstance(receipt, TransferAcceptedV1):
+            if read.stage != "accepted" or at >= intent.deadline or read.nonexecution.status == "proven":
+                return result("conflict", "registered_acceptance_conflict")
+            return result("verified", "authoritative_original_verified", True)
+        if isinstance(receipt, TransferRejectedV1):
+            if read.stage != "terminally_rejected" or read.nonexecution != receipt.nonexecution:
+                return result("conflict", "registered_rejection_conflict")
+            return result("rejected", "terminal_nonexecution", True)
+        if read.stage != "pending" or read.nonexecution.status == "proven":
+            return result("conflict", "registered_pending_conflict")
+        return result("pending", "independent_completion_pending", True)
+    except (ValueError, TypeError, KeyError, AttributeError):
+        return result("conflict", "registered_receipt_conflict")
 
 
 def _verify_packet(intent, read, profile, result):

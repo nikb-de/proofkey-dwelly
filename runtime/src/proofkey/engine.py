@@ -17,6 +17,7 @@ from .policy import GateDenied, qualified_observations
 from .process import ProcessController
 from .replay import ReplayService
 from .waits import WaitService
+from .ownership import OwnershipService
 from .packet_contracts import packet_enabled
 from .budget import BudgetExceeded
 
@@ -99,6 +100,29 @@ class WorkflowEngine:
         with self._entry_scope():
             with self._gateway.execution_scope(execution) as timing:
                 yield timing
+
+    def _ownership_service(self):
+        return OwnershipService(self.profile, self.bundle, self.store, self.clock, gateway=self._gateway)
+
+    def transfer(self, intent, auth, *, execution=None):
+        with self._execution_scope(execution):
+            return self._ownership_service()._transfer_result(intent, auth)
+
+    def reconcile_transfer(self, transfer_id, auth, *, execution=None):
+        with self._execution_scope(execution):
+            return self._ownership_service()._reconcile_result(transfer_id, auth)
+
+    def validate_operator_decision(self, submission, auth, *, execution=None):
+        with self._execution_scope(execution):
+            return self._gateway.validate_operator_decision(submission, auth)
+
+    def record_operator_disposition(self, disposition, auth, *, execution=None):
+        with self._execution_scope(execution):
+            return self._gateway.record_operator_disposition(disposition, auth)
+
+    def execute_operator_decision(self, decision_id, intent, auth, *, execution=None):
+        with self._execution_scope(execution):
+            return self._gateway.execute_operator_decision(decision_id, intent, auth)
 
     def run(self, request, auth, *, execution=None):
         case_id = request.case_id if isinstance(request, CanonicalRequest) else "invalid-request"

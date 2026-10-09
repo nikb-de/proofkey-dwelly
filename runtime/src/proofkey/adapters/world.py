@@ -632,7 +632,7 @@ class SimulatedWorld:
                     if packet_enabled(self._profile) and operation == "read_receipt" and target.authority == "operator":
                         allowed = allowed | {"packet_catalog", "packet_access"}
                     if self._ownership and operation == "read_owner" and target.authority == "operator":
-                        allowed = allowed | {"ownership_grant", "ownership_packet"}
+                        allowed = allowed | {"ownership_grant", "ownership_packet", "packet_hash", "packet_revision"}
                     if not set(target.facts) <= allowed:
                         return empty("scope_rejected")
                     if any(target.authority + "." + fact in _NEW_FACTS

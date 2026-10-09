@@ -10,6 +10,8 @@ from .profiles import requires_completed_service
 from .verifier import expected_facts
 from .packet_contracts import (PACKET_FIELDS, packet_enabled, validate_packet_arguments,
                                validate_packet_policy, validate_packet_scope)
+from .ownership_contracts import (OwnershipPacketV1, OwnershipGrantV1, OwnershipSourceReadV1,
+    OperatorDecisionSubmissionV1, ownership_enabled, TRANSFER_FIELDS_V1)
 
 STAGES = {"reschedule": "commit", "register_goods_refusal": "commit", "register_service_refusal": "commit",
           "create_return": "initiate", "send_clarification": "send", "send_status": "send",
@@ -87,6 +89,65 @@ class PolicyGate:
         if not isinstance(profile, EnvironmentProfile):
             raise ValueError("Trusted typed profile required")
         self.profile = EnvironmentProfile.model_validate(profile.model_dump())
+
+    def validate_registered_ownership(self, binding, auth, observations, checkpoint, *, purpose, now):
+        if purpose not in {"transfer", "decision", "disposition"} or not ownership_enabled(self.profile):
+            raise GateDenied("scope_denied")
+        facts = qualified_observations(self.profile, binding.object_id, observations)
+        fields = TRANSFER_FIELDS_V1 if purpose == "transfer" else IDENTITY_FIELDS | OWNER_FIELDS | {
+            "policy.version", "operator.ownership_packet", "operator.ownership_grant"}
+        values = {k: o.value for k, o in facts.items()}
+        packet = OwnershipPacketV1.model_validate(values.get("operator.ownership_packet"))
+        grant = OwnershipGrantV1.model_validate(values.get("operator.ownership_grant"))
+        if (set(facts) != set(fields) or not isinstance(auth, AuthContext) or checkpoint.binding != binding
+                or packet.binding != binding or grant.binding != binding or not _source_identity(binding, values)
+                or values["case.generation"] != binding.generation or checkpoint.stop.requested
+                or now >= checkpoint.deadline or checkpoint.profile_version != self.profile.version
+                or values["policy.version"] != checkpoint.policy_version or packet.accepted_at > now
+                or grant.actor_id != auth.caller_id or grant.owner != auth.caller_id or packet.content_hash is None
+                or not grant.issued_at <= now < grant.expires_at
+                or grant.evidence_ref != facts["operator.ownership_grant"].evidence_ref
+                or (grant.packet_id, grant.packet_hash, grant.packet_revision, grant.content_hash,
+                    grant.owner, grant.epoch, grant.state_revision) !=
+                   (packet.packet_id, packet.packet_hash, packet.packet_revision, packet.content_hash,
+                    packet.accepted_owner, packet.accepted_epoch, packet.accepted_state_revision)
+                or (values["ownership.owner"], values["ownership.state"], values["ownership.state_revision"], values["ownership.epoch"]) !=
+                   (packet.accepted_owner, "accepted", packet.accepted_state_revision, packet.accepted_epoch)
+                or (checkpoint.ownership_state, checkpoint.ownership_state_revision, checkpoint.ownership_epoch) !=
+                   ("accepted", packet.accepted_state_revision, packet.accepted_epoch)):
+            raise GateDenied("scope_denied")
+        if purpose == "transfer" and (not grant.may_initiate_transfer
+                or values["operator.packet_hash"] != packet.packet_hash
+                or values["operator.packet_revision"] != packet.packet_revision
+                or values["customer.consent"] != "granted" or values["delivery.risk"] != "safe"
+                or values["delivery.stage"] != "eligible"):
+            raise GateDenied("scope_denied")
+        return packet, grant
+
+    def validate_registered_decision(self, submission, intent, source, now):
+        submission = OperatorDecisionSubmissionV1.model_validate(submission.model_dump())
+        source = OwnershipSourceReadV1.model_validate(source.model_dump())
+        decision, grant, packet = submission.decision, source.grant, source.packet
+        if (decision.binding != source.binding or submission.content_hash != packet.content_hash
+                or (decision.packet_id, decision.packet_hash, decision.packet_revision, decision.owner,
+                    decision.epoch, decision.state_revision, decision.actor_id) !=
+                   (packet.packet_id, packet.packet_hash, packet.packet_revision, packet.accepted_owner,
+                    packet.accepted_epoch, packet.accepted_state_revision, grant.actor_id)
+                or not source.as_of <= now < min(decision.expires_at, grant.expires_at, source.checkpoint.deadline)):
+            raise GateDenied("scope_denied")
+        if decision.decision == "approve":
+            scope = submission.effect_scope
+            if scope.operation not in grant.decision_operations:
+                raise GateDenied("scope_denied")
+            if intent is not None and (intent.binding != decision.binding or intent.decision_id != decision.decision_id
+                    or (intent.operation, intent.stage, intent.action_id, intent.argument_fingerprint) !=
+                       (scope.operation, scope.stage, scope.action_id, scope.argument_fingerprint)
+                    or (intent.ownership_state_revision, intent.ownership_epoch) != (decision.state_revision, decision.epoch)
+                    or intent.deadline > min(decision.expires_at, grant.expires_at, source.checkpoint.deadline)):
+                raise GateDenied("scope_denied")
+        elif intent is not None or not grant.may_record_nonaction_decision:
+            raise GateDenied("scope_denied")
+        return GateDecision(allowed=True, reason="designated_scope_verified")
 
     def bind_request(self, request, auth, observations):
         if not isinstance(request, CanonicalRequest) or not isinstance(auth, AuthContext):

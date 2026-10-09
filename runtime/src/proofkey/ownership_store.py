@@ -131,7 +131,9 @@ class OwnershipStore:
             epoch=source.packet.accepted_epoch, state_revision=source.packet.accepted_state_revision,
             packet_id=source.packet.packet_id, packet_hash=source.packet.packet_hash,
             packet_revision=source.packet.packet_revision, state="accepted", acceptance_evidence=source.packet.acceptance_evidence)
-        if ((values["ownership.owner"], values["ownership.state"], values["ownership.state_revision"], values["ownership.epoch"]) !=
+        observed_state = ("transfer_pending" if current and values["ownership.state"] == "pending"
+                          else values["ownership.state"])
+        if ((values["ownership.owner"], observed_state, values["ownership.state_revision"], values["ownership.epoch"]) !=
                 (owner.owner, owner.state, owner.state_revision, owner.epoch)):
             self.fail("Ownership observations disagree with typed current tuple")
         if not current and (values["operator.ownership_grant"] != source.grant.model_dump(mode="json")
@@ -436,8 +438,9 @@ class OwnershipStore:
                     record.intent.expected_owner, record.intent.expected_epoch, receipt.retained_state_revision, "accepted") or packet != receipt.packet:
                 self.fail("Rejection lacks fresh retained owner and exact packet")
         else:
-            if (source.ownership.owner, source.ownership.epoch, source.ownership.state_revision, source.ownership.state) != (
-                    record.intent.expected_owner, record.intent.expected_epoch, receipt.pending_state_revision, "transfer_pending") or packet != receipt.packet:
+            if ((source.ownership.owner, source.ownership.epoch, source.ownership.state_revision, source.ownership.state) != (
+                    record.intent.expected_owner, record.intent.expected_epoch, receipt.pending_state_revision, "transfer_pending")
+                    or packet != receipt.packet or source.ownership.transfer_id != record.intent.transfer_id):
                 self.fail("Pending receipt lacks current source pending predecessor")
 
     def _current_record_scope(self, payload, source, now):
