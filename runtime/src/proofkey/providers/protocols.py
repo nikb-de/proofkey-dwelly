@@ -99,6 +99,20 @@ def strict_json(response, max_bytes, *, allow_negative_infinity=False):
         raise ValueError("Malformed provider response") from error
     if not isinstance(result, dict):
         raise ValueError("Provider response must be an object")
+    pending = [(result, ())]
+    while pending:
+        value, path = pending.pop()
+        if isinstance(value, float) and not math.isfinite(value):
+            # JSON exponent overflow bypasses parse_constant. The one vendor
+            # exception is scoped to words[index].logprob, never an envelope,
+            # another key or nested lookalike field.
+            if not (allow_negative_infinity and value == float("-inf") and len(path) == 3
+                    and path[0] == "words" and type(path[1]) is int and path[2] == "logprob"):
+                raise ValueError("Nonfinite parsed provider number")
+        elif isinstance(value, dict):
+            pending.extend((item, (*path, key)) for key, item in value.items())
+        elif isinstance(value, list):
+            pending.extend((item, (*path, index)) for index, item in enumerate(value))
     return result
 
 

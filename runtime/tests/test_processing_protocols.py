@@ -357,7 +357,7 @@ class ProviderClientTests(unittest.TestCase):
             body = json.loads(request.body)
             self.assertEqual(body["model"], "fixture-model")
             self.assertEqual(body["system"], "Trusted fixture prompt")
-            self.assertEqual(body["messages"][0]["content"][0]["text"], "SYNTHETIC NAME reports damaged box.\n")
+            self.assertEqual(body["messages"][0]["content"][1]["text"], "SYNTHETIC NAME reports damaged box.\n")
             self.assertEqual((request.timeout_seconds, request.attempts, request.follow_redirects), (2.0, 1, False))
             return self.anthropic({"kind": "assertions", "assertions": [{"artifact_id": record.artifact_id,
                 "claim": "Box is damaged", "locator": {"kind": "unknown", "reason": "coordinates_absent"}}]})
@@ -372,6 +372,32 @@ class ProviderClientTests(unittest.TestCase):
             (record.artifact_id, record.lineage_hash, "client-fixture"))
         self.assertEqual(assertion.content_hash, hashlib.sha256(b"Box is damaged").hexdigest())
         self.assertEqual(assertion.uncertainty, "unverified")
+
+    def test_multirecord_assertion_ids_come_from_actual_outgoing_source_boundaries(self):
+        from proofkey.providers.anthropic import AnthropicClient
+        import base64
+        records = [self.register("synthetic.txt"), self.register("synthetic.png"), self.register("synthetic.pdf")]
+        def transport(request):
+            blocks = json.loads(request.body)["messages"][0]["content"]
+            self.assertEqual(len(blocks), 9)
+            assertions = []
+            for offset in range(0, len(blocks), 3):
+                opening, source, closing = blocks[offset:offset + 3]
+                label = json.loads(opening["text"])
+                end = json.loads(closing["text"])
+                self.assertEqual(label["boundary"], "source_start")
+                self.assertEqual(end, {"boundary": "source_end", "artifact_id": label["artifact_id"]})
+                self.assertEqual(set(label), {"boundary", "artifact_id", "original_hash", "mime_type", "lineage_hash"})
+                payload = source["text"].encode() if source["type"] == "text" else base64.b64decode(source["source"]["data"])
+                self.assertEqual(hashlib.sha256(payload).hexdigest(), label["original_hash"])
+                assertions.append({"artifact_id": label["artifact_id"], "claim": "Fixture source " + str(offset // 3),
+                    "locator": {"kind": "unknown", "reason": "not_supplied"}})
+            return self.anthropic({"kind": "assertions", "assertions": assertions})
+        receipt = AnthropicClient(transport, system_prompt="Trusted fixture prompt", max_tokens=32).extract(
+            records, self.context("extraction", records))
+        self.assertEqual([assertion.artifact_id for assertion in receipt.output.assertions], [record.artifact_id for record in records])
+        self.assertEqual([assertion.lineage_hash for assertion in receipt.output.assertions], [record.lineage_hash for record in records])
+        self.assertTrue(all(assertion.uncertainty == "unverified" for assertion in receipt.output.assertions))
 
     def test_anthropic_never_retries_redirects_truncation_hidden_tools_or_malformed(self):
         from proofkey.providers.anthropic import AnthropicClient
@@ -422,7 +448,7 @@ class ProviderClientTests(unittest.TestCase):
         for name, kind in (("synthetic.png", "image"), ("synthetic.jpg", "image"), ("synthetic.pdf", "document")):
             record = self.register(name)
             def transport(request):
-                block = json.loads(request.body)["messages"][0]["content"][0]
+                block = json.loads(request.body)["messages"][0]["content"][1]
                 self.assertEqual(block["type"], kind)
                 self.assertEqual(block["source"]["type"], "base64")
                 self.assertEqual(hashlib.sha256(base64.b64decode(block["source"]["data"])).hexdigest(), record.original_hash)
@@ -549,3 +575,31 @@ class ProviderClientTests(unittest.TestCase):
         context = self.context("transcription", [wav], provider="elevenlabs", endpoint="https://api.elevenlabs.io/v1/speech-to-text")
         with self.assertRaises(ValueError):
             ElevenLabsClient(lambda request: TransportResponse(200, b"x" * 11), max_response_bytes=10).transcribe(wav, context)
+
+
+class StrictJsonNumberTests(unittest.TestCase):
+    def parse(self, raw, *, eleven=False):
+        from proofkey.providers.protocols import strict_json
+        return strict_json(TransportResponse(200, raw), 4096, allow_negative_infinity=eleven)
+
+    def test_overflow_and_constants_rejected_at_every_unapproved_path(self):
+        for eleven in (False, True):
+            for raw in (b'{"nested":[{"x":1e309}]}', b'{"nested":[{"x":-1e309}]}',
+                        b'{"unexpected":1e309}', b'{"unexpected":-Infinity}', b'{"logprob":-Infinity}',
+                        b'{"words":{"0":{"logprob":-Infinity}}}',
+                        b'{"words":[{"nested":{"logprob":-Infinity}}]}',
+                        b'{"words":[{"start":-1e309,"logprob":-Infinity}]}',
+                        b'{"words":[{"logprob":1e309}]}', b'{"words":[{"logprob":NaN}]}',
+                        b'{"nested":[NaN]}', b'{"extra":Infinity}'):
+                with self.subTest(eleven=eleven, raw=raw), self.assertRaises(ValueError):
+                    self.parse(raw, eleven=eleven)
+
+    def test_only_explicit_eleven_word_logprob_exception_and_finite_numbers_pass(self):
+        allowed = b'{"words":[{"logprob":-Infinity,"start":0.0,"end":0.1}]}'
+        with self.assertRaises(ValueError):
+            self.parse(allowed)
+        self.assertEqual(self.parse(allowed, eleven=True)["words"][0]["logprob"], float("-inf"))
+        finite = b'{"nested":[{"positive":1e308,"negative":-1e308}],"words":[{"logprob":-0.2}]}'
+        parsed = self.parse(finite, eleven=True)
+        self.assertEqual(parsed["nested"][0], {"positive": 1e308, "negative": -1e308})
+        self.assertEqual(parsed["words"][0]["logprob"], -0.2)

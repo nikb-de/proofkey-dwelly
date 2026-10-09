@@ -82,6 +82,13 @@ class AnthropicClient:
         content, sources = [], {}
         for record, payload, intake in decoded:
             sources[record.artifact_id] = (record, intake)
+            # Labels come from the catalog-verified source, not its narrative.
+            # Keep boundaries in separate API blocks adjacent to exact source
+            # bytes so text/image/PDF outputs can name the same registered ID.
+            content.append({"type": "text", "text": json.dumps({"boundary": "source_start",
+                "artifact_id": record.artifact_id, "original_hash": record.original_hash,
+                "mime_type": record.mime_type, "lineage_hash": record.lineage_hash},
+                sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False)})
             if record.mime_type in {"text/plain", "application/json", "text/x-supplied-transcript"}:
                 content.append({"type": "text", "text": payload.decode("utf-8")})
             elif record.mime_type in {"image/jpeg", "image/png", "application/pdf"}:
@@ -90,6 +97,9 @@ class AnthropicClient:
                                "data": base64.b64encode(payload).decode("ascii")}})
             else:
                 raise ValueError("Content requires a different declared role route")
+            content.append({"type": "text", "text": json.dumps({"boundary": "source_end",
+                "artifact_id": record.artifact_id}, sort_keys=True, separators=(",", ":"),
+                ensure_ascii=False, allow_nan=False)})
         wire, observed, request_id, usage, elapsed = self._request(content, context, "extraction")
         if set(wire) != {"kind", "assertions"} or wire["kind"] != "assertions" or not isinstance(wire["assertions"], list):
             raise ValueError("Strict extraction output required")
