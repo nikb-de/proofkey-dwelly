@@ -186,6 +186,36 @@ def reviewed(mat=None, pending=(), **context_changes):
 
 
 class AdaptationFactoryTests(unittest.TestCase):
+    def test_truthful_capability_leaf_cannot_omit_changed_semantic_siblings(self):
+        mat = material(supported_candidate())
+        diffs = json.loads(mat.diff)
+        capability = next(item for item in diffs if item["path"] == "capabilities")
+        partial = {"path": "capabilities.enqueue_handoff.version",
+                   "before": capability["before"]["enqueue_handoff"]["version"],
+                   "after": capability["after"]["enqueue_handoff"]["version"]}
+        # This leaf is truthful but omits changed permission/ack/readback/coverage.
+        changed = replace(mat, diff=encoded([item if item["path"] != "capabilities" else partial for item in diffs]))
+        with self.assertRaises(FactoryDenied) as denied:
+            prepared(factory_for(changed), changed)
+        self.assertEqual(denied.exception.reason, "incomplete_diff")
+
+    def test_diff_paths_must_be_unique_complete_semantic_top_level_fields(self):
+        mat = material(supported_candidate())
+        diffs = json.loads(mat.diff)
+        capability = next(item for item in diffs if item["path"] == "capabilities")
+        leaf = {"path": "capabilities.enqueue_handoff.version",
+                "before": capability["before"]["enqueue_handoff"]["version"],
+                "after": capability["after"]["enqueue_handoff"]["version"]}
+        for label, declared, reason in (("duplicate", [*diffs, capability], "invalid_diff"),
+            ("overlapping", [*diffs, leaf], "incomplete_diff"),
+            ("foreign", [*diffs, {"path": "foreign", "before": None, "after": "claim"}], "incomplete_diff"),
+            ("missing", [item for item in diffs if item["path"] != "capabilities"], "incomplete_diff")):
+            changed = replace(mat, diff=encoded(declared))
+            with self.subTest(label=label):
+                with self.assertRaises(FactoryDenied) as denied:
+                    prepared(factory_for(changed), changed)
+                self.assertEqual(denied.exception.reason, reason)
+
     def test_proposal_is_deterministic_and_detached(self):
         mat = material()
         factory = factory_for(mat)

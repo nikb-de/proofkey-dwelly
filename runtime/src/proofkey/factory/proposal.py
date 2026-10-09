@@ -125,16 +125,18 @@ def _material_proposal(material):
         if len(diffs) > 64 or len({diff.path for diff in diffs}) != len(diffs):
             raise FactoryDenied("invalid_diff")
         before, after = baseline.model_dump(mode="json"), candidate.model_dump(mode="json")
-        for diff in diffs:
-            old, new = before, after
-            for key in diff.path.split("."):
-                old, new = old[key], new[key]
-            if diff.before != old or diff.after != new or old == new:
-                raise FactoryDenied("diff_mismatch")
+        # Complete top-level changes are review material. A truthful leaf cannot
+        # stand in for omitted changed siblings under the same semantic field.
+        # Only profile release identity and derived hash metadata are excluded;
+        # process identities/versions and all their semantics remain in processes.
         semantic_changes = {key for key in before if key not in {"profile_id", "version", "release_hash", "process_hash"}
-                            and before[key] != after[key]}
-        if {diff.path.split(".")[0] for diff in diffs} != semantic_changes:
+                            and canonical(before[key]) != canonical(after[key])}
+        if {diff.path for diff in diffs} != semantic_changes:
             raise FactoryDenied("incomplete_diff")
+        for diff in diffs:
+            if (canonical(diff.before) != canonical(before[diff.path]) or
+                    canonical(diff.after) != canonical(after[diff.path])):
+                raise FactoryDenied("diff_mismatch")
         migration = MigrationPlan.model_validate(decode(material.migration))
         affected = _affected(baseline, candidate)
         if sorted(migration.affected_contracts) != affected or len(set(migration.affected_contracts)) != len(affected):
