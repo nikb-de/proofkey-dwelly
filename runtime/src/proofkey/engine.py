@@ -7,9 +7,10 @@ visible until their scoped services are installed; no fabricated reply is used.
 from datetime import datetime, timedelta
 from contextlib import contextmanager
 from threading import get_ident
+from pydantic import TypeAdapter
 
 from .contracts import (ActionProposal, AuthContext, CanonicalRequest, CaseResult,
-                        EnvironmentProfile, PhaseCheckpoint, ReadTarget, SavedResult, ScopedReply, VerificationResult)
+                        EnvironmentProfile, Identifier, PhaseCheckpoint, ReadTarget, SavedResult, ScopedReply, VerificationResult)
 from .gateway import ActionGateway
 from .identity import request_fingerprint
 from .journal import JournalFailure
@@ -20,6 +21,10 @@ from .waits import WaitService
 from .ownership import OwnershipService
 from .packet_contracts import packet_enabled
 from .budget import BudgetExceeded
+from .processing_orchestration import ProcessingOrchestrator
+from .processing_summary import (ProcessingAttemptSummaryV1, ProcessingEntryNoteV1,
+                                 ProcessingSummaryV1)
+from .evidence.processing_contracts import canonical
 
 
 _BUSINESS = {"reschedule_window": "reschedule", "reschedule_exact": "reschedule",
@@ -42,12 +47,20 @@ def _interval(start, end):
 
 
 class WorkflowEngine:
-    def __init__(self, profile, bundle, store, clock, planner=None, evidence=None, *, gateway=None):
+    def __init__(self, profile, bundle, store, clock, planner=None, evidence=None, *, gateway=None, processing=None):
         self.profile = EnvironmentProfile.model_validate(profile.model_dump())
         self.bundle, self.store, self.clock = bundle, store, clock
         self.planner, self.evidence = planner, evidence
+        self._processing = processing
+        self._processing_bundle, self._processing_profile = bundle, self.profile
+        self._entry_note_binding, self._entry_notes = None, ()
         self.process = ProcessController(self.profile)
+        if processing is not None and type(processing) is not ProcessingOrchestrator:
+            raise ValueError("Exact processing component required")
+        if processing is not None and gateway is None:
+            gateway = processing.parent_gateway
         self._gateway = gateway if gateway is not None else ActionGateway(self.profile, bundle, store, clock)
+        self._processing_associations()
         self.waits = WaitService(self.profile, bundle, store, clock, gateway=self._gateway)
         self._owner_thread = get_ident()
         self._entry_active = False
@@ -56,6 +69,64 @@ class WorkflowEngine:
     def gateway(self):
         """The same authenticated, budgeted gateway used by every workflow."""
         return self._gateway
+
+    @property
+    def processing(self):
+        return self._processing
+
+    def _processing_associations(self):
+        component = self.processing
+        if component is not None and (type(component) is not ProcessingOrchestrator
+                or type(self.gateway) is not ActionGateway
+                or component.parent_gateway is not self.gateway
+                or component.store is not self.store or component.clock is not self.clock
+                or component.catalog is not self.evidence or component.catalog.clock is not self.clock
+                or self.gateway.store is not self.store or self.gateway.clock is not self.clock
+                or self.gateway.bundle is not self.bundle or self.bundle is not self._processing_bundle
+                or type(self.profile) is not EnvironmentProfile or type(self.gateway.profile) is not EnvironmentProfile
+                or self.gateway.profile != self.profile or self.profile != self._processing_profile):
+            raise ValueError("Original processing associations changed")
+
+    def processing_summary(self, case_id, auth, *, execution=None):
+        correlation = "invalid-request"
+        try:
+            TypeAdapter(Identifier).validate_python(case_id, strict=True)
+            correlation = case_id
+            if type(auth) is not AuthContext:
+                raise GateDenied("scope_denied")
+            auth = AuthContext.model_validate(auth.model_dump())
+            with self._execution_scope(execution) as timing:
+                saved = self.store.checkpoint(case_id)
+                checkpoint = self.gateway.authenticate_control(saved.binding, auth, purpose="recorded_state")
+                attempts = tuple(ProcessingAttemptSummaryV1(
+                    reservation.invocation_id, reservation.identity.role, reservation.status,
+                    None if receipt is None else receipt.status,
+                    None if receipt is None else receipt.mode,
+                    tuple(sorted((unit, float(amount)) for unit, amount in reservation.reserved_usage.items())),
+                    float(reservation.worst_case_cost), reservation.case_debit,
+                    reservation.role_debit, reservation.campaign_debit)
+                    for reservation, receipt in self.store.processing_attempts(checkpoint.binding))
+                if self.store.checkpoint(case_id).binding != checkpoint.binding:
+                    raise GateDenied("scope_denied")
+                self._processing_associations()
+                if self.gateway.processing_parent_timing(store=self.store, clock=self.clock) is not timing:
+                    raise GateDenied("scope_denied")
+                now, cutoff = timing.window(min(checkpoint.deadline, checkpoint.budget.deadline))
+                if now >= cutoff:
+                    raise GateDenied("scope_denied")
+                notes = self._entry_notes if self._entry_note_binding == checkpoint.binding else ()
+                return ProcessingSummaryV1(canonical(checkpoint.binding.model_dump(mode="json")), now, attempts, notes)
+        except (GateDenied, JournalFailure, BudgetExceeded, ValueError, TypeError):
+            return self._public_denial(correlation)
+
+    def _clear_entry_note(self):
+        # A rejected foreign/recursive caller cannot mutate the owner's entry.
+        if get_ident() == self._owner_thread and not self._entry_active:
+            self._entry_note_binding, self._entry_notes = None, ()
+
+    def _note_entry(self, binding, kind, reason=None):
+        self._entry_note_binding = binding
+        self._entry_notes = (ProcessingEntryNoteV1(kind, reason),)
 
     @staticmethod
     def _public_denial(case_id, reason="denied"):
@@ -70,6 +141,7 @@ class WorkflowEngine:
         """
         if get_ident() != self._owner_thread or self._entry_active:
             raise GateDenied("scope_denied")
+        self._processing_associations()
         self._entry_active = True
         try:
             yield
@@ -125,6 +197,7 @@ class WorkflowEngine:
             return self._gateway.execute_operator_decision(decision_id, intent, auth)
 
     def run(self, request, auth, *, execution=None):
+        self._clear_entry_note()
         case_id = request.case_id if isinstance(request, CanonicalRequest) else "invalid-request"
         try:
             with self._execution_scope(execution) as timing:
@@ -134,6 +207,8 @@ class WorkflowEngine:
                 auth = AuthContext.model_validate(auth.model_dump())
                 replay = ReplayService(self.profile, self.bundle, self.store, self.clock)._lookup_in_scope(request, auth, timing)
                 if replay is not None:
+                    if replay.status == "authorized" and replay.historical:
+                        self._note_entry(replay.binding, "recorded_replay")
                     return replay
                 # None permits only the independent fresh gate below, preserving
                 # exact unfinished input/phase and its shared accounting.
@@ -147,9 +222,11 @@ class WorkflowEngine:
                     return self._public_denial(case_id, "unavailable")
                 return self._drive(checkpoint, original, auth)
         except (GateDenied, JournalFailure, BudgetExceeded, ValueError, TypeError):
+            self._clear_entry_note()
             return self._public_denial(case_id)
 
     def recover(self, case_id, auth, *, execution=None):
+        self._clear_entry_note()
         try:
             with self._execution_scope(execution):
                 if not isinstance(auth, AuthContext):
@@ -175,9 +252,11 @@ class WorkflowEngine:
                     return self._public_denial(case_id, "unavailable")
                 return self._drive(checkpoint, original, auth, recovering=True)
         except (GateDenied, JournalFailure, BudgetExceeded, ValueError, TypeError):
+            self._clear_entry_note()
             return self._public_denial(case_id)
 
     def reply(self, reply, auth, *, execution=None):
+        self._clear_entry_note()
         case_id = reply.binding.case_id if isinstance(reply, ScopedReply) else "invalid-reply"
         try:
             with self._execution_scope(execution):
@@ -196,6 +275,7 @@ class WorkflowEngine:
                     return self.build_case_result(self._save(checkpoint, processing_status="unavailable"))
                 return self._drive(checkpoint, original, auth)
         except (GateDenied, JournalFailure, BudgetExceeded, ValueError, TypeError):
+            self._clear_entry_note()
             return self._public_denial(case_id)
 
     def stop(self, case_id, generation, auth, *, execution=None):
@@ -463,7 +543,9 @@ class WorkflowEngine:
             return self._external(checkpoint, request, operation, reconcile=True)
         if phase == "extraction" and (request.evidence_ids or (request.narrative and request.narrative.strip())):
             self._selected(checkpoint, "check_completeness")
-            return self._pause(checkpoint, request)
+            paused = self._pause(checkpoint, request)
+            self._note_entry(paused.binding, "unavailable", "input_unavailable")
+            return paused
         if phase == "read_authority":
             operation = {"reschedule_window": "check_window", "reschedule_exact": "find_exact_slot"}.get(request.kind, "check_refusal")
         elif phase == "slot_selection":
