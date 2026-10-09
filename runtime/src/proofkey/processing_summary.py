@@ -1,6 +1,6 @@
 """Detached processing status/debt, never content, permission or spend evidence."""
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import math
 from typing import Literal
 from pydantic import TypeAdapter
@@ -98,6 +98,7 @@ class ProcessingSummaryV1:
         model_bytes(RequestBinding, self.binding_bytes)
         if type(self.as_of) is not datetime or self.as_of.utcoffset() != timedelta(0):
             raise ValueError("Aware UTC observation required")
+        object.__setattr__(self, 'as_of', self.as_of.replace(tzinfo=timezone.utc))
         if type(self.attempts) is not tuple or type(self.entry_local) is not tuple or len(self.entry_local) > 1:
             raise ValueError("Exact immutable inventory and one local note required")
         for attempt in self.attempts:

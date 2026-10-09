@@ -3,7 +3,7 @@ from test_engine_processing import (EngineFixture, compose, ProcessingSummaryV1,
     EvidenceAccessDenied, make_fixture_campaign, ProcessorIdentity, InvocationRequest,
     AssertionsOutput, EvidenceAssertion, UnknownLocator, ProcessingReceipt, output_digest)
 from dataclasses import FrozenInstanceError
-from datetime import timedelta, timezone
+from datetime import timedelta, timezone, tzinfo
 import json
 import unittest
 import threading
@@ -15,6 +15,36 @@ from support import NOW, make_binding
 
 
 class PureProcessingProjectionTests(unittest.TestCase):
+    def test_as_of_detaches_mutable_timezone_and_preserves_utc_instant(self):
+        class MutableTimezone(tzinfo):
+            def __init__(self):
+                self.offset, self.daylight, self.name = timedelta(0), timedelta(0), 'initial'
+
+            def utcoffset(self, value):
+                return self.offset
+
+            def dst(self, value):
+                return self.daylight
+
+            def tzname(self, value):
+                return self.name
+
+        original_timezone = MutableTimezone()
+        original = NOW.replace(tzinfo=original_timezone)
+        original_instant = original.timestamp()
+        summary = ProcessingSummaryV1(canonical(make_binding().model_dump(mode='json')),
+            original, (), ())
+        original_timezone.offset = timedelta(hours=3)
+        original_timezone.daylight = timedelta(hours=1)
+        original_timezone.name = 'mutated'
+        self.assertEqual(original.utcoffset(), timedelta(hours=3))
+        self.assertEqual(summary.as_of.utcoffset(), timedelta(0))
+        self.assertEqual(summary.as_of.timestamp(), original_instant)
+        self.assertEqual(summary.as_of.isoformat(), NOW.isoformat())
+        self.assertIs(summary.as_of.tzinfo, timezone.utc)
+        self.assertEqual(summary.as_of.tzname(), 'UTC')
+        self.assertIsNone(summary.as_of.dst())
+
     def attempt(self, **changes):
         fields = dict(invocation_id='i', role='extraction', reservation_status='consumed',
             receipt_status=None, mode=None, reserved_usage=(('tokens', 2.0),),
