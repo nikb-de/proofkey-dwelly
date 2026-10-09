@@ -1,10 +1,10 @@
 # Trusted synthetic replay cases — J06 evidence
 
-Status: **installed acceptance passed; final full regression, independent whole-change review and archival pending**. This is a bounded trusted Python integration hook. J06 is not yet closed. No general release-verifier, native-service, human-approval or timed-adaptation claim follows.
+Status: **installed acceptance and scoped final-fix re-review passed; final full regression and archival pending**. This is a bounded trusted Python integration hook. J06 is not yet closed. No general release-verifier, native-service, human-approval or timed-adaptation claim follows.
 
 ## Candidate and target
 
-Executable acceptance candidate: `da11e76cb83d09ff5d438ecdbbc5fbd281001f7a`, including the two reviewed failure-path fixes and native-WAL readback regression. Preparation/configuration implementation remains unchanged through `e4b3b41`. Later changes to this verification document and the support register are documentation only, outside `runtime/`.
+Executable acceptance candidate: `80e0d6f503639397173a6a12b72afc6b78d623db`, including the reviewed failure-path fixes, native-WAL readback regression and final configuration/input fixes. Configuration now pins fixture ancestry and identity across release validation and a bounded no-follow/nonblocking read. Preparation rejects actual CR (U+000D), including CRLF/bare-CR formatting, as `invalid_input` before allocation because the unchanged admission text reader normalizes it. JSON-escaped `\r` string content remains accepted; accepted source bytes are never transformed. Later changes to this verification document and the support register are documentation only, outside `runtime/`.
 
 Observed target: CPython 3.12.14, macOS 26.5.2 arm64. A fresh virtual environment outside the checkout installed the existing nineteen pinned runtime/API wheels plus the separately staged setuptools 84.0.0 build backend. All twenty artifact hashes were validated before use; there was no dependency acquisition, network request or provider/model invocation.
 
@@ -12,7 +12,7 @@ The reusable command is:
 
 ```text
 SOURCE_PYTHON -I -B runtime/scripts/verify_synthetic_provisioning.py
-  --commit da11e76cb83d09ff5d438ecdbbc5fbd281001f7a
+  --commit 80e0d6f503639397173a6a12b72afc6b78d623db
   --wheelhouse ABSOLUTE_EXISTING_WHEELHOUSE
   --dependency-receipt ABSOLUTE_EXISTING_ARTIFACT_RECEIPT
   --output ABSOLUTE_NEW_PRIVATE_DIRECTORY
@@ -24,23 +24,27 @@ Both complete output bundles were also retained in a private workspace evidence 
 
 The review-fix attempts are retained separately: 205 files from attempt 3 and 204 from attempt 4, each byte-identical to its original. Their additional retention manifest SHA-256 is `399c89e27577cd858ae84024b807bafda72d75aacf262dcc31ad1026dac4160b`; the first manifest and all original receipts remain unchanged.
 
+The final-review fix candidate has a fresh attempt 5: all 204 files were copied and independently rehashed against their originals. Its additional retention manifest SHA-256 is `3c0d3e7e279334b33abac6e7024eb97f7cbcef003ccb735e87671a41c40dfff2`. All earlier attempts and manifests remain intact.
+
 ## Build and installed receipt inventory
 
 The driver staged `git archive` of the exact candidate, built wheel and sdist in separate backend processes, checked source/data membership, rebuilt the sdist, and compared every wheel member's semantic bytes. Exact inventories contain 103 wheel members and 114 sdist members. The new Python module ships; the external examples, tests, databases and private evidence do not appear in the wheel. The thirteen existing schema/profile/fixture resources remain exact.
 
 | Artifact | SHA-256 |
 | --- | --- |
-| Source archive | `5c03917adacfc0137ee0862811602105b18c8ee467a5f57f69eb1de8a0f03f03` |
-| Wheel | `405b066977e99e647c6bf33e295b4957d608c48132b911f0218edb950a443682` |
-| Sdist | `6deecbe964648045e0ddd3006369fe96da4792ecdfaeb2ea2710284ee27b4ed7` |
-| Wheel rebuilt from sdist | `b5f6dba1e79e8e18effca45ffb1f5d9099dec7a06890a686c3594827ff0770bf` |
+| Source archive | `8220b8e1f4c0008ba36f3e53312d3b762686c0530df0a912faecbbb7210e5e08` |
+| Wheel | `a213f5c057b353837c7aed95b974c01e93b1efaf9c7c96cfc27ec1820c53ed98` |
+| Sdist | `32c60c896667f8670fe154a10da4e56906bd1f44f8ea33ba7c940e3c1cb4fbe5` |
+| Wheel rebuilt from sdist | `a213f5c057b353837c7aed95b974c01e93b1efaf9c7c96cfc27ec1820c53ed98` |
 | Existing dependency receipt | `38cc4f39d3b642d669fa90c03d8a2598eaf98def0766a710b3cf551aa3a78f09` |
-| Final build/install receipt | `7a1df5785074695f682cd5bd5220a105e37cb2104ca3582156abd131eefb70a3` |
-| Final installed probe receipt | `06cd0051c570a7f014b67f5c720133724021e6614a38e8a019b4fbd572ceb2a8` |
+| Final build/install receipt | `ca6754fc6dc47c2683c9ffef74bd35e359b266e18662865221a363474a8df9fe` |
+| Final installed probe receipt | `a15b45de39266f7379f3431429344b498ed4be7931e569d752cc2e4083a2872f` |
 
-The original and rebuilt wheel archive hashes differ; every extracted member is byte-identical. This is semantic reproduction, not a claim of byte-identical ZIP serialization. All eleven recorded build/install/probe commands exited 0, including `pip check`; the installed probe took 20.549 seconds. Existing manifest-exclusion and disabled-byte-compilation warnings remain in raw build stderr. The output is not described as warning-free.
+Every original/rebuilt wheel member is byte-identical. The two archive hashes also happen to match in attempt 5; earlier attempts differed, so deterministic ZIP serialization is not established. All eleven recorded build/install/probe commands exited 0, including `pip check`; the installed probe took 20.853 seconds. Existing manifest-exclusion and disabled-byte-compilation warnings remain in raw build stderr. The output is not described as warning-free.
 
 The probe ran with `-I -B`, no source/test `PYTHONPATH`, and no user site. All 59 loaded ProofKey modules resolved inside the new environment. All 1,733 inventoried site-packages files and all external example inputs remained unchanged after positive and negative execution.
+
+A separate post-run rehash confirmed all 1,733 installed files and all 272 original staged runtime files still match their recorded inventories.
 
 ## Positive denominator: four fresh positions
 
@@ -79,10 +83,14 @@ The staged-fixture corruption uses its own fresh negative preparation, never the
 
 The acceptance-first check failed at the missing external preparation seam. First committed installed attempt `aa9a209` built/installed successfully and executed all four cases with authorized results and owner closure, but **0/4 passed the complete checker**: its SQL claim join incorrectly expected a top-level wire `case_id`, which is nested under `request`. All seven negative positions passed. That attempt, raw results and databases remain retained; its build receipt hash is `b5f63cf32cb7d4524de7dc9487379dcdfb42a19a8144efd46a4bbe25c8295bca`. A fresh corrected `c26d743` build then passed all eleven positions.
 
-Independent review subsequently found two gaps in reusable failure handling: wrong-proof acceptance needed mandatory close and exact retained-state assertions; exceptional library completion needed to preserve original errors and actual close evidence. Candidate `ba0d520` implemented both, but installed attempt 3 passed 4/4 positives and only 6/7 negatives: repeated read-only connections created an empty WAL coordination sidecar that the later connection rejected. Candidate `da11e76` reads each database once for counts and decoding, keeping the WAL safety guard intact; fresh attempt 4 passed 4/4 positives and 7/7 negatives. Separate read-only reanalysis of a controlled copy of attempt 3's denied state also passed, but is not counted as an execution. Across all four attempts the retained denominator is **16 positive attempts (12 complete-check passes) and 28 negative attempts (27 passes)**. Current acceptance refers only to attempt 4.
+Independent review subsequently found two gaps in reusable failure handling: wrong-proof acceptance needed mandatory close and exact retained-state assertions; exceptional library completion needed to preserve original errors and actual close evidence. Candidate `ba0d520` implemented both, but installed attempt 3 passed 4/4 positives and only 6/7 negatives: repeated read-only connections created an empty WAL coordination sidecar that the later connection rejected. Candidate `da11e76` reads each database once for counts and decoding, keeping the WAL safety guard intact; fresh attempt 4 passed 4/4 positives and 7/7 negatives. Separate read-only reanalysis of a controlled copy of attempt 3's denied state also passed, but is not counted as an execution. Through those four historical attempts the denominator was **16 positive attempts (12 complete-check passes) and 28 negative attempts (27 passes)**. Those receipts remain evidence for their exact candidates; current attempt 5 is recorded below.
 
 The authorized durable regression file adds seven targeted tests, all passing in 3.141 seconds on the final fix source. It covers absent/pending shutdown; twelve independent copied-state mutations; preparation mapping before a raised library command; retained actual shutdown; pending/failed close without replacing the original exception; and native-WAL-format single-read behavior. Earlier RED runs reproduced the gaps, including a dedicated native-WAL failure before its fix. Final targeted log SHA-256: `e1e822190edf3cd6ad8888e11c74258ca70307d50687818c5e50187c1e939d8a`. These controlled fault tests do not claim an actually stuck runtime owner. Exception diagnostics remain private application data, not a new product wire API.
 
 Task 1–3 focused regression result: **268 tests passed in 227.834 seconds**, exit 0, with no failures, errors or skips. The ten-file group covers preparation, trusted CLI, existing CLI/API parity and boundaries, host/admission, route foundation and release manifest. Raw log SHA-256: `e8cdf7461322ec640b44f56cc28e17df0dba571f3cc6bf4deda915f2e3752104`. Existing diagnostic JSON remains in the log. Source/tests/resources were unchanged during this group; only the external checker changed from `aa9a209` to `c26d743`. No full-suite count is inferred from the historical 1,696-test baseline.
 
-Frozen full regression: **pending controller receipt**. Independent whole-change review: **pending**. Strict final OpenSpec validation and child archival: **pending**. J06 remains open until these gates complete. J14, general release verification, registered recover/reply/stop, native integrations, media, real review, timed adaptation, migration, other platforms and event readiness remain open or excluded.
+Final whole-change review found the unsafe configuration reread, CR representation mismatch and inaccurate batch wording. The consolidated fix at `80e0d6f` has **66 focused tests passing in 55.425 seconds**, including four new tests; the targeted RED recorded 13 failing subtests, then the same four tests passed in 14.677 seconds. Focused log SHA-256: `8277ff3735efd9d49b4f45ee84f046a103685652a07fa10ffc3cbbd1ca4065e5`. These results supersede no earlier evidence and are not a full-suite result. The controller reports the scoped fix re-review approved with all three findings addressed and no new breakage.
+
+Fresh installed attempt 5 at `80e0d6f` passed **4/4 positives and 7/7 negatives**. Across all five attempts the denominator is **20 positive attempts (16 complete-check passes) and 35 negative attempts (34 passes)**. Only attempt 5 is current-candidate installed acceptance; previous failures and successful historical candidates remain retained.
+
+Frozen full regression: **pending controller receipt**. Strict final OpenSpec validation and child archival: **pending**. J06 remains open until these gates complete. J14, general release verification, registered recover/reply/stop, native integrations, media, real review, timed adaptation, migration, other platforms and event readiness remain open or excluded.

@@ -16,8 +16,9 @@ J06 adds an opt-in trusted Python hook: `SyntheticCaseReleaseSpecV1`,
 `prepare_synthetic_release` and `configure_registered_cli`. The application
 separately supplies a review resolver and transport resolver, then explicitly
 selects its prepared release through the existing library or `cli.main` API.
-Candidate `da11e76` passed four fresh installed new-case positions and seven
-negative positions; final full regression and independent review remain pending.
+Candidate `80e0d6f` passed four fresh installed new-case positions and seven
+negative positions. Scoped final-fix re-review passed; final full regression
+and archival remain pending.
 See [J06 verification](../2026-10-09-trusted-replay-cases.md) for the failed earlier
 checker attempt, exact target, hashes, return-initiation boundary and remaining
 gates. No public authority flag, manifest launcher, native connector or API
