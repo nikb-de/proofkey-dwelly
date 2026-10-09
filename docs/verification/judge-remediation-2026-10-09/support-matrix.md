@@ -6,7 +6,7 @@ Prepared 2026-10-09 from source and test inspection; that discovery pass did not
 
 Start with the [compact README support and evidence map](../../../runtime/README.md#support-and-evidence-map). This document retains the detailed dated audit; source/line references below are historical unless explicitly refreshed here. J13 `5bc38c8` records eight installed fixed-case positions; J06 `80e0d6f` records four installed trusted-case positives and seven negatives, with all attempts retained in its report. Neither qualifies later source changes.
 
-The [trace report](../2026-10-10-safe-evidence-trace.md) records source candidate `7b4c6e2`: two source captures, completed focused checks/reviews and frozen regression pending. Its renderer is an `unverified_receipt_projection`: dispatch unknown, original readback not observed and current publication files unchecked. It has no installed qualification. Registered `fixed-synthetic-v1` remains run-only; separate observed-route stop-v2 is in development / not qualified. Six offline interfaces remain distinct from live integrations and complete port coverage.
+The [trace report](../2026-10-10-safe-evidence-trace.md) records source candidate `7b4c6e2`: two source captures, completed focused checks/reviews, all 1,798 frozen regression tests passed and child archived. Its renderer is an `unverified_receipt_projection`: dispatch unknown, original readback not observed and current publication files unchecked. It has no installed qualification. Registered `fixed-synthetic-v1` remains run-only; separate observed-route stop-v2 is in development / not qualified. Six offline interfaces remain distinct from live integrations and complete port coverage.
 
 ## Installed-target addendum — 2026-10-09
 

@@ -1,6 +1,6 @@
 # Safe evidence trace and quickstart — J23/J24
 
-Status: **implementation, scoped reviews and independent whole-leaf review complete; frozen regression pending**. This is an offline, content-free projection of a supplied receipt, not independent proof of dispatch, readback, publication or business correctness.
+Status: **complete and archived for this bounded source-only scope**. Implementation, scoped reviews, independent whole-leaf review and frozen regression passed. This is an offline, content-free projection of a supplied receipt, not independent proof of dispatch, readback, publication or business correctness.
 
 ## Exact scope
 
@@ -53,8 +53,16 @@ The first frozen full-suite attempt at `58dd1fe` was deliberately terminated aft
 
 Independent whole-leaf review approved exact candidate `7b4c6e2` for specification compliance and code quality with no Critical, Important or Minor findings. Review of the supplied complete leaf diff is not a whole-system security audit. No test suite was rerun by the reviewer.
 
-The new full suite runs on `git archive` of `7b4c6e2`, with copied runtime hashes checked before and after. Further worktree changes cannot alter that candidate. The qualified interpreter/dependencies are reused; third-party environment state is not fully frozen. Final result and retained review links will be recorded before this leaf is closed.
+The final full suite ran on `git archive` of `7b4c6e2`: **1,798 tests passed, zero failures/errors/skips**, 1,006.163 test seconds (1,007.464 elapsed seconds), exit 0. All **277 runtime files** matched their copied hashes before and after. The worktree advanced to `64dd1a9` during execution, but could not change the archived candidate. The qualified interpreter/dependencies were reused; third-party environment state was not fully frozen. The inherited macOS temporary directory allowed the actual `/var` alias test to execute without a skip.
+
+The [final receipt](../../outputs/proofkey-safe-trace-full-7b4c6e2/receipt.json), [complete test log](../../outputs/proofkey-safe-trace-full-7b4c6e2/stderr.txt), [stdout](../../outputs/proofkey-safe-trace-full-7b4c6e2/stdout.txt) and [source inventory](../../outputs/proofkey-safe-trace-full-7b4c6e2/source-before.json) are retained. Archive SHA-256: `70119802243ec8c1cf929411d937bebc0fa05272c18addfec54ef198ea604763`. Both before/after inventory files hash to `ea93958ae10e8ebc629c47ed25250d01fa5cc2e44a82998a4addf082adad81ec`; stderr hashes to `f7664fa92a040723f80746cc76073b9ddb621be571142c20e67eb40c6a39b52b`, stdout to `6f0db3c23c92f74304ab26470c33f4be8c227af80f7c11a3e5f88b7011a22477`.
+
+The receipt SHA-256 is `1adbeeebbf53a81ad36b918e3045e50daf6a9899b5a0f9b4ad686daaf83b2685`. Strict change validation passed. The [completed child](../../openspec/changes/archive/2026-10-09-safe-evidence-trace/tasks.md) was archived with all four requirements synced to the [living specification](../../openspec/specs/safe-evidence-trace/spec.md). The archive's date uses the CLI's UTC date, while this report uses the London event date.
+
+## Retained review records
+
+The [retention manifest](../../outputs/proofkey-safe-trace-20261010/retention.json) hashes 25 copied review/plan/helper records and 705 existing evidence files, including both full-suite attempts and portable guide captures. Manifest SHA-256: `6eda782e9c7d65497abfadb03bde02e5af1012e092953bf555746d33cba0c1bf`. The [whole-leaf review](../../outputs/proofkey-safe-trace-20261010/whole-leaf-review.md) and [closure review](../../outputs/proofkey-safe-trace-20261010/closure-review.md) both report C0/I0/M0 within their stated scopes. Closure review checked the actual receipt/log/archive hashes, 277 unchanged source files, all 18 then-added local links, 13/19 register counts and archive/living-spec consistency. Postarchive strict OpenSpec validation passed all 11 items. These retained files are local evidence, not an external publication.
 
 ## Remaining boundaries
 
-No production qualification, independent readback from trace output, transport dispatch proof, actual payment/refund, physical receipt, live integration, native provider, Linux/Windows result or human usability evidence is claimed. J08 broader support-document review and J21 unfamiliar-engineer validation remain open. J23/J24 can close only for this narrow implemented path after the final review, full regression and OpenSpec archive; the parent remediation program remains open.
+No production qualification, independent readback from trace output, transport dispatch proof, actual payment/refund, physical receipt, live integration, native provider, Linux/Windows result or human usability evidence is claimed. [J08 support-document review](2026-10-10-public-support-boundaries.md) is separately complete; J21 unfamiliar-engineer validation remains open. J23/J24 are closed only for this narrow implemented path; the parent remediation program and stop-v2 qualification remain open.

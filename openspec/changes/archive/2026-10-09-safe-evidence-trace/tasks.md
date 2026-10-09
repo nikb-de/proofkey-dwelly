@@ -11,5 +11,5 @@
 
 ## 3. Evidence and closure
 
-- [ ] 3.1 Run frozen full regression and strict OpenSpec validation; retain source inventory, command/exit output and limitations.
-- [ ] 3.2 Update exact J23/J24 scope, keep other open gates visible, and archive this completed child only.
+- [x] 3.1 Run frozen full regression and strict OpenSpec validation; retain source inventory, command/exit output and limitations.
+- [x] 3.2 Update exact J23/J24 scope, keep other open gates visible, and archive this completed child only.
