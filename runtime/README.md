@@ -24,6 +24,23 @@ From a fresh working directory, clear `PYTHONPATH` and use the environment's `pr
 
 No fresh Linux/Windows run, zipped/frozen execution, unfamiliar-engineer study, complete release verifier, native provider connection or distribution-rights clearance is implied. Artifact locations and hashes are in the verification report; no automatic download or public server is needed to run the offline cases.
 
+## Trusted new synthetic cases
+
+The optional [external Python bootstrap](examples/registered_case_bootstrap.py) reads
+independent structured requests and source fixtures, then uses the installed
+`SyntheticCaseReleaseSpecV1`, `prepare_synthetic_release` and
+`configure_registered_cli` APIs. Preparation creates a private artifact, not
+execution authority. The application separately supplies a synthetic review
+grant and transport resolver before calling the existing library or CLI entrypoint.
+
+See [the two literal examples and usage](examples/registered-cases/README.md).
+Their acceptance requires four fresh installed positions, exact persisted
+effects/claim/route/export joins and actual owner closure. Current evidence and
+remaining gates are in [J06 verification](../docs/verification/2026-10-09-trusted-replay-cases.md).
+These examples stay outside site-packages; the default CLI and its two fixed
+releases remain unchanged. This is a trusted Python integration hook, not a
+standalone configuration-file launcher, native integration or human approval.
+
 ## Source-checkout quickstart
 
 Python **>=3.11** is declared in [pyproject.toml](pyproject.toml); only the installed target above has current installation evidence. Other interpreters/platforms remain unqualified. These source examples require the runtime dependencies to be already available to `python3`: pydantic 2.13.5, pillow 12.3.0, pypdf 6.10.0 and their dependencies. They select source explicitly, unlike the clean installed checks.
