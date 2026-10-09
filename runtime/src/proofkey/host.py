@@ -3,6 +3,7 @@ from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from hashlib import sha256
+import json
 import math
 import os
 from pathlib import Path
@@ -12,7 +13,7 @@ import uuid
 import weakref
 
 from .adapters.world import SimulatedWorld
-from .contracts import AuthContext, CaseResult, SavedResult
+from .contracts import AuthContext, CaseResult, SavedResult, EnvironmentProfile
 from .engine import WorkflowEngine
 from .execution import ExecutionContext
 from .host_contracts import (CommandInventoryV1, CommandReceiptV1, DetachedProfileViewV1, ExecutionWindowV1,
@@ -20,7 +21,7 @@ from .host_contracts import (CommandInventoryV1, CommandReceiptV1, DetachedProfi
 from .host_files import HostInventory, InventoryFailure, _directory, _read
 from .identity import fingerprint, request_fingerprint
 from .journal import CaseStore
-from .profiles import load_profile
+from .profiles import validate_profile
 
 _ROOT = Path(__file__).resolve().parents[2]
 _PROFILE_RAW = "8fcd07924f5518ffa6e8b7cfcb3d773e8ba9f10d48458031132f8749c177a940"
@@ -37,8 +38,18 @@ def _pinned(path, expected):
         data = _read(parent, path.name, 1048576)
         if sha256(data).hexdigest() != expected:
             raise ValueError("Registered host resource unavailable")
+        return data
     finally:
         os.close(parent)
+
+
+def _profile_pairs(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("Duplicate registered profile field")
+        result[key] = value
+    return result
 
 
 @dataclass(frozen=True, slots=True)
@@ -77,9 +88,10 @@ class ApprovedProfileRelease:
             process_hash=self.process_hash, policy_hash=self.policy_hash, fixture_hash=self.fixture_hash)
 
     def validate(self):
-        _pinned(self.profile_path, self.profile_file_hash)
+        profile_bytes = _pinned(self.profile_path, self.profile_file_hash)
         _pinned(self.fixture_path, self.fixture_hash)
-        profile = load_profile(self.profile_path)
+        profile = validate_profile(EnvironmentProfile.model_validate(
+            json.loads(profile_bytes.decode("utf-8"), object_pairs_hook=_profile_pairs)))
         if (profile.profile_id, profile.version, profile.release_hash, profile.process_hash, profile.policy_hash) != (
                 self.profile_id, self.profile_version, self.profile_hash, self.process_hash, self.policy_hash):
             raise ValueError("Registered host release mismatch")
@@ -186,6 +198,7 @@ class RuntimeFactory:
         store = None
         try:
             profile = release.validate()
+            fixture_bytes = _pinned(release.fixture_path, release.fixture_hash)
             _resource_directory(release.resource_root)
             # Refuse preexisting symlink/foreign alias database targets.
             root = _directory(release.resource_root)
@@ -200,7 +213,8 @@ class RuntimeFactory:
                         raise ValueError("Invalid owned runtime database")
             finally:
                 os.close(root)
-            world = SimulatedWorld(release.resource_root / "world.sqlite", release.fixture_path, profile=profile, clock=clock)
+            world = SimulatedWorld(release.resource_root / "world.sqlite", release.fixture_path,
+                                   profile=profile, clock=clock, fixture_bytes=fixture_bytes)
             store = CaseStore(release.resource_root / "journal.sqlite")
             engine = WorkflowEngine(profile, world.bundle(), store, clock)
             release.validate()
@@ -254,7 +268,7 @@ class HostDispatcher:
         self._publication_lock = threading.Lock()
         self._handle_lock = threading.Lock()
         self._handles = weakref.WeakKeyDictionary()
-        self._queue, self._pending = deque(), {}
+        self._queue, self._finalize_queue, self._pending = deque(), deque(), {}
         self._closing = self._owner_closed = self._inventory_failed = False
         self._admitting = self._publishing = self._sequence = 0
         self._resources = None
@@ -351,6 +365,17 @@ class HostDispatcher:
                 self._pending.pop(state.command_id, None)
                 self._condition.notify_all()
 
+    def _cancel_locked(self, state, outcome, failure):
+        # Called under the dequeue Condition. Prevention is not durable completion.
+        if state.phase == "queued":
+            self._queue.remove(state)
+        state.phase = "cancelled"
+        state.outcome, state.failure = outcome, failure
+        state.proof_handle = None
+        state.inventory_status = "partial"
+        self._finalize_queue.append(state)
+        self._condition.notify_all()
+
     def _terminal(self, state, outcome, failure):
         state.outcome, state.failure = outcome, failure
         state.proof_handle = None
@@ -409,14 +434,11 @@ class HostDispatcher:
             self._admitting -= 1
             self._pending[state.command_id] = state
             if self._closing:
-                state.phase = "cancelled"
-                state.outcome, state.failure = "cancelled_before_start", "cancelled_before_start"
+                self._cancel_locked(state, "cancelled_before_start", "cancelled_before_start")
             else:
                 state.phase = "queued"
                 self._queue.append(state)
                 self._condition.notify_all()
-        if state.phase == "cancelled":
-            self._finish(state)
         return handle
 
     def _receipt(self, state, outcome=None):
@@ -442,24 +464,22 @@ class HostDispatcher:
     def wait(self, submission):
         self._external_entry()
         state = self._state(submission)
-        if state.done.is_set():
-            return self._receipt(state)
+        with self._condition:
+            if state.done.is_set() or state.phase == "cancelled":
+                return self._receipt(state)
         try:
             remaining = state.execution.remaining_seconds(self.clock)
         except (ValueError, TypeError, OSError):
             remaining = 0.0
-        state.done.wait(max(0.0, remaining))
         with self._condition:
-            if state.done.is_set():
+            self._condition.wait_for(lambda: state.done.is_set() or state.phase == "cancelled", max(0.0, remaining))
+            if state.done.is_set() or state.phase == "cancelled":
                 return self._receipt(state)
             if state.phase == "queued":
-                state.phase = "cancelled"
-                self._queue.remove(state)
-                state.outcome, state.failure = "expired", "deadline_exceeded"
+                self._cancel_locked(state, "expired", "deadline_exceeded")
+                return self._receipt(state)
             else:
                 return self._receipt(state, "started_pending")
-        self._finish(state)
-        return self._receipt(state)
 
     def submit(self, command, proof_handle, execution):
         return self.wait(self.enqueue(command, proof_handle, execution))
@@ -470,10 +490,7 @@ class HostDispatcher:
         with self._condition:
             if state.phase != "queued":
                 return False
-            state.phase = "cancelled"
-            self._queue.remove(state)
-            state.outcome, state.failure = "cancelled_before_start", "cancelled_before_start"
-        self._finish(state)
+            self._cancel_locked(state, "cancelled_before_start", "cancelled_before_start")
         return True
 
     def _execute(self, state):
@@ -523,20 +540,28 @@ class HostDispatcher:
         try:
             while True:
                 with self._condition:
-                    while not self._queue:
+                    while not self._queue and not self._finalize_queue:
                         if self._closing and not self._admitting and not self._publishing and not self._pending:
                             return
                         self._condition.wait()
-                    state = self._queue.popleft()
-                    state.phase = "started"
-                    clock_failed = False
-                    try:
-                        state.started_at = self._now()
-                    except Exception:
-                        state.phase = "finishing"
-                        state.outcome, state.failure = "denied", "scope_denied"
-                        clock_failed = True
-                if clock_failed:
+                    if self._finalize_queue:
+                        state = self._finalize_queue.popleft()
+                        finalize_only = True
+                    else:
+                        state = self._queue.popleft()
+                        finalize_only = False
+                    if finalize_only:
+                        clock_failed = False
+                    else:
+                        state.phase = "started"
+                        clock_failed = False
+                        try:
+                            state.started_at = self._now()
+                        except Exception:
+                            state.phase = "finishing"
+                            state.outcome, state.failure = "denied", "scope_denied"
+                            clock_failed = True
+                if finalize_only or clock_failed:
                     self._finish(state)
                     continue
                 try:
@@ -574,13 +599,9 @@ class HostDispatcher:
         with self._condition:
             self._closing = True
             cancelled = tuple(self._queue)
-            self._queue.clear()
             for state in cancelled:
-                state.phase = "cancelled"
-                state.outcome, state.failure = "cancelled_before_start", "cancelled_before_start"
+                self._cancel_locked(state, "cancelled_before_start", "cancelled_before_start")
             self._condition.notify_all()
-        for state in cancelled:
-            self._finish(state)
         remaining = max(0.0, min((shutdown_cutoff - self._now()).total_seconds(), allowance - (self._monotonic() - anchor)))
         self._thread.join(remaining)
         finished, elapsed = self._now(), self._monotonic() - anchor

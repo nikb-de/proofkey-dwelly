@@ -12,12 +12,13 @@ import unittest
 from unittest.mock import patch
 
 from proofkey.clock import SyntheticReplayClock
-from proofkey.contracts import AuthContext, ScopedReply
+from proofkey.contracts import AuthContext, ScopedReply, ReadRequest, ReadTarget
 from proofkey.execution import ExecutionContext
 from proofkey.host import AuthResolver, HostDispatcher, ProfileRegistry, RuntimeFactory, RuntimeResources
 from proofkey.host_contracts import HostLimitsV1
-from proofkey.host_files import read_inventory
+from proofkey.host_files import HostInventory, read_inventory
 import proofkey.host_files as host_files
+import proofkey.host as host_module
 from proofkey.adapters.world import SimulatedWorld
 from proofkey.journal import CaseStore
 from test_host_contracts import request
@@ -94,6 +95,309 @@ class HostTests(unittest.TestCase):
                            ("customer.consent_mode", "unknown"), ("delivery.status", "delivered")):
             before["facts"][key]["value"] = value
         self.assertEqual(before, after)
+
+    def test_close_cutoff_does_not_wait_for_owner_publication_and_preserves_pending_cancellation(self):
+        factory_entered, factory_release = threading.Event(), threading.Event()
+        publication_entered, publication_release = threading.Event(), threading.Event()
+        caller_done = threading.Event()
+        results, errors = [], []
+        class BlockingFactory(ObservedFactory):
+            def create(inner, entry, clock):
+                factory_entered.set()
+                if not factory_release.wait(3):
+                    raise RuntimeError("task-local factory barrier timed out")
+                return super().create(entry, clock)
+        factory = BlockingFactory()
+        actual_publish = HostInventory.publish
+        def forward_publish(inventory, sequence, phase, value):
+            if sequence == 1 and phase == "finished":
+                publication_entered.set()
+                if not publication_release.wait(3):
+                    raise RuntimeError("task-local publication barrier timed out")
+            return actual_publish(inventory, sequence, phase, value)
+        caller = None
+        with patch.object(HostInventory, "publish", forward_publish), patch.object(
+                self.resolver, "resolve", wraps=self.resolver.resolve) as resolve:
+            dispatcher = self.dispatcher(factory=factory)
+            try:
+                first = dispatcher.enqueue({"tag": "run", "release_id": "host-window-replay-v1",
+                    "request": request().model_dump(mode="json")}, self.handle, self.context())
+                self.assertTrue(factory_entered.wait(1))
+                second = dispatcher.enqueue({"tag": "inspect-profile", "release_id": "host-window-replay-v1"},
+                    self.handle, self.context())
+                factory_release.set()
+                self.assertTrue(publication_entered.wait(5))
+                cutoff = self.clock.now() + timedelta(seconds=0.03)
+                def close_caller():
+                    try:
+                        results.append(dispatcher.close(cutoff))
+                    except Exception as error:
+                        errors.append(type(error).__name__)
+                    finally:
+                        caller_done.set()
+                caller = threading.Thread(target=close_caller, name="task-local-close-observer")
+                caller.start()
+                returned_bounded = caller_done.wait(0.15)
+                held_rows = read_inventory(dispatcher.inventory_root)
+                self.assertFalse(any(row.phase == "finished" for row in held_rows))
+                if returned_bounded:
+                    shutdown = results[0]
+                    self.assertFalse(shutdown.owner_closed)
+                    self.assertEqual(set(shutdown.pending_command_ids), {row.command_id for row in held_rows})
+                    prevented = dispatcher.wait(second)
+                    self.assertEqual(prevented.outcome, "cancelled_before_start")
+                    self.assertIsNone(prevented.started_at)
+                    self.assertIsNone(prevented.finished_at)
+                    self.assertEqual(prevented.inventory_status, "partial")
+                    self.assertEqual(len(prevented.inventory_references), 1)
+            finally:
+                factory_release.set()
+                publication_release.set()
+                if caller is not None:
+                    caller.join(5)
+                    self.assertFalse(caller.is_alive())
+                shutdown = dispatcher.close(self.clock.now() + timedelta(seconds=2))
+                self.assertTrue(shutdown.owner_closed)
+            self.assertEqual(errors, [])
+            self.assertEqual(resolve.call_count, 1)
+            self.assertEqual(dispatcher.wait(first).result.status, "authorized")
+            cancelled = dispatcher.wait(second)
+            self.assertEqual(cancelled.outcome, "cancelled_before_start")
+            self.assertIsNone(cancelled.started_at)
+            self.assertIsNotNone(cancelled.finished_at)
+            self.assertEqual(cancelled.inventory_status, "committed")
+            self.assertEqual([row.phase for row in read_inventory(dispatcher.inventory_root)
+                if row.command_id == cancelled.command_id], ["queued", "finished"])
+            cp, intents, calls, effects = factory.snapshots[-1]
+            self.assertEqual(cp.budget.tool_calls, len(calls))
+            self.assertEqual(effects["reschedule"], 1)
+            self.assertEqual(len(intents), 1)
+            self.assertEqual({thread for _, thread in factory.events}, {dispatcher._thread.ident})
+            print("HOST-FIX-I1", json.dumps({"returned_bounded": returned_bounded,
+                "close_elapsed": results[0].elapsed_seconds, "close_overrun": results[0].overrun_seconds,
+                "tool_calls": cp.budget.tool_calls, "active_seconds": cp.budget.active_seconds,
+                "source_calls": len(calls), "effects": effects, "intents": len(intents)}, sort_keys=True))
+            self.assertTrue(returned_bounded, "close waited for owner publication beyond its cutoff")
+
+    def test_factory_consumes_pinned_fixture_bytes_despite_constructor_path_substitution(self):
+        entry = self.registry.resolve("host-window-replay-v1")
+        original = entry.fixture_path.read_bytes()
+        private_fixture = self.base / "private-fixture.json"
+        private_fixture.write_bytes(original)
+        altered = json.loads(original)
+        altered["facts"]["delivery.status"]["value"] = "delivered"
+        substituted = json.dumps(altered, sort_keys=True).encode("utf-8")
+        entry = replace(entry, fixture_path=private_fixture)
+        actual_world = SimulatedWorld
+        forwarded = []
+        def forward_world(path, fixture, **kwargs):
+            private_fixture.write_bytes(substituted)
+            try:
+                world = actual_world(path, fixture, **kwargs)
+                forwarded.append(type(world))
+                return world
+            finally:
+                private_fixture.write_bytes(original)
+        with patch.object(host_module, "SimulatedWorld", forward_world):
+            resources = RuntimeFactory().create(entry, self.clock)
+        try:
+            reply = resources.world.bundle().delivery.read_delivery(ReadRequest(case_id="C1", object_id="O1",
+                caller_id="U1", proof_reference="synthetic-proof", purpose="reconcile",
+                deadline=self.clock.now() + timedelta(seconds=5),
+                target=ReadTarget(kind="authority_facts", authority="delivery", facts=["status"])))
+            values = {observation.fact: observation.value for observation in reply.observations}
+            self.assertEqual(forwarded, [SimulatedWorld])
+            self.assertEqual(sha256(private_fixture.read_bytes()).hexdigest(), entry.fixture_hash)
+            self.assertEqual(len(resources.world.calls), 1)
+            print("HOST-FIX-I2", json.dumps({"observed": values, "source_calls": len(resources.world.calls),
+                "effects": resources.world.effect_count("reschedule"), "restored_hash": entry.fixture_hash}, sort_keys=True))
+            self.assertEqual(values, {"status": "scheduled"}, "accepted source consumed substituted pathname bytes")
+        finally:
+            resources.close()
+
+    def test_queued_prevention_wakes_waiter_without_caller_finalization(self):
+        owner_continue, waiting, waiter_done = threading.Event(), threading.Event(), threading.Event()
+        class PausedDispatcher(HostDispatcher):
+            def _owner(inner):
+                owner_continue.wait(3)
+                super()._owner()
+        dispatcher = PausedDispatcher(ObservedFactory(), self.resolver, self.registry, self.clock,
+            self.base / "cancel-waiter", HostLimitsV1(), release_id="host-window-replay-v1")
+        submission = dispatcher.enqueue({"tag": "inspect-profile", "release_id": "host-window-replay-v1"},
+            self.handle, self.context())
+        receipts = []
+        def waiter():
+            waiting.set()
+            receipts.append(dispatcher.wait(submission))
+            waiter_done.set()
+        thread = threading.Thread(target=waiter, name="task-local-waiter")
+        try:
+            thread.start()
+            self.assertTrue(waiting.wait(1))
+            self.assertTrue(dispatcher.cancel_queued(submission))
+            self.assertFalse(dispatcher.cancel_queued(submission))
+            self.assertTrue(waiter_done.wait(0.2))
+            self.assertIsNone(receipts[0].finished_at)
+            self.assertIsNone(receipts[0].started_at)
+            self.assertEqual(receipts[0].inventory_status, "partial")
+            self.assertEqual([row.phase for row in read_inventory(dispatcher.inventory_root)], ["queued"])
+            owner_continue.set()
+            self.assertTrue(dispatcher.close(self.clock.now() + timedelta(seconds=2)).owner_closed)
+            self.assertEqual([row.phase for row in read_inventory(dispatcher.inventory_root)], ["queued", "finished"])
+        finally:
+            owner_continue.set()
+            dispatcher.close(self.clock.now() + timedelta(seconds=2))
+            thread.join(2)
+            self.assertFalse(thread.is_alive())
+
+    def test_admission_racing_close_retains_one_owner_cancellation_marker(self):
+        committed, release_admission = threading.Event(), threading.Event()
+        actual_publish = HostInventory.publish
+        submissions, errors = [], []
+        publish_threads = []
+        def forward_publish(inventory, sequence, phase, value):
+            reference = actual_publish(inventory, sequence, phase, value)
+            publish_threads.append((phase, threading.get_ident()))
+            if phase == "queued":
+                committed.set()
+                if not release_admission.wait(3):
+                    raise RuntimeError("task-local admission gate timed out")
+            return reference
+        with patch.object(HostInventory, "publish", forward_publish), patch.object(
+                self.resolver, "resolve", wraps=self.resolver.resolve) as resolve:
+            factory = ObservedFactory()
+            dispatcher = self.dispatcher(factory=factory)
+            def admit():
+                try:
+                    submissions.append(dispatcher.enqueue({"tag": "inspect-profile", "release_id": "host-window-replay-v1"},
+                        self.handle, self.context()))
+                except Exception as error:
+                    errors.append(type(error).__name__)
+            thread = threading.Thread(target=admit, name="task-local-admission")
+            try:
+                thread.start()
+                self.assertTrue(committed.wait(1))
+                pending_close = dispatcher.close(self.clock.now() + timedelta(seconds=0.01))
+                self.assertFalse(pending_close.owner_closed)
+                self.assertEqual([row.phase for row in read_inventory(dispatcher.inventory_root)], ["queued"])
+            finally:
+                release_admission.set()
+                thread.join(3)
+                self.assertFalse(thread.is_alive())
+                self.assertTrue(dispatcher.close(self.clock.now() + timedelta(seconds=2)).owner_closed)
+            self.assertEqual(errors, [])
+            self.assertEqual(resolve.call_count, 0)
+            self.assertEqual(factory.created, [])
+            receipt = dispatcher.wait(submissions[0])
+            self.assertEqual(receipt.outcome, "cancelled_before_start")
+            self.assertIsNone(receipt.started_at)
+            self.assertEqual([row.phase for row in read_inventory(dispatcher.inventory_root)], ["queued", "finished"])
+            self.assertEqual([owner for phase, owner in publish_threads if phase == "finished"], [dispatcher._thread.ident])
+
+    def test_owner_cancellation_publication_failure_keeps_original_partial_evidence(self):
+        owner_continue = threading.Event()
+        class PausedDispatcher(HostDispatcher):
+            def _owner(inner):
+                owner_continue.wait(3)
+                super()._owner()
+        dispatcher = PausedDispatcher(ObservedFactory(), self.resolver, self.registry, self.clock,
+            self.base / "cancel-publication-failure", HostLimitsV1(), release_id="host-window-replay-v1")
+        actual_publish = HostInventory.publish
+        def failed_finish(inventory, sequence, phase, value):
+            if phase == "finished":
+                raise OSError("task-local publication failure")
+            return actual_publish(inventory, sequence, phase, value)
+        try:
+            submission = dispatcher.enqueue({"tag": "inspect-profile", "release_id": "host-window-replay-v1"},
+                self.handle, self.context())
+            self.assertTrue(dispatcher.cancel_queued(submission))
+            with patch.object(HostInventory, "publish", failed_finish):
+                owner_continue.set()
+                shutdown = dispatcher.close(self.clock.now() + timedelta(seconds=2))
+                self.assertTrue(shutdown.owner_closed)
+                self.assertTrue(shutdown.inventory_failure)
+            receipt = dispatcher.wait(submission)
+            self.assertEqual(receipt.outcome, "cancelled_before_start")
+            self.assertEqual(receipt.failure, "inventory_failed")
+            self.assertEqual(receipt.inventory_status, "partial")
+            self.assertIsNone(receipt.started_at)
+            self.assertEqual(len(receipt.inventory_references), 1)
+            self.assertEqual([row.phase for row in read_inventory(dispatcher.inventory_root)], ["queued"])
+        finally:
+            owner_continue.set()
+            dispatcher.close(self.clock.now() + timedelta(seconds=2))
+
+    def test_factory_profile_snapshot_never_reopens_path_and_keeps_validation(self):
+        entry = self.registry.resolve("host-window-replay-v1")
+        private_profile = self.base / "private-profile.json"
+        original = entry.profile_path.read_bytes()
+        private_profile.write_bytes(original)
+        entry = replace(entry, profile_path=private_profile)
+        actual_read = Path.read_text
+        def guarded_read(path, *args, **kwargs):
+            if path == private_profile:
+                raise AssertionError("verified profile must not be reopened for semantic parsing")
+            return actual_read(path, *args, **kwargs)
+        with patch.object(Path, "read_text", guarded_read):
+            resources = RuntimeFactory().create(entry, self.clock)
+        resources.close()
+        self.assertEqual(resources.profile.release_hash, entry.profile_hash)
+        invalid_profiles = [b'{}', b'\xff', original.replace(b'{', b'{"profile_id":"duplicate",', 1)]
+        malformed = json.loads(original)
+        malformed["process_hash"] = "0" * 64
+        invalid_profiles.append(json.dumps(malformed).encode("utf-8"))
+        for raw in invalid_profiles:
+            with self.subTest(raw_hash=sha256(raw).hexdigest()):
+                private_profile.write_bytes(raw)
+                invalid = replace(entry, profile_file_hash=sha256(raw).hexdigest())
+                with self.assertRaises(ValueError):
+                    invalid.validate()
+
+    def test_fixture_bytes_are_exact_bounded_utf8_and_keep_legacy_default(self):
+        entry = self.registry.resolve("host-window-replay-v1")
+        profile = entry.validate()
+        raw = entry.fixture_path.read_bytes()
+        class BytesSubclass(bytes):
+            pass
+        invalid = (b"", b"x" * 1048577, bytearray(raw), BytesSubclass(raw), raw.decode("utf-8"), b"\xff", b"{", b"{}")
+        for index, value in enumerate(invalid):
+            with self.subTest(index=index):
+                path = self.base / f"invalid-bytes-{index}.sqlite"
+                with self.assertRaises((ValueError, KeyError)):
+                    SimulatedWorld(path, entry.fixture_path, profile=profile, clock=self.clock, fixture_bytes=value)
+                self.assertFalse(path.exists())
+        missing_path = self.base / "not-a-fixture.json"
+        for index, kwargs in enumerate(({"fixture_bytes": raw}, {})):
+            world = SimulatedWorld(self.base / f"valid-bytes-{index}.sqlite",
+                missing_path if kwargs else entry.fixture_path, profile=profile, clock=self.clock, **kwargs)
+            observed = world.bundle().delivery.read_delivery(ReadRequest(case_id="C1", object_id="O1",
+                caller_id="U1", proof_reference="synthetic-proof", purpose="reconcile",
+                deadline=self.clock.now() + timedelta(seconds=5),
+                target=ReadTarget(kind="authority_facts", authority="delivery", facts=["status"])))
+            self.assertEqual({row.fact: row.value for row in observed.observations}, {"status": "scheduled"})
+        changed = json.loads(raw)
+        changed["facts"]["delivery.status"]["value"] = "delivered"
+        with self.assertRaisesRegex(ValueError, "different fixture"):
+            SimulatedWorld(self.base / "valid-bytes-0.sqlite", missing_path, profile=profile, clock=self.clock,
+                fixture_bytes=json.dumps(changed).encode("utf-8"))
+
+    def test_fixture_snapshot_preserves_v14_duplicate_and_ownership_validation(self):
+        from proofkey.profiles import load_profile
+        profile = load_profile("flat-v1.4")
+        raw = (ROOT / "fixtures/development/ownership-world-v1.json").read_bytes()
+        absent = self.base / "absent-ownership-fixture.json"
+        world = SimulatedWorld(self.base / "owned-byte-source.sqlite", absent,
+            profile=profile, clock=self.clock, fixture_bytes=raw)
+        self.assertIsNotNone(world.bundle().operator)
+        duplicate = raw.replace(b"{", b'{"version":"synthetic-provider-v1",', 1)
+        no_authority = json.loads(raw)
+        no_authority.pop("ownership_authority")
+        for index, invalid in enumerate((duplicate, json.dumps(no_authority).encode("utf-8"))):
+            with self.subTest(index=index):
+                path = self.base / f"invalid-ownership-bytes-{index}.sqlite"
+                with self.assertRaises(ValueError):
+                    SimulatedWorld(path, absent, profile=profile, clock=self.clock, fixture_bytes=invalid)
+                self.assertFalse(path.exists())
 
     def test_complete_factory_runs_both_real_positive_families_on_creator_and_closes_there(self):
         for release_id, kind in (("host-window-replay-v1", "reschedule_window"),
@@ -412,17 +716,18 @@ class HostTests(unittest.TestCase):
                                         self.handle, self.context())
         owner_closed = threading.Event()
         close = dispatcher._inventory.close
-        finish = dispatcher._finish
         def observed_close():
             close()
             owner_closed.set()
-        def forwarded_finish(state):
-            owner_continue.set()
-            owner_closed.wait(0.03)
-            return finish(state)
         try:
-            with patch.object(dispatcher._inventory, "close", side_effect=observed_close), patch.object(
-                    dispatcher, "_finish", side_effect=forwarded_finish):
+            with patch.object(dispatcher._inventory, "close", side_effect=observed_close):
+                bounded = dispatcher.close(self.clock.now() + timedelta(seconds=0.01))
+                self.assertFalse(bounded.owner_closed)
+                pending = dispatcher.wait(submission)
+                self.assertIsNone(pending.finished_at)
+                self.assertEqual(pending.inventory_status, "partial")
+                self.assertFalse(owner_closed.is_set())
+                owner_continue.set()
                 shutdown = dispatcher.close(self.clock.now() + timedelta(seconds=1))
             self.assertTrue(shutdown.owner_closed)
             self.assertFalse(shutdown.inventory_failure)
@@ -487,12 +792,21 @@ class HostTests(unittest.TestCase):
                 receipt = dispatcher.wait(queued)
                 self.assertEqual(receipt.outcome, "expired")
                 self.assertIsNone(receipt.started_at)
+                self.assertIsNone(receipt.finished_at)
+                self.assertEqual(receipt.inventory_status, "partial")
+                self.assertEqual(len(receipt.inventory_references), 1)
                 self.assertEqual(receipt.execution.deadline, original.deadline)
                 self.assertEqual(resolve.call_count, 1)
         finally:
             release.set()
         self.assertTrue(dispatcher.close(self.clock.now() + timedelta(seconds=2)).owner_closed)
         self.assertEqual(dispatcher.wait(first).outcome, "result")
+        completed = dispatcher.wait(queued)
+        self.assertEqual(completed.outcome, "expired")
+        self.assertIsNotNone(completed.finished_at)
+        self.assertEqual(completed.inventory_status, "committed")
+        self.assertEqual([row.phase for row in read_inventory(dispatcher.inventory_root)
+            if row.command_id == completed.command_id], ["queued", "finished"])
 
     def test_concurrent_callers_proofs_and_actual_recover_stop_share_one_owner(self):
         entered, release, second_queued = threading.Event(), threading.Event(), threading.Event()

@@ -111,12 +111,17 @@ def read_material_revisions(connection, required, case_id, object_id):
 
 
 class SimulatedWorld:
-    def __init__(self, path: str | Path, fixture: str | Path, *, profile: EnvironmentProfile | None = None, clock=None):
+    def __init__(self, path: str | Path, fixture: str | Path, *, profile: EnvironmentProfile | None = None,
+                 clock=None, fixture_bytes: bytes | None = None):
+        if fixture_bytes is not None and (type(fixture_bytes) is not bytes or not 0 < len(fixture_bytes) <= 1048576):
+            raise ValueError("Trusted fixture requires bounded nonempty immutable bytes")
         self._path = Path(path)
         self._profile = EnvironmentProfile.model_validate((profile or load_profile("flat-v1")).model_dump())
         if self._profile.version == "v1.4":
             self._profile = validate_profile(self._profile)
-        raw = json.loads(Path(fixture).read_text(encoding="utf-8"),
+        fixture_text = (Path(fixture).read_text(encoding="utf-8") if fixture_bytes is None
+                        else fixture_bytes.decode("utf-8"))
+        raw = json.loads(fixture_text,
                          object_pairs_hook=strict_fixture_pairs if self._profile.version == "v1.4" else None)
         start = datetime.fromisoformat(raw["as_of"])
         if start.utcoffset() is None or raw.get("version") != "synthetic-provider-v1":
