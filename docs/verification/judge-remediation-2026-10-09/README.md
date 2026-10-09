@@ -2,6 +2,8 @@
 
 Updated: 9 October 2026. Full-tested runtime: `8e655ec25d424b8c7d4bc4b759b55f606e9bd420`; final installed candidate `5bc38c8` differs only in README, with all other 259 runtime files unchanged. **Nine narrow items are closed and 23 remain open.** J13 is verified, independently approved and [archived](../../../openspec/changes/archive/2026-10-09-installed-offline-resources/tasks.md), alongside the earlier J22/J32 leaf. This register covers every recommendation, not a claim that all recommendations have been implemented or that synthetic verification qualifies production.
 
+J06 update: installed candidate `c26d743` passed four new-case library/trusted-CLI positions and seven negative positions. Its final full regression, independent whole-change review and archival remain pending; J06 remains included in the open count. [Exact J06 evidence and retained attempt denominator](../2026-10-09-trusted-replay-cases.md).
+
 ## Decision
 
 Keep the product bet: **easy integration → rapid adaptation → reliable case resolution**, for the engineer connecting an unfamiliar delivery/logistics environment. Fix the failed baseline first, then implement thin executable slices. Do not expand into a generic arbitrary-code agent platform, real money execution, or live customer contact.
@@ -56,7 +58,7 @@ State meanings: **closed** = named evidence meets the narrow criterion; **partia
 | J03 | closed | W0 / regression verifier | Retain the corrected evidence tests and contract; future work must not turn recovery into implicit evidence intake. |
 | J04 | closed | W0 / verifier | Existing API environment verified; J13 now adds separate fresh installed console/module/library/API evidence for the exact recorded target. |
 | J05 | open | W3 / process-adaptation implementer | Actually execute a finite changed response-envelope parser and readiness phase under a new registered version, then prove baseline/candidate differences, preserved old routes and reviewed release. Metadata-only version changes do not pass. |
-| J06 | open | W2 / integration implementer | Add a trusted provisioning/launch path for a nonbuiltin case, not a case-body path/import/approval override. Execute a positive public example without editing source pins. |
+| J06 | open — final gates pending | W2 / integration implementer | Trusted Python provisioning and separate synthetic authority implemented; `c26d743` passed 4/4 fresh installed new-case positions and 7/7 negatives without changing fixed pins. Final full regression, whole-change review and archive remain pending; see [evidence](../2026-10-09-trusted-replay-cases.md). |
 | J07 | open | W2–3 / admission implementer | First permit recover/reply/stop only for fully observed original routes, with original identity, authority, debt and deadlines. Classify interrupted claims separately. Record remaining denials. |
 | J08 | open | W1 / documentation reviewer | [Support matrix](support-matrix.md) prepared from current source. Validate and publish a short public version; link positive cells to current receipts rather than merely syntax/tests. |
 | J09 | open | W4 / independent verifier | Capture public service-refusal/handoff, exact-slot and retained reply/stop cases with independent per-effect expectations. Queued, accepted, initiated and physically received remain distinct. |

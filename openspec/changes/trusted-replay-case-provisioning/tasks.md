@@ -16,13 +16,13 @@
 
 ## 3. Evidence and regression
 
-- [ ] 3.1 Prepare independent new window and goods fixtures/requests and separate private roots; assert changed business fingerprints.
-- [ ] 3.2 Exercise four positive installed positions and representative negative positions; retain actual claims/routes/source/journal/export/closure evidence.
+- [x] 3.1 Prepare independent new window and goods fixtures/requests and separate private roots; assert changed business fingerprints. Candidate `c26d743`, Task 4 installed receipt.
+- [x] 3.2 Exercise four positive installed positions and representative negative positions; retain actual claims/routes/source/journal/export/closure evidence. Candidate `c26d743`: 4/4 positives and 7/7 negatives; final full regression/review remain separate gates.
 - [ ] 3.3 Check filesystem/proof/grant/pin/source mismatch, malformed input, partial preparation and occupied/ambiguous-state behavior.
 - [ ] 3.4 Run focused regressions and one frozen full suite; retain source stability and installation/import evidence without new downloads or live providers.
 
 ## 4. Completion
 
-- [ ] 4.1 Update support/docs with the exact trusted Python-hook scope and remaining manifest/native/process/control/assessment limits.
+- [x] 4.1 Update support/docs with the exact trusted Python-hook scope and remaining manifest/native/process/control/assessment limits. J06 remains open pending final gates.
 - [ ] 4.2 Obtain final independent review and reconcile the narrow J06 evidence; keep all unrelated items open.
 - [ ] 4.3 Archive only this completed child after acceptance; keep unfinished parent specifications open.

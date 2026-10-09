@@ -12,6 +12,17 @@ This evidence covers only those two fixed synthetic cases on that target. It doe
 
 ## Read the support levels correctly
 
+J06 adds an opt-in trusted Python hook: `SyntheticCaseReleaseSpecV1`,
+`prepare_synthetic_release` and `configure_registered_cli`. The application
+separately supplies a review resolver and transport resolver, then explicitly
+selects its prepared release through the existing library or `cli.main` API.
+Candidate `c26d743` passed four fresh installed new-case positions and seven
+negative positions; final full regression and independent review remain pending.
+See [J06 verification](../2026-10-09-trusted-replay-cases.md) for the failed earlier
+checker attempt, exact target, hashes, return-initiation boundary and remaining
+gates. No public authority flag, manifest launcher, native connector or API
+composition selector was added.
+
 - **Builtin public path:** `ProfileRegistry.builtin` + the ordinary `RuntimeFactory`, used by default CLI and explicitly constructed library/API wrappers. It has two fixed synthetic replay registrations, `host-window-replay-v1` and `host-goods-replay-v1`, with exact kind/fingerprint commitments (`runtime/src/proofkey/host.py:112-124,533-536`).
 - **Registered admission path:** explicit library construction of `LocalAdmissionCompositionV1` and `HostDispatcher(..., admission_composition=...)`, using `RuntimeFactory.create_registered`. It adds durable claim/route sealing and code/profile/resource/review checks. It is **not** selected by default CLI/API construction (`host.py:256-280`; `cli.py:190-191`; `api.py:194-198`).
 - **Core engine or trusted custom composition:** additional code exists below the public launch boundary and can be exercised with purpose-built trusted fixtures. Existence of that code does not make a feature available from builtin commands.
@@ -23,7 +34,7 @@ CLI syntax is `python -m proofkey.cli [--release ID] [--credential-ref REF] COMM
 
 | Command | Builtin CLI / public library / explicitly constructed API | Registered admission composition | Current code/test anchors and limits |
 |---|---|---|---|
-| `run --input FILE` | Routed to the selected builtin release; window reschedule and whole-order goods refusal/return are the two fixed positive examples. API accepts a closed `run` command at POST `/v1/commands`. | Supported through library `run_registered` or registered dispatcher; exact fixed request commitment, fresh isolated case and all admission checks required. No CLI/API selection of this composition. | `host.py:533-536,664-667`; `host_admission.py:652-679,731-754`. Test sources: `test_cli_parity.py:122`, `test_api_parity.py:18-67`, `test_host_admission.py:619`. New case shapes are not authorized by editing request JSON. |
+| `run --input FILE` | Routed to the selected builtin release; window reschedule and whole-order goods refusal/return are the two fixed positive examples. API accepts a closed `run` command at POST `/v1/commands`. | Supported through registered dispatcher and opt-in trusted `cli.main(..., configuration=...)`; exact request commitment, fresh isolated case, separate review/transport authority and all admission checks required. No public CLI authority flag or API composition selector. | [External J06 example](../../../runtime/examples/registered_case_bootstrap.py) and [installed evidence](../2026-10-09-trusted-replay-cases.md). New case shapes are not authorized by editing request JSON alone. |
 | `recover --case-id ID` | Routed to core `recover`; depends on retained original, current scoped access and unexpired timing. Completed cases do not automatically disclose history through recover. Separate CLI launches may deny because replay time restarts. | Explicitly denied. An observed claim is bookkeeping, not a recovery capability. | `host.py:646-669`; `engine.py:333-361`; `test_host.py:856-861`; `test_cli_parity.py:194-208`; `test_host_admission.py:294-310`. Core subprocess recovery test source exists at `test_workflows.py:791-851`; it uses controlled test timing. |
 | `reply --input FILE` | Routed to core scoped reply. Requires a real retained wait, exact question/binding/revisions, designated actor and current source ACLs. Accepting the syntax is not a guaranteed positive reply. | Explicitly denied. | `cli.py:79-82`; `host.py:646-671`; `engine.py:363-384`; `gateway.py:556-575`. `test_host.py:869-876` demonstrates delivery to engine and denial for a nonexistent wait; it is not a positive public reply receipt. |
 | `stop --case-id ID --generation REV` | Routed to durable stop. A same-owner test source covers successful stop after a completed run; wrong generation/auth and restarted-clock cases can deny. Stop is not undo and does not prove an in-flight effect did not occur. | Explicitly denied. | `engine.py:386-410`; `host.py:646-673`; `test_host.py:862-867`; `test_cli_parity.py:209-223`; `test_stop.py:17-47,85-118`. |
