@@ -1,6 +1,6 @@
 # Next remediation cycle: J22, J32 and the five-judge panel
 
-Date: 9 October 2026. Status: **proposed bounded design; implementation awaits the requested design confirmation**.
+Date: 9 October 2026. Status: **bounded design approved by the user's “да”; implementation in progress**.
 
 ## Accepted purpose and current baseline
 
@@ -80,4 +80,4 @@ Independent source-backed design review found no concrete defect in the J22 boun
 
 All five named local executables were found, and their local help was inspected without a prompt or model request. The current Claude help supports an explicit `--model`; Grok supports the existing read-only invocation shape; AGY supports the existing bounded print mode; Muse exposes the required no-shell/no-write controls; Codex supports explicit model, read-only sandbox and ignored user configuration. These checks establish command-surface availability, not authentication, quota, successful inference or served-model identity.
 
-No product source, test, dependency, provider account or original judge artifact was changed during this preparation. The design question is outstanding; the proposed loop has not started.
+No product source, test, dependency, provider account or original judge artifact was changed during the read-only preparation. The subsequent user confirmation authorizes the bounded J22/J32 implementation and panel protocol above; it does not authorize new runtime authority or integrations.
