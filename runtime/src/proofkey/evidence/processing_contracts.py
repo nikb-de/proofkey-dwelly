@@ -5,7 +5,7 @@ import hashlib
 import json
 from typing import Callable, Literal
 from pydantic import TypeAdapter
-from proofkey.contracts import (ArtifactRecord, AuthContext, CanonicalRequest, EvidenceAssertion,
+from proofkey.contracts import (ArtifactRecord, AuthContext, AuthorityObservation, CanonicalRequest, EvidenceAssertion,
     EnvironmentProfile, Identifier, InvocationReservation, PhaseCheckpoint, ProcessingReceipt, RequestBinding)
 
 
@@ -236,3 +236,127 @@ class ProcessingPublication:
 
     def transcript_record(self):
         return None if self.transcript_record_bytes is None else model_bytes(ArtifactRecord, self.transcript_record_bytes)
+
+
+def _publication_value(publication):
+    """Exact field names; immutable bytes become canonical JSON values, never aliases."""
+    if type(publication) is not ProcessingPublication:
+        raise ValueError("Exact processing publication required")
+    return {"binding_bytes": json_bytes(publication.binding_bytes),
+        "invocation_id": publication.invocation_id, "receipt_hash": publication.receipt_hash,
+        "output_hashes": list(publication.output_hashes),
+        "input_record_bytes": [json_bytes(b) for b in publication.input_record_bytes],
+        "assertion_bytes": [json_bytes(b) for b in publication.assertion_bytes],
+        "assertion_refs": list(publication.assertion_refs),
+        "transcript_record_bytes": None if publication.transcript_record_bytes is None else json_bytes(publication.transcript_record_bytes),
+        "proposal_receipt_ref": publication.proposal_receipt_ref,
+        "marker_bytes": json_bytes(publication.marker_bytes), "marker_hash": publication.marker_hash,
+        "status": publication.status, "mode": publication.mode}
+
+
+def _publication_from_bytes(payload):
+    value = json_bytes(payload)
+    if type(value) is not dict or set(value) != set(ProcessingPublication.__dataclass_fields__):
+        raise ValueError("Closed exact publication fields required")
+    for name, cap in (("output_hashes", 1), ("input_record_bytes", 16),
+            ("assertion_bytes", 256), ("assertion_refs", 256)):
+        if type(value[name]) is not list or len(value[name]) > cap:
+            raise ValueError("Finite exact publication sequence required")
+    publication = ProcessingPublication(binding_bytes=canonical(value["binding_bytes"]),
+        invocation_id=value["invocation_id"], receipt_hash=value["receipt_hash"],
+        output_hashes=tuple(value["output_hashes"]),
+        input_record_bytes=tuple(canonical(r) for r in value["input_record_bytes"]),
+        assertion_bytes=tuple(canonical(a) for a in value["assertion_bytes"]),
+        assertion_refs=tuple(value["assertion_refs"]),
+        transcript_record_bytes=None if value["transcript_record_bytes"] is None else canonical(value["transcript_record_bytes"]),
+        proposal_receipt_ref=value["proposal_receipt_ref"], marker_bytes=canonical(value["marker_bytes"]),
+        marker_hash=value["marker_hash"], status=value["status"], mode=value["mode"])
+    if canonical(_publication_value(publication)) != payload:
+        raise ValueError("Exact canonical publication roundtrip required")
+    return publication
+
+
+@dataclass(frozen=True, slots=True)
+class PlanningEvidenceInputV2:
+    checkpoint_bytes: bytes
+    observation_bytes: tuple[bytes, ...]
+    extraction_publication_bytes: tuple[bytes, ...]
+    envelope_bytes: bytes
+    envelope_hash: str
+
+    def __post_init__(self):
+        checkpoint = self.checkpoint()
+        byte_tuple(self.observation_bytes, AuthorityObservation, 64)
+        if (type(self.extraction_publication_bytes) is not tuple
+                or not 0 < len(self.extraction_publication_bytes) <= 16):
+            raise ValueError("Nonempty bounded immutable extraction tuple required")
+        publications = self.extraction_publications()
+        observations = self.observations()
+        if any(o.object_id != checkpoint.binding.object_id for o in observations):
+            raise ValueError("Observations differ from exact checkpoint object")
+        if len({p.invocation_id for p in publications}) != len(publications):
+            raise ValueError("Distinct exact extraction invocations required")
+        count, direct = 0, {}
+        for publication in publications:
+            if (publication.binding() != checkpoint.binding
+                    or publication.transcript_record_bytes is not None or publication.proposal_receipt_ref is not None):
+                raise ValueError("Exact completed extraction publication required")
+            records = publication.input_records()
+            if not records or len({r.artifact_id for r in records}) != len(records):
+                raise ValueError("Distinct actual publication inputs required")
+            parents = {r.artifact_id: r for r in records}
+            for record in records:
+                if record.case_id != checkpoint.binding.case_id:
+                    raise ValueError("Foreign direct record")
+                if record.artifact_id in direct and direct[record.artifact_id] != record:
+                    raise ValueError("Conflicting direct record")
+                direct[record.artifact_id] = record
+            for index, assertion in enumerate(publication.assertions()):
+                record = parents.get(assertion.artifact_id)
+                payload = publication.assertion_bytes[index]
+                ref = "private-assertion-" + digest(canonical({"domain": "proofkey-saved-assertion-v1",
+                    "receipt_hash": publication.receipt_hash, "index": index, "bytes_hash": digest(payload)}))
+                if (record is None or assertion.processing_receipt_id != publication.invocation_id
+                        or assertion.content_hash != record.original_hash or assertion.lineage_hash != record.lineage_hash
+                        or len(assertion.claim.encode("utf-8")) > 65536 or publication.assertion_refs[index] != ref):
+                    raise ValueError("Exact assertion lineage/reference required")
+                count += 1
+        if not 0 < count <= 256 or len(direct) > 16:
+            raise ValueError("Aggregate evidence ceiling")
+        hash_value(self.envelope_hash)
+        value = json_bytes(self.envelope_bytes)
+        pending = [(value, 0)]
+        while pending:
+            node, depth = pending.pop()
+            if depth > 16:
+                raise ValueError("Excessive envelope shape")
+            if type(node) is dict:
+                pending.extend((v, depth + 1) for v in node.values())
+            elif type(node) is list:
+                pending.extend((v, depth + 1) for v in node)
+        expected = {"version": "planning-evidence-input-v2", "checkpoint": checkpoint.model_dump(mode="json"),
+            "authority_observations": [o.model_dump(mode="json") for o in observations],
+            "extraction_publications": [_publication_value(p) for p in publications]}
+        if (type(value) is not dict or set(value) != set(expected) or value != expected
+                or digest(self.envelope_bytes) != self.envelope_hash):
+            raise ValueError("Exact V2 envelope/companion/hash join required")
+
+    @classmethod
+    def from_bytes(cls, payload):
+        value = json_bytes(payload)
+        if (type(value) is not dict or set(value) != {"version", "checkpoint", "authority_observations", "extraction_publications"}
+                or value["version"] != "planning-evidence-input-v2"
+                or type(value["authority_observations"]) is not list or len(value["authority_observations"]) > 64
+                or type(value["extraction_publications"]) is not list or not 0 < len(value["extraction_publications"]) <= 16):
+            raise ValueError("Closed bounded exact V2 envelope required")
+        return cls(canonical(value["checkpoint"]), tuple(canonical(o) for o in value["authority_observations"]),
+            tuple(canonical(p) for p in value["extraction_publications"]), payload, digest(payload))
+
+    def checkpoint(self):
+        return model_bytes(PhaseCheckpoint, self.checkpoint_bytes)
+
+    def observations(self):
+        return tuple(model_bytes(AuthorityObservation, b) for b in self.observation_bytes)
+
+    def extraction_publications(self):
+        return tuple(_publication_from_bytes(b) for b in self.extraction_publication_bytes)

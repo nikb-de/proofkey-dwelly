@@ -18,7 +18,8 @@ from proofkey.contracts import ArtifactRecord, AuthContext, EvidenceAssertion, U
 from pydantic import TypeAdapter
 from proofkey.identity import fingerprint
 from proofkey.evidence.processing_contracts import (InputPublication, ProcessingPublication,
-    ProcessingPublicationError, SavedOriginalScope, canonical, digest, json_bytes, model_bytes)
+    PlanningEvidenceInputV2, ProcessingPublicationError, SavedOriginalScope,
+    _publication_value, canonical, digest, json_bytes, model_bytes)
 from proofkey.contracts import (AuthorityObservation, CanonicalRequest, InvocationReservation,
     PhaseCheckpoint, ProcessingReceipt, RequestBinding)
 from proofkey.identity import request_fingerprint
@@ -265,6 +266,115 @@ class EvidenceCatalog:
             raise ProcessingPublicationError("identity_mismatch")
         self._processing_current_scope(checkpoint.binding, scope, auth)
         return record
+
+    @_publication_operation
+    def register_planning_evidence_snapshot(self, checkpoint: PhaseCheckpoint,
+            observations: tuple[AuthorityObservation, ...], extraction_invocation_ids: tuple[str, ...],
+            auth: AuthContext) -> ArtifactRecord:
+        if (type(checkpoint) is not PhaseCheckpoint or type(observations) is not tuple
+                or type(extraction_invocation_ids) is not tuple
+                or not 0 < len(extraction_invocation_ids) <= 16
+                or any(type(i) is not str or not i for i in extraction_invocation_ids)
+                or len(set(extraction_invocation_ids)) != len(extraction_invocation_ids)):
+            raise ProcessingPublicationError("identity_mismatch")
+        # Detach exact validated snapshots before any actual lookup/I/O can mutate aliases.
+        checkpoint = model_bytes(PhaseCheckpoint, canonical(checkpoint.model_dump(mode="json")))
+        if len(observations) > 64 or any(type(o) is not AuthorityObservation for o in observations):
+            raise ProcessingPublicationError("identity_mismatch")
+        observations = tuple(model_bytes(AuthorityObservation, canonical(o.model_dump(mode="json")))
+                             for o in observations)
+        binding = checkpoint.binding
+        original, scope = self._processing_scope(binding, auth, "provider_processing")
+        self._planning_evidence_checkpoint(checkpoint, observations, original)
+        publications = self._planning_evidence_publications(checkpoint, extraction_invocation_ids, auth)
+        assertion_count = sum(len(p.assertion_bytes) for p in publications)
+        if assertion_count == 0:
+            raise ProcessingPublicationError("input_unavailable")
+        if assertion_count > self._processing_bindings.max_output_items:
+            raise ProcessingPublicationError("output_invalid")
+        identifiers = tuple(dict.fromkeys(r.artifact_id for p in publications for r in p.input_records()))
+        records, envelopes = self._planning_evidence_inputs(identifiers, binding, scope, auth)
+        payload = canonical({"version": "planning-evidence-input-v2",
+            "checkpoint": checkpoint.model_dump(mode="json"),
+            "authority_observations": [o.model_dump(mode="json") for o in observations],
+            "extraction_publications": [_publication_value(p) for p in publications]})
+        self._processing_limit(payload)
+        companion = PlanningEvidenceInputV2.from_bytes(payload)
+        identity = {"kind": "planning_evidence_v2", "envelope_hash": companion.envelope_hash,
+            "checkpoint_hash": digest(companion.checkpoint_bytes),
+            "extraction_invocation_ids": list(extraction_invocation_ids),
+            "extraction_marker_hashes": [p.marker_hash for p in publications]}
+        record = self._processing_record(payload, binding, scope, auth,
+            "saved-planning-evidence-v2", "application/json", records, identity)
+        # Every check here follows the actual final envelope/control/record I/O.
+        if self.read_original(record.artifact_id, auth, purpose="provider_processing") != payload:
+            raise ProcessingPublicationError("partial_publication")
+        if self._planning_evidence_publications(checkpoint, extraction_invocation_ids, auth) != publications:
+            raise ProcessingPublicationError("identity_mismatch")
+        actual, actual_envelopes = self._planning_evidence_inputs(identifiers, binding, scope, auth)
+        if actual != records or actual_envelopes != envelopes:
+            raise ProcessingPublicationError("identity_mismatch")
+        self._processing_current_scope(binding, scope, auth)
+        current = self._processing_bindings.checkpoint_lookup(binding)
+        if type(current) is not PhaseCheckpoint or current != checkpoint:
+            raise ProcessingPublicationError("identity_mismatch")
+        self._processing_current_scope(binding, scope, auth)
+        if self.clock.now() >= checkpoint.deadline:
+            raise ProcessingPublicationError("scope_denied")
+        return record
+
+    def _planning_evidence_checkpoint(self, checkpoint, observations, original):
+        from proofkey.contracts import EnvironmentProfile
+        from proofkey.profiles import validate_profile
+        from proofkey.process import validate_process
+        try:
+            lookup = self._processing_bindings.profile_lookup
+            if lookup is None:
+                raise ValueError("Registered local profile unavailable")
+            profile = lookup(checkpoint.binding, original)
+            if type(profile) is not EnvironmentProfile:
+                raise ValueError("Exact registered profile required")
+            profile = validate_profile(profile)
+            spec = profile.processes[original.kind]
+            validate_process(spec)
+            if profile.version != checkpoint.profile_version or spec.version != checkpoint.process_version:
+                raise ValueError("Registered version mismatch")
+        except Exception as exc:
+            raise ProcessingPublicationError("input_unavailable") from exc
+        current = self._processing_bindings.checkpoint_lookup(checkpoint.binding)
+        if (type(current) is not PhaseCheckpoint or current != checkpoint or checkpoint.stop.requested
+                or checkpoint.phase in {"stop", "stopped", spec.completion.phase}
+                or checkpoint.next_gate not in {"reschedule", "register_goods_refusal", "register_service_refusal", "create_return"}
+                or len([e for e in spec.edges if e.origin == checkpoint.phase
+                        and e.operation == checkpoint.next_gate]) != 1
+                or any(o.object_id != checkpoint.binding.object_id for o in observations)):
+            raise ProcessingPublicationError("identity_mismatch")
+        if self.clock.now() >= checkpoint.deadline:
+            raise ProcessingPublicationError("scope_denied")
+
+    def _planning_evidence_publications(self, checkpoint, identifiers, auth):
+        publications = []
+        for identifier in identifiers:
+            attempt, _ = self._processing_attempt(checkpoint.binding, identifier)
+            if (attempt.identity.role != "extraction"
+                    or attempt.identity.profile_version != checkpoint.profile_version
+                    or attempt.identity.process_version != checkpoint.process_version):
+                raise ProcessingPublicationError("identity_mismatch")
+            publication = self.publish_processing_output(checkpoint.binding, identifier, auth)
+            publications.append(publication)
+        return tuple(publications)
+
+    def _planning_evidence_inputs(self, identifiers, binding, scope, auth):
+        if not 0 < len(identifiers) <= self._processing_bindings.max_inputs:
+            raise ProcessingPublicationError("output_invalid")
+        records, envelopes = self._processing_inputs(identifiers, binding, auth, scope=scope)
+        # Bound the distinct ancestry of the full envelope, not each direct input alone.
+        seen = set()
+        for record in records:
+            if self._get(record.artifact_id, auth, "provider_processing", set(), seen, 0,
+                         processing_scope=scope) != record:
+                raise ProcessingPublicationError("identity_mismatch")
+        return records, envelopes
 
     @_publication_operation
     def seal_invocation_inputs(self, binding: RequestBinding, invocation_id: str,
@@ -666,7 +776,7 @@ class EvidenceCatalog:
             # Independent intersection on the actual record, never a fabricated grant.
             self._authorize(record, {"scope": processing_scope.scope(), "policy": processing_scope.policy_id},
                             auth, purpose)
-        if limits is not None and record.source in {"saved-request-narrative", "saved-planning-snapshot-v1", "saved-synthetic-transcription"} and "processing" not in envelope:
+        if limits is not None and record.source in {"saved-request-narrative", "saved-planning-snapshot-v1", "saved-synthetic-transcription", "saved-planning-evidence-v2"} and "processing" not in envelope:
             raise EvidenceAccessDenied("Evidence unavailable or denied")
         if "processing" in envelope:
             try:
@@ -681,6 +791,9 @@ class EvidenceCatalog:
                     raise ValueError("Immutable record control mismatch")
                 binding = RequestBinding.model_validate(metadata["binding"])
                 _, scope = self._processing_scope(binding, auth, purpose)
+                if record.source == "saved-planning-evidence-v2":
+                    # V2 reads inherit both policies on the actual direct inputs/ancestors.
+                    processing_scope = scope
                 raw_parents = metadata["parents"]
                 if type(raw_parents) is not list or len(raw_parents) > limits.max_inputs:
                     raise ValueError("Finite exact parent inventory required")
