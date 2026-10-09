@@ -1,8 +1,8 @@
-# J06 — design for approval
+# J06 — approved design
 
 ## Status and intended outcome
 
-Draft; implementation has not started. The user approved proceeding toward J06, not the as-yet-unreviewed interfaces below. Written approval of this design is the next gate, followed by an implementation plan and the already selected autonomous/subagent execution workflow.
+The user approved this written design on 2026-10-09 after reviewing commit `2e4ace3`. Implementation has not started. The next artifact is the implementation plan; the already selected autonomous/subagent execution method is preserved.
 
 The integrating engineer supplies a new structured test case and independently authored synthetic source facts. The installed package prepares an inspectable release, accepts separately provisioned synthetic review and transport authority, and runs it through existing registered library/CLI execution. Neither the package code nor its fixed demonstrations are edited to onboard that case.
 
@@ -84,7 +84,7 @@ Before creating any child, validate exact input types/identifiers, existing exec
 4. Every fact key is a nonempty qualified `authority.field` string. Every fact has exactly `value`, `revision`, `case_id`, `object_id`, and `evidence_ref`; outer IDs equal the request, revision/evidence reference are nonempty strings, and value is bounded JSON already covered by the byte/depth gate.
 5. Required `case.binding.value` has exactly the request's `case_id`, `object_id`, `principal_id`, and `request_id`. Required `customer.request_fingerprint.value` equals the business fingerprint derived from the request.
 
-Unknown top-level/scope/fact-envelope fields are intentionally rejected by this narrow preparation API. Nested domain fact values other than the two explicit commitments, consent correctness, capability coverage and positive eligibility remain the existing runtime's responsibility. These are bounded preparation checks, not a new general source-policy validator; preparation success alone does not promise successful execution.
+Unknown top-level/scope/fact-envelope fields are intentionally rejected by this narrow preparation API. Nested domain fact values other than the two explicit commitments, consent correctness, capability coverage and positive eligibility remain the existing runtime's responsibility. These are bounded preparation checks, not a new general source-policy validator; preparation success alone does not promise successful execution. The 1 MiB raw-fixture bound is a ceiling, not a guarantee that every smaller input is representable: serialize and check all existing declaration limits before allocating a child, including the 1 MiB source-declaration limit after embedding/escaping the exact fixture text. Reject overflow as `invalid_input`; do not raise existing registered-release limits.
 
 Use one immutable byte snapshot for source validation, hash, private fixture file and source declaration. Copy the exact packaged profile bytes. Emit only honest existing synthetic declarations: unchanged profile, no claimed executed regression, preserved migration, unestablished authorship/dependency completeness. The helper never constructs a review grant, transport handle, database, admission attempt, claim, route or effect.
 
@@ -132,6 +132,6 @@ Build and install the candidate from staged existing exact dependencies; no acqu
 
 This is opt-in and source-compatible: no field is required by existing callers and default construction remains unchanged. To stop using it, remove the custom application bootstrap and retain any original state for later authorized inspection; never reset a started case or replay it as a new case. No data migration or registered-state downgrade is included.
 
-## Decision requested
+## Approved decision and next gate
 
-Approve the trusted Python preparation/bootstrap option, four installed positive positions and the preserved denial boundary. This is one written-design approval. No unresolved product preference is needed; implementation planning follows only after approval. Native integrations and a standalone persistent config-file launcher require separate scope.
+Approved: the trusted Python preparation/bootstrap option, four installed positive positions and the preserved denial boundary. No unresolved product preference remains. Review the concrete implementation plan next; native integrations and a standalone persistent config-file launcher require separate scope.

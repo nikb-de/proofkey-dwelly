@@ -12,7 +12,7 @@ The installed runtime passes its two fixed demonstrations, but an integrating en
 - Keep source snapshots, private artifact preparation, authority, runtime execution and public receipts distinct.
 - Add negative tests and retained installed evidence; preserve all existing fixed examples and denial contracts.
 
-This proposal is a draft for written approval. It does not authorize implementation, provider calls or broader admission/control changes. No breaking wire or CLI syntax change is proposed.
+The written design was approved on 2026-10-09 after commit `2e4ace3`. Implementation awaits review of its concrete plan. Provider calls and broader admission/control changes remain outside scope. No breaking wire or CLI syntax change is proposed.
 
 ## Capabilities
 

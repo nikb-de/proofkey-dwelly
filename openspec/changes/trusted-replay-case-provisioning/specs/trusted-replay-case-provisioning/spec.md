@@ -39,6 +39,11 @@ The helper SHALL support only the packaged flat-v1.3 profile, process-v1 fixed s
 - **AND** it requires exact case-binding identity and the derived business fingerprint
 - **AND** it leaves all other nested domain facts and positive eligibility to existing runtime validation
 
+#### Scenario: Encoded source exceeds its existing declaration limit
+- **WHEN** raw fixture bytes fit the input ceiling but their exact JSON-embedded source declaration exceeds the existing registered-release limit
+- **THEN** preparation rejects the input before private child allocation
+- **AND** no registered-release limit or executable pin is changed
+
 ### Requirement: Provisioning has a private exclusive filesystem boundary
 Preparation SHALL allocate only a fresh opaque private child beneath an explicit validated parent using no-follow traversal, exclusive creation and pinned identities. It SHALL NOT overwrite/adopt existing state, derive paths from request IDs, place state under site-packages or automatically remove/repair partial preparations.
 

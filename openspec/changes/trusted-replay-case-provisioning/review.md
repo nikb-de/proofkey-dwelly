@@ -20,4 +20,10 @@ The implementer inspected the existing host, admission, fixture, bootstrap and C
 
 `openspec validate trusted-replay-case-provisioning --strict --json` passed with zero issues. This validates specification structure, not implementation correctness. Runtime tests have not been rerun for this documentation-only change.
 
-Written-design approval remains pending. After approval: create/review the implementation plan, use test-driven implementation, obtain independent code review, verify all four installed positive positions and negative contracts, run the frozen regression suite, and archive only the completed leaf. No native provider, paid call or wider control-path change is authorized by this design.
+At this initial review, written-design approval was pending. After approval: create/review the implementation plan, use test-driven implementation, obtain independent code review, verify all four installed positive positions and negative contracts, run the frozen regression suite, and archive only the completed leaf. No native provider, paid call or wider control-path change is authorized by this design.
+
+## Approval and implementation-planning addendum
+
+The user approved the written design from `2e4ace3` on 2026-10-09. Planning confirmed that the existing fixed APIs can compose the new helper without modifying executable pins. It also identified an input-size boundary: embedding raw fixture text in source JSON can exceed the existing 1 MiB declaration ceiling. The design/spec/plan now explicitly require preallocation rejection under the unchanged ceiling; raw size alone is not an acceptance guarantee.
+
+The four-task implementation plan received implementer self-review against each specification requirement and a separate read-only plan review. The latter found no Important blocker after checking the literal fixture/API contracts, preallocation/postallocation distinction and intended source-change scope. User review of the plan remains pending. No runtime code has changed and no runtime test success is claimed for the planned feature.
