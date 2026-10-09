@@ -21,6 +21,7 @@ from .contracts import (CampaignPermit, CanonicalRequest, EffectIntent, Invocati
                         ScopedReply, StopState, TransferIntent, VerificationResult, WaitState, WireModel)
 from .identity import fingerprint, request_fingerprint
 from .wait_contracts import ControlReadScopeV1, RefusalAdmissionHistoryV1, WaitRecordV1
+from .ownership_contracts import OwnershipEventV1, OwnershipProcessRegistryV1
 
 
 class JournalFailure(RuntimeError):
@@ -43,6 +44,7 @@ class CheckpointAudit(WireModel):
     checkpoint_hash: Hash
     entry_id: Identifier | None = None
     refusal_history: RefusalAdmissionHistoryV1 | None = None
+    ownership_event: OwnershipEventV1 | None = None
 
 
 class CampaignUsage(WireModel):
@@ -125,9 +127,11 @@ def _usage(raw):
 class CaseStore:
     SCHEMA_VERSION = 1
 
-    def __init__(self, path, before_commit=None):
+    def __init__(self, path, before_commit=None, *, ownership_processes=None):
         self._db = None
         self._before_commit = before_commit
+        self._ownership_processes = (None if ownership_processes is None else
+            _typed(OwnershipProcessRegistryV1, ownership_processes))
         try:
             schema = Path(__file__).with_name("schema.sql").read_text()
             reference = sqlite3.connect(":memory:")
@@ -162,6 +166,43 @@ class CaseStore:
         if self._db is not None:
             self._db.close()
             self._db = None
+
+    @property
+    def _ownership(self):
+        from .ownership_store import OwnershipStore
+        if not hasattr(self, "_ownership_helper"):
+            self._ownership_helper = OwnershipStore(self)
+        return self._ownership_helper
+
+    def register_transfer_atomic(self, intent, effect, source, now):
+        return self._ownership.register(intent, effect, source, now)
+
+    def begin_registered_transfer(self, transfer_id, expected_current, now):
+        return self._ownership.begin(transfer_id, expected_current, now)
+
+    def transfer_record(self, transfer_id):
+        return self._ownership.record(transfer_id)
+
+    def human_ownership(self, binding):
+        return self._ownership.human(binding)
+
+    def apply_transfer_receipt_atomic(self, transfer_id, receipt, source_current, expected_current, now):
+        return self._ownership.apply(transfer_id, receipt, source_current, expected_current, now)
+
+    def mark_transfer_unknown_atomic(self, transfer_id, expected_current):
+        return self._ownership.unknown(transfer_id, expected_current)
+
+    def record_decision_atomic(self, submission, source, now):
+        return self._ownership.decision(submission, source, now)
+
+    def record_disposition_atomic(self, disposition, source, now):
+        return self._ownership.disposition(disposition, source, now)
+
+    def consume_decision_atomic(self, decision_id, effect, expected_current, now):
+        # Only begin_dispatch may invoke this while entering the exact effect.
+        if not getattr(self, "_decision_entry_active", False) or not self._db.in_transaction:
+            raise JournalFailure("Decision consumption requires the shared effect-entry transaction")
+        return self._ownership.consume(decision_id, effect, expected_current, now)
 
     @property
     def _admission(self):
@@ -377,16 +418,18 @@ class CaseStore:
         audited_entry = _read(CheckpointAudit, audit[0]).entry_id
         if audited_entry is not None and self.entry(audited_entry).case_id != case_id:
             raise JournalFailure("Checkpoint audit references another case entry")
+        self._ownership.check_fence(value)
         return value
 
     @staticmethod
     def _versions(value):
         return {key: getattr(value, key) for key in ("profile_version", "process_version", "policy_version")}
 
-    def _write_checkpoint(self, value, *, entry_id=None, refusal_history=None):
+    def _write_checkpoint(self, value, *, entry_id=None, refusal_history=None, ownership_event=None):
+        self._ownership.check_fence(value)
         self._db.execute("UPDATE cases SET checkpoint_json=?,revision=revision+1 WHERE case_id=?", (value.model_dump_json(), value.binding.case_id))
         audit = CheckpointAudit(checkpoint_hash=fingerprint(value.model_dump(mode="json")), entry_id=entry_id,
-            refusal_history=refusal_history)
+            refusal_history=refusal_history, ownership_event=ownership_event)
         self._db.execute("INSERT INTO audit(case_id,event_json) VALUES(?,?)", (value.binding.case_id, audit.model_dump_json()))
 
     def save_checkpoint(self, checkpoint: PhaseCheckpoint):
@@ -530,6 +573,8 @@ class CaseStore:
             record = self._intent(intent.action_id)
             if record.intent != intent:
                 raise JournalFailure("Dispatch intent substitution")
+            if intent.operation == "transfer_owner" and intent.arguments.get("kind") == "ownership_transfer_arguments_v1":
+                raise JournalFailure("Registered ownership transfer requires its narrow original entry")
             value = self.checkpoint(intent.binding.case_id)
             if self.original_request(intent.binding.case_id, intent.binding.generation) is None:
                 raise JournalFailure("Original input must be durable before external entry")
@@ -540,24 +585,35 @@ class CaseStore:
                 raise JournalFailure("Prepared ownership decision is stale")
             if now >= intent.deadline:
                 raise BudgetExceeded("Intent deadline expired")
-            budget = value.budget
-            if is_resend:
-                if record.state not in {"dispatching", "pending", "outcome_unknown", "rejected"}:
-                    raise JournalFailure("Resend requires eligible unresolved/rejected original and fresh gateway contract proof")
-                budget = debit(budget, "retries:" + intent.action_id, 1, now)
-            else:
-                if record.state != "prepared":
-                    raise JournalFailure("Entry already consumed; reconcile original action")
-                budget = debit(budget, "effects", 1, now, handoff=intent.operation == "enqueue_handoff")
-                if intent.operation == "send_clarification" and not self._wait_charged_clarification(intent):
-                    budget = debit(budget, "clarifications", 1, now)
-            budget = debit(budget, "tool_calls", 1, now)
-            attempt = budget.retries.get(intent.action_id, 0) + 1
-            budget, lease = self._reserve_entry(value, budget, now, "effect:" + intent.action_id + ":" + str(attempt),
-                "effect", intent.action_id, scope_deadline=intent.deadline)
-            self._write_checkpoint(PhaseCheckpoint.model_validate({**value.model_dump(), "budget": budget}))
-            self._db.execute("UPDATE intents SET dispatch_state='dispatching',verification_json=NULL WHERE action_id=?", (intent.action_id,))
-            return lease
+            if intent.decision_id is not None:
+                self._decision_entry_active = True
+                try:
+                    self.consume_decision_atomic(intent.decision_id, intent, value, now)
+                finally:
+                    self._decision_entry_active = False
+            return self._enter_effect(record, value, now, is_resend)
+
+    def _enter_effect(self, record, value, now, is_resend=False):
+        """Shared debt/lease accounting, called only inside an entry transaction."""
+        intent = record.intent
+        budget = value.budget
+        if is_resend:
+            if record.state not in {"dispatching", "pending", "outcome_unknown", "rejected"}:
+                raise JournalFailure("Resend requires eligible unresolved/rejected original and fresh gateway contract proof")
+            budget = debit(budget, "retries:" + intent.action_id, 1, now)
+        else:
+            if record.state != "prepared":
+                raise JournalFailure("Entry already consumed; reconcile original action")
+            budget = debit(budget, "effects", 1, now, handoff=intent.operation == "enqueue_handoff")
+            if intent.operation == "send_clarification" and not self._wait_charged_clarification(intent):
+                budget = debit(budget, "clarifications", 1, now)
+        budget = debit(budget, "tool_calls", 1, now)
+        attempt = budget.retries.get(intent.action_id, 0) + 1
+        budget, lease = self._reserve_entry(value, budget, now, "effect:" + intent.action_id + ":" + str(attempt),
+            "effect", intent.action_id, scope_deadline=intent.deadline)
+        self._write_checkpoint(PhaseCheckpoint.model_validate({**value.model_dump(), "budget": budget}))
+        self._db.execute("UPDATE intents SET dispatch_state='dispatching',verification_json=NULL WHERE action_id=?", (intent.action_id,))
+        return lease
 
     def _reserve_entry(self, checkpoint, budget, now, entry_id, kind, subject_id=None, *, scope_deadline=None, scope_binding=None, control_scope=None):
         deadline = min(budget.deadline, scope_deadline) if scope_deadline is not None else budget.deadline
@@ -1096,6 +1152,10 @@ class CaseStore:
             old = self.transfer(intent.transfer_id)
             if old is not None and old.intent != intent:
                 raise JournalFailure("Immutable transfer conflict")
+            if old is not None and old.state in {"accepted", "rejected"} and old.state != state:
+                raise JournalFailure("Terminal legacy transfer cannot roll back")
+            if self._ownership.is_tagged(intent.transfer_id):
+                raise JournalFailure("Registered transfer cannot use legacy mutation API")
             self._db.execute("INSERT INTO transfers VALUES(?,?,?,?,?) ON CONFLICT(transfer_id) DO UPDATE SET state=excluded.state",
                 (intent.transfer_id, intent.case_id, intent.binding.generation, intent.model_dump_json(), record.state))
 
@@ -1104,6 +1164,12 @@ class CaseStore:
         row = self._db.execute("SELECT * FROM transfers WHERE transfer_id=?", (transfer_id,)).fetchone()
         if row is None:
             return None
+        raw = _json(row["transfer_json"])
+        if raw.get("kind") == "transfer_record_v1":
+            registered = self.transfer_record(transfer_id)
+            return TransferRecord(intent=registered.intent, state=registered.lifecycle)
+        if "kind" in raw:
+            raise JournalFailure("Unknown stored transfer tag")
         value = _read(TransferIntent, row["transfer_json"])
         self._assert_binding(value.binding)
         if (value.transfer_id, value.case_id, value.binding.generation) != (row["transfer_id"], row["case_id"], row["generation"]):
@@ -1143,3 +1209,4 @@ class CaseStore:
                     raise JournalFailure("Refusal audit history belongs to another case")
                 self._validate_refusal_history(audit.refusal_history)
         self._admission.validate_all()
+        self._ownership.validate_events()
