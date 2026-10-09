@@ -13,7 +13,7 @@ import threading
 from typing import Literal
 from uuid import uuid4
 
-from pydantic import model_validator
+from pydantic import TypeAdapter, model_validator
 
 from .budget import BudgetExceeded, check_time, debit, initial_budget, preserve_budget, tool_timeout, validate_budget
 from .contracts import (AuthorityObservation, CampaignPermit, CanonicalRequest, EffectIntent, InvocationRequest, InvocationReservation,
@@ -23,7 +23,7 @@ from .contracts import (AuthorityObservation, CampaignPermit, CanonicalRequest, 
 from .identity import fingerprint, request_fingerprint
 from .execution import ExecutionContext
 from .wait_contracts import ControlReadScopeV1, RefusalAdmissionHistoryV1, WaitRecordV1
-from .ownership_contracts import OwnershipEventV1, OwnershipProcessRegistryV1
+from .ownership_contracts import OperatorDecisionSubmissionV1, OwnershipEventV1, OwnershipProcessRegistryV1
 
 
 class JournalFailure(RuntimeError):
@@ -226,6 +226,18 @@ class CaseStore:
 
     def record_decision_atomic(self, submission, source, now):
         return self._ownership.decision(submission, source, now)
+
+    def decision_record(self, binding: RequestBinding, decision_id: Identifier) -> OperatorDecisionSubmissionV1:
+        """Trusted-host historical original; never current decision permission."""
+        if threading.get_ident() != self._owner_thread:
+            raise JournalFailure("Journal creator thread required")
+        binding = _typed(RequestBinding, binding)
+        try:
+            decision_id = TypeAdapter(Identifier).validate_python(decision_id, strict=True)
+        except (ValueError, TypeError) as error:
+            raise JournalFailure("Expected strict decision identifier") from error
+        self._schema()
+        return self._ownership.decision_record(binding, decision_id)
 
     def record_disposition_atomic(self, disposition, source, now):
         return self._ownership.disposition(disposition, source, now)
@@ -969,6 +981,18 @@ class CaseStore:
     def invocation(self, invocation_id):
         """Recovery inspection is evidence only, never a reusable entry grant."""
         return self._invocation(invocation_id)
+
+    def processing_attempts(self, binding: RequestBinding) -> tuple[tuple[InvocationReservation, ProcessingReceipt | None], ...]:
+        """Detached durable attempts in insertion order; no provider reentry."""
+        if threading.get_ident() != self._owner_thread:
+            raise JournalFailure("Journal creator thread required")
+        binding = _typed(RequestBinding, binding)
+        self._assert_binding(binding)
+        if self.original_request(binding.case_id, binding.generation) is None:
+            raise JournalFailure("Processing inventory requires immutable original request")
+        rows = self._db.execute("SELECT invocation_id FROM invocations WHERE case_id=? AND generation=? ORDER BY rowid",
+                                (binding.case_id, binding.generation)).fetchall()
+        return tuple(self._invocation(row[0]) for row in rows)
 
     @staticmethod
     def _receipt_identity(reservation, receipt):

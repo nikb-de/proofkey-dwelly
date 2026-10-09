@@ -497,6 +497,19 @@ class OwnershipStore:
             self.store._write_checkpoint(source.checkpoint, ownership_event=event)
             return submission
 
+    def decision_record(self, binding, decision_id):
+        self.store._assert_binding(binding)
+        if self.store.original_request(binding.case_id, binding.generation) is None:
+            self.fail("Decision inventory requires immutable original request")
+        self.validate_events(binding.case_id)
+        matches = [event.submission for _, event in self._events(binding.case_id)
+                   if isinstance(event, DecisionRecordedV1)
+                   and event.submission.decision.binding == binding
+                   and event.submission.decision.decision_id == decision_id]
+        if len(matches) != 1:
+            self.fail("No unique complete recorded decision in exact binding")
+        return self.typed(OperatorDecisionSubmissionV1, matches[0])
+
     def disposition(self, disposition, source, now):
         value = self.typed(OperatorDispositionV1, disposition)
         with self.store._transaction():
