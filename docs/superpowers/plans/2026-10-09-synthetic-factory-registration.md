@@ -101,7 +101,7 @@ Copy that resolved body's `implementation_registration` object into the staged m
 
 - [ ] **Step 4: Prove cross-registration separation and current behavioral coverage.**
 
-Tests compare proposal/stage hashes under two IDs with identical pins; reject each other's proposals, regression bindings and simulated-review evidence in both directions. Verify prepare/resolve/check/stage all use one registration and returned material cannot mutate it. Add an explicit golden digest vector for the registration object. Existing 20 factory tests must reach their intended assertions; do not weaken reason checks or skip any test.
+Tests compare proposal/stage hashes under two IDs with identical pins; reject each other's proposals, regression bindings and simulated-review evidence in both directions. Verify prepare/resolve/check/stage all use one registration and returned material cannot mutate it. Add an explicit golden digest vector for the registration object. Existing 21 factory tests must reach their intended assertions; do not weaken reason checks or skip any test.
 
 ```sh
 PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1 PYTHONPATH=runtime/src:runtime/tests .superpowers/sdd/2026-10-08-proofkey-runtime/api-env.GEsSnS/bin/python -B -m unittest test_factory_registration test_adaptation_factory -v

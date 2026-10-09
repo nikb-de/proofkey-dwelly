@@ -3,6 +3,7 @@ from dataclasses import dataclass, replace
 from datetime import datetime
 from hashlib import sha256
 import json
+import re
 
 from ..contracts import (AdaptationProposal, EnvironmentProfile, AdaptationDiff,
                          MigrationPlan, ReviewPacket, HumanReviewApproval)
@@ -106,7 +107,7 @@ def _validate_candidate(baseline, candidate, supplement):
         raise FactoryDenied("reused_profile_identity")
 
 
-def _material_proposal(material):
+def _material_proposal(material, implementation_registration=None):
     try:
         if type(material) is not ProposalMaterial or type(material.adapter_sources) is not tuple:
             raise FactoryDenied("invalid_material")
@@ -143,13 +144,21 @@ def _material_proposal(material):
             raise FactoryDenied("affected_contract_inventory_mismatch")
         migration = MigrationPlan(strategy=migration.strategy, affected_contracts=affected)
         adapters = []
+        source_bytes = 0
         for pair in material.adapter_sources:
             if type(pair) is not tuple or len(pair) != 2 or type(pair[0]) is not str or type(pair[1]) is not bytes:
                 raise FactoryDenied("invalid_adapter_sources")
+            if implementation_registration is not None:
+                source_bytes += len(pair[1])
+                if len(pair[1]) > MAX_BYTES or source_bytes > 6 * MAX_BYTES:
+                    raise FactoryDenied("material_limit_exceeded")
             adapters.append({"path": pair[0], "sha256": sha256(pair[1]).hexdigest()})
         if not adapters or len({entry["path"] for entry in adapters}) != len(adapters):
-            raise FactoryDenied("invalid_adapter_sources")
-        if {entry["path"]: entry["sha256"] for entry in adapters} != dict(REGISTERED_IMPLEMENTATIONS):
+            raise FactoryDenied("invalid_adapter_sources" if implementation_registration is None
+                                else "unsupported_adapter_implementation")
+        pins = (REGISTERED_IMPLEMENTATIONS if implementation_registration is None
+                else implementation_registration.implementations)
+        if {entry["path"]: entry["sha256"] for entry in adapters} != dict(pins):
             raise FactoryDenied("unsupported_adapter_implementation")
         required = tests.get("required_cases")
         if (type(required) is not list or not required or len(required) > 128 or
@@ -163,6 +172,14 @@ def _material_proposal(material):
             policy_hash=candidate.policy_hash, process_hash=candidate.process_hash,
             original_contracts=[{"id": name, "sha256": sha256(raw).hexdigest()} for name, raw in _contract_inventory(baseline)],
             supplement_hash=supplement.release_hash)
+        if implementation_registration is not None:
+            registered_pins = [{"path": path, "sha256": digest} for path, digest in
+                               sorted(implementation_registration.implementations)]
+            body["implementation_registration"] = {
+                "registration_id": implementation_registration.registration_id,
+                "provenance": implementation_registration.provenance,
+                "inventory_sha256": sha256(canonical(registered_pins)).hexdigest(),
+            }
         proposal = AdaptationProposal(**{key: body[key] for key in (
             "proposal_id", "source_hash", "baseline_hash", "diff", "test_hash", "migration", "agent_hash")},
             proposal_hash=fingerprint(body))
@@ -221,6 +238,36 @@ class OriginalInventory:
     pending: tuple[bytes, ...]
 
 
+@dataclass(frozen=True, slots=True)
+class SyntheticImplementationRegistration:
+    registration_id: str
+    provenance: str
+    implementations: tuple[tuple[str, str], ...]
+
+
+def _normalize_registration(registration):
+    if registration is None:
+        return None
+    if (type(registration) is not SyntheticImplementationRegistration or
+            type(registration.registration_id) is not str or
+            re.fullmatch(r"[a-z0-9][a-z0-9._-]{0,127}", registration.registration_id) is None or
+            type(registration.provenance) is not str or
+            registration.provenance != "local_controlled_synthetic" or
+            type(registration.implementations) is not tuple or len(registration.implementations) != 6):
+        raise FactoryDenied("invalid_implementation_registration")
+    pins = []
+    for pair in registration.implementations:
+        if (type(pair) is not tuple or len(pair) != 2 or
+                type(pair[0]) is not str or type(pair[1]) is not str or
+                re.fullmatch(r"[0-9a-f]{64}", pair[1]) is None):
+            raise FactoryDenied("invalid_implementation_registration")
+        pins.append((pair[0], pair[1]))
+    if {path for path, _ in pins} != {path for path, _ in REGISTERED_IMPLEMENTATIONS}:
+        raise FactoryDenied("invalid_implementation_registration")
+    return SyntheticImplementationRegistration(registration.registration_id, registration.provenance,
+                                               tuple(sorted(pins)))
+
+
 @dataclass(frozen=True)
 class FactoryContext:
     materials: tuple[ProposalMaterial, ...]
@@ -229,6 +276,7 @@ class FactoryContext:
     reviews: tuple[HumanReviewEvent, ...]
     inventory: OriginalInventory | None
     now: datetime
+    implementation_registration: SyntheticImplementationRegistration | None = None
 
 
 class AdaptationFactory:
@@ -241,6 +289,7 @@ class AdaptationFactory:
         if (type(context.now) is not datetime or context.now.tzinfo is None or len(context.materials) > 32 or
                 len(context.regressions) > 128 or len(context.reviews) > 128 or len(context.runners) > 128):
             raise FactoryDenied("invalid_context")
+        registration = _normalize_registration(context.implementation_registration)
         if any(type(runner) is not RunnerIdentity or any(type(getattr(runner, name)) is not str for name in
                ("runner_id", "provenance", "suite_hash")) for runner in context.runners):
             raise FactoryDenied("runner_untrusted")
@@ -257,7 +306,7 @@ class AdaptationFactory:
                 raise FactoryDenied("invalid_material")
             normalized = replace(material, **{field: canonical(decode(getattr(material, field))) for field in
                 ("source", "baseline", "candidate", "tests", "agent", "diff", "migration", "reviewed_supplement")})
-            _material_proposal(normalized)
+            _material_proposal(normalized, registration)
             materials.append(normalized)
         if len({material.proposal_id for material in materials}) != len(materials):
             raise FactoryDenied("duplicate_registration")
@@ -269,7 +318,8 @@ class AdaptationFactory:
                         if type(event) is HumanReviewEvent)
         if len(reviews) != len(context.reviews):
             raise FactoryDenied("approval_untrusted")
-        self._context = replace(context, materials=tuple(materials), regressions=regressions, reviews=reviews, inventory=inventory)
+        self._context = replace(context, materials=tuple(materials), regressions=regressions, reviews=reviews,
+                                inventory=inventory, implementation_registration=registration)
 
     @property
     def context(self):
@@ -279,7 +329,7 @@ class AdaptationFactory:
         if type(proposal) is not AdaptationProposal:
             raise FactoryDenied("proposal_mismatch")
         for material in self.context.materials:
-            expected, candidate, baseline, body = _material_proposal(material)
+            expected, candidate, baseline, body = _material_proposal(material, self.context.implementation_registration)
             if expected.proposal_hash == proposal.proposal_hash:
                 if wire(expected) != wire(proposal):
                     raise FactoryDenied("proposal_mismatch")
@@ -288,7 +338,7 @@ class AdaptationFactory:
 
     def _proposal_hash(self, proposal_hash):
         for material in self.context.materials:
-            proposal, _, _, _ = _material_proposal(material)
+            proposal, _, _, _ = _material_proposal(material, self.context.implementation_registration)
             if proposal.proposal_hash == proposal_hash:
                 return proposal
         raise FactoryDenied("proposal_unregistered")
@@ -302,7 +352,7 @@ class AdaptationFactory:
                 and canonical(decode(material.baseline)) == baseline_bytes]
             if len(matches) != 1:
                 raise FactoryDenied("proposal_material_unregistered")
-            return _material_proposal(matches[0])[0]
+            return _material_proposal(matches[0], self.context.implementation_registration)[0]
         except FactoryDenied:
             raise
         except (ValueError, TypeError, AttributeError):

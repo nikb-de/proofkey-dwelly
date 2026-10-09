@@ -99,6 +99,8 @@ def stage_release(factory, review_packet, human_approval, pending_intents):
             migration_proof="unavailable", approval_hash=fingerprint(approval.model_dump(mode="json")),
             inventory_id=inventory.inventory_id, inventory_scope=inventory.scope, pending_inventory_hash=fingerprint({"pending": []}),
             unmet_requirements=list(unmet), staged_at=factory.context.now.isoformat())
+        if "implementation_registration" in body:
+            manifest["implementation_registration"] = body["implementation_registration"]
         receipt = ReleaseReceipt(version=candidate.version, release_hash=fingerprint(manifest),
             proposal_hash=proposal.proposal_hash, regression_hash=expected.regression_hash,
             profile_hash=candidate.release_hash, process_hash=candidate.process_hash, policy_hash=candidate.policy_hash,

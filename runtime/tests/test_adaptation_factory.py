@@ -79,13 +79,27 @@ def material(candidate=None, **changes):
     return ProposalMaterial(**{**data, **changes})
 
 
-def factory_for(mat=None, regressions=(), reviews=(), pending=(), inventory=True):
+def current_registration():
+    """Load independent fixed pins; submitted material never selects authority."""
+    from proofkey.factory import SyntheticImplementationRegistration
+    data = json.loads((ROOT / "tests/fixtures/factory-current-registration-v1.json").read_text())
+    return SyntheticImplementationRegistration(data["registration_id"], data["provenance"],
+                                             tuple(data["implementations"].items()))
+
+
+_DEFAULT_REGISTRATION = object()
+
+
+def factory_for(mat=None, regressions=(), reviews=(), pending=(), inventory=True,
+                implementation_registration=_DEFAULT_REGISTRATION):
     mat = mat or material()
     base = EnvironmentProfile.model_validate_json(mat.baseline)
     context = FactoryContext(materials=(mat,), regressions=tuple(regressions),
         runners=(RunnerIdentity("controlled-local-tests", "local_controlled_synthetic", fingerprint(json.loads(mat.tests))),),
         reviews=tuple(reviews), inventory=OriginalInventory("synthetic-complete-1", "controlled_fixture",
-        base.release_hash, tuple(encoded(i.model_dump(mode="json")) for i in pending)) if inventory else None, now=NOW)
+        base.release_hash, tuple(encoded(i.model_dump(mode="json")) for i in pending)) if inventory else None, now=NOW,
+        implementation_registration=(current_registration() if implementation_registration is _DEFAULT_REGISTRATION
+                                     else implementation_registration))
     return AdaptationFactory(context)
 
 
@@ -176,7 +190,8 @@ def approval_for(proposal, regression):
 
 def reviewed(mat=None, pending=(), **context_changes):
     mat = mat or material(supported_candidate())
-    proposal = prepared(factory_for(mat), mat)
+    proposal = prepared(factory_for(mat, implementation_registration=context_changes.get(
+        "implementation_registration", _DEFAULT_REGISTRATION)), mat)
     regression = evidence(mat, proposal)
     approval = approval_for(proposal, regression)
     event = HumanReviewEvent(approval.proof_reference, encoded(approval.model_dump(mode="json")), "human", "synthetic_rehearsal")
