@@ -258,6 +258,19 @@ class ActionGateway:
             if not isinstance(proposal, ActionProposal) or proposal.operation != declared_operation:
                 raise GateDenied("scope_denied")
             proposal = ActionProposal.model_validate(proposal.model_dump())
+            existing = [record for record in self.store.intents(case_id)
+                        if record.intent.binding == checkpoint.binding and record.intent.operation == declared_operation]
+            if existing:
+                if len(existing) != 1:
+                    return VerificationResult(status="conflict", reason="immutable_intent_conflict")
+                record = existing[0]
+                if (proposal.stage != record.intent.stage or fingerprint(proposal.arguments) != record.intent.argument_fingerprint
+                        or fingerprint(postcondition) != fingerprint(record.intent.postcondition)):
+                    return VerificationResult(status="conflict", reason="immutable_intent_conflict")
+                intent = record.intent
+                if record.state != "prepared":
+                    return self.reconcile(intent.action_id)
+                return self._run(intent, observations)
             indexed = qualified_observations(self.profile, checkpoint.binding.object_id, observations)
             action_id = stable_action_id(checkpoint.binding, proposal.operation, proposal.stage)
             intent = EffectIntent(binding=checkpoint.binding, operation=proposal.operation, stage=proposal.stage,

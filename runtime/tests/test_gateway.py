@@ -537,3 +537,163 @@ class GatewayTests(unittest.TestCase):
         with self.assertRaises(GateDenied):
             self.gateway.read_material_authorities(self.intent(deadline=NOW + timedelta(seconds=.65)))
         self.assertEqual(self.world.effect_count("reschedule"), 0)
+
+    def test_repeated_proposal_verified_original_reconciles_without_replacing_revisions_or_key(self):
+        self.ready()
+        build = self.builder("reschedule")
+        self.assertEqual(self.gateway.execute_proposal("C1", "reschedule", build).status, "verified")
+        original = self.store.intents("C1")[0]
+        self.assertEqual(self.gateway.execute_proposal("C1", "reschedule", build), original.verification)
+        self.assertEqual(self.store.intent(original.intent.action_id), original)
+        self.assertEqual(self.world.effect_count("reschedule"), 1)
+        self.assertEqual(sum(c.operation == "reschedule" for c in self.world.calls), 1)
+        self.assertEqual(self.store.checkpoint("C1").budget.effects, 1)
+        self.assertEqual(self.store.checkpoint("C1").budget.reconciliation_reads[original.intent.action_id], 2)
+
+    def test_repeated_proposal_conflict_is_preserved_after_current_authenticated_read(self):
+        self.ready()
+        from proofkey.contracts import DispatchResult
+        from dataclasses import replace
+        original_port = self.gateway.bundle.scheduling
+        class WrongAckScheduling:
+            def __getattr__(self, name):
+                return getattr(original_port, name)
+            def reschedule(self, intent, *, deadline=None):
+                reply = original_port.reschedule(intent, deadline=deadline)
+                return DispatchResult.model_validate({**reply.model_dump(), "provider_request_id": "provider:foreign"})
+        self.gateway.bundle = replace(self.gateway.bundle, scheduling=WrongAckScheduling())
+        build = self.builder("reschedule")
+        self.assertEqual(self.gateway.execute_proposal("C1", "reschedule", build).status, "conflict")
+        original = self.store.intents("C1")[0]
+        self.assertEqual(self.gateway.execute_proposal("C1", "reschedule", build), original.verification)
+        self.assertEqual(self.store.intent(original.intent.action_id), original)
+        self.assertEqual(sum(c.operation == "reschedule" for c in self.world.calls), 1)
+        self.assertEqual(self.store.checkpoint("C1").budget.reconciliation_reads[original.intent.action_id], 2)
+
+    def test_repeated_proposal_unresolved_executed_original_is_read_without_another_dispatch(self):
+        self.ready()
+        build = self.builder("reschedule")
+        self.world.set_fault("reschedule", "timeout_after")
+        self.world.set_fault("read_schedule", "timeout_before")
+        self.assertEqual(self.gateway.execute_proposal("C1", "reschedule", build).status, "outcome_unknown")
+        original = self.store.intents("C1")[0].intent
+        self.world.set_fault("read_schedule", "none")
+        self.assertEqual(self.gateway.execute_proposal("C1", "reschedule", build).status, "verified")
+        self.assertEqual(self.store.intent(original.action_id).intent, original)
+        self.assertEqual(self.world.effect_count("reschedule"), 1)
+        self.assertEqual(sum(c.operation == "reschedule" for c in self.world.calls), 1)
+        self.assertEqual(self.store.checkpoint("C1").budget.effects, 1)
+
+    def test_repeated_proposal_absent_original_uses_common_contract_safe_recovery(self):
+        self.ready()
+        build = self.builder("reschedule")
+        self.world.set_fault("reschedule", "timeout_before")
+        self.assertEqual(self.gateway.execute_proposal("C1", "reschedule", build).status, "outcome_unknown")
+        original = self.store.intents("C1")[0].intent
+        self.world.set_fault("reschedule", "none")
+        self.assertEqual(self.gateway.execute_proposal("C1", "reschedule", build).status, "verified")
+        self.assertEqual(self.store.intent(original.action_id).intent, original)
+        self.assertEqual(self.store.checkpoint("C1").budget.effects, 1)
+        self.assertEqual(self.store.checkpoint("C1").budget.retries[original.action_id], 1)
+        self.assertEqual(self.world.effect_count("reschedule"), 1)
+
+    def test_repeated_proposal_current_acl_denial_does_not_disclose_verified_original(self):
+        self.ready()
+        build = self.builder("reschedule")
+        self.assertEqual(self.gateway.execute_proposal("C1", "reschedule", build).status, "verified")
+        original = self.store.intents("C1")[0]
+        denied = ActionGateway(self.profile, self.world.bundle(), self.store, self.clock,
+                               auth=make_auth(proof_reference="forged"))
+        result = denied.execute_proposal("C1", "reschedule", build)
+        self.assertEqual(result.status, "rejected")
+        self.assertIsNone(result.object_id)
+        self.assertIsNone(result.postcondition)
+        self.assertEqual(result.evidence_refs, [])
+        self.assertEqual(self.store.intent(original.intent.action_id), original)
+        self.assertEqual(sum(c.operation == "reschedule" for c in self.world.calls), 1)
+
+    def test_repeated_proposal_changed_arguments_stage_or_postcondition_conflicts_without_new_effect(self):
+        for change in ("arguments", "stage", "postcondition"):
+            with self.subTest(change=change):
+                test = GatewayTests("test_repeated_proposal_changed_arguments_stage_or_postcondition_conflicts_without_new_effect")
+                test.setUp()
+                try:
+                    test.ready()
+                    self.assertEqual(test.gateway.execute_proposal("C1", "reschedule", self.builder("reschedule")).status, "verified")
+                    original = test.store.intents("C1")[0]
+                    def changed(request, observations):
+                        proposal, post = self.builder("reschedule")(request, observations)
+                        if change == "arguments":
+                            proposal = ActionProposal.model_validate({**proposal.model_dump(), "arguments": {"slot": "S2"}})
+                        elif change == "stage":
+                            proposal = ActionProposal.model_validate({**proposal.model_dump(), "stage": "deliver"})
+                        else:
+                            post = {"slot": "S2"}
+                        return proposal, post
+                    self.assertEqual(test.gateway.execute_proposal("C1", "reschedule", changed).status, "conflict")
+                    self.assertEqual(test.store.intents("C1"), (original,))
+                    self.assertEqual(sum(c.operation == "reschedule" for c in test.world.calls), 1)
+                finally:
+                    test.doCleanups()
+
+    def test_repeated_proposal_prepared_original_keeps_its_original_vector_and_scope(self):
+        self.ready()
+        original = self.intent(provider_key="provider:original-custom-key", deadline=NOW + timedelta(hours=1))
+        self.store.prepare(original)
+        self.assertEqual(self.gateway.execute_proposal("C1", "reschedule", self.builder("reschedule")).status, "verified")
+        self.assertEqual(self.store.intent(original.action_id).intent, original)
+        self.assertEqual(self.world.effect_count("reschedule"), 1)
+
+    def test_repeated_proposal_stale_prepared_original_denies_without_refreshing_immutable_vector(self):
+        self.ready()
+        original = self.intent()
+        self.store.prepare(original)
+        self.world.mutate("scheduling.capacity", ["S1", "S2"])
+        self.assertEqual(self.gateway.execute_proposal("C1", "reschedule", self.builder("reschedule")).status, "rejected")
+        self.assertEqual(self.store.intent(original.action_id).intent, original)
+        self.assertEqual(self.store.intent(original.action_id).state, "prepared")
+        self.assertEqual(self.world.effect_count("reschedule"), 0)
+
+    def test_stopped_proposal_entry_does_not_refresh_or_downgrade_any_entered_original(self):
+        for state in ("verified", "conflict", "outcome_unknown"):
+            with self.subTest(state=state):
+                test = GatewayTests("test_stopped_proposal_entry_does_not_refresh_or_downgrade_any_entered_original")
+                test.setUp()
+                try:
+                    test.ready()
+                    if state == "conflict":
+                        test.world.set_fault("read_schedule", "wrong_object")
+                    elif state == "outcome_unknown":
+                        test.world.set_fault("reschedule", "timeout_before")
+                    self.assertEqual(test.gateway.execute_proposal("C1", "reschedule", self.builder("reschedule")).status, state)
+                    original = test.store.intents("C1")[0]
+                    test.store.set_stop("C1", "G1")
+                    before_calls = len(test.world.calls)
+                    def never_called(request, observations):
+                        self.fail("Stopped proposals cannot invoke a business builder")
+                    self.assertEqual(test.gateway.execute_proposal("C1", "reschedule", never_called).status, "rejected")
+                    self.assertEqual(test.store.intent(original.intent.action_id), original)
+                    self.assertEqual(len(test.world.calls), before_calls)
+                    self.assertTrue(test.store.checkpoint("C1").stop.requested)
+                finally:
+                    test.doCleanups()
+
+    def test_repeated_proposal_reconciliation_checks_acl_again_after_material_reads(self):
+        self.ready()
+        build = self.builder("reschedule")
+        self.assertEqual(self.gateway.execute_proposal("C1", "reschedule", build).status, "verified")
+        original = self.store.intents("C1")[0]
+        original_port = self.gateway.bundle.scheduling
+        from dataclasses import replace
+        from proofkey.contracts import ReadRequest
+        class OriginalReadDenied:
+            def __getattr__(self, name):
+                return getattr(original_port, name)
+            def read_schedule(self, request):
+                return original_port.read_schedule(ReadRequest.model_validate({**request.model_dump(), "proof_reference": "revoked"}))
+        self.gateway.bundle = replace(self.gateway.bundle, scheduling=OriginalReadDenied())
+        result = self.gateway.execute_proposal("C1", "reschedule", build)
+        self.assertEqual(result.status, "rejected")
+        self.assertIsNone(result.postcondition)
+        self.assertEqual(self.store.intent(original.intent.action_id), original)
+        self.assertEqual(sum(c.operation == "reschedule" for c in self.world.calls), 1)
