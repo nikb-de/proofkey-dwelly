@@ -1031,8 +1031,274 @@ def processing_parent_timing(self, *, store, clock):
 
 InvocationService's constructor validates exact ActionGateway and identical store/clock before DB/source access, retains fixed private parent/store/clock references and exposes only the read-only parent_gateway property. Configured ordinary call denies before ID/debit. call_in_parent obtains the existing service creator/lock guard, borrows the accessor's actual Timing, installs a service-private verifier that rechecks the fixed association and Timing object identity, then delegates internally to existing _call_in_scope without installing another journal scope. Invoke that verifier before ID/setup, before reserve, after reserve/before callback, in processing_context, after callback before receipt validation/save, and before returning saved output. Existing _call_in_scope owns request/reserve/debt/lease/receipt/readback/finally; clear private verifier in the same finally path and release the public lock on every exit. A lost/changed parent never returns usable completed output or refunds consumed debt. Legacy unconfigured flow remains unchanged.
 
+Cleanup follows the original constructor store/clock, not mutable service associations. Under a persistently invalid original clock the unchanged journal rejects a new transaction; assert durable consumed reservation/receipt=None and unchanged debt after outer-scope exit/reopen, plus finite parent failure/service restoration. Do not change or bypass the journal clock/scope to manufacture an unknown receipt. A one-shot invalid observation followed by a valid clock must still record actual outcome_unknown. Only parent invalid-clock cleanup errors are normalized; arbitrary storage errors and unconfigured behavior are not hidden or rewritten.
+
   - [ ] Step4 — run narrowly focused NEW tests/control methods as they are added, then freeze the actual changed files and forecasted source/data/private observer superset. Root authorizes ONE covering run with actual late-import/open union, PRE=POST and complete raw output; no full API/V2/driver repetition. Selected unchanged controls: InvocationTests valid saved receipt/recursion/commit failure and ExecutionConsumerTests reservation setup/after-reserve expiry/recursive scope restoration, plus ProcessingAdmissionTests per-role precharge/reopen debt where needed.
   - [ ] Step5 — root performs proportional checks and exact3 commit, followed by DIFFERENT NONAUTHOR separate Spec+Quality review. The parent block checkbox stays open until that gate. Then assign the separate engine recipe/V2/summary consumer; this block alone does not close Task12.
+
+- [ ] 12B4b prepared V2 consumer owns exactly NEW `runtime/src/proofkey/processing_orchestration.py` and NEW `runtime/tests/test_processing_prepared_consumer.py`, after12B4a independent Spec/Quality hold release. Binding [prepared-processing-consumer.md](../../../openspec/changes/proofkey-v21-harness-contracts/prepared-processing-consumer.md) closes exact signatures, caps, current authorization, status/privacy and permit scope. Engine/summary is separate12B4c, not part of this exact2 gate. Root has read the complete private consumer preparation and chosen these boundaries; no implementation GO is implied until predecessor approval.
+
+  - [ ] Step1 — create the NEW public-fixture test module from the exact prelude and two methods below. All simulated permit registration is explicit host setup outside callbacks. The exact V2 hash comes from actual saved extraction/current checkpoint, not guessed future engine input. The first RED must be missing NEW public classes/consumer entry, not broken helpers.
+
+```python
+import hashlib
+import json
+from pathlib import Path
+import tempfile
+import unittest
+from datetime import timedelta
+from unittest.mock import patch
+from proofkey.contracts import (AssertionsOutput, AuthorityObservation, BudgetLedger,
+    EvidenceAssertion, ProcessingReceipt, ProcessorIdentity, RoleAllowance, UnknownLocator)
+from proofkey.evidence.catalog import EvidenceCatalog
+from proofkey.evidence.processing_contracts import (PlanningEvidenceInputV2,
+    ProcessingCatalogBindings, SavedOriginalScope, canonical)
+from proofkey.execution import ExecutionContext
+from proofkey.gateway import ActionGateway
+from proofkey.identity import fingerprint
+from proofkey.processing import RoleAdmissionLimits
+from proofkey.processing_orchestration import (PlanningRegistration, ProcessingRecipe,
+    ProcessingOrchestrator)
+from proofkey.providers.anthropic import AnthropicClient, ENDPOINT
+from proofkey.providers.invocations import InvocationService, output_digest
+from proofkey.providers.protocols import TransportResponse
+from support import (DEADLINE, NOW, FakeClock, build_test_runtime, make_binding,
+    make_checkpoint, make_fixture_campaign, make_request)
+
+PROMPT = "Synthetic prepared V2 planner"
+USAGE = (("input_tokens", 100.0), ("output_tokens", 32.0))
+
+class Clock(FakeClock):
+    def __init__(self):
+        super().__init__()
+        self.seconds = 0.0
+    def monotonic(self): return self.seconds
+    def advance(self, seconds):
+        self.seconds += seconds
+        super().advance(seconds)
+
+class PreparedConsumerTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name).resolve()
+        self.fx = build_test_runtime(self.root, profile_name="flat-v1",
+            request=make_request(narrative="Box condition uncertain.\n"))
+        self.store, self.auth, self.clock = self.fx.store, self.fx.auth, Clock()
+        self.addCleanup(self.store.close)
+        self.original, self.binding = self.fx.request, make_binding(self.fx.request)
+        self.gateway = ActionGateway(self.fx.profile, self.fx.world.bundle(),
+            self.store, self.clock, auth=self.auth)
+        budget = BudgetLedger(case_id="C1", deadline=DEADLINE,
+            role_allowances={
+                "extraction": RoleAllowance(max_invocations=2, max_cost=2.0,
+                    usage_allowances={"tokens": 4.0}),
+                "planning": RoleAllowance(max_invocations=2, max_cost=2.0,
+                    usage_allowances={"input_tokens": 200.0, "output_tokens": 64.0})})
+        self.store.admit(self.binding, self.original, make_checkpoint(binding=self.binding,
+            phase="window_gate", next_gate="reschedule", budget=budget))
+        self.scope_bytes = canonical(dict(allowed_actors=["U1"], case_id="C1", object_id="O1",
+            binding_hash=fingerprint(self.binding.model_dump(mode="json")),
+            original_request_hash=fingerprint(self.original.model_dump(mode="json")),
+            scope_id="saved-scope", policy_id="synthetic-local-policy",
+            authorization_reference="synthetic-proof", provenance="synthetic_host_registration",
+            expires_at=DEADLINE.isoformat()))
+        def original_lookup(binding):
+            if self.store.find_request(binding.case_id, binding.request_id,
+                binding.request_revision, binding.consent_revision, binding.fingerprint) != binding:
+                raise ValueError("Exact durable original required")
+            return self.store.original_request(binding.case_id, binding.generation)
+        def saved_scope(binding, original, auth, purpose):
+            if (binding, original, auth) != (self.binding, self.original, self.auth) or self.clock.now() >= DEADLINE:
+                return None
+            return SavedOriginalScope(canonical(self.binding.model_dump(mode="json")),
+                fingerprint(self.original.model_dump(mode="json")), "saved-scope", self.scope_bytes,
+                "synthetic-local-policy", "synthetic_host_registration", "synthetic-proof", DEADLINE)
+        def access(auth, record, scope, purpose):
+            return (auth == self.auth and record.case_id == self.binding.case_id
+                and scope.get("scope_id") == "saved-scope" and scope.get("allowed_actors") == ("U1",))
+        self.catalog = EvidenceCatalog(self.root / "catalog", self.clock,
+            allowed_input_roots=[self.root], access_resolver=access,
+            processing_bindings=ProcessingCatalogBindings(original_lookup,
+                lambda b: self.store.checkpoint(b.case_id), self.store.invocation, saved_scope,
+                profile_lookup=lambda b, o: self.fx.profile))
+        self.observations = (AuthorityObservation(authority="delivery", fact="delivery.status",
+            object_id="O1", value="scheduled", revision="v1", observed_at=NOW,
+            evidence_ref="synthetic-source-status"),)
+        self.ids, self.requests = [], []
+        for target in ("socket.socket.connect", "socket.socket.connect_ex", "socket.create_connection"):
+            blocker = patch(target, side_effect=AssertionError("No network"))
+            blocker.start()
+            self.addCleanup(blocker.stop)
+        self.record, self.input = self.prepare_public_input()
+
+    def prepare_public_input(self):
+        record = self.catalog.register_saved_narrative(self.binding, self.auth)
+        grant = make_fixture_campaign(role="extraction", input_hashes=[record.original_hash],
+            max_usage={"tokens": 2.0}, campaign_id="synthetic-extract")
+        self.store.register_campaign(grant)  # independent host setup, before callback
+        identity = ProcessorIdentity(case_id="C1", generation="G1", role="extraction",
+            campaign_id=grant.campaign_id, permit_hash=grant.permit_hash,
+            input_hashes=grant.input_hashes, provider=grant.provider, model=grant.model,
+            endpoint=grant.endpoint, prompt_hash=hashlib.sha256(PROMPT.encode()).hexdigest(),
+            version="v1", profile_version="v1", process_version="v1", deadline=DEADLINE)
+        service = InvocationService("C1", self.store, self.clock, grant, identity,
+            worst_case_cost=1.0, invocation_id_factory=lambda: "extract-1")
+        def invoke():
+            self.catalog.seal_invocation_inputs(self.binding, "extract-1", (record.artifact_id,), self.auth)
+            output = AssertionsOutput(kind="assertions", assertions=[EvidenceAssertion(
+                artifact_id=record.artifact_id, content_hash=record.original_hash,
+                lineage_hash=record.lineage_hash, claim="Damaged", locator=UnknownLocator(reason="not_measured"),
+                uncertainty="unverified", processing_receipt_id="extract-1")])
+            return ProcessingReceipt(invocation_id="extract-1", role="extraction",
+                provider=identity.provider, requested_model=identity.model, prompt_hash=identity.prompt_hash,
+                version=identity.version, input_hashes=identity.input_hashes, mode="synthetic",
+                status="completed", latency_seconds=0.0, usage={"tokens": 1.0}, output=output,
+                output_hashes=[output_digest(output)], processed_at=self.clock.now())
+        service.call("extraction", identity.input_hashes, {"tokens": 2.0}, invoke)
+        self.catalog.publish_processing_output(self.binding, "extract-1", self.auth)
+        record = self.catalog.register_planning_evidence_snapshot(self.store.checkpoint("C1"),
+            self.observations, ("extract-1",), self.auth)
+        return record, PlanningEvidenceInputV2.from_bytes(self.catalog.read_original(record.artifact_id, self.auth))
+
+    def grant(self, hashes):
+        return make_fixture_campaign(role="planning", campaign_id="synthetic-prepared-plan",
+            provider="anthropic", endpoint=ENDPOINT, input_hashes=list(hashes), max_usage=dict(USAGE))
+
+    def consumer(self, grants):
+        def transport(request):
+            self.requests.append(request)
+            self.clock.advance(0.25)
+            output = {"kind": "proposal", "proposal": {"operation": "reschedule", "stage": "commit",
+                "arguments": {"slot": "S1"}, "evidence_refs": ["synthetic-source-status"]}}
+            return TransportResponse(200, canonical({"id": "msg-synthetic", "type": "message",
+                "role": "assistant", "model": "synthetic-observed", "stop_reason": "end_turn",
+                "content": [{"type": "text", "text": json.dumps(output)}],
+                "usage": {"input_tokens": 7, "output_tokens": 3}}))
+        processor = AnthropicClient(transport, system_prompt=PROMPT, max_tokens=32)
+        registrations = tuple(PlanningRegistration(binding_bytes=canonical(self.binding.model_dump(mode="json")),
+            campaign_bytes=canonical(g.model_dump(mode="json")), processor=processor,
+            prompt_hash=hashlib.sha256(PROMPT.encode()).hexdigest(), version="v1",
+            profile_version="v1", process_version="v1", usage_ceiling=USAGE, worst_case_cost=1.0,
+            allowed_steps=(("reschedule", "commit", ("slot",)),)) for g in grants)
+        recipe = ProcessingRecipe(allowances=(RoleAdmissionLimits("planning", 2,
+            (("input_tokens", 200.0), ("output_tokens", 64.0)), 2.0),), planning_registrations=registrations)
+        def next_id():
+            value = "plan-" + str(len(self.ids) + 1)
+            self.ids.append(value)
+            return value
+        return ProcessingOrchestrator(self.store, self.clock, self.catalog,
+            parent_gateway=self.gateway, recipe=recipe, invocation_id_factory=next_id)
+    def test_exact_registered_prepared_v2_returns_saved_validated_planning_output(self):
+        before = self.store.checkpoint("C1")
+        self.assertEqual(before, self.input.checkpoint())
+        grant = self.grant((self.input.envelope_hash,))
+        self.store.register_campaign(grant)  # outside consumer/provider callbacks
+        self.assertEqual(self.store.checkpoint("C1"), before)
+        consumer = self.consumer((grant,))
+        execution = ExecutionContext.capture(self.clock.now() + timedelta(seconds=20), self.clock)
+        with self.gateway.execution_scope(execution):
+            outcome = consumer.plan_prepared(self.record, self.input, self.auth)
+        self.assertEqual(outcome.status, "completed")
+        reservation, saved = self.store.invocation(outcome.receipt.invocation_id)
+        self.assertEqual(saved, outcome.receipt)
+        self.assertEqual(reservation.status, "completed")
+        self.assertEqual(saved.input_hashes, [self.input.envelope_hash])
+        self.assertEqual(saved.output.proposal.arguments, {"slot": "S1"})
+        self.assertEqual(outcome.publication.invocation_id, saved.invocation_id)
+        self.assertEqual(self.ids, ["plan-1"])
+        self.assertEqual(len(self.requests), 1)
+        body = json.loads(self.requests[0].body)
+        self.assertEqual(body["messages"][0]["content"][0]["text"], self.input.envelope_bytes.decode("utf-8"))
+        current = self.store.checkpoint("C1")
+        self.assertEqual(current.budget.planner_calls, before.budget.planner_calls + 1)
+        self.assertNotEqual(current, self.input.checkpoint())  # debit is historical, not a publication denial
+        self.assertEqual(self.store.campaign_usage(grant.permit_hash)["invocations"], 1)
+        self.assertEqual([a.invocation_id for a, r in self.store.processing_attempts(self.binding)],
+                         ["extract-1", "plan-1"])
+    def test_absent_unregistered_or_mismatched_permit_keeps_original_accounting(self):
+        exact = self.grant((self.input.envelope_hash,))
+        wrong = self.grant(("f" * 64,))
+        self.store.register_campaign(wrong)  # host setup only; exact remains unregistered
+        before = (self.store.checkpoint("C1"), self.store.processing_attempts(self.binding),
+                  self.store.campaign_usage(wrong.permit_hash))
+        for registrations in ((), (exact,), (wrong,)):
+            with self.subTest(permits=len(registrations)):
+                consumer = self.consumer(registrations)
+                execution = ExecutionContext.capture(self.clock.now() + timedelta(seconds=20), self.clock)
+                with self.gateway.execution_scope(execution):
+                    outcome = consumer.plan_prepared(self.record, self.input, self.auth)
+                self.assertEqual(outcome.status, "unavailable")
+                self.assertEqual(outcome.entry_local_reason, "permit_unavailable")
+                self.assertIsNone(outcome.receipt)
+                self.assertIsNone(outcome.publication)
+                self.assertEqual(self.ids, [])
+                self.assertEqual(self.requests, [])
+                self.assertEqual((self.store.checkpoint("C1"), self.store.processing_attempts(self.binding),
+                                  self.store.campaign_usage(wrong.permit_hash)), before)
+```
+
+  - [ ] Step2 — run both NEW methods, retain original command/tool metadata/stdout, then implement minimal exact2 consumer. Use the configured Python3.12 runtime, no dependencies/install/provider/services. Development and final private caches must be absent, existing user caches untouched.
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 PYTHONPYCACHEPREFIX='/Users/nbk/.codex/worktrees/proofkey-runtime/Pitch project/.superpowers/sdd/2026-10-08-proofkey-runtime/task-12-prepared-pycache-development' PYTHONPATH=runtime/src:runtime/tests /Users/nbk/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 -m unittest -v test_processing_prepared_consumer
+```
+
+  - [ ] Step3 — implement frozen/slotted PlanningRegistration/ProcessingRecipe/ProcessingStepOutcome and creator-owned nonreentrant ProcessingOrchestrator exactly as formal. Constructor validation is PURE: typed canonical detached bytes/exact tuple bounds, existing strict identity contracts/self-hash, callable processor reference, duplicate/ambiguous/full binding/route/ceiling guards. Reuse public freeze_processing_allowances with no case admission/grant. Public read-only association properties preserve actual parent/store/clock/catalog identities. No future caller or model may choose routes, IDs, campaign generation or policy.
+
+After actual original parent/current auth/input validation through public registrar/read_original, require exact full record/companion/current PRE-debit equality, then the unique exact registration and actual public campaign_usage registration/remaining scope. Missing/unregistered/mismatched/exhausted is unavailable/permit_unavailable BEFORE ID/debit. The concrete reserved callback/validator ordering is:
+
+```python
+# Inside ProcessingOrchestrator after exact current input/registration checks.
+# binding and campaign are fresh typed parses of the detached constructor bytes.
+identity = ProcessorIdentity(
+    case_id=binding.case_id, generation=binding.generation, role="planning",
+    campaign_id=campaign.campaign_id, permit_hash=campaign.permit_hash,
+    input_hashes=[input.envelope_hash], provider=campaign.provider,
+    model=campaign.model, endpoint=campaign.endpoint,
+    prompt_hash=registration.prompt_hash, version=registration.version,
+    profile_version=registration.profile_version,
+    process_version=registration.process_version,
+    deadline=input.checkpoint().budget.deadline)
+service = InvocationService(binding.case_id, self.store, self.clock, campaign,
+    identity, worst_case_cost=registration.worst_case_cost,
+    invocation_id_factory=self._invocation_id_factory,
+    parent_gateway=self.parent_gateway)
+allowed_steps = {}
+for operation, stage, keys in registration.allowed_steps:
+    allowed_steps.setdefault(operation, {})[stage] = keys
+planner = BoundedPlanner(registration.processor, service,
+    allowed_steps=allowed_steps, usage_ceiling=dict(registration.usage_ceiling))
+def invoke():
+    self.catalog.seal_invocation_inputs(binding, service.current_request.invocation_id,
+        (record.artifact_id,), auth)
+    context = service.processing_context(self.catalog, auth, input_records=(record,))
+    return registration.processor.propose_with_evidence(input, context)
+receipt = service.call_in_parent("planning", identity.input_hashes,
+    dict(registration.usage_ceiling), invoke)
+planner.validate_evidence_receipt(receipt, input)
+publication = self.catalog.publish_processing_output(binding, receipt.invocation_id, auth)
+# Verify the exact ORIGINAL parent Timing identity/deadline before constructing
+# the completed ProcessingStepOutcome; do not recapture or install another scope.
+```
+
+The callback passes a real sealed record through public ProcessingContext; do not use BoundedPlanner.propose, private clients/services or unscoped call. BoundedPlanner.validate_evidence_receipt consumes exact already saved receipt, so semantically rejected suggestions can retain private completed processing history, never returned or published usable output. Only completed outcome contains BOTH saved receipt and current publication; every other finite outcome exposes NEITHER. Preserve actual debt/unknown/consumed/no-receipt history, clear local guard and leave parent/store lifetime to host. Publication uses historical V2 joins/current ACL, not post-debit current checkpoint equality. No effects, refunds, messages or authority conversion.
+
+  - [ ] Step4 — add concrete NEW controls to the same module:
+    1. register exact grant with exhausted max_invocations; no new ID/callback/debit;
+    2. dataclasses frozen mutation, mutable tuple members, unknown/duplicate/noncanonical JSON keys, bad self-hash, bool/nonfinite float cost/usage, >4 registrations, >8 units/steps/keys, duplicate full identity and ambiguous same-input matches deny before store/source;
+    3. wrong proof/full binding/foreign or altered ArtifactRecord/PlanningEvidenceInputV2/extraction order/current checkpoint deny with no raw output;
+    4. actual mixed empty/nonempty saved publications are all retained in order; all-empty/failed/unknown/replay input cannot qualify;
+    5. missing/inactive/wrong-thread/recursive/changed parent associations, original monotonic expiry and stopped/ownership-fenced case never enter a processor;
+    6. reserved callback exception, invalid receipt, late callback/parent loss retain original real debt and restore next lawful separate entry; persistently invalid clocks retain consumed/no-receipt, not fabricated unknown;
+    7. captured transport disallowed operation/stage/key/absent evidence ref never returns/publishes a usable suggestion, even if private saved processing is completed;
+    8. revoke real catalog current access during transport/publication: no returned private receipt/publication, durable attempts/debt unchanged except lawful charges;
+    9. positive saved exact receipt/publication follows actual planning debit and full public insertion order; another public fresh authentication/read changes snapshot, no prepared fixture is claimed as later engine.run positive.
+
+Each new failing expectation inspects actual public durable state/callback count, not mocks replacing the mechanism. Initially green characterization is labelled honestly. No old unittest method invocation or weakened old fixture. Narrow developmental runs are permitted; after exact2 freezes root authorizes ONE final finite cohort of NEW module plus selected unchanged BoundedPlanner saved-receipt and parent/lease controls with actual source/data/platform/private closure. Preserve failed/truncated runs distinctly; no automatic complete API/V2/driver suite repeat.
+
+  - [ ] Step5 — root full report/current holds/proportional verification/exact2 staging and commit, then DIFFERENT NONAUTHOR separate Spec/Quality gate. Do not begin12B4c integration until hold release. This prepared-input block does not qualify fresh-text engine, all role/media/native/provider/human/rights/activation/drills or fullTask12.
+
 
 **Files:** Create `runtime/src/proofkey/providers/{__init__,protocols,invocations,replay,unavailable,anthropic,elevenlabs}.py`, `runtime/src/proofkey/planner.py`, `runtime/src/proofkey/assessment/{__init__,readiness}.py`, `runtime/tests/{test_processing_protocols,test_model_plan_gate,test_readiness_ledger}.py`; extend `runtime/tests/support.py`, Task 4's invocation recovery tests and Task 11 catalog integration.
 
