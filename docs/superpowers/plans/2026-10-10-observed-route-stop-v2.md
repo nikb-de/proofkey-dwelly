@@ -74,6 +74,7 @@ from datetime import timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
+import json
 from proofkey.contracts import AuthContext
 from proofkey.host_admission import (
     LocalAdmissionCompositionV1, ProvisionedReviewResolverV1, SyntheticReviewGrantV1)
@@ -87,6 +88,12 @@ def prepared_case(factory_key='fixed-synthetic-observed-stop-v2', *, missing=Fal
         parent = Path(folder).resolve()
         parent.chmod(0o700)
         request, source = case_data()
+        # Task 2 fixture correction: the generic preparation fixture lacks
+        # two typed packet facts required for actual flat-v1.3 execution.
+        example = Path(__file__).resolve().parents[1] / 'examples/registered-cases/window-fixture.json'
+        packet_facts = json.loads(example.read_text())['facts']
+        for name in ('operator.packet_access', 'operator.packet_catalog'):
+            source['facts'][name] = packet_facts[name]
         if missing:
             source['facts']['case.completeness']['value'] = 'missing'
         spec = SyntheticCaseReleaseSpecV1('J07-H', 'J07-L', 'J07-R', request, cj(source))
@@ -233,6 +240,8 @@ def test_same_owner_stop_preserves_original_and_charges_existing_case(self):
 Implement `assert_budget_continuity(test, before, after)` in test support independently: assert case_id equal, deadline <=, all `max_*` and reserved_handoff_effects equal, scalar consumed active_seconds/tool_calls/planner_calls/effects/clarifications >=, each old reconciliation_reads/retries key retained with >= count, role keys/limits equal and invocations/cost/each prior usage >=. Do not compare `shared_account_pressure.concurrent_calls` monotonically or require equality of all checkpoint/source rows.
 
 - [ ] **Step 2: Write negative/failure red cases before implementing stop.** Each case below is a real test body to parameterize over fresh opened_case contexts:
+
+The Task 1 generic preparation fixture can open a resource without being sufficient to execute it. Before testing stop, use the corrected helper above to copy the two exact typed packet envelopes from the already executed J06 window fixture before hashing/preparation. Preserve the failed setup attempts, then require actual complete and pending-wait admissions to reach the missing stop API. Do not relax retention, authorization or typed-envelope validators to obtain a RED.
 
 ```python
 def test_v1_and_direct_engine_controls_stay_denied(self):
@@ -509,4 +518,3 @@ This is trusted-library acceptance from the checkout, not an installed-wheel or 
 ## Self-review
 
 Coverage: Task 1 owns factory/inventory/provisioning/schema compatibility; Task 2 owns live receipt, identity/debt/time/authority/fence/host behavior; Task 3 owns real-clock trusted-library acceptance and factual docs. The five Review Focus items each have named executable tests. All new APIs/types/helpers are declared above; all source-only helper algorithms have their row/field inputs and failure rules specified. Exact first-party inventory comes from the public OpenSpec design's literal appendix plus the currently present execution_trace.py; the regression coverage test catches future drift. This plan makes no execution claim. Independent preflight findings and their scoped clearance are retained in the preceding trace leaf's evidence; implementation and final verification remain required.
-
