@@ -512,6 +512,9 @@ class EvidenceCatalog:
             raise ProcessingPublicationError("identity_mismatch") from exc
         self._processing_limit(canonical(output.model_dump(mode="json")))
         assertions, transcript = self._validate_processing_output(receipt, records, auth)
+        planning_evidence = None
+        if identity.role == "planning" and records[0].source == "saved-planning-evidence-v2":
+            planning_evidence = self._saved_planning_evidence(binding, identity, records[0], scope, auth)
         receipt_hash = fingerprint(receipt.model_dump(mode="json"))
         fixed = {"binding": binding.model_dump(mode="json"), "invocation_id": invocation_id,
             "receipt": receipt.model_dump(mode="json"), "receipt_hash": receipt_hash,
@@ -578,6 +581,9 @@ class EvidenceCatalog:
         if transcript_record is not None:
             if self.read_original(transcript_record.artifact_id, auth, purpose="provider_processing") != transcript.text.encode("utf-8"):
                 raise ProcessingPublicationError("partial_publication")
+        if planning_evidence is not None:
+            if self._saved_planning_evidence(binding, identity, records[0], scope, auth) != planning_evidence:
+                raise ProcessingPublicationError("identity_mismatch")
         self._processing_final_inputs(binding, invocation_id, auth, scope, records, envelopes, (attempt, receipt))
         return ProcessingPublication(canonical(binding.model_dump(mode="json")), invocation_id, receipt_hash,
             tuple(receipt.output_hashes), tuple(canonical(r.model_dump(mode="json")) for r in records),
@@ -626,6 +632,10 @@ class EvidenceCatalog:
                             raise ValueError("Original audio coordinates required")
                         _validate_locator(segment.locator, decoded[records[0].artifact_id])
                 return (), transcript
+            if (len(records) == 1 and records[0].source == "saved-planning-evidence-v2"
+                    and records[0].mime_type == "application/json"):
+                # The public publisher joins this separate format to its saved durable lineage.
+                return (), None
             if len(records) != 1 or records[0].source != "saved-planning-snapshot-v1":
                 raise ValueError("Exact pre-debit planning input required")
             _, envelope = self._load(records[0].artifact_id)
@@ -645,6 +655,38 @@ class EvidenceCatalog:
             raise ProcessingPublicationError("input_unavailable") from None
         except Exception as exc:
             raise ProcessingPublicationError("output_invalid") from exc
+
+    def _saved_planning_evidence(self, binding, identity, record, scope, auth):
+        """Reauthorize exact historical V2 input; never require the post-debit checkpoint."""
+        payload = self._processing_limit(self.read_original(record.artifact_id, auth,
+                                                           purpose="provider_processing"))
+        companion = PlanningEvidenceInputV2.from_bytes(payload)
+        checkpoint = companion.checkpoint()
+        _, envelope = self._load(record.artifact_id)
+        metadata = envelope["processing"]
+        publications = companion.extraction_publications()
+        identifiers = tuple(p.invocation_id for p in publications)
+        expected_identity = {"kind": "planning_evidence_v2", "envelope_hash": companion.envelope_hash,
+            "checkpoint_hash": digest(companion.checkpoint_bytes),
+            "extraction_invocation_ids": list(identifiers),
+            "extraction_marker_hashes": [p.marker_hash for p in publications]}
+        parents = tuple({r.artifact_id: r for p in publications for r in p.input_records()}.values())
+        if (record.source != "saved-planning-evidence-v2" or record.mime_type != "application/json"
+                or record.original_hash != companion.envelope_hash
+                or identity.input_hashes != [companion.envelope_hash]
+                or checkpoint.binding != binding or metadata["binding"] != binding.model_dump(mode="json")
+                or (checkpoint.binding.case_id, checkpoint.binding.generation, checkpoint.profile_version,
+                    checkpoint.process_version) != (identity.case_id, identity.generation,
+                                                    identity.profile_version, identity.process_version)
+                or metadata["identity"] != expected_identity
+                or metadata["parents"] != [p.model_dump(mode="json") for p in parents]):
+            raise ProcessingPublicationError("identity_mismatch")
+        if sum(len(p.assertion_bytes) for p in publications) > self._processing_bindings.max_output_items:
+            raise ProcessingPublicationError("output_invalid")
+        actual, _ = self._planning_evidence_inputs(tuple(p.artifact_id for p in parents), binding, scope, auth)
+        if actual != parents or self._planning_evidence_publications(checkpoint, identifiers, auth) != publications:
+            raise ProcessingPublicationError("identity_mismatch")
+        return companion
 
     def _processing_scope(self, binding, auth, purpose):
         bindings = self._processing_bindings
