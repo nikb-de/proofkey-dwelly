@@ -30,6 +30,7 @@
 - [ ] 4.3 Build independent workload/label/capture joins and R01–R15 coverage: J20, J31.
 - [ ] 4.4 Execute full-denominator timed rehearsals and, only with actual prerequisites, qualification: J19.
 - [ ] 4.5 Publish reviewed concise support docs and content-free evidence trace: J08, J23, J24.
+  - J08 completed in `../archive/2026-10-09-public-support-boundaries/`: seven-row public map at `14bdde4`, 19/19 new local links, independent C0/I0/M0 review, strict validation and archival. J23/J24 trace final regression/closure is still pending, so this combined task remains unchecked.
 - [ ] 4.6 Actually execute installed Linux path if an authorized environment is available: J16.
 
 ## 5. Human and external gates
