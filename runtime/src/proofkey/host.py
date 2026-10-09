@@ -252,6 +252,13 @@ class RuntimeResources:
             raise AdmissionCompositionFailure('scope')
         return self.admission.run(request, auth, execution=execution)
 
+    def stop_registered(self, case_id: str, generation: str, auth: AuthContext, *,
+                        execution: ExecutionContext) -> CaseResult | SavedResult:
+        from .host_admission import RegisteredAdmissionOwner, AdmissionCompositionFailure
+        if type(self.admission) is not RegisteredAdmissionOwner:
+            raise AdmissionCompositionFailure('scope')
+        return self.admission.stop(case_id, generation, auth, execution=execution)
+
 
 class RuntimeFactory:
     def create_registered(self, release, clock, *, composition, execution):
@@ -644,8 +651,11 @@ class HostDispatcher:
                 state.inspection, state.outcome = inspection, "inspection"
             return
         if self.admission_composition is not None and tag != 'run':
-            state.outcome, state.failure = 'denied', 'scope_denied'
-            return
+            from .host_admission import OBSERVED_STOP_V2_FACTORY_KEY
+            if (tag != 'stop' or self._resources is None
+                    or self.admission_composition.binding.host_factory_key != OBSERVED_STOP_V2_FACTORY_KEY):
+                state.outcome, state.failure = 'denied', 'scope_denied'
+                return
         if self._resources is None:
             if self._construction_failure is not None:
                 raise RuntimeWriterFailure('writer_storage')
@@ -670,7 +680,9 @@ class HostDispatcher:
         elif tag == "reply":
             result = engine.reply(command.reply, auth, execution=state.execution)
         else:
-            result = engine.stop(command.case_id, command.generation, auth, execution=state.execution)
+            result = (engine.stop(command.case_id, command.generation, auth, execution=state.execution)
+                if self.admission_composition is None else self._resources.stop_registered(
+                    command.case_id, command.generation, auth, execution=state.execution))
         if type(result) not in (CaseResult, SavedResult):
             raise ValueError("Actual scoped runtime result required")
         state.result, state.outcome = CaseResult.model_validate_json(result.model_dump_json()), "result"

@@ -15,10 +15,10 @@ import threading
 from uuid import uuid4
 
 from .clock import SyntheticReplayClock
-from .contracts import AuthContext, CanonicalRequest, PhaseCheckpoint, RequestBinding
+from .contracts import AuthContext, CanonicalRequest, CaseResult, PhaseCheckpoint, RequestBinding, SavedResult
 from .execution import ExecutionContext
 from .identity import request_fingerprint
-from .admission_routes import AdmissionRouteStoreV1
+from .admission_routes import AdmissionRouteStoreV1, RouteRecordV1
 from .retained_state import RetainedStateSnapshotV1
 from .registered_releases import ReleaseRegistryV1, RegisteredReleaseV1
 
@@ -392,6 +392,179 @@ class AdmissionClaimV1:
     def route_reservation_hash(self): return _claim(self.wire_bytes)['route_reservation_hash']
 
 
+@dataclass(frozen=True, slots=True)
+class _StopViewV2:
+    """Validated journal projection, never an entry capability."""
+    binding: RequestBinding
+    request: CanonicalRequest
+    checkpoint: PhaseCheckpoint
+    request_row: bytes
+    admission_rows: bytes
+    intent_rows: bytes
+    wait_rows: bytes
+    wait_states: tuple[tuple[str, str, str | None], ...]
+    request_stopped: bool
+
+
+@dataclass(frozen=True, slots=True)
+class _ObservedReceiptV2:
+    claim: AdmissionClaimV1
+    route: RouteRecordV1
+    view: _StopViewV2
+
+    def __reduce_ex__(self, protocol):
+        raise TypeError('Live observation receipts cannot be serialized')
+
+
+@dataclass(frozen=True, slots=True)
+class _ObservedStopV2:
+    execution: ExecutionContext
+    window: bytes
+    auth: AuthContext
+    receipt: _ObservedReceiptV2
+
+    def __reduce_ex__(self, protocol):
+        raise TypeError('Live stop capabilities cannot be serialized')
+
+
+@_checked
+def _inner_json(raw: str) -> dict:
+    """Journal model strings are bounded JSON, not canonical claim wire."""
+    _require(type(raw) is str, 'invalid')
+    _require(0 < len(raw.encode('utf-8')) <= 262144, 'limit')
+    def pairs(items):
+        value = {}
+        for key, item in items:
+            _require(key not in value, 'invalid')
+            value[key] = item
+        return value
+    value = json.loads(raw, object_pairs_hook=pairs,
+        parse_constant=lambda item: (_ for _ in ()).throw(AdmissionCompositionFailure('invalid')))
+    _require(type(value) is dict, 'invalid')
+    _canonical(value)
+    return value
+
+
+@_checked
+def _stop_view(snapshot, case_id, generation, execution, clock, *,
+               claim: AdmissionClaimV1, route: RouteRecordV1) -> _StopViewV2:
+    from .admission import AdmissionAccount, AdmissionAttempt
+    from .budget import validate_budget
+    from .wait_contracts import WaitRecordV1
+
+    def check_time():
+        _require(clock.now() >= execution.captured_at and execution.remaining_seconds(clock) > 0, 'timeout')
+
+    check_time()
+    _require(type(snapshot) is RetainedStateSnapshotV1
+        and type(claim) is AdmissionClaimV1 and type(route) is RouteRecordV1, 'scope')
+    RetainedStateSnapshotV1(**asdict(snapshot))
+    image = _parse(snapshot.payload, 4194304)
+    tables = {}
+    for table in image['tables']:
+        rows = []
+        for row in table['rows']:
+            check_time()
+            rows.append(dict(zip(table['columns'], row)))
+        tables[table['name']] = rows
+
+    def one(name, predicate):
+        selected = [row for row in tables[name] if predicate(row)]
+        _require(len(selected) == 1, 'scope')
+        return selected[0]
+
+    def target(row):
+        return row['case_id'] == case_id and row['generation'] == generation
+
+    checkpoint = _model(_inner_json(one('cases', lambda row: row['case_id'] == case_id)['checkpoint_json']), PhaseCheckpoint)
+    request_row = one('requests', target)
+    binding = _model(_inner_json(request_row['binding_json']), RequestBinding)
+    request = _model(_inner_json(one('original_requests', target)['request_json']), CanonicalRequest)
+    claim_data, route_data = _claim(claim.wire_bytes), _parse(route.wire_bytes)
+    _require(claim.state == route.state == 'admission_observed'
+        and binding == checkpoint.binding == claim.binding == route.binding
+        and (binding.case_id, binding.generation) == (case_id, generation)
+        and request == route.request == _model(claim_data['request'], CanonicalRequest), 'scope')
+    _require(_inner_json(request_row['versions_json']) == {
+        key: getattr(checkpoint, key) for key in ('profile_version', 'process_version', 'policy_version')}, 'scope')
+    _require(all(request_row[key] == getattr(binding, key) for key in
+        ('request_id', 'request_revision', 'consent_revision', 'fingerprint')), 'scope')
+    _require(type(request_row['stop_requested']) is int and request_row['stop_requested'] in (0, 1), 'scope')
+    request_stopped = bool(request_row['stop_requested'])
+    _require(request_stopped == checkpoint.stop.requested, 'scope')
+    validate_budget(checkpoint.budget)
+
+    attempt_row = one('admission_attempts', lambda row: row['attempt_id'] == claim.attempt_id)
+    attempt = _model(_inner_json(attempt_row['attempt_json']), AdmissionAttempt)
+    expected = dict(attempt_id=claim.attempt_id, claimed_case_id=binding.case_id,
+        claimed_object_id=binding.object_id, claimed_principal_id=binding.principal_id,
+        request_id=binding.request_id, request_revision=binding.request_revision,
+        consent_revision=binding.consent_revision,
+        claimed_caller_id=route_data['auth_claim']['caller_id'],
+        proof_digest=route_data['auth_claim']['proof_digest'],
+        business_fingerprint=route_data['business_fingerprint'],
+        request_hash=route_data['request_hash'], dedup_hash=route_data['dedup_hash'])
+    _require(attempt_row['claimed_case_id'] == binding.case_id
+        and attempt_row['dedup_hash'] == expected['dedup_hash']
+        and attempt_row['state'] == attempt.state == 'transferred'
+        and attempt.deadline > attempt.created_at, 'scope')
+    _require(all(getattr(attempt, key) == value for key, value in expected.items()), 'scope')
+    account = _model(_inner_json(one('admission_accounts',
+        lambda row: row['claimed_case_id'] == case_id)['account_json']), AdmissionAccount)
+    _require(account.claimed_case_id == case_id and account.imported
+        and account.pending_tool_calls == account.pending_active_seconds == 0, 'scope')
+    admission_rows = _canonical({name: [row for row in tables[name] if row['claimed_case_id'] == case_id]
+        for name in ('admission_accounts', 'admission_attempts', 'admission_entries', 'admission_audit')})
+    intent_rows = _canonical(sorted((row['action_id'], row['intent_json']) for row in tables['intents'] if target(row)))
+    waits, states = [], []
+    for row in tables['waits']:
+        check_time()
+        if not target(row):
+            continue
+        record = _model(_inner_json(row['wait_json']), WaitRecordV1)
+        _require(record.wait.binding == binding and record.wait.question_id == row['question_id'], 'scope')
+        waits.append((row['question_id'], case_id, generation,
+            record.model_dump(mode='json', exclude={'lifecycle', 'successor_hash'})))
+        states.append((row['question_id'], record.lifecycle, record.successor_hash))
+    check_time()
+    return _StopViewV2(binding, request, checkpoint,
+        _canonical({key: value for key, value in request_row.items() if key != 'stop_requested'}),
+        admission_rows, intent_rows, _canonical(sorted(waits)), tuple(sorted(states)), request_stopped)
+
+
+@_checked
+def _check_budget_continuity(before, after):
+    from .budget import preserve_budget, validate_budget
+    validate_budget(after)
+    preserve_budget(after, before)
+    _require(after.case_id == before.case_id and after.deadline <= before.deadline, 'scope')
+    for key in ('active_seconds', 'tool_calls', 'planner_calls', 'effects', 'clarifications'):
+        _require(getattr(after, key) >= getattr(before, key), 'scope')
+    for key in ('reconciliation_reads', 'retries'):
+        old, new = getattr(before, key), getattr(after, key)
+        _require(all(new.get(name, -1) >= count for name, count in old.items()), 'scope')
+    for name, old in before.role_allowances.items():
+        new = after.role_allowances[name]
+        _require(new.invocations >= old.invocations and new.cost >= old.cost
+            and all(new.usage.get(key, -1) >= count for key, count in old.usage.items()), 'scope')
+
+
+@_checked
+def _check_stop_continuity(before: _StopViewV2, after: _StopViewV2) -> None:
+    _require(all(getattr(before, name) == getattr(after, name) for name in
+        ('binding', 'request', 'request_row', 'admission_rows', 'intent_rows', 'wait_rows')), 'scope')
+    _require(all(getattr(before.checkpoint, name) == getattr(after.checkpoint, name) for name in
+        ('binding', 'profile_version', 'process_version', 'policy_version')), 'scope')
+    _require(after.checkpoint.deadline <= before.checkpoint.deadline
+        and (not before.request_stopped or after.request_stopped)
+        and (not before.checkpoint.stop.requested or after.checkpoint.stop.requested), 'scope')
+    _require(len(before.wait_states) == len(after.wait_states), 'scope')
+    for old, new in zip(before.wait_states, after.wait_states):
+        _require(old == new or (old[0] == new[0] and old[1] == 'pending'
+            and new[1] == 'stopped' and new[2] is not None), 'scope')
+    _check_budget_continuity(before.checkpoint.budget, after.checkpoint.budget)
+
+
 _DDL = (
     'CREATE TABLE meta(singleton INTEGER PRIMARY KEY CHECK(singleton=1),version INTEGER NOT NULL CHECK(version=1),composition_hash TEXT NOT NULL)',
     'CREATE TABLE claims(claim_id TEXT PRIMARY KEY NOT NULL,case_id TEXT NOT NULL UNIQUE,attempt_id TEXT NOT NULL UNIQUE,state TEXT NOT NULL,wire TEXT NOT NULL)',
@@ -549,6 +722,10 @@ class RegisteredAdmissionOwner:
         self.thread = threading.get_ident()
         self.routes = self.claims = self.resources = None
         self.active = None
+        self._created_clock = clock
+        self._stop_receipts: dict[tuple[str, str], _ObservedReceiptV2] = {}
+        self._stop_floors: dict[tuple[str, str], _StopViewV2] = {}
+        self._stop_high_water: tuple[datetime, float] = (clock.now(), clock.monotonic())
         self.closed = self.uncertain = False
         self.control_identity = _identity(composition.control_parent, directory=True)
         self.root_identity = _identity(release.resource_root, directory=True)
@@ -715,20 +892,31 @@ class RegisteredAdmissionOwner:
 
     def _guard_parent(self, execution, gateway):
         self.associations()
-        _require(self.active is not None and gateway is self.gateway and execution is self.active[0], 'scope')
+        _require(type(self.active) is tuple and gateway is self.gateway and execution is self.active[0], 'scope')
         _require(_window(execution) == _claim(self.active[3].wire_bytes)['execution'], 'scope')
         _require(self.clock.now() >= execution.captured_at
             and execution.remaining_seconds(self.clock) > 0, 'timeout')
 
     @_checked
-    def guard_execution(self, execution, gateway):
+    def guard_execution(self, execution, gateway, *, entry_kind: str | None = None):
+        if type(self.active) is _ObservedStopV2:
+            self.associations()
+            token = self.active
+            _require(type(entry_kind) is str and entry_kind == 'stop'
+                and gateway is self.gateway and execution is token.execution
+                and _canonical(_window(execution)) == token.window, 'scope')
+            self._stop_clock()
+            _require(self.clock.now() >= execution.captured_at
+                and execution.remaining_seconds(self.clock) > 0, 'timeout')
+            return
+        _require(entry_kind is None, 'scope')
         self._guard_parent(execution, gateway)
         control_context(execution, self.clock)
 
     @_checked
     def require_entry(self, request, auth):
         self.associations()
-        _require(self.active is not None, 'scope')
+        _require(type(self.active) is tuple, 'scope')
         execution, original, authentication, claim = self.active
         self.guard_execution(execution, self.gateway)
         control_context(execution, self.clock)
@@ -781,12 +969,83 @@ class RegisteredAdmissionOwner:
                 value.update(state='admission_observed', final_journal_hash=journal.content_hash,
                     final_source_hash=source.content_hash, observation_hash=route.observation.observation_hash)
                 self._guard_parent(execution, self.gateway)
-                self.claims.write(value, phase)
+                observed_claim = self.claims.write(value, phase)
                 self._guard_parent(execution, self.gateway)
                 control_context(phase, self.clock)
+                if self.composition.binding.host_factory_key == OBSERVED_STOP_V2_FACTORY_KEY:
+                    view = _stop_view(journal, request.case_id, observed_claim.binding.generation,
+                        phase, self.clock, claim=observed_claim, route=route)
+                    self._guard_parent(execution, self.gateway)
+                    self._stop_clock()
+                    _require(phase.remaining_seconds(self.clock) > 0, 'timeout')
+                    _require(len(self._stop_receipts) < 4096, 'limit')
+                    key = (request.case_id, observed_claim.binding.generation)
+                    self._stop_receipts[key] = _ObservedReceiptV2(observed_claim, route, view)
+                    self._stop_floors[key] = view
             return result
         finally:
             self.active = None
+
+    def _stop_clock(self):
+        _require(self.clock is self._created_clock and type(self.clock) is SyntheticReplayClock, 'scope')
+        now, monotonic = self.clock.now(), self.clock.monotonic()
+        previous_time, previous_monotonic = self._stop_high_water
+        _require(type(now) is datetime and now.utcoffset() == timedelta(0)
+            and type(monotonic) in (int, float) and math.isfinite(monotonic)
+            and now >= previous_time and monotonic >= previous_monotonic, 'timeout')
+        self._stop_high_water = (now, monotonic)
+
+    def _retain_stop_view(self, key, receipt, execution):
+        self._stop_clock()
+        view = _stop_view(self.store.capture_retained_state(execution=execution, clock=self.clock),
+            *key, execution, self.clock, claim=receipt.claim, route=receipt.route)
+        _check_stop_continuity(receipt.view, view)
+        _check_stop_continuity(self._stop_floors[key], view)
+        self._stop_clock()
+        _require(execution.remaining_seconds(self.clock) > 0, 'timeout')
+        self._stop_floors[key] = view
+
+    @_checked
+    def stop(self, case_id: str, generation: str, auth: AuthContext, *,
+             execution: ExecutionContext) -> CaseResult | SavedResult:
+        self.associations()
+        _require(self.active is None and self.composition.binding.host_factory_key == OBSERVED_STOP_V2_FACTORY_KEY, 'scope')
+        self._stop_clock()
+        _id(case_id)
+        _id(generation)
+        _require(type(auth) is AuthContext, 'scope')
+        auth = _model(auth.model_dump(mode='json'), AuthContext)
+        key = (case_id, generation)
+        receipt = self._stop_receipts.get(key)
+        _require(type(receipt) is _ObservedReceiptV2, 'scope')
+        original_auth = _claim(receipt.claim.wire_bytes)['auth_claim']
+        _require(auth.caller_id == receipt.view.binding.principal_id == original_auth['caller_id']
+            and _hash(dict(proof_reference=auth.proof_reference)) == original_auth['proof_digest'], 'scope')
+        control = control_context(execution, self.clock)
+        window = _canonical(_window(control))
+        _require(not self.claims.pending(control), 'pending_claim')
+        claim = self.claims.find(case_id, control)
+        _require(claim == receipt.claim and claim.state == 'admission_observed', 'scope')
+        route = self.routes.get(_claim(claim.wire_bytes)['route_id'], execution=control)
+        _require(route == receipt.route and route.state == 'admission_observed'
+            and self.routes.for_generation(self.registered.resource.resource_id,
+                case_id, generation, execution=control) == route, 'scope')
+        self._retain_stop_view(key, receipt, control)
+        _require(_canonical(_window(control)) == window, 'scope')
+        self.active = _ObservedStopV2(control, window, auth, receipt)
+        try:
+            result = self.engine.stop(case_id, generation, auth, execution=control)
+            self.guard_execution(control, self.gateway, entry_kind='stop')
+            return result
+        finally:
+            try:
+                # A committed fence/debit survives both interruption and timeout.
+                # Never renew the operation merely to obtain a postflight image.
+                if control.remaining_seconds(self.clock) > 0:
+                    self.guard_execution(control, self.gateway, entry_kind='stop')
+                    self._retain_stop_view(key, receipt, control)
+            finally:
+                self.active = None
 
     @_checked
     def claim_for_case(self, case_id, *, execution):
@@ -810,6 +1069,8 @@ class RegisteredAdmissionOwner:
             try: self.routes.close()
             except BaseException: failure = True
         self.active = None
+        self._stop_receipts.clear()
+        self._stop_floors.clear()
         if failure:
             self.uncertain = True
             raise AdmissionCompositionFailure('storage')

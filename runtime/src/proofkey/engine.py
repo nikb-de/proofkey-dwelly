@@ -169,9 +169,9 @@ class WorkflowEngine:
         return checkpoint
 
     @contextmanager
-    def _execution_scope(self, execution):
+    def _execution_scope(self, execution, *, entry_kind: str | None = None):
         with self._entry_scope():
-            with self._gateway.execution_scope(execution) as timing:
+            with self._gateway.execution_scope(execution, entry_kind=entry_kind) as timing:
                 yield timing
 
     def _ownership_service(self):
@@ -385,7 +385,7 @@ class WorkflowEngine:
 
     def stop(self, case_id, generation, auth, *, execution=None):
         try:
-            with self._execution_scope(execution):
+            with self._execution_scope(execution, entry_kind='stop'):
                 if not isinstance(auth, AuthContext):
                     raise GateDenied("scope_denied")
                 auth = AuthContext.model_validate(auth.model_dump())

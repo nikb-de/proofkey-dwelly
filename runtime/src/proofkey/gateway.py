@@ -62,12 +62,12 @@ class ActionGateway(OwnershipGateway):
         self._timing = None
 
     @contextmanager
-    def execution_scope(self, execution=None):
+    def execution_scope(self, execution=None, *, entry_kind: str | None = None):
         """One creator-owned host cap, installed before caller authentication."""
         if get_ident() != self._owner_thread or self._execution_active:
             raise GateDenied("scope_denied")
         if self._admission_owner is not None:
-            self._admission_owner.guard_execution(execution, self)
+            self._admission_owner.guard_execution(execution, self, entry_kind=entry_kind)
         timing = ExecutionTiming(self.clock, execution)
         previous_timing, previous_auth = self._timing, self.auth
         self._execution_active = True
