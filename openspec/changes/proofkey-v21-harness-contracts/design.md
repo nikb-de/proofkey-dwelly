@@ -32,6 +32,8 @@ The gateway may build an immutable intent from a trusted pure host proposal buil
 
 Physical action stages are distinct from observed completion stages:
 
+**Implementation gate update, 9 October:** Task7 storage/controlfc4f445, complete local generation inventory0fbd3ed and explicit content-bound packet source65a2b83 are independently Approved foundations. The packet source's advancing-clock receipt and legacy-profile confidentiality findings were corrected and re-reviewed. Private canonical replies remain untrusted data; stored graphs/registries are not authentication or runtime activation. Gateway/PacketService consumers and engine wait/stop integration are still incomplete. Task9's current-ACL ReplayService15ec7bd plus guarded engine firstbranch02b456b are Approved: completed saved outcomes remain historical with no business refresh. Root full frozen runtime discovery574/58.595s had an identical complete runtime-file hash manifest before/after. This is local synthetic verification, not M1 or native/actual-provider/assessment qualification; no whole change archival yet.
+
 | Physical operation | Stable dispatch stage | Stronger/different readback meaning |
 |---|---|---|
 | reschedule / goods-refusal / service-refusal registration | commit | Committed scoped outcome, not broad delivery/service resolution |
