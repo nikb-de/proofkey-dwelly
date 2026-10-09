@@ -1,6 +1,8 @@
 """Trusted offline launch configuration; synthetic registration only."""
-from dataclasses import dataclass, field
+from base64 import b64decode
+from dataclasses import asdict, dataclass, field
 from datetime import timedelta
+import json
 import math
 import os
 from pathlib import Path
@@ -10,7 +12,9 @@ from typing import Literal
 from pydantic import model_validator
 
 from .contracts import AuthContext, WireModel
-from .host import AuthResolver, ProfileRegistry, RuntimeFactory
+from .clock import SyntheticReplayClock
+from .host import ApprovedProfileRelease, AuthResolver, ProfileRegistry, RuntimeFactory
+from .host_admission import LocalAdmissionCompositionV1
 from .host_contracts import (BatchRunReceiptV1, CommandRunReceiptV1, ShutdownReceiptV1,
                              HostLimitsV1, InterfaceLimitsV1)
 
@@ -106,6 +110,7 @@ class CliConfiguration:
     total_seconds: float = 120.0
     publication_reserve_seconds: float = 10.0
     shutdown_seconds: float = 2.0
+    admission_composition: LocalAdmissionCompositionV1 | None = field(default=None, repr=False)
     _parent_identities: tuple = field(init=False, repr=False)
 
     def __post_init__(self):
@@ -127,6 +132,8 @@ class CliConfiguration:
             for name, value in (("total_seconds", total), ("publication_reserve_seconds", reserve),
                                 ("shutdown_seconds", shutdown)):
                 object.__setattr__(self, name, value)
+            if self.admission_composition is not None:
+                self._validate_registered()
             identities = []
             for name in ("output_parent", "inventory_parent"):
                 value = getattr(self, name)
@@ -141,6 +148,48 @@ class CliConfiguration:
             object.__setattr__(self, "_parent_identities", tuple(identities))
         except Exception:
             raise ValueError("Invalid trusted launch configuration") from None
+
+    def _validate_registered(self):
+        """Check structural commitments only; authority needs a fresh context."""
+        composition = self.admission_composition
+        if (type(composition) is not LocalAdmissionCompositionV1
+                or type(self.factory) is not RuntimeFactory
+                or type(self.clock) is not SyntheticReplayClock):
+            raise ValueError
+        LocalAdmissionCompositionV1(composition.registry, composition.binding, composition.approvals,
+            composition.review_id, composition.control_parent)
+        binding = composition.binding
+        entries = self.profile_registry._entries
+        if (type(entries) is not dict or len(entries) != 1
+                or tuple(entries) != (binding.host_release_id,)
+                or composition.registry.commitments() != ((binding.registered_release_id, binding.artifact_hash),)):
+            raise ValueError
+        release = self.profile_registry.resolve(binding.host_release_id)
+        if type(release) is not ApprovedProfileRelease:
+            raise ValueError
+        release = ApprovedProfileRelease(**asdict(release))
+        registered = composition.registry.resolve(binding.registered_release_id)
+        factory, resource = registered.factory, registered.resource
+        profile = release.validate()
+        source = json.loads(b64decode(json.loads(registered.wire_bytes)["blobs"]["source"]["base64"], validate=True))
+        fixture = release.fixture_path.read_text()
+        identity = os.lstat(release.resource_root)
+        if (release.release_id != binding.host_release_id
+                or registered.artifact_hash != binding.artifact_hash
+                or release.mode != "synthetic_replay" or profile.version != "v1.3"
+                or any(process.version != "v1" for process in profile.processes.values())
+                or factory.factory_id != binding.factory_id
+                or factory.implementation_pins != binding.implementation_pins
+                or factory.dependency_hash != binding.dependency_hash
+                or registered.profile.model_dump(mode="json") != profile.model_dump(mode="json")
+                or not stat.S_ISDIR(identity.st_mode)
+                or (resource.root_path, resource.root_device, resource.root_inode) !=
+                   (str(release.resource_root), identity.st_dev, identity.st_ino)
+                or source["source_id"] != "fixed-world-fixture"
+                or source["documents"] != [dict(source_id="fixed-world-fixture", text=fixture)]
+                or json.loads(fixture)["facts"]["customer.request_fingerprint"]["value"] !=
+                   release.admitted_request_fingerprint):
+            raise ValueError
 
 
 def _default_configuration(clock, *, boundary):

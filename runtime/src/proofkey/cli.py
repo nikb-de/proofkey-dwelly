@@ -188,7 +188,8 @@ def main(argv=None, *, configuration=None):
             inventory_root = configuration.inventory_parent / uuid4().hex
             output_root = configuration.output_parent / uuid4().hex
             dispatcher = HostDispatcher(configuration.factory, configuration.auth_resolver,
-                configuration.profile_registry, clock, inventory_root, configuration.host_limits, release_id=args.release)
+                configuration.profile_registry, clock, inventory_root, configuration.host_limits,
+                release_id=args.release, admission_composition=configuration.admission_composition)
             parameters = dict(publication_deadline=publication_deadline, publication_reserve_seconds=reserve,
                 output_root=output_root, limits=configuration.interface_limits, clock=clock)
             operation = run_batch if args.command == "batch" else run_command

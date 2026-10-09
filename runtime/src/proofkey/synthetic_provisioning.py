@@ -15,13 +15,14 @@ from pathlib import Path
 import stat
 from uuid import uuid4
 
-from .bootstrap import _PathPins
+from .bootstrap import CliConfiguration, _PathPins
 from .clock import SyntheticReplayClock
 from .contracts import CanonicalRequest, EnvironmentProfile
-from .host import (ApprovedProfileRelease, _PROFILE_RAW as _PINNED_PROFILE_FILE, _PROFILE as _PINNED_PROFILE,
+from .host import (ApprovedProfileRelease, ProfileRegistry, RuntimeFactory,
+                   _PROFILE_RAW as _PINNED_PROFILE_FILE, _PROFILE as _PINNED_PROFILE,
                    _PROCESS as _PINNED_PROCESS, _POLICY as _PINNED_POLICY)
 from .host_admission import (AdmissionCompositionFailure, HostExecutableBindingV1, FIXED_IMPLEMENTATION_PATHS,
-                             control_context, _id)
+                             LocalAdmissionCompositionV1, control_context, validate_composition, _id)
 from .host_contracts import parse_command
 from .host_files import _read, _write
 from .identity import request_fingerprint
@@ -650,3 +651,19 @@ def prepare_synthetic_release(spec, *, parent, clock, execution):
             allocation.control, allocation.inventories, allocation.outputs, allocation.identities, files, clock)
         _revalidate_prepared(prepared, clock, execution)
     return prepared
+
+
+def configure_registered_cli(prepared, *, approvals, review_id, auth_resolver, clock, execution,
+                             host_limits, interface_limits, total_seconds,
+                             publication_reserve_seconds, shutdown_seconds) -> CliConfiguration:
+    """Validate separately supplied authority and configure the existing CLI."""
+    _revalidate_prepared(prepared, clock, execution)
+    composition = LocalAdmissionCompositionV1(prepared.registry, prepared.binding,
+        approvals, review_id, prepared.control_parent)
+    validate_composition(prepared.host_release, clock, composition, execution)
+    return CliConfiguration(factory=RuntimeFactory(), auth_resolver=auth_resolver,
+        profile_registry=ProfileRegistry((prepared.host_release,)), clock=clock,
+        host_limits=host_limits, interface_limits=interface_limits,
+        output_parent=prepared.output_parent, inventory_parent=prepared.inventory_parent,
+        total_seconds=total_seconds, publication_reserve_seconds=publication_reserve_seconds,
+        shutdown_seconds=shutdown_seconds, admission_composition=composition)
