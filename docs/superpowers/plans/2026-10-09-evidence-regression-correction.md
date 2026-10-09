@@ -10,7 +10,8 @@ the absence of processing/accounting/effects in both paths.
 
 **Tech Stack:** Python 3.12, unittest, existing synthetic local runtime.
 
-**Spec:** `openspec/changes/correct-evidence-regression-expectations/specs/evidence-regression-expectations/spec.md` and its sibling `design.md`.
+**Spec:** `openspec/specs/evidence-regression-expectations/spec.md` and
+`openspec/changes/archive/2026-10-09-correct-evidence-regression-expectations/design.md`.
 
 ## Global Constraints
 
@@ -41,7 +42,7 @@ the absence of processing/accounting/effects in both paths.
   `fx.catalog.register(path, case_id, source, scope)`, real engine run/recover.
 - Produces: independent positive and denied-reference tests; no runtime API.
 
-- [ ] **Step 1: Reproduce RED before changing the existing test.**
+- [x] **Step 1: Reproduce RED before changing the existing test.**
 
 ```sh
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=runtime/src:runtime/tests /Users/nbk/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B -m unittest test_engine_processing.EngineProcessingInjectionTests.test_text_evidence_and_recovery_do_not_call_prepared_consumer -v
@@ -49,7 +50,7 @@ PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=runtime/src:runtime/tests /Users/nbk/.cache
 
 Expected: `AssertionError: 'denied' != 'authorized'` for malformed reference.
 
-- [ ] **Step 2: Split positive and negative cases.**
+- [x] **Step 2: Split positive and negative cases.**
 
 Keep a narrative case. Add a real registered original by writing synthetic bytes
 to a temporary fixture file and registering it with `allowed_actors=['U1']` and
@@ -74,7 +75,7 @@ and evidence refs. Trap catalog `get`, `read_original` and
 Retain the original saved request identity. Both positive cases must check
 unavailable processing in the saved checkpoint and unavailable media.
 
-- [ ] **Step 3: Run GREEN with focused coverage.**
+- [x] **Step 3: Run GREEN with focused coverage.**
 
 ```sh
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=runtime/src:runtime/tests /Users/nbk/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B -m unittest test_engine_processing test_engine_fresh_intake -v
@@ -83,7 +84,7 @@ PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=runtime/src:runtime/tests /Users/nbk/.cache
 Expected: no failures/errors/skips. If another failure occurs, report exact
 selector and output; do not broaden source edits.
 
-- [ ] **Step 4: Self-review and report.**
+- [x] **Step 4: Self-review and report.**
 
 Write the full report to the dispatched report path with RED/GREEN output,
 command, counts, files and limitations. Do not commit; controller reviews and
