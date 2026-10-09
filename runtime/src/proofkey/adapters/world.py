@@ -20,6 +20,9 @@ from ..identity import fingerprint
 from ..ports import AdapterBundle
 from ..process import material_fields
 from ..profiles import load_profile, requires_completed_service, validate_profile
+from ..retained_state import RetainedStateClock, RetainedStateLimitsV1
+from ..execution import ExecutionContext
+from ..source_retained_state import SourceRetainedStateSnapshotV1, capture, prepare_context
 from ..ownership_contracts import (ownership_enabled, OWNERSHIP_FIELDS_V1,
     OriginalTransferIdentityV1, TransferRejectedV1)
 from .ownership import SyntheticOwnershipSource, strict_fixture_pairs
@@ -173,6 +176,12 @@ class SimulatedWorld:
                 required = set().union(*(material_fields(operation) for operation in _EFFECTS))
                 if not required <= read_material_revisions(connection, required, case_id, object_id).keys():
                     raise ValueError("Fixture omits provider material facts")
+        self._retained_context = prepare_context(self._path, self._profile, raw, fixture_hash)
+
+    def capture_retained_state(self, *, execution: ExecutionContext, clock: RetainedStateClock,
+                               limits: RetainedStateLimitsV1 = RetainedStateLimitsV1()) -> SourceRetainedStateSnapshotV1:
+        return capture(self._retained_context, execution=execution, clock=clock, limits=limits,
+                       ownership=self._ownership)
 
     @contextmanager
     def _connect(self):
