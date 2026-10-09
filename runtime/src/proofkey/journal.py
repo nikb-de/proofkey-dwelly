@@ -296,6 +296,11 @@ class CaseStore:
         self._request_identity(binding, value)
         return value
 
+    def has_case(self, case_id):
+        """Storage existence only; never disclosure authority."""
+        self._schema()
+        return self._db.execute("SELECT 1 FROM cases WHERE case_id=?", (case_id,)).fetchone() is not None
+
     def checkpoint(self, case_id):
         self._schema()
         row = self._db.execute("SELECT checkpoint_json FROM cases WHERE case_id=?", (case_id,)).fetchone()

@@ -398,6 +398,85 @@ class ReplayTests(unittest.TestCase):
             self.assertEqual(network.call_count, 0)
         self.no_business()
 
+    def test_bound_case_without_checkpoint_never_falls_through_as_absent(self):
+        self.store.bind(self.binding)
+        for original_saved in (False, True):
+            if original_saved:
+                self.store.save_request(self.binding, self.request)
+            for changes in ({}, {"consent_revision": "v2"}, {"request_revision": "v2"}):
+                with self.subTest(original_saved=original_saved, changes=changes):
+                    candidate = make_request(**{**self.request.model_dump(), **changes})
+                    with sqlite3.connect(self.root / "journal.sqlite") as db:
+                        before = [db.execute("SELECT count(*) FROM " + table).fetchone()[0]
+                                  for table in ("cases", "requests", "original_requests", "entries", "audit")]
+                    self.denied(self.lookup(candidate))
+                    with sqlite3.connect(self.root / "journal.sqlite") as db:
+                        after = [db.execute("SELECT count(*) FROM " + table).fetchone()[0]
+                                 for table in ("cases", "requests", "original_requests", "entries", "audit")]
+                    self.assertEqual(after, before)
+                    self.assertEqual(self.world.calls, ())
+                    self.assertEqual(self.world.effect_count("create_return"), 0)
+
+    def test_known_corrupt_checkpoint_denies_without_any_new_entry(self):
+        self.save()
+        with sqlite3.connect(self.root / "journal.sqlite") as db:
+            db.execute("UPDATE cases SET checkpoint_json=? WHERE case_id=?", ("{}", "C1"))
+        candidate = make_request(**{**self.request.model_dump(), "consent_revision": "v2"})
+        self.denied(self.lookup(candidate))
+        with sqlite3.connect(self.root / "journal.sqlite") as db:
+            self.assertEqual(db.execute("SELECT count(*) FROM entries").fetchone()[0], 0)
+        self.assertEqual(self.world.calls, ())
+
+    def test_semantically_malformed_acl_retains_full_unknown_lease_charge(self):
+        self.save()
+        original = self.bundle.case
+        for variant in ("missing_binding", "duplicate", "foreign_authority", "foreign_fact",
+                        "incomplete_identity", "wrong_identity_shape", "foreign_case", "foreign_principal",
+                        "malformed_authorization", "unknown_authorization"):
+            with self.subTest(variant=variant):
+                class MalformedPort:
+                    def read_case(self, request):
+                        raw = original.read_case(request).model_dump()
+                        binding = next(o for o in raw["observations"] if o["fact"] == "binding")
+                        authorization = next(o for o in raw["observations"] if o["fact"] == "authorization")
+                        if variant == "missing_binding":
+                            raw["observations"].remove(binding)
+                        elif variant == "duplicate":
+                            raw["observations"].append(dict(authorization))
+                        elif variant == "foreign_authority":
+                            authorization["authority"] = "customer"
+                        elif variant == "foreign_fact":
+                            authorization["fact"] = "consent"
+                        elif variant == "incomplete_identity":
+                            binding["value"] = {"principal_id": "U1"}
+                        elif variant == "wrong_identity_shape":
+                            binding["value"] = "opaque-provider-binding"
+                        elif variant == "foreign_case":
+                            binding["value"]["case_id"] = "OTHER"
+                        elif variant == "foreign_principal":
+                            binding["value"]["principal_id"] = "OTHER"
+                        elif variant == "malformed_authorization":
+                            authorization["value"] = {"verified": True}
+                        elif variant == "unknown_authorization":
+                            authorization["value"] = "unknown"
+                        return AuthorityReadback.model_validate(raw)
+                before = self.store.checkpoint("C1").budget
+                self.denied(self.lookup(bundle=replace(self.bundle, case=MalformedPort())))
+                after = self.store.checkpoint("C1").budget
+                self.assertEqual(after.active_seconds, before.active_seconds + 10.0)
+                self.assertEqual(after.tool_calls, before.tool_calls + 1)
+        self.no_business()
+
+    def test_complete_negative_acl_and_definite_scope_rejection_can_settle(self):
+        self.save()
+        self.world.mutate("case.authorization", "revoked")
+        self.denied(self.lookup())
+        self.assertEqual(self.store.checkpoint("C1").budget.active_seconds, 0.0)
+        self.denied(self.lookup(auth=make_auth(proof_reference="revoked-proof")))
+        self.assertEqual(self.store.checkpoint("C1").budget.active_seconds, 0.0)
+        self.assertEqual(self.store.checkpoint("C1").budget.tool_calls, 2)
+        self.no_business()
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -19,12 +19,9 @@ class ReplayService:
 
     def _historical_bindings(self, case_id):
         """Traverse admitted supersession history through public journal getters."""
-        try:
-            binding = self.store.checkpoint(case_id).binding
-        except JournalFailure as error:
-            if str(error) == "Case has no checkpoint":
-                return ()
-            raise
+        if not self.store.has_case(case_id):
+            return ()
+        binding = self.store.checkpoint(case_id).binding
         bindings, seen = [], set()
         while binding is not None:
             if binding.generation in seen:
@@ -91,11 +88,13 @@ class ReplayService:
                     and o.provider_at is not None and lease.started_at <= o.provider_at <= o.observed_at
                     for o in reply.observations))
         scoped = reply.operation == "read_case" and reply.object_id == binding.object_id
-        completed = timely and scoped and (reply.stage == "scope_rejected"
-            or reply.stage == "observed" and bool(reply.evidence_refs))
-        if completed:
-            self.store.finish_entry(lease.entry_id, elapsed)
-        if not timely or not scoped or reply.stage != "observed" or not reply.evidence_refs:
+        if not timely or not scoped:
+            return False
+        if reply.stage == "scope_rejected":
+            if not reply.observations:
+                self.store.finish_entry(lease.entry_id, elapsed)
+            return False
+        if reply.stage != "observed" or not reply.evidence_refs:
             return False
         observations = {}
         for observation in reply.observations:
@@ -104,10 +103,16 @@ class ReplayService:
                 return False
             observations[observation.fact] = observation.value
         identity = observations.get("binding")
-        return (set(observations) == {"authorization", "binding"}
-            and observations["authorization"] == "verified" and isinstance(identity, dict)
-            and all(identity.get(field) == getattr(binding, field)
-                    for field in ("case_id", "object_id", "principal_id")))
+        authorization = observations.get("authorization")
+        if (set(observations) != {"authorization", "binding"}
+                or not isinstance(authorization, str) or authorization not in {"verified", "revoked", "denied"}
+                or not isinstance(identity, dict)
+                or any(identity.get(field) != getattr(binding, field)
+                       for field in ("case_id", "object_id", "principal_id"))):
+            return False
+        # Only complete, fresh scoped authority semantics establish known completion.
+        self.store.finish_entry(lease.entry_id, elapsed)
+        return authorization == "verified"
 
     def lookup(self, request, auth):
         """None selects later fresh admission/recovery, never permission or new identity.
