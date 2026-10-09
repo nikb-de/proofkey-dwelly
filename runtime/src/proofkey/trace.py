@@ -11,7 +11,10 @@ _SAFE_ERROR = '{"error":"invalid_trace"}\n'
 def _write(text, code):
     try:
         sys.stdout.write(text)
+        sys.stdout.flush()
     except (OSError, UnicodeError):
+        # Do not let interpreter shutdown retry a failed buffered stream.
+        sys.stdout = None
         return 2
     return code
 

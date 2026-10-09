@@ -173,6 +173,31 @@ class TraceCliTests(unittest.TestCase):
                 raise OSError("SECRET /private/path")
         self.assertEqual(self.call_main(UnavailableStream()), (2, SAFE_ERROR))
 
+    def assert_closed_stdout_is_safe(self, payload):
+        env = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1",
+            "PYTHONPATH": str(Path(__file__).resolve().parents[1] / "src")}
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            before = tuple(root.rglob("*"))
+            read_fd, write_fd = os.pipe()
+            os.close(read_fd)
+            try:
+                child = subprocess.Popen([sys.executable, "-m", "proofkey.trace"],
+                    stdin=subprocess.PIPE, stdout=write_fd, stderr=subprocess.PIPE,
+                    cwd=folder, env=env)
+            finally:
+                os.close(write_fd)
+            _, stderr = child.communicate(input=payload, timeout=20)
+            self.assertEqual(tuple(root.rglob("*")), before, "renderer created files")
+        self.assertEqual(child.returncode, 2)
+        self.assertEqual(stderr, b"")
+
+    def test_buffered_render_to_closed_stdout_returns_safe_exit_without_finalizer_error(self):
+        self.assert_closed_stdout_is_safe(FAILURE)
+
+    def test_buffered_error_to_closed_stdout_returns_safe_exit_without_finalizer_error(self):
+        self.assert_closed_stdout_is_safe(b"SECRET-invalid-input")
+
     def test_stdout_io_failure_does_not_escape(self):
         from proofkey.trace import main
         class UnavailableOutput:
