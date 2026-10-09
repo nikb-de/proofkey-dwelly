@@ -7,6 +7,7 @@ Documentation-only internal continuation of approved Task15. Exactly NEW runtime
 Use the complete two-position recorder and manual review recipe in the root-full-read private task-15b1-release-preparation.md as the starting source. Document actual current CLI/parser/receipt/export APIs, not private report claims. Reader starts at selected runtime/ with existing qualified dependencies and supplies the intended Python. The recorder is standard-library-only; it launches exactly two trusted offline CLI children with separate NEW retained parents. It is recipe text in this documentation slice, NOT run here. Never call it a release/reproduction receipt.
 
 Include these exact full requests, no omitted defaults:
+
 - window: case_id C1, object_id O1, principal_id U1, request_id REQ1, request_revision v1, consent_revision v1, kind reschedule_window, consent_mode window, arguments window_start2026-10-08T10:00:00+00:00/window_end2026-10-08T12:00:00+00:00/inventory item-1=1, evidence_ids[], narrative null; release host-window-replay-v1.
 - goods: same six identities, kind goods_refusal, consent_mode unknown, arguments inventory item-1=1, evidence_ids[], narrative null; release host-goods-replay-v1.
 
