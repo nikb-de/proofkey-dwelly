@@ -1,6 +1,6 @@
 """Immutable trusted-host timing arithmetic; never transport permission."""
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 import math
 
 from .execution import ExecutionContext
@@ -12,10 +12,17 @@ def _instant(value):
     return value
 
 
-def _elapsed(value):
-    if type(value) not in (int, float) or not math.isfinite(value) or value < 0:
-        raise ValueError("Finite nonnegative monotonic measurement required")
+def _observation(value):
+    if type(value) not in (int, float) or not math.isfinite(value):
+        raise ValueError("Finite monotonic observation required")
     return float(value)
+
+
+def _elapsed(value):
+    value = _observation(value)
+    if value < 0:
+        raise ValueError("Nonnegative monotonic elapsed required")
+    return value
 
 
 @dataclass(frozen=True, slots=True)
@@ -48,9 +55,21 @@ class ExecutionTiming:
         return max(0.0, (cutoff - now).total_seconds())
 
     def monotonic_anchor(self):
-        return None if self.execution is None else _elapsed(self.clock.monotonic())
+        return None if self.execution is None else _observation(self.clock.monotonic())
 
     def elapsed_since(self, anchor):
         if self.execution is None:
             raise ValueError("Monotonic elapsed requires a scoped host context")
-        return _elapsed(_elapsed(self.clock.monotonic()) - _elapsed(anchor))
+        return _elapsed(_observation(self.clock.monotonic()) - _observation(anchor))
+
+    def _transport_deadline(self, deadline, lease, anchor):
+        if self.execution is None:
+            return deadline
+        now, cutoff = self.window(deadline)
+        # Sample elapsed after observing UTC: observation/construction is part
+        # of the committed slice, even when the overall host has time left.
+        elapsed = self.elapsed_since(anchor)
+        reserved = _elapsed(lease.reserved_seconds)
+        if now >= cutoff or elapsed >= reserved:
+            raise ValueError("Reserved host execution slice exhausted")
+        return min(cutoff, now + timedelta(seconds=reserved - elapsed))

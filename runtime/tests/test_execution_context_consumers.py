@@ -90,6 +90,239 @@ class ConsumerClock:
 
 
 class ExecutionConsumerTests(unittest.TestCase):
+    def test_reserved_slice_exhaustion_blocks_control_replay_and_business_with_host_time_left(self):
+        from proofkey.replay import ReplayService
+        for route, extra in ((route, extra) for route in ("control", "replay", "business") for extra in (0.0, 0.1)):
+            with self.subTest(route=route, extra=extra), tempfile.TemporaryDirectory() as folder:
+                fx = build_test_runtime(folder)
+                self.addCleanup(fx.store.close)
+                if route == "replay":
+                    fx.engine.run(fx.request, fx.auth)
+                elif route == "control":
+                    with fx.engine._entry_scope():
+                        fx.engine.authenticate_and_bind(fx.request, fx.auth)
+                before = fx.store.checkpoint("C1") if route != "business" else None
+                saved = fx.store.saved_result("C1", "G1") if route == "replay" else None
+                clock = ConsumerClock(fx.clock)
+                context = ExecutionContext.capture(clock.now() + timedelta(seconds=20), clock)
+                reserve_name = {"control": "begin_control_read", "replay": "begin_disclosure_read",
+                    "business": "begin_dispatch"}[route]
+                original = getattr(fx.store, reserve_name)
+                leases, entries = [], []
+                def reserve(*args, **kwargs):
+                    lease = original(*args, **kwargs)
+                    leases.append(lease)
+                    clock.advance(lease.reserved_seconds + extra, utc=False)
+                    return lease
+                setattr(fx.store, reserve_name, reserve)
+                port_name, method = ("scheduling", "reschedule") if route == "business" else ("case", "read_case")
+                real = getattr(fx.world.bundle(), port_name)
+                class Port:
+                    def __getattr__(self, name):
+                        if name == method:
+                            def forward(*args, **kwargs):
+                                entries.append(args[0])
+                                return getattr(real, name)(*args, **kwargs)
+                            return forward
+                        return getattr(real, name)
+                bundle = replace(fx.world.bundle(), **{port_name: Port()})
+                if route == "replay":
+                    result = ReplayService(fx.profile, bundle, fx.store, clock).lookup(
+                        fx.request, fx.auth, execution=context)
+                    self.assertEqual(result.status, "denied")
+                    self.assertIsNone(result.binding)
+                    self.assertEqual(fx.store.saved_result("C1", "G1"), saved)
+                else:
+                    engine = WorkflowEngine(fx.profile, bundle, fx.store, clock)
+                    result = (engine.stop("C1", "G1", fx.auth, execution=context) if route == "control" else
+                        engine.run(fx.request, fx.auth, execution=context))
+                self.assertEqual(entries, [], "Exhausted reserved slice is not transport permission")
+                self.assertGreater(context.remaining_seconds(clock), 0)
+                self.assertEqual(len(leases), 1)
+                self.assertEqual(fx.store.entry(leases[0].entry_id).state, "active")
+                current = fx.store.checkpoint("C1")
+                self.assertGreaterEqual(current.budget.active_seconds, leases[0].reserved_seconds)
+                if route == "control":
+                    self.assertFalse(current.stop.requested)
+                    self.assertEqual(current.budget.tool_calls, before.budget.tool_calls + 1)
+                elif route == "business":
+                    self.assertEqual(fx.world.effect_count("reschedule"), 0)
+                    self.assertEqual(fx.store.intents("C1")[0].verification.status, "outcome_unknown")
+
+    def test_remaining_reserved_slice_shortens_actual_control_replay_and_business_deadlines(self):
+        from proofkey.replay import ReplayService
+        for route in ("control", "replay", "business"):
+            with self.subTest(route=route), tempfile.TemporaryDirectory() as folder:
+                fx = build_test_runtime(folder)
+                self.addCleanup(fx.store.close)
+                if route == "replay":
+                    fx.engine.run(fx.request, fx.auth)
+                elif route == "control":
+                    with fx.engine._entry_scope():
+                        fx.engine.authenticate_and_bind(fx.request, fx.auth)
+                clock = ConsumerClock(fx.clock)
+                context = ExecutionContext.capture(clock.now() + timedelta(seconds=20), clock)
+                reserve_name = {"control": "begin_control_read", "replay": "begin_disclosure_read",
+                    "business": "begin_dispatch"}[route]
+                original = getattr(fx.store, reserve_name)
+                leases, entries = [], []
+                def reserve(*args, **kwargs):
+                    lease = original(*args, **kwargs)
+                    leases.append(lease)
+                    # Observing the current UTC window itself takes monotonic time.
+                    def observe():
+                        clock.on_now = None
+                        clock.advance(0.25, utc=False)
+                    clock.on_now = observe
+                    return lease
+                setattr(fx.store, reserve_name, reserve)
+                port_name, method = ("scheduling", "reschedule") if route == "business" else ("case", "read_case")
+                real = getattr(fx.world.bundle(), port_name)
+                class Port:
+                    def __getattr__(self, name):
+                        if name == method:
+                            def forward(*args, **kwargs):
+                                deadline = kwargs.get("deadline", getattr(args[0], "deadline", None))
+                                entries.append((deadline, clock.now(), leases[-1]))
+                                return getattr(real, name)(*args, **kwargs)
+                            return forward
+                        return getattr(real, name)
+                bundle = replace(fx.world.bundle(), **{port_name: Port()})
+                if route == "replay":
+                    result = ReplayService(fx.profile, bundle, fx.store, clock).lookup(
+                        fx.request, fx.auth, execution=context)
+                    self.assertEqual(result.effects["reschedule"].status, "verified")
+                else:
+                    engine = WorkflowEngine(fx.profile, bundle, fx.store, clock)
+                    result = (engine.stop("C1", "G1", fx.auth, execution=context) if route == "control" else
+                        engine.run(fx.request, fx.auth, execution=context))
+                    if route == "control":
+                        self.assertTrue(fx.store.checkpoint("C1").stop.requested)
+                    else:
+                        self.assertEqual(result.effects["reschedule"].status, "verified")
+                self.assertTrue(entries, "Positive remaining slice must still enter the real port")
+                for deadline, now, lease in entries:
+                    self.assertAlmostEqual((deadline - now).total_seconds(), lease.reserved_seconds - 0.25)
+                    self.assertLess(deadline, lease.deadline)
+
+    def test_finite_negative_monotonic_origin_allows_actual_business_and_processing(self):
+        with tempfile.TemporaryDirectory() as folder:
+            fx = build_test_runtime(folder)
+            self.addCleanup(fx.store.close)
+            clock = ConsumerClock(fx.clock)
+            clock.seconds = -100.0
+            context = ExecutionContext.capture(clock.now() + timedelta(seconds=20), clock)
+            self.assertEqual(context.captured_monotonic, -100.0)
+            result = WorkflowEngine(fx.profile, fx.world.bundle(), fx.store, clock).run(
+                fx.request, fx.auth, execution=context)
+            self.assertIn("reschedule", result.effects, "Lawful negative origin must not deny the real business path")
+            self.assertEqual(result.effects["reschedule"].status, "verified")
+            self.assertEqual(fx.world.effect_count("reschedule"), 1)
+        with tempfile.TemporaryDirectory() as folder:
+            store, clock, service = processing_fixture(folder)
+            self.addCleanup(store.close)
+            clock.seconds = -100.0
+            context = ExecutionContext.capture(clock.now() + timedelta(seconds=20), clock)
+            entries = []
+            def invoke():
+                entries.append(service.current_request)
+                clock.advance(0.25, utc=False)
+                return processing_receipt(service, clock)
+            service.call("extraction", service.campaign.input_hashes, {"tokens": 10}, invoke, execution=context)
+            self.assertEqual(len(entries), 1)
+            self.assertAlmostEqual(store.checkpoint("C1").budget.active_seconds, 0.25)
+
+    def test_invalid_reserved_slice_observations_keep_control_debt_without_port_entry(self):
+        for failure in ("reversed", "nonfinite", "failed"):
+            with self.subTest(failure=failure), tempfile.TemporaryDirectory() as folder:
+                fx = build_test_runtime(folder)
+                self.addCleanup(fx.store.close)
+                with fx.engine._entry_scope():
+                    fx.engine.authenticate_and_bind(fx.request, fx.auth)
+                before = fx.store.checkpoint("C1")
+                clock = ConsumerClock(fx.clock)
+                context = ExecutionContext.capture(clock.now() + timedelta(seconds=20), clock)
+                original = fx.store.begin_control_read
+                leases, entries = [], []
+                def reserve(*args, **kwargs):
+                    lease = original(*args, **kwargs)
+                    leases.append(lease)
+                    if failure == "reversed":
+                        clock.advance(-0.01, utc=False)
+                    elif failure == "nonfinite":
+                        clock.seconds = float("nan")
+                    else:
+                        def failed():
+                            raise ValueError("Synthetic monotonic observation failed")
+                        clock.monotonic = failed
+                    return lease
+                fx.store.begin_control_read = reserve
+                real = fx.world.bundle().case
+                class CasePort:
+                    def __getattr__(self, name): return getattr(real, name)
+                    def read_case(self, request):
+                        entries.append(request)
+                        return real.read_case(request)
+                engine = WorkflowEngine(fx.profile, replace(fx.world.bundle(), case=CasePort()), fx.store, clock)
+                self.assertEqual(engine.stop("C1", "G1", fx.auth, execution=context).status, "denied")
+                self.assertEqual(entries, [])
+                current = fx.store.checkpoint("C1")
+                self.assertFalse(current.stop.requested)
+                self.assertEqual(current.budget.tool_calls, before.budget.tool_calls + 1)
+                self.assertEqual(current.budget.active_seconds, before.budget.active_seconds + leases[0].reserved_seconds)
+                self.assertEqual(fx.store.entry(leases[0].entry_id).state, "active")
+
+    def test_port_resolution_time_is_fenced_after_request_construction_without_readback(self):
+        from proofkey.replay import ReplayService
+        for route in ("control", "replay", "business"):
+            with self.subTest(route=route), tempfile.TemporaryDirectory() as folder:
+                fx = build_test_runtime(folder)
+                self.addCleanup(fx.store.close)
+                if route == "replay":
+                    fx.engine.run(fx.request, fx.auth)
+                elif route == "control":
+                    with fx.engine._entry_scope():
+                        fx.engine.authenticate_and_bind(fx.request, fx.auth)
+                clock = ConsumerClock(fx.clock)
+                context = ExecutionContext.capture(clock.now() + timedelta(seconds=20), clock)
+                reserve_name = {"control": "begin_control_read", "replay": "begin_disclosure_read",
+                    "business": "begin_dispatch"}[route]
+                original = getattr(fx.store, reserve_name)
+                leases, entries, calls_at_reserve = [], [], []
+                def reserve(*args, **kwargs):
+                    lease = original(*args, **kwargs)
+                    leases.append(lease)
+                    calls_at_reserve.append(len(fx.world.calls))
+                    return lease
+                setattr(fx.store, reserve_name, reserve)
+                port_name, method = ("scheduling", "reschedule") if route == "business" else ("case", "read_case")
+                real = getattr(fx.world.bundle(), port_name)
+                resolved = []
+                class Port:
+                    def __getattr__(self, name):
+                        target = getattr(real, name)
+                        if name == method and leases and not resolved:
+                            resolved.append(name)
+                            clock.advance(leases[-1].reserved_seconds, utc=False)
+                            def forward(*args, **kwargs):
+                                entries.append(args[0])
+                                return target(*args, **kwargs)
+                            return forward
+                        return target
+                bundle = replace(fx.world.bundle(), **{port_name: Port()})
+                if route == "replay":
+                    result = ReplayService(fx.profile, bundle, fx.store, clock).lookup(
+                        fx.request, fx.auth, execution=context)
+                else:
+                    engine = WorkflowEngine(fx.profile, bundle, fx.store, clock)
+                    result = (engine.stop("C1", "G1", fx.auth, execution=context) if route == "control" else
+                        engine.run(fx.request, fx.auth, execution=context))
+                self.assertEqual(resolved, [method])
+                self.assertEqual(entries, [])
+                self.assertGreater(context.remaining_seconds(clock), 0)
+                self.assertEqual(fx.store.entry(leases[0].entry_id).state, "active")
+                self.assertEqual(len(fx.world.calls), calls_at_reserve[0], "Exhausted pre-port slice cannot initiate readback")
+
     def test_legacy_auth_is_retained_but_explicit_context_restores_after_normal_or_crash(self):
         from test_workflows import CrashOnPhase, ProcessCrash
         from support import make_auth

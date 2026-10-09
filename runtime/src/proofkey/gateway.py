@@ -99,13 +99,13 @@ class ActionGateway:
         if after < now or after >= cutoff:
             raise GateDenied("scope_denied")
 
-    def _transport_deadline(self, deadline):
+    def _transport_deadline(self, deadline, lease, anchor):
         if self._timing is None or self._timing.execution is None:
             return deadline
-        now, cutoff = self._timing.window(deadline)
-        if now >= cutoff:
-            raise GateDenied("scope_denied")
-        return cutoff
+        try:
+            return self._timing._transport_deadline(deadline, lease, anchor)
+        except ValueError:
+            raise GateDenied("scope_denied") from None
 
     def _settle(self, lease, completed, admission=False, anchor=None):
         if anchor is not None:
@@ -136,10 +136,15 @@ class ActionGateway:
                  self.store.begin_read(scope.case_id, self.clock.now(), action_id=action_id))
         request = ReadRequest(case_id=scope.case_id, object_id=scope.object_id, caller_id=self.auth.caller_id,
             proof_reference=self.auth.proof_reference, purpose=purpose,
-            deadline=self._transport_deadline(min(limit, lease.deadline)), target=target)
+            deadline=self._transport_deadline(min(limit, lease.deadline), lease, anchor), target=target)
         try:
-            request = request.model_copy(update={"deadline": self._transport_deadline(request.deadline)})
-            reply = getattr(getattr(self.bundle, port), method)(request)
+            transport = getattr(getattr(self.bundle, port), method)
+        except Exception:
+            self._settle(lease, False, admission=attempt_id is not None, anchor=anchor)
+            raise GateDenied("scope_denied") from None
+        request = request.model_copy(update={"deadline": self._transport_deadline(request.deadline, lease, anchor)})
+        try:
+            reply = transport(request)
             reply = AuthorityReadback.model_validate(reply.model_dump())
             if (self.clock.now() >= request.deadline or reply.as_of < lease.started_at or reply.as_of > self.clock.now()
                     or any(o.observed_at < lease.started_at or o.observed_at > reply.as_of for o in reply.observations)):
@@ -592,14 +597,23 @@ class ActionGateway:
         lease = self.store.begin_dispatch(intent, self.clock.now(), is_resend=is_resend)
         try:
             deadline = self._transport_deadline(min(lease.deadline, wait_expiry)
-                if wait_expiry is not None else lease.deadline)
+                if wait_expiry is not None else lease.deadline, lease, anchor)
         except (GateDenied, ValueError):
             result = VerificationResult(status="outcome_unknown", reason="entry_unresolved")
             self.store.record_verification(intent.action_id, result)
             return result
         try:
-            dispatch = getattr(getattr(self.bundle, _PORTS[intent.operation]), intent.operation)(intent,
-                deadline=self._transport_deadline(deadline))
+            transport = getattr(getattr(self.bundle, _PORTS[intent.operation]), intent.operation)
+        except Exception:
+            return self._read_and_verify(intent)[0]
+        try:
+            deadline = self._transport_deadline(deadline, lease, anchor)
+        except (GateDenied, ValueError):
+            result = VerificationResult(status="outcome_unknown", reason="entry_unresolved")
+            self.store.record_verification(intent.action_id, result)
+            return result
+        try:
+            dispatch = transport(intent, deadline=deadline)
         except Exception:
             dispatch = None
         if dispatch is not None:

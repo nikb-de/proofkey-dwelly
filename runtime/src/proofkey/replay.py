@@ -79,17 +79,17 @@ class ReplayService:
             lease.started_at + timedelta(seconds=capability.timeout_seconds)))
         if timing.execution is not None and now >= cutoff:
             return False
+        cutoff = timing._transport_deadline(cutoff, lease, anchor)
         read = ReadRequest(case_id=binding.case_id, object_id=binding.object_id,
             caller_id=auth.caller_id, proof_reference=auth.proof_reference, purpose="disclosure",
             deadline=cutoff,
             target=ReadTarget(kind="authority_facts", authority="case", facts=["authorization", "binding"]))
         # The provider, not the storage index or a caller flag, verifies proof and scope.
+        transport = self.bundle.case.read_case
         if timing.execution is not None:
-            now, cutoff = timing.window(read.deadline)
-            if now >= cutoff:
-                return False
+            cutoff = timing._transport_deadline(read.deadline, lease, anchor)
             read = read.model_copy(update={"deadline": cutoff})
-        raw = self.bundle.case.read_case(read)
+        raw = transport(read)
         reply = AuthorityReadback.model_validate(raw.model_dump())
         now = self.clock.now()
         elapsed = timing.elapsed_since(anchor) if anchor is not None else (now - lease.started_at).total_seconds()
