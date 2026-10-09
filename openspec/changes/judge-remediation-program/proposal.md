@@ -20,7 +20,7 @@ The five completed reviews of frozen `8e8c9f9` identified baseline defects, inte
 
 ### Modified capabilities
 
-None in this program-only change. Runtime behavior belongs in individually reviewed child deltas. The current `synthetic-factory-implementation-registration` leaf is the first dependency; the unfinished `proofkey-v21-harness-contracts` parent remains open.
+None in this program-only change. Runtime behavior belongs in individually reviewed child deltas. The `synthetic-factory-implementation-registration` leaf is now archived; the unfinished `proofkey-v21-harness-contracts` parent remains open.
 
 ## Impact
 

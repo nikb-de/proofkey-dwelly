@@ -4,7 +4,7 @@
 
 User instruction: work on all proposals after the judge assessment. Product priorities are easy integration, rapid adaptation and reliable case resolution in delivery/logistics. The assessment is input, not authority to weaken safety or infer a missing capability from a missing packet span.
 
-The current source-backed register is `docs/verification/judge-remediation-2026-10-09/README.md`; original source text and mappings are preserved in `source-map.json`. Four narrowly closed items and one partial baseline do not establish a complete product or a higher judge score.
+The current source-backed register is `docs/verification/judge-remediation-2026-10-09/README.md`; original source text and mappings are preserved in `source-map.json`. After the verified factory leaf, six narrowly closed items and 26 open items do not establish a complete product or a higher judge score.
 
 ## Decisions
 
@@ -25,7 +25,7 @@ The current source-backed register is `docs/verification/judge-remediation-2026-
 
 ## Rollout
 
-The factory registration leaf is next; its design is accepted and its corrected written implementation plan awaits review. The support matrix and full source-backed slice analysis are prepared. Later behavior slices remain proposals, not promised outcomes. The register records targets and roles without inventing human availability or delivery dates.
+The factory registration leaf is complete and archived, with the 1,685-test baseline recorded at `ecf36ac`. J22/J32 are the next proposed bounded cycle; its design and five-seat reassessment constraints are in `docs/verification/judge-remediation-2026-10-09/next-cycle-design.md`. Later behavior slices remain proposals, not promised outcomes. The register records targets and roles without inventing human availability or delivery dates.
 
 ## Verification
 
