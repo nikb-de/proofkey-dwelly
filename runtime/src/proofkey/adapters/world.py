@@ -13,13 +13,16 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from uuid import uuid4
 
-from ..contracts import (AuthorityObservation, AuthorityReadback, DispatchResult,
+from ..contracts import (AuthContext, AuthorityObservation, AuthorityReadback, DispatchResult,
                          EffectIntent, EnvironmentProfile, NonexecutionProof,
                          ReadRequest, RevisionVector)
 from ..identity import fingerprint
 from ..ports import AdapterBundle
 from ..process import material_fields
-from ..profiles import load_profile, requires_completed_service
+from ..profiles import load_profile, requires_completed_service, validate_profile
+from ..ownership_contracts import (ownership_enabled, OWNERSHIP_FIELDS_V1,
+    OriginalTransferIdentityV1, TransferRejectedV1)
+from .ownership import SyntheticOwnershipSource, strict_fixture_pairs
 from ..packet_contracts import (PACKET_FIELDS, PacketContentReceiptV1, packet_enabled,
                                 packet_postcondition, validate_packet_arguments, validate_packet_policy, validate_packet_scope)
 
@@ -79,6 +82,8 @@ def required_material_keys(connection, profile, operation, stage):
     minimum = material_fields(operation)
     if operation == "enqueue_handoff" and packet_enabled(profile):
         minimum |= PACKET_FIELDS
+    if operation == "transfer_owner" and ownership_enabled(profile):
+        minimum |= OWNERSHIP_FIELDS_V1
     if _scope_contract(profile) and operation in _BUSINESS_EFFECTS:
         minimum |= _SCOPE_MATERIAL
         if operation == "reschedule":
@@ -109,12 +114,17 @@ class SimulatedWorld:
     def __init__(self, path: str | Path, fixture: str | Path, *, profile: EnvironmentProfile | None = None, clock=None):
         self._path = Path(path)
         self._profile = EnvironmentProfile.model_validate((profile or load_profile("flat-v1")).model_dump())
-        raw = json.loads(Path(fixture).read_text(encoding="utf-8"))
+        if self._profile.version == "v1.4":
+            self._profile = validate_profile(self._profile)
+        raw = json.loads(Path(fixture).read_text(encoding="utf-8"),
+                         object_pairs_hook=strict_fixture_pairs if self._profile.version == "v1.4" else None)
         start = datetime.fromisoformat(raw["as_of"])
         if start.utcoffset() is None or raw.get("version") != "synthetic-provider-v1":
             raise ValueError("Trusted synthetic fixture requires a version and aware time")
         self._clock = clock or _FixtureClock(start)
         self._now()
+        self._ownership = (SyntheticOwnershipSource(self, raw.get("ownership_authority"))
+                           if ownership_enabled(self._profile) else None)
         self._faults, self._calls = {}, []
         self._driver_lock = threading.Lock()
         with self._connect() as connection:
@@ -136,6 +146,8 @@ class SimulatedWorld:
                     request_id TEXT,created_at TEXT,PRIMARY KEY(account_id,provider_key));
             """)
             marker = connection.execute("SELECT value FROM metadata WHERE key='fixture'").fetchone()
+            if self._ownership is None and connection.execute("SELECT 1 FROM metadata WHERE key='ownership_fixture'").fetchone():
+                raise ValueError("Registered ownership provider cannot reopen under legacy semantics")
             fixture_hash = fingerprint(raw)
             if marker and marker[0] != fixture_hash:
                 raise ValueError("Existing provider database belongs to a different fixture")
@@ -150,6 +162,8 @@ class SimulatedWorld:
                         raise ValueError("Fixture facts need qualified authority identities")
                     connection.execute("INSERT INTO facts VALUES(?,?,?,?,?,?)", (fact["case_id"], fact["object_id"],
                                        key, json.dumps(fact["value"]), fact["revision"], fact["evidence_ref"]))
+            if self._ownership:
+                self._ownership.seed(connection)
             for case_id, object_id in connection.execute("SELECT case_id,object_id FROM scopes"):
                 required = set().union(*(material_fields(operation) for operation in _EFFECTS))
                 if not required <= read_material_revisions(connection, required, case_id, object_id).keys():
@@ -216,6 +230,14 @@ class SimulatedWorld:
     def effect_count(self, operation) -> int:
         with self._connect() as connection:
             return connection.execute("SELECT COUNT(*) FROM effects WHERE operation=?", (operation,)).fetchone()[0]
+
+    def deliver_target_acceptance(self, instruction) -> bool:
+        """Trusted synthetic TEST DRIVER only, absent from every runtime port."""
+        if self._ownership is None:
+            return False
+        with self._connect() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            return self._ownership.deliver(connection, instruction)
 
     def _call(self, operation, purpose):
         with self._driver_lock:
@@ -319,7 +341,8 @@ class SimulatedWorld:
                     and commitment == binding.fingerprint)
         return identity_matches
 
-    def _dispatch(self, operation, intent: EffectIntent, *, deadline: datetime | None = None) -> DispatchResult:
+    def _dispatch(self, operation, intent: EffectIntent, *, deadline: datetime | None = None,
+                  auth: AuthContext | None = None) -> DispatchResult:
         """Apply a trusted transport scope without changing saved provider identity."""
         intent = EffectIntent.model_validate(intent.model_dump())
         behavior = self._call(operation, "dispatch")
@@ -352,6 +375,14 @@ class SimulatedWorld:
                     return reject("deadline_expired")
                 if not self._write_identity_allowed(connection, intent):
                     return reject("identity_scope_rejected")
+                registered_transfer = operation == "transfer_owner" and self._ownership is not None
+                if registered_transfer:
+                    if not self._ownership.authenticated(connection, auth, intent.binding):
+                        return reject("actor_scope_rejected")
+                    try:
+                        self._ownership.parse(intent)
+                    except (ValueError, TypeError, KeyError):
+                        return reject("ownership_contract_rejected")
                 if self._now() >= tool_deadline:
                     return reject("deadline_expired")
                 required = required_material_keys(connection, self._profile, operation, intent.stage)
@@ -379,6 +410,8 @@ class SimulatedWorld:
                 current = read_material_revisions(connection, required, intent.binding.case_id, intent.binding.object_id)
                 if current != {key: expected[key] for key in required}:
                     return reject("stale_material_revision")
+                if registered_transfer and not self._ownership.current_allowed(connection, intent):
+                    return reject("ownership_scope_rejected")
                 if self._now() >= tool_deadline:
                     return reject("deadline_expired")
                 if behavior in {"business_rejection", "final_rejection_unknown"}:
@@ -387,6 +420,8 @@ class SimulatedWorld:
                         (account, intent.provider_key, intent.binding.case_id, intent.binding.object_id, operation,
                          intent.binding.generation, intent.action_id, intent.argument_fingerprint, identity_hash,
                          request_id, self._now().isoformat()))
+                    if registered_transfer:
+                        self._ownership.reject(connection, intent, request_id)
                     if self._now() >= tool_deadline:
                         connection.rollback()
                         return reject("deadline_expired")
@@ -408,7 +443,8 @@ class SimulatedWorld:
                     (account, intent.provider_key, intent.binding.case_id, intent.binding.object_id, operation,
                      intent.binding.generation, intent.action_id, intent.argument_fingerprint, identity_hash,
                      request_id, stage, json.dumps([o.model_dump(mode="json") for o in observations]),
-                     self._now().isoformat(), intent.arguments.get("question_id"), intent.arguments.get("transfer_id"),
+                     self._now().isoformat(), intent.arguments.get("question_id"),
+                     intent.arguments["intent"]["transfer_id"] if registered_transfer else intent.arguments.get("transfer_id"),
                      intent.arguments.get("packet_id"), intent.arguments.get("packet_revision")))
                 if self._now() >= tool_deadline:
                     connection.rollback()
@@ -427,6 +463,8 @@ class SimulatedWorld:
         facts = self._facts(connection, case, obj)
         values = {key: json.loads(row["value"]) for key, row in facts.items()}
         args, operation = intent.arguments, intent.operation
+        if operation == "transfer_owner" and self._ownership is not None:
+            return self._ownership.apply(connection, intent)
         requires_business_consent = not _scope_contract(self._profile) or operation in _BUSINESS_EFFECTS
         if ((requires_business_consent and values["customer.consent"] != "granted") or values["delivery.risk"] != "safe"
                 or values["delivery.stage"] != "eligible" or values["policy.version"] != intent.policy_version
@@ -548,7 +586,10 @@ class SimulatedWorld:
         # The original receipt and its evidence describe one provider event.
         # This receipt was generated above by the provider, never supplied in
         # caller arguments; sampling again would create a distinct event time.
-        now = PacketContentReceiptV1.model_validate(receipt).stored_at if receipt is not None else self._now()
+        transfer = values.get("operator.transfer_receipt")
+        now = (PacketContentReceiptV1.model_validate(receipt).stored_at if receipt is not None else
+               datetime.fromisoformat(transfer.get("accepted_at") or transfer.get("pending_at") or transfer["rejected_at"])
+               if transfer is not None else self._now())
         return [AuthorityObservation(authority=key.partition(".")[0], fact=key.partition(".")[2],
                 object_id=intent.binding.object_id, value=value, revision=facts[key]["revision"] if key in facts else "v1",
                 provider_at=now, observed_at=now, evidence_ref="synthetic-provider:effect:" + intent.action_id)
@@ -585,6 +626,8 @@ class SimulatedWorld:
                     allowed = _FACT_SCOPES.get(operation, {}).get(target.authority, set())
                     if packet_enabled(self._profile) and operation == "read_receipt" and target.authority == "operator":
                         allowed = allowed | {"packet_catalog", "packet_access"}
+                    if self._ownership and operation == "read_owner" and target.authority == "operator":
+                        allowed = allowed | {"ownership_grant", "ownership_packet"}
                     if not set(target.facts) <= allowed:
                         return empty("scope_rejected")
                     if any(target.authority + "." + fact in _NEW_FACTS
@@ -592,6 +635,9 @@ class SimulatedWorld:
                            for fact in target.facts):
                         return empty("scope_rejected")
                     facts = self._facts(connection, request.case_id, request.object_id)
+                    if (target.authority == "operator" and "ownership_grant" in target.facts
+                            and not self._ownership.disclosure_allowed(facts, request)):
+                        return empty("scope_rejected")
                     if (target.authority == "operator" and {"packet_catalog", "packet_access"} & set(target.facts)
                             and not self._packet_disclosure_allowed(facts, request)):
                         return empty("scope_rejected")
@@ -613,6 +659,8 @@ class SimulatedWorld:
                         params += [target.question_id]
                     elif ((target.kind == "operator_packet" and operation in {"read_receipt", "read_resume"})
                           or (target.kind == "transfer" and operation in {"read_resume", "read_owner"})):
+                        if target.kind == "transfer" and self._ownership is not None:
+                            return empty("scope_rejected")
                         where += " AND packet_id=? AND packet_revision=?"
                         params += [target.packet_id, target.packet_revision]
                         if target.kind == "transfer":
@@ -632,7 +680,19 @@ class SimulatedWorld:
                                 return empty()
                             record = rejections[0]
                             evidence = "synthetic-provider:terminal-rejection:" + record["request_id"]
-                            return AuthorityReadback(operation=record["operation"], object_id=request.object_id, observations=[],
+                            terminal_observations = []
+                            if self._ownership and target.operation == "transfer_owner" and operation == "read_owner":
+                                original = OriginalTransferIdentityV1(binding=self._ownership.fixture.packet.binding,
+                                    transfer_id=target.action_id, action_id=target.action_id, provider_key=target.provider_key,
+                                    argument_fingerprint=target.fingerprint)
+                                saved = self._ownership.load(connection, original)
+                                if not saved or not isinstance(saved.receipt, TransferRejectedV1):
+                                    return empty("unknown")
+                                terminal_observations = self._effect_observations(connection, saved.effect,
+                                    self._ownership.outcome(saved.receipt))
+                                terminal_observations = [AuthorityObservation.model_validate({**obs.model_dump(), "observed_at": as_of})
+                                                         for obs in terminal_observations]
+                            return AuthorityReadback(operation=record["operation"], object_id=request.object_id, observations=terminal_observations,
                                 provider_request_id=record["request_id"], action_id=record["action_id"], fingerprint=record["fingerprint"],
                                 stage="terminally_rejected", nonexecution=NonexecutionProof(status="proven", basis=terminal.basis,
                                                                                           evidence_ref=evidence),
@@ -646,6 +706,10 @@ class SimulatedWorld:
                         return empty("unavailable")
                     observations = [AuthorityObservation.model_validate({**item, "observed_at": self._now()})
                                     for item in json.loads(record["observations"])]
+                    if any(obs.authority == "operator" and obs.fact == "transfer_receipt" for obs in observations):
+                        if (self._ownership is None or operation != "read_owner" or target.kind != "original_effect"
+                                or target.operation != "transfer_owner"):
+                            return empty("scope_rejected")
                     content_bearing = any(obs.authority == "operator" and obs.fact in
                                           {"packet_content", "packet_content_receipt"} for obs in observations)
                     # Disclosure follows the stored provider-owned outcome,

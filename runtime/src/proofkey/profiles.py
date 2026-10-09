@@ -6,6 +6,7 @@ from .contracts import CanonicalRequest, EnvironmentProfile
 from .identity import fingerprint
 from .process import validate_process
 from .packet_contracts import packet_enabled
+from .ownership_contracts import ownership_enabled
 
 _ROOT = Path(__file__).resolve().parents[2]
 _SYNTHETIC_POLICY = {"policy_id": "synthetic-test-policy-v1", "version": "v1",
@@ -71,7 +72,7 @@ def load_profile(path: str | Path) -> EnvironmentProfile:
     intact so the controller/policy can deny the corresponding operation.
     """
     path = Path(path)
-    if str(path) in {"flat-v1", "nested-v1", "flat-v1.1", "nested-v1.1", "flat-v1.2", "nested-v1.2", "flat-v1.3", "nested-v1.3"}:
+    if str(path) in {"flat-v1", "nested-v1", "flat-v1.1", "nested-v1.1", "flat-v1.2", "nested-v1.2", "flat-v1.3", "nested-v1.3", "flat-v1.4", "nested-v1.4"}:
         path = _ROOT / "profiles" / f"{path.name}.json"
     try:
         raw = json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=_strict_json)
@@ -99,9 +100,12 @@ def validate_profile(profile: EnvironmentProfile) -> EnvironmentProfile:
         if spec.release_hash != fingerprint({k: v for k, v in process_data.items() if k != "release_hash"}):
             raise ValueError("Process release hash mismatch")
     _mapping_tree(profile)
-    if profile.version == "v1.3" and not packet_enabled(profile):
-        raise ValueError("v1.3 requires the registered packet content contract")
+    if profile.version in {"v1.3", "v1.4"} and not packet_enabled(profile):
+        raise ValueError("Registered profile requires the packet content contract")
     packet_enabled(profile)
+    if profile.version == "v1.4" and not ownership_enabled(profile):
+        raise ValueError("v1.4 requires the registered ownership contract")
+    ownership_enabled(profile)
     return profile
 
 

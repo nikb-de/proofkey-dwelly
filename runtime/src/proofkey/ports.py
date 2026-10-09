@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Protocol
 
-from .contracts import AuthorityReadback, DispatchResult, EffectIntent, ReadRequest
+from .contracts import AuthContext, AuthorityReadback, DispatchResult, EffectIntent, ReadRequest
 
 
 class CasePort(Protocol):
@@ -41,7 +41,8 @@ class OperatorPort(Protocol):
     def read_resume(self, request: ReadRequest) -> AuthorityReadback: ...
     def read_owner(self, request: ReadRequest) -> AuthorityReadback: ...
     def enqueue_handoff(self, intent: EffectIntent, *, deadline: datetime | None = None) -> DispatchResult: ...
-    def transfer_owner(self, intent: EffectIntent, *, deadline: datetime | None = None) -> DispatchResult: ...
+    def transfer_owner(self, intent: EffectIntent, *, deadline: datetime | None = None,
+                       auth: AuthContext | None = None) -> DispatchResult: ...
 
 
 @dataclass(frozen=True)

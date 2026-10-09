@@ -38,7 +38,7 @@ def packet_enabled(profile):
     cap = profile.capabilities.get("enqueue_handoff")
     if cap is None or cap.version != CONTRACT:
         return False
-    if profile.version != "v1.3" or cap.operation != "enqueue_handoff" or cap.authority != "operator" or cap.evidence_mode != "synthetic":
+    if profile.version not in {"v1.3", "v1.4"} or cap.operation != "enqueue_handoff" or cap.authority != "operator" or cap.evidence_mode != "synthetic":
         raise ValueError("Unregistered packet capability")
     for name, basis in BASES.items():
         contract = getattr(cap, name)
