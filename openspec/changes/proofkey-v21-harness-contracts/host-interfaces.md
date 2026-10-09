@@ -1,0 +1,41 @@
+# Common host and every-position batch refinement
+
+9 October 2026. This closes approved Task10's internal host composition, not a new business/native capability or claimed fresh user approval. Read together with execution-context.md and the parent approved design/plan. Implementation consumes independently Approved context consumers; transfer remains unavailable until Task8C. No implementation or M1 receipt is implied by this document.
+
+## Selected composition
+
+A complete trusted RuntimeFactory constructs and closes profile, independent provider world, journal, gateway/wait/replay and engine on one serial owner thread. Never move an already-created SQLite engine across threads, disable thread checks, or import tests.support in production. AuthResolver operates on separate host/transport proof handles, not canonical JSON/body principal, localhost, an opaque command ID or stored reply. Source authentication remains mandatory. Registry entries bind one exact approved profile/process/policy/fixture hash and explicit offline mode; input selects a registered release ID, never an arbitrary path/import/callback. One owner has one active release.
+
+Use additive host_contracts.py, clock.py, host.py and focused tests for the host foundation; later batch.py, cli.py, api.py and interface/batch tests consume the same host routing. Root explicitly assigns __init__.py/pyproject.toml exports and API optional dependency/entrypoints only in their consumer stage. Shared contracts.py and all existing receipt bytes remain unchanged. CommandReceiptV1 is a host-local name distinct from existing reproduction CommandReceipt.
+
+Host APIs are ProfileRegistry.resolve/inspect(release_id), AuthResolver.resolve(proof_handle, command), RuntimeFactory.create(release, clock), RuntimeResources.close(), HostDispatcher.submit(command, proof_handle, execution), and HostDispatcher.close(shutdown_cutoff). Types are immutable/strict host contracts, with no caller activation or authentication flag. Library/CLI/API route the same closed run, recover, reply, stop, batch and inspect-profile commands; transfer is explicitly unavailable without its reviewed service. A returned CaseResult is auditable evidence, not business success.
+
+## One deadline and honest lifecycle
+
+Capture global D once, validate finite nonnegative publication reserve R, and reuse immutable operational ExecutionContext W=D-R before input loading, setup or queueing. Cold construction and resolver time consume this allowance; pre-existing service startup is separately measured. SystemClock uses actual aware UTC/monotonic/wait. Labeled synthetic replay clock may combine archived fixture epoch with real monotonic progression; archived 2026-10-08 consent never becomes actual/current authority. No caller may select authority time, renew consent or reset D/W on dequeue/retry.
+
+Bound queue/input size by trusted host limits. Queue-full admission is nonblocking. At dequeue check the SAME context and queued cancellation before resolver/runtime invocation. Persist private command identity, safe input digest/release/mode, original timing and queued/started/finished outcome before operational entry. No plaintext proof, body or raw exception in command/public inventory. Inventory commit failure denies new work with an explicit no-durable-inventory limitation.
+
+Cancellation atomically prevents a queued command from starting. Once started, disconnect/timeout can stop waiting only: retain started_pending/unknown or factual completion with durable private inventory and original cutoff, never canceled-success or an invisible daemon. Do not invoke stop without a separately authenticated stop command. Later disclosure/recovery requires current scoped authentication, not inventory possession. Shutdown stops admission/cancels queued work, waits only to its cutoff, and owner-thread closes resources; if running/close does not cooperate report pending/overrun and preserve inventory. Thread timeout, fsync/kernel behavior and transport noncooperation cannot be a hard deadline or nonexecution guarantee.
+
+## Every-position custody
+
+Add strict BatchInputV1, BatchPositionReceiptV1, BatchManifestV1 and BatchRunReceiptV1 in host contracts; do not repurpose assessment returned-output positions or narrow legacy BatchReceipt. Inputs are bounded exact JSON document bytes rooted in a list, or finite list/tuple of JSON values/CanonicalRequest with an explicitly deterministic admitted encoding. Reject whole-document invalid/oversized/nonfinite/non-list/unrepresentable input with zero entries and no invented denominator; never iterate an unbounded generator or hash repr/custom serialization.
+
+Inventory exact admitted input hash/encoding and ALL ordinals 0..N-1 before first case. Retain supplied_id_shape string/missing/non_string/non_object; exact string ID only when originally string, with duplicates/unsafe/Unicode collisions as separate positions. No sentinel ID, filtering or filesystem path from untrusted IDs. Per-position closed parse and execution outcomes are not_started/invalid_request/denied/result/deadline_exceeded/runtime_error, plus independent not_attempted/written/failed export. No result hash without an actual returned result; no successful export without a valid returned exportable result and readback; generic denied responses are not enriched from private journal.
+
+Legacy BatchReceipt projection is optional and explicitly labeled, only when ALL IDs are strings and full projection invariants hold; it never defines the malformed denominator. Host validates consumed ExportReceipt field coherence: written has output_name/hash and no failure, failed has a closed failure and no success hash. Exporter library remains unchanged.
+
+## Safe incremental publication
+
+Allocate a new trusted no-follow, no-overwrite run-owned directory with fixed INPUT-INVENTORY.json, immutable ordinal/sequence progress and FINAL-MANIFEST.json names. Commit inventory before any case invocation; commit each returned result/public-safe error and export/progress before the next position. Approved exporter writes factual ANSWER/REASONING files only. Verify actual completed bytes/hashes, retain honest pending/partial files and collision failures. No retry into a partial directory, deletion to hide failure or overwriting user files.
+
+Measure serialization, inventory, exports, flush/fsync/readback/finalization and actual finish/overrun separately from cumulative reserved tool seconds. Operational work ends at W; publication allowance ends at D without promising arbitrary I/O completion. Remaining ordinals retain explicit deadline/not-started outcomes. If publication fails, retain visible partial evidence and complete known in-memory positions with an explicit limitation; no false durable final manifest. Ordinary exceptions are contained, not KeyboardInterrupt/process exit. Hard-exit readback reconstructs committed/pending positions without engine invocation.
+
+Supported API serving helper accepts literal 127.0.0.1/::1 only; Host/Origin/IP are not authentication and externally serving the ASGI object is unsupported, not technically impossible. API lifespan owns dispatcher construction/use/close; no request-thread direct SQLite use. CLI accepts credential references, never inline secrets or permission/profile/deadline bypass flags.
+
+## Evidence and staging
+
+Stage10C1 host contracts/clock/registry/complete owner dispatcher and durable lifecycle; independently review before10C2 library exports/CLI/API/every-position batch. Existing context/source/wait/journal bytes are read-only. Behavioral TDD must cover real creator-thread lifecycle, positive public synthetic execution, proof isolation, queue/full/expired/queued-cancel/started-pending, inventory/finalization failure and genuine crash visibility.
+
+Stage10C2 must show actual positive business/journal/debt parity in library/CLI/API, plus denial/partial/wait/reply/stop/replay; all-denied equality is insufficient. Malformed/missing/nonstring/duplicate IDs keep exact N/order; unsafe outputs remain visible. Source transfer parity waits for8C and fullTask10 remains unchecked meanwhile. Reproduction/package/native/provider/model/media/custody/timed-drill evidence is separate. All exact commands, mode labels, failed attempts and source snapshots are retained before any readiness claim.
