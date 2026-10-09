@@ -188,7 +188,7 @@ def _case_id(command):
 
 
 def _export(publisher, result, root, measurement):
-    _check_publication(publisher.window, publisher.clock)
+    publisher._boundary()
     try:
         actual = measurement.io(lambda: export_case(result, Path(root) / "ANSWERS"))
     except ExportFailure as error:

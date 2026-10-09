@@ -148,12 +148,18 @@ def _export_hashes(pins, root, receipt, result, limit):
         return ConsumedExportV1(actual_receipt=receipt, actual_file_hashes=())
     if receipt.output_name != result.case_id or receipt.failure is not None:
         raise PublicationFailure("publication_integrity_failure")
-    answers = pins.child(root, "ANSWERS")
-    case = pins.child(answers, receipt.output_name)
-    hashes = tuple((name, sha256(_read(pins, case, name, limit)).hexdigest())
-                   for name in ("ANSWER.md", "REASONING.md"))
-    pins.check()
-    return ConsumedExportV1(actual_receipt=receipt, actual_file_hashes=hashes)
+    retained = len(pins.entries)
+    try:
+        answers = pins.child(root, "ANSWERS")
+        case = pins.child(answers, receipt.output_name)
+        hashes = tuple((name, sha256(_read(pins, case, name, limit)).hexdigest())
+                       for name in ("ANSWER.md", "REASONING.md"))
+        pins.check()
+        return ConsumedExportV1(actual_receipt=receipt, actual_file_hashes=hashes)
+    finally:
+        # Keep the run's original ancestry pins, not repeated export children.
+        while len(pins.entries) > retained:
+            os.close(pins.entries.pop()[0])
 
 
 class RunPublisher:
@@ -432,13 +438,28 @@ def _inventory(pins, limits):
         if is_batch:
             if final.inventories != inventories or final.unresolved_admission_ordinals != unresolved:
                 raise ValueError
-            for ordinal, progress in progresses.items():
+            if tuple(p.command.command_id for p in final.positions if p.command is not None) != tuple(joined):
+                raise ValueError
+            for ordinal, position in enumerate(final.positions):
+                progress = progresses.get(ordinal)
+                if progress is None:
+                    if (position.command is not None or position.export_outcome != "not_attempted"
+                            or position.publication_status == "committed"):
+                        raise ValueError
+                    continue
                 without_self = tuple(ref for ref in final.positions[ordinal].references
                                      if ref.name != f"POSITION-{ordinal:08d}-PROGRESS.json")
-                if final.positions[ordinal].model_copy(update={"references": without_self}) != progress:
+                if position.model_copy(update={"references": without_self}) != progress:
                     raise ValueError
-        elif final.unresolved_admission != bool(unresolved) or final.command != (progresses[0].command if 0 in progresses else None):
-            raise ValueError
+        else:
+            if final.unresolved_admission != bool(unresolved):
+                raise ValueError
+            progress = progresses.get(0)
+            if progress is None:
+                if final.command is not None or final.export_outcome != "not_attempted":
+                    raise ValueError
+            elif final.model_copy(update={"references": progress.references, "as_of": progress.as_of}) != progress:
+                raise ValueError
     pins.check()
     return RunReadbackV1(run_id=initial.run_id, run_kind="batch" if is_batch else "command",
         status="committed_snapshot" if final is not None and not pending else "partial", input_inventory=initial.input,

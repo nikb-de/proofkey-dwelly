@@ -541,3 +541,31 @@ class BatchTests(unittest.TestCase):
         self.assertTrue((self.base / "run/ANSWERS/C1/ANSWER.md").exists())
         self.assertFalse((self.base / "run/POSITION-00000001-ADMISSION.json").exists())
         self.assertIsNone(receipt.final_reference)
+
+    def test_backwards_observation_before_actual_export_prevents_physical_entry(self):
+        from proofkey.batch_files import RunPublisher
+        class RetreatClock(SyntheticReplayClock):
+            extra = 0.0
+            def monotonic(self):
+                return super().monotonic() + self.extra
+        self.clock = RetreatClock()
+        dispatcher = self.dispatcher()
+        options = self.parameters(dispatcher)
+        actual_publish = RunPublisher.publish_result
+        def publish_then_retreat(publisher, ordinal, result):
+            self.clock.extra = 1.0
+            reference = actual_publish(publisher, ordinal, result)
+            self.clock.extra = 0.5
+            return reference
+        with patch.object(RunPublisher, "publish_result", new=publish_then_retreat):
+            receipt = run_batch([canonical(), canonical()], **options)
+        self.assertFalse((self.base / "run/ANSWERS").exists())
+        self.assertEqual(receipt.outcome, "deadline_exceeded")
+        self.assertEqual(receipt.positions[0].execution_outcome, "result")
+        self.assertEqual(receipt.positions[0].export_outcome, "not_attempted")
+        self.assertIsNone(receipt.final_reference)
+        self.assertFalse((self.base / "run/POSITION-00000001-ADMISSION.json").exists())
+        checkpoint, _, calls, effects = self.factory.snapshots[-1]
+        self.assertGreater(checkpoint.budget.active_seconds, 0.0)
+        self.assertEqual(checkpoint.budget.tool_calls, len(calls))
+        self.assertEqual(effects["reschedule"], 1)

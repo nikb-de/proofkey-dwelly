@@ -14,7 +14,9 @@ from proofkey.batch_files import PublicationFailure, RunPublisher, read_run_inve
 from proofkey.contracts import CaseResult
 from proofkey.exporter import ExportFailure, export_case
 from proofkey.host_contracts import (BatchInputV1, BatchManifestV1, BatchPositionInventoryV1,
-                                    BatchPositionReceiptV1, InterfaceLimitsV1, _OrdinalAdmissionV1)
+    BatchPositionReceiptV1, CommandInputInventoryV1, CommandManifestV1, CommandReceiptV1,
+    InterfaceLimitsV1, _OrdinalAdmissionV1)
+from proofkey.identity import fingerprint
 from test_batch_contracts import START, window
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -345,3 +347,117 @@ with patch.object(RunPublisher,'publish_progress',crash):
         with self.assertRaises(PublicationFailure):
             publisher.publish_final(manifest().model_copy(update={"references": (reference,)}))
         self.assertFalse((self.root / "FINAL-MANIFEST.json").exists())
+
+    def test_final_claimed_join_without_ordinal_custody_is_invalid(self):
+        publisher = self.publisher()
+        initial = manifest()
+        reference = publisher.publish_input(initial)
+        result = CaseResult(status="denied", correlation_id="C1", reason="denied")
+        command = CommandReceiptV1(command_id="1" * 32, command_tag="run", release_id="registered",
+            mode="synthetic_replay", clock_mode="synthetic_replay", execution=window().execution,
+            outcome="result", result=result, inventory_status="committed", finished_at=START)
+        claimed = BatchPositionReceiptV1(inventory=initial.inventories[0], command=command,
+            execution_outcome="result", admission_status="joined", publication_status="committed",
+            result_hash=fingerprint(result.model_dump(mode="json")))
+        publisher.publish_final(initial.model_copy(update={"positions": (claimed,), "references": (reference,)}))
+        actual = read_run_inventory(self.root, limits=self.limits)
+        self.assertEqual(actual.status, "invalid")
+        self.assertIsNone(actual.final_manifest)
+
+    def test_final_claimed_committed_position_without_progress_is_invalid(self):
+        publisher = self.publisher()
+        initial = manifest()
+        reference = publisher.publish_input(initial)
+        claimed = initial.positions[0].model_copy(update={"publication_status": "committed"})
+        publisher.publish_final(initial.model_copy(update={"positions": (claimed,), "references": (reference,)}))
+        self.assertEqual(read_run_inventory(self.root, limits=self.limits).status, "invalid")
+
+    def test_standalone_final_must_preserve_actual_progress_export(self):
+        publisher = self.publisher()
+        summary = CommandInputInventoryV1(encoding="canonical_closed_command_v1", input_hash="b" * 64,
+            input_bytes=2, command_tag="run", release_id="registered", supplied_case_id="C1")
+        initial = CommandManifestV1(run_id="a" * 32, input=summary, release_id="registered",
+            mode="synthetic_replay", clock_mode="synthetic_replay", window=window(), as_of=START)
+        refs = [publisher.publish_input(initial)]
+        refs.append(publisher.publish_admission(0, _OrdinalAdmissionV1(run_id=initial.run_id, ordinal=0,
+            inventory=summary, input_hash=summary.input_hash, window=window(), as_of=START)))
+        result = CaseResult(status="denied", correlation_id="C1", reason="denied")
+        refs.append(publisher.publish_result(0, result))
+        actual = publisher.verify_export(export_case(result, self.root / "ANSWERS"), result)
+        command = CommandReceiptV1(command_id="1" * 32, command_tag="run", release_id="registered",
+            mode="synthetic_replay", clock_mode="synthetic_replay", execution=window().execution,
+            outcome="result", result=result, inventory_status="committed", finished_at=START)
+        progress = initial.model_copy(update={"command": command, "references": tuple(refs),
+            "export_outcome": "written", "export": actual})
+        refs.append(publisher.publish_progress(0, progress))
+        final = progress.model_copy(update={"references": tuple(refs), "export_outcome": "failed",
+            "export": None, "export_failure": "export_io_error"})
+        publisher.publish_final(final)
+        self.assertEqual(read_run_inventory(self.root, limits=self.limits).status, "invalid")
+
+    def test_actual_export_verify_and_cumulative_readback_retain_no_extra_descriptors(self):
+        before_publisher = len(os.listdir("/dev/fd"))
+        publisher = self.publisher()
+        initial = manifest()
+        refs = [publisher.publish_input(initial)]
+        baseline = len(os.listdir("/dev/fd"))
+        refs.append(publisher.publish_admission(0, _OrdinalAdmissionV1(run_id=initial.run_id, ordinal=0,
+            inventory=initial.inventories[0], input_hash=initial.input.input_hash, window=window(), as_of=START)))
+        result = CaseResult(status="denied", correlation_id="C1", reason="denied")
+        refs.append(publisher.publish_result(0, result))
+        actual = export_case(result, self.root / "ANSWERS")
+        consumed = publisher.verify_export(actual, result)
+        command = CommandReceiptV1(command_id="1" * 32, command_tag="run", release_id="registered",
+            mode="synthetic_replay", clock_mode="synthetic_replay", execution=window().execution,
+            outcome="result", result=result, inventory_status="committed", finished_at=START)
+        position = BatchPositionReceiptV1(inventory=initial.inventories[0], command=command,
+            execution_outcome="result", admission_status="joined", publication_status="committed",
+            result_hash=fingerprint(result.model_dump(mode="json")), export_outcome="written",
+            export=consumed, references=tuple(refs[1:]))
+        refs.append(publisher.publish_progress(0, position))
+        counts = []
+        for _ in range(3):
+            self.assertEqual(publisher.verify_export(actual, result), consumed)
+            self.assertEqual(publisher._readback().joined_command_ids, ("1" * 32,))
+            counts.append(len(os.listdir("/dev/fd")))
+        print("BATCH-FIX-FD " + json.dumps({"baseline": baseline, "retained_counts": counts}))
+        self.assertEqual(counts, [baseline, baseline, baseline])
+        with (self.root / "ANSWERS/C1/ANSWER.md").open("ab") as output:
+            output.write(b"changed")
+        with self.assertRaises(PublicationFailure):
+            publisher.verify_export(actual, result)
+        self.assertEqual(len(os.listdir("/dev/fd")), baseline)
+        publisher.close()
+        self.assertEqual(len(os.listdir("/dev/fd")), before_publisher)
+
+    def test_final_lawful_not_attempted_and_unresolved_as_of_snapshots_remain_factual(self):
+        for unresolved in (False, True):
+            with self.subTest(unresolved=unresolved):
+                self.root = self.base / ("unresolved" if unresolved else "not-attempted")
+                publisher = self.publisher()
+                initial = manifest(2)
+                refs = [publisher.publish_input(initial)]
+                positions = list(initial.positions)
+                if unresolved:
+                    admission = _OrdinalAdmissionV1(run_id=initial.run_id, ordinal=0,
+                        inventory=initial.inventories[0], input_hash=initial.input.input_hash,
+                        window=window(), as_of=START)
+                    refs.append(publisher.publish_admission(0, admission))
+                    positions[0] = positions[0].model_copy(update={"admission_status": "unresolved",
+                        "publication_status": "partial", "references": (refs[-1],)})
+                self.clock.seconds = 0.1 if not unresolved else 0.2
+                final = initial.model_copy(update={"positions": tuple(positions), "references": tuple(refs),
+                    "as_of": self.clock.now(), "unresolved_admission_ordinals": (0,) if unresolved else ()})
+                publisher.publish_final(final)
+                actual = read_run_inventory(self.root, limits=self.limits)
+                self.assertEqual(actual.status, "committed_snapshot")
+                self.assertEqual(len(actual.position_inventories), 2)
+                self.assertEqual(actual.joined_command_ids, ())
+                self.assertEqual(actual.unresolved_admission_ordinals, (0,) if unresolved else ())
+                self.assertEqual(actual.final_manifest.positions[1].admission_status, "not_attempted")
+                self.assertEqual(actual.final_manifest.as_of, self.clock.now())
+                self.assertFalse((self.root / "POSITION-00000001-ADMISSION.json").exists())
+                self.assertEqual(tuple(ref.name for ref in actual.final_manifest.references),
+                    ("INPUT-INVENTORY.json", "POSITION-00000000-ADMISSION.json") if unresolved else
+                    ("INPUT-INVENTORY.json",))
+                publisher.close()
