@@ -4,7 +4,8 @@ Private helpers are shared only by this module's preparation API. Snapshots
 carry bytes and identities, never open descriptors or caller-owned containers.
 """
 from contextlib import contextmanager
-from dataclasses import dataclass, field
+from base64 import b64decode
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from hashlib import sha256
 import json
@@ -17,15 +18,16 @@ from uuid import uuid4
 from .bootstrap import _PathPins
 from .clock import SyntheticReplayClock
 from .contracts import CanonicalRequest, EnvironmentProfile
-from .host import (_PROFILE_RAW as _PINNED_PROFILE_FILE, _PROFILE as _PINNED_PROFILE,
+from .host import (ApprovedProfileRelease, _PROFILE_RAW as _PINNED_PROFILE_FILE, _PROFILE as _PINNED_PROFILE,
                    _PROCESS as _PINNED_PROCESS, _POLICY as _PINNED_POLICY)
-from .host_admission import (AdmissionCompositionFailure, FIXED_IMPLEMENTATION_PATHS,
+from .host_admission import (AdmissionCompositionFailure, HostExecutableBindingV1, FIXED_IMPLEMENTATION_PATHS,
                              control_context, _id)
 from .host_contracts import parse_command
 from .host_files import _read, _write
 from .identity import request_fingerprint
 from .profiles import validate_profile
-from .registered_releases import ReleaseArtifactV1, ReleaseBlobV1, _POLICY
+from .registered_releases import (KnownFactoryV1, ReleaseArtifactV1, ReleaseBlobV1,
+                                  ReleaseRegistryV1, ResourceSetV1, _POLICY)
 
 _MIB = 1048576
 _CHILDREN = ("data", "resources", "control", "inventories", "outputs")
@@ -186,7 +188,7 @@ def _installed_bytes(path):
         descriptor = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
                              dir_fd=pins.entries[-1][0])
         before = os.fstat(descriptor)
-        _require(stat.S_ISREG(before.st_mode) and before.st_size <= _MIB)
+        _require(stat.S_ISREG(before.st_mode) and before.st_nlink == 1 and before.st_size <= _MIB)
         chunks, size = [], 0
         while True:
             chunk = os.read(descriptor, min(65536, _MIB + 1 - size))
@@ -196,10 +198,9 @@ def _installed_bytes(path):
             _require(size <= _MIB)
             chunks.append(chunk)
         after = os.fstat(descriptor)
-        _require((before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns) ==
-                 (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns))
+        _require(_file_identity(before) == _file_identity(after))
         named = os.stat(path.name, dir_fd=pins.entries[-1][0], follow_symlinks=False)
-        _require((named.st_dev, named.st_ino) == (before.st_dev, before.st_ino))
+        _require(_file_identity(named) == _file_identity(before))
         _check_pins(pins)
         return b"".join(chunks)
     finally:
@@ -247,7 +248,7 @@ def _validate_input(spec, clock, execution):
             migration=_canonical(dict(kind="route-migration-declaration-v1", mode="synthetic",
                 strategy="preserve", affected_contracts=[])),
             agent=_canonical(dict(kind="route-agent-declaration-v1", mode="synthetic",
-                authorship="unestablished", agent_label="synthetic-preparation-v1")),
+                authorship="unestablished", agent_label="synthetic-provisioning-v1")),
             dependency=_canonical(dict(kind="route-closure-declaration-v1", mode="synthetic_declaration",
                 completeness="unestablished", entries=[dict(name=item.name, sha256=item.sha256, role="code")
                                                        for item in implementations])))
@@ -455,3 +456,197 @@ def _stage_private(allocation, directory, name, data, clock, execution):
     finally:
         if pins is not None:
             pins.close()
+
+
+@dataclass(frozen=True, slots=True, repr=False)
+class PreparedSyntheticReleaseV1:
+    """Detached trusted application data; carries no execution authority."""
+    host_release: ApprovedProfileRelease
+    registry: ReleaseRegistryV1
+    binding: HostExecutableBindingV1
+    root: Path
+    control_parent: Path
+    inventory_parent: Path
+    output_parent: Path
+    _identities: tuple[tuple[Path, tuple[tuple[int, int], ...]], ...]
+    _file_identities: tuple[tuple[Path, tuple[int, ...]], ...]
+    _clock: SyntheticReplayClock
+
+    def summary(self):
+        return dict(host_release_id=self.binding.host_release_id,
+            registered_release_id=self.binding.registered_release_id,
+            resource_id=self.registry.resolve(self.binding.registered_release_id).resource.resource_id,
+            profile_version=self.host_release.profile_version, process_version="v1",
+            business_fingerprint=self.host_release.admitted_request_fingerprint,
+            artifact_hash=self.binding.artifact_hash, status="prepared_synthetic_unapproved")
+
+
+def _file_identity(value):
+    return tuple(getattr(value, key) for key in
+                 ("st_dev", "st_ino", "st_mode", "st_uid", "st_nlink", "st_size", "st_mtime_ns"))
+
+
+def _check_envelope_size(artifact, factory, accounts, parent):
+    """Bound final encoding without constructing a fictitious resource identity."""
+    _require(isinstance(parent, (str, Path)), "invalid_target")
+    planned = Path(parent) / ("case-" + "0" * 32) / "resources"
+    _require(planned.is_absolute() and ".." not in planned.parts
+             and len(planned.parts) <= 64 and len(str(planned)) <= 1024, "invalid_target")
+    profile = json.loads(artifact.profile_json)
+    data = asdict(factory)
+    data["implementation_pins"] = [dict(name=name, sha256=digest)
+                                   for name, digest in factory.implementation_pins]
+    # Base64 contains no JSON-escaped characters. Empty base64 placeholders let
+    # us count exact encoding overhead and add the bounded expansion separately.
+    blobs = {name: getattr(artifact, name + "_json") for name in
+             ("profile", "policy", "source", "proposal", "tests", "regression", "migration", "agent", "dependency")}
+    value = dict(kind="registered-release-v1", version=1, release_id=artifact.release_id,
+        mode="offline_synthetic", factory=data, resource=dict(resource_id=artifact.resource_id,
+            root_path=str(planned), root_device=2**63 - 1, root_inode=2**63 - 1,
+            journal_name="journal.sqlite", source_name="world.sqlite", account_ids=list(accounts),
+            admission_account_scope="claimed_case_id"),
+        blobs={name: dict(base64="", sha256=sha256(raw).hexdigest()) for name, raw in blobs.items()},
+        implementations=[dict(name=item.name, base64="", sha256=item.sha256) for item in artifact.implementations],
+        semantic=dict(profile_hash=profile["release_hash"],
+            process_hash=sha256(_canonical(profile["processes"])).hexdigest(),
+            capabilities_hash=sha256(_canonical(profile["capabilities"])).hexdigest(),
+            policy_hash=sha256(artifact.policy_json).hexdigest()), artifact_hash="0" * 64)
+    expanded = sum(4 * ((len(raw) + 2) // 3) for raw in
+                   (*blobs.values(), *(item.data for item in artifact.implementations)))
+    _require(len(_canonical(value)) + expanded <= 8 * _MIB)
+
+
+@contextmanager
+def _recorded_directory(path, identities, root):
+    pins = None
+    try:
+        pins = _PreparationPins(path)
+        _require(tuple(entry[3] for entry in pins.entries) == dict(identities)[path], "identity_changed")
+        private_depth = 2 if path == root else 3
+        pins.private_fds.update(entry[0] for entry in pins.entries[-private_depth:])
+        _check_pins(pins)
+        yield pins.entries[-1][0]
+        _check_pins(pins)
+    finally:
+        if pins is not None:
+            pins.close()
+
+
+def _staged_snapshot(path, identities, root):
+    with _recorded_directory(path.parent, identities, root) as descriptor:
+        before = os.stat(path.name, dir_fd=descriptor, follow_symlinks=False)
+        _require(stat.S_ISREG(before.st_mode) and before.st_nlink == 1
+                 and before.st_uid == os.geteuid() and stat.S_IMODE(before.st_mode) == 0o600,
+                 "identity_changed")
+        raw = _read(descriptor, path.name, _MIB)
+        after = os.stat(path.name, dir_fd=descriptor, follow_symlinks=False)
+        _require(_file_identity(before) == _file_identity(after), "identity_changed")
+        return raw, _file_identity(after)
+
+
+def _revalidate_prepared(prepared, clock, execution):
+    """Reopen original identities and compare commitments using a fresh context."""
+    root = prepared.root if type(prepared) is PreparedSyntheticReleaseV1 else None
+    try:
+        _require(type(prepared) is PreparedSyntheticReleaseV1)
+        _require(clock is prepared._clock)
+        _boundary(clock, execution)
+        host, registry, binding = prepared.host_release, prepared.registry, prepared.binding
+        _require(type(host) is ApprovedProfileRelease and type(registry) is ReleaseRegistryV1
+                 and type(binding) is HostExecutableBindingV1)
+        HostExecutableBindingV1(**asdict(binding))
+        _require(registry.commitments() == ((binding.registered_release_id, binding.artifact_hash),),
+                 "identity_changed")
+        registered = registry.resolve(binding.registered_release_id)
+        factory, resource = registered.factory, registered.resource
+        _require(host.release_id == binding.host_release_id and host.mode == "synthetic_replay"
+                 and factory.factory_id == binding.factory_id
+                 and factory.implementation_pins == binding.implementation_pins
+                 and factory.dependency_hash == binding.dependency_hash, "identity_changed")
+        _require(tuple(path for path, _ in prepared._identities) ==
+                 (root, *(root / name for name in _CHILDREN)), "identity_changed")
+        _require((host.profile_path, host.fixture_path, host.resource_root,
+                  prepared.control_parent, prepared.inventory_parent, prepared.output_parent) ==
+                 (root / "data/profile.json", root / "data/fixture.json", root / "resources",
+                  root / "control", root / "inventories", root / "outputs"), "identity_changed")
+        for path, _ in prepared._identities:
+            _boundary(clock, execution)
+            with _recorded_directory(path, prepared._identities, root):
+                pass
+        _require((resource.root_path, resource.root_device, resource.root_inode) ==
+                 (str(host.resource_root), *dict(prepared._identities)[host.resource_root][-1]),
+                 "identity_changed")
+        package = Path(__file__).resolve().parent
+        for name, digest in binding.implementation_pins:
+            _boundary(clock, execution)
+            _require(sha256(_installed_bytes(package / name)).hexdigest() == digest, "identity_changed")
+        recorded_files = dict(prepared._file_identities)
+        _require(tuple(recorded_files) == (host.profile_path, host.fixture_path), "identity_changed")
+        profile_raw, profile_identity = _staged_snapshot(host.profile_path, prepared._identities, root)
+        fixture_raw, fixture_identity = _staged_snapshot(host.fixture_path, prepared._identities, root)
+        _require((profile_identity, fixture_identity) == tuple(recorded_files.values()), "identity_changed")
+        _require(sha256(profile_raw).hexdigest() == host.profile_file_hash == _PINNED_PROFILE_FILE
+                 and sha256(fixture_raw).hexdigest() == host.fixture_hash, "identity_changed")
+        profile = validate_profile(EnvironmentProfile.model_validate_json(profile_raw))
+        _require((profile.profile_id, profile.version, profile.release_hash, profile.process_hash, profile.policy_hash) ==
+                 (host.profile_id, host.profile_version, host.profile_hash, host.process_hash, host.policy_hash)
+                 == ("flat-v1.3", "v1.3", _PINNED_PROFILE, _PINNED_PROCESS, _PINNED_POLICY), "identity_changed")
+        body = json.loads(registered.wire_bytes)
+        _require(b64decode(body["blobs"]["profile"]["base64"], validate=True) ==
+                 _canonical(profile.model_dump(mode="json")), "identity_changed")
+        declared_source = json.loads(b64decode(body["blobs"]["source"]["base64"], validate=True))
+        _require(declared_source["documents"] ==
+                 [dict(source_id="fixed-world-fixture", text=fixture_raw.decode("utf-8"))], "identity_changed")
+        for path, _ in prepared._identities:
+            _boundary(clock, execution)
+            with _recorded_directory(path, prepared._identities, root):
+                pass
+        _boundary(clock, execution)
+    except SyntheticPreparationFailureV1 as error:
+        raise SyntheticPreparationFailureV1(error.code, retained_root=root) from None
+    except (OSError, ValueError, TypeError, KeyError, AttributeError):
+        raise SyntheticPreparationFailureV1("identity_changed", retained_root=root) from None
+    except Exception:
+        raise SyntheticPreparationFailureV1("io_failure", retained_root=root) from None
+
+
+def prepare_synthetic_release(spec, *, parent, clock, execution):
+    """Stage one fixed synthetic release for separate review and authorization."""
+    try:
+        snapshot = _validate_input(spec, clock, execution)
+        declarations = dict(snapshot.declarations)
+        artifact = ReleaseArtifactV1(snapshot.registered_release_id, "fixed-synthetic-v1", snapshot.resource_id,
+            **{name + "_json": data for name, data in declarations.items()}, implementations=snapshot.implementations)
+        factory = KnownFactoryV1("fixed-synthetic-v1",
+            tuple((item.name, item.sha256) for item in snapshot.implementations),
+            sha256(declarations["dependency"]).hexdigest(), "offline_synthetic")
+        profile = validate_profile(EnvironmentProfile.model_validate_json(snapshot.profile_bytes))
+        accounts = tuple(sorted({item.shared_limits.account_id for item in profile.capabilities.values()
+                                if item.shared_limits.account_id is not None}))
+        _check_envelope_size(artifact, factory, accounts, parent)
+    except SyntheticPreparationFailureV1:
+        raise
+    except (ValueError, TypeError, AttributeError):
+        raise SyntheticPreparationFailureV1("invalid_input") from None
+    except Exception:
+        raise SyntheticPreparationFailureV1("io_failure") from None
+    with _allocate_private(parent, clock, execution) as allocation:
+        profile_path = _stage_private(allocation, "data", "profile.json", snapshot.profile_bytes, clock, execution)
+        fixture_path = _stage_private(allocation, "data", "fixture.json", snapshot.fixture_bytes, clock, execution)
+        device, inode = dict(allocation.identities)[allocation.resources][-1]
+        resource = ResourceSetV1(snapshot.resource_id, str(allocation.resources), device, inode,
+                                 "journal.sqlite", "world.sqlite", accounts, "claimed_case_id")
+        registry = ReleaseRegistryV1(artifacts=(artifact,), factories=(factory,), resources=(resource,))
+        binding = HostExecutableBindingV1(snapshot.host_release_id, snapshot.registered_release_id,
+            registry.resolve(snapshot.registered_release_id).artifact_hash, factory.factory_id,
+            factory.implementation_pins, factory.dependency_hash)
+        host = ApprovedProfileRelease(snapshot.host_release_id, "synthetic_replay", profile_path,
+            fixture_path, allocation.resources, sha256(snapshot.profile_bytes).hexdigest(),
+            profile.release_hash, profile.process_hash, profile.policy_hash,
+            sha256(snapshot.fixture_bytes).hexdigest(), snapshot.request.kind, snapshot.business_fingerprint)
+        files = tuple((path, _staged_snapshot(path, allocation.identities, allocation.root)[1])
+                      for path in (profile_path, fixture_path))
+        prepared = PreparedSyntheticReleaseV1(host, registry, binding, allocation.root,
+            allocation.control, allocation.inventories, allocation.outputs, allocation.identities, files, clock)
+        _revalidate_prepared(prepared, clock, execution)
+    return prepared
