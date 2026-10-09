@@ -11,8 +11,10 @@ import time
 from pydantic import TypeAdapter
 from proofkey.contracts import (AssertionsOutput, EvidenceAssertion, Locator, ProcessingReceipt, ProposalOutput)
 from proofkey.evidence.catalog import _validate_locator
+from proofkey.evidence.processing_contracts import PlanningEvidenceInputV2
 from proofkey.providers.invocations import output_digest
-from proofkey.providers.protocols import (TransportRequest, exact_context, finite_limits, read_records, strict_json)
+from proofkey.providers.protocols import (ProcessingContext, TransportRequest, exact_context,
+    exact_evidence_input, finite_limits, read_records, strict_json)
 
 ENDPOINT = "https://api.anthropic.com/v1/messages"
 USAGE_FIELDS = frozenset({"input_tokens", "output_tokens", "cache_creation_input_tokens", "cache_read_input_tokens"})
@@ -134,4 +136,18 @@ class AnthropicClient:
             raise ValueError("Planning requires an exact registered JSON snapshot")
         wire, observed, request_id, usage, elapsed = self._request(
             [{"type": "text", "text": snapshot.decode("utf-8")}], context, "planning")
+        return self._receipt(ProposalOutput.model_validate(wire), context, observed, request_id, usage, elapsed)
+
+    def propose_with_evidence(self, input: PlanningEvidenceInputV2,
+            context: ProcessingContext) -> ProcessingReceipt:
+        exact_context(context, "planning", "anthropic", ENDPOINT)
+        input = exact_evidence_input(input, context.identity)
+        decoded = read_records(context.input_records, context, self.max_request_bytes)
+        if (len(decoded) != 1 or decoded[0][0].mime_type != "application/json"
+                or decoded[0][0].source != "saved-planning-evidence-v2"
+                or decoded[0][0].original_hash != input.envelope_hash
+                or decoded[0][1] != input.envelope_bytes):
+            raise ValueError("Planning requires one exact registered V2 evidence envelope")
+        wire, observed, request_id, usage, elapsed = self._request(
+            [{"type": "text", "text": input.envelope_bytes.decode("utf-8")}], context, "planning")
         return self._receipt(ProposalOutput.model_validate(wire), context, observed, request_id, usage, elapsed)

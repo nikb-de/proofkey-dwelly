@@ -8,6 +8,7 @@ import json
 
 from proofkey.contracts import ArtifactRecord, AuthContext, ProcessingReceipt, ProcessorIdentity
 from proofkey.evidence.catalog import EvidenceCatalog
+from proofkey.evidence.processing_contracts import PlanningEvidenceInputV2
 
 
 @dataclass(frozen=True)
@@ -70,6 +71,26 @@ class Transcriber(Protocol):
 
 class Planner(Protocol):
     def propose(self, checkpoint, observations) -> ProcessingReceipt: ...
+
+
+class EvidencePlanner(Protocol):
+    def propose_with_evidence(self, input: PlanningEvidenceInputV2,
+            context: ProcessingContext) -> ProcessingReceipt: ...
+
+
+def exact_evidence_input(input, identity):
+    """Revalidate detached immutable V2 joins; construction confers no authority."""
+    if type(input) is not PlanningEvidenceInputV2:
+        raise ValueError("Exact immutable V2 planning companion required")
+    validated = PlanningEvidenceInputV2(input.checkpoint_bytes, input.observation_bytes,
+        input.extraction_publication_bytes, input.envelope_bytes, input.envelope_hash)
+    checkpoint = validated.checkpoint()
+    if (identity.role != "planning" or identity.input_hashes != [validated.envelope_hash]
+            or (checkpoint.binding.case_id, checkpoint.binding.generation,
+                checkpoint.profile_version, checkpoint.process_version)
+            != (identity.case_id, identity.generation, identity.profile_version, identity.process_version)):
+        raise ValueError("V2 planning evidence differs from exact reserved identity")
+    return validated
 
 
 def finite_limits(max_request_bytes, max_response_bytes):

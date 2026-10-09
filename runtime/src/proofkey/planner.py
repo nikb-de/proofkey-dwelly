@@ -1,8 +1,10 @@
 """Strict finite step suggestions. Only the separate policy/gateway may dispatch."""
 from types import MappingProxyType
-from proofkey.contracts import ProposalOutput
+from proofkey.contracts import ProcessingReceipt, ProposalOutput
+from proofkey.evidence.processing_contracts import PlanningEvidenceInputV2
 from proofkey.journal import JournalFailure
 from proofkey.providers.invocations import output_digest
+from proofkey.providers.protocols import exact_evidence_input
 
 
 def validated_proposal(store, receipt, expected_identity):
@@ -42,4 +44,25 @@ class BoundedPlanner:
             return receipt
         receipt = self.service.call("planning", identity.input_hashes, self.usage_ceiling, invoke)
         validated_proposal(self.service.store, receipt, identity)
+        return receipt
+
+    def validate_evidence_receipt(self, receipt: ProcessingReceipt,
+            input: PlanningEvidenceInputV2) -> ProcessingReceipt:
+        """Inspect an exact saved historical proposal; never enter or dispatch a processor."""
+        identity = self.service.processor_identity
+        input = exact_evidence_input(input, identity)
+        if (type(receipt) is not ProcessingReceipt or
+                (receipt.role, receipt.provider, receipt.requested_model, receipt.prompt_hash,
+                 receipt.version, receipt.input_hashes) !=
+                (identity.role, identity.provider, identity.model, identity.prompt_hash,
+                 identity.version, identity.input_hashes)):
+            raise JournalFailure("Planning receipt differs from exact reserved identity")
+        proposal = validated_proposal(self.service.store, receipt, identity)
+        allowed = self.allowed_steps.get(proposal.operation, {}).get(proposal.stage)
+        if allowed is None or not set(proposal.arguments) <= allowed:
+            raise ValueError("Proposal expands allowed operation/stage/argument scope")
+        refs = {item.evidence_ref for item in input.observations()}
+        refs.update(ref for publication in input.extraction_publications() for ref in publication.assertion_refs)
+        if not set(proposal.evidence_refs) <= refs:
+            raise ValueError("Proposal references absent source observations or saved assertions")
         return receipt
