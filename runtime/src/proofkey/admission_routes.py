@@ -231,11 +231,18 @@ class AdmissionRouteStoreV1:
             self._resources=tuple({item.resource.resource_id:item.resource for _,item in self._registered}.values())
             self._check_time()
             _require(type(parent) is type(Path()) and parent.is_absolute(),'scope')
+            # Reject symlink components before resolving ordinary dot segments.
+            for ancestor in (parent,*parent.parents):
+                self._check_time()
+                _require(not stat.S_ISLNK(os.lstat(ancestor).st_mode),'scope')
+            parent=parent.resolve(strict=True)
             self._parent=parent
-            _require(parent not in (Path('/'),Path.home(),Path.cwd()) and not (parent/'.git').exists(),'scope')
+            prohibited=tuple(path.resolve(strict=True) for path in (Path('/'),Path.home(),Path.cwd()))
+            self._parent_id=_file_identity(parent,directory=True)
+            _require(parent not in prohibited and not (parent/'.git').exists(),'scope')
+            _require(self._parent_id not in tuple(_file_identity(path,directory=True) for path in prohibited),'scope')
             _basename(database_name)
             self._path=parent/database_name; self._lock_path=parent/(database_name+'.owner-lock')
-            self._parent_id=_file_identity(parent,directory=True)
             self._paths(resource_only=True)
             self._lock_fd=os.open(self._lock_path,os.O_RDWR|os.O_CREAT|os.O_NOFOLLOW,0o600)
             lock_stat=os.fstat(self._lock_fd)

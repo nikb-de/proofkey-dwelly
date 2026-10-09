@@ -134,10 +134,71 @@ def public_snapshot(folder, *, request=None, binding=None, version='v1.3', attem
 
 
 class ReleaseRouteTests(unittest.TestCase):
+    def test_prohibited_cwd_dotdot_parent_denied_before_creation(self):
+        from contextlib import chdir
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d).resolve(strict=True); (root/'inside').mkdir(); resource=root/'resource'; resource.mkdir()
+            registry=registry_at(resource); scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0)
+            with chdir(root):
+                with self.assertRaises(RouteFoundationFailure) as failure:
+                    AdmissionRouteStoreV1(root/'inside'/'..',database_name='scope.sqlite',
+                        registry=registry,clock=Clock(),execution=scope)
+                self.assertEqual(failure.exception.code,'scope')
+                self.assertFalse((root/'scope.sqlite').exists())
+                self.assertFalse((root/'scope.sqlite.owner-lock').exists())
+
+    def test_prohibited_cwd_macos_var_alias_denied_before_creation(self):
+        from contextlib import chdir
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d).resolve(strict=True)
+            if not root.is_relative_to('/private/var'):
+                self.skipTest('macOS /var alias is not available for this temporary root')
+            alias=Path('/var')/root.relative_to('/private/var')
+            self.assertEqual(alias.stat().st_ino,root.stat().st_ino)
+            self.assertEqual(alias.stat().st_dev,root.stat().st_dev)
+            self.assertNotEqual(alias,root)
+            resource=root/'resource'; resource.mkdir(); registry=registry_at(resource)
+            scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0)
+            with chdir(root):
+                with self.assertRaises(RouteFoundationFailure) as failure:
+                    AdmissionRouteStoreV1(alias,database_name='scope.sqlite',
+                        registry=registry,clock=Clock(),execution=scope)
+                self.assertEqual(failure.exception.code,'scope')
+                self.assertFalse((root/'scope.sqlite').exists())
+                self.assertFalse((root/'scope.sqlite.owner-lock').exists())
+
+    def test_symlink_parent_or_ancestor_denied_before_creation(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d).resolve(strict=True); control=root/'control'; control.mkdir(); (control/'nested').mkdir()
+            alias=root/'alias'; alias.symlink_to(control,target_is_directory=True)
+            resource=root/'resource'; resource.mkdir(); registry=registry_at(resource)
+            scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0)
+            for parent,target in ((alias,control),(alias/'nested',control/'nested')):
+                with self.subTest(parent=parent):
+                    with self.assertRaises(RouteFoundationFailure) as failure:
+                        AdmissionRouteStoreV1(parent,database_name='scope.sqlite',
+                            registry=registry,clock=Clock(),execution=scope)
+                    self.assertEqual(failure.exception.code,'scope')
+                    self.assertFalse((target/'scope.sqlite').exists())
+                    self.assertFalse((target/'scope.sqlite.owner-lock').exists())
+
+    def test_allowed_dotdot_parent_uses_canonical_scoped_directory(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d).resolve(strict=True); control=root/'control'; control.mkdir(); (control/'inside').mkdir()
+            resource=root/'resource'; resource.mkdir(); registry=registry_at(resource)
+            scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0)
+            routes=AdmissionRouteStoreV1(control/'inside'/'..',database_name='scope.sqlite',
+                registry=registry,clock=Clock(),execution=scope)
+            try:
+                self.assertIsNone(routes.get('missing',execution=scope))
+                self.assertTrue((control/'scope.sqlite').is_file())
+                self.assertTrue((control/'scope.sqlite.owner-lock').is_file())
+            finally: routes.close()
+
     def test_early_year_reservation_uses_exact_utc_microsecond_wire(self):
         for year in (1, 99, 999):
             with self.subTest(year=year), tempfile.TemporaryDirectory() as d:
-                root=Path(d); control=root/'control'; control.mkdir(); clock=MutableClock()
+                root=Path(d).resolve(strict=True); control=root/'control'; control.mkdir(); clock=MutableClock()
                 clock.utc=datetime(year,2,3,12,0,0,123456,tzinfo=timezone(timedelta(hours=5,minutes=45)))
                 scope=ExecutionContext(clock.utc+timedelta(seconds=5),clock.utc,10.0,15.0)
                 routes=AdmissionRouteStoreV1(control,database_name='routes.sqlite',registry=registry_at(root),clock=clock,execution=scope)
@@ -150,7 +211,7 @@ class ReleaseRouteTests(unittest.TestCase):
 
     def test_early_year_observation_constructor_preserves_full_wire_time(self):
         with tempfile.TemporaryDirectory() as d:
-            image=public_snapshot(Path(d)/'journal')
+            image=public_snapshot(Path(d).resolve(strict=True)/'journal')
             for year in (1, 99, 999):
                 with self.subTest(year=year):
                     value=dict(kind='journal-admission-observation-v1',snapshot_kind=image.kind,
@@ -188,7 +249,7 @@ class ReleaseRouteTests(unittest.TestCase):
                     clock.utc=NOW+timedelta(seconds=6); clock.mono=16.0
                 return result
         with tempfile.TemporaryDirectory() as d:
-            root=Path(d); control=root/'control'; control.mkdir(); registry=registry_at(root)
+            root=Path(d).resolve(strict=True); control=root/'control'; control.mkdir(); registry=registry_at(root)
             scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0)
             with patch('proofkey.admission_routes.sqlite3.connect',Connection):
                 routes=AdmissionRouteStoreV1(control,database_name='routes.sqlite',registry=registry,clock=clock,execution=scope)
@@ -226,7 +287,7 @@ class ReleaseRouteTests(unittest.TestCase):
         import base64
         from dataclasses import replace
         with tempfile.TemporaryDirectory() as d:
-            root=Path(d); value=literal_envelope(root)
+            root=Path(d).resolve(strict=True); value=literal_envelope(root)
             def inventory(tail):
                 blobs=[(f'bulk/{i}.bin',b'x'*1048576) for i in range(5)]+[('bulk/5.bin',b'y'*tail)]
                 value['implementations']=[dict(name=name,base64=base64.b64encode(raw).decode(),sha256=sha256(raw).hexdigest()) for name,raw in blobs]
@@ -267,7 +328,7 @@ class ReleaseRouteTests(unittest.TestCase):
     def test_registration_count_and_normalized_pin_collisions(self):
         from dataclasses import replace
         with tempfile.TemporaryDirectory() as d:
-            artifact,factory,resource=registration_inputs(Path(d))
+            artifact,factory,resource=registration_inputs(Path(d).resolve(strict=True))
             many=tuple(replace(artifact,release_id=f'L{i}') for i in range(33))
             with self.assertRaises(RouteFoundationFailure):
                 ReleaseRegistryV1(artifacts=many,factories=(factory,),resources=(resource,))
@@ -280,7 +341,7 @@ class ReleaseRouteTests(unittest.TestCase):
 
     def test_tampered_registry_cannot_relabel_release_identity(self):
         with tempfile.TemporaryDirectory() as d:
-            root=Path(d); control=root/'control'; control.mkdir(); registry=registry_at(root)
+            root=Path(d).resolve(strict=True); control=root/'control'; control.mkdir(); registry=registry_at(root)
             raw=registry.resolve('L1').wire_bytes
             object.__setattr__(registry,'_releases',(('L2',raw),))
             scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0)
@@ -290,7 +351,7 @@ class ReleaseRouteTests(unittest.TestCase):
 
     def test_clock_callback_failure_is_finite_and_cleanup_remains_available(self):
         with tempfile.TemporaryDirectory() as d:
-            root=Path(d); control=root/'control'; control.mkdir(); clock=MutableClock()
+            root=Path(d).resolve(strict=True); control=root/'control'; control.mkdir(); clock=MutableClock()
             scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0)
             routes=AdmissionRouteStoreV1(control,database_name='routes.sqlite',registry=registry_at(root),clock=clock,execution=scope)
             def failed(): raise RuntimeError('clock-private-canary')
@@ -307,7 +368,7 @@ class ReleaseRouteTests(unittest.TestCase):
     def test_nullable_unrelated_rows_do_not_change_selected_original_join(self):
         from dataclasses import replace
         with tempfile.TemporaryDirectory() as d:
-            root=Path(d); control=root/'control'; control.mkdir()
+            root=Path(d).resolve(strict=True); control=root/'control'; control.mkdir()
             scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0)
             routes=AdmissionRouteStoreV1(control,database_name='routes.sqlite',registry=registry_at(root),clock=Clock(),execution=scope)
             try:
@@ -328,7 +389,7 @@ class ReleaseRouteTests(unittest.TestCase):
 
     def test_observation_constructor_rejects_rehashed_timestamp_and_count_aliases(self):
         with tempfile.TemporaryDirectory() as d:
-            image=public_snapshot(Path(d)/'first')
+            image=public_snapshot(Path(d).resolve(strict=True)/'first')
             value=dict(kind='journal-admission-observation-v1',snapshot_kind=image.kind,schema_version=1,
                 schema_hash=image.schema_hash,content_hash=image.content_hash,table_counts=[list(p) for p in image.table_counts],
                 total_rows=image.total_rows,captured_at='2026-10-08T10:00:00.000000Z',
@@ -352,7 +413,7 @@ class ReleaseRouteTests(unittest.TestCase):
                         self.utc=NOW+timedelta(seconds=6); self.mono=16.0; self.armed=False
                 return self.utc
         with tempfile.TemporaryDirectory() as d:
-            root=Path(d); control=root/'control'; control.mkdir(); clock=InterruptClock()
+            root=Path(d).resolve(strict=True); control=root/'control'; control.mkdir(); clock=InterruptClock()
             scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0)
             routes=AdmissionRouteStoreV1(control,database_name='routes.sqlite',registry=registry_at(root),clock=clock,execution=scope)
             try:
@@ -367,7 +428,7 @@ class ReleaseRouteTests(unittest.TestCase):
         import sqlite3
         from unittest.mock import patch
         with tempfile.TemporaryDirectory() as d:
-            root=Path(d); control=root/'control'; control.mkdir(); original=sqlite3.connect
+            root=Path(d).resolve(strict=True); control=root/'control'; control.mkdir(); original=sqlite3.connect
             scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0); armed=[False]; blocked=[]
             class Connection:
                 def __init__(self,*args,**kwargs): self.real=original(*args,**kwargs)
@@ -395,7 +456,7 @@ class ReleaseRouteTests(unittest.TestCase):
         import sqlite3
         from unittest.mock import patch
         with tempfile.TemporaryDirectory() as d:
-            root=Path(d); control=root/'control'; control.mkdir(); original=sqlite3.connect
+            root=Path(d).resolve(strict=True); control=root/'control'; control.mkdir(); original=sqlite3.connect
             clock=MutableClock(); armed=[False]
             class Connection:
                 def __init__(self,*args,**kwargs): self.real=original(*args,**kwargs)
@@ -426,7 +487,7 @@ class ReleaseRouteTests(unittest.TestCase):
         import sqlite3
         from unittest.mock import patch
         with tempfile.TemporaryDirectory() as d:
-            root=Path(d); control=root/'control'; control.mkdir(); registry=registry_at(root)
+            root=Path(d).resolve(strict=True); control=root/'control'; control.mkdir(); registry=registry_at(root)
             scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0)
             with self.assertRaises(RouteFoundationFailure) as failure:
                 AdmissionRouteStoreV1(control,database_name='interrupted.sqlite',registry=registry,clock=Clock(),execution=scope,
@@ -457,7 +518,7 @@ class ReleaseRouteTests(unittest.TestCase):
 
     def test_constructor_detaches_limits_from_caller(self):
         with tempfile.TemporaryDirectory() as d:
-            root=Path(d); control=root/'control'; control.mkdir()
+            root=Path(d).resolve(strict=True); control=root/'control'; control.mkdir()
             scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0)
             limits=RouteLimitsV1()
             routes=AdmissionRouteStoreV1(control,database_name='routes.sqlite',registry=registry_at(root),clock=Clock(),execution=scope,limits=limits)
@@ -476,7 +537,7 @@ class ReleaseRouteTests(unittest.TestCase):
             "UPDATE releases SET artifact_json=zeroblob(8388609)",
             "UPDATE releases SET artifact_hash='wrong'"]
         with tempfile.TemporaryDirectory() as d:
-            root=Path(d); registry=registry_at(root); scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0)
+            root=Path(d).resolve(strict=True); registry=registry_at(root); scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0)
             for index,statement in enumerate(changes):
                 with self.subTest(index=index):
                     control=root/f'control{index}'; control.mkdir()
@@ -499,7 +560,7 @@ class ReleaseRouteTests(unittest.TestCase):
 
     def test_count_and_aggregate_limits_preserve_previous_routes(self):
         with tempfile.TemporaryDirectory() as d:
-            root=Path(d); control=root/'control'; control.mkdir()
+            root=Path(d).resolve(strict=True); control=root/'control'; control.mkdir()
             scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0)
             row=literal_route(root)
             full=len(cj({**{k:row[k] for k in ('reservation_id','attempt_id','resource_id','case_id','generation','release_id','state')},'record':row}))
@@ -517,7 +578,7 @@ class ReleaseRouteTests(unittest.TestCase):
 
     def test_full_release_aggregate_threshold_and_lowered_reopen_limit(self):
         with tempfile.TemporaryDirectory() as d:
-            root=Path(d); control=root/'control'; control.mkdir(); registry=registry_at(root)
+            root=Path(d).resolve(strict=True); control=root/'control'; control.mkdir(); registry=registry_at(root)
             scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0)
             value=literal_envelope(root)
             exact=len(cj(dict(release_id='L1',artifact_hash=value['artifact_hash'],artifact=value)))
@@ -536,7 +597,7 @@ class ReleaseRouteTests(unittest.TestCase):
     def test_creator_reentrancy_closed_and_cleanup_after_expiry(self):
         import threading
         with tempfile.TemporaryDirectory() as d:
-            root=Path(d); control=root/'control'; control.mkdir(); clock=MutableClock()
+            root=Path(d).resolve(strict=True); control=root/'control'; control.mkdir(); clock=MutableClock()
             scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0)
             routes=AdmissionRouteStoreV1(control,database_name='routes.sqlite',registry=registry_at(root),clock=clock,execution=scope)
             denied=[]
@@ -562,7 +623,7 @@ class ReleaseRouteTests(unittest.TestCase):
     def test_symlink_hardlink_and_live_replacement_are_rejected(self):
         import os
         with tempfile.TemporaryDirectory() as d:
-            root=Path(d); registry=registry_at(root); scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0)
+            root=Path(d).resolve(strict=True); registry=registry_at(root); scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0)
             outside=root/'outside.sqlite'; outside.touch()
             for label,link in [('symlink',os.symlink),('hardlink',os.link)]:
                 control=root/label; control.mkdir(); link(outside,control/'routes.sqlite')
@@ -579,7 +640,7 @@ class ReleaseRouteTests(unittest.TestCase):
     def test_untrusted_snapshot_objects_and_tagged_scalars_are_revalidated(self):
         import copy
         with tempfile.TemporaryDirectory() as d:
-            root=Path(d); control=root/'control'; control.mkdir()
+            root=Path(d).resolve(strict=True); control=root/'control'; control.mkdir()
             scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0)
             routes=AdmissionRouteStoreV1(control,database_name='routes.sqlite',registry=registry_at(root),clock=Clock(),execution=scope)
             try:
@@ -599,7 +660,7 @@ class ReleaseRouteTests(unittest.TestCase):
     def test_registry_duplicate_unknown_unused_and_blob_name_bounds(self):
         from dataclasses import replace
         with tempfile.TemporaryDirectory() as d:
-            artifact,factory,resource=registration_inputs(Path(d))
+            artifact,factory,resource=registration_inputs(Path(d).resolve(strict=True))
             for artifacts,factories,resources in [((artifact,artifact),(factory,),(resource,)),
                     ((artifact,),(factory,factory),(resource,)),
                     ((artifact,),(factory,),(resource,resource)),
@@ -616,7 +677,7 @@ class ReleaseRouteTests(unittest.TestCase):
             with self.assertRaises(RouteFoundationFailure): ReleaseBlobV1('large.bin',b'x'*1048577)
             with self.assertRaises(RouteFoundationFailure):
                 KnownFactoryV1('F',(('A.bin','0'*64),('a.bin','0'*64)),'0'*64,'offline_synthetic')
-            registry=registry_at(Path(d))
+            registry=registry_at(Path(d).resolve(strict=True))
             with self.assertRaises(RouteFoundationFailure) as failure: registry.resolve('unknown')
             self.assertEqual(failure.exception.code,'unregistered')
             with self.assertRaises(RouteFoundationFailure): registry.resource('unknown')
@@ -624,7 +685,7 @@ class ReleaseRouteTests(unittest.TestCase):
 
     def test_stopped_old_generation_and_debt_image_are_observational_only(self):
         with tempfile.TemporaryDirectory() as d:
-            root=Path(d); control=root/'control'; control.mkdir(); clock=Clock()
+            root=Path(d).resolve(strict=True); control=root/'control'; control.mkdir(); clock=Clock()
             scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0)
             registry=registry_at(root)
             routes=AdmissionRouteStoreV1(control,database_name='routes.sqlite',registry=registry,clock=clock,execution=scope)
@@ -653,7 +714,7 @@ class ReleaseRouteTests(unittest.TestCase):
             @property
             def release_id(self): touched.append(True); return 'L1'
         with tempfile.TemporaryDirectory() as d:
-            _,factory,resource=registration_inputs(Path(d))
+            _,factory,resource=registration_inputs(Path(d).resolve(strict=True))
             with self.assertRaises(RouteFoundationFailure):
                 ReleaseRegistryV1(artifacts=(Alias(),),factories=(factory,),resources=(resource,))
             self.assertEqual(touched,[])
@@ -661,7 +722,7 @@ class ReleaseRouteTests(unittest.TestCase):
     def test_case_sensitive_ids_are_not_path_aliases(self):
         import base64
         with tempfile.TemporaryDirectory() as d:
-            value=literal_envelope(Path(d))
+            value=literal_envelope(Path(d).resolve(strict=True))
             tests=cj(dict(kind='route-test-declaration-v1',mode='synthetic',cases=[
                 dict(case_id='A',purpose='upper identity'),dict(case_id='a',purpose='lower identity')]))
             regression=cj(dict(kind='route-regression-declaration-v1',mode='synthetic',execution='unestablished',
@@ -675,7 +736,7 @@ class ReleaseRouteTests(unittest.TestCase):
     def test_aggregate_implementation_bytes_are_bounded_before_envelope_encoding(self):
         from dataclasses import replace
         with tempfile.TemporaryDirectory() as d:
-            artifact,_,_=registration_inputs(Path(d))
+            artifact,_,_=registration_inputs(Path(d).resolve(strict=True))
             blobs=tuple(ReleaseBlobV1(f'big/{i}.dat',b'x'*1048576) for i in range(9))
             with self.assertRaises(RouteFoundationFailure) as failure:
                 replace(artifact,implementations=blobs)
@@ -683,7 +744,7 @@ class ReleaseRouteTests(unittest.TestCase):
 
     def test_first_observation_rejects_wrong_complete_public_joins(self):
         with tempfile.TemporaryDirectory() as d:
-            root=Path(d); control=root/'control'; control.mkdir()
+            root=Path(d).resolve(strict=True); control=root/'control'; control.mkdir()
             scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0)
             routes=AdmissionRouteStoreV1(control,database_name='routes.sqlite',registry=registry_at(root),clock=Clock(),execution=scope)
             try:
@@ -702,7 +763,7 @@ class ReleaseRouteTests(unittest.TestCase):
 
     def test_later_consistent_image_preserves_first_observation_and_wrong_image_denies(self):
         with tempfile.TemporaryDirectory() as d:
-            root=Path(d); control=root/'control'; control.mkdir(); clock=MutableClock()
+            root=Path(d).resolve(strict=True); control=root/'control'; control.mkdir(); clock=MutableClock()
             scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0)
             routes=AdmissionRouteStoreV1(control,database_name='routes.sqlite',registry=registry_at(root),clock=clock,execution=scope)
             try:
@@ -734,7 +795,7 @@ class ReleaseRouteTests(unittest.TestCase):
 
     def test_observation_expansion_over_full_row_limit_keeps_reservation(self):
         with tempfile.TemporaryDirectory() as d:
-            root=Path(d); control=root/'control'; control.mkdir()
+            root=Path(d).resolve(strict=True); control=root/'control'; control.mkdir()
             scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0)
             value=literal_route(root)
             size=len(cj({**{k:value[k] for k in ('reservation_id','attempt_id','resource_id','case_id','generation','release_id','state')},'record':value}))
@@ -752,7 +813,7 @@ class ReleaseRouteTests(unittest.TestCase):
 
     def test_route_wire_constructor_independently_rejects_false_identity(self):
         with tempfile.TemporaryDirectory() as d:
-            root = Path(d)
+            root = Path(d).resolve(strict=True)
             for key, bad in [('request_hash','0'*64), ('business_fingerprint','0'*64),
                     ('dedup_hash','0'*64), ('auth_claim_hash','0'*64), ('reservation_hash','0'*64),
                     ('state','admitted'), ('reserved_at','2026-10-08T10:00:00Z'), ('generation','G2')]:
@@ -764,7 +825,7 @@ class ReleaseRouteTests(unittest.TestCase):
     def test_original_fields_and_claim_aliases_cannot_rebind(self):
         class ClaimAlias(AuthContext): pass
         with tempfile.TemporaryDirectory() as d:
-            root=Path(d); control=root/'control'; control.mkdir()
+            root=Path(d).resolve(strict=True); control=root/'control'; control.mkdir()
             scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0)
             routes=AdmissionRouteStoreV1(control,database_name='routes.sqlite',registry=registry_at(root),clock=Clock(),execution=scope)
             request=make_request(evidence_ids=['E1','E2'],narrative=' original '); binding=make_binding(request)
@@ -786,7 +847,7 @@ class ReleaseRouteTests(unittest.TestCase):
 
     def test_each_unique_key_collision_preserves_original_and_generation_route(self):
         with tempfile.TemporaryDirectory() as d:
-            root=Path(d); control=root/'control'; control.mkdir()
+            root=Path(d).resolve(strict=True); control=root/'control'; control.mkdir()
             scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0)
             routes=AdmissionRouteStoreV1(control,database_name='routes.sqlite',registry=registry_at(root),clock=Clock(),execution=scope)
             request=make_request(); binding=make_binding(request); claim=AuthContext(caller_id='U1',proof_reference='synthetic-proof')
@@ -813,7 +874,7 @@ class ReleaseRouteTests(unittest.TestCase):
 
     def test_expiry_reversal_and_fresh_explicit_context(self):
         with tempfile.TemporaryDirectory() as d:
-            root=Path(d); control=root/'control'; control.mkdir(); clock=MutableClock()
+            root=Path(d).resolve(strict=True); control=root/'control'; control.mkdir(); clock=MutableClock()
             scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0)
             routes=AdmissionRouteStoreV1(control,database_name='routes.sqlite',registry=registry_at(root),clock=clock,execution=scope)
             try:
@@ -829,7 +890,7 @@ class ReleaseRouteTests(unittest.TestCase):
 
     def test_control_root_alias_and_second_owner_are_rejected(self):
         with tempfile.TemporaryDirectory() as d:
-            root=Path(d); control=root/'control'; control.mkdir()
+            root=Path(d).resolve(strict=True); control=root/'control'; control.mkdir()
             registry=registry_at(root); scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0)
             with self.assertRaises(RouteFoundationFailure):
                 AdmissionRouteStoreV1(root,database_name='routes.sqlite',registry=registry,clock=Clock(),execution=scope)
@@ -841,7 +902,7 @@ class ReleaseRouteTests(unittest.TestCase):
 
     def test_full_stored_row_threshold_counts_index_projections(self):
         with tempfile.TemporaryDirectory() as d:
-            root=Path(d); control=root/'control'; control.mkdir(); clock=Clock()
+            root=Path(d).resolve(strict=True); control=root/'control'; control.mkdir(); clock=Clock()
             scope=ExecutionContext(NOW+timedelta(seconds=5),NOW,10.0,15.0)
             row=literal_route(root)
             full={k:row[k] for k in ('reservation_id','attempt_id','resource_id','case_id','generation','release_id','state')}
@@ -863,7 +924,7 @@ class ReleaseRouteTests(unittest.TestCase):
     def test_registry_wire_validation_rejects_rehashed_semantic_drift(self):
         import base64
         with tempfile.TemporaryDirectory() as d:
-            root = Path(d)
+            root = Path(d).resolve(strict=True)
             for blob_name, key, bad in [('source','mode','actual'), ('proposal','candidate_profile_hash','0'*64),
                     ('regression','execution','passed'), ('migration','strategy','migrate'),
                     ('agent','authorship','verified'), ('dependency','completeness','actual'),
@@ -891,7 +952,7 @@ class ReleaseRouteTests(unittest.TestCase):
 
     def test_registry_returns_closed_synthetic_release(self):
         with tempfile.TemporaryDirectory() as d:
-            registered = registry_at(Path(d)).resolve("L1")
+            registered = registry_at(Path(d).resolve(strict=True)).resolve("L1")
             self.assertIsInstance(registered, RegisteredReleaseV1)
             body = json.loads(registered.wire_bytes)
             self.assertEqual(body["mode"], "offline_synthetic")
@@ -899,7 +960,7 @@ class ReleaseRouteTests(unittest.TestCase):
 
     def test_reserved_route_survives_restart_and_cannot_rebind(self):
         with tempfile.TemporaryDirectory() as d:
-            root = Path(d); registry = registry_at(root); clock = Clock()
+            root = Path(d).resolve(strict=True); registry = registry_at(root); clock = Clock()
             control = root / 'route-control'; control.mkdir()
             scope = ExecutionContext(NOW+timedelta(seconds=5), NOW, 10.0, 15.0)
             request = make_request(); binding = make_binding(request)
@@ -927,7 +988,7 @@ class ReleaseRouteTests(unittest.TestCase):
 
     def test_admitted_observation_joins_original_and_preserves_journal(self):
         with tempfile.TemporaryDirectory() as d:
-            root = Path(d); registry = registry_at(root); clock = Clock()
+            root = Path(d).resolve(strict=True); registry = registry_at(root); clock = Clock()
             control = root / 'route-control'; control.mkdir()
             scope = ExecutionContext(NOW+timedelta(seconds=5), NOW, 10.0, 15.0)
             request = make_request(); binding = make_binding(request)
@@ -958,7 +1019,7 @@ class ReleaseRouteTests(unittest.TestCase):
     def test_rehashed_implementation_drift_cannot_match_registered_inventory(self):
         import base64
         with tempfile.TemporaryDirectory() as d:
-            root = Path(d); registered = registry_at(root).resolve("L1")
+            root = Path(d).resolve(strict=True); registered = registry_at(root).resolve("L1")
             body = json.loads(registered.wire_bytes)
             blob = body["implementations"][0]
             blob["base64"] = base64.b64encode(b"different synthetic bytes").decode("ascii")
@@ -973,7 +1034,7 @@ class ReleaseRouteTests(unittest.TestCase):
 
     def test_same_business_fingerprint_does_not_hide_changed_narrative(self):
         with tempfile.TemporaryDirectory() as d:
-            root = Path(d); control = root / "route-control"; control.mkdir()
+            root = Path(d).resolve(strict=True); control = root / "route-control"; control.mkdir()
             clock = Clock(); scope = ExecutionContext(NOW+timedelta(seconds=5), NOW, 10.0, 15.0)
             request = make_request(narrative="first")
             binding = make_binding(request)
@@ -995,7 +1056,7 @@ class ReleaseRouteTests(unittest.TestCase):
     def test_foreign_empty_database_is_not_repaired_or_overwritten(self):
         import sqlite3
         with tempfile.TemporaryDirectory() as d:
-            root = Path(d); control = root / "route-control"; control.mkdir()
+            root = Path(d).resolve(strict=True); control = root / "route-control"; control.mkdir()
             database = control / "routes.sqlite"
             with sqlite3.connect(database) as db:
                 db.execute("CREATE TABLE foreign_data(value TEXT)")
