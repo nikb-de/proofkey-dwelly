@@ -121,6 +121,7 @@ Task12 integration is staged:12A inventory9209254 is independently Approved by N
 - [ ] 8.6 Enforce oracle isolation with denied-access/canary probes and assign independent human custody before protected holdout; otherwise explicitly report rehearsal.
 - [ ] 8.7 Independently review/reproduce the frozen candidate, verify actual requirements and report missing runtime/native/provider evidence as unfinished.
 - [ ] 8.8 Prepare a clean source/license/rights package, reproducible instructions, sixty-second video and unsent LinkedIn/X drafts without publication/submission.
+  - [ ] Task15B0: internal exact5 NEW README/RIGHTS/LICENSE/NOTICE/.gitignore engineer guide, governed by delivery-documentation.md and detailed plan. Truthful two-builtin offline replay instructions/six ports, standard Apache text and incomplete source/dependency rights boundary; no operational demo/reproduction/rights certificate or full15B/video completion. Different nonauthor Spec/Quality gates required.
 - [ ] 8.9 Turn process-profiles.md R01–R15 into exact independent regression fixtures/inputs/hashes and failing tests, including confirmed saved-result replay R15. Exercise stop, early operator, all-phase recovery, ownership/packet races, expiry and scope/access gates before timed candidate measurement.
 
 ## Dependency and scope delta

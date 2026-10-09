@@ -2121,6 +2121,51 @@ Read [release-preparation.md](../../../openspec/changes/proofkey-v21-harness-con
 
 Every stage keeps shared receipts unchanged and separates actual expected candidate/release hash recipes from differently scoped assessment hashes. Root exactstages exit-gated checks; different nonauthor spec/quality review is required. No static test/context fixture can complete real rights, dependency/install/media/event/production obligations.
 
+#### Task15B0 — truthful local engineer guide before release qualification
+
+Internal documentation slice; binding [delivery-documentation.md](../../../openspec/changes/proofkey-v21-harness-contracts/delivery-documentation.md). Independent from concurrent Task13B3's NEW source targets. Exactly NEW `runtime/README.md`, `runtime/RIGHTS.md`, `runtime/LICENSE`, `runtime/NOTICE`, `runtime/.gitignore`; no existing public file, product import/operational launch/test/SQL, install/server/network/provider/spend or publication. Root formal/plan/commits; original author owns corrections, different nonauthor separate Spec/Quality gate. This does not complete15B source freeze/package/reproduction/video.
+
+**Interfaces:** Documentation of present `proofkey.cli:main`, CanonicalRequest/ScopedReply, two builtins, six AdapterBundle ports and trusted library/API/release entrypoints. README uses runtime-relative actual links and reader-supplied absolute source directory; no private checkout/evidence/credential content. LICENSE full standard text pinned in formal; RIGHTS and NOTICE are incomplete scope/status inventories, never trusted rights contexts. Current source/test signatures control copy; old test declarations are not present passing evidence.
+
+**Review focus:** Instructions accidentally changing fixed replay identity; arbitrary cwd/retained resources mistaken for independent cases; unsupported help/activation/prepare-release/API-global commands; stale dependency metadata promoted to current closure; Apache notice mistaken for raw source or third-party rights.
+
+- [ ] **Step1 — static prerequisite inventory.** Full-read binding formal, current CLI/bootstrap/ports and selected parity/configuration/release examples as text; verify the already prepared immutable source pins and five absent targets. Preserve author's readiness note separately. No license/legal/rights fact is invented to close a gap.
+
+```sh
+ls -ld runtime/README.md runtime/RIGHTS.md runtime/LICENSE runtime/NOTICE runtime/.gitignore
+shasum -a 256 runtime/src/proofkey/cli.py runtime/src/proofkey/bootstrap.py runtime/src/proofkey/ports.py runtime/src/proofkey/api.py runtime/src/proofkey/release.py runtime/pyproject.toml runtime/requirements.lock runtime/requirements-api.lock runtime/DEPENDENCIES.json
+```
+
+Expected before writes: all five missing; exact current source pins. An unexpected existing target stops this slice for root adjudication, never overwrite it. Not a runtime test or closure freeze.
+
+- [ ] **Step2 — README.** Write concise English sections Purpose and current status / Source-checkout quickstart / Supported commands / Read results / Integrate / Adapt and release / Checks / Rights and remaining gates. Include BOTH exact complete JSON bodies from formal and their registered release names. A reader supplies an absolute checkout source path, then creates a separate new launch parent for each replay; explain generated retained `.proofkey` state and unexecuted-in-this-slice status. The copyable window command shape is:
+
+```sh
+# Run from runtime/ in your source checkout with dependencies already available.
+PROOFKEY_SOURCE_DIR="$PWD/src"
+PROOFKEY_DEMO_DIR="$(mktemp -d)"
+cd "$PROOFKEY_DEMO_DIR"
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$PROOFKEY_SOURCE_DIR" python3 -m proofkey.cli run --release host-window-replay-v1 --input - <<'JSON'
+{"case_id":"C1","object_id":"O1","principal_id":"U1","request_id":"REQ1","request_revision":"v1","consent_revision":"v1","kind":"reschedule_window","consent_mode":"window","arguments":{"window_start":"2026-10-08T10:00:00+00:00","window_end":"2026-10-08T12:00:00+00:00","inventory":{"item-1":1}},"evidence_ids":[],"narrative":null}
+JSON
+```
+
+The goods block uses the already absolute `PROOFKEY_SOURCE_DIR`, NEW `PROOFKEY_GOODS_DIR="$(mktemp -d)"`, `cd "$PROOFKEY_GOODS_DIR"`, release host-goods-replay-v1 and the full goods JSON body from formal. Explicitly preserve both folders; do not cleanup/reset resources. Include exact six port methods/table and finite exit mapping, accepted/verified distinction, existing trusted library/API source links and three routes without starting a server. No help/prepare-release/fresh-text/arbitrary profile/native/model/deadline or activation flags advertised. Preserve unavailable/partial/waiting/record-only modes.
+
+- [ ] **Step3 — rights/license/notice.** Write the formal's human-readable rights/status categories and unresolved dependency/artifact/ownership joins. LICENSE is exact unmodified 11357-byte standard text including standard appendix from the local already full-read/pinned license source in formal, added with apply_patch rather than shell write/copy tricks. NOTICE explicitly incomplete dependency joins; no guessed holder or actual approval. Correctly separate eight no-hash pins/nineteen historical wheel pins/build backend, stale metadata, certifiMPL/httpx-notice/fixture-only ffmpeg.
+
+- [ ] **Step4 — generated-artifact ignores.** Add exactly the formal's eleven local/generated patterns, no source or blanket fixture exclusion. Do not delete, hide in a completion claim or stage existing cache content. Ignore does not clear rights or define source allowlist.
+
+- [ ] **Step5 — finite static review and handoff.** No runtime behavior changed, so this docs-only slice uses static content checks rather than synthetic behavior tests. Read all five newly written files. Parse the two documented JSON bodies as data and compare exact public-source request shapes; verify all local links exist, all command tokens match the actual parser, all six methods match ports, exit/status phrasing matches CLI, and lock counts/scopes match files. Compare LICENSE bytes/hash exactly to its pinned standard source. Record unexecuted commands and unresolved installation/rights/reproduction/media/activation gates; give root original raw static command receipts and hashes. Root independently reads/checks and creates exact-five local commit; different nonauthor separate Spec/Quality decisions. No broad old suites or documentation-as-reproduction.
+
+```sh
+shasum -a 256 runtime/README.md runtime/RIGHTS.md runtime/LICENSE runtime/NOTICE runtime/.gitignore
+cmp runtime/LICENSE .superpowers/sdd/2026-10-08-proofkey-runtime/api-env.GEsSnS/lib/python3.12/site-packages/opentelemetry_api-1.45.1.dist-info/licenses/LICENSE
+git diff --check
+```
+
+Root-owned exact commit: `docs: explain offline harness use and scoped rights`. Public checkboxes stay open until this document-only gate. Later Task15B requires coherent source/rights/dependency freeze and actual assigned fresh reproduction/media; this stage neither invents those facts nor blocks truthful team instructions on unavailable live services.
+
 ### Task 16: Independent final review, gated drills and living-spec closure
 
 **Files:** Create `runtime/src/proofkey/assessment/audit.py`, `runtime/tests/test_audit.py`; modify active OpenSpec `tasks.md` only for verified completions; create new private run receipts under a unique `work/runtime-verification-<run-id>/` directory; add an implementation review receipt alongside this plan. Do not overwrite any prior proposal/model assessment or source capture.
