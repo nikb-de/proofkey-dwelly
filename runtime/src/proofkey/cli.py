@@ -113,27 +113,30 @@ def _command_exit(command):
 def _run_exit(run):
     if run.input_outcome in ("invalid_command", "invalid_document"):
         return 2
-    if run.publication_status != "committed" or run.pending_command_ids:
-        return 4 if run.publication_status != "committed" else 3
+    codes = [0]
+    if run.publication_status != "committed":
+        codes.append(4)
+    if run.pending_command_ids:
+        codes.append(3)
     if type(run) is BatchRunReceiptV1:
-        codes = [0]
         if run.unresolved_admission_ordinals or run.outcome in ("runtime_error", "publication_failed"):
             codes.append(4)
         if run.outcome in ("deadline_exceeded", "abandoned_pending"):
             codes.append(3)
         for position in run.positions:
+            if position.command is not None:
+                codes.append(_command_exit(position.command))
             if position.export_outcome == "failed" or position.execution_outcome == "runtime_error":
                 codes.append(4)
             elif position.execution_outcome == "deadline_exceeded":
                 codes.append(3)
             elif position.execution_outcome in ("invalid_request", "denied", "not_started"):
                 codes.append(2)
-            else:
-                codes.append(_command_exit(position.command))
         return max(codes)
     if run.unresolved_admission or run.export_outcome == "failed":
-        return 4
-    return _command_exit(run.command)
+        codes.append(4)
+    codes.append(_command_exit(run.command))
+    return max(codes)
 
 
 def _emit(receipt, code):

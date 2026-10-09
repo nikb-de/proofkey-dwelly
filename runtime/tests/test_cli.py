@@ -222,6 +222,88 @@ class CliTests(unittest.TestCase):
         self.assertEqual(receipt.run.positions[-1].export_failure, "output_conflict")
         self.assertTrue(receipt.shutdown.owner_closed)
 
+    def test_pending_batch_cannot_hide_earlier_actual_export_failure_after_owner_closes(self):
+        # Regression: an early pending exit must not suppress ordinal1's real
+        # output collision. Only the third engine call is gated; host admission,
+        # waits, publication, expiry and eventual owner closure remain actual.
+        from proofkey.host import HostDispatcher
+        from proofkey.batch_files import read_run_inventory
+        released = threading.Event()
+        entered = threading.Event()
+        self.addCleanup(released.set)
+        class GatedFactory(ObservedFactory):
+            def create(self, release, clock):
+                resource = super().create(release, clock)
+                actual = resource.engine
+                class Engine:
+                    calls = 0
+                    def run(self, *args, **kwargs):
+                        self.calls += 1
+                        if self.calls == 3:
+                            entered.set()
+                            if not released.wait(5):
+                                raise RuntimeError("test_gate_timeout")
+                        return actual.run(*args, **kwargs)
+                resource.engine = Engine()
+                original_close = resource.close
+                def capture_effects_then_close():
+                    self.physical_reschedules = resource.world.effect_count("reschedule")
+                    original_close()
+                resource.close = capture_effects_then_close
+                return resource
+        factory = GatedFactory()
+        configuration = CliConfiguration(**{**self.options, "factory": factory,
+            "total_seconds": 4.0, "publication_reserve_seconds": 2.0})
+        original_close = HostDispatcher.close
+        def eventual_close(dispatcher, cutoff):
+            released.set()
+            return original_close(dispatcher, cutoff)
+        with patch.object(HostDispatcher, "close", eventual_close):
+            code, receipt = self.invoke(["batch", "--input", self.body([request()] * 4)], configuration)
+        batch = receipt.run
+        self.assertTrue(entered.is_set())
+        self.assertEqual(batch.publication_status, "committed")
+        self.assertEqual(batch.outcome, "abandoned_pending")
+        self.assertEqual(batch.position_count, 4)
+        self.assertEqual([p.inventory.ordinal for p in batch.positions], [0, 1, 2, 3])
+        self.assertEqual([p.execution_outcome for p in batch.positions],
+                         ["result", "result", "deadline_exceeded", "not_started"])
+        self.assertEqual([p.export_outcome for p in batch.positions],
+                         ["written", "failed", "not_attempted", "not_attempted"])
+        self.assertEqual(batch.positions[1].export_failure, "output_conflict")
+        self.assertTrue(batch.positions[1].command.result.historical)
+        pending = batch.positions[2].command
+        self.assertEqual((pending.outcome, pending.inventory_status), ("started_pending", "committed"))
+        self.assertEqual(batch.pending_command_ids, (pending.command_id,))
+        self.assertIsNone(pending.result)
+        self.assertIsNone(pending.finished_at)
+        self.assertEqual(batch.unresolved_admission_ordinals, ())
+        self.assertTrue(receipt.shutdown.owner_closed)
+        self.assertEqual(receipt.shutdown.pending_command_ids, ())
+        self.assertFalse(receipt.shutdown.inventory_failure)
+        self.assertIsNone(receipt.failure)
+        self.assertTrue(factory.resources[0].closed)
+        self.assertEqual(factory.physical_reschedules, 1)
+        self.assertEqual(len(factory.snapshots[-1][1]), 1)
+        self.assertEqual(factory.snapshots[-1][1][0].state, "verified")
+        self.assertEqual(factory.snapshots[-1][3].model_dump(mode="json"), request())
+        self.assertTrue(all(context is factory.contexts[0] for context in factory.contexts))
+        self.assertEqual(pending.execution.captured_monotonic,
+                         batch.window.execution.captured_monotonic)
+        output = next(path.parent for path in self.base.glob("*/FINAL-MANIFEST.json"))
+        inventory = read_run_inventory(output, limits=configuration.interface_limits)
+        self.assertEqual(inventory.status, "committed_snapshot")
+        self.assertEqual(inventory.final_manifest.positions, batch.positions)
+        self.assertEqual(inventory.final_manifest.pending_command_ids, batch.pending_command_ids)
+        print("CLI-FIX1-MIXED " + json.dumps({"exit": code,
+            "actual_receipt": receipt.model_dump(mode="json"),
+            "physical_intents": len(factory.snapshots[-1][1]),
+            "physical_reschedules": factory.physical_reschedules,
+            "source_calls": [(call.operation, call.purpose) for call in factory.snapshots[-1][2]],
+            "original_context_count":
+            len({id(context) for context in factory.contexts})}))
+        self.assertEqual(code, 4)
+
     def test_receipt_rejects_unknown_fields_and_detaches_actual_nested_values(self):
         code, receipt = self.invoke(["inspect-profile"])
         self.assertEqual(code, 0)
@@ -231,6 +313,42 @@ class CliTests(unittest.TestCase):
         copy = CliReceiptV1.model_validate_json(json.dumps(data))
         data["shutdown"]["owner_closed"] = False
         self.assertTrue(copy.shutdown.owner_closed)
+
+    def test_strict_exit_controls_include_command_inventory_in_deadline_and_not_started_ordinals(self):
+        # Supplementary strict contract controls, not invented runtime evidence.
+        # Literal expectations protect pending3 and inventory failure4 even when
+        # a position's coarse execution classification is deadline/not_started.
+        from proofkey.cli import _run_exit
+        from proofkey.host_contracts import BatchRunReceiptV1, CommandReceiptV1
+        code, receipt = self.invoke(["batch", "--input", self.body([{}])])
+        self.assertEqual(code, 2)
+        base = receipt.run.model_dump(mode="python")
+        cases = (
+            ("started_pending", "committed", "deadline_exceeded", True, 3),
+            ("started_pending", "partial", "deadline_exceeded", True, 4),
+            ("started_pending", "unavailable", "deadline_exceeded", True, 4),
+            ("expired", "committed", "deadline_exceeded", False, 3),
+            ("expired", "partial", "deadline_exceeded", False, 4),
+            ("cancelled_before_start", "committed", "not_started", False, 2),
+            ("cancelled_before_start", "partial", "not_started", False, 4),
+            ("denied", "committed", "denied", False, 2),
+            ("infrastructure_error", "unavailable", "runtime_error", False, 4),
+        )
+        for outcome, inventory, execution, pending, expected in cases:
+            with self.subTest(outcome=outcome, inventory=inventory):
+                command = CommandReceiptV1(command_id="a" * 32, command_tag="run",
+                    release_id=base["release_id"], mode=base["mode"], clock_mode=base["clock_mode"],
+                    execution=receipt.run.window.execution, outcome=outcome,
+                    started_at=receipt.run.started_at if outcome == "started_pending" else None,
+                    inventory_status=inventory)
+                position = {**base["positions"][0], "command": command.model_dump(mode="python"),
+                    "admission_status": "joined", "execution_outcome": execution, "failure": None,
+                    "publication_status": "committed"}
+                run = BatchRunReceiptV1.model_validate({**base, "positions": (position,),
+                    "pending_command_ids": (command.command_id,) if pending else (),
+                    "outcome": "abandoned_pending" if pending else "deadline_exceeded" if outcome == "expired"
+                        else "runtime_error" if outcome == "infrastructure_error" else "completed"})
+                self.assertEqual(_run_exit(run), expected)
 
     def test_original_publication_window_expiring_during_load_is_unavailable_without_owner(self):
         class JumpClock(SyntheticReplayClock):
