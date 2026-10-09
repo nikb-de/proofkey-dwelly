@@ -1,13 +1,13 @@
 ## 1. Projection
 
-- [ ] 1.1 Implement bounded exact receipt parsing, detached validation, immutable content-free projection and JSON/Markdown formatting with RED/GREEN tests.
-- [ ] 1.2 Independently review projection compliance and quality; resolve important findings.
+- [x] 1.1 Implement bounded exact receipt parsing, detached validation, immutable content-free projection and JSON/Markdown formatting with RED/GREEN tests.
+- [x] 1.2 Independently review projection compliance and quality; resolve important findings.
 
 ## 2. Public use
 
-- [ ] 2.1 Implement stdin-only module renderer and short outcome-first quickstart with subprocess tests.
-- [ ] 2.2 Execute fresh documented rescheduling and refusal captures; verify safe projections and unchanged default CLI semantics.
-- [ ] 2.3 Independently review public use and the whole leaf; resolve important findings.
+- [x] 2.1 Implement stdin-only module renderer and short outcome-first quickstart with subprocess tests.
+- [x] 2.2 Execute fresh documented rescheduling and refusal captures; verify safe projections and unchanged default CLI semantics.
+- [x] 2.3 Independently review public use and the whole leaf; resolve important findings.
 
 ## 3. Evidence and closure
 
