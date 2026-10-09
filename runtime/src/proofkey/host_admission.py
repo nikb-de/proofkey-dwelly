@@ -6,6 +6,7 @@ from contextlib import contextmanager
 from hashlib import sha256
 import base64
 import json
+import math
 import os
 from pathlib import Path
 import stat
@@ -83,6 +84,24 @@ def control_context(execution, clock):
         original.captured_monotonic + max(0.0, (deadline - original.captured_at).total_seconds()))
     _require(clock.now() >= original.captured_at and value.remaining_seconds(clock) > 0, 'timeout')
     return value
+
+
+@_checked
+def _observation_context(execution, clock):
+    """One final phase, clipped to both unchanged original parent bounds."""
+    _require(type(execution) is ExecutionContext, 'scope')
+    original = ExecutionContext(execution.deadline, execution.captured_at,
+        execution.captured_monotonic, execution.monotonic_deadline)
+    monotonic = clock.monotonic()
+    now = clock.now()
+    _require(type(monotonic) in (int, float) and math.isfinite(monotonic), 'timeout')
+    _require(now >= original.captured_at and monotonic >= original.captured_monotonic, 'timeout')
+    remaining = min(5.0, (original.deadline - now).total_seconds(),
+        original.monotonic_deadline - monotonic)
+    # Round down to datetime precision so conversion cannot extend the parent.
+    duration = timedelta(microseconds=math.floor(remaining * 1000000))
+    _require(duration.total_seconds() > 0, 'timeout')
+    return ExecutionContext(now + duration, now, monotonic, monotonic + duration.total_seconds())
 
 FIXED_IMPLEMENTATION_PATHS = ('adapters/world.py', 'admission.py', 'admission_routes.py',
     'contracts.py', 'engine.py', 'execution.py', 'gateway.py', 'host.py',
@@ -615,9 +634,8 @@ class RegisteredAdmissionOwner:
             and _canonical(self.gateway.profile.model_dump(mode='json')) == self.profile_wire, 'scope')
 
     def _images(self, execution):
-        scope = control_context(execution, self.clock)
-        journal = self.store.capture_retained_state(execution=scope, clock=self.clock)
-        source = self.world.capture_retained_state(execution=scope, clock=self.clock)
+        journal = self.store.capture_retained_state(execution=execution, clock=self.clock)
+        source = self.world.capture_retained_state(execution=execution, clock=self.clock)
         return journal, source
 
     @staticmethod
@@ -644,7 +662,7 @@ class RegisteredAdmissionOwner:
         _require(not self.claims.pending(execution), 'pending_claim')
         grant = self.composition.approvals.resolve(self.composition.review_id, artifact_hash=self.registered.artifact_hash,
             execution=execution, clock=self.clock)
-        journal, source = self._images(execution)
+        journal, source = self._images(control_context(execution, self.clock))
         self._fresh(journal, request.case_id)
         value = dict(kind='registered-host-admission-v1', version=1, claim_id='claim:' + uuid4().hex,
             attempt_id='attempt:' + uuid4().hex, route_id='route:' + uuid4().hex,
@@ -660,11 +678,16 @@ class RegisteredAdmissionOwner:
         self.active = (execution, request, auth, claim)
         return claim
 
-    @_checked
-    def guard_execution(self, execution, gateway):
+    def _guard_parent(self, execution, gateway):
         self.associations()
         _require(self.active is not None and gateway is self.gateway and execution is self.active[0], 'scope')
         _require(_window(execution) == _claim(self.active[3].wire_bytes)['execution'], 'scope')
+        _require(self.clock.now() >= execution.captured_at
+            and execution.remaining_seconds(self.clock) > 0, 'timeout')
+
+    @_checked
+    def guard_execution(self, execution, gateway):
+        self._guard_parent(execution, gateway)
         control_context(execution, self.clock)
 
     @_checked
@@ -710,17 +733,22 @@ class RegisteredAdmissionOwner:
         self.prepare_entry(request, auth, execution=execution)
         try:
             result = self.engine.run(request, auth, execution=execution)
-            self.guard_execution(execution, self.gateway)
+            self._guard_parent(execution, self.gateway)
+            phase = _observation_context(execution, self.clock)
             claim = self.active[3]
             if claim.state == 'binding_sealed' and self.store.has_case(request.case_id):
-                journal, source = self._images(execution)
+                journal, source = self._images(phase)
+                self._guard_parent(execution, self.gateway)
                 value = _claim(claim.wire_bytes)
                 route = self.routes.observe_admitted(value['route_id'], snapshot=journal,
-                    execution=control_context(execution, self.clock))
+                    execution=phase)
                 _require(route.state == 'admission_observed' and route.binding == claim.binding, 'storage')
                 value.update(state='admission_observed', final_journal_hash=journal.content_hash,
                     final_source_hash=source.content_hash, observation_hash=route.observation.observation_hash)
-                self.claims.write(value, execution)
+                self._guard_parent(execution, self.gateway)
+                self.claims.write(value, phase)
+                self._guard_parent(execution, self.gateway)
+                control_context(phase, self.clock)
             return result
         finally:
             self.active = None

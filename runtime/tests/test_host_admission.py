@@ -9,6 +9,8 @@ import tempfile
 import unittest
 from unittest.mock import patch
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
+import sys
 
 from proofkey.contracts import AuthContext
 from proofkey.journal import CaseStore
@@ -21,11 +23,35 @@ from proofkey.host_admission import (FIXED_IMPLEMENTATION_PATHS, HostExecutableB
     SyntheticReviewGrantV1, ProvisionedReviewResolverV1, LocalAdmissionCompositionV1,
     AdmissionCompositionFailure, AdmissionClaimV1, RegisteredAdmissionOwner, _ClaimStore)
 from proofkey.admission_routes import AdmissionRouteStoreV1
+from proofkey.engine import WorkflowEngine
 from proofkey.host_writer import RuntimeWriterLease
 from test_release_route_foundation import registration_inputs, cj
 from test_host_contracts import request
 
 AUTH = AuthContext(caller_id='U1', proof_reference='synthetic-proof')
+
+
+@contextmanager
+def paced_clock(after_engine=None):
+    """Advance real engine pacing without wall sleeps or substituting results."""
+    state = {'tick': 100.0, 'utc_offset': 0.0, 'finished': False}
+    def now(clock):
+        return clock._EPOCH + timedelta(seconds=state['tick'] - 100 + state['utc_offset'])
+    def wait(clock, seconds):
+        state['tick'] += seconds + 1.0
+    def profile(frame, event, result):
+        if frame.f_code is WorkflowEngine.run.__code__ and event == 'return' and result is not None:
+            state['finished'] = True
+            if after_engine is not None:
+                after_engine(state)
+    previous = sys.getprofile()
+    with patch.object(SyntheticReplayClock, 'monotonic', lambda clock: state['tick']), \
+            patch.object(SyntheticReplayClock, 'now', now), patch.object(SyntheticReplayClock, 'wait', wait):
+        sys.setprofile(profile)
+        try:
+            yield SyntheticReplayClock(), state
+        finally:
+            sys.setprofile(previous)
 
 
 def context(clock, seconds=5):
@@ -62,6 +88,97 @@ def fixture(base, clock, *, goods=False, corrupt_pin=False, corrupt_resource=Fal
 
 
 class HostAdmissionTests(unittest.TestCase):
+    def test_final_observation_after_long_real_engine_preserves_parent_and_reopens(self):
+        # Reusing the ingress cutoff after real engine completion breaks this.
+        with tempfile.TemporaryDirectory() as folder, paced_clock() as (clock, state):
+            release, composition = fixture(Path(folder).resolve(), clock)
+            runtime = RuntimeFactory().create_registered(release, clock, composition=composition, execution=context(clock))
+            parent = context(clock, 120)
+            original = dict(deadline=parent.deadline.isoformat(), captured_at=parent.captured_at.isoformat(),
+                captured_monotonic=100.0, monotonic_deadline=220.0)
+            try:
+                result = runtime.run_registered(request(), AUTH, execution=parent)
+                self.assertEqual(result.status, 'authorized')
+                self.assertEqual(result.effects['reschedule'].status, 'verified')
+                self.assertGreater(state['tick'] - 100, 5)
+                self.assertLess(state['tick'] - 100, 120)
+                claim = runtime.admission.claim_for_case('C1', execution=context(clock))
+                route = runtime.admission.route_for_case('C1', execution=context(clock))
+                self.assertEqual(claim.state, 'admission_observed')
+                self.assertEqual(route.state, 'admission_observed')
+                self.assertEqual(json.loads(claim.wire_bytes)['execution'], original)
+                self.assertEqual(runtime.world.effect_count('reschedule'), 1)
+            finally:
+                runtime.close()
+            reopened = RuntimeFactory().create_registered(release, clock, composition=composition, execution=context(clock))
+            try:
+                self.assertEqual(reopened.admission.claim_for_case('C1', execution=context(clock)).state, 'admission_observed')
+                self.assertEqual(reopened.world.effect_count('reschedule'), 1)
+            finally:
+                reopened.close()
+
+    def test_final_observation_rejects_invalid_original_parent_and_retains_effect(self):
+        # A fresh independent parent or a missing original-identity check admits these.
+        for fault in ('utc_expired', 'monotonic_expired', 'utc_backwards', 'monotonic_backwards', 'changed_parent'):
+            with self.subTest(fault=fault), tempfile.TemporaryDirectory() as folder:
+                parent = None
+                def corrupt(state):
+                    if fault == 'utc_expired': state['utc_offset'] = 120
+                    elif fault == 'monotonic_expired': state['tick'] = 220
+                    elif fault == 'utc_backwards': state['utc_offset'] = -100
+                    elif fault == 'monotonic_backwards': state['tick'] = 99
+                    else: object.__setattr__(parent, 'deadline', parent.deadline + timedelta(seconds=1))
+                with paced_clock(corrupt) as (clock, state):
+                    release, composition = fixture(Path(folder).resolve(), clock)
+                    runtime = RuntimeFactory().create_registered(release, clock, composition=composition, execution=context(clock))
+                    parent = context(clock, 120)
+                    try:
+                        with self.assertRaises(AdmissionCompositionFailure):
+                            runtime.run_registered(request(), AUTH, execution=parent)
+                        self.assertTrue(state['finished'])
+                        state.update(tick=113.0, utc_offset=0.0)
+                        self.assertEqual(runtime.world.effect_count('reschedule'), 1)
+                        self.assertTrue(runtime.store.admission_account('C1').imported)
+                        self.assertEqual(runtime.admission.claim_for_case('C1', execution=context(clock)).state, 'binding_sealed')
+                    finally:
+                        runtime.close()
+                    with self.assertRaises(AdmissionCompositionFailure) as caught:
+                        RuntimeFactory().create_registered(release, clock, composition=composition, execution=context(clock))
+                    self.assertEqual(caught.exception.code, 'pending_claim')
+
+    def test_final_phase_cumulative_capture_join_and_write_budget_retains_debt(self):
+        # Renewing the five-second budget per stage admits six seconds of final work.
+        with tempfile.TemporaryDirectory() as folder, paced_clock() as (clock, state):
+            release, composition = fixture(Path(folder).resolve(), clock)
+            runtime = RuntimeFactory().create_registered(release, clock, composition=composition, execution=context(clock))
+            capture = CaseStore.capture_retained_state
+            observe = AdmissionRouteStoreV1.observe_admitted
+            write = _ClaimStore.write
+            def delayed_capture(store, *args, **kwargs):
+                result = capture(store, *args, **kwargs)
+                if state['finished']: state['tick'] += 2
+                return result
+            def delayed_observe(store, *args, **kwargs):
+                result = observe(store, *args, **kwargs)
+                if state['finished']: state['tick'] += 2
+                return result
+            def delayed_write(store, *args, **kwargs):
+                if state['finished']: state['tick'] += 2
+                return write(store, *args, **kwargs)
+            try:
+                with patch.object(CaseStore, 'capture_retained_state', delayed_capture), \
+                        patch.object(AdmissionRouteStoreV1, 'observe_admitted', delayed_observe), \
+                        patch.object(_ClaimStore, 'write', delayed_write):
+                    with self.assertRaises(AdmissionCompositionFailure):
+                        runtime.run_registered(request(), AUTH, execution=context(clock, 120))
+                self.assertTrue(state['finished'])
+                self.assertEqual(runtime.world.effect_count('reschedule'), 1)
+                self.assertTrue(runtime.store.admission_account('C1').imported)
+                self.assertEqual(runtime.admission.claim_for_case('C1', execution=context(clock)).state, 'binding_sealed')
+                self.assertEqual(runtime.admission.route_for_case('C1', execution=context(clock)).state, 'admission_observed')
+            finally:
+                runtime.close()
+
     def test_uncertain_claim_close_never_retries_a_reused_descriptor(self):
         with tempfile.TemporaryDirectory() as folder:
             base = Path(folder).resolve()
