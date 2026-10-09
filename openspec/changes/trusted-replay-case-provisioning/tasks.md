@@ -4,7 +4,7 @@
 - [x] 1.2 Compare trusted bootstrap, persistent manifest and generic extension approaches; draft bounded design and acceptance requirements.
 - [x] 1.3 Independently review the proposed trust/lifecycle/acceptance contract and reconcile findings: separate timing contexts/exact clock, typed private failure and descriptor closure, finite fixture envelope, explicit host selection, enforceable path exclusions.
 - [x] 1.4 Obtain written-design approval; user approved the written design from commit `2e4ace3` on 2026-10-09.
-- [ ] 1.5 Implementation plan written and independently reviewed at `docs/superpowers/plans/2026-10-09-trusted-replay-case-provisioning.md`; await user plan review before executing with the preserved autonomous/subagent method.
+- [x] 1.5 Implementation plan written, independently reviewed and approved by the user after commit `657b668`; execute with the preserved autonomous/subagent method.
 
 ## 2. Preparation and trusted composition
 

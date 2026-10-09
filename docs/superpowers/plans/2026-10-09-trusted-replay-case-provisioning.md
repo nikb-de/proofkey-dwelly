@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.12.14 on observed macOS arm64; existing Pydantic/standard library, unittest, setuptools 84.0.0 and the existing locked offline wheelhouse. No new dependency.
 
-**Spec:** `openspec/changes/trusted-replay-case-provisioning/design.md` (written design approved after commit `2e4ace3` on 2026-10-09); executable requirements in the same change's `specs/trusted-replay-case-provisioning/spec.md`; tasks in its `tasks.md`. This plan awaits user review; do not mistake design approval for completed implementation.
+**Spec:** `openspec/changes/trusted-replay-case-provisioning/design.md` (written design approved after commit `2e4ace3` on 2026-10-09); executable requirements in the same change's `specs/trusted-replay-case-provisioning/spec.md`; tasks in its `tasks.md`. The user approved this implementation plan after commit `657b668`; implementation outcomes still require verification.
 
 ## Global Constraints
 
@@ -323,5 +323,5 @@ Use `runtime/tests/test_cli_parity.py` for ordinary journal/export semantics and
 - All five Review Focus conditions have explicit tests in their owning task.
 - Additional limit clarification: encoded source may overflow before raw bytes reach 1 MiB. Reject before allocation using unchanged release limits; this narrows acceptance, not authority or protocol.
 - Independent read-only plan review found no Important blocker in the revised plan; checked source contracts and literal fixture data. This is not a runtime verification result.
-- Current state: written design approved; implementation-plan review pending; implementation and verification not started.
+- Current state: written design and implementation plan approved; task execution begins from `657b668` with a focused 10-test clean baseline.
 - Preserved execution method: autonomous subagent-driven development, one implementation task at a time with fresh task reviews and a final whole-change review.
