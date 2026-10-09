@@ -94,15 +94,21 @@ class WorkflowEngine:
         self.process = ProcessController(self.profile, request.kind)
         return checkpoint
 
-    def run(self, request, auth):
+    @contextmanager
+    def _execution_scope(self, execution):
+        with self._entry_scope():
+            with self._gateway.execution_scope(execution) as timing:
+                yield timing
+
+    def run(self, request, auth, *, execution=None):
         case_id = request.case_id if isinstance(request, CanonicalRequest) else "invalid-request"
         try:
-            with self._entry_scope():
+            with self._execution_scope(execution) as timing:
                 if not isinstance(request, CanonicalRequest) or not isinstance(auth, AuthContext):
                     raise GateDenied("scope_denied")
                 request = CanonicalRequest.model_validate(request.model_dump())
                 auth = AuthContext.model_validate(auth.model_dump())
-                replay = ReplayService(self.profile, self.bundle, self.store, self.clock).lookup(request, auth)
+                replay = ReplayService(self.profile, self.bundle, self.store, self.clock)._lookup_in_scope(request, auth, timing)
                 if replay is not None:
                     return replay
                 # None permits only the independent fresh gate below, preserving
@@ -119,9 +125,9 @@ class WorkflowEngine:
         except (GateDenied, JournalFailure, BudgetExceeded, ValueError, TypeError):
             return self._public_denial(case_id)
 
-    def recover(self, case_id, auth):
+    def recover(self, case_id, auth, *, execution=None):
         try:
-            with self._entry_scope():
+            with self._execution_scope(execution):
                 if not isinstance(auth, AuthContext):
                     raise GateDenied("scope_denied")
                 auth = AuthContext.model_validate(auth.model_dump())
@@ -147,10 +153,10 @@ class WorkflowEngine:
         except (GateDenied, JournalFailure, BudgetExceeded, ValueError, TypeError):
             return self._public_denial(case_id)
 
-    def reply(self, reply, auth):
+    def reply(self, reply, auth, *, execution=None):
         case_id = reply.binding.case_id if isinstance(reply, ScopedReply) else "invalid-reply"
         try:
-            with self._entry_scope():
+            with self._execution_scope(execution):
                 if not isinstance(reply, ScopedReply) or not isinstance(auth, AuthContext):
                     raise GateDenied("scope_denied")
                 auth = AuthContext.model_validate(auth.model_dump())
@@ -168,9 +174,9 @@ class WorkflowEngine:
         except (GateDenied, JournalFailure, BudgetExceeded, ValueError, TypeError):
             return self._public_denial(case_id)
 
-    def stop(self, case_id, generation, auth):
+    def stop(self, case_id, generation, auth, *, execution=None):
         try:
-            with self._entry_scope():
+            with self._execution_scope(execution):
                 if not isinstance(auth, AuthContext):
                     raise GateDenied("scope_denied")
                 auth = AuthContext.model_validate(auth.model_dump())

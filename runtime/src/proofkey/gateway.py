@@ -1,6 +1,7 @@
 """One durable, authenticated physical-effect path for all six ports."""
 from datetime import timedelta
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
+from threading import get_ident
 import math
 from uuid import uuid4
 
@@ -18,6 +19,7 @@ from .packet_contracts import (packet_enabled, packet_postcondition, validate_pa
                               validate_packet_policy, validate_packet_scope)
 from .packets import PacketService, PacketSources
 from .wait_contracts import WaitRecordV1
+from .execution_consumer import ExecutionTiming
 
 _PORTS = {"reschedule": "scheduling", "register_goods_refusal": "delivery", "register_service_refusal": "delivery",
           "create_return": "returns", "send_clarification": "messaging", "send_status": "messaging",
@@ -38,6 +40,27 @@ class ActionGateway:
     def __init__(self, profile, bundle, store, clock, auth=None):
         self.profile, self.bundle, self.store, self.clock, self.auth = profile, bundle, store, clock, auth
         self.gate = PolicyGate(profile)
+        self._owner_thread = get_ident()
+        self._execution_active = False
+        self._timing = None
+
+    @contextmanager
+    def execution_scope(self, execution=None):
+        """One creator-owned host cap, installed before caller authentication."""
+        if get_ident() != self._owner_thread or self._execution_active:
+            raise GateDenied("scope_denied")
+        timing = ExecutionTiming(self.clock, execution)
+        previous_timing, previous_auth = self._timing, self.auth
+        self._execution_active = True
+        try:
+            with self.store.execution_scope(execution, self.clock) if execution is not None else nullcontext():
+                self._timing = timing
+                yield timing
+        finally:
+            self._timing = previous_timing
+            if execution is not None:
+                self.auth = previous_auth
+            self._execution_active = False
 
     @staticmethod
     def _denied():
@@ -66,20 +89,37 @@ class ActionGateway:
         if not limits or any(rate is None or not math.isfinite(rate) or rate <= 0 for rate in limits):
             raise GateDenied("scope_denied")
         delay = 1.0 / min(limits) + 0.000001
-        now = self.clock.now()
-        if now + timedelta(seconds=delay) >= deadline:
+        now, cutoff = (self._timing.window(deadline) if self._timing is not None
+                       else (self.clock.now(), deadline))
+        if now + timedelta(seconds=delay) >= cutoff:
             raise GateDenied("scope_denied")
         self.clock.wait(delay)
-        if self.clock.now() < now or self.clock.now() >= deadline:
+        after, cutoff = (self._timing.window(deadline) if self._timing is not None
+                         else (self.clock.now(), deadline))
+        if after < now or after >= cutoff:
             raise GateDenied("scope_denied")
 
-    def _settle(self, lease, completed, admission=False):
-        elapsed = (self.clock.now() - lease.started_at).total_seconds()
+    def _transport_deadline(self, deadline):
+        if self._timing is None or self._timing.execution is None:
+            return deadline
+        now, cutoff = self._timing.window(deadline)
+        if now >= cutoff:
+            raise GateDenied("scope_denied")
+        return cutoff
+
+    def _settle(self, lease, completed, admission=False, anchor=None):
+        if anchor is not None:
+            now, cutoff = self._timing.window(lease.deadline)
+            elapsed = self._timing.elapsed_since(anchor)
+        else:
+            elapsed = (self.clock.now() - lease.started_at).total_seconds()
         if elapsed < 0 or not math.isfinite(elapsed):
             raise GateDenied("scope_denied")
         if elapsed > lease.reserved_seconds:
             finish = self.store.finish_admission_read if admission else self.store.finish_entry
             finish(lease.entry_id, elapsed)
+            raise GateDenied("scope_denied")
+        if anchor is not None and now >= cutoff:
             raise GateDenied("scope_denied")
         if completed:
             finish = self.store.finish_admission_read if admission else self.store.finish_entry
@@ -90,12 +130,15 @@ class ActionGateway:
     def _read(self, scope, target, port, method, *, purpose, action_id=None, attempt_id=None, deadline=None, control=False, validate=None):
         limit = deadline or self.store.checkpoint(scope.case_id).deadline
         self._pace(limit)
+        anchor = self._timing.monotonic_anchor() if self._timing is not None else None
         lease = (self.store.begin_control_read(scope, target, purpose, self.clock.now()) if control else
                  self.store.begin_admission_read(attempt_id, self.clock.now()) if attempt_id else
                  self.store.begin_read(scope.case_id, self.clock.now(), action_id=action_id))
         request = ReadRequest(case_id=scope.case_id, object_id=scope.object_id, caller_id=self.auth.caller_id,
-            proof_reference=self.auth.proof_reference, purpose=purpose, deadline=min(limit, lease.deadline), target=target)
+            proof_reference=self.auth.proof_reference, purpose=purpose,
+            deadline=self._transport_deadline(min(limit, lease.deadline)), target=target)
         try:
+            request = request.model_copy(update={"deadline": self._transport_deadline(request.deadline)})
             reply = getattr(getattr(self.bundle, port), method)(request)
             reply = AuthorityReadback.model_validate(reply.model_dump())
             if (self.clock.now() >= request.deadline or reply.as_of < lease.started_at or reply.as_of > self.clock.now()
@@ -133,9 +176,9 @@ class ActionGateway:
             if validate is not None and not rejection:
                 validate(reply)
         except Exception:
-            self._settle(lease, False, admission=attempt_id is not None)
+            self._settle(lease, False, admission=attempt_id is not None, anchor=anchor)
             raise GateDenied("scope_denied") from None
-        self._settle(lease, completed, admission=attempt_id is not None)
+        self._settle(lease, completed, admission=attempt_id is not None, anchor=anchor)
         return reply
 
     def _facts(self, scope, fields, *, attempt_id=None, deadline=None, purpose=None, validators=None):
@@ -545,14 +588,22 @@ class ActionGateway:
             self.store.prepare(intent)
         self._pace(min(intent.deadline, self.store.checkpoint(intent.binding.case_id).deadline))
         wait_expiry = self._communication_wait_expiry(intent)
+        anchor = self._timing.monotonic_anchor() if self._timing is not None else None
         lease = self.store.begin_dispatch(intent, self.clock.now(), is_resend=is_resend)
         try:
+            deadline = self._transport_deadline(min(lease.deadline, wait_expiry)
+                if wait_expiry is not None else lease.deadline)
+        except (GateDenied, ValueError):
+            result = VerificationResult(status="outcome_unknown", reason="entry_unresolved")
+            self.store.record_verification(intent.action_id, result)
+            return result
+        try:
             dispatch = getattr(getattr(self.bundle, _PORTS[intent.operation]), intent.operation)(intent,
-                deadline=min(lease.deadline, wait_expiry) if wait_expiry is not None else lease.deadline)
+                deadline=self._transport_deadline(deadline))
         except Exception:
             dispatch = None
         if dispatch is not None:
-            self._settle(lease, dispatch.status != "outcome_unknown")
+            self._settle(lease, dispatch.status != "outcome_unknown", anchor=anchor)
         if dispatch is not None and dispatch.status == "rejected":
             result = VerificationResult(status="rejected", object_id=intent.binding.object_id, action_id=intent.action_id,
                 fingerprint=intent.argument_fingerprint, postcondition=intent.postcondition, reason="provider_rejected")
@@ -565,7 +616,8 @@ class ActionGateway:
         target = ReadTarget(kind="original_effect", operation=intent.operation, generation=intent.binding.generation,
             action_id=intent.action_id, provider_key=intent.provider_key, fingerprint=intent.argument_fingerprint)
         try:
-            read = self._read(intent.binding, target, port, method, purpose="reconcile_original", action_id=intent.action_id)
+            read = self._read(intent.binding, target, port, method, purpose="reconcile_original", action_id=intent.action_id,
+                              deadline=intent.deadline)
             if read.stage == "scope_rejected":
                 return self._denied(), None
             if provider_request_id is not None and read.provider_request_id is not None and provider_request_id != read.provider_request_id:

@@ -1,17 +1,22 @@
 """Completed historical results require separately scoped current disclosure."""
 from datetime import timedelta
+from contextlib import nullcontext
+from threading import get_ident
 import math
 
 from .contracts import (AuthContext, AuthorityReadback, CanonicalRequest, CaseResult,
                         EnvironmentProfile, ReadRequest, ReadTarget)
 from .identity import request_fingerprint
 from .journal import JournalFailure
+from .execution_consumer import ExecutionTiming
 
 
 class ReplayService:
     def __init__(self, profile, bundle, store, clock):
         self.profile = EnvironmentProfile.model_validate(profile.model_dump())
         self.bundle, self.store, self.clock = bundle, store, clock
+        self._owner_thread = get_ident()
+        self._entry_active = False
 
     @staticmethod
     def _denied(request):
@@ -40,7 +45,7 @@ class ReplayService:
                 raise JournalFailure("Historical supersession differs from stored input")
         return tuple(bindings)
 
-    def _pace(self, deadline):
+    def _pace(self, deadline, timing):
         capability = self.profile.capabilities.get("read_authority")
         if (capability is None or capability.timeout_seconds is None
                 or any(contract.status != "supported" or not contract.basis or not contract.evidence_ref
@@ -52,32 +57,42 @@ class ReplayService:
                   if c.shared_limits.account_id == capability.shared_limits.account_id]
         if not limits or any(rate is None or not math.isfinite(rate) or rate <= 0 for rate in limits):
             raise ValueError("Finite account pacing unavailable")
-        now = self.clock.now()
+        now, cutoff = timing.window(deadline)
         delay = 1.0 / min(limits) + 0.000001
-        if now + timedelta(seconds=delay) >= deadline:
+        if now + timedelta(seconds=delay) >= cutoff:
             raise ValueError("Disclosure deadline exhausted")
         self.clock.wait(delay)
-        if self.clock.now() < now or self.clock.now() >= deadline:
+        after, cutoff = timing.window(deadline)
+        if after < now or after >= cutoff:
             raise ValueError("Invalid disclosure pacing clock")
 
-    def _current_disclosure_allowed(self, binding, auth):
+    def _current_disclosure_allowed(self, binding, auth, timing):
         if not isinstance(auth, AuthContext):
             return False
         auth = AuthContext.model_validate(auth.model_dump())
         current = self.store.checkpoint(binding.case_id)
-        self._pace(current.deadline)
+        self._pace(current.deadline, timing)
+        anchor = timing.monotonic_anchor()
         lease = self.store.begin_disclosure_read(binding, self.clock.now())
         capability = self.profile.capabilities["read_authority"]
+        now, cutoff = timing.window(min(current.deadline, lease.deadline,
+            lease.started_at + timedelta(seconds=capability.timeout_seconds)))
+        if timing.execution is not None and now >= cutoff:
+            return False
         read = ReadRequest(case_id=binding.case_id, object_id=binding.object_id,
             caller_id=auth.caller_id, proof_reference=auth.proof_reference, purpose="disclosure",
-            deadline=min(current.deadline, lease.deadline,
-                lease.started_at + timedelta(seconds=capability.timeout_seconds)),
+            deadline=cutoff,
             target=ReadTarget(kind="authority_facts", authority="case", facts=["authorization", "binding"]))
         # The provider, not the storage index or a caller flag, verifies proof and scope.
+        if timing.execution is not None:
+            now, cutoff = timing.window(read.deadline)
+            if now >= cutoff:
+                return False
+            read = read.model_copy(update={"deadline": cutoff})
         raw = self.bundle.case.read_case(read)
         reply = AuthorityReadback.model_validate(raw.model_dump())
         now = self.clock.now()
-        elapsed = (now - lease.started_at).total_seconds()
+        elapsed = timing.elapsed_since(anchor) if anchor is not None else (now - lease.started_at).total_seconds()
         if not math.isfinite(elapsed) or elapsed < 0:
             return False
         if elapsed > lease.reserved_seconds:
@@ -111,10 +126,33 @@ class ReplayService:
                        for field in ("case_id", "object_id", "principal_id"))):
             return False
         # Only complete, fresh scoped authority semantics establish known completion.
+        if anchor is not None:
+            now, cutoff = timing.window(read.deadline)
+            elapsed = timing.elapsed_since(anchor)
+            if elapsed > lease.reserved_seconds:
+                self.store.finish_entry(lease.entry_id, elapsed)
+                return False
+            if now >= cutoff:
+                return False
         self.store.finish_entry(lease.entry_id, elapsed)
         return authorization == "verified"
 
-    def lookup(self, request, auth):
+    def lookup(self, request, auth, *, execution=None):
+        if not isinstance(request, CanonicalRequest):
+            raise ValueError("Canonical request required")
+        if get_ident() != self._owner_thread or self._entry_active:
+            return self._denied(request)
+        try:
+            timing = ExecutionTiming(self.clock, execution)
+            self._entry_active = True
+            with self.store.execution_scope(execution, self.clock) if execution is not None else nullcontext():
+                return self._lookup_in_scope(request, auth, timing)
+        except Exception:
+            return self._denied(request)
+        finally:
+            self._entry_active = False
+
+    def _lookup_in_scope(self, request, auth, timing):
         """None selects later fresh admission/recovery, never permission or new identity.
 
         A changed consent/revision on the same request and business intent is
@@ -144,7 +182,7 @@ class ReplayService:
             if saved is None:
                 current = self.store.checkpoint(binding.case_id)
                 return None if current.binding == binding and original == request else self._denied(request)
-            if not self._current_disclosure_allowed(binding, auth):
+            if not self._current_disclosure_allowed(binding, auth, timing):
                 return self._denied(request)
             # Revalidate a detached projection; saved history and lineage remain immutable.
             return CaseResult.model_validate({**saved.model_dump(), "historical": True})

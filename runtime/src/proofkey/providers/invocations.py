@@ -1,6 +1,7 @@
 """Durable pre-entry debit and exact receipt joining. No live enablement or free retry."""
 import hashlib
 from collections.abc import Mapping
+from contextlib import nullcontext
 import math
 from threading import Lock, get_ident
 import time
@@ -9,6 +10,7 @@ from uuid import uuid4
 from proofkey.contracts import CampaignPermit, InvocationRequest, ProcessingReceipt, ProcessorIdentity
 from proofkey.identity import fingerprint
 from proofkey.journal import JournalFailure
+from proofkey.execution_consumer import ExecutionTiming
 
 
 def output_digest(output):
@@ -27,6 +29,8 @@ class InvocationService:
         self._lock = Lock()
         self._owner = None
         self._started = None
+        self._creator_thread = get_ident()
+        self._timing = None
 
     @property
     def current_request(self):
@@ -39,11 +43,14 @@ class InvocationService:
         from proofkey.providers.protocols import ProcessingContext
         request = self.current_request
         lease = self.store.entry("invocation:" + request.invocation_id)
-        elapsed = time.monotonic() - self._started
+        elapsed = (self._timing.elapsed_since(self._started) if self._timing.execution is not None
+                   else time.monotonic() - self._started)
         if not math.isfinite(elapsed) or elapsed < 0:
             raise JournalFailure("Invalid or reversed host elapsed measurement")
-        remaining = min(lease.reserved_seconds - elapsed,
-                        (lease.deadline - self.clock.now()).total_seconds())
+        host_remaining = self._timing.remaining_seconds(lease.deadline)
+        if self._timing.execution is not None:
+            elapsed = self._timing.elapsed_since(self._started)
+        remaining = min(lease.reserved_seconds - elapsed, host_remaining)
         if remaining <= 0:
             raise JournalFailure("Immutable provider lease has expired")
         return ProcessingContext(request.identity, request.invocation_id, catalog, auth, remaining,
@@ -104,25 +111,45 @@ class InvocationService:
             usage={}, processed_at=self.clock.now(), reason="Invocation interrupted or result invalid; reserved debit retained")
         self.store.record_processing(attempt.invocation_id, receipt)
 
-    def call(self, role, input_hashes, usage_ceiling, invoke):
+    def call(self, role, input_hashes, usage_ceiling, invoke, *, execution=None):
+        if get_ident() != self._creator_thread:
+            raise JournalFailure("Invocation creator thread required")
         if not self._lock.acquire(blocking=False):
             raise JournalFailure("Service already owns an active invocation")
+        try:
+            timing = ExecutionTiming(self.clock, execution)
+            with self.store.execution_scope(execution, self.clock) if execution is not None else nullcontext():
+                return self._call_in_scope(role, input_hashes, usage_ceiling, invoke, timing)
+        finally:
+            self._lock.release()
+
+    def _call_in_scope(self, role, input_hashes, usage_ceiling, invoke, timing):
         attempt = None
         try:
             request = self.make_invocation_request(role, input_hashes, usage_ceiling)
+            anchor = timing.monotonic_anchor()
             attempt = self.store.reserve_invocation(request, self.clock.now())
             self._request = request
             self._owner = get_ident()
             lease = self.store.entry("invocation:" + attempt.invocation_id)
-            started = time.monotonic()
+            started = anchor if anchor is not None else time.monotonic()
             self._started = started
+            self._timing = timing
+            if anchor is not None:
+                now, cutoff = timing.window(lease.deadline)
+                if now >= cutoff or timing.elapsed_since(anchor) >= lease.reserved_seconds:
+                    raise JournalFailure("Provider entry exceeded immutable lease")
             receipt = self.validate_receipt_identity_and_inputs(attempt, invoke())
-            monotonic_elapsed = time.monotonic() - started
+            monotonic_elapsed = timing.elapsed_since(started) if anchor is not None else time.monotonic() - started
             clock_elapsed = (self.clock.now() - attempt.reserved_at).total_seconds()
-            if any(not math.isfinite(value) or value < 0 for value in (monotonic_elapsed, clock_elapsed)):
+            if any(not math.isfinite(value) or value < 0 for value in
+                   ((monotonic_elapsed,) if anchor is not None else (monotonic_elapsed, clock_elapsed))):
                 raise JournalFailure("Invalid or reversed host elapsed measurement")
-            elapsed = max(monotonic_elapsed, clock_elapsed)
-            if elapsed > lease.reserved_seconds or self.clock.now() >= lease.deadline:
+            elapsed = monotonic_elapsed if anchor is not None else max(monotonic_elapsed, clock_elapsed)
+            now, cutoff = timing.window(lease.deadline)
+            if anchor is not None:
+                elapsed = timing.elapsed_since(started)
+            if elapsed > lease.reserved_seconds or now >= cutoff:
                 self.store.finish_entry(lease.entry_id, max(elapsed, lease.reserved_seconds + 0.001))
                 raise JournalFailure("Provider entry exceeded immutable lease")
             self.store.record_processing(attempt.invocation_id, receipt)
@@ -142,4 +169,4 @@ class InvocationService:
             self._request = None
             self._owner = None
             self._started = None
-            self._lock.release()
+            self._timing = None
