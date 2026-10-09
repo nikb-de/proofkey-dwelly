@@ -87,7 +87,7 @@ access_status = command.result.status if command.result is not None else "unknow
 effects = tuple(project_effect(key, value) for key, value in sorted(result.effects.items()))
 ```
 
-Use output contract validation for renderer inputs too; forged traces cannot bypass the content-free invariant. Fail before emitting any oversized rendering. The parser may re-encode a prevalidated JSON tree for the existing JSON tuple bridge, but must not discard extra/invalid fields. Never create RuntimeFactory, read inventories, import providers or modify journals.
+Use output contract validation for renderer inputs too; forged traces cannot bypass the content-free invariant. Fail before emitting any oversized rendering. The parser may re-encode a prevalidated JSON tree for the existing JSON tuple bridge, but must not discard extra/invalid fields. Never create RuntimeFactory, read inventories, directly import provider clients, invoke providers or modify journals. The required existing `CliReceiptV1` import transitively loads inert `providers`, `providers.invocations` and `providers.protocols` definitions; retaining this existing contract dependency is permitted, not evidence of provider execution. Splitting the established receipt contract into a new shared module is outside this leaf.
 - [ ] **Step 4: Verify GREEN and compatibility.** Run new tests plus `test_batch_contracts`, `test_cli`, `test_cli_parity`, `test_host_contracts`; retain full commands/output/exit. Read own diff for omissions and mock-only assertions.
 - [ ] **Step 5: Commit scoped files and report.** A checkpoint commit, not final completion. Report RED/GREEN, exact fields/limits, tests, self-review and concerns to the task report; independent task reviewer must approve before Task 2.
 
