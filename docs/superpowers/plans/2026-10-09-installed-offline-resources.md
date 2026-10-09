@@ -74,10 +74,12 @@ digest = hashlib.sha256((root / 'runtime/src/proofkey/profiles.py').read_bytes()
 - [ ] **Step 1 — exact artifacts.** Validate all 19 runtime wheels against lock hashes and the separately pinned backend against official artifact metadata. Record actual target tags. Create task-owned build and installed venvs with system site disabled. Install build backend with `--no-index --no-deps`; the pinned setuptools backend is invoked directly, so no extra build frontend dependency is needed.
 
 ```python
-from setuptools.build_meta import build_wheel, build_sdist
-build_wheel(str(artifact_dir))
-build_sdist(str(artifact_dir))
+for hook in ("build_wheel", "build_sdist"):
+    code = f"from setuptools.build_meta import {hook}; import sys; {hook}(sys.argv[1])"
+    subprocess.run([build_python, "-B", "-c", code, str(artifact_dir)], cwd=stage, check=True)
 ```
+
+Each backend hook runs in a separate process: the installed backend mutates process arguments. The first diagnostic attempt that combined hooks is retained as a harness failure, not a product result.
 
 - [ ] **Step 2 — distributions.** Build from a new copied/staged runtime tree to keep source free of egg-info/build debris. Read wheel ZIP and sdist tar membership; check every expected source/data/license byte, no duplicate paths/traversal/symlinks or unexpected private files. Rebuild a wheel from the unpacked sdist using the same pinned backend; compare semantic member inventory and resource/source content rather than ZIP timestamps. Record all archive hashes.
 - [ ] **Step 3 — clean installation.** Install the locked closure using `--no-index --find-links <wheelhouse> --require-hashes -r <lock>` then the built wheel with `--no-index --no-deps`. Run `pip check`. Use an unrelated private CWD with `PYTHONPATH` absent and user site disabled. Record `sys.executable`, package metadata versions, `proofkey.__file__`, relevant module origins, `sys.path` and site-packages before/after hashes. All ProofKey imports must be inside the installed environment, not checkout or copied source.

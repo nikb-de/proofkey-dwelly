@@ -2,20 +2,31 @@
 
 ProofKey is an offline adaptive logistics contract harness, built for easy integration, fast reviewed adaptation and reliable resolution. Six provider-neutral surfaces share policy gates, an intent journal and postcondition verification. Model proposals do not grant permission to act. Refund and coverage dispositions are record-only; no money is executed.
 
-The default executable exposes two registered **synthetic replay** examples. This guide documents current interfaces; its commands were not executed as part of this documentation change. It does not certify a complete runtime, source release, live provider connection or event-ready system.
+The default executable exposes two registered **synthetic replay** examples. Installed console/module/library/API checks now cover these two cases on the target described below. Other commands remain bounded by their separate support contracts; this is not a complete runtime, source-release, live-provider or event-readiness certification.
 
 ## Start here
 
 - **Run the existing demo:** use the two source-checkout examples below with already installed dependencies and separate fresh state directories.
+- **Use an installed package:** see [Installed target](#installed-target). Package-owned data no longer depends on the source checkout.
 - **Connect a system:** first read the [public / registered / core support matrix](../docs/verification/judge-remediation-2026-10-09/support-matrix.md). Six interfaces exist; no native logistics connection is established. The default public path accepts two fixed cases, not an arbitrary profile.
 - **Understand a result:** read [Read results](#read-results). Acknowledged, verified, pending, physically received and paid are different outcomes. Do not retry an unknown effect with a new key.
 - **Work on remaining capabilities:** use the [complete remediation register](../docs/verification/judge-remediation-2026-10-09/README.md), not the historical panel score, to find the next dependency and its exit evidence.
 
-The latest recorded full-suite baseline is **1,685 tests, all passing**, on runtime commit `ecf36ac`, with 236 source/configuration files unchanged before and after execution. [Factory-registration verification](../docs/verification/2026-10-09-factory-registration.md) records the exact run, independent reviews and synthetic limits; the [earlier baseline corrections](../docs/verification/2026-10-09-baseline-corrections.md) remain historical evidence. This documentation-only edit does not change the tested code. The fixed-case CLI, registered admission bridge, core engine and live integrations have different support boundaries.
+The pre-installation-fix full-suite baseline is **1,693 tests, all passing**, on runtime commit `40138e1`, with 246 runtime files unchanged during execution. [Installation verification](../docs/verification/2026-10-09-installed-resources.md) records the current candidate's separate build, installation and regression evidence. [Earlier verification](../docs/verification/2026-10-09-registry-commitments.md) remains historical. The fixed-case CLI, registered admission bridge, core engine and live integrations have different support boundaries.
+
+## Installed target
+
+The observed target is **CPython 3.12.14 / macOS arm64**, with all nineteen exact runtime/API wheels from `requirements-api.lock` and the separately pinned setuptools 84.0.0 build backend. Ten built-in profiles, two fixed host fixtures and `schema.sql` ship inside the package. Writable journals, inventories and outputs remain outside site-packages.
+
+Use a new virtual environment, an explicitly provisioned trusted wheelhouse, this lock and the reviewed `proofkey_runtime-0.1.0-py3-none-any.whl`. Install the lock with `pip install --no-index --find-links WHEELHOUSE --require-hashes -r requirements-api.lock`, then the project wheel with `pip install --no-index --no-deps WHEEL`. These uppercase arguments name caller-provisioned paths, not network sources. API use needs the entire recorded closure; selecting `api-test` alone does not install the API extra.
+
+From a fresh working directory, clear `PYTHONPATH` and use the environment's `proofkey` executable or `python -m proofkey.cli` with the exact requests below. The installation checks exercised both cases through console, module, trusted library composition and in-process API, with independent persisted-effect/export readback and owner closure. They also checked that installed site-packages remained unchanged. Repository-relative links in this guide describe the source tree; they are not an installed SDK documentation bundle.
+
+No fresh Linux/Windows run, zipped/frozen execution, unfamiliar-engineer study, complete release verifier, native provider connection or distribution-rights clearance is implied. Artifact locations and hashes are in the verification report; no automatic download or public server is needed to run the offline cases.
 
 ## Source-checkout quickstart
 
-Python **>=3.11** is declared in [pyproject.toml](pyproject.toml). Earlier scoped observations used CPython **3.12.14 on macOS arm64**; other interpreters/platforms and a fresh console-script installation remain unqualified. These examples require the runtime dependencies to be already available to `python3`: pydantic 2.13.5, pillow 12.3.0, pypdf 6.10.0 and their dependencies. This is not an installation recipe or a clean-environment reproduction.
+Python **>=3.11** is declared in [pyproject.toml](pyproject.toml); only the installed target above has current installation evidence. Other interpreters/platforms remain unqualified. These source examples require the runtime dependencies to be already available to `python3`: pydantic 2.13.5, pillow 12.3.0, pypdf 6.10.0 and their dependencies. They select source explicitly, unlike the clean installed checks.
 
 Start in this checkout's `runtime/` directory. The first line derives your absolute source path before changing directory. `PYTHONPATH` selects that source tree; `PYTHONDONTWRITEBYTECODE` avoids creating bytecode. These are process settings, not application credentials.
 
@@ -42,7 +53,7 @@ JSON
 
 Keep both directories: `$PROOFKEY_DEMO_DIR` and `$PROOFKEY_GOODS_DIR`. Each launch creates `.proofkey/{resources,inventories,runs}` under its working directory. Release-specific resources retain world/journal state across invocations; each command has new inventory/output children. Preserve previous results rather than resetting resources to manufacture a fresh case. Launch ancestry must pass no-follow checks, and private children must have safe ownership/permissions.
 
-The 8 October 2026 dates, identities and fingerprints are fixed replay data, not current consent. Changing the JSON does not register a new case. These examples have no narrative or media. Existing [CLI parity source](tests/test_cli_parity.py) checks a reschedule in the first case and separate refusal-registration/return-creation effects in the second; this guide supplies no new passing receipt. Registration uses [flat-v1.3](profiles/flat-v1.3.json) with [window](fixtures/development/packet-world-v1.json) and [goods](fixtures/development/host-goods-world-v1.json) fixtures. Other profile files are not automatically CLI registrations.
+The 8 October 2026 dates, identities and fingerprints are fixed replay data, not current consent. Changing the JSON does not register a new case. These examples have no narrative or media. [CLI parity source](tests/test_cli_parity.py) and the separate installed checks verify a reschedule in the first case and refusal-registration/return-creation effects in the second. Registration uses [flat-v1.3](profiles/flat-v1.3.json) with [window](fixtures/development/packet-world-v1.json) and [goods](fixtures/development/host-goods-world-v1.json) fixtures; byte-identical installed copies live under `proofkey/resources/`. Other profile files are not automatically CLI registrations.
 
 ## Supported commands
 
