@@ -249,6 +249,63 @@ class Observation:
 
 
 @dataclass(frozen=True)
+class ExecutionPosition:
+    """Private returned evidence, separate from strictly scoreable output."""
+    ordinal: int
+    repetition: int
+    observation: Observation
+    outcome: Literal["valid_output", "invalid_output", "no_output", "callback_error"]
+    returned_bytes: bytes | None
+    returned_hash: str | None
+
+    def __post_init__(self):
+        if (type(self.ordinal) is not int or not 0 <= self.ordinal < MAX_POSITIONS
+                or type(self.repetition) is not int or not 0 <= self.repetition < 16
+                or not isinstance(self.observation, Observation)):
+            raise ValueError("Bounded typed execution position required")
+        if self.returned_hash != (None if self.returned_bytes is None else digest_bytes(self.returned_bytes)):
+            raise ValueError("Returned byte identity mismatch")
+        o = self.observation
+        if self.outcome == "valid_output":
+            valid = self.returned_bytes is not None and o.output_bytes == self.returned_bytes and o.error is None
+        elif self.outcome == "invalid_output":
+            valid = o.output_bytes is None and o.error == b"Invalid observed assessment output"
+            if self.returned_bytes is not None:
+                try:
+                    ObservedOutput.model_validate(strict_loads(self.returned_bytes))
+                except (TypeError, ValueError):
+                    pass
+                else:
+                    valid = False
+        elif self.outcome == "no_output":
+            valid = self.returned_bytes is None and o.output_bytes is None and o.error is None
+        elif self.outcome == "callback_error":
+            valid = self.returned_bytes is None and o.output_bytes is None and o.error is not None
+        else:
+            valid = False
+        if not valid:
+            raise ValueError("Execution outcome/evidence mismatch")
+
+    @classmethod
+    def capture_returned(cls, row, candidate_hash, *, output, ordinal, repetition):
+        raw = None
+        try:
+            if output is not None:
+                raw = output if type(output) is bytes else canonical_bytes(output)
+                digest_bytes(raw)  # Bound before retaining or validating shape.
+            observation = Observation.capture(row, candidate_hash, output=raw)
+            outcome = "no_output" if output is None else "valid_output"
+        except (TypeError, ValueError):
+            if raw is not None and (type(raw) is not bytes or len(raw) > MAX_BYTES):
+                raw = None  # Oversize/nonserializable returns cannot enter bounded storage.
+            observation = Observation.capture(row, candidate_hash, output=None,
+                error=b"Invalid observed assessment output")
+            outcome = "invalid_output"
+        return cls(ordinal, repetition, observation, outcome, raw,
+                   None if raw is None else digest_bytes(raw))
+
+
+@dataclass(frozen=True)
 class AssessmentPosition:
     ordinal: int
     assessment: CaseAssessment | None = None

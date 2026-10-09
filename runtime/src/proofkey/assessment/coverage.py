@@ -9,7 +9,7 @@ import math
 import random
 from proofkey.contracts import FrozenDict, QualificationReceipt
 from proofkey.identity import fingerprint
-from .contracts import (AssessmentPosition, CaseRow, GraderDescriptor, MAX_POSITIONS, Observation,
+from .contracts import (AssessmentPosition, CaseRow, ExecutionPosition, GraderDescriptor, MAX_POSITIONS, Observation,
                         Reference, canonical_bytes, digest_bytes, require_hash, strict_loads)
 from .labels import score_case
 from .ledger import LedgerInspection
@@ -95,6 +95,8 @@ class JudgmentBatch:
     judgments: tuple[Judgment, ...]
     seed: int
     captured_at: datetime
+    case_ids: tuple[str, ...] = ()
+    repetitions: int | None = None
 
     def __post_init__(self):
         GraderDescriptor.model_validate(strict_loads(self.grader_bytes))
@@ -102,6 +104,12 @@ class JudgmentBatch:
             raise ValueError("Immutable bounded captured judgments required")
         if type(self.seed) is not int or not isinstance(self.captured_at, datetime) or self.captured_at.utcoffset() is None:
             raise ValueError("Presentation seed and aware capture time required")
+        if (type(self.case_ids) is not tuple or len(self.case_ids) > MAX_POSITIONS
+                or any(type(case) is not str or not case for case in self.case_ids)
+                or len(set(self.case_ids)) != len(self.case_ids)
+                or self.repetitions is not None and (type(self.repetitions) is not int
+                    or not 2 <= self.repetitions <= 16 or len(self.case_ids) * self.repetitions > MAX_POSITIONS)):
+            raise ValueError("Bounded declared grading inventory required")
 
     @property
     def grader_hash(self):
@@ -113,12 +121,17 @@ class ExecutionBatch:
     candidate_hash: str
     executions: tuple[Observation, ...]
     captured_at: datetime
+    positions: tuple[ExecutionPosition, ...] = ()
 
     def __post_init__(self):
         require_hash(self.candidate_hash)
         if (type(self.executions) is not tuple or not self.executions or len(self.executions) > MAX_POSITIONS
                 or any(not isinstance(o, Observation) or o.candidate_hash != self.candidate_hash for o in self.executions)):
             raise ValueError("Bounded captured unchanged executions required")
+        if (type(self.positions) is not tuple or self.positions and
+                (len(self.positions) != len(self.executions) or any(not isinstance(p, ExecutionPosition)
+                    or p.ordinal != i or p.observation != self.executions[i] for i, p in enumerate(self.positions)))):
+            raise ValueError("Execution position inventory mismatch")
 
 
 @dataclass(frozen=True)
@@ -128,6 +141,7 @@ class ControlEvidence:
     batch: JudgmentBatch | ExecutionBatch | None
     references: tuple[bytes, ...] = ()
     execution_batch: ExecutionBatch | None = None
+    grading_repetitions: int | None = None
 
     def __post_init__(self):
         if self.kind not in {"known_good", "known_bad", "disabled", "improved", "independent_execution"} or self.batch is not None and not isinstance(self.batch, (JudgmentBatch, ExecutionBatch)):
@@ -142,6 +156,82 @@ class ControlEvidence:
             Reference.model_validate(strict_loads(raw))
         if self.execution_batch is not None and not isinstance(self.execution_batch, ExecutionBatch):
             raise TypeError("Captured control execution batch required")
+        if self.grading_repetitions is not None and (type(self.grading_repetitions) is not int or not 2 <= self.grading_repetitions <= 16):
+            raise ValueError("Bounded declared control repetitions required")
+
+
+@dataclass(frozen=True)
+class JudgmentEvidence:
+    """Every captured batch, with missing positions kept explicit, not averaged away."""
+    kind: str
+    batch: JudgmentBatch | None
+    expected_cases: tuple[str, ...]
+    expected_repetitions: int | None
+    limits: tuple[str, ...]
+
+    def __post_init__(self):
+        if (self.kind not in {"primary", "known_good", "known_bad", "disabled", "improved", "independent_execution"}
+                or self.batch is not None and not isinstance(self.batch, JudgmentBatch)
+                or type(self.expected_cases) is not tuple or not self.expected_cases
+                or len(self.expected_cases) > MAX_POSITIONS or len(set(self.expected_cases)) != len(self.expected_cases)
+                or any(type(case) is not str or not case for case in self.expected_cases)
+                or type(self.limits) is not tuple or any(type(limit) is not str for limit in self.limits)
+                or self.expected_repetitions is not None and (type(self.expected_repetitions) is not int
+                    or not 2 <= self.expected_repetitions <= 16
+                    or len(self.expected_cases) * self.expected_repetitions > MAX_POSITIONS)):
+            raise ValueError("Closed bounded judgment evidence required")
+
+    @property
+    def denominator(self):
+        return 0 if self.batch is None else len(self.batch.judgments)
+
+    @property
+    def expected_positions(self):
+        return None if self.expected_repetitions is None else len(self.expected_cases) * self.expected_repetitions
+
+    @property
+    def missing_scores(self):
+        return 0 if self.batch is None else sum(j.score is None for j in self.batch.judgments)
+
+    @property
+    def errors(self):
+        return 0 if self.batch is None else sum(j.verdict == "error" or j.error is not None for j in self.batch.judgments)
+
+    @property
+    def abstentions(self):
+        return 0 if self.batch is None else sum(j.verdict == "abstain" for j in self.batch.judgments)
+
+
+def _judgment_evidence(kind, batch, expected_cases, declared_repetitions=None):
+    limits = []
+    if batch is None:
+        return JudgmentEvidence(kind, None, expected_cases, declared_repetitions, ("grading_batch_missing",))
+    repetitions = batch.repetitions
+    if not batch.case_ids or repetitions is None:
+        limits.append("declared_grading_inventory_missing")
+    if declared_repetitions is not None and repetitions != declared_repetitions:
+        limits.append("declared_grading_repetition_mismatch")
+    if batch.case_ids and set(batch.case_ids) != set(expected_cases):
+        limits.append("grading_case_inventory_mismatch")
+    by_case = {}
+    for j in batch.judgments:
+        if j.output_hash != digest_bytes(j.observation.output_bytes):
+            raise ValueError("Judgment exact output join mismatch")
+        by_case.setdefault(j.observation.case_id, []).append(j)
+    if set(by_case) != set(expected_cases):
+        limits.append("grading_case_inventory_mismatch")
+    for case in expected_cases:
+        items = by_case.get(case, [])
+        if (repetitions is None or len(items) != repetitions
+                or {j.repetition for j in items} != set(range(repetitions))):
+            limits.append("grading_repetition_inventory_incomplete")
+        if len({j.order for j in items}) < 2:
+            limits.append("grading_presentation_order_incomplete")
+        if len({j.output_hash for j in items}) != 1:
+            limits.append("grading_output_changed")
+    if any(j.verdict in {"error", "abstain"} or j.error is not None or j.score is None for j in batch.judgments):
+        limits.append("grading_error_abstention_or_missing_score")
+    return JudgmentEvidence(kind, batch, expected_cases, repetitions, tuple(dict.fromkeys(limits)))
 
 
 @dataclass(frozen=True)
@@ -156,6 +246,7 @@ class QualificationSummary:
     execution_disagreements: int | None
     paired_group_effects: tuple[tuple[str, float], ...]
     uncertainty: str
+    judgment_evidence: tuple[JudgmentEvidence, ...]
 
 
 def capture_judgments(observations, *, grader_descriptor, runner, repeats, seed):
@@ -197,7 +288,8 @@ def capture_judgments(observations, *, grader_descriptor, runner, repeats, seed)
                 verdict, score = "error", None
             judgments.append(Judgment(observation, observation.output_hash, presentation, repetition, verdict,
                                       None if score is None else float(score), response, error))
-    return JudgmentBatch(grader_bytes, tuple(judgments), seed, datetime.now(timezone.utc))
+    return JudgmentBatch(grader_bytes, tuple(judgments), seed, datetime.now(timezone.utc),
+                         tuple(o.case_id for o in observations), repeats)
 
 
 def capture_executions(rows, *, candidate_hash, execute, repeats):
@@ -208,15 +300,21 @@ def capture_executions(rows, *, candidate_hash, execute, repeats):
         raise ValueError("Bounded independent execution rows required")
     if not callable(execute) or len({r.case_id for r in rows}) != len(rows):
         raise ValueError("Declared host execution and unique cases required")
-    observations = []
+    observations, positions = [], []
     for row in rows:
         for repetition in range(repeats):
             try:
-                observations.append(Observation.capture(row, candidate_hash, output=execute(row)))
+                returned = execute(row)
             except Exception as exc:
                 error = (type(exc).__name__ + ":" + str(exc)).encode("utf-8")[:1_048_576]
-                observations.append(Observation.capture(row, candidate_hash, output=None, error=error))
-    return ExecutionBatch(candidate_hash, tuple(observations), datetime.now(timezone.utc))
+                position = ExecutionPosition(len(positions), repetition,
+                    Observation.capture(row, candidate_hash, output=None, error=error), "callback_error", None, None)
+            else:
+                position = ExecutionPosition.capture_returned(row, candidate_hash, output=returned,
+                    ordinal=len(positions), repetition=repetition)
+            positions.append(position)
+            observations.append(position.observation)
+    return ExecutionBatch(candidate_hash, tuple(observations), datetime.now(timezone.utc), tuple(positions))
 
 
 def capture_control(kind, rows, *, candidate_hash, execute, grader_descriptor, runner, repeats, seed):
@@ -229,9 +327,9 @@ def capture_control(kind, rows, *, candidate_hash, execute, grader_descriptor, r
     observations = tuple(executed.executions[2 * i] for i in range(len(rows)))
     references = tuple(canonical_bytes(row.reference.model_dump(mode="json")) for row in rows)
     if any(o.output_bytes is None or o.error is not None for o in observations):
-        return ControlEvidence(kind, None, references, executed)
+        return ControlEvidence(kind, None, references, executed, repeats)
     return ControlEvidence(kind, capture_judgments(observations, grader_descriptor=grader_descriptor,
-        runner=runner, repeats=repeats, seed=seed), references, executed)
+        runner=runner, repeats=repeats, seed=seed), references, executed, repeats)
 
 
 def qualify_grader_details(repeated_judgments, controls):
@@ -255,11 +353,22 @@ def qualify_grader_details(repeated_judgments, controls):
         raise ValueError("Repeatability requires unchanged candidate")
     groups = {o.independence_group for o in observations.values()}
     flips = sum(sum(a.verdict != b.verdict for a, b in zip(items, items[1:])) for items in per_output.values())
-    scores = [j.score for j in judgments if j.score is not None]
     spreads = [max(values) - min(values) for items in per_output.values()
                if (values := [j.score for j in items if j.score is not None])]
     spread = None if not spreads else max(spreads)
     limits = ["provisional_reference", "actual_grader_origin_unattested", "protected_custody_missing", "statistical_power_unestablished"]
+    expected_cases = batch.case_ids or tuple(observations)
+    evidence = [_judgment_evidence("primary", batch, expected_cases)]
+    for control in controls:
+        if isinstance(control.batch, JudgmentBatch) or control.kind != "independent_execution":
+            control_batch = control.batch if isinstance(control.batch, JudgmentBatch) else None
+            if control_batch is not None and control_batch.grader_hash != batch.grader_hash:
+                raise ValueError("Control grader identity mismatch")
+            evidence.append(_judgment_evidence(control.kind, control_batch, expected_cases, control.grading_repetitions))
+    if evidence[0].limits:
+        limits.append("primary_grading_incomplete")
+    if any(e.limits for e in evidence[1:]):
+        limits.append("control_grading_incomplete")
     if len(groups) < 2:
         limits.append("independent_groups_inadequate")
     if any(len(items) < 2 or len({j.order for j in items}) < 2 for items in per_output.values()):
@@ -346,7 +455,7 @@ def qualify_grader_details(repeated_judgments, controls):
             if set(counts) != set(observations) or any(n < 2 for n in counts.values()):
                 limits.append("independent_execution_incomplete")
             execution_disagreements = sum(len(hashes) - 1 for hashes in per_case.values())
-    missing = any(x in limits for x in ("independent_groups_inadequate", "presentation_repeatability_incomplete", "sensitivity_controls_missing", "sensitivity_unestablished", "independent_execution_missing", "grader_errors_or_abstentions", "control_reference_evidence_missing", "control_case_inventory_mismatch", "control_change_unestablished", "independent_execution_origin_unattested", "independent_execution_incomplete", "control_execution_incomplete"))
+    missing = any(x in limits for x in ("primary_grading_incomplete", "control_grading_incomplete", "independent_groups_inadequate", "presentation_repeatability_incomplete", "sensitivity_controls_missing", "sensitivity_unestablished", "independent_execution_missing", "grader_errors_or_abstentions", "control_reference_evidence_missing", "control_case_inventory_mismatch", "control_change_unestablished", "independent_execution_origin_unattested", "independent_execution_incomplete", "control_execution_incomplete"))
     limits = list(dict.fromkeys(limits))
     sources = {name: fingerprint({"domain": "qualification-" + name,
         "identities": [getattr(o, name) for o in observations.values()]})
@@ -354,13 +463,14 @@ def qualify_grader_details(repeated_judgments, controls):
     receipt = QualificationReceipt(**sources, total_cases=len(observations), included_cases=len(observations),
         ambiguous_cases=sum(any(j.verdict == "abstain" for j in judgments if j.observation.case_id == case) for case in observations),
         excluded_cases=0, candidate_hash=next(iter(candidates)), assessment_hashes=[digest_bytes(canonical_bytes({
-            "case": j.observation.case_id, "output_hash": j.output_hash, "grader_hash": batch.grader_hash,
+            "kind": e.kind, "ordinal": ordinal, "case": j.observation.case_id, "output_hash": j.output_hash, "grader_hash": e.batch.grader_hash,
             "order": list(j.order), "repetition": j.repetition, "response": None if j.response_bytes is None else digest_bytes(j.response_bytes),
-            "error": None if j.error is None else digest_bytes(j.error)})) for j in judgments],
+            "error": None if j.error is None else digest_bytes(j.error)})) for e in evidence if e.batch is not None for ordinal, j in enumerate(e.batch.judgments)],
         status="incomplete" if missing else "rehearsal", qualification_limits=limits, as_of=batch.captured_at)
     return QualificationSummary(receipt, judgments, len(groups), flips, spread,
-        sum(j.verdict == "abstain" for j in judgments), sum(j.error is not None for j in judgments),
-        execution_disagreements, tuple(paired), "Independent-group descriptive differences only; no calibrated confidence or power claim")
+        sum(e.abstentions for e in evidence), sum(e.errors for e in evidence),
+        execution_disagreements, tuple(paired), "Independent-group descriptive differences only; available scores exclude missing/error/abstaining positions retained in judgment_evidence; no calibrated confidence or power claim",
+        tuple(evidence))
 
 
 def qualify_grader(repeated_judgments, controls):

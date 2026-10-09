@@ -71,6 +71,135 @@ class LedgerTests(unittest.TestCase):
 
 
 class CoverageTests(unittest.TestCase):
+    def _anchored_controls(self, bad_runner=None):
+        coverage = module(self, "coverage")
+        c = module(self, "contracts")
+        cases = tuple(c.CaseRow.model_validate(r) for r in (rows()[0], rows()[5]))
+        descriptor = {"route": "offline", "prompt": "v1"}
+        def execute(row):
+            return {"effects": {name: {"status": effect.status, "postcondition": dict(effect.postcondition), "evidence_refs": ["fixture"]} for name, effect in row.reference.required_behavior.items()}, "forbidden_effects": []}
+        def grade(output, order):
+            return {"verdict": "correct" if json.loads(output)["effects"] else "incorrect", "score": 1.0 if json.loads(output)["effects"] else 0.0}
+        controls = tuple(coverage.capture_control(kind, cases, candidate_hash=candidate * 64,
+            execute=execute if kind in {"known_good", "improved"} else lambda row: {"effects": {}, "forbidden_effects": []},
+            grader_descriptor=descriptor, runner=bad_runner if kind == "known_bad" and bad_runner else grade,
+            repeats=2, seed=1401) for kind, candidate in (("known_good", "1"), ("known_bad", "2"), ("disabled", "2"), ("improved", "1")))
+        return coverage, c, cases, controls + (coverage.ControlEvidence("independent_execution",
+            coverage.capture_executions(cases, candidate_hash="1" * 64, execute=execute, repeats=2)),)
+
+    def test_control_grading_failures_keep_all_positions_and_force_incomplete(self):
+        for failure in ("exception", "abstain", "missing_score"):
+            with self.subTest(failure=failure):
+                calls = iter(range(4))
+                def grade(output, order):
+                    if next(calls) == 1:
+                        if failure == "exception":
+                            raise RuntimeError("private-control-grader-error")
+                        return {"verdict": "abstain" if failure == "abstain" else "incorrect", "score": None}
+                    return {"verdict": "incorrect", "score": 0.0}
+                coverage, c, cases, controls = self._anchored_controls(grade)
+                result = coverage.qualify_grader_details(controls[0].batch, controls)
+                self.assertEqual(result.receipt.status, "incomplete")
+                self.assertIn("control_grading_incomplete", result.receipt.qualification_limits)
+                self.assertEqual(result.errors, 1 if failure == "exception" else 0)
+                self.assertEqual(result.abstentions, 1 if failure == "abstain" else 0)
+                self.assertEqual(sum(e.denominator for e in result.judgment_evidence), 20)
+                evidence = next(e for e in result.judgment_evidence if e.kind == "known_bad")
+                self.assertEqual(evidence.expected_positions, 4)
+                self.assertEqual(evidence.batch, controls[1].batch)
+                self.assertEqual(evidence.missing_scores, 1)
+                if failure == "exception":
+                    self.assertEqual(evidence.batch.judgments[1].error, b"RuntimeError:private-control-grader-error")
+                self.assertEqual(len(result.receipt.assessment_hashes), 20)
+                self.assertNotIn("private-control-grader-error", result.receipt.model_dump_json())
+
+    def test_control_order_and_repetition_inventory_cannot_use_remaining_scores(self):
+        from dataclasses import replace
+        for defect in ("single_order", "duplicate_repetition", "missing_position", "missing_case"):
+            with self.subTest(defect=defect):
+                coverage, c, cases, controls = self._anchored_controls()
+                bad = controls[1].batch
+                judgments = bad.judgments
+                if defect == "single_order":
+                    judgments = tuple(replace(j, order=judgments[0].order) for j in judgments)
+                elif defect == "duplicate_repetition":
+                    judgments = tuple(replace(j, repetition=0) for j in judgments)
+                elif defect == "missing_case":
+                    judgments = tuple(j for j in judgments if j.observation.case_id == cases[0].case_id)
+                else:
+                    judgments = judgments[:-1]
+                controls = controls[:1] + (replace(controls[1], batch=replace(bad, judgments=judgments)),) + controls[2:]
+                result = coverage.qualify_grader_details(controls[0].batch, controls)
+                self.assertEqual(result.receipt.status, "incomplete")
+                self.assertIn("control_grading_incomplete", result.receipt.qualification_limits)
+                evidence = next(e for e in result.judgment_evidence if e.kind == "known_bad")
+                self.assertEqual(evidence.expected_positions, 4)
+                self.assertEqual(evidence.denominator, len(judgments))
+                self.assertEqual(evidence.batch.judgments, judgments)
+
+    def test_execution_capture_retains_invalid_raw_bytes_and_distinct_positions(self):
+        coverage = module(self, "coverage")
+        c = module(self, "contracts")
+        labels = module(self, "labels")
+        row = c.CaseRow.model_validate(rows()[0])
+        malformed = b'{"effects":{},"forbidden_effects":[],"unexpected":"private-invalid-output"}'
+        sequence = iter([malformed, None, RuntimeError("private-callback-error"), b'{"broken":'])
+        def execute(case):
+            value = next(sequence)
+            if isinstance(value, Exception):
+                raise value
+            return value
+        batch = coverage.capture_executions((row,), candidate_hash="1" * 64, execute=execute, repeats=4)
+        self.assertEqual(batch.executions[0].error, b"Invalid observed assessment output")
+        self.assertEqual(tuple(p.outcome for p in batch.positions), ("invalid_output", "no_output", "callback_error", "invalid_output"))
+        self.assertEqual(tuple((p.ordinal, p.repetition) for p in batch.positions), ((0, 0), (1, 1), (2, 2), (3, 3)))
+        self.assertEqual(batch.positions[0].returned_bytes, malformed)
+        self.assertEqual(batch.positions[0].returned_hash, c.digest_bytes(malformed))
+        self.assertEqual(batch.positions[3].returned_bytes, b'{"broken":')
+        self.assertEqual(tuple(p.observation for p in batch.positions), batch.executions)
+        self.assertTrue(all(o.case_id == row.case_id and o.source_hash == row.source_hash for o in batch.executions))
+        self.assertIsNone(batch.executions[0].output_bytes)
+        self.assertEqual(batch.executions[0].error, b"Invalid observed assessment output")
+        self.assertEqual(batch.executions[2].error, b"RuntimeError:private-callback-error")
+        assessment = labels.score_case(batch.executions[0], row.reference)
+        self.assertTrue(all(v.verdict == "unassessed" for v in assessment.effect_verdicts.values()))
+        self.assertNotIn("private-invalid-output", assessment.model_dump_json())
+        control = coverage.capture_control("known_bad", (row,), candidate_hash="2" * 64, execute=lambda case: malformed,
+            grader_descriptor={"route": "offline"}, runner=lambda output, order: self.fail("Invalid output reached grader"), repeats=2, seed=1401)
+        self.assertIsNone(control.batch)
+        self.assertEqual(tuple(p.returned_bytes for p in control.execution_batch.positions), (malformed, malformed))
+        self.assertEqual(control.grading_repetitions, 2)
+        coverage, c, cases, controls = self._anchored_controls()
+        invalid = coverage.capture_control("known_bad", cases, candidate_hash="2" * 64, execute=lambda case: malformed,
+            grader_descriptor={"route": "offline", "prompt": "v1"}, runner=lambda output, order: self.fail("Invalid output reached grader"), repeats=2, seed=1401)
+        result = coverage.qualify_grader_details(controls[0].batch, controls[:1] + (invalid,) + controls[2:])
+        evidence = next(e for e in result.judgment_evidence if e.kind == "known_bad")
+        self.assertEqual(result.receipt.status, "incomplete")
+        self.assertEqual(evidence.expected_positions, 4)
+        self.assertEqual(evidence.denominator, 0)
+        self.assertIn("grading_batch_missing", evidence.limits)
+        self.assertEqual(len(invalid.execution_batch.positions), 4)
+
+    def test_execution_capture_keeps_exact_valid_bytes_and_bounds_invalid_storage(self):
+        coverage = module(self, "coverage")
+        c = module(self, "contracts")
+        row = c.CaseRow.model_validate(rows()[0])
+        valid = b'{ "forbidden_effects": [], "effects": {} }'
+        unsupported = {"effects": {}, "forbidden_effects": [], "extra": ["frozen-private-return"]}
+        values = iter([valid, unsupported, b"x" * c.MAX_BYTES, b"x" * (c.MAX_BYTES + 1)])
+        batch = coverage.capture_executions((row,), candidate_hash="1" * 64, execute=lambda case: next(values), repeats=4)
+        unsupported["extra"].append("caller-mutated")
+        self.assertEqual(batch.positions[0].outcome, "valid_output")
+        self.assertEqual(batch.executions[0].output_bytes, valid)
+        self.assertEqual(batch.positions[0].returned_bytes, valid)
+        self.assertEqual(json.loads(batch.positions[1].returned_bytes)["extra"], ["frozen-private-return"])
+        self.assertEqual(len(batch.positions[2].returned_bytes), c.MAX_BYTES)
+        self.assertEqual(batch.positions[2].returned_hash, c.digest_bytes(b"x" * c.MAX_BYTES))
+        self.assertEqual(batch.positions[3].outcome, "invalid_output")
+        self.assertIsNone(batch.positions[3].returned_bytes)
+        self.assertIsNone(batch.positions[3].returned_hash)
+        self.assertTrue(all(o.output_bytes is None and o.error == b"Invalid observed assessment output" for o in batch.executions[1:]))
+
     def test_unknown_grader_flag_cannot_enter_host_registration(self):
         coverage = module(self, "coverage")
         c = module(self, "contracts")
