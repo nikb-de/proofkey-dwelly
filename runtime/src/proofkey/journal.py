@@ -419,6 +419,7 @@ class CaseStore:
         if audited_entry is not None and self.entry(audited_entry).case_id != case_id:
             raise JournalFailure("Checkpoint audit references another case entry")
         self._ownership.check_fence(value)
+        self._ownership.validate_events(case_id)
         return value
 
     @staticmethod

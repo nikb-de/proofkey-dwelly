@@ -11,7 +11,7 @@ from .identity import fingerprint
 from .ownership_contracts import (DecisionConsumedV1, DecisionRecordedV1, DispositionRecordedV1,
     OperatorDecisionSubmissionV1, OperatorDispositionV1, OwnershipCurrentReadV1, OwnershipSourceReadV1,
     TransferAcceptedV1, TransferArgumentsV1, TransferPendingV1, TransferRecordV1, TransferRegisteredV1,
-    TransferRejectedV1, TransferResolvedV1, TransferReceiptRecordedV1, TRANSFER_FIELDS_V1)
+    TransferRejectedV1, TransferResolvedV1, TransferReceiptRecordedV1, OwnerObservedV1, TRANSFER_FIELDS_V1)
 from .policy import IDENTITY_FIELDS, OWNER_FIELDS
 
 
@@ -123,7 +123,7 @@ class OwnershipStore:
         if (values["case.binding"] != {"case_id": b.case_id, "object_id": b.object_id,
                 "principal_id": b.principal_id, "request_id": b.request_id}
                 or values["case.request_revision"] != b.request_revision or values["case.authorization"] != "verified"
-                or values["case.generation"] != "current" or values["customer.consent_revision"] != b.consent_revision
+                or values["case.generation"] != b.generation or values["customer.consent_revision"] != b.consent_revision
                 or values["policy.version"] != cp.policy_version
                 or values["operator.ownership_packet"] != source.packet.model_dump(mode="json")):
             self.fail("Ownership source identity/policy/packet mismatch")
@@ -327,6 +327,7 @@ class OwnershipStore:
     def human(self, binding):
         binding = self.typed(RequestBinding, binding)
         self.store._assert_binding(binding)
+        self.validate_events(binding.case_id)
         records = [record for record in self.rows(binding.case_id) if record.intent.binding == binding]
         if records:
             return self._project(self.record(records[0].intent.transfer_id))
@@ -511,17 +512,30 @@ class OwnershipStore:
             self.store._write_checkpoint(source.checkpoint, ownership_event=event)
             return value
 
-    def validate_events(self):
+    def validate_events(self, case_id=None):
+        # Full audit validation uses existing original getters, which in turn
+        # read the current checkpoint. Their nested reads share this validation
+        # pass rather than recursively starting another scan.
+        if getattr(self, "_validating_events", False):
+            return
+        self._validating_events = True
+        try:
+            self._validate_events(case_id)
+        finally:
+            self._validating_events = False
+
+    def _validate_events(self, case_id):
+        transfers = {record.intent.transfer_id: record for record in self.rows(case_id)}
         used_reads = set()
-        for transfer in self.rows():
+        for transfer in transfers.values():
             scope = {(transfer.intent.case_id, item) for item in transfer.registration_source.read_entry_ids}
             if scope.intersection(used_reads):
                 self.fail("Distinct transfers reuse ownership source reads")
             used_reads.update(scope)
-        for record in self.rows():
+        for record in transfers.values():
             self.record(record.intent.transfer_id)
         recorded, consumed, replays = {}, set(), {}
-        for case_id, event in self._events():
+        for case_id, event in self._events(case_id):
             snapshot = (event.source if isinstance(event, (DecisionRecordedV1, DispositionRecordedV1)) else
                         event.source_current if isinstance(event, (TransferResolvedV1, TransferReceiptRecordedV1)) else None)
             if snapshot is not None:
@@ -558,8 +572,31 @@ class OwnershipStore:
                     self.fail("Decision consumption differs from same-transaction entry ledger")
                 consumed.add((case_id, event.decision_id))
             elif isinstance(event, (TransferRegisteredV1, TransferResolvedV1, TransferReceiptRecordedV1)):
-                if event.binding.case_id != case_id:
-                    self.fail("Ownership transfer audit belongs to another case")
+                original = transfers.get(event.transfer_id)
+                if original is None or event.binding.case_id != case_id or event.binding != original.intent.binding:
+                    self.fail("Ownership transfer audit lacks its exact durable original binding")
+                if isinstance(event, TransferRegisteredV1):
+                    if (event.original_effect_hash != fingerprint(original.effect.model_dump(mode="json"))
+                            or event.origin_checkpoint_hash != original.origin_checkpoint_hash):
+                        self.fail("Ownership registration audit differs from immutable original hashes")
+                elif isinstance(event, TransferResolvedV1):
+                    if (original.lifecycle not in {"accepted", "rejected"}
+                            or event.receipt_hash != fingerprint(original.source_receipt.model_dump(mode="json"))
+                            or event.ownership != self._project(original)):
+                        self.fail("Ownership resolution audit differs from exact terminal original")
+                    self._source(event.source_current, event.source_current.as_of, current=True, durable=True)
+                    self._confirm(original, event.source_current)
+                else:
+                    pending = original.model_copy(update={"lifecycle": "pending", "source_receipt": event.receipt})
+                    self._entered(original)
+                    self._source(event.source_current, event.source_current.as_of, current=True, durable=True)
+                    self._confirm(pending, event.source_current)
+            elif isinstance(event, OwnerObservedV1):
+                # Task8A has no authenticated initial-owner producer/public
+                # recording API. A typed injected observation cannot activate it.
+                self.fail("Initial owner-observed audit producer unavailable in storage stage")
+            else:
+                self.fail("Unsupported ownership audit event")
 
     def _validate_recorded_scope(self, event):
         payload = event.submission.decision if isinstance(event, DecisionRecordedV1) else event.disposition

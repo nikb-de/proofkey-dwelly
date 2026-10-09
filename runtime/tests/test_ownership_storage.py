@@ -41,7 +41,7 @@ def synthetic_source(store, *, current=False, packet=None, ownership=None, purpo
         fields |= {"operator.ownership_grant"}
     values = {field: "synthetic-unit-value" for field in fields}
     values.update({"case.binding": {"case_id": "C1", "object_id": "O1", "principal_id": "U1", "request_id": "REQ1"},
-        "case.request_revision": "v1", "case.authorization": "verified", "case.generation": "current",
+        "case.request_revision": "v1", "case.authorization": "verified", "case.generation": packet.binding.generation,
         "customer.consent_revision": "v1", "policy.version": "v1", "ownership.owner": "OP1",
         "ownership.state": "accepted", "ownership.state_revision": "owner-r1", "ownership.epoch": 1,
         "operator.packet_hash": packet.packet_hash, "operator.packet_revision": packet.packet_revision,
@@ -145,6 +145,154 @@ def hard_exit_driver(path, boundary):
 
 
 class OwnershipStorageTests(unittest.TestCase):
+    def overwrite_latest_ownership_audit(self, checkpoint, event):
+        from proofkey.journal import CheckpointAudit
+        audit = CheckpointAudit(checkpoint_hash=fingerprint(checkpoint.model_dump(mode="json")), ownership_event=event)
+        # Hostile audit write, using only a public checkpoint as source data.
+        with sqlite3.connect(self.path) as db:
+            db.execute("UPDATE audit SET event_json=? WHERE sequence=(SELECT MAX(sequence) FROM audit)",
+                       (audit.model_dump_json(),))
+
+    def assert_corrupt_ownership_audit_denies_getter_and_reopen(self):
+        with self.assertRaises(JournalFailure):
+            self.store.checkpoint("C1")
+        self.store.close()
+        with self.assertRaises(JournalFailure):
+            CaseStore(self.path, ownership_processes=synthetic_registry())
+
+    def test_orphan_transfer_registration_audit_denies_getter_and_reopen(self):
+        from proofkey.ownership_contracts import TransferRegisteredV1
+        source = self.start_ownership(purpose="decision")
+        event = TransferRegisteredV1(binding=source.binding, transfer_id="not-registered",
+            original_effect_hash="0" * 64, origin_checkpoint_hash="1" * 64)
+        self.overwrite_latest_ownership_audit(source.checkpoint, event)
+        self.assert_corrupt_ownership_audit_denies_getter_and_reopen()
+
+    def test_unsupported_owner_observed_audit_denies_getter_and_reopen(self):
+        from proofkey.ownership_contracts import OwnerObservedV1
+        from proofkey.contracts import HumanOwnership
+        source = self.start_ownership(purpose="decision")
+        owner = HumanOwnership(binding=source.binding, owner="OP1", epoch=1, state_revision="owner-r1",
+            packet_id="P1", packet_hash="2" * 64, packet_revision="packet-r1", state="accepted", acceptance_evidence="accepted-1")
+        # No source-authenticated owner-observation producer exists in Task8A.
+        # Even well-shaped inventory may not be introduced by an audit write.
+        self.overwrite_latest_ownership_audit(source.checkpoint, OwnerObservedV1(source=source, ownership=owner))
+        self.assert_corrupt_ownership_audit_denies_getter_and_reopen()
+
+    def test_foreign_owner_observed_contract_is_rejected(self):
+        from proofkey.ownership_contracts import OwnerObservedV1
+        from proofkey.contracts import HumanOwnership
+        source = self.start_ownership(purpose="decision")
+        owner = HumanOwnership(binding=make_binding(case_id="FOREIGN"), owner="other", epoch=99,
+            state_revision="foreign", packet_id="foreign-packet", packet_hash="0" * 64, packet_revision="foreign",
+            state="accepted", acceptance_evidence="made-up")
+        with self.assertRaises(ValueError):
+            OwnerObservedV1(source=source, ownership=owner)
+
+    def test_orphan_terminal_and_pending_audits_deny_getter_and_reopen(self):
+        from proofkey.ownership_contracts import TransferPendingV1, TransferReceiptRecordedV1, TransferResolvedV1
+        from proofkey.contracts import HumanOwnership
+        for kind in ("pending", "terminal"):
+            with self.subTest(kind=kind):
+                source = self.start_ownership()
+                intent, effect = synthetic_transfer(source)
+                if kind == "terminal":
+                    receipt, current = synthetic_acceptance(self.store, source, intent, effect)
+                    event = TransferResolvedV1(binding=source.binding, transfer_id=intent.transfer_id,
+                        receipt_hash=fingerprint(receipt.model_dump(mode="json")), ownership=current.ownership, source_current=current)
+                else:
+                    receipt = TransferPendingV1(original=effect.postcondition["original"], packet=source.packet, target_owner="OP2",
+                        expected_revisions=effect.expected_revisions, pending_state_revision="source-pending-r1", pending_at=NOW,
+                        evidence_ref="synthetic-pending", simulated=True)
+                    owner = HumanOwnership(binding=source.binding, owner="OP1", epoch=1, state_revision="source-pending-r1",
+                        packet_id="P1", packet_hash="2" * 64, packet_revision="packet-r1", state="transfer_pending",
+                        pending_evidence="synthetic-pending", transfer_id=intent.transfer_id)
+                    current = synthetic_source(self.store, current=True, ownership=owner)
+                    event = TransferReceiptRecordedV1(binding=source.binding, transfer_id=intent.transfer_id,
+                        receipt=receipt, receipt_hash=fingerprint(receipt.model_dump(mode="json")), source_current=current)
+                self.overwrite_latest_ownership_audit(current.checkpoint, event)
+                self.assert_corrupt_ownership_audit_denies_getter_and_reopen()
+
+    def test_extra_orphan_audit_denies_existing_transfer_and_human_getters(self):
+        from proofkey.ownership_contracts import TransferRegisteredV1
+        source = self.start_ownership()
+        intent, effect = synthetic_transfer(source)
+        self.store.register_transfer_atomic(intent, effect, source, NOW)
+        # Append a separate checkpoint audit, leaving original registration intact.
+        self.store.consume("C1", "tool_calls", 1, NOW)
+        cp = self.store.checkpoint("C1")
+        self.overwrite_latest_ownership_audit(cp, TransferRegisteredV1(binding=source.binding,
+            transfer_id="orphan", original_effect_hash="0" * 64, origin_checkpoint_hash="1" * 64))
+        with self.assertRaises(JournalFailure):
+            self.store.transfer_record(intent.transfer_id)
+        with self.assertRaises(JournalFailure):
+            self.store.human_ownership(source.binding)
+        self.assert_corrupt_ownership_audit_denies_getter_and_reopen()
+
+    @staticmethod
+    def generation_fact(source, generation):
+        observations = [item.model_copy(update={"value": generation})
+            if item.authority + "." + item.fact == "case.generation" else item for item in source.observations]
+        return source.model_copy(update={"observations": observations})
+
+    def test_registration_requires_exact_source_generation(self):
+        source = self.start_ownership()
+        self.assertEqual(next(item.value for item in source.observations
+            if item.authority + "." + item.fact == "case.generation"), "G1")
+        intent, effect = synthetic_transfer(source)
+        try:
+            registered = self.store.register_transfer_atomic(intent, effect, source, NOW)
+        except JournalFailure as error:
+            self.fail("Exact G1 source generation was rejected: " + str(error))
+        self.assertEqual(registered.intent.binding.generation, "G1")
+        for generation in ("current", "G2"):
+            fresh = self.start_ownership()
+            changed = self.generation_fact(fresh, generation)
+            intent, effect = synthetic_transfer(changed)
+            with self.subTest(foreign_generation=generation):
+                with self.assertRaises(JournalFailure):
+                    self.store.register_transfer_atomic(intent, effect, changed, NOW)
+                self.assertEqual(self.store.intents("C1"), ())
+
+    def test_recording_requires_exact_source_generation(self):
+        from proofkey.ownership_contracts import OperatorDispositionV1
+        for operation in ("decision", "disposition"):
+            with self.subTest(operation=operation):
+                source = self.start_ownership(purpose=operation)
+                if operation == "decision":
+                    payload, _ = synthetic_decision(source)
+                    record = self.store.record_decision_atomic
+                else:
+                    payload = OperatorDispositionV1(record_id="record-1", replay_id="record-replay-1", binding=source.binding,
+                        packet_id="P1", packet_hash="2" * 64, packet_revision="packet-r1", content_hash="3" * 64,
+                        owner="OP1", epoch=1, state_revision="owner-r1", actor_id="OP1", proof_reference="synthetic-proof",
+                        disposition="refund_review", rationale="Synthetic local recommendation", evidence_refs=[],
+                        expires_at=DEADLINE, simulated=True)
+                    record = self.store.record_disposition_atomic
+                for generation in ("current", "G2"):
+                    with self.assertRaises(JournalFailure):
+                        record(payload, self.generation_fact(source, generation), NOW)
+                try:
+                    self.assertEqual(record(payload, source, NOW), payload)
+                except JournalFailure as error:
+                    self.fail("Exact G1 recording source generation was rejected: " + str(error))
+
+    def test_current_confirmation_requires_exact_source_generation(self):
+        source = self.start_ownership()
+        intent, effect = synthetic_transfer(source)
+        self.store.register_transfer_atomic(intent, effect, source, NOW)
+        self.store.begin_registered_transfer(intent.transfer_id, self.store.checkpoint("C1"), NOW)
+        receipt, current = synthetic_acceptance(self.store, source, intent, effect)
+        for generation in ("current", "G2"):
+            with self.subTest(foreign_generation=generation):
+                with self.assertRaises(JournalFailure):
+                    self.store.apply_transfer_receipt_atomic(intent.transfer_id, receipt,
+                        self.generation_fact(current, generation), current.checkpoint, NOW)
+                self.assertEqual(self.store.checkpoint("C1").ownership_epoch, 1)
+        result = self.store.apply_transfer_receipt_atomic(intent.transfer_id, receipt, current, current.checkpoint, NOW)
+        self.assertEqual(result.binding.generation, "G1")
+        self.assertEqual(result.epoch, 2)
+
     def setUp(self):
         self.folder = tempfile.TemporaryDirectory()
         self.addCleanup(self.folder.cleanup)

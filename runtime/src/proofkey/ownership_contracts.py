@@ -531,6 +531,17 @@ class OwnerObservedV1(OwnershipModel):
     source: OwnershipSourceReadV1
     ownership: HumanOwnership
 
+    @model_validator(mode="after")
+    def observed_packet_link(self):
+        packet = self.source.packet
+        expected = HumanOwnership(binding=self.source.binding, owner=packet.accepted_owner,
+            epoch=packet.accepted_epoch, state_revision=packet.accepted_state_revision,
+            packet_id=packet.packet_id, packet_hash=packet.packet_hash, packet_revision=packet.packet_revision,
+            state="accepted", acceptance_evidence=packet.acceptance_evidence)
+        if self.ownership != expected:
+            raise ValueError("Observed ownership must equal its exact accepted source packet")
+        return self
+
 
 class TransferRegisteredV1(OwnershipModel):
     kind: Literal["transfer_registered_v1"] = "transfer_registered_v1"
