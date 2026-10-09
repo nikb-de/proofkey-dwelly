@@ -383,6 +383,87 @@ def load_example(path):
     return module
 
 
+def check_wrong_proof(prepared, request, receipt):
+    """Check the executed denial; kept separate for controlled state fault tests."""
+    from proofkey.admission import AdmissionAttempt, AdmissionLease
+    from proofkey.host_admission import AdmissionClaimV1
+    from proofkey.registered_releases import RegisteredReleaseV1
+    shutdown = receipt["shutdown"]
+    assert shutdown is not None, "executed denial has no shutdown receipt"
+    assert shutdown.owner_closed and shutdown.admission_closed and not shutdown.pending_command_ids
+    assert receipt["run"].command.result.status == "denied"
+    paths = list(prepared.root.rglob("*.sqlite"))
+    assert {path.name for path in paths} == {"host-claims.sqlite", "routes.sqlite", "journal.sqlite", "world.sqlite"}
+    assert len(paths) == 4
+    counts = {}
+    for path in paths:
+        with readonly(path) as db:
+            tables = {row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+            counts[path.name] = {table: db.execute("SELECT count(*) FROM " + table).fetchone()[0]
+                                 for table in sorted(tables)}
+    body = request.model_dump(mode="json")
+    with readonly(prepared.control_parent / "host-claims.sqlite") as db:
+        row = one(db, "claims")
+        AdmissionClaimV1(row["wire"].encode())
+        claim = strict(row["wire"])
+        assert row["state"] == claim["state"] == "prepared"
+        assert row["case_id"] == request.case_id and claim["request"] == body
+        assert row["claim_id"] == claim["claim_id"] and row["attempt_id"] == claim["attempt_id"]
+        assert claim["artifact_hash"] == prepared.binding.artifact_hash
+    with readonly(prepared.control_parent / "routes.sqlite") as db:
+        assert not rows(db, "routes")
+        row = one(db, "releases")
+        registered = RegisteredReleaseV1(row["artifact_json"].encode())
+        assert registered.artifact_hash == row["artifact_hash"] == prepared.binding.artifact_hash
+    with readonly(prepared.host_release.resource_root / "journal.sqlite") as db:
+        for table in ("cases", "requests", "original_requests", "intents", "results"):
+            assert not rows(db, table), "denial advanced into " + table
+        row = one(db, "admission_attempts")
+        attempt = AdmissionAttempt.model_validate(strict(row["attempt_json"]))
+        assert row["state"] == attempt.state == "unbound"
+        assert row["attempt_id"] == attempt.attempt_id == claim["attempt_id"]
+        assert row["claimed_case_id"] == attempt.claimed_case_id == request.case_id
+        assert row["dedup_hash"] == attempt.dedup_hash
+        assert attempt.request_hash == h(body)
+        assert attempt.business_fingerprint == h({key: body[key] for key in ("kind", "consent_mode", "arguments")})
+        assert attempt.claimed_caller_id == claim["auth_claim"]["caller_id"] == request.principal_id
+        assert attempt.proof_digest == claim["auth_claim"]["proof_digest"] == h({"proof_reference": "wrong-proof"})
+        row = one(db, "admission_entries")
+        lease = AdmissionLease.model_validate(strict(row["lease_json"]))
+        assert row["state"] == lease.state == "settled"
+        assert row["entry_id"] == lease.entry_id
+        assert row["attempt_id"] == lease.attempt_id == attempt.attempt_id
+        assert row["claimed_case_id"] == lease.claimed_case_id == request.case_id
+    with readonly(prepared.host_release.resource_root / "world.sqlite") as db:
+        assert not rows(db, "effects") and not rows(db, "reservations")
+        assert all(row["active"] == 0 for row in rows(db, "pressure"))
+    return counts
+
+
+def execute_recorded(module, prepared, request, request_path, clock, surface, parent, **options):
+    """Record identity before launch and preserve private exceptional close evidence."""
+    write(parent / "private-preparation.json", {
+        "root": str(prepared.root), "resource": str(prepared.host_release.resource_root),
+        "control": str(prepared.control_parent), "artifact": prepared.binding.artifact_hash})
+    try:
+        receipt = module.execute_case(prepared, request, request_path, clock, surface, **options)
+    except BaseException as error:
+        shutdown = getattr(error, "_j06_shutdown", None)
+        close_error = getattr(error, "_j06_shutdown_error", None)
+        evidence = {"error": repr(error), "error_type": type(error).__name__,
+            "shutdown": None if shutdown is None else shutdown.model_dump(mode="json"),
+            "close_error": None if close_error is None else repr(close_error),
+            "owner_closed": bool(shutdown is not None and shutdown.owner_closed
+                and shutdown.admission_closed and not shutdown.pending_command_ids)}
+        try:
+            write(parent / "exception-lifecycle.json", evidence)
+        except BaseException as evidence_error:
+            error.add_note("Private lifecycle persistence failed: " + repr(evidence_error))
+        raise
+    write(parent / "execution.json", receipt["public"])
+    return receipt
+
+
 def probe(args):
     import proofkey
     from proofkey.clock import SyntheticReplayClock
@@ -416,11 +497,8 @@ def probe(args):
                 fixture_path = request_path.with_name(position["kind"] + "-fixture.json")
                 prepared, request = module.prepare_case(request_path, fixture_path, parent, clock)
                 fixture_hash = digest(prepared.host_release.fixture_path)
-                receipt = module.execute_case(prepared, request, request_path, clock, position["surface"])
-                write(parent / "execution.json", receipt["public"])
-                write(parent / "private-preparation.json", {
-                    "root": str(prepared.root), "resource": str(prepared.host_release.resource_root),
-                    "control": str(prepared.control_parent), "artifact": prepared.binding.artifact_hash})
+                receipt = execute_recorded(module, prepared, request, request_path, clock,
+                                           position["surface"], parent)
                 assert receipt["code"] == 0, receipt["public"]
                 position.update(readback(prepared, request, receipt["run"], receipt["shutdown"]))
                 assert digest(prepared.host_release.fixture_path) == fixture_hash
@@ -456,7 +534,8 @@ def probe(args):
                     with prepared.host_release.fixture_path.open("ab") as stream:
                         stream.write(b"\n")
                 try:
-                    receipt = module.execute_case(prepared, request, request_path, clock, "cli", negative=negative["name"])
+                    receipt = execute_recorded(module, prepared, request, request_path, clock,
+                        "cli", parent, negative=negative["name"])
                 except (AdmissionCompositionFailure, SyntheticPreparationFailureV1) as error:
                     if negative["name"] in ("expired-review", "mismatched-review"):
                         assert type(error) is AdmissionCompositionFailure and error.code == "scope"
@@ -477,16 +556,10 @@ def probe(args):
                     negative["denial"] = receipt["public"]
                 databases = list(prepared.root.rglob("*.sqlite"))
                 counts = {}
-                for path in databases:
-                    with readonly(path) as db:
-                        tables = {row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
-                        counts[path.name] = {table: db.execute("SELECT count(*) FROM " + table).fetchone()[0] for table in sorted(tables)}
-                        if "effects" in tables:
-                            assert counts[path.name]["effects"] == 0
                 if negative["name"] != "wrong-proof":
                     assert not databases
                 else:
-                    assert "host-claims.sqlite" in counts and "journal.sqlite" in counts
+                    counts = check_wrong_proof(prepared, request, receipt)
                 negative.update(status="passed", database_counts=counts)
             except Exception as error:
                 negative.update(status="failed", error=repr(error))

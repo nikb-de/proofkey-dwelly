@@ -70,14 +70,30 @@ def execute_case(prepared, request, request_path, clock, surface, *, negative=No
         configuration.profile_registry, clock, prepared.inventory_parent / "HOST-library",
         configuration.host_limits, release_id="J06-H",
         admission_composition=configuration.admission_composition)
+    command_error = None
     try:
         run = run_command({"tag": "run", "release_id": "J06-H",
             "request": request.model_dump(mode="json")}, dispatcher, resolver.handle("j06-user"),
             execution, publication_deadline=execution.deadline + timedelta(seconds=10),
             publication_reserve_seconds=10.0, output_root=prepared.output_parent / "run",
             limits=configuration.interface_limits, clock=clock)
+    except BaseException as error:
+        command_error = error
+        raise
     finally:
-        shutdown = dispatcher.close(clock.now() + timedelta(seconds=2))
+        try:
+            shutdown = dispatcher.close(clock.now() + timedelta(seconds=2))
+        except BaseException as close_error:
+            if command_error is None:
+                raise
+            command_error._j06_shutdown = None
+            command_error._j06_shutdown_error = close_error
+        else:
+            if command_error is not None:
+                # Private application evidence; preserve the original exception
+                # identity and traceback rather than replacing it with close state.
+                command_error._j06_shutdown = shutdown
+                command_error._j06_shutdown_error = None
     receipt = CliReceiptV1(run=run, shutdown=shutdown)
     return {"code": 0 if run.command.result is not None and
             run.command.result.status == "authorized" and shutdown.owner_closed else 2,

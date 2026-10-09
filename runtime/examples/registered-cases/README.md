@@ -35,6 +35,14 @@ a fresh configuration context and a fresh launch context. Use a fresh private
 parent for each case and surface (`library` or `cli`). Retain failed/pending state;
 never reset a claim or replay an executed preparation as a new operation.
 
+If the library command raises, the example closes its actual dispatcher and
+re-raises the original exception. Private `_j06_shutdown` and
+`_j06_shutdown_error` attributes carry the actual close result or close error;
+they are diagnostic application data, not a product wire interface. The
+acceptance driver records preparation paths before execution and saves this
+exceptional lifecycle evidence separately, marking missing or pending closure
+as unverified. It never replaces a command error with a close error.
+
 For reproducible offline acceptance, from the checkout run the existing source
 interpreter with `runtime/scripts/verify_synthetic_provisioning.py --commit FULL_SHA
 --wheelhouse ABSOLUTE_EXISTING_WHEELHOUSE --dependency-receipt ABSOLUTE_RECEIPT
