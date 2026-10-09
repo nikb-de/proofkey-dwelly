@@ -5,6 +5,7 @@ import tempfile
 import os
 import copy
 import pickle
+import traceback
 import stat
 import threading
 from unittest.mock import patch
@@ -616,3 +617,58 @@ class RuntimeWriterTests(unittest.TestCase):
                     continue
                 if (value.st_dev, value.st_ino) == (identity.st_dev, identity.st_ino):
                     actual_close(descriptor)
+
+
+class RuntimeWriterLoopFixTests(unittest.TestCase):
+    def assert_loop_denied(self, *, ancestor):
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory).resolve()
+            first, second = base / 'loop-canary-first', base / 'loop-canary-second'
+            first.symlink_to(second, target_is_directory=True)
+            second.symlink_to(first, target_is_directory=True)
+            root = first / 'child' if ancestor else first
+            entered = []
+            actual_open = os.open
+            def observe_open(*args, **kwargs):
+                entered.append((args, kwargs))
+                return actual_open(*args, **kwargs)
+            lease = None
+            try:
+                with patch('proofkey.host_writer.os.open', observe_open):
+                    with self.assertRaises(RuntimeWriterFailure) as caught:
+                        lease = RuntimeWriterLease(root)
+                self.assertEqual(caught.exception.code, 'writer_scope')
+                self.assertEqual(str(caught.exception), 'writer_scope')
+                rendered = ''.join(traceback.format_exception(caught.exception))
+                self.assertNotIn(str(base), rendered)
+                self.assertNotIn('Symlink loop from', rendered)
+                self.assertEqual(entered, [])
+                self.assertEqual(sorted(item.name for item in base.iterdir()),
+                                 ['loop-canary-first', 'loop-canary-second'])
+                self.assertFalse((base / '.proofkey-resource-writer.lock').exists())
+            finally:
+                if lease is not None:
+                    lease.close()
+
+    def test_direct_real_symlink_loop_is_closed_scope_before_open(self):
+        self.assert_loop_denied(ancestor=False)
+
+    def test_ancestor_real_symlink_loop_is_closed_scope_before_open(self):
+        self.assert_loop_denied(ancestor=True)
+
+    def test_resolution_interrupt_is_preserved_before_open(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            interruption = KeyboardInterrupt('resolution interrupted')
+            entered = []
+            actual_open = os.open
+            def observe_open(*args, **kwargs):
+                entered.append((args, kwargs))
+                return actual_open(*args, **kwargs)
+            with patch('proofkey.host_writer.Path.resolve', side_effect=interruption), \
+                    patch('proofkey.host_writer.os.open', observe_open):
+                with self.assertRaises(KeyboardInterrupt) as caught:
+                    RuntimeWriterLease(root)
+            self.assertIs(caught.exception, interruption)
+            self.assertEqual(entered, [])
+            self.assertFalse((root / '.proofkey-resource-writer.lock').exists())

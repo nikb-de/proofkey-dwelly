@@ -85,7 +85,11 @@ class RuntimeWriterLease:
             if (type(root) is not type(Path()) or not root.is_absolute() or '..' in root.parts
                     or len(root.parts) > 64 or len(str(root)) > 1024):
                 _scope()
-            resolved = root.resolve(strict=True)
+            try:
+                resolved = root.resolve(strict=True)
+            except RuntimeError:
+                # Python 3.12 pathlib reports a real ELOOP as RuntimeError.
+                raise RuntimeWriterFailure('writer_scope') from None
             forbidden = (Path('/'), Path.home(), Path.cwd())
             identities = {_identity(item.stat()) for item in forbidden}
             if resolved in tuple(item.resolve() for item in forbidden) or _identity(root.stat()) in identities:
