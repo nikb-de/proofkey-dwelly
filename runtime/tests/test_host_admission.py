@@ -88,6 +88,90 @@ def fixture(base, clock, *, goods=False, corrupt_pin=False, corrupt_resource=Fal
 
 
 class HostAdmissionTests(unittest.TestCase):
+    def _assert_short_parent_observation(self, *, expire_before_write):
+        cases = (
+            ('utc', 216.0, 2.0, '2026-10-08T10:01:58+00:00', '2026-10-08T10:02:00+00:00', 218.0),
+            ('monotonic', 218.0, -2.0, '2026-10-08T10:01:56+00:00', '2026-10-08T10:01:58+00:00', 220.0),
+        )
+        for bound, tick, offset, captured_at, deadline, monotonic_deadline in cases:
+            with self.subTest(bound=bound), tempfile.TemporaryDirectory() as folder:
+                def after_engine(state):
+                    state.update(tick=tick, utc_offset=offset)
+                with paced_clock(after_engine) as (clock, state):
+                    release, composition = fixture(Path(folder).resolve(), clock)
+                    runtime = RuntimeFactory().create_registered(
+                        release, clock, composition=composition, execution=context(clock))
+                    parent = context(clock, 120)
+                    original = dict(deadline='2026-10-08T10:02:00+00:00',
+                        captured_at='2026-10-08T10:00:00+00:00',
+                        captured_monotonic=100.0, monotonic_deadline=220.0)
+                    parent_fields = (parent.deadline, parent.captured_at,
+                        parent.captured_monotonic, parent.monotonic_deadline)
+                    phases = []
+                    images = RegisteredAdmissionOwner._images
+                    observe = AdmissionRouteStoreV1.observe_admitted
+                    write = _ClaimStore.write
+
+                    def capture_images(owner, execution):
+                        if state['finished']:
+                            phases.append(('images', execution))
+                        return images(owner, execution)
+
+                    def observe_route(store, *args, **kwargs):
+                        if state['finished']:
+                            phases.append(('route', kwargs['execution']))
+                        return observe(store, *args, **kwargs)
+
+                    def write_claim(store, value, execution, **kwargs):
+                        if state['finished']:
+                            phases.append(('claim', execution))
+                            if expire_before_write:
+                                state['tick'] += 2.0
+                        return write(store, value, execution, **kwargs)
+
+                    try:
+                        with patch.object(RegisteredAdmissionOwner, '_images', capture_images), \
+                                patch.object(AdmissionRouteStoreV1, 'observe_admitted', observe_route), \
+                                patch.object(_ClaimStore, 'write', write_claim):
+                            if expire_before_write:
+                                with self.assertRaises(AdmissionCompositionFailure) as caught:
+                                    runtime.run_registered(request(), AUTH, execution=parent)
+                                self.assertEqual(caught.exception.code, 'timeout')
+                            else:
+                                result = runtime.run_registered(request(), AUTH, execution=parent)
+                                self.assertEqual(result.status, 'authorized')
+                                self.assertEqual(result.effects['reschedule'].status, 'verified')
+                        self.assertTrue(state['finished'])
+                        self.assertEqual([stage for stage, _ in phases], ['images', 'route', 'claim'])
+                        phase = phases[0][1]
+                        for _, observed in phases:
+                            self.assertIs(observed, phase)
+                        self.assertEqual((phase.deadline - phase.captured_at).total_seconds(), 2.0)
+                        self.assertEqual(phase.captured_at.isoformat(), captured_at)
+                        self.assertEqual(phase.deadline.isoformat(), deadline)
+                        self.assertEqual(phase.captured_monotonic, tick)
+                        self.assertEqual(phase.monotonic_deadline, monotonic_deadline)
+                        self.assertEqual((parent.deadline, parent.captured_at,
+                            parent.captured_monotonic, parent.monotonic_deadline), parent_fields)
+                        claim = runtime.admission.claim_for_case('C1', execution=context(clock))
+                        route = runtime.admission.route_for_case('C1', execution=context(clock))
+                        self.assertEqual(claim.state,
+                            'binding_sealed' if expire_before_write else 'admission_observed')
+                        self.assertEqual(json.loads(claim.wire_bytes)['execution'], original)
+                        self.assertEqual(route.state, 'admission_observed')
+                        self.assertTrue(runtime.store.admission_account('C1').imported)
+                        self.assertEqual(runtime.world.effect_count('reschedule'), 1)
+                    finally:
+                        runtime.close()
+
+    def test_short_parent_final_phase_uses_smaller_clock_bound(self):
+        # Granting five seconds, or renewing any stage, breaks the literal phase bounds.
+        self._assert_short_parent_observation(expire_before_write=False)
+
+    def test_short_parent_expiry_at_final_claim_write_retains_sealed_debt(self):
+        # Ignoring the shared phase expiry would persist an observed claim instead.
+        self._assert_short_parent_observation(expire_before_write=True)
+
     def test_two_release_registry_denies_host_composition_before_resources_or_effect(self):
         # Public multi-release inventory must not widen exactly-one-release host authority.
         with tempfile.TemporaryDirectory() as folder, paced_clock() as (clock, state):
