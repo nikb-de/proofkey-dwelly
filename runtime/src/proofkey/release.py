@@ -531,8 +531,9 @@ def prepare_release(source_root, rights_inventory, output_root, *, context=None)
             actual, _ = _read(output, path, context.max_total_bytes)
             if actual != expected:
                 _deny()
-        checked = _root(output_identity)
-        os.close(checked)
+        for identity in (context.source_root, context.output_parent, output_identity):
+            checked = _root(identity)
+            os.close(checked)
         # No fallible publication follows removal. A crash may conservatively
         # retain pending; static readback never treats that as complete.
         os.unlink("PREPARATION-PENDING.json", dir_fd=output)

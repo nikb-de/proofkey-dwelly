@@ -240,6 +240,72 @@ class ReleaseManifestTests(unittest.TestCase):
         with self.assertRaises(ReleaseRightsError):
             verify_release_static(receipt, release_root=output, context=context)
 
+    def test_late_parent_substitution_preserving_output_inode_never_returns_prepared_receipt(self):
+        # Omitting the final trusted-parent check wrongly certifies the same
+        # output inode/bytes after its registered parent has been replaced.
+        parent = self.base / "registered-parent"
+        parent.mkdir()
+        output = parent / "new-release"
+        context = self.make_context(output_parent=RootIdentityV1.capture(parent))
+        retained = self.base / "retained-parent"
+        real = release_module._write
+        output_before = []
+
+        def forward(root, path, data):
+            result = real(root, path, data)
+            if path == "SOURCE-RECEIPT.json":
+                output_before.append(RootIdentityV1.capture(output))
+                parent.rename(retained)
+                parent.mkdir()
+                (retained / "new-release").rename(output)
+            return result
+
+        with patch.object(release_module, "_write", side_effect=forward):
+            with self.assertRaises(ReleasePreparationError) as raised:
+                prepare_release(self.source, self.rights, output, context=context)
+        self.assertEqual(str(raised.exception), "Release preparation failed; no valid receipt returned")
+        self.assertTrue(raised.exception.failure_recorded)
+        self.assertEqual(RootIdentityV1.capture(output), output_before[0])
+        self.assertNotEqual(RootIdentityV1.capture(parent), context.output_parent)
+        self.assertEqual(RootIdentityV1.capture(self.source), context.source_root)
+        for path, data in self.data.items():
+            self.assertEqual((output / path).read_bytes(), data)
+            self.assertEqual((self.source / path).read_bytes(), data)
+        self.assertTrue((output / "PREPARATION-PENDING.json").exists())
+        failure = json.loads((output / "PREPARATION-FAILED.json").read_bytes())
+        self.assertEqual(failure, {"kind": "release_failed", "reason": "preparation_failed", "valid_receipt": False})
+        # Published receipt bytes are partial evidence, not a returned success;
+        # the already-strict public verifier must still deny this parent.
+        from proofkey.contracts import SourceReleaseReceipt
+        partial_receipt = SourceReleaseReceipt.model_validate_json((output / "SOURCE-RECEIPT.json").read_bytes())
+        with self.assertRaises(ReleaseRightsError):
+            verify_release_static(partial_receipt, release_root=output, context=context)
+
+    def test_late_source_root_substitution_never_returns_prepared_receipt(self):
+        # The final publication boundary must retain the trusted source-root
+        # identity, not only an earlier successful copy of identical bytes.
+        retained = self.base / "retained-source"
+        real = release_module._write
+
+        def forward(root, path, data):
+            result = real(root, path, data)
+            if path == "SOURCE-RECEIPT.json":
+                self.source.rename(retained)
+                shutil.copytree(retained, self.source)
+            return result
+
+        with patch.object(release_module, "_write", side_effect=forward):
+            with self.assertRaises(ReleasePreparationError) as raised:
+                prepare_release(self.source, self.rights, self.output, context=self.context)
+        self.assertTrue(raised.exception.failure_recorded)
+        self.assertNotEqual(RootIdentityV1.capture(self.source), self.context.source_root)
+        self.assertTrue((self.output / "PREPARATION-PENDING.json").exists())
+        self.assertFalse(json.loads((self.output / "PREPARATION-FAILED.json").read_bytes())["valid_receipt"])
+        for path, data in self.data.items():
+            self.assertEqual((self.output / path).read_bytes(), data)
+            self.assertEqual((retained / path).read_bytes(), data)
+            self.assertEqual((self.source / path).read_bytes(), data)
+
     def test_hash_valid_malformed_dependency_tables_fail_generically_before_output(self):
         malformed = (b'project = "not-a-table"\n',
                      b'[project]\noptional-dependencies = ["not-a-table"]\n')
