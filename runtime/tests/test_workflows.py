@@ -470,6 +470,149 @@ class WorkflowTests(unittest.TestCase):
             self.assertEqual(sum(c.operation == "read_schedule" for c in fx.world.calls[before:]), 1)
             self.assertEqual(sum(c.operation == "reschedule" for c in fx.world.calls[before:]), 0)
 
+    def test_unresolved_original_cannot_replace_unsupported_selected_continuation(self):
+        for phase in ("dispatch", "verification", "outcome_unknown"):
+            with self.subTest(phase=phase), tempfile.TemporaryDirectory() as folder:
+                fx = self.fixture(folder)
+                fx.world.set_fault("reschedule", "timeout_after_execute")
+                fx.world.set_fault("read_schedule", "timeout_before")
+                fx.engine.run(fx.request, fx.auth)
+                original = fx.store.intents("C1")[0]
+                self.assertEqual(original.state, "outcome_unknown")
+                checkpoint = fx.store.checkpoint("C1")
+                selected = PhaseCheckpoint.model_validate({**checkpoint.model_dump(),
+                    "phase": phase, "next_gate": "send_status", "processing_status": "pending"})
+                fx.store.save_checkpoint(selected)
+                before = len(fx.world.calls)
+                result = WorkflowEngine(fx.profile, fx.world.bundle(), fx.store, fx.clock).recover("C1", fx.auth)
+                self.assertEqual(result.status, "denied")
+                saved = fx.store.checkpoint("C1")
+                self.assertEqual((saved.phase, saved.next_gate), (phase, "send_status"))
+                self.assertEqual(saved.binding, selected.binding)
+                self.assertEqual(saved.deadline, selected.deadline)
+                self.assertEqual(saved.stop, selected.stop)
+                self.assertEqual(fx.store.intent(original.intent.action_id), original)
+                self.assertFalse(any(c.operation == "read_schedule" for c in fx.world.calls[before:]))
+                self.assertEqual(fx.world.effect_count("reschedule"), 1)
+
+    def test_pause_cannot_discard_unsupported_selected_continuation(self):
+        for entered in (False, True):
+            with self.subTest(entered=entered), tempfile.TemporaryDirectory() as folder:
+                fx = self.fixture(folder)
+                if entered:
+                    fx.world.set_fault("reschedule", "business_rejection")
+                    fx.engine.run(fx.request, fx.auth)
+                    self.assertEqual(fx.store.intents("C1")[0].state, "rejected")
+                else:
+                    with self.assertRaises(ProcessCrash):
+                        CrashOnPhase(fx, "window_gate").run(fx.request, fx.auth)
+                checkpoint = fx.store.checkpoint("C1")
+                fx.store.save_checkpoint(PhaseCheckpoint.model_validate({**checkpoint.model_dump(),
+                    "phase": "verification", "next_gate": "send_status", "processing_status": "pending"}))
+                before = len(fx.world.calls)
+                result = WorkflowEngine(fx.profile, fx.world.bundle(), fx.store, fx.clock).recover("C1", fx.auth)
+                self.assertEqual(result.status, "denied")
+                saved = fx.store.checkpoint("C1")
+                self.assertEqual((saved.phase, saved.next_gate), ("verification", "send_status"))
+                self.assertFalse(any(c.operation in {"read_schedule", "reschedule"} for c in fx.world.calls[before:]))
+
+    def test_entered_original_recovery_persists_actual_read_gate_at_public_boundary(self):
+        cases = ((make_request(), "scheduling", "reschedule", "read_schedule", "window_gate", "dispatch", "read_effect"),
+                 (goods_request(), "delivery", "register_goods_refusal", "read_refusal", "refusal_gate", "dispatch", "read_effect"),
+                 (goods_request(), "returns", "create_return", "read_return", "return_gate", "return_dispatch", "read_effect"),
+                 (service_request(), "operator", "enqueue_handoff", "read_receipt", "refusal_complete", "handoff_attempted", "read_communication"))
+        for request, port, operation, read, phase, destination, gate in cases:
+            with self.subTest(operation=operation), tempfile.TemporaryDirectory() as folder:
+                fx = self.fixture(folder, request=request)
+                original_port = getattr(fx.engine.gateway.bundle, port)
+                def crash(intent, *, deadline=None):
+                    getattr(original_port, operation)(intent, deadline=deadline)
+                    raise ProcessCrash()
+                fx.engine.gateway.bundle = replace(fx.engine.gateway.bundle,
+                    **{port: ForwardPort(original_port, **{operation: crash})})
+                with self.assertRaises(ProcessCrash):
+                    fx.engine.run(request, fx.auth)
+                original = next(r.intent for r in fx.store.intents("C1") if r.intent.operation == operation)
+                saved = fx.store.checkpoint("C1")
+                self.assertEqual((saved.phase, saved.next_gate), (phase, operation))
+                fx.store.close()
+                reopened = CaseStore(Path(folder) / "journal.sqlite")
+                self.addCleanup(reopened.close)
+                observed = []
+                real_bundle = fx.world.bundle()
+                real_port = getattr(real_bundle, port)
+                def checked(read_request):
+                    if read_request.target.kind == "original_effect":
+                        observed.append(reopened.checkpoint("C1"))
+                    return getattr(real_port, read)(read_request)
+                bundle = replace(real_bundle, **{port: ForwardPort(real_port, **{read: checked})})
+                result = WorkflowEngine(fx.profile, bundle, reopened, fx.clock).recover("C1", fx.auth)
+                self.assertEqual(result.effects[operation].status, "verified")
+                self.assertEqual(len(observed), 1)
+                self.assertEqual((observed[0].phase, observed[0].next_gate), (destination, gate))
+                self.assertEqual(observed[0].binding, saved.binding)
+                self.assertEqual(observed[0].deadline, saved.deadline)
+                self.assertEqual(observed[0].stop, saved.stop)
+                for field in ("profile_version", "process_version", "policy_version", "ownership_state",
+                              "ownership_state_revision", "ownership_epoch"):
+                    self.assertEqual(getattr(observed[0], field), getattr(saved, field))
+                self.assertGreaterEqual(observed[0].budget.tool_calls, saved.budget.tool_calls)
+                self.assertEqual(observed[0].budget.max_tool_calls, saved.budget.max_tool_calls)
+                self.assertEqual(reopened.original_request("C1", original.binding.generation), request)
+                self.assertEqual(reopened.intent(original.action_id).intent, original)
+                self.assertEqual(fx.world.effect_count(operation), 1)
+                self.assertEqual(sum(c.operation == operation for c in fx.world.calls), 1)
+
+    def test_second_crash_at_original_read_reopens_declared_saved_continuation(self):
+        with tempfile.TemporaryDirectory() as folder:
+            fx = self.fixture(folder)
+            original_port = fx.engine.gateway.bundle.scheduling
+            def crash_write(intent, *, deadline=None):
+                original_port.reschedule(intent, deadline=deadline)
+                raise ProcessCrash()
+            fx.engine.gateway.bundle = replace(fx.engine.gateway.bundle,
+                scheduling=ForwardPort(original_port, reschedule=crash_write))
+            with self.assertRaises(ProcessCrash):
+                fx.engine.run(fx.request, fx.auth)
+            original = fx.store.intents("C1")[0].intent
+            def crash_read(request):
+                raise ProcessCrash()
+            bundle = fx.world.bundle()
+            bundle = replace(bundle, scheduling=ForwardPort(bundle.scheduling, read_schedule=crash_read))
+            with self.assertRaises(ProcessCrash):
+                WorkflowEngine(fx.profile, bundle, fx.store, fx.clock).recover("C1", fx.auth)
+            before = fx.store.checkpoint("C1")
+            self.assertEqual((before.phase, before.next_gate), ("dispatch", "read_effect"))
+            fx.store.close()
+            reopened = CaseStore(Path(folder) / "journal.sqlite")
+            self.addCleanup(reopened.close)
+            result = WorkflowEngine(fx.profile, fx.world.bundle(), reopened, fx.clock).recover("C1", fx.auth)
+            self.assertEqual(result.effects["reschedule"].status, "verified")
+            self.assertEqual(reopened.intent(original.action_id).intent, original)
+            self.assertEqual(reopened.checkpoint("C1").deadline, before.deadline)
+            self.assertEqual(fx.world.effect_count("reschedule"), 1)
+            self.assertEqual(sum(c.operation == "reschedule" for c in fx.world.calls), 1)
+
+    def test_entered_nonexecution_does_not_restore_business_gate_for_resend(self):
+        # The frozen destination graph permits an original read, not a new
+        # business entry. Gateway resend capability alone cannot widen it.
+        with tempfile.TemporaryDirectory() as folder:
+            fx = self.fixture(folder)
+            port = fx.engine.gateway.bundle.scheduling
+            def crash_before_write(intent, *, deadline=None):
+                raise ProcessCrash()
+            fx.engine.gateway.bundle = replace(fx.engine.gateway.bundle,
+                scheduling=ForwardPort(port, reschedule=crash_before_write))
+            with self.assertRaises(ProcessCrash):
+                fx.engine.run(fx.request, fx.auth)
+            record = fx.store.intents("C1")[0]
+            self.assertEqual(record.state, "dispatching")
+            result = WorkflowEngine(fx.profile, fx.world.bundle(), fx.store, fx.clock).recover("C1", fx.auth)
+            self.assertEqual(result.effects["reschedule"].status, "outcome_unknown")
+            self.assertEqual(fx.store.intent(record.intent.action_id).intent, record.intent)
+            self.assertEqual(fx.world.effect_count("reschedule"), 0)
+            self.assertFalse(any(c.operation == "reschedule" for c in fx.world.calls))
+
     def test_failed_verification_commit_retains_possible_return_execution(self):
         with tempfile.TemporaryDirectory() as folder:
             fx = self.fixture(folder, request=goods_request())

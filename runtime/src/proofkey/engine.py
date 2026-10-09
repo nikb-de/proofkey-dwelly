@@ -132,6 +132,13 @@ class WorkflowEngine:
         return {r.intent.operation: r for r in self.store.intents(checkpoint.binding.case_id)
                 if r.intent.binding == checkpoint.binding}
 
+    @staticmethod
+    def _selected(checkpoint, operation):
+        # A phase marker leaves selection to this finite implementation; an
+        # explicitly selected continuation may never be silently replaced.
+        if checkpoint.next_gate not in {checkpoint.phase, operation}:
+            raise GateDenied("scope_denied")
+
     def _graph_facts(self, checkpoint, request):
         indexed = qualified_observations(self.profile, request.object_id, checkpoint.observations)
         facts = {key: item.value for key, item in indexed.items()}
@@ -235,11 +242,29 @@ class WorkflowEngine:
         return build
 
     def _external(self, checkpoint, request, operation, *, reconcile=False):
-        # Persist the exact original gate BEFORE any public port operation. Its
-        # origin phase remains the gate checked by the shared policy.
         read_gate = "read_communication" if operation == "enqueue_handoff" else "read_effect"
-        checkpoint = self._save(checkpoint, next_gate=read_gate if reconcile else operation)
+        self._selected(checkpoint, read_gate if reconcile else operation)
         record = self._records(checkpoint).get(operation)
+        if not reconcile and record is not None and record.state != "prepared":
+            # An entered original is not another business entry. Its durable
+            # receipt permits only the existing unique edge's destination,
+            # whose declared original-read gate is then saved before entry.
+            edges = [edge for edge in self.profile.processes[request.kind].edges
+                     if edge.origin == checkpoint.phase and edge.operation == operation]
+            if len(edges) != 1:
+                raise GateDenied("scope_denied")
+            destination = PhaseCheckpoint.model_validate({**checkpoint.model_dump(),
+                "phase": edges[0].target, "next_gate": read_gate})
+            facts = self._graph_facts(checkpoint, request)
+            facts["journal.original_effect"] = ReadTarget(kind="original_effect", operation=operation,
+                generation=record.intent.binding.generation, action_id=record.intent.action_id,
+                provider_key=record.intent.provider_key, fingerprint=record.intent.argument_fingerprint)
+            if self.process.next_phase(destination.phase, read_gate, facts) is None:
+                raise GateDenied("scope_denied")
+            checkpoint = self._save(destination, processing_status="pending")
+            reconcile = True
+        else:
+            checkpoint = self._save(checkpoint, next_gate=read_gate if reconcile else operation)
         if reconcile:
             if record is None or record.state == "prepared":
                 return self._pause(checkpoint, request)
@@ -279,6 +304,7 @@ class WorkflowEngine:
         if checkpoint.next_gate not in ({phase} | declared | ({wait.next_gate} if wait else set())):
             raise GateDenied("scope_denied")
         if (phase.startswith("wait") and phase != "wait_confirmation") or phase in {"expired", "operator_facts"}:
+            self._selected(checkpoint, wait.next_gate if wait else phase)
             return self._save(checkpoint, processing_status="unavailable")
         if checkpoint.next_gate in {"read_effect", "read_communication"}:
             operation = ("enqueue_handoff" if checkpoint.next_gate == "read_communication" else
@@ -286,6 +312,7 @@ class WorkflowEngine:
                          else _BUSINESS[request.kind])
             return self._external(checkpoint, request, operation, reconcile=True)
         if phase == "extraction" and (request.evidence_ids or (request.narrative and request.narrative.strip())):
+            self._selected(checkpoint, "check_completeness")
             return self._pause(checkpoint, request)
         if phase == "read_authority":
             operation = {"reschedule_window": "check_window", "reschedule_exact": "find_exact_slot"}.get(request.kind, "check_refusal")
@@ -301,8 +328,10 @@ class WorkflowEngine:
             operation = "create_return" if phase in {"return_dispatch", "verify_return", "outcome_unknown_return"} else _BUSINESS[request.kind]
             record = self._records(checkpoint).get(operation)
             if record is None:
+                self._selected(checkpoint, "ask_operator")
                 return self._pause(checkpoint, request)
             if phase.startswith("outcome_unknown") or (recovering and record.state not in {"verified", "conflict", "rejected"}):
+                self._selected(checkpoint, "read_effect")
                 return self._external(checkpoint, request, operation, reconcile=True)
             if phase in {"dispatch", "return_dispatch"}:
                 facts = self._graph_facts(checkpoint, request)
@@ -311,7 +340,9 @@ class WorkflowEngine:
                     provider_key=record.intent.provider_key, fingerprint=record.intent.argument_fingerprint)
                 return self._transition(checkpoint, request, "read_effect", facts=facts)
             if record.verification is None or record.verification.status != "verified":
-                return self._pause(checkpoint, request, unknown=record.state in {"outcome_unknown", "dispatching"})
+                unknown = record.state in {"outcome_unknown", "dispatching"}
+                self._selected(checkpoint, "mark_unknown" if unknown else "ask_operator")
+                return self._pause(checkpoint, request, unknown=unknown)
             operation = {"verification": "finish", "verify_refusal": "verify_refusal", "verify_return": "verify_return"}[phase]
         elif phase == "handoff_attempted":
             record = self._records(checkpoint).get("enqueue_handoff")
