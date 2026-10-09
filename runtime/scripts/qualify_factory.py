@@ -78,7 +78,7 @@ def preflight(root):
         raise ValueError("preloaded pinned module cannot establish current-source execution")
     before = inventory(root)
     registration = json.loads((root / "runtime/tests/fixtures/factory-current-registration-v1.json").read_bytes())
-    if (registration.get("registration_id") != "synthetic-factory-current-69738ea-v1" or
+    if (registration.get("registration_id") != "synthetic-factory-installed-resources-v1" or
             registration.get("provenance") != "local_controlled_synthetic" or
             set(registration.get("implementations", {})) != set(PIN_MODULES.values())):
         raise ValueError("invalid fixed registration fixture")

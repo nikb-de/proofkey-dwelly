@@ -24,7 +24,7 @@ from .identity import fingerprint, request_fingerprint
 from .journal import CaseStore
 from .profiles import validate_profile
 
-_ROOT = Path(__file__).resolve().parents[2]
+_ROOT = Path(__file__).resolve().parent / "resources"
 _PROFILE_RAW = "8fcd07924f5518ffa6e8b7cfcb3d773e8ba9f10d48458031132f8749c177a940"
 _PROFILE = "5bb712b13efaace655ee7180f3d913d93cbd637e3d1685331c6a1eecbade7bf4"
 _PROCESS = "91cb93780a0cd1612fbeea2aab4e9ee7ac5cc6007e1d8ee2952d52655a9f75e2"
@@ -113,7 +113,7 @@ class ProfileRegistry:
     def builtin(cls, resource_root):
         resource_root = Path(resource_root).absolute()
         return cls(tuple(ApprovedProfileRelease(release_id=release_id, mode="synthetic_replay",
-            profile_path=_ROOT / "profiles/flat-v1.3.json", fixture_path=_ROOT / "fixtures/development" / fixture,
+            profile_path=_ROOT / "profiles/flat-v1.3.json", fixture_path=_ROOT / "fixtures" / fixture,
             resource_root=resource_root / release_id, profile_file_hash=_PROFILE_RAW, profile_hash=_PROFILE,
             process_hash=_PROCESS, policy_hash=_POLICY, fixture_hash=fixture_hash,
             admitted_request_kind=kind, admitted_request_fingerprint=request_hash)

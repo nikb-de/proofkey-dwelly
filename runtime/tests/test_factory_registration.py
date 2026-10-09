@@ -57,7 +57,7 @@ class FactoryRegistrationTests(unittest.TestCase):
             retained.registration_id = "edited"
         # Even explicit bypass of the caller's frozen wrapper cannot edit retained authority.
         object.__setattr__(supplied, "registration_id", "caller-replaced")
-        self.assertEqual(retained.registration_id, "synthetic-factory-current-69738ea-v1")
+        self.assertEqual(retained.registration_id, "synthetic-factory-installed-resources-v1")
         mat = factory.context.materials[0]
         proposal = prepared(factory, mat)
         with self.assertRaises(TypeError):
@@ -181,9 +181,9 @@ class FactoryRegistrationTests(unittest.TestCase):
         factory, proposal, regression, approval, packet = reviewed()
         mat = factory.context.materials[0]
         _, _, _, body = _material_proposal(mat, factory.context.implementation_registration)
-        expected = {"registration_id": "synthetic-factory-current-69738ea-v1",
+        expected = {"registration_id": "synthetic-factory-installed-resources-v1",
                     "provenance": "local_controlled_synthetic",
-                    "inventory_sha256": "d4e88d6e1b784a07245f70f06a8e850daaf668384056058e60e65292864c9fc6"}
+                    "inventory_sha256": "93959331816f018f3d13f1071cd4298468b428e7c79f253c81542893f6ce0b85"}
         self.assertEqual(body["implementation_registration"], expected)
         self.assertEqual(factory._resolve(proposal)[4]["implementation_registration"], expected)
         self.assertEqual(factory._proposal_hash(proposal.proposal_hash), prepared(factory, mat))

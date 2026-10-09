@@ -8,7 +8,7 @@ from .process import validate_process
 from .packet_contracts import packet_enabled
 from .ownership_contracts import ownership_enabled
 
-_ROOT = Path(__file__).resolve().parents[2]
+_ROOT = Path(__file__).resolve().parent / "resources"
 _SYNTHETIC_POLICY = {"policy_id": "synthetic-test-policy-v1", "version": "v1",
                      "evidence_mode": "synthetic", "native_routes_enabled": False,
                      "live_roles": {"extraction": False, "transcription": False, "planning": False},
