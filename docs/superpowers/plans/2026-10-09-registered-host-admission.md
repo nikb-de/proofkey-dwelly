@@ -69,3 +69,27 @@ Files: same module/host/test plus modify `runtime/src/proofkey/gateway.py`.
 Implementation may choose internal helper names/SQL layout, but must not weaken
 the binding guarantees. Escalate a need for additional product paths, trust
 inputs, runtime semantics or inability to meet cleanup/early-entry contract.
+
+## Execution disposition — 9 October 2026
+
+The bounded feature is implemented in local commit `738e002` (exact four
+planned code/test paths). Independent Spec and Quality review accepted it after
+two cleanup findings received real behavioral RED tests and corrections. The
+final new-module discovery passes 31 tests; root's independent public-boundary
+probe passes three checks on the same four frozen source hashes.
+
+**Exception to the whole-suite-green gate:** final discovery ran 1,619 tests in
+367.650s, with one failure and sixteen errors. All seventeen failed selectors
+also fail on immutable pre-feature commit `7205195`; the baseline comparison
+ran those selected seventeen tests, not the whole baseline suite. Narrow
+feature integration was accepted with these explicitly retained prior issues;
+the original whole-suite-green requirement is unfulfilled, not waived or
+reported as passed. Original candidate, RED/GREEN, baseline and final streams
+remain under `.superpowers/sdd/2026-10-08-proofkey-runtime/`.
+
+Next work is separate qualification of historical factory pins, the
+missing-evidence contract/test mismatch, and the optional API test environment,
+then changed-process/readback adaptation and retained-route recovery. See the
+[engineering handoff](../../verification/2026-10-09-registered-host-admission.md).
+Whole Task13 and the parent OpenSpec change remain open; do not archive the
+unfinished parent or infer activation, real human approval or timed-drill success.

@@ -2395,6 +2395,30 @@ class RuntimeWriterTests(unittest.TestCase):
 - [ ] Step5 — one NEW test_host_writer.py discovery, complete raw history and actual finite closure/literal-ID freeze. Root separately authorizes ONE final only after full-read report/new code/test/observer/recipe/current inputs. No old full-host/full-runtime cohort repeat, no silent recipe repin.
 - [ ] Step6 — root NEW proportional checks/exact3 local commit/different-nonauthor Spec then Quality. Only bounded writer prerequisite closes. Admission claim/seal/actual human approval, changed process/ack/readback adaptation, routes/recovery, native/providers/rights/reproduction/drills/whole13/16/archive stay open.
 
+#### Task13B4b — registered fresh-case host admission
+
+- [x] Bounded implementation: local commit `738e002`, exact four code/test
+  files. Trusted fixed synthetic registration now reaches the existing host
+  through a prepared original, pre-debt route/binding seal and post-execution
+  observed join. New isolated marked resources only; no automatic repair,
+  pending replay, migration, arbitrary loading or actual-human approval.
+- [x] Independent Spec/Quality review accepted the feature after two cleanup
+  defects were reproduced and corrected. Final new module: 31 passing tests;
+  independent root public-boundary probes: three passing checks on the same
+  frozen code. Original RED and candidate evidence is retained.
+- [ ] Whole-suite-green gate remains unmet: final 1,619 tests in 367.650s,
+  one failure and sixteen errors. Exact failed selectors match the earlier
+  candidate and reproduce on immutable pre-feature `7205195` (seventeen
+  selected baseline checks, not a full baseline run). Historical factory pin
+  qualification, missing-evidence semantics and optional API dependencies need
+  separate work; no blind repinning, weakened checks or hidden failures.
+
+Binding: [registered-host-admission.md](../../../openspec/changes/proofkey-v21-harness-contracts/registered-host-admission.md).
+Execution: [bounded implementation plan](2026-10-09-registered-host-admission.md).
+Results and next work: [engineering handoff](../../verification/2026-10-09-registered-host-admission.md).
+This completed slice does not close Task13, the parent OpenSpec change,
+changed-process/readback adaptation, retained-route recovery or timed drills.
+
 ### Task 14: Case ledger, provisional labels, complete clocks and isolation checks
 
 #### Task14B2 — pure captured-evidence collection, exact TWO
