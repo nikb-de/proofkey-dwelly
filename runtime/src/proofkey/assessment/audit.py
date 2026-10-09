@@ -369,6 +369,8 @@ class SuppliedAuditV1:
         _check(_enum(self.status, _SUPPLIED) and _enum(self.source_observation, _SOURCES)
                and _reasons(self.reasons))
         _check(self.capture_status is None or _enum(self.capture_status, _CAPTURES))
+        if self.capture_status is not None:
+            _check(_integer(self.ordinal, 0, 255) and _integer(self.repetition, 0, 15))
         _check(self.manifest_hash is not None)
         if self.status == "matched":
             _check(self.required_index is not None and self.ordinal is not None and self.repetition is not None

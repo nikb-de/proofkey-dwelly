@@ -539,3 +539,77 @@ class CandidateAuditFocusedTests(unittest.TestCase):
             replace(request, required_source_paths=("fixture.py",) * 4097)
         with self.assertRaisesRegex(AuditInputError, "^input_limit_exceeded$"):
             replace(request.positions[0], required_predicate_ids=("one-reschedule",) * 65)
+
+
+class CandidateAuditIdentityFixTests(unittest.TestCase):
+    def test_unexpected_constructor_rejects_removed_valid_capture_identity(self):
+        request, positive, unavailable = synthetic_fixture()
+        audit = audit_candidate_evidence(request, (replace(positive, ordinal=7),))
+        row = audit.supplied[0]
+        self.assertEqual((row.status, row.ordinal, row.repetition, row.capture_status),
+                         ("unexpected", 7, 0, "completed"))
+        for changes in ({"ordinal": None}, {"repetition": None},
+                        {"ordinal": None, "repetition": None}):
+            with self.subTest(changes=changes), self.assertRaisesRegex(
+                    ValueError, "^invalid_audit_projection$"):
+                replace(row, **changes)
+
+    def test_aggregate_revalidates_frozen_unexpected_capture_identity(self):
+        request, positive, unavailable = synthetic_fixture()
+        audit = audit_candidate_evidence(request, (replace(positive, ordinal=7),))
+        for changes in ({"ordinal": None}, {"repetition": None},
+                        {"ordinal": None, "repetition": None}):
+            row = replace(audit.supplied[0])
+            for field, value in changes.items():
+                object.__setattr__(row, field, value)
+            with self.subTest(changes=changes), self.assertRaisesRegex(
+                    ValueError, "^invalid_audit_projection$"):
+                replace(audit, supplied=(row,))
+
+    def test_each_noncompleted_unexpected_capture_requires_valid_identity(self):
+        request, positive, unavailable = synthetic_fixture()
+        for capture in ("failed", "invalid_output", "no_output", "not_started"):
+            receipt = replace(unavailable, ordinal=7, status=capture)
+            audit = audit_candidate_evidence(request, (receipt,))
+            self.assertEqual(audit.supplied[0].capture_status, capture)
+            for changes in ({"ordinal": None}, {"repetition": None},
+                            {"ordinal": None, "repetition": None}):
+                with self.subTest(capture=capture, changes=changes), self.assertRaisesRegex(
+                        ValueError, "^invalid_audit_projection$"):
+                    replace(audit.supplied[0], **changes)
+
+    def test_matched_duplicate_and_invalid_valid_captures_require_identity(self):
+        request, positive, unavailable = synthetic_fixture()
+        samples = (
+            ("matched", (positive,)),
+            ("duplicate", (positive, positive)),
+            ("invalid", (replace(positive, ordinal=1),)),
+        )
+        for expected, receipts in samples:
+            audit = audit_candidate_evidence(request, receipts)
+            row = audit.supplied[0]
+            self.assertEqual((row.status, row.capture_status), (expected, "completed"))
+            for changes in ({"ordinal": None}, {"repetition": None},
+                            {"ordinal": None, "repetition": None}):
+                with self.subTest(status=expected, changes=changes), self.assertRaisesRegex(
+                        ValueError, "^invalid_audit_projection$"):
+                    replace(row, **changes)
+
+    def test_out_of_range_semantic_invalid_identity_still_projects_none(self):
+        request, positive, unavailable = synthetic_fixture()
+        for changes, expected in (({"ordinal": 256}, (None, 0)),
+                                  ({"repetition": 16}, (1, None)),
+                                  ({"ordinal": 256, "repetition": 16}, (None, None))):
+            receipt = replace(unavailable)
+            for field, value in changes.items():
+                object.__setattr__(receipt, field, value)
+            with self.subTest(changes=changes):
+                audit = audit_candidate_evidence(request, (receipt,))
+                row = audit.supplied[0]
+                self.assertEqual((row.ordinal, row.repetition), expected)
+                self.assertEqual((row.status, row.capture_status, row.required_index),
+                                 ("invalid", None, None))
+                self.assertEqual(row.reasons, ("invalid_receipt_semantics",))
+                self.assertEqual((audit.required_count, audit.supplied_count,
+                                  audit.joined_count, audit.missing_count), (3, 1, 0, 3))
+                self.assertEqual(replace(audit).supplied, (replace(row),))
