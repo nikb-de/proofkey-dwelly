@@ -569,6 +569,17 @@ Define each private helper here; the journal transaction covers newly received d
 - [ ] **Step 4 — green and race review.** Run ownership plus gateway/stop tests; use test barriers/provider transactions rather than sleep-based race assumptions. Verify ownership does not expand evidence access.
 - [ ] **Step 5 — commit.** Stage scoped Task 8 changes; commit `feat: fence pending owner transfers and stale decision intents`.
 
+#### Task8 closed internal staging refinement — 9 October 2026
+
+Parent Task8 remains incomplete; the original public transfer sketch is not implemented merely by its storage/source foundations. Refinements implement its already approved requirements, not a new user business operation.
+
+- [x] 8A typed ownership contracts/storage and immutable pending/decision/audit fencing, independently Approved at270ffb8+692d6a0. These are local synthetic storage receipts, not current source permission.
+- [x] 8B v1.4 exact source grants/conditional original transfer/target acceptance, independently Approved at e2a467f+420dfa3. Source acceptance mints no target action grant; old profile/process bytes retained.
+- [ ] 8C1 scoped trusted-host `decision_record(binding, decision_id)` getter. Binding ownership-decision-inventory.md closes exactly journal.py/ownership_store.py/new test_ownership_decision_inventory.py. Behavioral TDD, stable named manifest, exact commit and independent review precede consumers; getter grants no current authority or consumption.
+- [ ] 8C2 public gateway/service/engine consumers and registered policy/verifier composition. Read-only private73-line design proposes exact six production/three new test-helper files; root must close interfaces/ownership before GO after context and8C1 gates. Actual lease IDs, current actual operator proof/source grant, original customer consent/material policy and atomic decision consumption stay mandatory. Never relax ordinary principal binding or mint accepted-target permission. Separate missing native/initial activation/stopped fresh-confirmation stays visible.
+
+Do not mark fullTask8/10/M1 or timed qualification complete from a foundation, fixture setup, getter or all-denied tests. Independent sourceful positives and both legal race orderings remain required.
+
 ### Task 9: Completed-request disclosure-only saved-result replay
 
 **Files:** Create `runtime/src/proofkey/replay.py`, `runtime/tests/test_replay.py`; modify `engine.py` to check saved-result eligibility before evidence/planning/business orchestration.
