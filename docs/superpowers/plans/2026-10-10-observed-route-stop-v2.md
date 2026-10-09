@@ -473,6 +473,8 @@ Host test uses `AuthResolver({'user':fx.auth})`, `HostDispatcher(RuntimeFactory(
 
 **Interfaces:** `run_demo(parent: Path) -> dict` in the new example; it reads only the existing `runtime/examples/registered-cases/window-request.json` and `window-fixture.json`, creates a fresh v2 release, explicitly grants synthetic review for its hash, uses a real SyntheticReplayClock and one RuntimeFactory resource, runs then stops and returns a public-safe summary. Its output has exact keys `scope,factory_id,artifact_hash,run_status,stop_requested,original_generation,original_request_preserved,claim_preserved,route_preserved,deadline_not_extended,tool_calls_before,tool_calls_after,business_effects_before,business_effects_after,owner_closed`. No credentials, raw source, private paths or review identities in output.
 
+Add `run_pending_demo(parent: Path) -> dict` for the separate real-clock pending-wait acceptance required by the binding spec. It uses the same one-read input pattern, then changes only `facts.case.completeness.value` to `missing` in the in-memory fixture before preparation/hashing. It must not alter a prepared/opened source. Share the preparation/run/stop/close implementation through one private helper, not duplicated business logic. Its output has the base keys above plus exactly `wait_observed,wait_stopped,wait_context_preserved,wait_expiry_preserved`, all four true only after an actual pending WaitRecordV1 is observed and becomes stopped. Base `business_effects_*` means persisted reschedule count (zero for the pending case); a clarification is not a business reschedule. The complete-case interface/output remains unchanged.
+
 - [ ] **Step 1: Add an actual failing acceptance test.** Load the example with `runpy.run_path(str(Path(__file__).resolve().parents[1]/'examples/observed_stop_v2.py'))` and invoke returned `run_demo`. The initial missing-file failure establishes the red; after file creation preserve the behavioral assertions:
 
 ```python
@@ -496,7 +498,9 @@ def test_real_clock_trusted_library_same_owner_acceptance(self):
         self.assertGreater(receipt['tool_calls_after'], receipt['tool_calls_before'])
 ```
 
-- [ ] **Step 2: Implement the example with real APIs and guaranteed close.** Read request/fixture bytes once; create `SyntheticCaseReleaseSpecV1('J07-DEMO-H','J07-DEMO-L','J07-DEMO-R',request,fixture_bytes)`; call prepare_synthetic_release with new key and a five-second execution; create `SyntheticReviewGrantV1('j07-demo-review',prepared.binding.artifact_hash,'j07-demo-reviewer','admit_fixed_local_replay','synthetic_rehearsal',clock.now(),clock.now()+timedelta(minutes=10))`; use AuthContext(request.principal_id,'j06-synthetic-proof') via keyword fields. Build LocalAdmissionCompositionV1 from prepared objects. Call RuntimeFactory.create_registered, then inside try call run_registered with a 120-second context, capture original request/checkpoint/claim/route/effect_count, call stop_registered with a five-second context, derive the named summary booleans/counters using the same checks as Task 2. In finally call resources.close(); set owner_closed only from `resources.closed is True` after successful close. A close or command exception must propagate; never return a passing receipt on exception. Keep prepared roots for inspection rather than deleting evidence in the example.
+Add a second RED test `test_real_clock_pending_wait_is_stopped_without_changing_context` that calls `run_pending_demo` from the same runpy-loaded example in a separate TemporaryDirectory. Assert scope/factory/run_status as above, all original preservation/stop/closure booleans true, all four wait booleans true, reschedule counts both zero and accounted tool calls increased. Before/after comparison excludes only WaitRecordV1.lifecycle/successor_hash; original wait expiry, budget deadline and origin checkpoint must be exactly equal. Do not monkeypatch the clock, engine or wait creation. Missing example/function is the initial RED; real pending source behavior is the GREEN.
+
+- [ ] **Step 2: Implement the example with real APIs and guaranteed close.** Read request/fixture bytes once; create `SyntheticCaseReleaseSpecV1('J07-DEMO-H','J07-DEMO-L','J07-DEMO-R',request,fixture_bytes)`; call prepare_synthetic_release with new key and a five-second execution; create `SyntheticReviewGrantV1('j07-demo-review',prepared.binding.artifact_hash,'j07-demo-reviewer','admit_fixed_local_replay','synthetic_rehearsal',clock.now(),clock.now()+timedelta(minutes=10))`; use AuthContext(request.principal_id,'j06-synthetic-proof') via keyword fields. Build LocalAdmissionCompositionV1 from prepared objects. Call RuntimeFactory.create_registered, then inside try call run_registered with a 120-second context, capture original request/checkpoint/claim/route/effect_count, call stop_registered with a five-second context, derive the named summary booleans/counters using the same checks as Task 2. For the pending variant also capture the actual pending wait before stop and compare its immutable envelope/expiry afterward; absence of the expected pending wait is a failure, not a false/omitted passing field. In finally call resources.close(); set owner_closed only from `resources.closed is True` after successful close. A close or command exception must propagate; never return a passing receipt on exception. Keep prepared roots for inspection rather than deleting evidence in the example.
 
 Add this exact CLI wrapper to the example:
 
@@ -505,8 +509,10 @@ if __name__ == '__main__':
     import argparse, json
     parser = argparse.ArgumentParser(description='Explicit synthetic same-owner v2 stop demo')
     parser.add_argument('--parent', type=Path, required=True)
+    parser.add_argument('--pending-wait', action='store_true')
     args = parser.parse_args()
-    print(json.dumps(run_demo(args.parent), sort_keys=True))
+    demo = run_pending_demo if args.pending_wait else run_demo
+    print(json.dumps(demo(args.parent), sort_keys=True))
 ```
 
 This is trusted-library acceptance from the checkout, not an installed-wheel or CLI restart claim. It uses the real source adapters locally, no providers/network and no monkeypatched clock. Reuse of J06 input bytes does not replace J06 historical receipts; this is a new v2 artifact/root/receipt.

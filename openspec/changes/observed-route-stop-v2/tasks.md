@@ -5,9 +5,9 @@
 
 ## 2. Same-owner stop
 
-- [ ] 2.1 Mint observed-only private capabilities and implement bounded original identity/debt/wait continuity validation.
-- [ ] 2.2 Add stop-only tagged engine/gateway entry and host routing without stop-first construction.
-- [ ] 2.3 Verify wrong authority, interrupted/reopened state, operation substitution, timing, immutable wait context and irreversible fences; independently review.
+- [x] 2.1 Mint observed-only private capabilities and implement bounded original identity/debt/wait continuity validation.
+- [x] 2.2 Add stop-only tagged engine/gateway entry and host routing without stop-first construction.
+- [x] 2.3 Verify wrong authority, interrupted/reopened state, operation substitution, timing, immutable wait context and irreversible fences; independently review.
 
 ## 3. Evidence and closure
 
