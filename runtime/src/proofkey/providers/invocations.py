@@ -1,5 +1,6 @@
 """Durable pre-entry debit and exact receipt joining. No live enablement or free retry."""
 import hashlib
+from datetime import datetime
 from collections.abc import Mapping
 from contextlib import nullcontext
 import math
@@ -57,13 +58,13 @@ class InvocationService:
         request = self.current_request
         lease = self.store.entry("invocation:" + request.invocation_id)
         self._verify_parent()
-        elapsed = (self._timing.elapsed_since(self._started) if self._timing.execution is not None
+        elapsed = (self._timing_observation(self._timing.elapsed_since, self._started) if self._timing.execution is not None
                    else time.monotonic() - self._started)
         if not math.isfinite(elapsed) or elapsed < 0:
             raise JournalFailure("Invalid or reversed host elapsed measurement")
-        host_remaining = self._timing.remaining_seconds(lease.deadline)
+        host_remaining = self._timing_observation(self._timing.remaining_seconds, lease.deadline)
         if self._timing.execution is not None:
-            elapsed = self._timing.elapsed_since(self._started)
+            elapsed = self._timing_observation(self._timing.elapsed_since, self._started)
         remaining = min(lease.reserved_seconds - elapsed, host_remaining)
         if remaining <= 0:
             raise JournalFailure("Immutable provider lease has expired")
@@ -124,7 +125,7 @@ class InvocationService:
         receipt = ProcessingReceipt(invocation_id=attempt.invocation_id, role=identity.role, provider=identity.provider,
             requested_model=identity.model, prompt_hash=identity.prompt_hash, version=identity.version,
             input_hashes=identity.input_hashes, mode="synthetic", status="outcome_unknown", latency_seconds=0.0,
-            usage={}, processed_at=clock.now(), reason="Invocation interrupted or result invalid; reserved debit retained")
+            usage={}, processed_at=self._clock_observation(clock), reason="Invocation interrupted or result invalid; reserved debit retained")
         store.record_processing(attempt.invocation_id, receipt)
 
     def call(self, role, input_hashes, usage_ceiling, invoke, *, execution=None):
@@ -167,13 +168,33 @@ class InvocationService:
         if self._parent_verifier is not None:
             self._parent_verifier()
 
+    def _timing_observation(self, observe, *args):
+        try:
+            return observe(*args)
+        except (TypeError, ValueError, OverflowError):
+            if self._parent_verifier is not None:
+                raise JournalFailure("Invalid processing parent timing") from None
+            raise
+
+    def _clock_observation(self, clock):
+        def observe():
+            now = clock.now()
+            if (self._parent_verifier is not None
+                    and (not isinstance(now, datetime) or now.utcoffset() is None)):
+                raise ValueError("Aware parent clock observation required")
+            return now
+        return self._timing_observation(observe)
+
     def _call_in_scope(self, role, input_hashes, usage_ceiling, invoke, timing):
         attempt = None
         try:
             self._verify_parent()
             request = self.make_invocation_request(role, input_hashes, usage_ceiling)
-            anchor = timing.monotonic_anchor()
-            now = self.clock.now()
+            anchor = self._timing_observation(timing.monotonic_anchor)
+            if (self._parent_verifier is not None and anchor is not None
+                    and anchor < timing.execution.captured_monotonic):
+                raise JournalFailure("Invalid processing parent timing")
+            now = self._clock_observation(self.clock)
             self._verify_parent()
             attempt = self.store.reserve_invocation(request, now)
             self._verify_parent()
@@ -185,21 +206,21 @@ class InvocationService:
             self._timing = timing
             self._verify_parent()
             if anchor is not None:
-                now, cutoff = timing.window(lease.deadline)
-                if now >= cutoff or timing.elapsed_since(anchor) >= lease.reserved_seconds:
+                now, cutoff = self._timing_observation(timing.window, lease.deadline)
+                if now >= cutoff or self._timing_observation(timing.elapsed_since, anchor) >= lease.reserved_seconds:
                     raise JournalFailure("Provider entry exceeded immutable lease")
             receipt = invoke()
             self._verify_parent()
             receipt = self.validate_receipt_identity_and_inputs(attempt, receipt)
-            monotonic_elapsed = timing.elapsed_since(started) if anchor is not None else time.monotonic() - started
-            clock_elapsed = (self.clock.now() - attempt.reserved_at).total_seconds()
+            monotonic_elapsed = self._timing_observation(timing.elapsed_since, started) if anchor is not None else time.monotonic() - started
+            clock_elapsed = (self._clock_observation(self.clock) - attempt.reserved_at).total_seconds()
             if any(not math.isfinite(value) or value < 0 for value in
                    ((monotonic_elapsed,) if anchor is not None else (monotonic_elapsed, clock_elapsed))):
                 raise JournalFailure("Invalid or reversed host elapsed measurement")
             elapsed = monotonic_elapsed if anchor is not None else max(monotonic_elapsed, clock_elapsed)
-            now, cutoff = timing.window(lease.deadline)
+            now, cutoff = self._timing_observation(timing.window, lease.deadline)
             if anchor is not None:
-                elapsed = timing.elapsed_since(started)
+                elapsed = self._timing_observation(timing.elapsed_since, started)
             if elapsed > lease.reserved_seconds or now >= cutoff:
                 self.store.finish_entry(lease.entry_id, max(elapsed, lease.reserved_seconds + 0.001))
                 raise JournalFailure("Provider entry exceeded immutable lease")

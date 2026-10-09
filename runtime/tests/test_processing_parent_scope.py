@@ -766,3 +766,155 @@ class ProcessingParentScopeTests(unittest.TestCase):
         self.assert_context_closed(service)
         with self.gateway.execution_scope(self.execution()):
             self.assertEqual(self.call_parent(service).status, "completed")
+
+    def test_invalid_clock_during_id_setup_denies_without_debit_and_recovers(self):
+        # Catches raw timing exceptions or accepted reversed/invalid setup samples.
+        service = self.service(self.gateway)
+        before = self.durable_state()
+        real_monotonic, real_now = self.clock.monotonic, self.clock.now
+        for mode in ("persistent_nan", "one_shot_nan", "one_shot_reversal", "one_shot_utc"):
+            with self.subTest(mode=mode):
+                armed = [False]
+                def identifier():
+                    value = self.next_id()
+                    armed[0] = True
+                    if mode == "persistent_nan":
+                        self.clock.seconds = float("nan")
+                    return value
+                def monotonic():
+                    if armed[0] and mode in {"one_shot_nan", "one_shot_reversal"}:
+                        armed[0] = False
+                        return float("nan") if mode == "one_shot_nan" else -1.0
+                    return real_monotonic()
+                def now():
+                    if armed[0] and mode == "one_shot_utc":
+                        armed[0] = False
+                        return None
+                    return real_now()
+                def invoke():
+                    self.callbacks.append("unsafe")
+                    return self.receipt(service)
+                service._id = identifier
+                execution = self.execution()
+                try:
+                    with self.gateway.execution_scope(execution), \
+                            patch.object(self.clock, "monotonic", monotonic), patch.object(self.clock, "now", now):
+                        with self.assertRaises(JournalFailure):
+                            self.call_parent(service, invoke)
+                finally:
+                    self.clock.seconds = 0.0
+                self.assertEqual(self.durable_state(), before)
+                self.assertEqual(self.callbacks, [])
+                self.assert_context_closed(service)
+        self.assertEqual(self.ids, ["parent-plan-1", "parent-plan-2", "parent-plan-3", "parent-plan-4"])
+        service._id = self.next_id
+        with self.gateway.execution_scope(self.execution()):
+            receipt = self.call_parent(service)
+        self.assertEqual(self.store.invocation(receipt.invocation_id)[0].status, "completed")
+        self.assertEqual(self.store.campaign_usage(self.grant.permit_hash)["invocations"], 1)
+
+    def test_parent_context_clock_error_is_safe_and_records_recovered_unknown(self):
+        # Two parent checks pass, then context's own elapsed sample is invalid.
+        service = self.service(self.gateway)
+        real = self.clock.monotonic
+        def invoke():
+            self.callbacks.append(service.current_request.invocation_id)
+            observations = [0]
+            def monotonic():
+                observations[0] += 1
+                return float("nan") if observations[0] == 3 else real()
+            with patch.object(self.clock, "monotonic", monotonic):
+                return service.processing_context(None, None)
+        with self.gateway.execution_scope(self.execution()):
+            with self.assertRaises(JournalFailure):
+                self.call_parent(service, invoke)
+        self.assert_unknown(self.ids[0], callbacks=1)
+        self.assert_context_closed(service)
+        with self.gateway.execution_scope(self.execution()):
+            self.assertEqual(self.call_parent(service).status, "completed")
+
+    def test_parent_postcallback_clock_error_is_safe_and_records_recovered_unknown(self):
+        # Parent accessor passes; the subsequent elapsed observation must deny safely.
+        service = self.service(self.gateway)
+        real = self.clock.monotonic
+        armed, observations = [False], [0]
+        def monotonic():
+            if armed[0]:
+                observations[0] += 1
+                if observations[0] == 2:
+                    return float("nan")
+            return real()
+        def invoke():
+            self.callbacks.append(service.current_request.invocation_id)
+            receipt = self.receipt(service)
+            armed[0] = True
+            return receipt
+        with self.gateway.execution_scope(self.execution()), patch.object(self.clock, "monotonic", monotonic):
+            with self.assertRaises(JournalFailure):
+                self.call_parent(service, invoke)
+        self.assert_unknown(self.ids[0], callbacks=1)
+        self.assert_context_closed(service)
+
+    def test_unconfigured_setup_clock_error_keeps_original_valueerror(self):
+        # Parent-only normalization cannot rewrite the standalone public error type.
+        service = self.service(None)
+        before = self.durable_state()
+        def identifier():
+            value = self.next_id()
+            self.clock.seconds = float("nan")
+            return value
+        service._id = identifier
+        execution = self.execution()
+        try:
+            with self.assertRaises(ValueError):
+                service.call("planning", self.identity.input_hashes, {"tokens": 10.0},
+                    lambda: self.callbacks.append("unsafe"), execution=execution)
+        finally:
+            self.clock.seconds = 0.0
+        self.assertEqual(self.durable_state(), before)
+        self.assertEqual(self.callbacks, [])
+        self.assert_context_closed(service)
+        service._id = self.next_id
+        self.assertEqual(service.call("planning", self.identity.input_hashes, {"tokens": 10.0},
+            lambda: self.receipt(service), execution=self.execution()).status, "completed")
+
+    def test_parent_nonclock_setup_and_storage_exceptions_keep_types_without_debit(self):
+        service = self.service(self.gateway)
+        before = self.durable_state()
+        def identifier():
+            self.next_id()
+            raise ValueError("synthetic ID factory failure")
+        service._id = identifier
+        with self.gateway.execution_scope(self.execution()):
+            with self.assertRaisesRegex(ValueError, "synthetic ID factory failure"):
+                self.call_parent(service)
+        service._id = self.next_id
+        with self.gateway.execution_scope(self.execution()), \
+                patch.object(self.store, "reserve_invocation", side_effect=ValueError("synthetic storage failure")):
+            with self.assertRaisesRegex(ValueError, "synthetic storage failure"):
+                self.call_parent(service)
+        self.assertEqual(self.durable_state(), before)
+        self.assertEqual(self.callbacks, [])
+        self.assert_context_closed(service)
+        with self.gateway.execution_scope(self.execution()):
+            self.assertEqual(self.call_parent(service).status, "completed")
+
+    def test_parent_callback_and_validation_errors_keep_types_and_unknown_debt(self):
+        service = self.service(self.gateway)
+        def invoke():
+            self.callbacks.append(service.current_request.invocation_id)
+            raise ValueError("synthetic callback failure")
+        with self.gateway.execution_scope(self.execution()):
+            with self.assertRaisesRegex(ValueError, "synthetic callback failure"):
+                self.call_parent(service, invoke)
+        self.assert_unknown(self.ids[0], callbacks=1)
+        with self.gateway.execution_scope(self.execution()):
+            with self.assertRaises(TypeError):
+                self.call_parent(service, lambda: {"invalid": "receipt"})
+        attempt, receipt = self.store.invocation(self.ids[1])
+        self.assertEqual(attempt.status, "outcome_unknown")
+        self.assertIsNone(receipt.output)
+        budget = self.store.checkpoint("C1").budget
+        self.assertEqual((budget.active_seconds, budget.role_allowances["planning"].invocations), (20.0, 2))
+        self.assertEqual(self.store.campaign_usage(self.grant.permit_hash)["invocations"], 2)
+        self.assert_context_closed(service)
