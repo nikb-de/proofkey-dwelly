@@ -14,8 +14,10 @@ from .journal import JournalFailure
 from .policy import (BUSINESS, GateDenied, IDENTITY_FIELDS, OWNER_FIELDS, PolicyGate,
                      qualified_observations, required_fields)
 from .verifier import expected_facts, verify
-from .packet_contracts import packet_enabled, packet_postcondition, validate_packet_scope
+from .packet_contracts import (packet_enabled, packet_postcondition, validate_packet_arguments,
+                              validate_packet_policy, validate_packet_scope)
 from .packets import PacketService, PacketSources
+from .wait_contracts import WaitRecordV1
 
 _PORTS = {"reschedule": "scheduling", "register_goods_refusal": "delivery", "register_service_refusal": "delivery",
           "create_return": "returns", "send_clarification": "messaging", "send_status": "messaging",
@@ -166,7 +168,7 @@ class ActionGateway:
     def _material_purpose(self, operation):
         return "operator_packet" if operation == "enqueue_handoff" and packet_enabled(self.profile) else "material_authority"
 
-    def read_packet_sources(self, binding, auth):
+    def read_packet_sources(self, binding, auth, *, include_wait_context=False):
         """Host-only fresh material/catalog scope, read with individually paced leases."""
         with self._auth_scope(auth):
             self._configured_original(binding)
@@ -174,6 +176,10 @@ class ActionGateway:
             if not packet_enabled(self.profile) or self.auth.caller_id != binding.principal_id:
                 raise GateDenied("scope_denied")
             fields = required_fields(self.profile, "enqueue_handoff") | OWNER_FIELDS
+            if type(include_wait_context) is not bool:
+                raise GateDenied("scope_denied")
+            if include_wait_context:
+                fields |= {"case.question_revision"}
             observations = self._facts(binding, fields, purpose="operator_packet",
                 validators=self._source_validators(binding, checkpoint, packet=True))
             values = {o.authority + "." + o.fact: o.value for o in observations}
@@ -189,9 +195,82 @@ class ActionGateway:
                 case_id=binding.case_id, object_id=binding.object_id, sender=binding.principal_id,
                 recipient=values["operator.recipient"], now=self.clock.now())
             refreshed = self._active(binding.case_id, binding)
+            if include_wait_context and refreshed.model_copy(update={"budget": checkpoint.budget}) != checkpoint:
+                raise GateDenied("scope_denied")
             return PacketSources(binding, observations, catalog, access, fingerprint(refreshed.model_dump(mode="json")))
 
-    def enqueue_operator_packet(self, case_id, disposition):
+    @staticmethod
+    def _packet_sources_hash(sources):
+        return fingerprint({"binding": sources.binding.model_dump(mode="json"),
+            "observations": [o.model_dump(mode="json") for o in sources.observations],
+            "catalog": sources.catalog.model_dump(mode="json"), "access": sources.access.model_dump(mode="json"),
+            "checkpoint_hash": sources.checkpoint_hash})
+
+    def _operator_wait(self, binding, intent=None, sources=None):
+        question_id = "question:" + stable_action_id(binding, "enqueue_handoff", "enqueue")
+        if self.store.wait(question_id) is None:
+            return None
+        record = WaitRecordV1.model_validate(self.store.load_wait_record(question_id).model_dump())
+        checkpoint, original = self._configured_original(binding)
+        saved = record.communication_intent
+        origin = record.origin_checkpoint
+        if (saved is None or record.lifecycle != "pending" or record.wait.binding != binding
+                or record.profile_hash != self.profile.release_hash or record.policy_hash != self.profile.policy_hash
+                or record.process != self.profile.processes[original.kind]
+                or self.store.generation_stop(binding).requested or checkpoint.stop.requested
+                or self.clock.now() >= record.wait.expires_at
+                or checkpoint.model_copy(update={"budget": origin.budget, "observations": origin.observations}) != origin
+                or (intent is not None and intent != saved)):
+            raise GateDenied("scope_denied")
+        content = validate_packet_arguments(saved.arguments, binding=binding)
+        validate_packet_policy(content, self.profile, process_version=checkpoint.process_version,
+                               policy_version=checkpoint.policy_version)
+        if self.clock.now() >= content.expires_at:
+            raise GateDenied("scope_denied")
+        if sources is not None:
+            current = qualified_observations(self.profile, binding.object_id, sources.observations)
+            previous = qualified_observations(self.profile, binding.object_id, origin.observations)
+            if (current["case.question_revision"].value != previous["case.question_revision"].value
+                    or current["case.question_revision"].revision != previous["case.question_revision"].revision
+                    or current["ownership.owner"].value != record.owner_id):
+                raise GateDenied("scope_denied")
+        return record
+
+    def _before_packet_prepare(self, intent, sources, before_prepare):
+        checkpoint = self._active(intent.binding.case_id, intent.binding, intent)
+        if fingerprint(checkpoint.model_dump(mode="json")) != sources.checkpoint_hash:
+            raise GateDenied("scope_denied")
+        original = self.store.original_request(intent.binding.case_id, intent.binding.generation)
+        proposal = ActionProposal(operation=intent.operation, stage=intent.stage, arguments=intent.arguments, evidence_refs=[])
+        if not self.gate.evaluate(original, proposal, sources.observations, checkpoint,
+                journal_predecessor=self._service_predecessor(intent.binding, intent.operation, checkpoint.phase)).allowed:
+            raise GateDenied("scope_denied")
+        # Detached immutable inputs protect the actual transport payload even
+        # against a host callback bypassing Python's normal frozen setters.
+        detached_intent = EffectIntent.model_validate(intent.model_dump())
+        detached_sources = PacketSources(RequestBinding.model_validate(sources.binding.model_dump()),
+            tuple(type(o).model_validate(o.model_dump()) for o in sources.observations),
+            type(sources.catalog).model_validate(sources.catalog.model_dump()),
+            type(sources.access).model_validate(sources.access.model_dump()), sources.checkpoint_hash)
+        detached_checkpoint = PhaseCheckpoint.model_validate(checkpoint.model_dump())
+        intent_hash = fingerprint(detached_intent.model_dump(mode="json"))
+        source_hash = self._packet_sources_hash(detached_sources)
+        before_prepare(detached_intent, detached_sources, detached_checkpoint)
+        if (fingerprint(detached_intent.model_dump(mode="json")) != intent_hash
+                or self._packet_sources_hash(detached_sources) != source_hash
+                or detached_checkpoint != checkpoint):
+            raise GateDenied("scope_denied")
+        current = self._active(intent.binding.case_id, intent.binding, intent)
+        allowed = checkpoint.model_copy(update={"observations": list(sources.observations)})
+        if current != checkpoint and current != allowed:
+            raise GateDenied("scope_denied")
+        validate_packet_scope(sources.catalog, sources.access, case_id=intent.binding.case_id,
+            object_id=intent.binding.object_id, sender=intent.binding.principal_id,
+            recipient=intent.arguments["recipient"], now=self.clock.now())
+        # An envelope, if created, must retain this exact pre-send intent.
+        self._operator_wait(intent.binding, intent, sources)
+
+    def enqueue_operator_packet(self, case_id, disposition, *, before_prepare=None):
         """Owned v1.3 construction or exact immutable original recovery."""
         intent = None
         try:
@@ -207,14 +286,34 @@ class ActionGateway:
                 record, intent = records[0], records[0].intent
                 if record.state != "prepared":
                     return self.reconcile(intent.action_id)
-                sources = self.read_packet_sources(binding, self.auth)
+                saved_wait = self._operator_wait(binding, intent)
+                if before_prepare is not None and saved_wait is None:
+                    raise GateDenied("scope_denied")
+                sources = (self.read_packet_sources(binding, self.auth, include_wait_context=True)
+                           if before_prepare is not None or saved_wait is not None
+                           else self.read_packet_sources(binding, self.auth))
                 if fingerprint(self.store.checkpoint(case_id).model_dump(mode="json")) != sources.checkpoint_hash:
                     raise GateDenied("scope_denied")
+                if saved_wait is not None:
+                    self._operator_wait(binding, intent, sources)
                 return self._run(intent, sources.observations)
             self._active(case_id, binding)
+            if before_prepare is not None and not callable(before_prepare):
+                raise GateDenied("scope_denied")
+            saved_wait = self._operator_wait(binding)
+            if saved_wait is not None:
+                intent = saved_wait.communication_intent
+                sources = self.read_packet_sources(binding, self.auth, include_wait_context=True)
+                self._operator_wait(binding, intent, sources)
+                if fingerprint(self.store.checkpoint(case_id).model_dump(mode="json")) != sources.checkpoint_hash:
+                    raise GateDenied("scope_denied")
+                if before_prepare is not None:
+                    self._before_packet_prepare(intent, sources, before_prepare)
+                return self._run(intent, sources.observations)
             snapshots = []
             def read_owned(current, auth):
-                snapshot = self.read_packet_sources(current, auth)
+                snapshot = (self.read_packet_sources(current, auth, include_wait_context=True)
+                            if before_prepare is not None else self.read_packet_sources(current, auth))
                 snapshots.append(snapshot)
                 return snapshot
             prepared = PacketService(self.profile, self.store, read_owned, self.clock).prepare(case_id, self.auth, disposition)
@@ -235,6 +334,8 @@ class ActionGateway:
                 expected_revisions=RevisionVector(revisions={key: indexed[key].revision for key in fields}),
                 postcondition=packet_postcondition(args), deadline=checkpoint.deadline,
                 ownership_state_revision=indexed["ownership.state_revision"].value, ownership_epoch=indexed["ownership.epoch"].value)
+            if before_prepare is not None:
+                self._before_packet_prepare(intent, snapshots[0], before_prepare)
             return self._run(intent, snapshots[0].observations)
         except Exception:
             if intent is not None:
@@ -278,6 +379,8 @@ class ActionGateway:
             if "case.question_revision" in current and (not isinstance(current["case.question_revision"], str)
                     or not current["case.question_revision"].strip()):
                 raise GateDenied("scope_denied")
+            if packet and "case.question_revision" in current:
+                TypeAdapter(Revision).validate_python(current["case.question_revision"], strict=True)
         def customer(read):
             if values(read)["customer.consent_revision"] != binding.consent_revision:
                 raise GateDenied("scope_denied")
@@ -382,6 +485,34 @@ class ActionGateway:
                    if record.intent.binding == binding and record.intent.operation == "register_service_refusal"]
         return records[0] if len(records) == 1 else None
 
+    def _communication_wait_expiry(self, intent):
+        """Recheck a tagged pre-send scope after pacing; not a sent receipt."""
+        if intent.operation not in {"send_clarification", "enqueue_handoff"}:
+            return None
+        question_id = (intent.arguments.get("question_id") if intent.operation == "send_clarification"
+                       else "question:" + intent.action_id)
+        if question_id is None or self.store.wait(question_id) is None:
+            return None
+        record = self.store.load_wait_record(question_id)
+        checkpoint, original = self._configured_original(intent.binding)
+        if (record.lifecycle != "pending" or record.wait.binding != intent.binding
+                or record.communication_action_id != intent.action_id
+                or record.communication_edge.operation != intent.operation or record.communication_stage != intent.stage
+                or record.wait.recipient != intent.arguments.get("recipient") or record.owner_id != self.auth.caller_id
+                or (record.owner_state, record.owner_revision, record.owner_epoch) !=
+                   (checkpoint.ownership_state, checkpoint.ownership_state_revision, checkpoint.ownership_epoch)
+                or (intent.ownership_state_revision, intent.ownership_epoch) != (record.owner_revision, record.owner_epoch)
+                or any(getattr(intent, key) != getattr(record.origin_checkpoint, key) for key in
+                       ("profile_version", "process_version", "policy_version", "deadline"))
+                or record.profile_hash != self.profile.release_hash or record.policy_hash != self.profile.policy_hash
+                or record.process != self.profile.processes[original.kind]
+                or checkpoint.model_copy(update={"budget": record.origin_checkpoint.budget,
+                    "observations": record.origin_checkpoint.observations}) != record.origin_checkpoint
+                or self.clock.now() >= record.wait.expires_at
+                or intent.operation == "enqueue_handoff" and record.communication_intent != intent):
+            raise GateDenied("scope_denied")
+        return record.wait.expires_at
+
     def _run(self, intent, observations, *, is_resend=False):
         checkpoint = self._active(intent.binding.case_id, intent.binding, intent)
         original = self.store.original_request(intent.binding.case_id, intent.binding.generation)
@@ -409,9 +540,11 @@ class ActionGateway:
         if not is_resend:
             self.store.prepare(intent)
         self._pace(min(intent.deadline, self.store.checkpoint(intent.binding.case_id).deadline))
+        wait_expiry = self._communication_wait_expiry(intent)
         lease = self.store.begin_dispatch(intent, self.clock.now(), is_resend=is_resend)
         try:
-            dispatch = getattr(getattr(self.bundle, _PORTS[intent.operation]), intent.operation)(intent, deadline=lease.deadline)
+            dispatch = getattr(getattr(self.bundle, _PORTS[intent.operation]), intent.operation)(intent,
+                deadline=min(lease.deadline, wait_expiry) if wait_expiry is not None else lease.deadline)
         except Exception:
             dispatch = None
         if dispatch is not None:
