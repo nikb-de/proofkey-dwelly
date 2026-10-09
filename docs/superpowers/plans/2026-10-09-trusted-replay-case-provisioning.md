@@ -45,6 +45,7 @@
 | `runtime/tests/support_synthetic_provisioning.py` (new) | Independently authored synthetic data and local test timing helpers; never imported by production or installed examples |
 | `runtime/tests/test_synthetic_provisioning.py` (new) | Input, filesystem, preparation and declaration tests |
 | `runtime/tests/test_synthetic_provisioning_cli.py` (new) | Trusted configuration, timing, selection and registered launch tests |
+| `runtime/tests/test_synthetic_provisioning_acceptance.py` (review fix extension) | Permanent narrow regressions for acceptance denial-state and exceptional-shutdown retention |
 | `runtime/scripts/verify_synthetic_provisioning.py` (new) | Reusable offline build/install driver; keep run output private and separate |
 | `runtime/examples/registered_case_bootstrap.py` (new) | External trusted Python bootstrap using installed public interfaces, not a new product CLI |
 | `runtime/examples/registered-cases/` (new) | Two request/fixture pairs and factual usage notes; no real personal data |
@@ -274,6 +275,8 @@ The test explicitly provisions a `SyntheticReviewGrantV1` with `synthetic_rehear
 ### Task 4: Four installed positions, reusable example and final evidence
 
 **Files:** Create the script/example/data and verification document in the file map; update `runtime/README.md`, `docs/verification/judge-remediation-2026-10-09/{README.md,support-matrix.md}` and OpenSpec task status. Keep raw receipts, SQLite, private paths and proof-bearing sources under a new private output directory, not in public reports.
+
+**Review-driven test extension:** Task 4's independent review found missing reusable denial-state assertions and dropped shutdown evidence after an exceptional library run. Add the narrow acceptance test module named above, retain RED/GREEN, and include it in the frozen full suite. No production-runtime file or authority boundary is expanded.
 
 **Interfaces:** Consume only installed `SyntheticCaseReleaseSpecV1`, the two helpers and existing `HostDispatcher`/`run_command`/`cli.main`. Produce four factual position results plus failure denominators and source/package inventories. The external example is Python integration guidance, not a new product launcher or authority source.
 
