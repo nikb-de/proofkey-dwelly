@@ -206,11 +206,10 @@ def validate_composition(release, clock, composition, execution):
     LocalAdmissionCompositionV1(composition.registry, composition.binding, composition.approvals,
         composition.review_id, composition.control_parent)
     binding = HostExecutableBindingV1(**asdict(composition.binding))
+    commitments = composition.registry.commitments()
+    _require(len(commitments) == 1)
+    _require(commitments[0] == (binding.registered_release_id, binding.artifact_hash), 'conflict')
     registered = composition.registry.resolve(binding.registered_release_id)
-    # B3 exposes resolution, while its frozen inventory binds one composition.
-    _require(type(composition.registry._releases) is tuple and len(composition.registry._releases) == 1)
-    _require(type(composition.registry._releases[0]) is tuple and len(composition.registry._releases[0]) == 2
-        and type(composition.registry._releases[0][1]) is bytes)
     registered = RegisteredReleaseV1(registered.wire_bytes)
     _require(registered.artifact_hash == binding.artifact_hash and release.release_id == binding.host_release_id, 'conflict')
     factory, resource = registered.factory, registered.resource
@@ -519,7 +518,7 @@ class RegisteredAdmissionOwner:
         self.root_identity = _identity(release.resource_root, directory=True)
         self.resource_hash = _hash(json.loads(registered.wire_bytes)['resource'])
         self.release_fields = asdict(release)
-        self.registry_records = composition.registry._releases
+        self.registry_commitments = composition.registry.commitments()
         self.configuration = dict(kind='registered-host-resource-v1', version=1, host_release_id=release.release_id,
             artifact_hash=registered.artifact_hash, resource_hash=self.resource_hash,
             control_path=str(composition.control_parent), control_identity=list(self.control_identity),
@@ -534,8 +533,8 @@ class RegisteredAdmissionOwner:
             and type(self.composition) is LocalAdmissionCompositionV1
             and type(self.composition.binding) is HostExecutableBindingV1
             and type(self.composition.approvals) is ProvisionedReviewResolverV1
-            and type(self.composition.registry._releases) is tuple
-            and self.composition.registry._releases == self.registry_records, 'scope')
+            and type(self.composition.registry) is ReleaseRegistryV1
+            and self.composition.registry.commitments() == self.registry_commitments, 'scope')
         _require(_hash(asdict(self.composition.binding)) == self.configuration['binding_hash']
             and self.composition.review_id == self.configuration['review_id']
             and _hash([_grant(grant) for grant in self.composition.approvals.grants]) == self.configuration['review_registry_hash'], 'scope')

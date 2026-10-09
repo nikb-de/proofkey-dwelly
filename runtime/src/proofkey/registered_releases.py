@@ -388,6 +388,28 @@ class ReleaseRegistryV1:
         object.__setattr__(self,'_releases',tuple(sorted(built)))
 
     @_checked
+    def commitments(self) -> tuple[tuple[str, str], ...]:
+        """Return detached commitments after validating the current retained inventory."""
+        _require(type(self) is ReleaseRegistryV1)
+        records = self._releases
+        _sequence(records, 32, minimum=1, tuple_only=True)
+        total = 0
+        for pair in records:
+            _require(type(pair) is tuple and len(pair) == 2)
+            _id(pair[0])
+            _require(type(pair[1]) is bytes)
+            total += len(pair[1])
+            _require(len(pair[1]) <= 8 * _MIB and total <= 32 * _MIB, 'limit')
+        names = tuple(name for name, _ in records)
+        _require(names == tuple(sorted(set(names))))
+        result = []
+        for name, raw in records:
+            release = RegisteredReleaseV1(raw)
+            _require(_parse(raw)['release_id'] == name)
+            result.append((name, release.artifact_hash))
+        return tuple(result)
+
+    @_checked
     def resolve(self, release_id: str) -> RegisteredReleaseV1:
         _require(type(self) is ReleaseRegistryV1); _id(release_id)
         for name, raw in self._releases:

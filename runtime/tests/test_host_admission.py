@@ -13,19 +13,19 @@ from contextlib import contextmanager
 import sys
 
 from proofkey.contracts import AuthContext
-from proofkey.journal import CaseStore
+from proofkey.journal import CaseStore, JournalFailure
 from proofkey.clock import SyntheticReplayClock
 from proofkey.host import ProfileRegistry, RuntimeFactory, HostDispatcher, AuthResolver
 from proofkey.host_contracts import HostLimitsV1
 from proofkey.execution import ExecutionContext
-from proofkey.registered_releases import ReleaseBlobV1, KnownFactoryV1, ReleaseRegistryV1
+from proofkey.registered_releases import ReleaseBlobV1, KnownFactoryV1, ReleaseRegistryV1, RegisteredReleaseV1
 from proofkey.host_admission import (FIXED_IMPLEMENTATION_PATHS, HostExecutableBindingV1,
     SyntheticReviewGrantV1, ProvisionedReviewResolverV1, LocalAdmissionCompositionV1,
     AdmissionCompositionFailure, AdmissionClaimV1, RegisteredAdmissionOwner, _ClaimStore)
 from proofkey.admission_routes import AdmissionRouteStoreV1
 from proofkey.engine import WorkflowEngine
 from proofkey.host_writer import RuntimeWriterLease
-from test_release_route_foundation import registration_inputs, cj
+from test_release_route_foundation import registration_inputs, cj, rehash
 from test_host_contracts import request
 
 AUTH = AuthContext(caller_id='U1', proof_reference='synthetic-proof')
@@ -88,6 +88,65 @@ def fixture(base, clock, *, goods=False, corrupt_pin=False, corrupt_resource=Fal
 
 
 class HostAdmissionTests(unittest.TestCase):
+    def test_two_release_registry_denies_host_composition_before_resources_or_effect(self):
+        # Public multi-release inventory must not widen exactly-one-release host authority.
+        with tempfile.TemporaryDirectory() as folder, paced_clock() as (clock, state):
+            release, composition = fixture(Path(folder).resolve(), clock)
+            first = composition.registry.resolve('L1').wire_bytes
+            second = json.loads(first); second['release_id'] = 'L2'
+            second_raw = rehash(second)
+            RegisteredReleaseV1(second_raw)
+            object.__setattr__(composition.registry, '_releases', (('L1', first), ('L2', second_raw)))
+            with self.assertRaises(AdmissionCompositionFailure) as caught:
+                RuntimeFactory().create_registered(release, clock, composition=composition, execution=context(clock))
+            self.assertEqual(caught.exception.code, 'invalid')
+            for name in ('journal.sqlite', 'world.sqlite', '.proofkey-registration.json'):
+                self.assertFalse((release.resource_root / name).exists())
+            for name in ('routes.sqlite', 'host-claims.sqlite'):
+                self.assertFalse((composition.control_parent / name).exists())
+            self.assertFalse(state['finished'])
+
+    def test_registry_replacement_denies_entry_before_claim_debt_or_effect(self):
+        # A cached projection, missing registry type guard, or ignored invalid records breaks this.
+        for mutation in ('valid_envelope', 'invalid_envelope', 'registry_type'):
+            with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as folder, paced_clock() as (clock, state):
+                release, composition = fixture(Path(folder).resolve(), clock)
+                runtime = RuntimeFactory().create_registered(release, clock, composition=composition, execution=context(clock))
+                registry = composition.registry
+                original = registry.resolve('L1').wire_bytes
+                before = runtime.store.capture_retained_state(execution=context(clock), clock=clock).payload
+                try:
+                    if mutation == 'valid_envelope':
+                        changed = json.loads(original); changed['resource']['root_inode'] += 1
+                        replacement = rehash(changed)
+                        self.assertNotEqual(RegisteredReleaseV1(replacement).artifact_hash,
+                            RegisteredReleaseV1(original).artifact_hash)
+                        object.__setattr__(registry, '_releases', (('L1', replacement),))
+                    elif mutation == 'invalid_envelope':
+                        object.__setattr__(registry, '_releases', (('L1', b'{}'),))
+                    else:
+                        class RegistryFacade:
+                            def commitments(self): return (('L1', RegisteredReleaseV1(original).artifact_hash),)
+                        object.__setattr__(composition, 'registry', RegistryFacade())
+                    with self.assertRaises(AdmissionCompositionFailure) as caught:
+                        runtime.run_registered(request(), AUTH, execution=context(clock, 120))
+                    self.assertIn(caught.exception.code, ('scope', 'invalid'))
+                    object.__setattr__(composition, 'registry', registry)
+                    object.__setattr__(registry, '_releases', (('L1', original),))
+                    self.assertIsNone(runtime.admission.claim_for_case('C1', execution=context(clock)))
+                    self.assertIsNone(runtime.admission.route_for_case('C1', execution=context(clock)))
+                    with self.assertRaises(JournalFailure):
+                        runtime.store.admission_account('C1')
+                    self.assertEqual(runtime.store._db.execute('SELECT count(*) FROM admission_accounts').fetchone()[0], 0)
+                    self.assertFalse(runtime.store.has_case('C1'))
+                    self.assertEqual(runtime.store.capture_retained_state(execution=context(clock), clock=clock).payload, before)
+                    self.assertEqual(runtime.world.effect_count('reschedule'), 0)
+                    self.assertFalse(state['finished'])
+                finally:
+                    object.__setattr__(composition, 'registry', registry)
+                    object.__setattr__(registry, '_releases', (('L1', original),))
+                    runtime.close()
+
     def test_final_observation_after_long_real_engine_preserves_parent_and_reopens(self):
         # Reusing the ingress cutoff after real engine completion breaks this.
         with tempfile.TemporaryDirectory() as folder, paced_clock() as (clock, state):

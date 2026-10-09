@@ -210,14 +210,14 @@ class AdmissionRouteStoreV1:
         try:
             _require(type(registry) is ReleaseRegistryV1 and type(limits) is RouteLimitsV1)
             self._limits=RouteLimitsV1(**asdict(limits))
-            _require(type(registry._releases) is tuple and 0 < len(registry._releases) <= 32)
-            total=0
-            for pair in registry._releases:
-                _require(type(pair) is tuple and len(pair) == 2 and type(pair[1]) is bytes)
-                _id(pair[0]); total+=len(pair[1])
-                _require(len(pair[1]) <= 8388608 and total <= 33554432,'limit')
-            self._registered=tuple((name,RegisteredReleaseV1(raw)) for name,raw in registry._releases)
-            _require(tuple(name for name,_ in self._registered) == tuple(sorted(set(name for name,_ in self._registered))))
+            registered=[]
+            for name,artifact_hash in registry.commitments():
+                item=registry.resolve(name)
+                _require(type(item) is RegisteredReleaseV1)
+                item=RegisteredReleaseV1(item.wire_bytes)
+                _require(_parse(item.wire_bytes)['release_id'] == name and item.artifact_hash == artifact_hash)
+                registered.append((name,item))
+            self._registered=tuple(registered)
             resources={}; factories={}
             for name,item in self._registered:
                 body=_parse(item.wire_bytes)

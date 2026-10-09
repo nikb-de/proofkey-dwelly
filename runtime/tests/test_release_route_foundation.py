@@ -1,5 +1,6 @@
 """Synthetic declarations and local bookkeeping, never runtime admission authority."""
 from datetime import datetime, timedelta, timezone
+from dataclasses import replace
 from hashlib import sha256
 import json
 from pathlib import Path
@@ -134,6 +135,95 @@ def public_snapshot(folder, *, request=None, binding=None, version='v1.3', attem
 
 
 class ReleaseRouteTests(unittest.TestCase):
+    def test_commitments_are_exact_sorted_detached_validated_inventory(self):
+        # Missing projection, leaked wire bytes, unsorted IDs or a stale cache breaks this.
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d).resolve(strict=True)
+            registry = registry_at(root)
+            self.assertTrue(callable(getattr(registry, 'commitments', None)))
+            expected = (('L1', literal_envelope(root)['artifact_hash']),)
+            first = registry.commitments()
+            self.assertEqual(first, expected)
+            self.assertIs(type(first), tuple)
+            self.assertIs(type(first[0]), tuple)
+            for value in first[0]: self.assertIs(type(value), str)
+            self.assertEqual(registry.commitments(), expected)
+            self.assertIsNot(registry.commitments(), first)
+            self.assertIsNot(registry.commitments()[0], first[0])
+            artifact, factory, resource = registration_inputs(root)
+            registry = ReleaseRegistryV1(artifacts=(replace(artifact, release_id='L2'), artifact),
+                factories=(factory,), resources=(resource,))
+            second = literal_envelope(root); second['release_id'] = 'L2'; rehash(second)
+            self.assertEqual(registry.commitments(), (*expected, ('L2', second['artifact_hash'])))
+            old = registry.commitments()
+            changed = literal_envelope(root); changed['release_id'] = 'L3'
+            raw = rehash(changed)
+            object.__setattr__(registry, '_releases', (('L3', raw),))
+            self.assertEqual(registry.commitments(), (('L3', changed['artifact_hash']),))
+            self.assertEqual(old, (*expected, ('L2', second['artifact_hash'])))
+            with self.assertRaises(RouteFoundationFailure) as caught:
+                registry.resolve('missing')
+            self.assertEqual(caught.exception.code, 'unregistered')
+
+    def test_commitments_reject_corrupt_records_and_bound_all_bytes_before_parsing(self):
+        # Parsing an earlier malformed envelope before checking later bounds gives the wrong failure.
+        class TupleAlias(tuple): pass
+        class StringAlias(str): pass
+        class BytesAlias(bytes): pass
+        class RegistryAlias(ReleaseRegistryV1): pass
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d).resolve(strict=True)
+            registry = registry_at(root)
+            self.assertTrue(callable(getattr(registry, 'commitments', None)))
+            raw = cj(literal_envelope(root))
+            second = literal_envelope(root); second['release_id'] = 'L2'; raw2 = rehash(second)
+            invalid = [([], 'invalid'), (TupleAlias((('L1', raw),)), 'invalid'),
+                ((), 'limit'), (tuple(('L1', raw) for _ in range(33)), 'limit'),
+                ((['L1', raw],), 'invalid'), ((TupleAlias(('L1', raw)),), 'invalid'),
+                ((('L1',),), 'invalid'), (((StringAlias('L1'), raw),), 'invalid'),
+                (((1, raw),), 'invalid'), ((('', raw),), 'invalid'), ((('  ', raw),), 'invalid'),
+                ((('L1', BytesAlias(raw)),), 'invalid'), ((('L1', bytearray(raw)),), 'invalid'),
+                ((('L1', ''),), 'invalid'), ((('L1', b''),), 'limit'),
+                ((('L1', b'{}'),), 'invalid'), ((('L1', raw + b' '),), 'invalid'),
+                ((('L1', raw), ('L1', raw)), 'invalid'), ((('L2', raw2), ('L1', raw)), 'invalid'),
+                ((('L2', raw),), 'invalid'),
+                ((('A', b'{}'), ('B', b'x' * (8 * 1048576 + 1))), 'limit'),
+                (tuple((str(i), b'x' * (8 * 1048576)) for i in range(5)), 'limit')]
+            for index, (records, code) in enumerate(invalid):
+                with self.subTest(index=index):
+                    object.__setattr__(registry, '_releases', records)
+                    with self.assertRaises(RouteFoundationFailure) as caught:
+                        registry.commitments()
+                    self.assertEqual(caught.exception.code, code)
+            alias = object.__new__(RegistryAlias)
+            object.__setattr__(alias, '_releases', (('L1', raw),))
+            with self.assertRaises(RouteFoundationFailure) as caught:
+                alias.commitments()
+            self.assertEqual(caught.exception.code, 'invalid')
+
+    def test_public_inventory_preserves_route_release_bytes_and_registry_digest(self):
+        # Re-encoding a release or changing the digest recipe breaks independent persisted expectations.
+        import sqlite3
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d).resolve(strict=True); control = root / 'control'; control.mkdir()
+            artifact, factory, resource = registration_inputs(root)
+            registry = ReleaseRegistryV1(artifacts=(replace(artifact, release_id='L2'), artifact),
+                factories=(factory,), resources=(resource,))
+            first = literal_envelope(root)
+            second = literal_envelope(root); second['release_id'] = 'L2'; rehash(second)
+            expected = [('L1', first['artifact_hash'], cj(first).decode()),
+                ('L2', second['artifact_hash'], cj(second).decode())]
+            digest = fingerprint(dict(kind='route-registry-v1', version=1,
+                releases=[dict(release_id=name, artifact_hash=value) for name, value, _ in expected]))
+            scope = ExecutionContext(NOW+timedelta(seconds=5), NOW, 10.0, 15.0)
+            routes = AdmissionRouteStoreV1(control, database_name='routes.sqlite', registry=registry,
+                clock=Clock(), execution=scope)
+            try:
+                with sqlite3.connect(control / 'routes.sqlite') as db:
+                    self.assertEqual(db.execute('SELECT release_id,artifact_hash,artifact_json FROM releases ORDER BY release_id').fetchall(), expected)
+                    self.assertEqual(db.execute('SELECT registry_hash FROM meta').fetchone(), (digest,))
+            finally: routes.close()
+
     def test_prohibited_cwd_dotdot_parent_denied_before_creation(self):
         from contextlib import chdir
         with tempfile.TemporaryDirectory() as d:
