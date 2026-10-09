@@ -6,9 +6,15 @@ Complete six-file customer/operator wait/reply/stop consumer2a0ddea plus bounded
 
 ## 1. Design approval and execution planning — user + agents, 2–4 hours
 
+Latest CLI60ce625 independent gate found I1 pending3 short-circuit hides retained stronger4facts. Spec/Quality Needsfixes0C1I0M; exact original-author cli.py/test_cli.py FIX1 active, old27/root4 historicalnotI1coverage. APIpyproject GO/fullTask10/M1 stays closed. Driver14B1 and V2client12B3b disjoint development greens are not final qualifications; root actual dependency holds/exact commits/different gates remain required.
+
+Latest12B3b exact4 client/pure-planner stage782a369 is independently Approved Spec/Quality0C/0I/0M after author30/7.393s and root4/1.286s SAME35; claims influence actual synthetic captured requests, never authority. Seven historical full development-output archives remain unavailable, not reconstructed. V2 planning-output publication/current-authorized orchestration/summary/model/media/native/custody/rights/fullTask12 remain open. CLI FIX1 final9 has returned exit0 under current48/private2 hold; root receipt readback/proportional check/exact2 commit/scoped independent gate remain before API handoff.
+
 Latest12B3a catalog f21f8ae plus exact2 FIX1 651e124 is independently Approved: I1 accumulated nested current authorization addressed, Spec Compliant/Quality Approved0newC/I/M; author10/2.412s/root3/1.165s SAME24, prior30/root6 historical. 12B3b exact4 client/planner is now dispatched. CLI exact5 60ce625 has author27/33.362s with all13 real children/current51+private2 and root4/1.472s SAME51; independent gate remains open. No full12/10/M1 readiness from focused synthetic evidence.
 
 Task13B1 bounded complete retained-state capture is formally closed in retained-state-capture.md, exact3 new companion/journal/newtest. Private brief prepared, no productGO until shared journal handoff. Complete16-table/schema/as-of data and unchanged debt are prerequisites, not registry activation/migration/source-world/host-queue atomic capture or real agent/human/timed evidence. Archive only achieved requirements.
+
+Task12B3c missing saved V2 planning-output publisher seam is formally refined in planning-evidence-publication.md, exact catalog.py/newtest only; private brief ready, no productGO. Full current saved-scope/ancestor and actual durable-publication joins repeat after real final I/O. Historical after stop/successor output is not fresh entry/effect authorization; post-debit checkpoint mismatch is normal, not a reconstructed/refunded budget. Preserve V1 bytes/debt; final held cohort/exact2 commit/different gate precede publishing-orchestrator GO.
 
 Task14B1 next additive pilot is formally closed in runtime-driver-foundation.md: exact4 new driver contracts/execution/grading and two test files, reference-free public input/capture with independent expectations, strict all-position missing-output retention and actual window/goods/replay controls. Old15 provisional rows stay unchanged; no allR01–R15/calibration/timed/native qualification follows. Implementation requires separate root GO/final current-source hold/exact commit/different gate.
 
