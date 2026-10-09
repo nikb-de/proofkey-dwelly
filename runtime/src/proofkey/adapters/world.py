@@ -682,10 +682,13 @@ class SimulatedWorld:
                             evidence = "synthetic-provider:terminal-rejection:" + record["request_id"]
                             terminal_observations = []
                             if self._ownership and target.operation == "transfer_owner" and operation == "read_owner":
-                                original = OriginalTransferIdentityV1(binding=self._ownership.fixture.packet.binding,
-                                    transfer_id=target.action_id, action_id=target.action_id, provider_key=target.provider_key,
-                                    argument_fingerprint=target.fingerprint)
-                                saved = self._ownership.load(connection, original)
+                                try:
+                                    original = OriginalTransferIdentityV1(binding=self._ownership.fixture.packet.binding,
+                                        transfer_id=target.action_id, action_id=target.action_id, provider_key=target.provider_key,
+                                        argument_fingerprint=target.fingerprint)
+                                    saved = self._ownership.load(connection, original)
+                                except (ValueError, KeyError, TypeError):
+                                    return empty("unknown")
                                 if not saved or not isinstance(saved.receipt, TransferRejectedV1):
                                     return empty("unknown")
                                 terminal_observations = self._effect_observations(connection, saved.effect,
@@ -701,6 +704,15 @@ class SimulatedWorld:
                     if len(records) != 1:
                         return empty("unknown")
                     record = records[0]
+                    if self._ownership and record["operation"] == "transfer_owner":
+                        try:
+                            original = OriginalTransferIdentityV1(binding=self._ownership.fixture.packet.binding,
+                                transfer_id=record["action_id"], action_id=record["action_id"],
+                                provider_key=record["provider_key"], argument_fingerprint=record["fingerprint"])
+                            if self._ownership.load(connection, original) is None:
+                                return empty("unknown")
+                        except (ValueError, KeyError, TypeError):
+                            return empty("unknown")
                     capability = self._profile.capabilities.get(record["operation"])
                     if not capability or capability.readback.status != "supported":
                         return empty("unavailable")

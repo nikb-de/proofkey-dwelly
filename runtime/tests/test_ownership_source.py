@@ -131,6 +131,136 @@ class OwnershipSourceTests(unittest.TestCase):
         self.assertEqual(len(found), 1, "Exact original source read must contain one typed receipt")
         return read, found[0]
 
+    def _corrupt_original_for_test(self, change):
+        # Deliberate corruption of a task-local provider DB, not caller SQL authority.
+        with sqlite3.connect(self.db) as connection:
+            key, raw = connection.execute("SELECT key,value FROM metadata WHERE key LIKE 'ownership_original:%'").fetchone()
+            record = json.loads(raw)
+            change(record)
+            connection.execute("UPDATE metadata SET value=? WHERE key=?", (json.dumps(record), key))
+
+    def _durable_transfer_snapshot(self):
+        with sqlite3.connect(self.db) as connection:
+            return {table: connection.execute("SELECT * FROM " + table + " ORDER BY 1,2").fetchall()
+                    for table in ("facts", "effects", "final_rejections", "metadata")}
+
+    def _assert_corrupt_original_closed(self, effect):
+        instruction = target_instruction(self.fixture, self.profile, effect.expected_revisions)
+        before = self._durable_transfer_snapshot()
+        self.assertFalse(self.world.deliver_target_acceptance(instruction))
+        self.assertEqual(self.read(effect).observations, [])
+        with self.assertRaises(ValueError):
+            SimulatedWorld(self.db, self.fixture_path, profile=self.profile, clock=self.clock)
+        self.assertEqual(self._durable_transfer_snapshot(), before)
+
+    def test_corrupted_empty_pending_vector_cannot_accept_after_consent_revocation(self):
+        effect = self.source()
+        self.assertEqual(self.port.transfer_owner(effect, auth=self.owner).status, "acknowledged")
+        self.world.mutate("customer.consent", "revoked")
+        self._corrupt_original_for_test(lambda record: record["pending_revisions"].update(revisions={}))
+        self._assert_corrupt_original_closed(effect)
+
+    def test_corrupted_partial_or_changed_pending_vector_is_not_reconstructed(self):
+        for field, replacement in (("customer.consent", None), ("ownership.state", "v1"),
+                                   ("customer.consent", "v9")):
+            with self.subTest(field=field, replacement=replacement):
+                self.db = Path(self.folder.name) / (field + str(replacement) + ".sqlite")
+                effect = self.source()
+                self.port.transfer_owner(effect, auth=self.owner)
+                def change(record):
+                    vector = record["pending_revisions"]["revisions"]
+                    if replacement is None:
+                        vector.pop(field)
+                    else:
+                        vector[field] = replacement
+                self._corrupt_original_for_test(change)
+                self._assert_corrupt_original_closed(effect)
+
+    def test_type_valid_original_receipt_grant_and_history_corruption_fail_closed(self):
+        def effect_vector(record):
+            record["effect"]["expected_revisions"]["revisions"]["customer.consent"] = "v9"
+        def original(record):
+            record["receipt"]["original"]["argument_fingerprint"] = "0" * 64
+        def receipt(record):
+            record["receipt"]["evidence_ref"] = "different-pending-evidence"
+        def grant(record):
+            record["grant"]["evidence_ref"] = "different-grant-evidence"
+        def history(record):
+            record["history"][0]["target_owner"] = "OP3"
+        for change in (effect_vector, original, receipt, grant, history):
+            with self.subTest(change=change.__name__):
+                self.db = Path(self.folder.name) / (change.__name__ + ".sqlite")
+                effect = self.source()
+                self.port.transfer_owner(effect, auth=self.owner)
+                self._corrupt_original_for_test(change)
+                self._assert_corrupt_original_closed(effect)
+
+    def test_corrupted_provider_effect_identity_or_projection_fails_closed(self):
+        for column in ("identity_hash", "observations", "transfer_id"):
+            with self.subTest(column=column):
+                self.db = Path(self.folder.name) / (column + ".sqlite")
+                effect = self.source()
+                self.port.transfer_owner(effect, auth=self.owner)
+                with sqlite3.connect(self.db) as connection:
+                    value = "0" * 64 if column == "identity_hash" else "different-transfer"
+                    if column == "observations":
+                        observations = json.loads(connection.execute("SELECT observations FROM effects").fetchone()[0])
+                        observations[0]["value"]["evidence_ref"] = "different-projection"
+                        value = json.dumps(observations)
+                    connection.execute("UPDATE effects SET " + column + "=?", (value,))
+                self._assert_corrupt_original_closed(effect)
+
+    def test_missing_original_or_provider_row_cannot_certify_receipt(self):
+        for table in ("metadata", "effects"):
+            with self.subTest(table=table):
+                self.db = Path(self.folder.name) / ("missing-" + table + ".sqlite")
+                effect = self.source()
+                self.port.transfer_owner(effect, auth=self.owner)
+                with sqlite3.connect(self.db) as connection:
+                    if table == "metadata":
+                        connection.execute("DELETE FROM metadata WHERE key LIKE 'ownership_original:%'")
+                    else:
+                        connection.execute("DELETE FROM effects")
+                self._assert_corrupt_original_closed(effect)
+
+    def test_corrupted_terminal_row_cannot_certify_rejected_original(self):
+        effect = self.source()
+        self.world.set_fault("transfer_owner", "business_rejection")
+        self.assertEqual(self.port.transfer_owner(effect, auth=self.owner).status, "rejected")
+        self.world.set_fault("read_owner", "terminal_not_executed")
+        with sqlite3.connect(self.db) as connection:
+            connection.execute("UPDATE final_rejections SET identity_hash=?", ("0" * 64,))
+        self._assert_corrupt_original_closed(effect)
+
+    def test_corrupted_accepted_history_cannot_be_reopened_or_replayed(self):
+        effect = self.source()
+        self.port.transfer_owner(effect, auth=self.owner)
+        instruction = target_instruction(self.fixture, self.profile, effect.expected_revisions)
+        self.assertTrue(self.world.deliver_target_acceptance(instruction))
+        self._corrupt_original_for_test(lambda record: record["history"][0].update(pending_state_revision="v8"))
+        self._assert_corrupt_original_closed(effect)
+
+    def test_expiry_during_final_receipt_projection_rolls_back_every_acceptance_change(self):
+        effect = self.source()
+        self.port.transfer_owner(effect, auth=self.owner)
+        before = self._durable_transfer_snapshot()
+        project = self.world._effect_observations
+        injections = []
+        def advancing_projection(connection, intent, values):
+            # Deterministic time injection; no two-hour wall-clock wait.
+            if values.get("operator.transfer_receipt", {}).get("kind") == "transfer_accepted_v1":
+                self.clock.advance((DEADLINE - self.clock.now()).total_seconds())
+                injections.append(self.clock.now())
+            return project(connection, intent, values)
+        self.world._effect_observations = advancing_projection
+        instruction = target_instruction(self.fixture, self.profile, effect.expected_revisions)
+        self.assertFalse(self.world.deliver_target_acceptance(instruction))
+        self.assertEqual(injections, [effect.deadline])
+        self.assertEqual(self._durable_transfer_snapshot(), before)
+        read = self.read(effect, deadline=DEADLINE + timedelta(hours=1))
+        self.assertEqual(read.observations[0].value["kind"], "transfer_pending_v1")
+        self.assertEqual(self.world.effect_count("transfer_owner"), 1)
+
     def test_current_owner_grant_is_source_owned_not_reader_membership(self):
         self.source()
         read = self.read(facts=["ownership_grant", "ownership_packet"])

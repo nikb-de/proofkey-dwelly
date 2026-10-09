@@ -8,7 +8,7 @@ from typing import Annotated, Literal
 
 from pydantic import Field, model_validator
 
-from ..contracts import (AuthContext, CanonicalRequest, EffectIntent, Hash, Identifier,
+from ..contracts import (AuthContext, AuthorityObservation, CanonicalRequest, EffectIntent, Hash, Identifier,
                          NonexecutionProof, Revision, RevisionVector, Timestamp)
 from ..identity import fingerprint, request_fingerprint
 from ..ownership_contracts import (OWNERSHIP_BASES_V1, OwnershipModel, OwnershipGrantV1,
@@ -69,6 +69,61 @@ class SourceTransferRecordV1(OwnershipModel):
     fixture_hash: Hash
     simulated: Literal[True]
 
+    @staticmethod
+    def next_revision(revision, value):
+        # Exact independent provider _update rule, not a reconstruction from
+        # mutable current facts. A missing saved vector is never synthesized.
+        return ("v" + str(int(revision[1:]) + 1) if revision.startswith("v") and revision[1:].isdigit()
+                else fingerprint({"revision": revision, "value": value}))
+
+    @model_validator(mode="after")
+    def original_history(self):
+        effect = self.effect
+        args = TransferArgumentsV1.model_validate(effect.arguments)
+        condition = TransferPostconditionV1.model_validate(effect.postcondition)
+        original = OriginalTransferIdentityV1(binding=effect.binding, transfer_id=args.intent.transfer_id,
+            action_id=effect.action_id, provider_key=effect.provider_key, argument_fingerprint=effect.argument_fingerprint)
+        if (condition.original != original or self.history[-1] != self.receipt
+                or self.fixture_hash != self.grant.fixture_hash):
+            raise ValueError("Stored transfer original/history identity mismatch")
+        for item in self.history:
+            event_at = (item.pending_at if isinstance(item, TransferPendingV1) else
+                        item.accepted_at if isinstance(item, TransferAcceptedV1) else item.rejected_at)
+            if ((item.original, item.packet, item.target_owner, item.expected_revisions) != (
+                    original, condition.packet, condition.target_owner, effect.expected_revisions)
+                    or not self.grant.issued_at <= event_at < min(effect.deadline, self.grant.expires_at)):
+                raise ValueError("Stored receipt differs from original source scope")
+        pending = self.history[0] if isinstance(self.history[0], TransferPendingV1) else None
+        if pending:
+            expected = effect.expected_revisions.revisions
+            saved = self.pending_revisions.revisions if self.pending_revisions else {}
+            if set(saved) != set(expected) or not {"ownership.state", "ownership.state_revision"} <= expected.keys():
+                raise ValueError("Incomplete stored pending revision vector")
+            for key, revision in expected.items():
+                derived = self.next_revision(revision, "pending") if key in {"ownership.state", "ownership.state_revision"} else revision
+                if saved[key] != derived:
+                    raise ValueError("Stored pending vector differs from original transition")
+            if (pending.pending_state_revision != saved["ownership.state_revision"]
+                    or pending.evidence_ref != "synthetic-provider:effect:" + effect.action_id
+                    or (len(self.history) == 2 and not isinstance(self.receipt, TransferAcceptedV1))):
+                raise ValueError("Stored pending history mismatch")
+        elif len(self.history) != 1 or self.pending_revisions is not None:
+            raise ValueError("Unexpected stored transfer history/vector")
+        if isinstance(self.receipt, TransferAcceptedV1):
+            accepted = self.receipt
+            prior = pending.pending_state_revision if pending else effect.expected_revisions.revisions.get("ownership.state_revision")
+            if (prior is None or accepted.pending_state_revision != (pending.pending_state_revision if pending else None)
+                    or accepted.accepted_state_revision != self.next_revision(prior, "accepted")
+                    or (pending and accepted.accepted_at < pending.pending_at)):
+                raise ValueError("Stored acceptance history mismatch")
+        elif isinstance(self.receipt, TransferRejectedV1):
+            if (pending or self.receipt.retained_state_revision != condition.packet.accepted_state_revision
+                    or self.receipt.evidence_ref != self.receipt.nonexecution.evidence_ref):
+                raise ValueError("Stored rejection history mismatch")
+        elif len(self.history) != 1:
+            raise ValueError("Unexpected pending history")
+        return self
+
 
 class SyntheticOwnershipSource:
     def __init__(self, world, raw):
@@ -101,6 +156,7 @@ class SyntheticOwnershipSource:
         if marker:
             if marker[0] != canonical:
                 raise ValueError("Provider ownership registration changed")
+            self.validate_records(connection)
             return
         facts = self.world._facts(connection, packet.binding.case_id, packet.binding.object_id)
         values = {key: json.loads(row["value"]) for key, row in facts.items()}
@@ -192,7 +248,67 @@ class SyntheticOwnershipSource:
 
     def load(self, connection, original):
         row = connection.execute("SELECT value FROM metadata WHERE key=?", (self._key(original),)).fetchone()
-        return SourceTransferRecordV1.model_validate_json(row[0]) if row else None
+        if not row:
+            return None
+        record = SourceTransferRecordV1.model_validate_json(row[0])
+        self.validate_record(connection, self._key(original), record)
+        return record
+
+    def validate_record(self, connection, key, record):
+        """Join only this provider's durable rows, never the journal/current grants."""
+        effect, receipt = record.effect, record.receipt
+        args, _ = self.parse(effect)
+        required = self.world._profile.capabilities["transfer_owner"].conditional_coverage.covered_fields
+        marker = connection.execute("SELECT value FROM metadata WHERE key='ownership_fixture'").fetchone()
+        if (key != self._key(receipt.original) or record.fixture_hash != self.fixture.fixture_hash
+                or record.grant != self.fixture.grant or not marker or marker[0] != self.fixture.model_dump_json()
+                or not set(required) <= effect.expected_revisions.revisions.keys()):
+            raise ValueError("Stored transfer fixture/grant/complete original mismatch")
+        account = self.world._profile.capabilities["transfer_owner"].shared_limits.account_id
+        rows = connection.execute("SELECT * FROM effects WHERE account_id=? AND provider_key=?",
+            (account, effect.provider_key)).fetchall()
+        terminal = connection.execute("SELECT * FROM final_rejections WHERE account_id=? AND provider_key=?",
+            (account, effect.provider_key)).fetchall()
+        rejected = isinstance(receipt, TransferRejectedV1)
+        if (rejected and (len(terminal) != 1 or rows)) or (not rejected and (len(rows) != 1 or terminal)):
+            raise ValueError("Stored transfer lacks exactly one original provider outcome")
+        row = terminal[0] if rejected else rows[0]
+        expected = {"account_id": account, "provider_key": effect.provider_key, "case_id": effect.binding.case_id,
+            "object_id": effect.binding.object_id, "operation": "transfer_owner", "generation": effect.binding.generation,
+            "action_id": effect.action_id, "fingerprint": effect.argument_fingerprint,
+            "identity_hash": fingerprint(effect.model_dump(mode="json")),
+            "request_id": "provider:" + fingerprint({"account": account, "provider_key": effect.provider_key})[:24]}
+        if any(row[name] != value for name, value in expected.items()):
+            raise ValueError("Stored transfer differs from durable original identity")
+        if rejected:
+            if receipt.evidence_ref != "synthetic-provider:terminal-rejection:" + row["request_id"]:
+                raise ValueError("Stored rejection differs from terminal row")
+        else:
+            stage = "accepted" if isinstance(receipt, TransferAcceptedV1) else "pending"
+            observations = [AuthorityObservation.model_validate(item) for item in
+                json.loads(row["observations"], object_pairs_hook=strict_fixture_pairs)]
+            event_at = receipt.accepted_at if stage == "accepted" else receipt.pending_at
+            if (row["stage"] != stage or row["transfer_id"] != args.intent.transfer_id
+                    or row["question_id"] is not None or row["packet_id"] is not None or row["packet_revision"] is not None
+                    or len(observations) != 1):
+                raise ValueError("Stored transfer effect projection mismatch")
+            observation = observations[0]
+            if ((observation.authority, observation.fact, observation.object_id, observation.value,
+                    observation.provider_at, observation.observed_at, observation.evidence_ref) != (
+                    "operator", "transfer_receipt", effect.binding.object_id, receipt.model_dump(mode="json"),
+                    event_at, event_at, "synthetic-provider:effect:" + effect.action_id)):
+                raise ValueError("Stored receipt differs from durable effect projection")
+
+    def validate_records(self, connection):
+        originals = set()
+        for row in connection.execute("SELECT key,value FROM metadata WHERE key LIKE 'ownership_original:%'"):
+            record = SourceTransferRecordV1.model_validate_json(row["value"])
+            self.validate_record(connection, row["key"], record)
+            originals.add((self.world._profile.capabilities["transfer_owner"].shared_limits.account_id, record.effect.provider_key))
+        for table in ("effects", "final_rejections"):
+            for row in connection.execute("SELECT account_id,provider_key FROM " + table + " WHERE operation='transfer_owner'"):
+                if (row["account_id"], row["provider_key"]) not in originals:
+                    raise ValueError("Provider transfer outcome lacks its full original")
 
     def reject(self, connection, effect, request_id):
         _, condition = self.parse(effect)
@@ -262,7 +378,10 @@ class SyntheticOwnershipSource:
 
     def deliver(self, connection, instruction):
         instruction = SyntheticTargetAcceptanceV1.model_validate(instruction.model_dump())
-        record = self.load(connection, instruction.original)
+        try:
+            record = self.load(connection, instruction.original)
+        except (ValueError, KeyError, TypeError):
+            return False
         if not record:
             return False
         effect, receipt = record.effect, record.receipt
@@ -296,6 +415,11 @@ class SyntheticOwnershipSource:
         connection.execute("UPDATE effects SET stage='accepted',observations=? WHERE operation='transfer_owner' AND provider_key=? AND generation=? AND action_id=? AND fingerprint=?",
             (json.dumps([obs.model_dump(mode="json") for obs in observations]), effect.provider_key,
              effect.binding.generation, effect.action_id, effect.argument_fingerprint))
+        # Projection/history work can itself consume the remaining window.
+        # Equality is ineligible; roll back every source mutation before commit.
+        if self.world._now() >= min(effect.deadline, record.grant.expires_at, instruction.expires_at):
+            connection.rollback()
+            return False
         return True
 
     def disclosure_allowed(self, facts, request):
