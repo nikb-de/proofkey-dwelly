@@ -129,6 +129,125 @@ class ApiFixture(unittest.TestCase):
 
 
 class ApiBoundaryTests(ApiFixture):
+    def test_rejected_inventory_configuration_closes_successful_output_descriptors(self):
+        import errno
+        import proofkey.api as api
+        opened, closed = [], []
+        actual_open, actual_close = api.os.open, api.os.close
+
+        def observe_open(*args, **kwargs):
+            descriptor = actual_open(*args, **kwargs)
+            opened.append(descriptor)
+            return descriptor
+
+        def observe_close(descriptor):
+            result = actual_close(descriptor)
+            closed.append(descriptor)
+            return result
+
+        try:
+            with patch.object(api.os, "open", observe_open), patch.object(api.os, "close", observe_close):
+                with self.assertRaisesRegex(ValueError, "Invalid trusted API configuration"):
+                    self.app(inventory_root=Path("relative-inventory"))
+            self.assertTrue(opened, "the real output parent must successfully open before inventory rejection")
+            self.assertEqual(sorted(opened), sorted(closed), "all successfully acquired output descriptors must close")
+            for descriptor in opened:
+                with self.assertRaises(OSError) as rejected:
+                    api.os.fstat(descriptor)
+                self.assertEqual(rejected.exception.errno, errno.EBADF)
+            self.assertEqual(self.factory.created, [])
+            self.assertEqual(list(self.output.iterdir()), [])
+        finally:
+            # Clean up the actual leak on RED; production owns successful opens.
+            for descriptor in opened:
+                if descriptor not in closed:
+                    actual_close(descriptor)
+
+    def test_shutdown_atomically_prevents_valid_queued_wrapper_entry(self):
+        import proofkey.api as api
+        app = self.app(max_wrapper_jobs=1, max_wrapper_workers=1, total_seconds=10,
+                       export_reserve_seconds=2)
+        lifecycle = app.state.api_lifecycle
+        boundary, resume, allow_worker, worker_done = (threading.Event() for _ in range(4))
+        depths, public_entries, callback_depths, shutdown_errors = {}, [], [], []
+
+        class BoundaryCondition(threading.Condition):
+            def __enter__(condition):
+                result = super().__enter__()
+                ident = threading.get_ident()
+                depths[ident] = depths.get(ident, 0) + 1
+                return result
+
+            def __exit__(condition, *args):
+                ident = threading.get_ident()
+                depths[ident] -= 1
+                result = super().__exit__(*args)
+                if (threading.current_thread().name == "api-fix1-shutdown" and lifecycle.closing
+                        and not boundary.is_set()):
+                    boundary.set()
+                    if not resume.wait(5):
+                        raise RuntimeError("test shutdown boundary not released")
+                return result
+
+            def wait_for(condition, predicate, timeout=None):
+                if threading.current_thread().name.startswith("proofkey-api-worker"):
+                    super().wait_for(allow_worker.is_set, timeout)
+                return super().wait_for(predicate, timeout)
+
+        lifecycle.condition = BoundaryCondition()
+        original_worker, original_run = lifecycle.worker, api.run_command
+        def worker():
+            try:
+                return original_worker()
+            finally:
+                worker_done.set()
+        lifecycle.worker = worker
+        def run(*args, **kwargs):
+            public_entries.append(kwargs["execution"])
+            return original_run(*args, **kwargs)
+
+        async def exercise():
+            manager = app.router.lifespan_context(app)
+            await manager.__aenter__()
+            request = asyncio.create_task(self.request(app, "/v1/commands"))
+            await self.until(lambda: lifecycle.snapshot()["queued"] == 1)
+            with lifecycle.condition:
+                job = next(iter(lifecycle.jobs.values()))
+            job.future.add_done_callback(lambda completed: callback_depths.append(depths.get(threading.get_ident(), 0)))
+            def close():
+                try:
+                    asyncio.run(manager.__aexit__(None, None, None))
+                except BaseException as error:
+                    shutdown_errors.append(error)
+            shutdown = threading.Thread(target=close, name="api-fix1-shutdown")
+            shutdown.start()
+            try:
+                await self.until(boundary.is_set)
+                self.assertTrue(job.execution.remaining_seconds(self.clock) > 0)
+                allow_worker.set()
+                with lifecycle.condition:
+                    lifecycle.condition.notify_all()
+                await self.until(worker_done.is_set)
+                self.assertEqual(public_entries, [], "a queued-at-close wrapper must never enter the real common library")
+                self.assertEqual(self.factory.created, [])
+                self.assertEqual(list(self.output.iterdir()), [])
+                self.assertEqual(lifecycle.snapshot(), {"admitted": 1, "queued": 0, "running": 0,
+                    "completed": 1, "pending_wrapper_ids": ()})
+            finally:
+                resume.set()
+                await self.until(lambda: not shutdown.is_alive())
+                shutdown.join(0)
+                status, facts, _ = await request
+            self.assertEqual(shutdown_errors, [])
+            self.assertEqual((status, facts["kind"], facts["wrapper_id"]),
+                (409, "api-wrapper-not-started-v1", job.wrapper_id))
+            self.assertEqual(callback_depths, [0], "future callbacks must run outside the state lock")
+            self.assertEqual(lifecycle.shutdown_receipt.status, "closed")
+            self.assertEqual(lifecycle.shutdown_receipt.completed, 1)
+            self.assertTrue(lifecycle.shutdown_receipt.host_shutdown.owner_closed)
+        with patch.object(api, "run_command", run):
+            asyncio.run(exercise())
+
     def test_missing_transport_proof_denies_before_body_or_source_entry(self):
         app = self.app()
         with TestClient(app) as client:

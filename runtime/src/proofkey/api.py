@@ -284,12 +284,19 @@ class _Lifecycle:
                 self.output.close(); self.inventory.close()
 
     def shutdown(self):
+        queued = []
         with self.condition:
             self.accepting, self.closing = False, True
-            current = tuple(self.jobs.values())
+            for job in tuple(self.jobs.values()):
+                job.cancellation.set()
+                if job.phase == "queued":
+                    self.queue.remove(job)
+                    receipt = ApiWrapperNotStartedV1(wrapper_id=job.wrapper_id)
+                    self._retain_locked(job, receipt, "not_started")
+                    queued.append((job, receipt))
             self.condition.notify_all()
-        for job in current:
-            self.cancel(job)
+        for job, receipt in queued:
+            job.future.set_result(receipt)
         started = finished = elapsed = overrun = host = None
         failed = False
         try:
@@ -475,7 +482,8 @@ def create_app(runtime_factory, auth_resolver, profile_registry, host_limits, *,
         registered = profile_registry.resolve(release_id)
         if getattr(clock, "mode", None) != registered.mode:
             raise ValueError
-        output, inventory = _Parent(output_parent), _Parent(inventory_root)
+        output = _Parent(output_parent)
+        inventory = _Parent(inventory_root)
     except Exception:
         if output is not None: output.close()
         if inventory is not None: inventory.close()
