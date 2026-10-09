@@ -78,6 +78,22 @@ class ActionGateway(OwnershipGateway):
     def _denied():
         return VerificationResult(status="rejected", reason="scope_denied")
 
+    def processing_parent_timing(self, *, store, clock):
+        """Borrow only this creator's currently installed processing timing."""
+        if (get_ident() != self._owner_thread or not self._execution_active
+                or store is not self.store or clock is not self.clock
+                or type(self._timing) is not ExecutionTiming
+                or self._timing.clock is not clock):
+            raise JournalFailure("Invalid processing parent scope")
+        timing = self._timing
+        try:
+            if (timing.execution is not None
+                    and timing.remaining_seconds(timing.execution.deadline) <= 0):
+                raise ValueError("Expired processing parent scope")
+        except (TypeError, ValueError, OverflowError):
+            raise JournalFailure("Invalid processing parent scope") from None
+        return timing
+
     def _authenticated(self):
         if not isinstance(self.auth, AuthContext) or not callable(getattr(self.clock, "wait", None)):
             raise GateDenied("scope_denied")

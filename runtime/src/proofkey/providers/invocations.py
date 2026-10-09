@@ -19,7 +19,14 @@ def output_digest(output):
 
 class InvocationService:
     def __init__(self, case_id, store, clock, campaign, processor_identity, *, worst_case_cost=None,
-                 invocation_id_factory=None):
+                 invocation_id_factory=None, parent_gateway=None):
+        if parent_gateway is not None:
+            from proofkey.gateway import ActionGateway
+            if (type(parent_gateway) is not ActionGateway or parent_gateway.store is not store
+                    or parent_gateway.clock is not clock):
+                raise JournalFailure("Invalid processing parent scope")
+        self._parent_gateway = parent_gateway
+        self._parent_store, self._parent_clock = store, clock
         self.case_id, self.store, self.clock = case_id, store, clock
         self.campaign = CampaignPermit.model_validate(campaign)
         self.processor_identity = ProcessorIdentity.model_validate(processor_identity)
@@ -31,6 +38,11 @@ class InvocationService:
         self._started = None
         self._creator_thread = get_ident()
         self._timing = None
+        self._parent_verifier = None
+
+    @property
+    def parent_gateway(self):
+        return self._parent_gateway
 
     @property
     def current_request(self):
@@ -41,8 +53,10 @@ class InvocationService:
 
     def processing_context(self, catalog, auth, *, input_records=()):
         from proofkey.providers.protocols import ProcessingContext
+        self._verify_parent()
         request = self.current_request
         lease = self.store.entry("invocation:" + request.invocation_id)
+        self._verify_parent()
         elapsed = (self._timing.elapsed_since(self._started) if self._timing.execution is not None
                    else time.monotonic() - self._started)
         if not math.isfinite(elapsed) or elapsed < 0:
@@ -105,13 +119,17 @@ class InvocationService:
 
     def preserve_consumed_unknown(self, attempt):
         identity = attempt.identity
+        store = self._parent_store if self._parent_verifier is not None else self.store
+        clock = self._parent_clock if self._parent_verifier is not None else self.clock
         receipt = ProcessingReceipt(invocation_id=attempt.invocation_id, role=identity.role, provider=identity.provider,
             requested_model=identity.model, prompt_hash=identity.prompt_hash, version=identity.version,
             input_hashes=identity.input_hashes, mode="synthetic", status="outcome_unknown", latency_seconds=0.0,
-            usage={}, processed_at=self.clock.now(), reason="Invocation interrupted or result invalid; reserved debit retained")
-        self.store.record_processing(attempt.invocation_id, receipt)
+            usage={}, processed_at=clock.now(), reason="Invocation interrupted or result invalid; reserved debit retained")
+        store.record_processing(attempt.invocation_id, receipt)
 
     def call(self, role, input_hashes, usage_ceiling, invoke, *, execution=None):
+        if self._parent_gateway is not None:
+            raise JournalFailure("Parent-configured invocation requires its active parent")
         if get_ident() != self._creator_thread:
             raise JournalFailure("Invocation creator thread required")
         if not self._lock.acquire(blocking=False):
@@ -123,23 +141,56 @@ class InvocationService:
         finally:
             self._lock.release()
 
+    def call_in_parent(self, role, input_hashes, usage_ceiling, invoke):
+        if get_ident() != self._creator_thread:
+            raise JournalFailure("Invocation creator thread required")
+        if not self._lock.acquire(blocking=False):
+            raise JournalFailure("Service already owns an active invocation")
+        try:
+            if self._parent_gateway is None:
+                raise JournalFailure("Invalid processing parent scope")
+            parent, store, clock = self._parent_gateway, self._parent_store, self._parent_clock
+            if self.store is not store or self.clock is not clock:
+                raise JournalFailure("Invalid processing parent scope")
+            timing = parent.processing_parent_timing(store=store, clock=clock)
+            def verify_parent():
+                if (self.store is not store or self.clock is not clock
+                        or parent.processing_parent_timing(store=store, clock=clock) is not timing):
+                    raise JournalFailure("Invalid processing parent scope")
+            self._parent_verifier = verify_parent
+            return self._call_in_scope(role, input_hashes, usage_ceiling, invoke, timing)
+        finally:
+            self._parent_verifier = None
+            self._lock.release()
+
+    def _verify_parent(self):
+        if self._parent_verifier is not None:
+            self._parent_verifier()
+
     def _call_in_scope(self, role, input_hashes, usage_ceiling, invoke, timing):
         attempt = None
         try:
+            self._verify_parent()
             request = self.make_invocation_request(role, input_hashes, usage_ceiling)
             anchor = timing.monotonic_anchor()
-            attempt = self.store.reserve_invocation(request, self.clock.now())
+            now = self.clock.now()
+            self._verify_parent()
+            attempt = self.store.reserve_invocation(request, now)
+            self._verify_parent()
             self._request = request
             self._owner = get_ident()
             lease = self.store.entry("invocation:" + attempt.invocation_id)
             started = anchor if anchor is not None else time.monotonic()
             self._started = started
             self._timing = timing
+            self._verify_parent()
             if anchor is not None:
                 now, cutoff = timing.window(lease.deadline)
                 if now >= cutoff or timing.elapsed_since(anchor) >= lease.reserved_seconds:
                     raise JournalFailure("Provider entry exceeded immutable lease")
-            receipt = self.validate_receipt_identity_and_inputs(attempt, invoke())
+            receipt = invoke()
+            self._verify_parent()
+            receipt = self.validate_receipt_identity_and_inputs(attempt, receipt)
             monotonic_elapsed = timing.elapsed_since(started) if anchor is not None else time.monotonic() - started
             clock_elapsed = (self.clock.now() - attempt.reserved_at).total_seconds()
             if any(not math.isfinite(value) or value < 0 for value in
@@ -152,21 +203,35 @@ class InvocationService:
             if elapsed > lease.reserved_seconds or now >= cutoff:
                 self.store.finish_entry(lease.entry_id, max(elapsed, lease.reserved_seconds + 0.001))
                 raise JournalFailure("Provider entry exceeded immutable lease")
+            self._verify_parent()
             self.store.record_processing(attempt.invocation_id, receipt)
             if receipt.status == "completed":
                 self.store.finish_entry(lease.entry_id, elapsed)
             saved_attempt, saved = self.store.invocation(attempt.invocation_id)
             if saved != receipt or saved_attempt.identity != self.processor_identity:
                 raise JournalFailure("Receipt not durably joined to exact request")
+            self._verify_parent()
             return saved
         except BaseException:
             if attempt is not None:
-                existing = self.store.invocation(attempt.invocation_id)[1]
+                store = self._parent_store if self._parent_verifier is not None else self.store
+                existing = store.invocation(attempt.invocation_id)[1]
                 if existing is None:
-                    self.preserve_consumed_unknown(attempt)
+                    try:
+                        self.preserve_consumed_unknown(attempt)
+                    except (TypeError, ValueError, OverflowError):
+                        if self._parent_verifier is not None:
+                            try:
+                                timing.window(attempt.identity.deadline)
+                            except (TypeError, ValueError, OverflowError):
+                                # The original journal scope cannot write with an
+                                # invalid clock. Its durable debit remains unresolved.
+                                raise JournalFailure("Invalid processing parent timing; reserved debit retained") from None
+                        raise
             raise
         finally:
             self._request = None
             self._owner = None
             self._started = None
             self._timing = None
+            self._parent_verifier = None
