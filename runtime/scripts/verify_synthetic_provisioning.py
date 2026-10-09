@@ -47,13 +47,18 @@ def environment():
 def run(report, label, argv, cwd, *, expected=0, timeout=180):
     started = datetime.now(timezone.utc).isoformat()
     tick = time.monotonic()
-    completed = subprocess.run([str(x) for x in argv], cwd=cwd, env=environment(),
-                               capture_output=True, timeout=timeout)
+    timed_out = False
+    try:
+        completed = subprocess.run([str(x) for x in argv], cwd=cwd, env=environment(),
+                                   capture_output=True, timeout=timeout)
+    except subprocess.TimeoutExpired as error:
+        timed_out = True
+        completed = subprocess.CompletedProcess(argv, None, error.stdout or b"", error.stderr or b"")
     (report["output_dir"] / (label + ".stdout")).write_bytes(completed.stdout)
     (report["output_dir"] / (label + ".stderr")).write_bytes(completed.stderr)
     report["commands"].append({"label": label, "argv": [str(x) for x in argv],
         "cwd": str(cwd), "started": started, "seconds": time.monotonic() - tick,
-        "returncode": completed.returncode, "expected": expected,
+        "returncode": completed.returncode, "expected": expected, "timed_out": timed_out,
         "stdout_sha256": sha256(completed.stdout).hexdigest(),
         "stderr_sha256": sha256(completed.stderr).hexdigest()})
     write(report["output_dir"] / "progress.json", serial(report))
@@ -262,8 +267,9 @@ def readback(prepared, request, run_receipt, shutdown):
         claim_row = one(db, "claims")
         AdmissionClaimV1(claim_row["wire"].encode())
         claim = strict(claim_row["wire"])
-        for key in ("claim_id", "case_id", "attempt_id", "state"):
+        for key in ("claim_id", "attempt_id", "state"):
             assert claim_row[key] == claim[key]
+        assert claim_row["case_id"] == claim["request"]["case_id"] == request.case_id
         assert claim["state"] == "admission_observed"
     with readonly(prepared.control_parent / "routes.sqlite") as db:
         assert one(db, "meta")["version"] == 1
@@ -279,6 +285,8 @@ def readback(prepared, request, run_receipt, shutdown):
         for key in ("attempt_id", "release_id", "resource_id", "resource_hash", "artifact_hash", "binding", "request", "auth_claim"):
             assert claim[key] == route[key]
         assert route["artifact_hash"] == prepared.binding.artifact_hash
+        assert release.wire_bytes == prepared.registry.resolve(prepared.binding.registered_release_id).wire_bytes
+        assert route["resource_hash"] == h(strict(release.wire_bytes)["resource"])
         assert route["release_id"] == release_row["release_id"] == prepared.binding.registered_release_id
         assert route["resource_id"] == prepared.registry.resolve(prepared.binding.registered_release_id).resource.resource_id
         assert route["binding"] == binding.model_dump(mode="json") and route["request"] == body
@@ -303,7 +311,10 @@ def readback(prepared, request, run_receipt, shutdown):
     with readonly(prepared.host_release.resource_root / "world.sqlite") as db:
         scope = one(db, "scopes")
         assert all(scope[key] == body[key] for key in ("case_id", "object_id", "principal_id"))
-        facts = {row["identity"]: strict(row["value"]) for row in rows(db, "facts")}
+        fact_rows = rows(db, "facts")
+        assert all(row["case_id"] == request.case_id and row["object_id"] == request.object_id for row in fact_rows)
+        facts = {row["identity"]: strict(row["value"]) for row in fact_rows}
+        assert len(facts) == len(fact_rows)
         assert facts["case.binding"] == {key: body[key] for key in ("case_id", "object_id", "principal_id", "request_id")}
         assert facts["case.generation"] == "G1" and facts["customer.request_fingerprint"] == business
         effects = rows(db, "effects")
@@ -347,7 +358,14 @@ def readback(prepared, request, run_receipt, shutdown):
     assert set(hashes) == {"ANSWER.md", "REASONING.md"}
     for name, expected_hash in hashes.items():
         assert digest(run_root / "ANSWERS" / request.case_id / name) == expected_hash
+    database_inventory = {}
+    for root in (prepared.host_release.resource_root, prepared.control_parent):
+        for path in sorted(root.glob("*.sqlite")):
+            info = path.lstat()
+            database_inventory[path.name] = {"device": info.st_dev, "inode": info.st_ino,
+                "size": info.st_size, "sha256": digest(path)}
     return {"business_fingerprint": business, "original_request_hash": h(body),
+            "database_inventory": database_inventory,
             "effects": {key: 1 for key in wanted}, "export_hashes": hashes,
             "claim_state": claim["state"], "route_state": route["state"], "owner_closed": True,
             "phase": checkpoint.phase, "generation": "G1",
@@ -368,6 +386,7 @@ def load_example(path):
 def probe(args):
     import proofkey
     from proofkey.clock import SyntheticReplayClock
+    from proofkey.host_admission import AdmissionCompositionFailure
     from proofkey.synthetic_provisioning import SyntheticPreparationFailureV1
     output = Path(args.output)
     output.mkdir(mode=0o700, exist_ok=False)
@@ -438,12 +457,21 @@ def probe(args):
                         stream.write(b"\n")
                 try:
                     receipt = module.execute_case(prepared, request, request_path, clock, "cli", negative=negative["name"])
-                except ValueError as error:
-                    assert negative["name"] in ("expired-review", "mismatched-review", "drifted-fixture")
-                    negative["denial"] = type(error).__name__
+                except (AdmissionCompositionFailure, SyntheticPreparationFailureV1) as error:
+                    if negative["name"] in ("expired-review", "mismatched-review"):
+                        assert type(error) is AdmissionCompositionFailure and error.code == "scope"
+                    else:
+                        assert negative["name"] == "drifted-fixture"
+                        assert type(error) is SyntheticPreparationFailureV1 and error.code == "identity_changed"
+                    negative["denial"] = {"type": type(error).__name__, "code": error.code}
                 else:
                     write(parent / "execution.json", receipt["public"])
                     assert receipt["code"] != 0
+                    if negative["name"] == "wrong-proof":
+                        assert receipt["run"].command.result.status == "denied"
+                    else:
+                        assert negative["name"] in ("wrong-release", "omitted-release")
+                        assert receipt["public"]["failure"] == "invalid_input"
                     if receipt["shutdown"] is not None:
                         assert receipt["shutdown"].owner_closed and not receipt["shutdown"].pending_command_ids
                     negative["denial"] = receipt["public"]
