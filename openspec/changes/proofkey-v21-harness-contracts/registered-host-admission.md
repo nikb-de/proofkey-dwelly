@@ -150,9 +150,18 @@ before opening claims; close both before releasing the resource lease.
    isolation + marker means no inference from unknown historical host inventory
    is needed; this run's `started` inventory must not self-deny preparation.
 
-Use supplied UTC/monotonic anchors, clip admission control operations to at most
-five seconds, never recapture a fresh deadline to hide elapsed time. The engine
-keeps the caller's original full execution cap. Cleanup is creator-owned and
+Use supplied UTC/monotonic anchors. Initial preparation and sealing retain the
+original-start five-second control ceiling. After the real engine returns,
+validate its unchanged original parent context and derive one final-observation
+phase of at most five seconds, clipped to both remaining original parent
+deadlines. All final captures, route join and claim persistence share this same
+phase; no per-operation renewal or rewritten durable execution anchors. This
+clarifies the phase-budget conflict found in the 9 October five-provider review
+and reproduced by a 12.100011-second successful engine run followed by a false
+outer timeout. The engine keeps the caller's original full execution cap;
+expired parents and uncertain effects are never retried or repaired here. See
+the narrow `registered-admission-timing` living spec for the bounded fix.
+Cleanup is creator-owned and
 available after expiry. Retain failed cleanup handles and deny further work;
 never release the outer lease while an inner owner remains live/uncertain.
 Expose only finite failure codes, no raw proof/SQL/payload details.
