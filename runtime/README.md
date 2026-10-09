@@ -4,21 +4,37 @@ ProofKey is an offline adaptive logistics contract harness, built for easy integ
 
 For a captured receipt and content-free execution trace, follow the [short source quickstart](QUICKSTART.md).
 
-The default executable exposes two registered **synthetic replay** examples. Installed console/module/library/API checks now cover these two cases on the target described below. Other commands remain bounded by their separate support contracts; this is not a complete runtime, source-release, live-provider or event-readiness certification.
+The default executable exposes two registered **synthetic replay** examples. Recorded installed console/module/library/API checks at `5bc38c8` cover these two cases on the target described below. Other commands remain bounded by their separate support contracts; this is not a complete runtime, source-release, live-provider or event-readiness certification.
 
 ## Start here
 
 - **Run the existing demo:** use the two source-checkout examples below with already installed dependencies and separate fresh state directories.
 - **Use an installed package:** see [Installed target](#installed-target). Package-owned data no longer depends on the source checkout.
-- **Connect a system:** first read the [public / registered / core support matrix](../docs/verification/judge-remediation-2026-10-09/support-matrix.md). Six interfaces exist; no native logistics connection is established. The default public path accepts two fixed cases, not an arbitrary profile.
+- **Connect a system:** first read the [support and evidence map](#support-and-evidence-map). Six interfaces exist; no native logistics connection is established. The default public path accepts two fixed cases, not an arbitrary profile.
 - **Understand a result:** read [Read results](#read-results). Acknowledged, verified, pending, physically received and paid are different outcomes. Do not retry an unknown effect with a new key.
 - **Work on remaining capabilities:** use the [complete remediation register](../docs/verification/judge-remediation-2026-10-09/README.md), not the historical panel score, to find the next dependency and its exit evidence.
 
-The pre-installation-fix full-suite baseline is **1,693 tests, all passing**, on runtime commit `40138e1`, with 246 runtime files unchanged during execution. [Installation verification](../docs/verification/2026-10-09-installed-resources.md) records the current candidate's separate build, installation and regression evidence. [Earlier verification](../docs/verification/2026-10-09-registry-commitments.md) remains historical. The fixed-case CLI, registered admission bridge, core engine and live integrations have different support boundaries.
+## Support and evidence map
+
+Evidence is specific to its candidate, launch path and cases. Recorded installed results do not qualify later source changes. The [detailed dated matrix](../docs/verification/judge-remediation-2026-10-09/support-matrix.md) retains command conditions and historical source findings; [Read results](#read-results) explains denial, pending and unknown outcomes.
+
+| Path | Evidenced scope | Candidate / evidence | Limits |
+| --- | --- | --- | --- |
+| Fixed installed replay | Window reschedule and whole-order goods refusal plus return initiation; 8/8 console, module, library and in-process API positions | J13 `5bc38c8`; [installation verification](../docs/verification/2026-10-09-installed-resources.md) | CPython 3.12.14 / macOS arm64, exact artifacts and two fixed synthetic cases |
+| Trusted new synthetic cases | New window/goods cases through trusted Python library or explicitly configured CLI; final 4/4 positives and 7/7 negatives | J06 `80e0d6f`; [trusted-case verification](../docs/verification/2026-10-09-trusted-replay-cases.md), including all five attempts: 16/20 positive and 34/35 negative passes | Separate preparation, synthetic review and transport authority; no standalone manifest launcher or API composition selector |
+| Source trace quickstart | Two source captures and a bounded, content-free receipt renderer; focused checks and reviews complete, frozen regression pending | `7b4c6e2`; [trace verification](../docs/verification/2026-10-10-safe-evidence-trace.md), [source quickstart](QUICKSTART.md) | Source only, not installed acceptance. `unverified_receipt_projection`: dispatch unknown, original readback not observed, current publication files unchecked |
+| Other command routing | `inspect-profile`, wrapper `batch`, `recover`, `reply` and `stop` have separate routes and conditions; `transfer` is unavailable | Source inspection at `633ed41`; [command details](../docs/verification/judge-remediation-2026-10-09/support-matrix.md#commands-by-entrypoint), [CLI](src/proofkey/cli.py), [API](src/proofkey/api.py) | Syntax/routing is not a positive workflow receipt. API exposes only commands, batch and profile routes; retained state, authority and time still govern controls |
+| Registered v1 controls | `fixed-synthetic-v1` admits business `run` only; profile inspection is separate | J06 `80e0d6f`; [verified scope](../docs/verification/2026-10-09-trusted-replay-cases.md) | Registered recover/reply/stop unavailable; retained or interrupted state does not grant control authority |
+| Observed-route stop-v2 | In development / not qualified | [Separate stop-v2 specification](../openspec/changes/observed-route-stop-v2/specs/observed-route-stop-v2/spec.md) | Planned opt-in, same-owner source/trusted-library scope only; no completed acceptance, restart/recover/reply, default CLI/API or installed-v2 qualification |
+| Six offline interfaces | Case, delivery, scheduling, returns, messaging and operator contracts with simulated adapters | Source inspection at `633ed41`; [contracts](src/proofkey/ports.py), [simulated composition](src/proofkey/adapters/world.py) | Not six live integrations or complete six-port acceptance; no native provider/model or human-onboarding evidence |
+
+Return initiation is not physical receipt or payment; queued handoff is not operator acceptance. The trace reports supplied receipt fields, not independently verified dispatch, original readback or current files. Renderer exit 0 means rendering succeeded, not that a business effect succeeded.
+
+The historical pre-installation-fix baseline was **1,693 tests, all passing**, at `40138e1`, with 246 runtime files unchanged during execution. [Earlier verification](../docs/verification/2026-10-09-registry-commitments.md), J13 installation evidence and J06 trusted-case evidence retain their own candidate-specific regression results.
 
 ## Installed target
 
-The observed target is **CPython 3.12.14 / macOS arm64**, with all nineteen exact runtime/API wheels from `requirements-api.lock` and the separately pinned setuptools 84.0.0 build backend. Ten built-in profiles, two fixed host fixtures and `schema.sql` ship inside the package. Writable journals, inventories and outputs remain outside site-packages.
+The J13 installed candidate `5bc38c8` was observed on **CPython 3.12.14 / macOS arm64**, with all nineteen exact runtime/API wheels from `requirements-api.lock` and the separately pinned setuptools 84.0.0 build backend. Ten built-in profiles, two fixed host fixtures and `schema.sql` ship inside that package. Writable journals, inventories and outputs remain outside site-packages.
 
 Use a new virtual environment, an explicitly provisioned trusted wheelhouse, this lock and the reviewed `proofkey_runtime-0.1.0-py3-none-any.whl`. Install the lock with `pip install --no-index --find-links WHEELHOUSE --require-hashes -r requirements-api.lock`, then the project wheel with `pip install --no-index --no-deps WHEEL`. These uppercase arguments name caller-provisioned paths, not network sources. API use needs the entire recorded closure; selecting `api-test` alone does not install the API extra.
 
@@ -42,7 +58,7 @@ preparation rejects it as `invalid_input` before child allocation. JSON-escaped
 
 See [the two literal examples and usage](examples/registered-cases/README.md).
 Their acceptance requires four fresh installed positions, exact persisted
-effects/claim/route/export joins and actual owner closure. Current evidence and
+effects/claim/route/export joins and actual owner closure. Evidence for `80e0d6f` and
 remaining gates are in [J06 verification](../docs/verification/2026-10-09-trusted-replay-cases.md).
 These examples stay outside site-packages; the default CLI and its two fixed
 releases remain unchanged. This is a trusted Python integration hook, not a
