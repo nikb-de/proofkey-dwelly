@@ -86,6 +86,11 @@ def strict_json(response, max_bytes, *, allow_negative_infinity=False):
         if allow_negative_infinity and value == "-Infinity":
             return float("-inf")
         raise ValueError("Nonfinite JSON")
+    def parsed_float(value):
+        number = float(value)
+        if not math.isfinite(number):
+            raise ValueError("JSON exponent overflow")
+        return number
     def pairs(values):
         obj = {}
         for key, value in values:
@@ -94,7 +99,7 @@ def strict_json(response, max_bytes, *, allow_negative_infinity=False):
             obj[key] = value
         return obj
     try:
-        result = json.loads(response.body, parse_constant=constant, object_pairs_hook=pairs)
+        result = json.loads(response.body, parse_constant=constant, parse_float=parsed_float, object_pairs_hook=pairs)
     except (UnicodeError, ValueError) as error:
         raise ValueError("Malformed provider response") from error
     if not isinstance(result, dict):
@@ -103,9 +108,8 @@ def strict_json(response, max_bytes, *, allow_negative_infinity=False):
     while pending:
         value, path = pending.pop()
         if isinstance(value, float) and not math.isfinite(value):
-            # JSON exponent overflow bypasses parse_constant. The one vendor
-            # exception is scoped to words[index].logprob, never an envelope,
-            # another key or nested lookalike field.
+            # Exponent overflow is rejected during parse_float. Only explicit
+            # vendor -Infinity literals can reach this scoped path exception.
             if not (allow_negative_infinity and value == float("-inf") and len(path) == 3
                     and path[0] == "words" and type(path[1]) is int and path[2] == "logprob"):
                 raise ValueError("Nonfinite parsed provider number")

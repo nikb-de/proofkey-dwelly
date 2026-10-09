@@ -603,3 +603,14 @@ class StrictJsonNumberTests(unittest.TestCase):
         parsed = self.parse(finite, eleven=True)
         self.assertEqual(parsed["nested"][0], {"positive": 1e308, "negative": -1e308})
         self.assertEqual(parsed["words"][0]["logprob"], -0.2)
+
+    def test_exponent_overflow_cannot_use_literal_negative_infinity_exception(self):
+        for raw in (b'{"words":[{"logprob":-1e309}]}', b'{"words":[{"logprob":1e309}]}'):
+            with self.subTest(raw=raw), self.assertRaises(ValueError):
+                self.parse(raw, eleven=True)
+        literal = b'{"words":[{"logprob":-Infinity}]}'
+        self.assertEqual(self.parse(literal, eleven=True)["words"][0]["logprob"], float("-inf"))
+        finite = b'{"words":[{"logprob":-1.7976931348623157e308}],"positive":1.7976931348623157e308}'
+        parsed = self.parse(finite, eleven=True)
+        self.assertEqual(parsed["words"][0]["logprob"], -1.7976931348623157e308)
+        self.assertEqual(parsed["positive"], 1.7976931348623157e308)
