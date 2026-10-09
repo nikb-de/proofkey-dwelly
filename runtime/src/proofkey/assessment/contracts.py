@@ -257,6 +257,7 @@ class ExecutionPosition:
     outcome: Literal["valid_output", "invalid_output", "no_output", "callback_error"]
     returned_bytes: bytes | None
     returned_hash: str | None
+    validation_error: bytes | None = None
 
     def __post_init__(self):
         if (type(self.ordinal) is not int or not 0 <= self.ordinal < MAX_POSITIONS
@@ -265,6 +266,10 @@ class ExecutionPosition:
             raise ValueError("Bounded typed execution position required")
         if self.returned_hash != (None if self.returned_bytes is None else digest_bytes(self.returned_bytes)):
             raise ValueError("Returned byte identity mismatch")
+        if self.validation_error is not None:
+            digest_bytes(self.validation_error)
+            if self.outcome != "invalid_output":
+                raise ValueError("Validation failure requires invalid returned output")
         o = self.observation
         if self.outcome == "valid_output":
             valid = self.returned_bytes is not None and o.output_bytes == self.returned_bytes and o.error is None
@@ -273,7 +278,7 @@ class ExecutionPosition:
             if self.returned_bytes is not None:
                 try:
                     ObservedOutput.model_validate(strict_loads(self.returned_bytes))
-                except (TypeError, ValueError):
+                except Exception:
                     pass
                 else:
                     valid = False
@@ -288,21 +293,27 @@ class ExecutionPosition:
 
     @classmethod
     def capture_returned(cls, row, candidate_hash, *, output, ordinal, repetition):
-        raw = None
+        raw, validation_error = None, None
         try:
             if output is not None:
                 raw = output if type(output) is bytes else canonical_bytes(output)
                 digest_bytes(raw)  # Bound before retaining or validating shape.
             observation = Observation.capture(row, candidate_hash, output=raw)
             outcome = "no_output" if output is None else "valid_output"
-        except (TypeError, ValueError):
+        except Exception as exc:
+            # Ordinary validation failures belong to this position. Process
+            # exit/interrupt BaseExceptions must still propagate to the host.
+            try:
+                validation_error = (type(exc).__name__ + ":" + str(exc)).encode("utf-8")[:MAX_BYTES]
+            except Exception:
+                validation_error = type(exc).__name__.encode("utf-8")[:MAX_BYTES]
             if raw is not None and (type(raw) is not bytes or len(raw) > MAX_BYTES):
                 raw = None  # Oversize/nonserializable returns cannot enter bounded storage.
             observation = Observation.capture(row, candidate_hash, output=None,
                 error=b"Invalid observed assessment output")
             outcome = "invalid_output"
         return cls(ordinal, repetition, observation, outcome, raw,
-                   None if raw is None else digest_bytes(raw))
+                   None if raw is None else digest_bytes(raw), validation_error)
 
 
 @dataclass(frozen=True)

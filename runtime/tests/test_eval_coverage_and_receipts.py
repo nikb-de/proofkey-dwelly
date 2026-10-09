@@ -71,6 +71,55 @@ class LedgerTests(unittest.TestCase):
 
 
 class CoverageTests(unittest.TestCase):
+    def test_recursive_return_validation_retains_public_batch_and_later_positions(self):
+        coverage = module(self, "coverage")
+        c = module(self, "contracts")
+        row = c.CaseRow.model_validate(rows()[0])
+        cycle = {}
+        cycle["private"] = cycle
+        deep = None
+        for _ in range(1100):
+            deep = {"private": deep}
+        deep_bytes = b'{"private":' * 1100 + b"null" + b"}" * 1100
+        valid = b'{ "effects": {}, "forbidden_effects": [] }'
+        for name, returned in (("cycle", cycle), ("deep_mapping", deep), ("deep_bytes", deep_bytes)):
+            with self.subTest(name=name):
+                sequence = iter((valid, returned, valid, None))
+                try:
+                    batch = coverage.capture_executions((row,), candidate_hash="1" * 64,
+                        execute=lambda case: next(sequence), repeats=4)
+                except RecursionError:
+                    self.fail("Returned validation lost the declared execution batch")
+                self.assertEqual(len(batch.executions), 4)
+                self.assertEqual(tuple(p.outcome for p in batch.positions),
+                    ("valid_output", "invalid_output", "valid_output", "no_output"))
+                self.assertEqual(tuple((p.ordinal, p.repetition) for p in batch.positions), ((0, 0), (1, 1), (2, 2), (3, 3)))
+                self.assertEqual(batch.executions[2].output_bytes, valid)
+                failed = batch.positions[1]
+                self.assertEqual(failed.observation.case_id, row.case_id)
+                self.assertEqual(failed.observation.source_hash, row.source_hash)
+                self.assertEqual(failed.observation.candidate_hash, "1" * 64)
+                self.assertEqual(failed.observation.error, b"Invalid observed assessment output")
+                self.assertIsNone(failed.observation.output_bytes)
+                self.assertTrue(failed.validation_error)
+                self.assertEqual(failed.returned_bytes, deep_bytes if name == "deep_bytes" else None)
+                self.assertEqual(failed.returned_hash, c.digest_bytes(deep_bytes) if name == "deep_bytes" else None)
+        control = coverage.capture_control("known_bad", (row,), candidate_hash="2" * 64,
+            execute=lambda case: cycle, grader_descriptor={"route": "offline"},
+            runner=lambda output, order: self.fail("Unrepresentable return reached grader"), repeats=2, seed=1401)
+        self.assertIsNone(control.batch)
+        self.assertEqual(len(control.execution_batch.positions), 2)
+        self.assertTrue(all(p.outcome == "invalid_output" and p.validation_error
+            and p.returned_bytes is None and p.returned_hash is None for p in control.execution_batch.positions))
+        coverage, c, cases, controls = self._anchored_controls()
+        result = coverage.qualify_grader_details(controls[0].batch, controls[:1] + (control,) + controls[2:])
+        self.assertEqual(result.receipt.status, "incomplete")
+        self.assertIn("control_execution_incomplete", result.receipt.qualification_limits)
+        self.assertIn("control_grading_incomplete", result.receipt.qualification_limits)
+        with self.assertRaises(KeyboardInterrupt):
+            coverage.capture_executions((row,), candidate_hash="1" * 64,
+                execute=lambda case: (_ for _ in ()).throw(KeyboardInterrupt()), repeats=2)
+
     def _anchored_controls(self, bad_runner=None):
         coverage = module(self, "coverage")
         c = module(self, "contracts")
