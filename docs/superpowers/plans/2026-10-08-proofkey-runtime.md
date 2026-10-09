@@ -1619,6 +1619,8 @@ The live gate defaults closed: subscription alone is insufficient; exact API ent
 
 #### Task12B4d — authenticated fresh originals; intake-only, exact TWO
 
+- [x] Bounded exact2 43be881 independently Spec Approved/Quality Approved by DIFFERENT NONAUTHOR runtime_fresh_intake_review, C0/I0/M0. Current author final5/0.767s and rootNEW2/0.151s preserved303+307/actual288+289 inputs; original25 discovery historical after ceiling correction, no current27-pass claim. Exact private originals and post-I/O/current-state/original-timing/ceiling fences only; semantic extraction remains unavailable and wholeTask12 stays incomplete.
+
 **Binding:** [fresh-original-intake.md](../../../openspec/changes/proofkey-v21-harness-contracts/fresh-original-intake.md). This internal refinement of approved Task12 is not a new execution choice. Semantic extraction/ASR/planning/V2 continuation remains separate; the public unavailable boundary is retained.
 
 **Files:** Modify ONLY `runtime/src/proofkey/engine.py` (fresh run seam after replay/admission/full-original/stop/terminal, before driver); create ONLY `runtime/tests/test_engine_fresh_intake.py`. Preserve signatures and every shared gateway/catalog/journal/consumer/profile/helper/old test. Root owns formal/plan/ledger and commits.
@@ -2314,6 +2316,317 @@ class ReleaseRouteTests(unittest.TestCase):
 The approved internal sequence stops this boundary at independently testable bookkeeping; next host owner/barrier/admission-claim-seal/review integration gets its own exact refinement. This is not an assertion of actual factory completeness, route-before-debt execution or authenticated journal origin.
 
 ### Task 14: Case ledger, provisional labels, complete clocks and isolation checks
+
+#### Task14B2 — pure captured-evidence collection, exact TWO
+
+**Binding:** [candidate-evidence-audit.md](../../../openspec/changes/proofkey-v21-harness-contracts/candidate-evidence-audit.md). Only NEW `runtime/src/proofkey/assessment/audit.py` and NEW `runtime/tests/test_audit.py`. Existing assessment/driver/engine/provider/catalog/factory/schema/contracts/helpers/oldtests/fixtures are read-only. This collects a declared roster, not whole candidate readiness.
+
+**Interfaces:** Exact frozen/slotted RequiredDriverPositionV1 and CandidateAuditRequestV1; pure `audit_candidate_evidence(request, receipts: tuple[RunnerReceipt,...]) -> CandidateEvidenceAuditV1`; exact immutable PredicateAuditV1/AuditPositionV1/SuppliedAuditV1 and a detached shared ImplementationAudit. Public projections retain safe declared identity, hashes, indexes, counts and reasons only. No raw captured events/errors/expectations and no ArtifactReader/source/runtime/provider callback.
+
+- [ ] **Step 1 — create the complete NEW literal fixture and two primary tests.** Write the following into test_audit.py; these are fixture-only bytes, not runtime/model execution. First missing-module/API RED must be labeled as such. Do not execute an old test method or import old test helpers.
+
+```python
+from dataclasses import replace
+from datetime import datetime, timezone
+from hashlib import sha256
+import unittest
+
+from proofkey.assessment.audit import (
+    AuditInputError, CandidateAuditRequestV1, RequiredDriverPositionV1,
+    audit_candidate_evidence,
+)
+from proofkey.assessment.driver_contracts import (
+    DriverManifest, RunnerReceipt, canonical_bytes, digest_bytes,
+)
+
+
+def synthetic_fixture():
+    # All bytes below are declared fixture data, not a runtime execution.
+    source = canonical_bytes({
+        "version": "candidate-source-v1", "kind": "fixture-only",
+        "files": {"fixture.py": sha256(b"synthetic source").hexdigest(),
+                  "src/proofkey/schema.sql": sha256(b"synthetic schema").hexdigest()},
+    })
+    expectations = (
+        canonical_bytes({"version": "driver-expectation-v1", "expectation_version": "audit-test-v1",
+            "predicates": [{"id": "one-reschedule", "event_tag": "physical",
+                "field_path": ["reschedule"], "operation": "equals", "expected": 1}]}),
+        canonical_bytes({"version": "driver-expectation-v1", "expectation_version": "audit-test-v1",
+            "predicates": [{"id": "one-refusal", "event_tag": "physical",
+                "field_path": ["refusal"], "operation": "equals", "expected": 1}]}),
+        canonical_bytes({"version": "driver-expectation-v1", "expectation_version": "audit-test-v1",
+            "predicates": [{"id": "zero-replay-effect", "event_tag": "physical",
+                "field_path": ["replay_effects"], "operation": "equals", "expected": 0}]}),
+    )
+    manifests = tuple(DriverManifest(
+        version="runtime-driver-v1", driver_id=driver, obligation=obligation,
+        variant="fixture-only", case_id=case, independence_group=group,
+        case_bytes_hash=sha256(case.encode()).hexdigest(),
+        scenario_hash=sha256(b"synthetic scenario").hexdigest(),
+        driver_code_hash=sha256(b"synthetic driver").hexdigest(),
+        candidate_manifest_hash=digest_bytes(source), profile_name="synthetic-profile",
+        profile_hash=sha256(b"synthetic profile").hexdigest(),
+        process_hash=sha256(b"synthetic process").hexdigest(),
+        policy_hash=sha256(b"synthetic policy").hexdigest(),
+        expectation_version="audit-test-v1", expectation_hash=digest_bytes(expectation),
+        execution_kind="public_sequence", dependency_ids=("synthetic-runtime",))
+        for driver, obligation, case, group, expectation in (
+            ("window", "R01", "C1", "window-family", expectations[0]),
+            ("goods", "R05", "C2", "goods-family", expectations[1]),
+            ("saved", "R15", "C3", "window-family", expectations[2]),
+        ))
+    request = CandidateAuditRequestV1(
+        source_manifest_bytes=source,
+        required_source_paths=("fixture.py", "src/proofkey/schema.sql"),
+        positions=tuple(RequiredDriverPositionV1(
+            ordinal=index, repetition=0, manifest_bytes=manifest.to_bytes(),
+            expectation_bytes=expectations[index],
+            required_predicate_ids=(("one-reschedule",), ("one-refusal",),
+                                    ("zero-replay-effect",))[index])
+            for index, manifest in enumerate(manifests)),
+        audited_at=datetime(2026, 10, 9, 12, 0, tzinfo=timezone.utc))
+    first_bytes = manifests[0].to_bytes()
+    positive = RunnerReceipt(
+        manifest_bytes=first_bytes, manifest_hash=digest_bytes(first_bytes),
+        ordinal=0, repetition=0, status="completed",
+        raw_event_bytes=(b'{"event_tag":"physical","reschedule":1}',),
+        raw_output_bytes=b'{}', raw_output_hash=digest_bytes(b'{}'),
+        elapsed_seconds=0.25, source_pre_manifest_bytes=source,
+        source_post_manifest_bytes=source)
+    second_bytes = manifests[1].to_bytes()
+    unavailable = RunnerReceipt(
+        manifest_bytes=second_bytes, manifest_hash=digest_bytes(second_bytes),
+        ordinal=1, repetition=0, status="not_started",
+        dependency_limits=("dependency_unavailable",),
+        error_bytes=b"private synthetic diagnostic: not public audit text")
+    return request, positive, unavailable
+
+
+class CandidateEvidenceAuditTests(unittest.TestCase):
+    def test_partial_fixture_preserves_required_and_supplied_denominators(self):
+        request, positive, unavailable = synthetic_fixture()
+        audit = audit_candidate_evidence(request, (positive, unavailable))
+        self.assertEqual((audit.required_count, audit.supplied_count,
+                          audit.joined_count, audit.missing_count), (3, 2, 2, 1))
+        self.assertEqual(tuple(position.status for position in audit.positions),
+                         ("captured", "captured", "missing"))
+        self.assertEqual(tuple(position.capture_status for position in audit.positions),
+                         ("completed", "not_started", None))
+        self.assertEqual(tuple(position.assessment_status for position in audit.positions),
+                         ("passed", "ungraded", None))
+        self.assertEqual(audit.passed_variants, (("window", "fixture-only", "R01"),))
+        self.assertEqual(audit.scope_status, "unqualified")
+        self.assertIn("fixture_only_source", audit.limitations)
+        states = {item.requirement_id: item.status for item in audit.implementation.requirements}
+        self.assertEqual(states["R01"], "missing")  # One variant is not all of R01.
+        self.assertEqual(states["actual_content_roles"], "missing")
+        self.assertEqual(states["protected_isolation"], "missing")
+        self.assertNotIn("private synthetic diagnostic", audit.implementation.model_dump_json())
+        self.assertEqual(len(audit.supplied), 2)
+
+    def test_duplicate_and_wrong_manifest_cannot_replace_missing_required_work(self):
+        request, positive, unavailable = synthetic_fixture()
+        wrong_manifest = replace(positive, ordinal=1)
+        audit = audit_candidate_evidence(request, (positive, positive, wrong_manifest))
+        self.assertEqual((audit.required_count, audit.supplied_count,
+                          audit.joined_count, audit.missing_count), (3, 3, 0, 1))
+        self.assertEqual(tuple(position.status for position in audit.positions),
+                         ("invalid", "invalid", "missing"))
+        self.assertEqual(audit.positions[0].supplied_indexes, (0, 1))
+        self.assertEqual(audit.positions[1].supplied_indexes, (2,))
+        self.assertEqual((audit.invalid_required_count, audit.invalid_supplied_count), (2, 3))
+        self.assertEqual(audit.passed_variants, ())
+        self.assertEqual(len(audit.supplied), 3)
+        states = {item.requirement_id: item.status for item in audit.implementation.requirements}
+        self.assertEqual(states["driver_inventory_join"], "invalid")
+        with self.assertRaises(AuditInputError):
+            audit_candidate_evidence({"complete": True, "actual_roles": True}, ())
+```
+
+- [ ] **Step 2 — run only the new two literal methods and retain their original output.** Use the already qualified bundled Python3.12.14, -B/PYTHONDONTWRITEBYTECODE=1 and a NEW absent private pycache prefix; no dependency install, runtime/CLI/provider entry, server or broad suite.
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 PYTHONPYCACHEPREFIX='/Users/nbk/.codex/worktrees/proofkey-runtime/Pitch project/.superpowers/sdd/2026-10-08-proofkey-runtime/task-14b2-pycache-development' PYTHONPATH=runtime/src:runtime/tests /Users/nbk/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 -B -m unittest test_audit.CandidateEvidenceAuditTests.test_partial_fixture_preserves_required_and_supplied_denominators test_audit.CandidateEvidenceAuditTests.test_duplicate_and_wrong_manifest_cannot_replace_missing_required_work -v
+```
+
+- [ ] **Step 3 — implement the smallest complete pure audit.** Apply the exact closed dataclass grammar and constructor relationships in the binding. Preflight every byte/string occurrence across request+all supplied records (32MiB, individual1MiB, receipt8MiB, counts256/64/4096) before any grading; exact types/UTF8/finiteness/slot reads only. Validate request expectations without grading. Retain every required position and supplied index; all duplicates ambiguous, no best/last winner or reassignment. Semantically invalid but safe-sized receipts remain indexed. A valid not_started/no-source row is captured/ungraded/missing-source, not invalid or passed. Recompute public assess_driver for eligible completed rows; failed, insufficient, ungraded and captured-completed remain distinct. Carry declared identity/predicate roster to independently validate projection counts/cross-refs/groups/passed triples. UTC-detach audit labels; detached exact ImplementationAudit always keeps the fixed25 whole-candidate requirements missing.
+
+- [ ] **Step 4 — add the complete six refinement tests and five boundary tests below; RED/GREEN each new behavior.** Preserve the initial fixture exactly. Missing module/API, fixture errors and initially green characterization are separate from genuine assertion RED; never reset or fabricate evidence.
+
+```python
+from dataclasses import FrozenInstanceError
+from unittest.mock import patch
+
+
+class CandidateAuditRefinementTests(unittest.TestCase):
+    def test_safe_source_inventory_mismatch_retains_all_denominators(self):
+        request, positive, unavailable = synthetic_fixture()
+        incomplete = replace(request, required_source_paths=(
+            "fixture.py", "missing.py", "src/proofkey/schema.sql"))
+        audit = audit_candidate_evidence(incomplete, (positive, unavailable))
+        self.assertEqual(audit.source_scope_status, "incomplete")
+        self.assertEqual((audit.required_count, audit.supplied_count,
+                          audit.joined_count, audit.missing_count), (3, 2, 2, 1))
+        self.assertEqual(audit.position_counts,
+                         (("captured", 2), ("missing", 1), ("invalid", 0)))
+        self.assertEqual(audit.capture_counts,
+            (("completed", 1), ("failed", 0), ("invalid_output", 0),
+             ("no_output", 0), ("not_started", 1), ("none", 1)))
+        self.assertEqual(audit.passed_variants, ())
+        self.assertIn("source_scope_incomplete", audit.limitations)
+
+    def test_not_started_is_joined_without_inventing_source_observation(self):
+        request, positive, unavailable = synthetic_fixture()
+        audit = audit_candidate_evidence(request, (positive, unavailable))
+        observed = audit.positions[1]
+        self.assertEqual(observed.status, "captured")
+        self.assertEqual(observed.capture_status, "not_started")
+        self.assertEqual(observed.assessment_status, "ungraded")
+        self.assertEqual(observed.source_observation, "missing")
+        self.assertEqual(observed.reasons,
+                         ("source_observation_missing", "capture_not_completed"))
+        self.assertEqual(audit.joined_count, 2)
+        self.assertEqual(audit.invalid_required_count, 0)
+        self.assertEqual(audit.supplied[1].status, "matched")
+
+    def test_wrong_present_noncompleted_source_differs_from_missing_source(self):
+        request, positive, unavailable = synthetic_fixture()
+        wrong_source = canonical_bytes({
+            "version": "candidate-source-v1", "kind": "fixture-only",
+            "files": {"fixture.py": sha256(b"different synthetic source").hexdigest(),
+                      "src/proofkey/schema.sql": sha256(b"synthetic schema").hexdigest()},
+        })
+        failed = replace(unavailable, status="failed",
+                         source_pre_manifest_bytes=wrong_source,
+                         source_post_manifest_bytes=None)
+        audit = audit_candidate_evidence(request, (positive, failed))
+        self.assertEqual(audit.positions[1].status, "captured")
+        self.assertEqual(audit.positions[1].source_observation, "mismatched")
+        self.assertEqual(audit.positions[1].reasons,
+                         ("source_snapshot_mismatch", "capture_not_completed"))
+        self.assertEqual(audit.positions[1].assessment_status, "ungraded")
+        self.assertEqual(audit.capture_counts,
+            (("completed", 1), ("failed", 1), ("invalid_output", 0),
+             ("no_output", 0), ("not_started", 0), ("none", 1)))
+        self.assertEqual(audit.joined_count, 2)
+
+    def test_global_shape_and_budget_preflight_finishes_before_grading(self):
+        request, positive, unavailable = synthetic_fixture()
+        large = replace(unavailable, error_bytes=b"x" * 1_048_576)
+        with patch("proofkey.assessment.audit.assess_driver") as grade:
+            with self.assertRaisesRegex(AuditInputError, "^unsafe_supplied_shape$"):
+                audit_candidate_evidence(request, [positive])
+            with self.assertRaisesRegex(AuditInputError, "^input_limit_exceeded$"):
+                audit_candidate_evidence(request, (large,) * 33)
+            grade.assert_not_called()
+
+    def test_safe_semantic_tampering_is_indexed_not_a_dropped_position(self):
+        request, positive, unavailable = synthetic_fixture()
+        tampered = replace(unavailable)
+        object.__setattr__(tampered, "status", "invented-status")
+        audit = audit_candidate_evidence(request, (positive, tampered))
+        self.assertEqual((audit.required_count, audit.supplied_count,
+                          audit.joined_count, audit.missing_count,
+                          audit.invalid_required_count, audit.invalid_supplied_count),
+                         (3, 2, 1, 1, 1, 1))
+        self.assertEqual(audit.positions[1].status, "invalid")
+        self.assertIsNone(audit.positions[1].capture_status)
+        self.assertEqual(audit.supplied[1].index, 1)
+        self.assertEqual(audit.supplied[1].status, "invalid")
+        self.assertEqual(audit.supplied[1].reasons, ("invalid_receipt_semantics",))
+        self.assertNotIn("invented-status", audit.implementation.model_dump_json())
+
+    def test_output_is_detached_and_whole_candidate_requirements_stay_missing(self):
+        request, positive, unavailable = synthetic_fixture()
+        audit = audit_candidate_evidence(request, (positive, unavailable))
+        with self.assertRaises(FrozenInstanceError):
+            audit.joined_count = 99
+        with self.assertRaises(FrozenInstanceError):
+            audit.positions[0].status = "missing"
+        with self.assertRaises((AttributeError, TypeError)):
+            audit.implementation.requirements.append("caller-green")
+        fixed = {"whole_candidate_closure", "actual_content_roles", "development_activation",
+                 "calibrated_labels", "protected_isolation", "timed_drills",
+                 "clean_reproduction", "source_rights", "independent_whole_branch_review",
+                 "official_eligibility"} | {f"R{i:02}" for i in range(1, 16)}
+        rows = {row.requirement_id: row for row in audit.implementation.requirements}
+        self.assertTrue(fixed <= rows.keys())
+        self.assertTrue(all(rows[name].status == "missing" and not rows[name].evidence_refs
+                            for name in fixed))
+        self.assertEqual(audit.scope_status, "unqualified")
+
+class CandidateAuditBoundaryTests(unittest.TestCase):
+    def test_failed_and_missing_trace_never_count_as_passed_variants(self):
+        request, positive, unavailable = synthetic_fixture()
+        failed = replace(positive, raw_event_bytes=(b'{"event_tag":"physical","reschedule":0}',))
+        insufficient = replace(positive, raw_event_bytes=())
+        for receipt, expected in ((failed, "failed"), (insufficient, "insufficient")):
+            with self.subTest(expected=expected):
+                audit = audit_candidate_evidence(request, (receipt, unavailable))
+                self.assertEqual(audit.positions[0].assessment_status, expected)
+                self.assertEqual(audit.positions[0].capture_status, "completed")
+                self.assertEqual(audit.passed_variants, ())
+                self.assertEqual(audit.required_count, 3)
+
+    def test_safe_unexpected_and_invalid_duplicates_keep_supplied_inventory(self):
+        request, positive, unavailable = synthetic_fixture()
+        outside = replace(positive, ordinal=3)
+        invalid = replace(positive)
+        object.__setattr__(invalid, "status", "invented-status")
+        audit = audit_candidate_evidence(request, (positive, invalid, unavailable, outside))
+        self.assertEqual(tuple(row.status for row in audit.supplied),
+                         ("duplicate", "duplicate", "matched", "unexpected"))
+        self.assertEqual(audit.positions[0].supplied_indexes, (0, 1))
+        self.assertIn("invalid_receipt_semantics", audit.supplied[1].reasons)
+        self.assertEqual((audit.required_count, audit.supplied_count, audit.joined_count,
+                          audit.missing_count, audit.invalid_required_count,
+                          audit.invalid_supplied_count), (3, 4, 1, 1, 1, 3))
+
+    def test_unsafe_receipt_shapes_and_frozen_request_bypass_reject_before_grade(self):
+        request, positive, unavailable = synthetic_fixture()
+        from unittest.mock import patch
+        for field, value in (("elapsed_seconds", float("nan")),
+                             ("ordinal", True), ("raw_event_bytes", [])):
+            tampered = replace(unavailable)
+            object.__setattr__(tampered, field, value)
+            with self.subTest(field=field), patch("proofkey.assessment.audit.assess_driver") as grade:
+                with self.assertRaisesRegex(AuditInputError, "^unsafe_supplied_shape$"):
+                    audit_candidate_evidence(request, (positive, tampered))
+                grade.assert_not_called()
+        broken = replace(request)
+        object.__setattr__(broken, "positions", [])
+        with patch("proofkey.assessment.audit.assess_driver") as grade:
+            with self.assertRaises(AuditInputError):
+                audit_candidate_evidence(broken, (positive,))
+            grade.assert_not_called()
+
+    def test_projection_counts_groups_and_passed_variants_are_recomputed(self):
+        request, positive, unavailable = synthetic_fixture()
+        audit = audit_candidate_evidence(request, (positive, unavailable))
+        for changes in ({"joined_count": 99}, {"independent_groups": ("ghost",)},
+                        {"passed_variants": (("ghost", "fixture-only", "R01"),)}):
+            with self.subTest(changes=changes), self.assertRaises(ValueError):
+                replace(audit, **changes)
+        with self.assertRaises(ValueError):
+            replace(audit.positions[0], required_predicate_ids=("ghost",))
+
+    def test_empty_supplied_inventory_is_three_missing_not_success(self):
+        request, positive, unavailable = synthetic_fixture()
+        audit = audit_candidate_evidence(request, ())
+        self.assertEqual((audit.required_count, audit.supplied_count, audit.joined_count,
+                          audit.missing_count), (3, 0, 0, 3))
+        self.assertEqual(audit.passed_variants, ())
+        self.assertEqual(audit.scope_status, "unqualified")
+        with self.assertRaises(AuditInputError):
+            replace(request, positions=())
+
+```
+
+Further focused variants must cover unsafe versus safe-missing paths/schema; noncompleted matching-PRE/missing-POST; canonical-but-wrong completed source; requested expectation hash/version/predicate mismatch; source kinds; time/numeric aliases; unexpected semantic-invalid entries; output fixed requirement/status-table/index tampering; caller-frozen bypass and custom aware tzinfo detachment. Every input/output constructor must enforce its exact closed grammar, not just the positive examples. These variants test the pure collector only, not unrelated runtime code.
+
+- [ ] **Step 5 — finite current-source verification.** Run a tiny fixture-only audit and inspect all declared/supplied rows and missing dimensions. Then one development discovery of test_audit, freeze literal current IDs and actual import/read/source/data/interpreter/platform closure; preserve original outputs/errors and resource/audit caveats. Request root ONE finite final GO separately. No old engine/API/driver cohort or source traversal in the collector. Root performs proportionate NEW checks, not a duplicate cohort.
+
+- [ ] **Step 6 — root exact-two integration and different-nonauthor gates.** Empty index/exact names/diff-check before local commit; independent reviewer checks Spec then Quality from the same brief/formal/current report/diff and original receipts. Bounded approval is not full14/16, rights/custody/activation/actual-role/drill/eligibility completion. Whole change stays unarchived while those requirements remain unfinished.
 
 - [x] 14B1 bounded additive public-driver pilot f7b4ff5 plus exact2 required-dependency FIX1 70cbfb55 independently Approved Spec/Quality: I1 ADDRESSED, newC0/I0/M0. Genuine tuple-omission RED retained; author final8/1.471s and root2/0.696s SAME44/private2 include9 pre-entry rejection positions and matching actual public positive. Full24 records/3actual/21controls verified. Original39/root6 and288records/8actual remain historical; original truncated output stays unqualified. Governed by [runtime-driver-foundation.md](../../../openspec/changes/proofkey-v21-harness-contracts/runtime-driver-foundation.md), reference-free registered input and independent expected data. Inner43 recipes still omit schema; outer44/52 do not retroactively repair them. Old15/provisional labels unchanged; full14/allR01–R15/calibration/timed/native/role/custody/readiness not completed.
 
