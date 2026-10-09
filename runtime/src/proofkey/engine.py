@@ -9,13 +9,16 @@ from contextlib import contextmanager
 from threading import get_ident
 
 from .contracts import (ActionProposal, AuthContext, CanonicalRequest, CaseResult,
-                        EnvironmentProfile, PhaseCheckpoint, ReadTarget, SavedResult, VerificationResult)
+                        EnvironmentProfile, PhaseCheckpoint, ReadTarget, SavedResult, ScopedReply, VerificationResult)
 from .gateway import ActionGateway
 from .identity import request_fingerprint
 from .journal import JournalFailure
 from .policy import GateDenied, qualified_observations
 from .process import ProcessController
 from .replay import ReplayService
+from .waits import WaitService
+from .packet_contracts import packet_enabled
+from .budget import BudgetExceeded
 
 
 _BUSINESS = {"reschedule_window": "reschedule", "reschedule_exact": "reschedule",
@@ -38,12 +41,13 @@ def _interval(start, end):
 
 
 class WorkflowEngine:
-    def __init__(self, profile, bundle, store, clock, planner=None, evidence=None):
+    def __init__(self, profile, bundle, store, clock, planner=None, evidence=None, *, gateway=None):
         self.profile = EnvironmentProfile.model_validate(profile.model_dump())
         self.bundle, self.store, self.clock = bundle, store, clock
         self.planner, self.evidence = planner, evidence
         self.process = ProcessController(self.profile)
-        self._gateway = ActionGateway(self.profile, bundle, store, clock)
+        self._gateway = gateway if gateway is not None else ActionGateway(self.profile, bundle, store, clock)
+        self.waits = WaitService(self.profile, bundle, store, clock, gateway=self._gateway)
         self._owner_thread = get_ident()
         self._entry_active = False
 
@@ -112,7 +116,7 @@ class WorkflowEngine:
                 if checkpoint.stop.requested or self.process.is_terminal(checkpoint.phase):
                     return self._public_denial(case_id, "unavailable")
                 return self._drive(checkpoint, original, auth)
-        except (GateDenied, JournalFailure, ValueError, TypeError):
+        except (GateDenied, JournalFailure, BudgetExceeded, ValueError, TypeError):
             return self._public_denial(case_id)
 
     def recover(self, case_id, auth):
@@ -120,7 +124,17 @@ class WorkflowEngine:
             with self._entry_scope():
                 if not isinstance(auth, AuthContext):
                     raise GateDenied("scope_denied")
+                auth = AuthContext.model_validate(auth.model_dump())
                 saved = self.store.checkpoint(case_id)
+                if saved.stop.requested or self.store.generation_stop(saved.binding).requested:
+                    self._gateway.auth = auth
+                    checkpoint = self._gateway.authenticate_control(saved.binding, auth, purpose="recorded_state")
+                    for record in self.store.intents(case_id):
+                        if record.intent.binding == checkpoint.binding and record.state != "prepared":
+                            result = self._gateway.reconcile_read_only(record.intent.action_id)
+                            if result.reason == "scope_denied" and not result.action_id:
+                                raise GateDenied("scope_denied")
+                    return self.build_case_result(self.store.checkpoint(case_id), save=False)
                 original = self.store.original_request(case_id, saved.binding.generation)
                 if original is None:
                     raise GateDenied("scope_denied")
@@ -130,7 +144,54 @@ class WorkflowEngine:
                 if checkpoint.stop.requested or self.process.is_terminal(checkpoint.phase):
                     return self._public_denial(case_id, "unavailable")
                 return self._drive(checkpoint, original, auth, recovering=True)
-        except (GateDenied, JournalFailure, ValueError, TypeError):
+        except (GateDenied, JournalFailure, BudgetExceeded, ValueError, TypeError):
+            return self._public_denial(case_id)
+
+    def reply(self, reply, auth):
+        case_id = reply.binding.case_id if isinstance(reply, ScopedReply) else "invalid-reply"
+        try:
+            with self._entry_scope():
+                if not isinstance(reply, ScopedReply) or not isinstance(auth, AuthContext):
+                    raise GateDenied("scope_denied")
+                auth = AuthContext.model_validate(auth.model_dump())
+                self._gateway.auth = auth
+                checkpoint = self.waits.accept(reply, auth)
+                original = self.store.original_request(case_id, checkpoint.binding.generation)
+                self.process = ProcessController(self.profile, original.kind)
+                if checkpoint.phase == "operator_facts" and auth.caller_id != original.principal_id:
+                    # Facts-only recipient authentication is not customer
+                    # authority. Reenter completeness, then await a separate
+                    # customer-authenticated entry before any business batch.
+                    checkpoint = self._transition(checkpoint, original, "reenter_facts")
+                    return self.build_case_result(self._save(checkpoint, processing_status="unavailable"))
+                return self._drive(checkpoint, original, auth)
+        except (GateDenied, JournalFailure, BudgetExceeded, ValueError, TypeError):
+            return self._public_denial(case_id)
+
+    def stop(self, case_id, generation, auth):
+        try:
+            with self._entry_scope():
+                if not isinstance(auth, AuthContext):
+                    raise GateDenied("scope_denied")
+                auth = AuthContext.model_validate(auth.model_dump())
+                current = self.store.checkpoint(case_id)
+                if current.binding.generation != generation:
+                    raise GateDenied("scope_denied")
+                self._gateway.auth = auth
+                authenticated = self._gateway.authenticate_control(current.binding, auth, purpose="stop")
+                checkpoint = self.store.stop_waits_atomic(current.binding, authenticated)
+                original = self.store.original_request(case_id, generation)
+                self.process = ProcessController(self.profile, original.kind)
+                # The durable fence precedes cosmetic graph advancement.
+                target = self.process.next_phase(checkpoint.phase, "request_stop", {})
+                if target is not None:
+                    checkpoint = self._save(checkpoint, phase=target, next_gate="record_stop")
+                if checkpoint.phase == "stop":
+                    target = self.process.next_phase("stop", "record_stop", {})
+                    if target is not None:
+                        checkpoint = self._save(checkpoint, phase=target, next_gate=target)
+                return self.build_case_result(checkpoint, save=False)
+        except (GateDenied, JournalFailure, BudgetExceeded, ValueError, TypeError):
             return self._public_denial(case_id)
 
     def _save(self, checkpoint, **changes):
@@ -179,6 +240,24 @@ class WorkflowEngine:
         return self._save(checkpoint, phase=target, next_gate=target, processing_status="pending")
 
     def _pause(self, checkpoint, request, *, unknown=False):
+        if (checkpoint.phase == "completeness" and not unknown and checkpoint.question_id is None
+                and self._graph_facts(checkpoint, request).get("case.completeness") == "missing"):
+            contract = next((w for w in self.profile.processes[request.kind].waits if w.phase == "wait_customer"), None)
+            if contract is not None:
+                try:
+                    return self._communication_wait(checkpoint, request, contract.awaited_fields)
+                except (GateDenied, JournalFailure, ValueError, TypeError):
+                    checkpoint = self.store.checkpoint(request.case_id)
+        if not unknown and checkpoint.question_id is None:
+            spec = self.profile.processes[request.kind]
+            physical = [w for w in spec.waits if w.recipient_role == "operator" and any(
+                e.origin == checkpoint.phase and e.target == w.phase and e.operation == "enqueue_handoff"
+                for e in spec.edges)]
+            if len(physical) == 1 and packet_enabled(self.profile):
+                try:
+                    return self._communication_wait(checkpoint, request, physical[0].awaited_fields)
+                except (GateDenied, JournalFailure, BudgetExceeded, ValueError, TypeError):
+                    return self._save(self.store.checkpoint(request.case_id), processing_status="unavailable")
         if unknown:
             checkpoint = self._transition(checkpoint, request, "mark_unknown")
         elif not checkpoint.phase.startswith("wait"):
@@ -190,6 +269,17 @@ class WorkflowEngine:
         return self._save(checkpoint, next_gate=wait.next_gate if wait else checkpoint.next_gate,
                           awaited_fields=wait.awaited_fields if wait else checkpoint.awaited_fields,
                           processing_status="unavailable")
+
+    def _communication_wait(self, checkpoint, request, fields):
+        wait = self.waits.create(checkpoint, fields)
+        record = self.store.load_wait_record(wait.question_id)
+        current = self.store.checkpoint(request.case_id)
+        communication = next((r for r in self.store.intents(request.case_id)
+                              if r.intent.action_id == record.communication_action_id), None)
+        if communication is None or communication.state == "prepared":
+            return self._save(current, processing_status="unavailable")
+        return self._save(current, phase=record.wait_phase, next_gate=record.accept_edge.operation,
+            question_id=wait.question_id, awaited_fields=wait.awaited_fields, processing_status="unavailable")
 
     def _build_proposal(self, operation):
         def build(request, observations):
@@ -288,8 +378,11 @@ class WorkflowEngine:
                 return self._pause(checkpoint, request)
             result = self._gateway.reconcile(record.intent.action_id)
         else:
-            result = (self._gateway.execute(record.intent) if record is not None else
-                      self._gateway.execute_proposal(request.case_id, operation, self._build_proposal(operation)))
+            if operation == "enqueue_handoff" and packet_enabled(self.profile):
+                result = self._gateway.enqueue_operator_packet(request.case_id, "review_facts")
+            else:
+                result = (self._gateway.execute(record.intent) if record is not None else
+                          self._gateway.execute_proposal(request.case_id, operation, self._build_proposal(operation)))
             # Transport permission and the conceptual scope predicates are
             # checked inside gateway policy with the just-read designated set.
             target = next((e.target for e in self.profile.processes[request.kind].edges
@@ -313,8 +406,25 @@ class WorkflowEngine:
         wait = next((w for w in spec.waits if w.phase == phase), None)
         if checkpoint.next_gate not in ({phase} | declared | ({wait.next_gate} if wait else set())):
             raise GateDenied("scope_denied")
-        if (phase.startswith("wait") and phase != "wait_confirmation") or phase in {"expired", "operator_facts"}:
-            self._selected(checkpoint, wait.next_gate if wait else phase)
+        physical = [w for w in spec.waits if w.recipient_role == "operator" and any(
+            e.origin == phase and e.target == w.phase and e.operation == "enqueue_handoff" for e in spec.edges)]
+        if len(physical) == 1 and checkpoint.question_id is None:
+            question_id = self.waits.question_id(checkpoint.binding, operation="enqueue_handoff")
+            retained = self.store.wait(question_id) is not None or any(
+                r.intent.binding == checkpoint.binding and r.intent.operation == "enqueue_handoff"
+                for r in self.store.intents(request.case_id))
+            # A crash can leave the full envelope at the business gate. Inspect
+            # that original before repeating business assembly or fresh reads.
+            if retained or checkpoint.next_gate == "enqueue_handoff":
+                return self._communication_wait(checkpoint, request, physical[0].awaited_fields)
+        if phase == "completeness" and checkpoint.next_gate == "send_clarification":
+            contract = next((w for w in spec.waits if w.phase == "wait_customer"), None)
+            if contract is None:
+                return self._save(checkpoint, processing_status="unavailable")
+            return self._communication_wait(checkpoint, request, contract.awaited_fields)
+        if (phase.startswith("wait") and (phase != "wait_confirmation" or checkpoint.question_id is not None)) or phase == "expired":
+            if checkpoint.question_id is None:
+                self._selected(checkpoint, wait.next_gate if wait else phase)
             return self._save(checkpoint, processing_status="unavailable")
         if checkpoint.next_gate in {"read_effect", "read_communication"}:
             operation = ("enqueue_handoff" if checkpoint.next_gate == "read_communication" else
@@ -327,7 +437,15 @@ class WorkflowEngine:
         if phase == "read_authority":
             operation = {"reschedule_window": "check_window", "reschedule_exact": "find_exact_slot"}.get(request.kind, "check_refusal")
         elif phase == "slot_selection":
+            facts = self._graph_facts(checkpoint, request)
+            if facts.get("customer.confirmation") != "verified":
+                contract = next((w for w in spec.waits if w.phase == "wait_confirmation"), None)
+                if contract is None:
+                    return self._save(checkpoint, processing_status="unavailable")
+                return self._communication_wait(checkpoint, request, contract.awaited_fields)
             operation = "ask_customer"
+        elif phase == "operator_facts":
+            operation = "reenter_facts"
         elif phase == "wait_confirmation":
             operation = "accept_confirmation"
         elif phase == "refusal_gate":
@@ -395,11 +513,16 @@ class WorkflowEngine:
             checkpoint = self._save(checkpoint, processing_status="unavailable")
         return self.build_case_result(checkpoint)
 
-    def build_case_result(self, checkpoint):
+    def build_case_result(self, checkpoint, *, save=True):
         records = self._records(checkpoint)
         effects = {op: record.verification for op, record in records.items() if record.verification is not None}
         for operation, record in records.items():
-            if record.verification is None and record.state != "prepared":
+            if checkpoint.stop.requested and record.state == "prepared":
+                intent = record.intent
+                effects[operation] = VerificationResult(status="rejected", object_id=intent.binding.object_id,
+                    action_id=intent.action_id, fingerprint=intent.argument_fingerprint,
+                    postcondition=intent.postcondition, reason="stopped_before_entry")
+            elif record.verification is None and record.state != "prepared":
                 intent = record.intent
                 effects[operation] = VerificationResult(status="outcome_unknown", object_id=intent.binding.object_id,
                     action_id=intent.action_id, fingerprint=intent.argument_fingerprint, postcondition=intent.postcondition,
@@ -416,6 +539,6 @@ class WorkflowEngine:
             evidence_refs=sorted({ref for verification in effects.values() for ref in verification.evidence_refs}),
             policy_refs=[self.profile.policy_hash], rationale="Offline phase " + checkpoint.phase +
             ("; scoped continuation unavailable" if checkpoint.processing_status == "unavailable" else ""))
-        if checkpoint.phase == self.profile.processes[request.kind].completion.phase:
+        if save and not checkpoint.stop.requested and checkpoint.phase == self.profile.processes[request.kind].completion.phase:
             self.store.save_result(result)
         return result

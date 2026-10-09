@@ -392,11 +392,14 @@ class WorkflowTests(unittest.TestCase):
                 CrashOnPhase(fx, "window_gate").run(fx.request, fx.auth)
             fx.store.set_stop("C1", "G1")
             before = fx.store.checkpoint("C1")
+            calls_before = len(fx.world.calls)
             result = WorkflowEngine(fx.profile, fx.world.bundle(), fx.store, fx.clock).recover("C1", fx.auth)
             self.assertTrue(fx.store.checkpoint("C1").stop.requested)
-            self.assertEqual(result.status, "denied")
+            self.assertEqual(result.status, "authorized")
+            self.assertTrue(result.stop.requested)
             self.assertEqual(fx.store.checkpoint("C1").phase, before.phase)
             self.assertEqual(fx.world.effect_count("reschedule"), 0)
+            self.assertEqual([call.operation for call in fx.world.calls[calls_before:]], ["read_case"])
 
     def test_legacy_profile_cannot_silently_activate_business_scope(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -726,7 +729,12 @@ class WorkflowTests(unittest.TestCase):
             fx.world.mutate("case.completeness", "missing")
             result = fx.engine.run(fx.request, fx.auth)
             self.assertEqual(result.wait_status, "pending")
-            self.assertEqual(fx.store.checkpoint("C1").phase, "wait_operator")
+            checkpoint = fx.store.checkpoint("C1")
+            self.assertEqual(checkpoint.phase, "wait_customer")
+            self.assertIsNotNone(checkpoint.question_id)
+            self.assertEqual(fx.store.load_wait_record(checkpoint.question_id).lifecycle, "pending")
+            self.assertEqual(fx.world.effect_count("send_clarification"), 1)
+            self.assertEqual(checkpoint.budget.clarifications, 1)
             self.assertEqual(fx.world.effect_count("reschedule"), 0)
 
     def test_service_requires_completed_authoritative_lifecycle(self):
