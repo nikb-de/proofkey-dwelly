@@ -1402,7 +1402,8 @@ class EngineProcessingSummaryTests(unittest.TestCase):
             store=CaseStore(root / 'journal.sqlite'), request=request,
             auth=make_auth(), revoked=set())
         self.addCleanup(lambda: fx.store.close())
-        compose(fx, (RoleAdmissionLimits('extraction', 5, (('tokens', 10.0),), 5.0),))
+        compose(fx, (RoleAdmissionLimits('extraction', 5, (('tokens', 10.0),), 5.0),
+                     RoleAdmissionLimits('planning', 1, (('tokens', 2.0),), 1.0)))
         return fx
 
     def execution(self, fx):
@@ -1513,7 +1514,8 @@ class EngineProcessingSummaryTests(unittest.TestCase):
                           for p in fx.catalog.root.rglob('*') if p.is_file()}, catalog_before)
         fx.store.close()
         fx.store = CaseStore(fx.root / 'journal.sqlite')
-        compose(fx, (RoleAdmissionLimits('extraction', 5, (('tokens', 10.0),), 5.0),))
+        compose(fx, (RoleAdmissionLimits('extraction', 5, (('tokens', 10.0),), 5.0),
+                     RoleAdmissionLimits('planning', 1, (('tokens', 2.0),), 1.0)))
         reopened = fx.engine.processing_summary('C1', fx.auth, execution=self.execution(fx))
         self.assertEqual(reopened.attempts, summary.attempts)
         self.assertEqual(reopened.entry_local, ())

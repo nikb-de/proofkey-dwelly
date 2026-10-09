@@ -21,7 +21,7 @@ Before any SQLite/source entry, verify public `processing.store is store`, `proc
 
 Trusted host explicitly constructs `ActionGateway(..., processing_allowances=recipe.allowances)` before consumer/engine composition. There is no public allowance getter: do not inspect/change private gateway allowances or add an API to force equality. Misconfigured host allowances deny through actual reservation rather than being repaired/funded. Original journal-admitted balances, shared debts and structured max_planner_calls=0 stay authoritative. Newer/larger recipes never upgrade an already admitted case.
 
-Preserve existing planner/evidence parameters' current meaning. An empty immutable planning-registration tuple is a lawful composition configuration, not an invocation grant.
+Preserve existing planner/evidence parameters' current meaning. An empty immutable planning-registration tuple is a lawful composition configuration, not an invocation grant. It still obeys the approved B4b recipe rule requiring an enabled planning role: fixtures explicitly configure that role beside extraction. This configuration neither creates a campaign nor overrides the structured case's original max_planner_calls=0.
 
 ## Structured positive versus missing text gate
 
