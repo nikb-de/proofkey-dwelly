@@ -305,6 +305,12 @@ class CaseStore:
                               (case_id, request_id, request_revision, consent_revision, fingerprint)).fetchone()
         return self._binding(case_id, row[0]) if row else None
 
+    def request_bindings(self, case_id) -> tuple[RequestBinding, ...]:
+        """Complete local inventory in generation order; never disclosure authority."""
+        self._schema()
+        rows = self._db.execute("SELECT generation FROM requests WHERE case_id=? ORDER BY generation", (case_id,)).fetchall()
+        return tuple(self._binding(case_id, row[0]) for row in rows)
+
     def admit(self, binding: RequestBinding, request: CanonicalRequest, checkpoint: PhaseCheckpoint):
         """Atomically persist original untrusted claims, binding and checkpoint."""
         if _typed(PhaseCheckpoint, checkpoint).binding != _typed(RequestBinding, binding):
