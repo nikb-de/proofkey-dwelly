@@ -1,10 +1,10 @@
 # Read an offline execution trace
 
-From the checkout root, use the existing source-test environment with dependencies already installed:
+Activate an existing Python environment with the [pinned dependencies](requirements-api.lock) already installed. From the checkout root:
 
 ```sh
 PROOFKEY_SOURCE_DIR="$(pwd -P)/runtime/src"
-PROOFKEY_PYTHON="$(pwd -P)/.superpowers/sdd/2026-10-08-proofkey-runtime/api-env.GEsSnS/bin/python"
+PROOFKEY_PYTHON="$(command -v python)"
 export PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1 PYTHONPATH="$PROOFKEY_SOURCE_DIR"
 PROOFKEY_DEMO_DIR="$(mktemp -d)"
 cd "$PROOFKEY_DEMO_DIR"
