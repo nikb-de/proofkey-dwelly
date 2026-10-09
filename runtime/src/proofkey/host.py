@@ -19,6 +19,7 @@ from .execution import ExecutionContext
 from .host_contracts import (CommandInventoryV1, CommandReceiptV1, DetachedProfileViewV1, ExecutionWindowV1,
                              HostLimitsV1, ShutdownReceiptV1, parse_command)
 from .host_files import HostInventory, InventoryFailure, _directory, _read
+from .host_writer import RuntimeWriterFailure, RuntimeWriterLease
 from .identity import fingerprint, request_fingerprint
 from .journal import CaseStore
 from .profiles import validate_profile
@@ -177,9 +178,41 @@ def _resource_directory(path):
         os.close(parent)
 
 
+class RuntimeConstructionFailure(ValueError):
+    """Creator-owned cleanup only, never a usable runtime or wire receipt."""
+    def __init__(self, store, writer_lease):
+        super().__init__('writer_storage')
+        self.code = 'writer_storage'
+        self.closed = False
+        self._owner = threading.get_ident()
+        self._store = store
+        self._writer_lease = writer_lease
+
+    def __reduce_ex__(self, protocol):
+        raise RuntimeWriterFailure('writer_scope')
+
+    def close(self) -> None:
+        if threading.get_ident() != self._owner:
+            raise RuntimeWriterFailure('writer_scope')
+        if self.closed:
+            return
+        if self._store is not None:
+            self._store.close()
+            self._store = None
+        if self._writer_lease is not None:
+            self._writer_lease.close()
+            self._writer_lease = None
+        self.closed = True
+
+
 class RuntimeResources:
-    def __init__(self, profile, world, store, engine):
+    def __init__(self, profile, world, store, engine, *, writer_lease=None):
+        if writer_lease is not None:
+            if type(writer_lease) is not RuntimeWriterLease:
+                raise RuntimeWriterFailure('writer_scope')
+            writer_lease.check()
         self.profile, self.world, self.store, self.engine = profile, world, store, engine
+        self._writer_lease = writer_lease
         self._owner = threading.get_ident()
         self.closed = False
 
@@ -188,6 +221,8 @@ class RuntimeResources:
             raise ValueError("Runtime close requires creator thread")
         if not self.closed:
             self.store.close()
+            if self._writer_lease is not None:
+                self._writer_lease.close()
             self.closed = True
 
 
@@ -195,11 +230,12 @@ class RuntimeFactory:
     def create(self, release, clock):
         if type(release) is not ApprovedProfileRelease or getattr(clock, "mode", None) != release.mode:
             raise ValueError("Exact registered offline clock/resource required")
-        store = None
+        store = lease = None
         try:
             profile = release.validate()
             fixture_bytes = _pinned(release.fixture_path, release.fixture_hash)
             _resource_directory(release.resource_root)
+            lease = RuntimeWriterLease(release.resource_root)
             # Refuse preexisting symlink/foreign alias database targets.
             root = _directory(release.resource_root)
             try:
@@ -213,15 +249,26 @@ class RuntimeFactory:
                         raise ValueError("Invalid owned runtime database")
             finally:
                 os.close(root)
+            lease.check()
             world = SimulatedWorld(release.resource_root / "world.sqlite", release.fixture_path,
                                    profile=profile, clock=clock, fixture_bytes=fixture_bytes)
+            lease.check()
             store = CaseStore(release.resource_root / "journal.sqlite")
+            lease.check()
             engine = WorkflowEngine(profile, world.bundle(), store, clock)
             release.validate()
-            return RuntimeResources(profile, world, store, engine)
+            lease.check()
+            return RuntimeResources(profile, world, store, engine, writer_lease=lease)
         except BaseException:
-            if store is not None:
-                store.close()
+            try:
+                if store is not None:
+                    store.close()
+                    store = None
+                if lease is not None:
+                    lease.close()
+                    lease = None
+            except BaseException as cleanup:
+                raise RuntimeConstructionFailure(store, lease) from cleanup
             raise
 
 
@@ -272,6 +319,8 @@ class HostDispatcher:
         self._closing = self._owner_closed = self._inventory_failed = False
         self._admitting = self._publishing = self._sequence = 0
         self._resources = None
+        self._construction_failure = None
+        self._cleanup_failure = None
         startup = self._monotonic()
         try:
             self._inventory = HostInventory(self.inventory_root, max_bytes=self.limits.inventory_max_bytes)
@@ -517,7 +566,13 @@ class HostDispatcher:
                 state.inspection, state.outcome = inspection, "inspection"
             return
         if self._resources is None:
-            self._resources = self.factory.create(self.release, self.clock)
+            if self._construction_failure is not None:
+                raise RuntimeWriterFailure('writer_storage')
+            try:
+                self._resources = self.factory.create(self.release, self.clock)
+            except RuntimeConstructionFailure as error:
+                self._construction_failure = error
+                raise
             if not isinstance(self._resources, RuntimeResources):
                 raise ValueError("Complete creator-owned resources required")
         if self._check_context(state.execution)[1] <= 0:
@@ -578,15 +633,27 @@ class HostDispatcher:
                     state.outcome, state.failure = "infrastructure_error", "runtime_error"
                 self._finish(state)
         finally:
+            clean = False
             try:
-                if self._resources is not None:
-                    self._resources.close()
+                try:
+                    if self._resources is not None:
+                        self._resources.close()
+                    if self._construction_failure is not None:
+                        self._construction_failure.close()
+                    clean = True
+                except Exception as error:
+                    self._cleanup_failure = error
             finally:
-                if self._inventory is not None:
-                    self._inventory.close()
-                with self._condition:
-                    self._owner_closed = True
-                    self._condition.notify_all()
+                try:
+                    if self._inventory is not None:
+                        self._inventory.close()
+                except Exception as error:
+                    self._cleanup_failure = error
+                    clean = False
+                finally:
+                    with self._condition:
+                        self._owner_closed = clean
+                        self._condition.notify_all()
 
     def close(self, shutdown_cutoff):
         self._external_entry()
