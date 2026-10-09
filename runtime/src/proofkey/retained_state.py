@@ -48,6 +48,12 @@ def _canonical(value):
     return json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False, allow_nan=False).encode('utf-8')
 
 
+def _row_order(row, columns, keys):
+    key = tuple((row[columns.index(column)] is not None, row[columns.index(column)]) for column in keys)
+    # SQLite rowid-table PRIMARY KEY permits NULL ties, including identical rows.
+    return key, _canonical(row) if any(not present for present, _ in key) else b''
+
+
 class RetainedStateClock(Protocol):
     def now(self) -> datetime: ...
     def monotonic(self) -> float: ...
@@ -151,10 +157,11 @@ class RetainedStateSnapshotV1:
                         raise ValueError()
                     elif type(value) is int and not -(1 << 63) <= value < (1 << 63):
                         raise ValueError()
-                key = tuple((row[columns.index(column)] is not None, row[columns.index(column)]) for column in keys)
-                if keys and previous is not None and key <= previous:
+                order = _row_order(row, columns, keys)
+                if keys and previous is not None and (order < previous or
+                        (order[0] == previous[0] and all(present for present, _ in order[0]))):
                     raise ValueError()
-                previous = key
+                previous = order
             if name == 'schema_meta' and table['rows'] != [[1]]:
                 raise ValueError()
             counts.append((name, len(table['rows'])))

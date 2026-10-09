@@ -146,6 +146,73 @@ class RetainedStateTests(unittest.TestCase):
         self.assertEqual(result.content_hash, sha256(result.payload).hexdigest())
         self.assertEqual(self.beforeimage(), expected)
 
+    def test_nullable_primary_key_ties_preserve_complete_multiplicity_and_reopen_identity(self):
+        # Break caught: rejecting, dropping or physically ordering permitted NULL-key ties.
+        expected_rows = [[None, None, 0], [None, None, 10], [None, None, 2],
+                         [None, None, 2], ['', None, 3], ['A', None, 9]]
+        first = None
+        physical = [[None, None, 2], ['A', None, 9], [None, None, 10],
+                    [None, None, 2], ['', None, 3], [None, None, 0]]
+        for order in (physical, list(reversed(physical))):
+            with self.subTest(order=order):
+                with sqlite3.connect(self.path) as db:
+                    db.execute('DELETE FROM cases')
+                    db.executemany('INSERT INTO cases VALUES(?,?,?)', order)
+                before = self.beforeimage()
+                expected = json.loads(canonical(before))
+                next(table for table in expected['tables'] if table['name'] == 'cases')['rows'] = expected_rows
+                limits = self.module().RetainedStateLimitsV1(max_rows=7, max_payload_bytes=len(canonical(expected)))
+                self.store._db = ForwardConnection(self.store._db)
+                try:
+                    result = self.capture(limits=limits)
+                except JournalFailure as error:
+                    self.fail('Permitted complete NULL-key image denied: ' + str(error))
+                self.assertEqual(result.payload, canonical(expected))
+                self.assertEqual(result.total_rows, 7)
+                self.assertEqual(dict(result.table_counts)['cases'], 6)
+                self.assertEqual(json.loads(result.payload)['tables'][6]['rows'].count([None, None, 2]), 2)
+                self.assertEqual(self.beforeimage(), before)
+                if first is None:
+                    first = result
+                self.assertEqual((result.payload, result.content_hash), (first.payload, first.content_hash))
+                for field in ('max_rows', 'max_payload_bytes'):
+                    with self.assertRaisesRegex(JournalFailure, '^retained_state_limit$'):
+                        self.capture(limits=replace(limits, **{field: getattr(limits, field) - 1}))
+                self.assertFalse(self.store._db.in_transaction)
+                self.assertFalse(self.store._db.handler_active)
+                self.assertIsNone(self.store._execution)
+                self.assertEqual(self.store._db.execute('PRAGMA busy_timeout').fetchone()[0], 10000)
+                self.store.close()
+                self.store = CaseStore(self.path)
+                reopened = self.capture()
+                self.assertEqual((reopened.payload, reopened.content_hash), (first.payload, first.content_hash))
+
+    def test_detached_nullable_tie_order_and_nonnull_duplicate_identities(self):
+        # Break caught: nullable tie rejection, noncanonical ties or nonNULL duplicate admission.
+        base = self.capture()
+        def detached(rows):
+            data = json.loads(base.payload)
+            next(table for table in data['tables'] if table['name'] == 'cases')['rows'] = rows
+            payload = canonical(data)
+            counts = tuple((name, len(rows) if name == 'cases' else count) for name, count in base.table_counts)
+            return replace(base, payload=payload, content_hash=sha256(payload).hexdigest(),
+                           table_counts=counts, total_rows=1 + len(rows))
+        valid = [[None, None, 0], [None, None, 10], [None, None, 2], [None, None, 2], ['A', None, 9]]
+        try:
+            result = detached(valid)
+        except ValueError:
+            self.fail('Detached canonical NULL-key multiplicity denied')
+        self.assertEqual(json.loads(result.payload)['tables'][6]['rows'], valid)
+        self.assertEqual(result.total_rows, 6)
+        for rows in (
+            [[None, None, 2], [None, None, 10]],
+            [['A', None, 9], [None, None, 0]],
+            [['A', None, 0], ['A', None, 0]],
+            [['A', None, 0], ['A', None, 1]],
+        ):
+            with self.subTest(rows=rows), self.assertRaises(ValueError):
+                detached(rows)
+
     def test_limits_reject_bool_zero_nonfinite_and_raised_ceilings(self):
         cls = self.module().RetainedStateLimitsV1
         for field, values in (

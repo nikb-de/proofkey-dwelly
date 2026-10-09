@@ -24,7 +24,7 @@ from .contracts import (AuthorityObservation, CampaignPermit, CanonicalRequest, 
 from .identity import fingerprint, request_fingerprint
 from .execution import ExecutionContext
 from .retained_state import (RetainedStateClock, RetainedStateLimitsV1, RetainedStateSnapshotV1,
-                             _DOMAIN, _TABLES, _INTEGER_COLUMNS, _NULLABLE, _canonical)
+                             _DOMAIN, _TABLES, _INTEGER_COLUMNS, _NULLABLE, _canonical, _row_order)
 from .wait_contracts import ControlReadScopeV1, RefusalAdmissionHistoryV1, WaitRecordV1
 from .ownership_contracts import OperatorDecisionSubmissionV1, OwnershipEventV1, OwnershipProcessRegistryV1
 
@@ -250,6 +250,12 @@ class CaseStore:
                         for row in self._db.execute(sql):
                             guard.check()
                             rows.append(tuple(row))
+                        if keys and any(column in _NULLABLE.get(name, ()) for column in keys):
+                            def order(row):
+                                guard.check()
+                                return _row_order(row, columns, keys)
+                            rows.sort(key=order)
+                            guard.check()
                         tables.append(dict(name=name, columns=columns, rows=rows))
                     data = dict(domain=_DOMAIN, schema_version=1, schema=schema, tables=tables)
                     buffer = bytearray()
