@@ -5,7 +5,7 @@ from uuid import uuid4
 
 from .contracts import (ActionProposal, AuthContext, AuthorityReadback, CanonicalRequest, EffectIntent, PhaseCheckpoint, ReadRequest, RequestBinding,
                         ReadTarget, RevisionVector, VerificationResult)
-from .identity import fingerprint, stable_action_id
+from .identity import fingerprint, request_fingerprint, stable_action_id
 from .journal import JournalFailure
 from .policy import (GateDenied, IDENTITY_FIELDS, OWNER_FIELDS, PolicyGate,
                      qualified_observations, required_fields)
@@ -85,14 +85,14 @@ class ActionGateway:
             raise GateDenied("scope_denied")
         return reply
 
-    def _facts(self, scope, fields, *, attempt_id=None, deadline=None):
+    def _facts(self, scope, fields, *, attempt_id=None, deadline=None, purpose=None):
         observations = []
         for authority, (port, method) in _AUTHORITY_READS.items():
             facts = sorted(key.partition(".")[2] for key in fields if key.partition(".")[0] == authority)
             if not facts:
                 continue
             target = ReadTarget(kind="authority_facts", authority=authority, facts=facts)
-            reply = self._read(scope, target, port, method, purpose="bind_request" if attempt_id else "material_authority",
+            reply = self._read(scope, target, port, method, purpose=purpose or ("bind_request" if attempt_id else "material_authority"),
                                attempt_id=attempt_id, deadline=deadline)
             if (reply.object_id != scope.object_id or reply.stage != "observed" or not reply.evidence_refs
                     or {authority + "." + fact for fact in facts} != {o.authority + "." + o.fact for o in reply.observations}):
@@ -133,6 +133,13 @@ class ActionGateway:
         if not predecessors:
             raise GateDenied("scope_denied")
 
+    def _service_predecessor(self, binding, operation, phase):
+        if operation != "enqueue_handoff" or phase != "refusal_complete":
+            return None
+        records = [record for record in self.store.intents(binding.case_id)
+                   if record.intent.binding == binding and record.intent.operation == "register_service_refusal"]
+        return records[0] if len(records) == 1 else None
+
     def _run(self, intent, observations, *, is_resend=False):
         checkpoint = self._active(intent.binding.case_id, intent.binding, intent)
         original = self.store.original_request(intent.binding.case_id, intent.binding.generation)
@@ -140,7 +147,8 @@ class ActionGateway:
         if values.get("ownership.owner") != self.auth.caller_id:
             raise GateDenied("scope_denied")
         proposal = ActionProposal(operation=intent.operation, stage=intent.stage, arguments=intent.arguments, evidence_refs=[])
-        decision = self.gate.evaluate(original, proposal, observations, checkpoint)
+        decision = self.gate.evaluate(original, proposal, observations, checkpoint,
+            journal_predecessor=self._service_predecessor(intent.binding, intent.operation, checkpoint.phase))
         if not decision.allowed or expected_facts(intent) is None:
             raise GateDenied("scope_denied")
         required = required_fields(self.profile, intent.operation)
@@ -289,13 +297,51 @@ class ActionGateway:
                     pass
             return self._denied()
 
-    def bind_request(self, request, deadline):
+    def bind_request(self, request, deadline, *, initialize_process=False):
         try:
             self._authenticated()
             request = CanonicalRequest.model_validate(request.model_dump())
+            fields = IDENTITY_FIELDS
+            if type(initialize_process) is not bool:
+                raise GateDenied("scope_denied")
+            if initialize_process:
+                fields |= {"case.completeness", "customer.consent", "customer.consent_mode", "customer.request_fingerprint"}
+                if any(self.profile.authorities.get(key) != key.partition(".")[0] for key in fields | OWNER_FIELDS):
+                    raise GateDenied("scope_denied")
+                # A transferred admission attempt is immutable. A matching saved
+                # current input may instead consume the existing case's read
+                # leases; storage lookup itself confers no disclosure authority.
+                try:
+                    saved_checkpoint = self.store.checkpoint(request.case_id)
+                except JournalFailure:
+                    saved_checkpoint = None
+                current = self.store.find_request(request.case_id, request.request_id, request.request_revision,
+                    request.consent_revision, request_fingerprint(request))
+                if current is not None and saved_checkpoint is not None and current == saved_checkpoint.binding:
+                    spec = self.profile.processes.get(request.kind)
+                    if (self.store.original_request(request.case_id, current.generation) != request or spec is None
+                            or saved_checkpoint.profile_version != self.profile.version
+                            or saved_checkpoint.process_version != spec.version or saved_checkpoint.stop.requested):
+                        raise GateDenied("scope_denied")
+                    limit = min(saved_checkpoint.deadline, deadline)
+                    observations = self._facts(current, fields, deadline=limit, purpose="bind_request")
+                    fresh_binding = self.gate.bind_request(request, self.auth, observations)
+                    if RequestBinding.model_validate({**fresh_binding.model_dump(), "supersedes_generation": current.supersedes_generation}) != current:
+                        raise GateDenied("scope_denied")
+                    observations += self._facts(current, OWNER_FIELDS, deadline=limit, purpose="bind_request")
+                    checkpoint = self.store.checkpoint(request.case_id)
+                    if checkpoint.binding != current:
+                        raise GateDenied("scope_denied")
+                    saved = qualified_observations(self.profile, request.object_id, checkpoint.observations)
+                    saved.update(qualified_observations(self.profile, request.object_id, observations))
+                    self.store.save_checkpoint(PhaseCheckpoint.model_validate({**checkpoint.model_dump(), "observations": list(saved.values())}))
+                    return current
             attempt = self.store.start_admission("attempt:" + uuid4().hex, self.auth, request, self.clock.now(), deadline)
-            observations = self._facts(request, IDENTITY_FIELDS, attempt_id=attempt.attempt_id, deadline=attempt.deadline)
+            observations = self._facts(request, fields, attempt_id=attempt.attempt_id, deadline=attempt.deadline)
             binding = self.gate.bind_request(request, self.auth, observations)
+            if initialize_process:
+                observations += self._facts(request, OWNER_FIELDS, attempt_id=attempt.attempt_id, deadline=attempt.deadline)
+                values = {key: obs.value for key, obs in qualified_observations(self.profile, request.object_id, observations).items()}
             spec = self.profile.processes.get(request.kind)
             if spec is None:
                 raise GateDenied("scope_denied")
@@ -305,23 +351,37 @@ class ActionGateway:
                     raise GateDenied("scope_denied")
                 binding = current
                 checkpoint = self.store.checkpoint(binding.case_id)
+                if initialize_process:
+                    if checkpoint.profile_version != self.profile.version or checkpoint.process_version != spec.version:
+                        raise GateDenied("scope_denied")
+                    saved = qualified_observations(self.profile, request.object_id, checkpoint.observations)
+                    saved.update(qualified_observations(self.profile, request.object_id, observations))
+                    checkpoint = PhaseCheckpoint.model_validate({**checkpoint.model_dump(), "observations": list(saved.values())})
             else:
                 try:
                     previous = self.store.checkpoint(binding.case_id)
                 except JournalFailure:
                     previous = None
                 if previous is None:
+                    if initialize_process and values["ownership.owner"] != self.auth.caller_id:
+                        raise GateDenied("scope_denied")
                     structured = not (request.narrative and request.narrative.strip()) and not request.evidence_ids
                     planning_cap = 0 if structured else 4
                     checkpoint = PhaseCheckpoint(binding=binding, phase="intake", next_gate="intake", profile_version=self.profile.version,
                         process_version=spec.version, policy_version="v1", processing_status="pending",
                         budget={"case_id": binding.case_id, "deadline": attempt.deadline, "max_planner_calls": planning_cap,
                                 "role_allowances": {"planning": {"max_invocations": planning_cap}}}, deadline=attempt.deadline)
+                    if initialize_process:
+                        checkpoint = PhaseCheckpoint.model_validate({**checkpoint.model_dump(), "observations": list(observations),
+                            "ownership_state": values["ownership.state"], "ownership_state_revision": values["ownership.state_revision"],
+                            "ownership_epoch": values["ownership.epoch"]})
                 else:
+                    if initialize_process and previous.profile_version != self.profile.version:
+                        raise GateDenied("scope_denied")
                     binding = RequestBinding.model_validate({**binding.model_dump(), "supersedes_generation": previous.binding.generation})
                     checkpoint = PhaseCheckpoint.model_validate({**previous.model_dump(), "binding": binding,
                         "phase": "intake", "next_gate": "intake", "profile_version": self.profile.version,
-                        "process_version": spec.version, "processing_status": "pending", "observations": []})
+                        "process_version": spec.version, "processing_status": "pending", "observations": list(observations) if initialize_process else []})
             self.store.admit_from_attempt(attempt.attempt_id, binding, request, checkpoint)
             return binding
         except Exception:

@@ -4,7 +4,10 @@ from datetime import datetime
 from .contracts import (ActionProposal, AuthContext, AuthorityObservation, CanonicalRequest, EnvironmentProfile,
                         GateDecision, PhaseCheckpoint, RequestBinding, VerificationResult)
 from .identity import request_fingerprint
+from .journal import IntentRecord
 from .process import ProcessController, material_fields
+from .profiles import requires_completed_service
+from .verifier import expected_facts
 
 STAGES = {"reschedule": "commit", "register_goods_refusal": "commit", "register_service_refusal": "commit",
           "create_return": "initiate", "send_clarification": "send", "send_status": "send",
@@ -38,6 +41,8 @@ def required_fields(profile, operation):
         minimum |= {"customer.request_fingerprint", "customer.consent_mode"}
         if operation == "reschedule":
             minimum |= {"scheduling.slot_details"}
+        if operation == "register_service_refusal" and requires_completed_service(profile):
+            minimum |= {"delivery.status"}
     if capability is None or operation not in STAGES:
         raise GateDenied("scope_denied")
     contracts = (capability.permission_basis, capability.acknowledgement, capability.readback,
@@ -91,7 +96,24 @@ class PolicyGate:
         return RequestBinding(**{key: getattr(request, key) for key in fields},
             generation=values["case.generation"], fingerprint=request_fingerprint(request))
 
-    def evaluate(self, request, proposal, observations, checkpoint):
+    @staticmethod
+    def _service_predecessor(record, checkpoint):
+        if not isinstance(record, IntentRecord):
+            raise GateDenied("scope_denied")
+        record = IntentRecord.model_validate(record.model_dump())
+        intent, result = record.intent, record.verification
+        if (intent.binding != checkpoint.binding or intent.operation != "register_service_refusal"
+                or intent.stage != "commit" or intent.arguments != {"scope": "service"}
+                or any(getattr(intent, key) != getattr(checkpoint, key) for key in
+                       ("profile_version", "process_version", "policy_version"))
+                or record.state != "verified" or result is None or result.status != "verified"
+                or expected_facts(intent) != {"service.refusal": "verified"}
+                or result.object_id != intent.binding.object_id or result.action_id != intent.action_id
+                or result.fingerprint != intent.argument_fingerprint or result.postcondition != intent.postcondition
+                or not result.evidence_refs or result.as_of is None):
+            raise GateDenied("scope_denied")
+
+    def evaluate(self, request, proposal, observations, checkpoint, *, journal_predecessor=None):
         try:
             if not isinstance(request, CanonicalRequest) or not isinstance(proposal, ActionProposal) or not isinstance(checkpoint, PhaseCheckpoint):
                 raise GateDenied("scope_denied")
@@ -116,6 +138,9 @@ class PolicyGate:
             graph = dict(values)
             graph.update({"case.generation": "current", "case.authority": "fresh", "operator.packet": "current"})
             args, operation = proposal.arguments, proposal.operation
+            if operation == "enqueue_handoff" and request.kind == "service_refusal" and checkpoint.phase == "refusal_complete":
+                self._service_predecessor(journal_predecessor, checkpoint)
+                graph["service.refusal"] = "verified"
             if operation in BUSINESS:
                 if (values.get("customer.request_fingerprint") != binding.fingerprint
                         or values.get("customer.consent") != "granted"
@@ -160,7 +185,8 @@ class PolicyGate:
                         raise GateDenied("scope_denied")
                 else:
                     if (request.kind != "service_refusal" or args != {"scope": "service"}
-                            or request.arguments.get("scope", "service") != "service"):
+                            or request.arguments.get("scope", "service") != "service"
+                            or (requires_completed_service(self.profile) and values.get("delivery.status") != "completed")):
                         raise GateDenied("scope_denied")
                     graph["customer.refusal_scope"] = "service"
             elif operation in {"send_status", "send_clarification"}:
