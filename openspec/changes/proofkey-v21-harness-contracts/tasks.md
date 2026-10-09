@@ -96,6 +96,9 @@ Task12 integration is staged:12A inventory9209254 is independently Approved by N
 - [ ] 6.4 Preflight exact Anthropic/ElevenLabs API routes, observed model identity, privacy rights and a capped authorized campaign; do not infer API access from subscriptions or execute unapproved paid work.
 - [ ] 6.5 Process actual text/transcript/image/PDF/audio test content through declared processors; record mode/provenance, failures and media-specific adversarial cases. Stub/replay tests cannot satisfy actual-processing readiness.
 - [ ] 6.6 Implement model-backed bounded step proposals constrained by approved ProcessSpec and deterministic gates; verify prompt injection cannot change authority/process/policy.
+  - [ ] 6.6a / Task12B4a: same-parent invocation foundation5217682a + timing FIX1d12898aa; final11 and root2 are scoped synthetic evidence, separate I1 Spec/Quality re-review pending. Binding processing-parent-scope.md; no fresh scope/clock or debt reset.
+  - [ ] 6.6b / Task12B4b: implement prepared-processing-consumer.md exact2 only after6.6a hold release. Concrete public saved-evidence/independent permit fixtures in Superpowers plan; prepared positive is not fresh engine.run narrative positive.
+  - [ ] 6.6c / Task12B4c: engine-processing-summary.md exact4 after6.6b gates. Same preconstructed parent, structured no-model effect positive, authenticated all-status/debt summary and actual in-memory last-entry note. Current output-reference authorization, durable local-note history and fresh-text integration remain separate missing gates.
 
 ## 7. Reviewed adaptation factory — adaptation owner + human reviewer, 6–10 hours
 

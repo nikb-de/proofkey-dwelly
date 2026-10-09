@@ -1259,7 +1259,7 @@ identity = ProcessorIdentity(
     prompt_hash=registration.prompt_hash, version=registration.version,
     profile_version=registration.profile_version,
     process_version=registration.process_version,
-    deadline=input.checkpoint().budget.deadline)
+    deadline=min(input.checkpoint().deadline, input.checkpoint().budget.deadline))
 service = InvocationService(binding.case_id, self.store, self.clock, campaign,
     identity, worst_case_cost=registration.worst_case_cost,
     invocation_id_factory=self._invocation_id_factory,
@@ -1298,6 +1298,259 @@ The callback passes a real sealed record through public ProcessingContext; do no
 Each new failing expectation inspects actual public durable state/callback count, not mocks replacing the mechanism. Initially green characterization is labelled honestly. No old unittest method invocation or weakened old fixture. Narrow developmental runs are permitted; after exact2 freezes root authorizes ONE final finite cohort of NEW module plus selected unchanged BoundedPlanner saved-receipt and parent/lease controls with actual source/data/platform/private closure. Preserve failed/truncated runs distinctly; no automatic complete API/V2/driver suite repeat.
 
   - [ ] Step5 — root full report/current holds/proportional verification/exact2 staging and commit, then DIFFERENT NONAUTHOR separate Spec/Quality gate. Do not begin12B4c integration until hold release. This prepared-input block does not qualify fresh-text engine, all role/media/native/provider/human/rights/activation/drills or fullTask12.
+
+### Task12B4c successor — fixed engine composition and authenticated status/debt
+
+- [ ] Exact4 engine.py / NEWprocessing_summary.py / NEWtest_engine_processing.py / NEWtest_processing_summary.py, only after12B4a and12B4b separate Spec+Quality hold release. Binding [engine-processing-summary.md](../../../openspec/changes/proofkey-v21-harness-contracts/engine-processing-summary.md) is authoritative. No implementation GO from this preparation.
+
+1. FIRST write the two self-contained public fixtures below in the NEW tests; split them into injection and summary classes as needed, without moving/editing existing helpers or invoking old unittest methods. Each behavioral item must demonstrate genuine RED before minimal source implementation. Missing import/keyword only establishes scaffolding; after import exists, the actual same-parent effect/status/privacy/accounting assertion must expose missing behavior. Preserve every actual command/result including fixture corrections; never weaken current auth/usage/whole inventory to force GREEN.
+2. Minimal same-parent constructor implementation, no new gateway or private allowance inspection. Recheck fixed public associations in existing public execution scope. Trusted host explicitly passes recipe.allowances to gateway beforehand; retain all original caps and structured max_planner_calls=0. Existing no-processing behavior remains unchanged.
+3. Pure frozen closed summary companion, then original public recorded_state authentication + all ordered durable attempts + final original Timing/current-binding guard. Entry-local notes arise only from actual unavailable/replay branch, remain in-memory and restart-empty. No catalog calls/references/publication/model claims. The four-field output deliberately omits current-output-reference authorization and durable entry-local history; both remain explicit missing gates.
+4. Itemwise add new guards, stopping on first real issue and restoring minimal code before expanding: foreign constructor identities/profile-bundle, mutability/thread/reentrant; authoritative structured slot/window/consent negative; narrative/evidence noID/unavailable; original caps under duplicate/recovery/stop; wrong proof/current source revocation/missing/corrupt later row no partial inventory; original host expiry/reversal; pure wrong statuses/debits/enum/usage/binding/as_of aliases; actual entry notes/restart.
+5. Freeze exact4 and actual dependency closure, fresh private observer/manifest/input/cache/output absence, report literal finite method names and all TDD history; wait for root's separate ONE final cohort GO. Do not repeat all historical API/V2/driver/full-runtime suites merely for review. Root reads complete raw outcomes/import/open/platform/source joins, proportional NEW check, exact4 commit then different-nonauthor Spec+Quality gate. FullTask12/fresh text integration/native/rights/activation/fullcandidate/timed drill remain unfinished.
+
+Complete public fixture setup + two actual expected behaviors (future tests, not yet executed):
+
+```python
+from dataclasses import asdict
+from datetime import timedelta
+from pathlib import Path
+from types import SimpleNamespace
+import tempfile
+import unittest
+
+from proofkey.adapters.world import SimulatedWorld
+from proofkey.contracts import (AssertionsOutput, CaseResult, EvidenceAssertion,
+    InvocationRequest, ProcessingReceipt, ProcessorIdentity, UnknownLocator)
+from proofkey.engine import WorkflowEngine
+from proofkey.evidence.catalog import EvidenceAccessDenied, EvidenceCatalog
+from proofkey.evidence.processing_contracts import (
+    ProcessingCatalogBindings, SavedOriginalScope, canonical)
+from proofkey.execution import ExecutionContext
+from proofkey.gateway import ActionGateway
+from proofkey.identity import fingerprint, request_fingerprint
+from proofkey.journal import CaseStore
+from proofkey.processing import RoleAdmissionLimits
+from proofkey.processing_orchestration import ProcessingOrchestrator, ProcessingRecipe
+from proofkey.processing_summary import ProcessingSummaryV1
+from proofkey.providers.invocations import output_digest
+from support import (NOW, DEADLINE, FakeClock, load_test_profile, make_auth,
+                     make_fixture_campaign, make_request)
+
+class Clock(FakeClock):
+    def __init__(self):
+        super().__init__()
+        self.tick = 100.0
+    def monotonic(self):
+        return self.tick
+    def advance(self, seconds):
+        super().advance(seconds)
+        self.tick += seconds
+
+def compose(fx, allowances):
+    # Explicit trusted host composition, never an engine callback/grant.
+    def original(binding):
+        found = fx.store.find_request(binding.case_id, binding.request_id,
+            binding.request_revision, binding.consent_revision, binding.fingerprint)
+        if found != binding:
+            raise ValueError('Not the exact saved binding')
+        return fx.store.original_request(binding.case_id, binding.generation)
+    def scope(binding, saved, auth, purpose):
+        if (saved != fx.request or auth != fx.auth or 'saved-scope' in fx.revoked
+                or fx.clock.now() >= DEADLINE):
+            return None
+        raw = dict(allowed_actors=['U1'], case_id=binding.case_id, object_id=binding.object_id,
+            binding_hash=fingerprint(binding.model_dump(mode='json')),
+            original_request_hash=fingerprint(saved.model_dump(mode='json')),
+            scope_id='saved-scope', policy_id='local-policy', authorization_reference='synthetic-proof',
+            provenance='synthetic_host_registration', expires_at=DEADLINE.isoformat())
+        return SavedOriginalScope(canonical(binding.model_dump(mode='json')),
+            raw['original_request_hash'], 'saved-scope', canonical(raw), 'local-policy',
+            'synthetic_host_registration', 'synthetic-proof', DEADLINE)
+    def access(auth, record, saved_scope, purpose):
+        return (auth == fx.auth and record.case_id == 'C1'
+            and saved_scope['allowed_actors'] == ('U1',)
+            and saved_scope.get('scope_id') not in fx.revoked)
+    fx.catalog = EvidenceCatalog(fx.root / 'catalog', fx.clock,
+        allowed_input_roots=[fx.root], access_resolver=access,
+        processing_bindings=ProcessingCatalogBindings(original,
+            lambda b: fx.store.checkpoint(b.case_id), fx.store.invocation, scope,
+            profile_lookup=lambda b, o: fx.profile))
+    fx.bundle = fx.world.bundle()
+    fx.gateway = ActionGateway(fx.profile, fx.bundle, fx.store, fx.clock, auth=fx.auth,
+                                processing_allowances=allowances)
+    recipe = ProcessingRecipe(allowances=allowances, planning_registrations=())
+    def no_id():
+        raise AssertionError('Structured/unavailable engine entered processing')
+    fx.processing = ProcessingOrchestrator(fx.store, fx.clock, fx.catalog,
+        parent_gateway=fx.gateway, recipe=recipe, invocation_id_factory=no_id)
+    fx.engine = WorkflowEngine(fx.profile, fx.bundle, fx.store, fx.clock,
+        evidence=fx.catalog, gateway=fx.gateway, processing=fx.processing)
+
+class EngineProcessingSummaryTests(unittest.TestCase):
+    def fixture(self, request):
+        folder = tempfile.TemporaryDirectory()
+        self.addCleanup(folder.cleanup)
+        root = Path(folder.name).resolve()
+        clock, profile = Clock(), load_test_profile('flat-v1.2')
+        world = SimulatedWorld(root / 'world.sqlite',
+            Path(__file__).resolve().parents[1] / 'fixtures/development/world.json',
+            profile=profile, clock=clock)
+        world.mutate('customer.request_fingerprint', request_fingerprint(request))
+        world.mutate('customer.consent_mode', request.consent_mode)
+        fx = SimpleNamespace(root=root, clock=clock, profile=profile, world=world,
+            store=CaseStore(root / 'journal.sqlite'), request=request,
+            auth=make_auth(), revoked=set())
+        self.addCleanup(lambda: fx.store.close())
+        compose(fx, (RoleAdmissionLimits('extraction', 5, (('tokens', 10.0),), 5.0),))
+        return fx
+
+    def execution(self, fx):
+        return ExecutionContext.capture(fx.clock.now() + timedelta(seconds=30), fx.clock)
+
+    def test_structured_recipe_positive_and_later_recipe_never_upgrades_caps(self):
+        fx = self.fixture(make_request())  # no text/evidence
+        implicit_same_parent = WorkflowEngine(fx.profile, fx.bundle, fx.store, fx.clock,
+            evidence=fx.catalog, processing=fx.processing)
+        self.assertIs(implicit_same_parent.gateway, fx.gateway)
+        result = fx.engine.run(fx.request, fx.auth, execution=self.execution(fx))
+        self.assertEqual(result.status, 'authorized')
+        self.assertEqual(result.effects['reschedule'].status, 'verified')
+        self.assertIs(fx.engine.processing, fx.processing)
+        cp = fx.store.checkpoint('C1')
+        self.assertEqual(cp.budget.max_planner_calls, 0)
+        self.assertEqual(cp.budget.planner_calls, 0)
+        self.assertEqual(fx.store.processing_attempts(cp.binding), ())
+        summary = fx.engine.processing_summary('C1', fx.auth, execution=self.execution(fx))
+        self.assertIsInstance(summary, ProcessingSummaryV1)
+        self.assertEqual((summary.attempts, summary.entry_local), ((), ()))
+        original_caps = fx.store.checkpoint('C1').budget.role_allowances
+        compose(fx, (RoleAdmissionLimits('extraction', 20, (('tokens', 40.0),), 20.0),
+                     RoleAdmissionLimits('planning', 4, (('tokens', 8.0),), 4.0)))
+        replay = fx.engine.run(fx.request, fx.auth, execution=self.execution(fx))
+        self.assertEqual(replay.status, 'authorized')
+        current = fx.store.checkpoint('C1')
+        self.assertEqual(current.budget.role_allowances, original_caps)
+        self.assertEqual(current.budget.max_planner_calls, 0)
+        self.assertEqual(fx.store.processing_attempts(current.binding), ())
+        self.assertEqual(fx.world.effect_count('reschedule'), 1)
+        replay_summary = fx.engine.processing_summary('C1', fx.auth, execution=self.execution(fx))
+        self.assertEqual([(n.kind, n.reason) for n in replay_summary.entry_local],
+                         [('recorded_replay', None)])
+
+    def test_all_ordered_durable_status_debt_private_and_local_notes_not_rebuilt(self):
+        secret = 'PRIVATE-CONTENT-NOT-FOR-SUMMARY'
+        fx = self.fixture(make_request(narrative=secret))
+        paused = fx.engine.run(fx.request, fx.auth, execution=self.execution(fx))
+        self.assertEqual(paused.status, 'authorized')
+        cp = fx.store.checkpoint('C1')
+        self.assertEqual(cp.processing_status, 'unavailable')
+        record = fx.catalog.register_saved_narrative(cp.binding, fx.auth)
+        grant = make_fixture_campaign(input_hashes=[record.original_hash], max_invocations=5,
+            max_usage={'tokens': 10.0}, max_cost=5.0)
+        fx.store.register_campaign(grant)  # explicit outside engine, not permission inference
+        ordered = (('z-complete', 'completed'), ('m-none', None), ('b-failed', 'failed'),
+                   ('a-unknown', 'outcome_unknown'), ('q-unavailable', 'unavailable'))
+        for identifier, status in ordered:
+            identity = ProcessorIdentity(case_id='C1', generation=cp.binding.generation,
+                role='extraction', campaign_id=grant.campaign_id, permit_hash=grant.permit_hash,
+                input_hashes=[record.original_hash], provider=grant.provider, model=grant.model,
+                endpoint=grant.endpoint, prompt_hash='2' * 64, version='v1',
+                profile_version=cp.profile_version, process_version=cp.process_version,
+                deadline=cp.deadline)
+            fx.store.reserve_invocation(InvocationRequest(identity=identity, invocation_id=identifier,
+                requested_usage={'tokens': 2.0}, worst_case_cost=1.0), fx.clock.now())
+            if status is not None:
+                output = None if status != 'completed' else AssertionsOutput(kind='assertions',
+                    assertions=[EvidenceAssertion(artifact_id=record.artifact_id,
+                        content_hash=record.original_hash, lineage_hash=record.lineage_hash,
+                        locator=UnknownLocator(reason='not_measured'), uncertainty='unverified',
+                        processing_receipt_id=identifier, claim=secret)])
+                fx.store.record_processing(identifier, ProcessingReceipt(invocation_id=identifier,
+                    role='extraction', provider=identity.provider, requested_model=identity.model,
+                    prompt_hash=identity.prompt_hash, version='v1', input_hashes=identity.input_hashes,
+                    mode='synthetic', status=status, latency_seconds=0.0, usage={}, output=output,
+                    output_hashes=[] if output is None else [output_digest(output)],
+                    processed_at=fx.clock.now(), reason=secret))
+        before = fx.store.processing_attempts(cp.binding)
+        debt = fx.store.campaign_usage(grant.permit_hash)
+        budget = fx.store.checkpoint('C1').budget
+        catalog_before = {str(p.relative_to(fx.catalog.root)): p.read_bytes()
+                          for p in fx.catalog.root.rglob('*') if p.is_file()}
+        summary = fx.engine.processing_summary('C1', fx.auth, execution=self.execution(fx))
+        self.assertIsInstance(summary, ProcessingSummaryV1)
+        self.assertEqual(set(asdict(summary)), {'binding_bytes', 'as_of', 'attempts', 'entry_local'})
+        allowed = {'invocation_id', 'role', 'reservation_status', 'receipt_status', 'mode',
+                   'reserved_usage', 'worst_case_cost', 'case_debit', 'role_debit', 'campaign_debit'}
+        self.assertTrue(all(set(asdict(a)) == allowed for a in summary.attempts))
+        self.assertEqual([a.invocation_id for a in summary.attempts], [i for i, _ in ordered])
+        self.assertEqual([a.reservation_status for a in summary.attempts],
+                         ['completed', 'consumed', 'failed', 'outcome_unknown', 'failed'])
+        self.assertEqual([a.receipt_status for a in summary.attempts], [s for _, s in ordered])
+        self.assertEqual([a.mode for a in summary.attempts],
+                         ['synthetic', None, 'synthetic', 'synthetic', 'synthetic'])
+        self.assertEqual([(a.case_debit, a.role_debit, a.campaign_debit)
+                          for a in summary.attempts], [(1, 1, 1)] * 5)
+        self.assertEqual([a.worst_case_cost for a in summary.attempts], [1.0] * 5)
+        self.assertEqual([a.reserved_usage for a in summary.attempts], [(('tokens', 2.0),)] * 5)
+        self.assertEqual([(n.kind, n.reason) for n in summary.entry_local],
+                         [('unavailable', 'input_unavailable')])
+        self.assertNotIn(secret, repr(asdict(summary)))
+        self.assertEqual(fx.store.processing_attempts(cp.binding), before)
+        self.assertEqual(fx.store.campaign_usage(grant.permit_hash), debt)
+        self.assertEqual({str(p.relative_to(fx.catalog.root)): p.read_bytes()
+                          for p in fx.catalog.root.rglob('*') if p.is_file()}, catalog_before)
+        after = fx.store.checkpoint('C1').budget
+        self.assertEqual(after.role_allowances, budget.role_allowances)
+        self.assertEqual(after.tool_calls, budget.tool_calls + 1)  # real current control read
+        fx.revoked.add('saved-scope')
+        with self.assertRaises(EvidenceAccessDenied):
+            fx.catalog.get(record.artifact_id, fx.auth)
+        withheld = fx.engine.processing_summary('C1', fx.auth, execution=self.execution(fx))
+        self.assertEqual(withheld.attempts, summary.attempts)  # no output readability claim
+        self.assertNotIn(secret, repr(asdict(withheld)))
+        self.assertEqual({str(p.relative_to(fx.catalog.root)): p.read_bytes()
+                          for p in fx.catalog.root.rglob('*') if p.is_file()}, catalog_before)
+        fx.store.close()
+        fx.store = CaseStore(fx.root / 'journal.sqlite')
+        compose(fx, (RoleAdmissionLimits('extraction', 5, (('tokens', 10.0),), 5.0),))
+        reopened = fx.engine.processing_summary('C1', fx.auth, execution=self.execution(fx))
+        self.assertEqual(reopened.attempts, summary.attempts)
+        self.assertEqual(reopened.entry_local, ())
+        denied = fx.engine.processing_summary('C1', make_auth(proof_reference='wrong'),
+                                              execution=self.execution(fx))
+        self.assertEqual(denied.model_dump(mode='json'),
+                         CaseResult(status='denied', correlation_id='C1', reason='denied').model_dump(mode='json'))
+        missing = fx.engine.processing_summary('missing', fx.auth, execution=self.execution(fx))
+        self.assertEqual(set(missing.model_dump(mode='json')), {'status', 'correlation_id', 'reason'})
+        fx.world.mutate('case.authorization', 'unverified')
+        revoked = fx.engine.processing_summary('C1', fx.auth, execution=self.execution(fx))
+        self.assertEqual(revoked.model_dump(mode='json'), denied.model_dump(mode='json'))
+        self.assertEqual(fx.store.processing_attempts(cp.binding), before)
+        self.assertEqual(fx.store.campaign_usage(grant.permit_hash), debt)
+```
+
+Implementation shape inside the existing engine lifetime (do not mechanically paste a pseudocode-only dependency):
+
+```python
+# __init__: select processing.parent_gateway when processing is not None and
+# gateway omitted; exact public store/clock/catalog/profile/bundle joins first.
+# Do NOT construct another gateway or read/change its private allowances.
+# readonly processing is the same trusted component; legacy defaults retained.
+
+# processing_summary, inside existing _execution_scope(execution):
+# validate case_id/AuthContext before selection; public current control read:
+checkpoint = self.gateway.authenticate_control(saved.binding, auth,
+                                                purpose='recorded_state')
+originals = self.store.processing_attempts(checkpoint.binding)
+# Validate ALL original tuples and construct detached frozen projections.
+# No receipt=None invention, debt filtering, catalog lookup or result save.
+# Join current binding/fixed associations and timing.window(deadline) again
+# before returning fresh UTC as_of plus actual current-binding entry note.
+# Errors return generic CaseResult only; no partial attempts/counts/output.
+```
+
+The journal fixture makes real reservations/debits through public producers but does NOT prove a processor ran or publication exists. Structured fixture proves the actual deterministic effect once, not a fresh narrative/model positive. Summary authentication has its real tool/source/time cost; no whole-checkpoint/SQL-write immutability assertion. If a fixture uncovers a legitimate phase/budget seam, report it and preserve the failing history rather than funding/upgrading old cases.
 
 
 **Files:** Create `runtime/src/proofkey/providers/{__init__,protocols,invocations,replay,unavailable,anthropic,elevenlabs}.py`, `runtime/src/proofkey/planner.py`, `runtime/src/proofkey/assessment/{__init__,readiness}.py`, `runtime/tests/{test_processing_protocols,test_model_plan_gate,test_readiness_ledger}.py`; extend `runtime/tests/support.py`, Task 4's invocation recovery tests and Task 11 catalog integration.
