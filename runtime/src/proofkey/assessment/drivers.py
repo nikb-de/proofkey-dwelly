@@ -62,11 +62,13 @@ class RegisteredDriver:
             ids.add(identity)
 
     def matches(self, manifest):
+        """Every evidence entry is required, in trusted registration tuple order."""
         identities = {"case_bytes_hash": self.input_sequence_bytes, "scenario_hash": self.scenario_bytes,
             "candidate_manifest_hash": self.candidate_manifest_bytes, "driver_code_hash": self.driver_code_bytes,
             "profile_hash": self.profile_bytes, "process_hash": self.process_bytes, "policy_hash": self.policy_bytes}
         return (all(getattr(manifest, name) == getattr(self, name) for name in
                     ("driver_id", "obligation", "variant", "case_id", "independence_group", "profile_name"))
+                and manifest.dependency_ids == tuple(identity for identity, _ in self.dependency_evidence)
                 and all(getattr(manifest, name) == digest_bytes(raw) for name, raw in identities.items()))
 
 

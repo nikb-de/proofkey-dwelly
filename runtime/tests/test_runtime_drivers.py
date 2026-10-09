@@ -325,6 +325,71 @@ class RegisteredExecutionTests(unittest.TestCase):
                     self.assertEqual(receipt.raw_output_bytes, b"not-json")
                     self.assertEqual(receipt.raw_output_hash, sha256(b"not-json").hexdigest())
 
+    def test_required_dependency_tuple_rejects_omission_reorder_and_add_before_entry(self):
+        # Break caught: caller-controlled IDs reduce/reorder the trusted recipe's prerequisites.
+        source_entries, callback_entries = [], []
+        def source():
+            source_entries.append("source")
+            return snapshot()
+        def callback(view, sink):
+            callback_entries.append("callback")
+            raise AssertionError("Rejected recipe reached callback")
+        available, unavailable = b'{"status":"available"}', b'{"status":"unavailable"}'
+        cases = [("single-omitted-all", (("public-runtime", unavailable),), ())]
+        for state, second in (("available", available), ("unavailable", unavailable)):
+            evidence = (("public-runtime", available), ("source-snapshot", second))
+            for change, identities in (("omitted-all", ()), ("omitted-one", ("public-runtime",)),
+                    ("reordered", ("source-snapshot", "public-runtime")),
+                    ("added", ("public-runtime", "source-snapshot", "unexpected"))):
+                cases.append((state + "-" + change, evidence, identities))
+        for ordinal, (name, evidence, identities) in enumerate(cases):
+            with self.subTest(recipe=name):
+                source_entries.clear()
+                callback_entries.clear()
+                reg, manifest, _ = registration(callback, source_snapshot=source)
+                reg = replace(reg, dependency_evidence=evidence)
+                changed = replace(manifest, dependency_ids=identities)
+                receipt = run_driver(DriverRegistry((reg,)), changed, reg.input_sequence_bytes,
+                                     ordinal=ordinal, repetition=4)
+                self.assertEqual((receipt.status, receipt.ordinal, receipt.repetition),
+                    ("not_started", ordinal, 4),
+                    f"source entries={source_entries!r}; callback entries={callback_entries!r}")
+                self.assertEqual(source_entries, [])
+                self.assertEqual(callback_entries, [])
+                self.assertIsNone(receipt.source_pre_manifest_bytes)
+                self.assertIsNone(receipt.source_post_manifest_bytes)
+                self.assertIsNone(receipt.raw_output_bytes)
+
+    def test_matching_required_tuple_runs_public_positive_or_denies_unavailable(self):
+        # Break caught: enforcing the tuple must not deny a matching available public recipe.
+        for state, status in (("available", "completed"), ("unavailable", "not_started")):
+            with self.subTest(dependency=state):
+                source_entries, callback_entries = [], []
+                def source():
+                    source_entries.append("source")
+                    return snapshot()
+                def callback(view, sink):
+                    callback_entries.append("callback")
+                    return public_callback(view, sink)
+                reg, manifest, expect = registration(callback, source_snapshot=source)
+                reg = replace(reg, dependency_evidence=(("public-runtime", b'{"status":"available"}'),
+                    ("source-snapshot", canonical_bytes({"status": state}))))
+                manifest = replace(manifest, dependency_ids=("public-runtime", "source-snapshot"))
+                receipt = run_driver(DriverRegistry((reg,)), manifest, reg.input_sequence_bytes,
+                                     ordinal=8, repetition=4)
+                self.assertEqual((receipt.status, receipt.ordinal, receipt.repetition), (status, 8, 4))
+                if state == "available":
+                    self.assertEqual(source_entries, ["source", "source"])
+                    self.assertEqual(callback_entries, ["callback"])
+                    physical = next(event for event in receipt.events() if event["event_tag"] == "physical")
+                    self.assertEqual(physical["counts"]["reschedule"], 1)
+                    self.assertEqual(assess_driver(receipt, expect).status, "passed")
+                else:
+                    self.assertEqual(source_entries, [])
+                    self.assertEqual(callback_entries, [])
+                    self.assertIsNone(receipt.source_pre_manifest_bytes)
+                    self.assertIsNone(receipt.source_post_manifest_bytes)
+
     def test_actual_snapshot_drift_fails_without_presumed_clean_hash(self):
         snapshots, entered = [], []
         original = snapshot()
