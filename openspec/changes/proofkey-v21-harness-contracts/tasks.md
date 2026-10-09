@@ -104,6 +104,7 @@ Task12 integration is staged:12A inventory9209254 is independently Approved by N
 
 - [ ] 7.1 Implement process diff/release tooling over the initial ProcessSpec established in 2.2 and enforced in 3.4; preserve schema/policy separation, approval/wait and completion meanings.
 - [ ] 7.2 Prepare engineer/coding-agent adapter/process proposals with source basis, changed tests, diff, migration impact and reproducible candidate release.
+  - [ ] Task13B2: source-retained-state-capture.md exact3 source-only snapshot prerequisite; explicit full seven-table/REAL/null-multiplicity/context/semantic predicates and two public TDD fixtures are planned, not implementation GO. Coordinate source holds with Task12; registry/host/queue/atomic activation/human/native/migration remain separate gates.
 - [ ] 7.3 Require human approval before activation; verify runtime content cannot rewrite mappings/process/policy or expand permission.
 - [ ] 7.4 Reconcile pending old-version intents or use explicit compatible migration; preserve original keys/fingerprints/postconditions/budgets.
 - [ ] 7.5 Execute the 600-second new-profile drill changing semantics AND process; retain schema/no-text regressions and full clock/human review evidence.

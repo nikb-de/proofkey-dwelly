@@ -1619,6 +1619,156 @@ The live gate defaults closed: subscription alone is insufficient; exact API ent
 
 - [x] 13B1 complete retained-state storage prerequisite exact3f954249 plus nullable-key FIX1 exact3 at261bdd77 independently Spec Approved/Quality Approved by original DIFFERENT NONAUTHOR runtime_retained_state_review; I1ADDRESSED/newC0/I0/M0. Initial25/root4 historical; NEW genuine RED2/3assertion failures then GREEN2, ONE final8/.293s/rootNEW2/.107s SAME42 qualify corrected epoch, not future changed gateway/wholecandidate. Full original rows/NULL-key multiplicity/canonical ties retained; unchanged schema/validator/debt, exact row/payload bounds, bounded chunk preflight/one read snapshot/original clocks+SQL limits/restoration/WAL. [retained-state-capture.md](../../../openspec/changes/proofkey-v21-harness-contracts/retained-state-capture.md) governs. Review hold released for12B4a; full13 activation/migration/source/host/registry/actualhuman/native/wholecandidate remains incomplete.
 
+#### Task13B2 — source-only complete retained image (future gated exact3)
+
+- [ ] Existingadapters/world.py + NEWsource_retained_state.py + NEWtest_source_retained_state.py only, binding [source-retained-state-capture.md](../../../openspec/changes/proofkey-v21-harness-contracts/source-retained-state-capture.md). Source holds coordinate with current12B4b/B4c epochs; this formal/plan is NOT implementation GO. No journal/private encoder/REAL schema expansion, host/registry/queue/atomic activation/migration/native/human/rights/custody qualification.
+
+1. Read FULL formal; place complete public fixture setup and two actual expectation tests below in NEWtest only. Missingmodule/API is scaffolding, not sufficient behavioralRED; actual complete encoded source, lossless REAL/rawTEXT/NULL multiplicity, wholeinventory/currentstate/no-mutation assertions must fail before minimal implementation. No old unittest calls/private originals fabricated as positive.
+2. Minimal pure frozen exactsnapshot with canonical typed multiset/context/14entryinventory/count/hash/time verification + captureonlyfinitefailure. Retain complete detached effective-original constructorprofile/fixture/as_of/hash withoutmaking legacyconstructor parsing/acceptance stricter; size/detachment failures mark captureunavailable only. Actual NaN effective fixture already rejected by existingfingerprint; no fabricated NaNacceptedbaseline. World method has newcapture-only creator/nonreentrant lifetime, dedicated URI existing-file readtransaction and ORIGINALanchor<=5sec both-clockclamp, no _connect/ports/accounting mutations.
+3. NEW semantic predicates deliberately distinguish opaqueNULLmetadata/pressure/reservation keys from requiredoperationalidentity; validate everytypedrow BEFOREscope/fact maps and knownJSON/models, retain rawTEXT/REAL/multiplicity. Constructorbaseline + supported required_material_keys/read_material_revisions only, no new approving business values/currentgrant/expiry readiness. Registeredownership actual LIKE namespace/inversejoin policy asformal; unregistered legacy originals-likeextensionopaque, not newfulloriginalauthority.
+4. ALL-table byte/count/type/chunk/preflight finishes BEFORE public registeredownership.validate_records uses model/read helpers in SAMEpinnedsnapshot/SQLprogress/timebudget. No exception-by-callinghelperoutsidebounds. Testalltable giantunselectedfields plus UTF8/NUL/duplicateJSON, exactrow/payload limits, allDDL/column/inventorymissingextra, SQLVM/busy/originaltime expiry and restoration; pureconstructor aliases/counts/hash/context/numeric tags; opaque metadata/revokedACL/expiredreserve/pressuremismatch positives; genuine public pending/accepted/rejected originals forward/inverse corruptions; missingfile remainsabsent/symlink/replacementdetected; TEST-only realWAL pairedfacts+pressure oldimage/newimage. Do NOTchange production rollbackmode or add producthooks.
+5. Itemwise genuineRED/minimalGREEN and completeoriginalrawhistory includingerrors preserved. Freezeexact3/actual import/open/source-data/private/interpreter/platform union, explicitmethodnames/cache/new-outputabsence; rootseparateONEfinalGO then proportionalNEWverification/exact3commit/differentnonauthor separateSpec+Qualitygate. NoautomaticoldfullAPI/V2/driverrepeats. Capturedsource is privateasoflogicalimage, not atomicworld+journalactivation/custody/humanapproval/currentactiongrant/hardkill/end-to-enddrill.
+
+```python
+from contextlib import closing
+from datetime import datetime, timedelta, timezone
+from hashlib import sha256
+import json
+import math
+from pathlib import Path
+import sqlite3
+import tempfile
+import unittest
+
+from proofkey.adapters.world import SimulatedWorld
+from proofkey.execution import ExecutionContext
+from proofkey.profiles import load_profile
+from proofkey.retained_state import RetainedStateLimitsV1
+from proofkey.source_retained_state import (
+    SourceRetainedStateFailure, SourceRetainedStateSnapshotV1,
+)
+
+ROOT = Path(__file__).resolve().parents[1]
+TABLES = ('effects', 'facts', 'final_rejections', 'metadata',
+          'pressure', 'reservations', 'scopes')
+
+class Clock:
+    def __init__(self):
+        self.utc = datetime(2026, 10, 8, 10, tzinfo=timezone.utc)
+        self.tick = 100.0
+    def now(self):
+        return self.utc
+    def monotonic(self):
+        return self.tick
+
+def tag(value):
+    if value is None:
+        return ['null']
+    if type(value) is str:
+        return ['text', value]
+    if type(value) is int:
+        return ['integer', str(value)]
+    if type(value) is float and math.isfinite(value):
+        return ['real', value.hex()]
+    raise AssertionError('Unexpected fixture SQL value')
+
+def canonical(value):
+    return json.dumps(value, sort_keys=True, separators=(',', ':'),
+                      ensure_ascii=False, allow_nan=False).encode('utf-8')
+
+def stored(path):
+    # Independent test-only logical inventory; never the product encoder.
+    with closing(sqlite3.connect(path.as_uri() + '?mode=ro', uri=True)) as db:
+        schema = sorted([list(row) for row in db.execute(
+            'SELECT type,name,tbl_name,sql FROM sqlite_master')])
+        tables = []
+        for name in TABLES:  # fixed trusted test identifiers
+            columns = [row[1] for row in db.execute('PRAGMA table_info(' + name + ')')]
+            rows = [[tag(value) for value in row]
+                    for row in db.execute('SELECT * FROM ' + name)]
+            tables.append({'name': name, 'columns': columns,
+                           'rows': sorted(rows, key=canonical)})
+        return {'schema': schema, 'tables': tables}
+
+class SourceRetainedStateTests(unittest.TestCase):
+    def setUp(self):
+        folder = tempfile.TemporaryDirectory()
+        self.addCleanup(folder.cleanup)
+        self.path = Path(folder.name) / 'world.sqlite'
+        self.clock = Clock()
+        self.profile = load_profile('flat-v1.4')
+        self.fixture = ROOT / 'fixtures/development/ownership-world-v1.json'
+        self.raw = json.loads(self.fixture.read_text(encoding='utf-8'))
+        self.world = SimulatedWorld(self.path, self.fixture,
+                                    profile=self.profile, clock=self.clock)
+        self.execution = ExecutionContext.capture(
+            self.clock.now() + timedelta(seconds=30), self.clock)
+
+    def test_complete_lossless_real_null_ties_and_no_mutation(self):
+        account = self.profile.capabilities['reschedule'].shared_limits.account_id
+        value = math.nextafter(0.1, 1.0)
+        readers = '{ "U1": "synthetic-proof", "OP1": "synthetic-operator-proof", "OP2": "synthetic-target-proof" }'
+        with closing(sqlite3.connect(self.path)) as db, db:
+            db.execute('INSERT INTO pressure VALUES(?,?,?,?,?)',
+                       (account, 3, 2, '[ 0.1 ]', value))
+            db.executemany('INSERT INTO reservations VALUES(?,?,?)',
+                           [(None, account, value), (None, account, value),
+                            (None, account, 0.1)])
+            db.execute('UPDATE scopes SET readers=? WHERE case_id=? AND object_id=?',
+                       (readers, 'C1', 'O1'))
+            db.execute('UPDATE facts SET value=? WHERE identity=?',
+                       ('  "safe"  ', 'delivery.risk'))
+        before = stored(self.path)
+        image = self.world.capture_retained_state(
+            execution=self.execution, clock=self.clock)
+        self.assertIsInstance(image, SourceRetainedStateSnapshotV1)
+        body = json.loads(image.payload)
+        self.assertEqual(body['domain'], 'synthetic-world-retained-state-v1')
+        self.assertEqual(body['format_version'], 1)
+        self.assertEqual(body['context']['profile'], self.profile.model_dump(mode='json'))
+        self.assertEqual(body['context']['fixture'], self.raw)
+        self.assertEqual(body['context']['as_of'], self.raw['as_of'])
+        self.assertEqual(body['schema'], before['schema'])
+        self.assertEqual(body['tables'], before['tables'])
+        self.assertEqual(image.content_hash, sha256(image.payload).hexdigest())
+        self.assertEqual(image.schema_hash, sha256(canonical(body['schema'])).hexdigest())
+        tables = {table['name']: table for table in body['tables']}
+        ties = tables['reservations']['rows']
+        self.assertEqual(len(ties), 3)
+        self.assertEqual(ties.count([['null'], ['text', account], ['real', value.hex()]]), 2)
+        self.assertIn(['real', value.hex()], tables['pressure']['rows'][0])
+        self.assertEqual(len(body['schema']), 14)
+        self.assertEqual(sum(row[0] == 'index' and row[3] is None
+                             for row in body['schema']), 7)
+        self.assertEqual(image.table_counts,
+                         tuple((table['name'], len(table['rows'])) for table in body['tables']))
+        self.assertEqual(image.total_rows, sum(count for _, count in image.table_counts))
+        self.assertEqual(self.world.calls, ())
+        self.assertEqual(stored(self.path), before)
+        again = self.world.capture_retained_state(
+            execution=self.execution, clock=self.clock)
+        self.assertEqual(again.payload, image.payload)
+
+    def test_corrupt_semantic_json_and_tight_row_limit_fail_without_mutation(self):
+        pristine = stored(self.path)
+        with self.assertRaises(SourceRetainedStateFailure) as limited:
+            self.world.capture_retained_state(execution=self.execution, clock=self.clock,
+                                              limits=RetainedStateLimitsV1(max_rows=1))
+        self.assertEqual(limited.exception.code, 'limit')
+        self.assertEqual(stored(self.path), pristine)
+        with closing(sqlite3.connect(self.path)) as db, db:
+            db.execute('UPDATE facts SET value=? WHERE identity=?',
+                       ('{"duplicate":1,"duplicate":2}', 'delivery.risk'))
+        corrupt = stored(self.path)
+        with self.assertRaises(SourceRetainedStateFailure) as invalid:
+            self.world.capture_retained_state(execution=self.execution, clock=self.clock)
+        self.assertEqual(invalid.exception.code, 'invalid')
+        self.assertEqual(stored(self.path), corrupt)
+        self.assertEqual(self.world.calls, ())
+```
+
+The two initialfixtures cover actualrawsource/publicconstruction/read-onlycapture, NOTnonemptyownershiptransitionhistory. Laternonemptyorigins must be produced through the realpublic operatortransfer port with actualfixtureintent/grant, not direct source.save or injectedhistoricalJSONpositive. Independenttest stored() inventory is not the productionencoder; product never calls it. The30seccontext fixture is sourceclamped to its ORIGINALfirst<=5seconds, unlike journalduration<=5rule; foursecondsalreadyused mustleaveone. Signedzero/physicalSQLitebytes and atomicdescriptorcustody are notclaimed.
+
 **Files:** Create `runtime/src/proofkey/factory/{__init__,proposal,release,views}.py`, `runtime/tests/{test_adaptation_factory,test_process_views}.py`, synthetic `runtime/fixtures/development/adaptation/` packet. Extend `runtime/tests/support.py` and CLI with `propose-profile`, `check-profile`, `release-profile`; runtime input cannot invoke activation.
 
 **Interfaces:** `prepare_proposal(packet,baseline,agent_receipt) -> AdaptationProposal`; `check_proposal(proposal,regression_receipt) -> ReviewPacket`; `release_profile(review_packet,human_approval,pending_intents) -> ReleaseReceipt`; `derive_view(process,release_hash) -> str`. Consume Task 1's strict adaptation schemas. Support adds `make_review_packet(**overrides) -> ReviewPacket` using synthetic baseline/diff/passed-regression hashes and `make_human_approval(packet) -> HumanReviewApproval`, explicitly simulated and bound to the exact proposal/regression hashes, never actual human evidence. Preserve proposal sources/diff/test/migration/agent identity and human approval as separate evidence. `ReleaseDenied.reason` distinguishes missing approval, failed regression and incompatible pending contract.
