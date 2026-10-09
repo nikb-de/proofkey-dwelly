@@ -180,13 +180,14 @@ def _resource_directory(path):
 
 class RuntimeConstructionFailure(ValueError):
     """Creator-owned cleanup only, never a usable runtime or wire receipt."""
-    def __init__(self, store, writer_lease):
+    def __init__(self, store, writer_lease, admission_owner=None):
         super().__init__('writer_storage')
         self.code = 'writer_storage'
         self.closed = False
         self._owner = threading.get_ident()
         self._store = store
         self._writer_lease = writer_lease
+        self._admission_owner = admission_owner
 
     def __reduce_ex__(self, protocol):
         raise RuntimeWriterFailure('writer_scope')
@@ -196,6 +197,14 @@ class RuntimeConstructionFailure(ValueError):
             raise RuntimeWriterFailure('writer_scope')
         if self.closed:
             return
+        if self._admission_owner is not None:
+            try:
+                self._admission_owner.close()
+            finally:
+                if self._store is not None:
+                    self._store.close()
+                    self._store = None
+            self._admission_owner = None
         if self._store is not None:
             self._store.close()
             self._store = None
@@ -206,13 +215,16 @@ class RuntimeConstructionFailure(ValueError):
 
 
 class RuntimeResources:
-    def __init__(self, profile, world, store, engine, *, writer_lease=None):
+    def __init__(self, profile, world, store, engine, *, writer_lease=None, admission_owner=None):
         if writer_lease is not None:
             if type(writer_lease) is not RuntimeWriterLease:
                 raise RuntimeWriterFailure('writer_scope')
             writer_lease.check()
         self.profile, self.world, self.store, self.engine = profile, world, store, engine
         self._writer_lease = writer_lease
+        self.admission = admission_owner
+        # Public runtime aliases are checked at entry, not trusted for cleanup.
+        self._registered_cleanup = (admission_owner, store, writer_lease) if admission_owner is not None else None
         self._owner = threading.get_ident()
         self.closed = False
 
@@ -220,13 +232,71 @@ class RuntimeResources:
         if threading.get_ident() != self._owner:
             raise ValueError("Runtime close requires creator thread")
         if not self.closed:
+            if self._registered_cleanup is not None:
+                admission, store, lease = self._registered_cleanup
+                try:
+                    admission.close()
+                finally:
+                    store.close()
+                lease.close()
+                self.closed = True
+                return
             self.store.close()
             if self._writer_lease is not None:
                 self._writer_lease.close()
             self.closed = True
 
+    def run_registered(self, request, auth, *, execution):
+        from .host_admission import RegisteredAdmissionOwner, AdmissionCompositionFailure
+        if type(self.admission) is not RegisteredAdmissionOwner:
+            raise AdmissionCompositionFailure('scope')
+        return self.admission.run(request, auth, execution=execution)
+
 
 class RuntimeFactory:
+    def create_registered(self, release, clock, *, composition, execution):
+        from .host_admission import validate_composition, RegisteredAdmissionOwner
+        from .gateway import ActionGateway
+        profile, registered = validate_composition(release, clock, composition, execution)
+        store = lease = owner = None
+        try:
+            lease = RuntimeWriterLease(release.resource_root)
+            profile, registered = validate_composition(release, clock, composition, execution)
+            owner = RegisteredAdmissionOwner(release, clock, composition, lease, registered)
+            owner.open(execution)
+            lease.check()
+            world = SimulatedWorld(release.resource_root / 'world.sqlite', release.fixture_path,
+                profile=profile, clock=clock, fixture_bytes=_pinned(release.fixture_path, release.fixture_hash))
+            os.chmod(release.resource_root / 'world.sqlite', 0o600)
+            lease.check()
+            store = CaseStore(release.resource_root / 'journal.sqlite')
+            os.chmod(release.resource_root / 'journal.sqlite', 0o600)
+            bundle = world.bundle()
+            gateway = ActionGateway(profile, bundle, store, clock, admission_owner=owner)
+            engine = WorkflowEngine(profile, bundle, store, clock, gateway=gateway)
+            resources = RuntimeResources(profile, world, store, engine, writer_lease=lease, admission_owner=owner)
+            owner.attach(resources)
+            lease.check()
+            return resources
+        except BaseException:
+            cleanup = None
+            if owner is not None:
+                try: owner.close()
+                except BaseException as error: cleanup = error
+            if store is not None:
+                try:
+                    store.close()
+                    store = None
+                except BaseException as error: cleanup = error
+            if cleanup is None and lease is not None:
+                try:
+                    lease.close()
+                    lease = None
+                except BaseException as error: cleanup = error
+            if cleanup is not None:
+                raise RuntimeConstructionFailure(store, lease, owner) from cleanup
+            raise
+
     def create(self, release, clock):
         if type(release) is not ApprovedProfileRelease or getattr(clock, "mode", None) != release.mode:
             raise ValueError("Exact registered offline clock/resource required")
@@ -236,6 +306,8 @@ class RuntimeFactory:
             fixture_bytes = _pinned(release.fixture_path, release.fixture_hash)
             _resource_directory(release.resource_root)
             lease = RuntimeWriterLease(release.resource_root)
+            if os.path.lexists(release.resource_root / '.proofkey-registration.json'):
+                raise ValueError('Registered resources require their original composition')
             # Refuse preexisting symlink/foreign alias database targets.
             root = _directory(release.resource_root)
             try:
@@ -300,7 +372,8 @@ class _State:
 
 
 class HostDispatcher:
-    def __init__(self, factory, auth_resolver, profile_registry, clock, inventory_root, limits, *, release_id):
+    def __init__(self, factory, auth_resolver, profile_registry, clock, inventory_root, limits, *, release_id,
+                 admission_composition=None):
         if type(limits) is not HostLimitsV1 or type(profile_registry) is not ProfileRegistry:
             raise ValueError("Exact trusted host limits/registry required")
         if not callable(getattr(factory, "create", None)) or not callable(getattr(auth_resolver, "resolve", None)):
@@ -310,6 +383,11 @@ class HostDispatcher:
         if getattr(clock, "mode", None) != self.release.mode:
             raise ValueError("Registered clock mode mismatch")
         self.factory, self.resolver, self.registry, self.clock = factory, auth_resolver, profile_registry, clock
+        if admission_composition is not None:
+            from .host_admission import LocalAdmissionCompositionV1
+            if type(admission_composition) is not LocalAdmissionCompositionV1 or type(factory) is not RuntimeFactory:
+                raise ValueError('Exact registered composition/factory required')
+        self.admission_composition = admission_composition
         self.inventory_root = Path(inventory_root).absolute()
         self._condition = threading.Condition()
         self._publication_lock = threading.Lock()
@@ -565,11 +643,16 @@ class HostDispatcher:
             else:
                 state.inspection, state.outcome = inspection, "inspection"
             return
+        if self.admission_composition is not None and tag != 'run':
+            state.outcome, state.failure = 'denied', 'scope_denied'
+            return
         if self._resources is None:
             if self._construction_failure is not None:
                 raise RuntimeWriterFailure('writer_storage')
             try:
-                self._resources = self.factory.create(self.release, self.clock)
+                self._resources = (self.factory.create(self.release, self.clock) if self.admission_composition is None else
+                    self.factory.create_registered(self.release, self.clock, composition=self.admission_composition,
+                        execution=state.execution))
             except RuntimeConstructionFailure as error:
                 self._construction_failure = error
                 raise
@@ -580,7 +663,8 @@ class HostDispatcher:
             return
         engine, command = self._resources.engine, state.command
         if tag == "run":
-            result = engine.run(command.request, auth, execution=state.execution)
+            result = (engine.run(command.request, auth, execution=state.execution) if self.admission_composition is None else
+                self._resources.run_registered(command.request, auth, execution=state.execution))
         elif tag == "recover":
             result = engine.recover(command.case_id, auth, execution=state.execution)
         elif tag == "reply":

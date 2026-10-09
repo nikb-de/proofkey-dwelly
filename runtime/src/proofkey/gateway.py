@@ -48,7 +48,12 @@ _AUTHORITY_READS = {"case": ("case", "read_case"), "customer": ("case", "read_pr
 
 class ActionGateway(OwnershipGateway):
     def __init__(self, profile, bundle, store, clock, auth=None, *,
-                 processing_allowances: tuple[RoleAdmissionLimits, ...] | None = None):
+                 processing_allowances: tuple[RoleAdmissionLimits, ...] | None = None, admission_owner=None):
+        if admission_owner is not None:
+            from .host_admission import RegisteredAdmissionOwner
+            if type(admission_owner) is not RegisteredAdmissionOwner:
+                raise GateDenied('scope_denied')
+        self._admission_owner = admission_owner
         self._processing_allowances = freeze_processing_allowances(processing_allowances)
         self.profile, self.bundle, self.store, self.clock, self.auth = profile, bundle, store, clock, auth
         self.gate = PolicyGate(profile)
@@ -61,6 +66,8 @@ class ActionGateway(OwnershipGateway):
         """One creator-owned host cap, installed before caller authentication."""
         if get_ident() != self._owner_thread or self._execution_active:
             raise GateDenied("scope_denied")
+        if self._admission_owner is not None:
+            self._admission_owner.guard_execution(execution, self)
         timing = ExecutionTiming(self.clock, execution)
         previous_timing, previous_auth = self._timing, self.auth
         self._execution_active = True
@@ -841,6 +848,8 @@ class ActionGateway(OwnershipGateway):
         try:
             self._authenticated()
             request = CanonicalRequest.model_validate(request.model_dump())
+            prepared_attempt = (self._admission_owner.require_entry(request, self.auth)
+                if self._admission_owner is not None else None)
             fields = IDENTITY_FIELDS
             if type(initialize_process) is not bool:
                 raise GateDenied("scope_denied")
@@ -876,7 +885,10 @@ class ActionGateway(OwnershipGateway):
                     saved.update(qualified_observations(self.profile, request.object_id, observations))
                     self.store.save_checkpoint(PhaseCheckpoint.model_validate({**checkpoint.model_dump(), "observations": list(saved.values())}))
                     return current
-            attempt = self.store.start_admission("attempt:" + uuid4().hex, self.auth, request, self.clock.now(), deadline)
+            attempt = self.store.start_admission(prepared_attempt or "attempt:" + uuid4().hex,
+                self.auth, request, self.clock.now(), deadline)
+            if prepared_attempt is not None and attempt.attempt_id != prepared_attempt:
+                raise GateDenied('scope_denied')
             observations = self._facts(request, fields, attempt_id=attempt.attempt_id, deadline=attempt.deadline)
             binding = self.gate.bind_request(request, self.auth, observations)
             if initialize_process:
@@ -949,6 +961,8 @@ class ActionGateway(OwnershipGateway):
                         current_checkpoint = self.store.checkpoint(binding.case_id)
                         self.store.save_checkpoint(current_checkpoint.model_copy(update={"observations": list(observations)}))
                         return binding
+            if self._admission_owner is not None:
+                self._admission_owner.seal_before_admit(attempt.attempt_id, binding, request, checkpoint)
             self.store.admit_from_attempt(attempt.attempt_id, binding, request, checkpoint)
             return binding
         except Exception:
