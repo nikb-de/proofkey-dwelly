@@ -270,8 +270,23 @@ def _validate_input(spec, clock, execution):
 class _PreparationPins(_PathPins):
     """The shared no-follow protocol, with BaseException-safe ownership."""
     def __init__(self, path):
+        path = Path(path)
+        self.path, self.entries, self.private_fds = path, [], set()
+        if (not path.is_absolute() or ".." in path.parts or len(path.parts) > 64
+                or len(str(path)) > 1024):
+            raise ValueError("Invalid trusted launch directory")
         try:
-            super().__init__(path)
+            root = os.open("/", os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+            registered = False
+            try:
+                self.entries.append((root, None, None, self.identity(root)))
+                registered = True
+            finally:
+                if not registered:
+                    os.close(root)
+            for name in path.parts[1:]:
+                self._append(name, private=False)
+            self.check()
         except BaseException:
             self.close()
             raise
@@ -322,9 +337,13 @@ def _validate_parent(pins):
         value = forbidden.stat()
         _require(identities[-1] != (value.st_dev, value.st_ino), "invalid_target")
     package = Path(__file__).resolve().parent
-    package_stat = package.stat()
-    _require(not parent.is_relative_to(package)
-             and (package_stat.st_dev, package_stat.st_ino) not in identities, "invalid_target")
+    _require(not any(part.casefold() == "site-packages" for part in parent.parts), "invalid_target")
+    installation_roots = (package, *(path for path in package.parents
+                                    if path.name.casefold() == "site-packages"))
+    for installation_root in installation_roots:
+        value = installation_root.stat()
+        _require(not parent.is_relative_to(installation_root)
+                 and (value.st_dev, value.st_ino) not in identities, "invalid_target")
     value = os.fstat(pins.entries[-1][0])
     _require(value.st_uid == os.geteuid() and stat.S_IMODE(value.st_mode) == 0o700, "invalid_target")
     pins.private_fds.add(pins.entries[-1][0])

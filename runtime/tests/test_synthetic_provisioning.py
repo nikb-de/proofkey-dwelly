@@ -349,6 +349,54 @@ class ProvisioningTests(unittest.TestCase):
                 with _allocate_private(self.parent, self.clock, context(self.clock)):
                     self.fail("interruption ignored")
 
+    def assert_first_identity_closes(self, error, expected):
+        real_fstat = os.fstat
+        calls = 0
+        def interrupted(fd):
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                raise error
+            return real_fstat(fd)
+        with self.tracked_descriptors() as active:
+            try:
+                with patch("proofkey.synthetic_provisioning.os.fstat", side_effect=interrupted):
+                    with self.assertRaises(expected):
+                        with _allocate_private(self.parent, self.clock, context(self.clock)):
+                            self.fail("initial identity failure ignored")
+                leaked = tuple(active)
+            finally:
+                # A failing regression must not itself retain the leaked root FD.
+                for fd in tuple(active):
+                    os.close(fd)
+        self.assertEqual(leaked, (), "initial root descriptor was not closed")
+        self.assertEqual(tuple(self.parent.iterdir()), ())
+
+    def test_first_identity_oserror_closes_root_descriptor(self):
+        self.assert_first_identity_closes(OSError("injected first fstat"), SyntheticPreparationFailureV1)
+
+    def test_first_identity_interrupt_closes_root_descriptor(self):
+        self.assert_first_identity_closes(KeyboardInterrupt(), KeyboardInterrupt)
+
+    def test_site_packages_sibling_parent_is_rejected_before_allocation(self):
+        import proofkey.synthetic_provisioning as provisioning
+        site = self.parent / "venv" / "lib" / "python3.12" / "site-packages"
+        package = site / "proofkey"
+        package.mkdir(parents=True, mode=0o700)
+        sibling = site / "private-root"
+        sibling.mkdir(mode=0o700)
+        sentinel = sibling / "sentinel"
+        sentinel.write_bytes(b"preserved outside preparation")
+        before = tuple(sibling.iterdir())
+        with patch.object(provisioning, "__file__", str(package / "synthetic_provisioning.py")):
+            with self.assertRaises(SyntheticPreparationFailureV1) as caught:
+                with _allocate_private(sibling, self.clock, context(self.clock)):
+                    pass
+        self.assertEqual(caught.exception.code, "invalid_target")
+        self.assertIsNone(caught.exception.retained_root)
+        self.assertEqual(tuple(sibling.iterdir()), before)
+        self.assertEqual(sentinel.read_bytes(), b"preserved outside preparation")
+
     def test_snapshots_do_not_expose_private_contents_in_repr(self):
         spec = self.spec()
         result = _validate_input(spec, self.clock, context(self.clock))
