@@ -5,11 +5,12 @@ designated material authority through the gateway. Unsupported waits/media stay
 visible until their scoped services are installed; no fabricated reply is used.
 """
 from datetime import datetime, timedelta
+from hashlib import sha256
 from contextlib import contextmanager
 from threading import get_ident
 from pydantic import TypeAdapter
 
-from .contracts import (ActionProposal, AuthContext, CanonicalRequest, CaseResult,
+from .contracts import (ActionProposal, ArtifactRecord, AuthContext, CanonicalRequest, CaseResult,
                         EnvironmentProfile, Identifier, PhaseCheckpoint, ReadTarget, SavedResult, ScopedReply, VerificationResult)
 from .gateway import ActionGateway
 from .identity import request_fingerprint
@@ -220,10 +221,114 @@ class WorkflowEngine:
                 # explicit and must never refresh a saved historical unknown.
                 if checkpoint.stop.requested or self.process.is_terminal(checkpoint.phase):
                     return self._public_denial(case_id, "unavailable")
+                if (self.processing is not None and checkpoint.phase in {"intake", "extraction"}
+                        and (original.evidence_ids or (original.narrative and original.narrative.strip()))):
+                    checkpoint = self._intake_originals(checkpoint, original, auth, timing)
                 return self._drive(checkpoint, original, auth)
         except (GateDenied, JournalFailure, BudgetExceeded, ValueError, TypeError):
             self._clear_entry_note()
             return self._public_denial(case_id)
+
+    def _intake_originals(self, checkpoint, original, auth, timing):
+        """Read private original bytes, never extract claims or grant processing."""
+        deadline = min(checkpoint.deadline, checkpoint.budget.deadline)
+        ceiling = self.evidence.max_bytes
+        last_now = last_monotonic = None
+
+        def check():
+            nonlocal last_now, last_monotonic
+            self._processing_associations()
+            if (type(ceiling) is not int or not 0 < ceiling <= 8 * 1024 * 1024
+                    or type(self.evidence.max_bytes) is not int or self.evidence.max_bytes != ceiling
+                    or self.gateway.processing_parent_timing(store=self.store, clock=self.clock) is not timing
+                    or timing.clock is not self.clock):
+                raise GateDenied("scope_denied")
+            now, cutoff = timing.window(deadline)
+            monotonic = timing.monotonic_anchor()
+            if (now >= cutoff or (last_now is not None and now < last_now)
+                    or (last_monotonic is not None and monotonic < last_monotonic)):
+                raise GateDenied("scope_denied")
+            last_now, last_monotonic = now, monotonic
+
+        def record_checked(record, identifier=None):
+            if type(record) is not ArtifactRecord:
+                raise GateDenied("scope_denied")
+            record = ArtifactRecord.model_validate(record.model_dump())
+            if (record.case_id != checkpoint.binding.case_id or record.parent_hashes
+                    or (identifier is not None and record.artifact_id != identifier)
+                    or record.source in {"saved-planning-snapshot-v1", "saved-planning-evidence-v2",
+                                         "saved-synthetic-transcription"}):
+                raise GateDenied("scope_denied")
+            return record
+
+        def same_state(current):
+            fields = ("binding", "phase", "next_gate", "profile_version", "process_version",
+                      "policy_version", "deadline", "ownership_state", "ownership_state_revision",
+                      "ownership_epoch")
+            return (all(getattr(current, name) == getattr(checkpoint, name) for name in fields)
+                    and current.budget.deadline == checkpoint.budget.deadline
+                    and not current.stop.requested
+                    and current.ownership_state not in {"pending", "transfer_pending", "stopped"})
+
+        try:
+            check()
+            if not same_state(checkpoint):
+                raise GateDenied("scope_denied")
+            narrative = original.narrative if original.narrative and original.narrative.strip() else None
+            identifiers = tuple(original.evidence_ids)
+            if len(identifiers) != len(set(identifiers)) or len(identifiers) + bool(narrative) > 16:
+                raise GateDenied("scope_denied")
+            narrative_bytes = None if narrative is None else narrative.encode("utf-8")
+            if narrative_bytes is not None and len(narrative_bytes) > ceiling:
+                raise GateDenied("scope_denied")
+            records = []
+            if narrative is not None:
+                check()
+                record = self.evidence.register_saved_narrative(checkpoint.binding, auth)
+                check()
+                record = record_checked(record)
+                current = self.evidence.get(record.artifact_id, auth, purpose="provider_processing")
+                check()
+                if record_checked(current, record.artifact_id) != record:
+                    raise GateDenied("scope_denied")
+                records.append(record)
+            for identifier in identifiers:
+                check()
+                record = self.evidence.get(identifier, auth, purpose="provider_processing")
+                check()
+                records.append(record_checked(record, identifier))
+            remaining = ceiling
+            for index, record in enumerate(records):
+                check()
+                payload = self.evidence.read_original(record.artifact_id, auth,
+                    purpose="provider_processing", max_bytes=remaining)
+                check()
+                if (type(payload) is not bytes or sha256(payload).hexdigest() != record.original_hash
+                        or (narrative_bytes is not None and index == 0 and payload != narrative_bytes)):
+                    raise GateDenied("scope_denied")
+                remaining -= len(payload)
+                if remaining < 0:
+                    raise GateDenied("scope_denied")
+                current = self.evidence.get(record.artifact_id, auth, purpose="provider_processing")
+                check()
+                if record_checked(current, record.artifact_id) != record:
+                    raise GateDenied("scope_denied")
+            check()
+            current = self.gateway.authenticate_control(checkpoint.binding, auth, purpose="recorded_state")
+            check()
+            if not same_state(current):
+                raise GateDenied("scope_denied")
+            saved_original = self.store.original_request(checkpoint.binding.case_id, checkpoint.binding.generation)
+            check()
+            stopped = self.store.generation_stop(checkpoint.binding)
+            check()
+            saved = self.store.checkpoint(checkpoint.binding.case_id)
+            check()
+            if saved_original != original or stopped.requested or not same_state(saved):
+                raise GateDenied("scope_denied")
+            return saved
+        except OSError:
+            raise GateDenied("scope_denied") from None
 
     def recover(self, case_id, auth, *, execution=None):
         self._clear_entry_note()
