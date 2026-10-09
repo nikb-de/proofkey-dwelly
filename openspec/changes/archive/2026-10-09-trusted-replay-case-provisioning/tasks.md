@@ -23,6 +23,6 @@
 
 ## 4. Completion
 
-- [x] 4.1 Update support/docs with the exact trusted Python-hook scope and remaining manifest/native/process/control/assessment limits. J06 remains open pending strict final validation and archival.
+- [x] 4.1 Update support/docs with the exact trusted Python-hook scope and remaining manifest/native/process/control/assessment limits. J06 is closed for this bounded scope after strict prearchive validation and successful child archival.
 - [x] 4.2 Obtain final independent review and reconcile the narrow J06 evidence; keep all unrelated items open. Whole-change C0/I2/M1 followed by scoped I1/I2/M1 clearance at `80e0d6f`; no new finding in the fix diff.
-- [ ] 4.3 Archive only this completed child after acceptance; keep unfinished parent specifications open.
+- [x] 4.3 Archive only this completed child after acceptance; keep unfinished parent specifications open. Strict prearchive validation passed; archive exit 0, six requirements added to the living specification. The archive command observed 16/17 tasks because this archival task was still unchecked at invocation; it is completed here after success.

@@ -1,6 +1,6 @@
 # Trusted synthetic replay cases — J06 evidence
 
-Status: **installed acceptance, scoped final-fix re-review and frozen regression passed; strict final OpenSpec validation and archival pending**. The frozen run had one environment-dependent skip, separately passed in the inherited macOS temporary-directory environment as recorded below. This is a bounded trusted Python integration hook. J06 is not yet closed. No general release-verifier, native-service, human-approval or timed-adaptation claim follows.
+Status: **installed acceptance, scoped final-fix re-review, frozen regression and strict prearchive OpenSpec validation passed; child archived**. The frozen run had one environment-dependent skip, separately passed in the inherited macOS temporary-directory environment as recorded below. This is a bounded trusted Python integration hook. J06 is closed only for this bounded scope. No general release-verifier, native-service, human-approval or timed-adaptation claim follows.
 
 ## Candidate and target
 
@@ -97,4 +97,4 @@ Frozen full regression used `python -B -m unittest discover -s runtime/tests -v`
 
 Frozen receipt SHA-256: `3917b90212ff9cb60984bfafdd423aaeba17244d3edeadd9bdb26f7a30048f11`; raw stderr: `9c1a9d1eca45ce6680d14744d2f7b5804b69b783712a56af934ae9c1b24c9900`; identical before/after source inventories: `e671612c98d2022e2e8d111af40fe16303adf65ffa22b1752ed1e2a5e9fa3ea4`; separate alias-test follow-up: `a4b83275d90d7e8ff69686296d8523a487f9306bce4cda21c46d435d14566659`. Original commands, environment and raw receipts remain in private retained evidence.
 
-Strict final OpenSpec validation and child archival: **pending**. J06 remains open until these gates complete. J14, general release verification, registered recover/reply/stop, native integrations, media, real review, timed adaptation, migration, other platforms and event readiness remain open or excluded.
+Strict prearchive OpenSpec validation passed. The child was [archived](../../openspec/changes/archive/2026-10-09-trusted-replay-case-provisioning/tasks.md) successfully (exit 0), adding six requirements to the [living specification](../../openspec/specs/trusted-replay-case-provisioning/spec.md). J06 is closed for this bounded scope; the parent program remains open. Final post-edit all-spec validation is retained as a separate controller check. J14, general release verification, registered recover/reply/stop, native integrations, media, real review, timed adaptation, migration, other platforms and event readiness remain open or excluded.

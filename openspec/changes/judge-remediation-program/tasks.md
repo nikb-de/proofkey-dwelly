@@ -18,7 +18,7 @@
 
 - [ ] 3.1 Specify, review, implement and verify installed-resource/package/release reproduction: J13, J14.
   - J13 completed and archived in `../archive/2026-10-09-installed-offline-resources/`: full suite 1,696/1,696, final installed 8/8, qualifier 37/37 and independent review C0/I0/M0. J14 general release reproduction remains open, so this combined task remains unchecked.
-- [ ] 3.2 Specify, review, implement and verify trusted nonbuiltin registration/launch: J06.
+- [x] 3.2 Specify, review, implement and verify trusted nonbuiltin registration/launch: J06. Executable `80e0d6f`; final installed 4/4 positives and 7/7 negatives, cumulative 16/20 positive complete-check passes and 34/35 negatives. Frozen `ea0aa4e`: 1,769 run, 1,768 passed, one environment-dependent skip separately passed (one test, 0.087 seconds), zero failures/errors; 272 files and HEAD unchanged. Whole-change C0/I2/M1 followed by scoped clearance of all three findings. Strict prearchive validation passed; [bounded child archived](../archive/2026-10-09-trusted-replay-case-provisioning/tasks.md). [Exact evidence](../../../docs/verification/2026-10-09-trusted-replay-cases.md). All other work remains open as recorded.
 - [ ] 3.3 Specify, review, implement and verify original observed-route controls: J07.
 - [ ] 3.4 Specify, review, implement and verify continuation timing and interrupted claims: J10.
 - [ ] 3.5 Specify, review, implement and verify a finite real process/ack/readback delta and old-route compatibility: J05.
