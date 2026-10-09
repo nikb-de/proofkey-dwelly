@@ -20,6 +20,8 @@ from ..identity import fingerprint
 from ..ports import AdapterBundle
 from ..process import material_fields
 from ..profiles import load_profile, requires_completed_service
+from ..packet_contracts import (PACKET_FIELDS, PacketContentReceiptV1, packet_enabled,
+                                packet_postcondition, validate_packet_arguments, validate_packet_policy, validate_packet_scope)
 
 _EFFECTS = frozenset({"reschedule", "register_goods_refusal", "register_service_refusal", "create_return",
                       "send_clarification", "send_status", "enqueue_handoff", "transfer_owner"})
@@ -75,6 +77,8 @@ def required_material_keys(connection, profile, operation, stage):
     """Trusted manifest plus minimum provider coverage; never caller keys."""
     capability = profile.capabilities.get(operation)
     minimum = material_fields(operation)
+    if operation == "enqueue_handoff" and packet_enabled(profile):
+        minimum |= PACKET_FIELDS
     if _scope_contract(profile) and operation in _BUSINESS_EFFECTS:
         minimum |= _SCOPE_MATERIAL
         if operation == "reschedule":
@@ -480,6 +484,40 @@ class SimulatedWorld:
             if operation == "enqueue_handoff":
                 if args.get("recipient") != values["operator.recipient"]:
                     return None
+                if packet_enabled(self._profile):
+                    try:
+                        content = validate_packet_arguments(args, binding=intent.binding)
+                        if intent.stage != "enqueue" or intent.postcondition != packet_postcondition(args):
+                            return None
+                        validate_packet_policy(content, self._profile, process_version=intent.process_version,
+                                               policy_version=intent.policy_version)
+                        catalog, access = validate_packet_scope(values.get("operator.packet_catalog"), values.get("operator.packet_access"),
+                            case_id=case, object_id=obj, sender=intent.binding.principal_id,
+                            recipient=values["operator.recipient"], now=self._now())
+                        source = content.source
+                        refs = {ref.identity: ref for ref in source.observations}
+                        needed = PACKET_FIELDS | {"operator.packet_hash", "operator.packet_revision", "operator.recipient"}
+                        if (content.catalog != catalog or content.access != access or content.as_of > self._now()
+                                or self._now() >= content.expires_at or source.owner != values["ownership.owner"]
+                                or source.owner_state != values["ownership.state"]
+                                or source.state_revision != values["ownership.state_revision"] or source.epoch != values["ownership.epoch"]
+                                or not needed <= refs.keys()
+                                or any(key not in facts or ref.revision != facts[key]["revision"]
+                                       or ref.evidence_ref != facts[key]["evidence_ref"] for key, ref in refs.items())):
+                            return None
+                    except (ValueError, TypeError, KeyError):
+                        return None
+                    receipt = PacketContentReceiptV1(packet_id=source.packet_id, packet_hash=source.packet_hash,
+                        packet_revision=source.packet_revision, content_hash=args["content_hash"],
+                        catalog_revision=catalog.revision, access_revision=access.revision, recipient=source.recipient,
+                        generation=intent.binding.generation, action_id=intent.action_id, provider_key=intent.provider_key,
+                        argument_fingerprint=intent.argument_fingerprint, owner=source.owner, state_revision=source.state_revision,
+                        epoch=source.epoch, stored_at=self._now(), evidence_ref="synthetic-provider:effect:" + intent.action_id,
+                        content_status="stored", owner_status="pending")
+                    return "queued", {"operator.handoff_disposition": "pending", "operator.packet_id": source.packet_id,
+                        "operator.packet_revision": source.packet_revision, "operator.packet_hash": source.packet_hash,
+                        "operator.packet_content": content.model_dump(mode="json"),
+                        "operator.packet_content_receipt": receipt.model_dump(mode="json")}
                 stage = "queued"
                 outcome = {"operator.handoff_disposition": "pending", "operator.packet_id": args["packet_id"],
                            "operator.packet_revision": args["packet_revision"], "operator.packet_hash": args["packet_hash"]}
@@ -541,6 +579,8 @@ class SimulatedWorld:
                 observations, record = [], None
                 if target.kind == "authority_facts":
                     allowed = _FACT_SCOPES.get(operation, {}).get(target.authority, set())
+                    if packet_enabled(self._profile) and operation == "read_receipt" and target.authority == "operator":
+                        allowed = allowed | {"packet_catalog", "packet_access"}
                     if not set(target.facts) <= allowed:
                         return empty("scope_rejected")
                     if any(target.authority + "." + fact in _NEW_FACTS
@@ -548,6 +588,9 @@ class SimulatedWorld:
                            for fact in target.facts):
                         return empty("scope_rejected")
                     facts = self._facts(connection, request.case_id, request.object_id)
+                    if (target.authority == "operator" and {"packet_catalog", "packet_access"} & set(target.facts)
+                            and not self._packet_disclosure_allowed(facts, request)):
+                        return empty("scope_rejected")
                     for fact in target.facts:
                         row = facts.get(target.authority + "." + fact)
                         if row is None:
@@ -599,6 +642,13 @@ class SimulatedWorld:
                         return empty("unavailable")
                     observations = [AuthorityObservation.model_validate({**item, "observed_at": self._now()})
                                     for item in json.loads(record["observations"])]
+                    if record["operation"] == "enqueue_handoff" and packet_enabled(self._profile):
+                        facts = self._facts(connection, request.case_id, request.object_id)
+                        if not self._packet_disclosure_allowed(facts, request, original=True):
+                            return empty("scope_rejected")
+                        # Full private contents remain in the immutable outcome. Public
+                        # original verification initially exposes digest/receipt only.
+                        observations = [obs for obs in observations if obs.fact != "packet_content"]
                 object_id = "provider-other-object" if behavior == "wrong_object" else request.object_id
                 if behavior == "wrong_object":
                     observations = [AuthorityObservation.model_validate({**obs.model_dump(), "object_id": object_id}) for obs in observations]
@@ -613,3 +663,17 @@ class SimulatedWorld:
             return empty()
         finally:
             self._release(account, token)
+
+    def _packet_disclosure_allowed(self, facts, request, *, original=False):
+        try:
+            if not original and request.purpose != "operator_packet":
+                return False
+            values = {key: json.loads(row["value"]) for key, row in facts.items()}
+            validate_packet_scope(values.get("operator.packet_catalog"), values.get("operator.packet_access"),
+                case_id=request.case_id, object_id=request.object_id, sender=request.caller_id,
+                recipient=values.get("operator.recipient"), now=self._now())
+            # Decision/catalog revisions identify their typed source snapshots;
+            # observation revisions fence current facts and need not be equal.
+            return True
+        except (ValueError, TypeError, KeyError):
+            return False

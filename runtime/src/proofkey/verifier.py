@@ -1,5 +1,8 @@
 """Operation-specific verification of independent authoritative original reads."""
 from .contracts import AuthorityReadback, EffectIntent, VerificationResult
+from .packet_contracts import (PacketContentV1, PacketContentReceiptV1, packet_enabled,
+                                packet_postcondition, validate_packet_arguments, validate_packet_policy)
+from .identity import fingerprint
 
 
 _FACTS = {
@@ -25,8 +28,18 @@ _STAGES = {"reschedule": {"committed"}, "register_goods_refusal": {"committed"},
            "enqueue_handoff": {"queued"}, "transfer_owner": {"pending", "accepted"}}
 
 
-def expected_facts(intent):
+def expected_facts(intent, *, profile=None):
     """Translate declared postconditions; no broad case-completion alias exists."""
+    if intent.operation == "enqueue_handoff" and packet_enabled(profile):
+        try:
+            content = validate_packet_arguments(intent.arguments, binding=intent.binding)
+            validate_packet_policy(content, profile, process_version=intent.process_version, policy_version=intent.policy_version)
+            wanted = packet_postcondition(intent.arguments)
+            if intent.profile_version != profile.version or intent.postcondition != wanted:
+                return None
+            return {"operator." + key: value for key, value in wanted.items()}
+        except (ValueError, TypeError, KeyError):
+            return None
     aliases = _FACTS.get(intent.operation)
     if aliases is None or not intent.postcondition:
         return None
@@ -71,7 +84,7 @@ def expected_facts(intent):
     return values
 
 
-def verify(intent, authoritative_readback):
+def verify(intent, authoritative_readback, *, profile=None):
     intent = EffectIntent.model_validate(intent.model_dump())
     read = AuthorityReadback.model_validate(authoritative_readback.model_dump())
 
@@ -95,6 +108,8 @@ def verify(intent, authoritative_readback):
         return result("rejected", "terminal_nonexecution", True)
     if read.nonexecution.status == "proven":
         return result("conflict", "inconsistent_terminal_proof")
+    if intent.operation == "enqueue_handoff" and packet_enabled(profile):
+        return _verify_packet(intent, read, profile, result)
     expected = expected_facts(intent)
     if expected is None:
         return result("conflict", "unsupported_postcondition")
@@ -139,3 +154,47 @@ def verify(intent, authoritative_readback):
     if pending:
         return result("pending", "independent_completion_pending", True)
     return result("verified", "authoritative_original_verified", True)
+
+
+def _verify_packet(intent, read, profile, result):
+    expected = expected_facts(intent, profile=profile)
+    if expected is None:
+        return result("conflict", "unsupported_postcondition")
+    if read.stage != "queued":
+        return result("outcome_unknown", "execution_stage_unknown")
+    facts, observations = {}, {}
+    for obs in read.observations:
+        key = obs.authority + "." + obs.fact
+        if key in facts or obs.object_id != intent.binding.object_id:
+            return result("conflict", "observation_identity_conflict")
+        if obs.observed_at > read.as_of or obs.provider_at is not None and obs.provider_at > read.as_of:
+            return result("conflict", "observation_time_conflict")
+        facts[key], observations[key] = obs.value, obs
+    raw = facts.get("operator.packet_content_receipt")
+    if raw is None:
+        return result("outcome_unknown", "packet_content_evidence_missing")
+    try:
+        receipt = PacketContentReceiptV1.model_validate(raw)
+        content = validate_packet_arguments(intent.arguments, binding=intent.binding)
+        obs = observations["operator.packet_content_receipt"]
+        if (receipt.owner_status != "pending" or receipt.acceptance is not None
+                or receipt.stored_at > read.as_of or receipt.stored_at < content.as_of
+                or receipt.evidence_ref != obs.evidence_ref or obs.provider_at != receipt.stored_at
+                or receipt.generation != intent.binding.generation or receipt.action_id != intent.action_id
+                or receipt.provider_key != intent.provider_key or receipt.argument_fingerprint != intent.argument_fingerprint
+                or receipt.owner != content.source.owner or receipt.epoch != content.source.epoch
+                or receipt.state_revision != content.source.state_revision
+                or any(getattr(receipt, key) != value for key, value in packet_postcondition(intent.arguments).items())):
+            return result("conflict", "packet_receipt_conflict")
+        for key in ("packet_id", "packet_hash", "packet_revision"):
+            if facts.get("operator." + key) != getattr(receipt, key):
+                return result("conflict", "packet_source_commitment_conflict")
+        if facts.get("operator.handoff_disposition") != "pending":
+            return result("conflict", "packet_owner_status_conflict")
+        if "operator.packet_content" in facts:
+            disclosed = PacketContentV1.model_validate(facts["operator.packet_content"])
+            if fingerprint(disclosed.model_dump(mode="json")) != receipt.content_hash:
+                return result("conflict", "packet_content_digest_conflict")
+    except (ValueError, TypeError, KeyError):
+        return result("conflict", "packet_receipt_conflict")
+    return result("verified", "authoritative_content_stored_owner_pending", True)

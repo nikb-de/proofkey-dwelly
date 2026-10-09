@@ -8,6 +8,8 @@ from .journal import IntentRecord
 from .process import ProcessController, material_fields
 from .profiles import requires_completed_service
 from .verifier import expected_facts
+from .packet_contracts import (PACKET_FIELDS, packet_enabled, validate_packet_arguments,
+                               validate_packet_policy, validate_packet_scope)
 
 STAGES = {"reschedule": "commit", "register_goods_refusal": "commit", "register_service_refusal": "commit",
           "create_return": "initiate", "send_clarification": "send", "send_status": "send",
@@ -37,6 +39,8 @@ def qualified_observations(profile, object_id, observations):
 def required_fields(profile, operation):
     capability = profile.capabilities.get(operation)
     minimum = material_fields(operation)
+    if operation == "enqueue_handoff" and packet_enabled(profile):
+        minimum |= PACKET_FIELDS
     if operation in BUSINESS:
         minimum |= {"customer.request_fingerprint", "customer.consent_mode"}
         if operation == "reschedule":
@@ -194,6 +198,27 @@ class PolicyGate:
                 if (set(args) != keys or values.get("messaging.permission") != "granted" or args.get("recipient") != values.get("messaging.recipient")
                         or not isinstance(args.get("text"), str) or not args["text"].strip()
                         or (operation == "send_clarification" and (not isinstance(args.get("question_id"), str) or not args["question_id"].strip()))):
+                    raise GateDenied("scope_denied")
+            elif operation == "enqueue_handoff" and packet_enabled(self.profile):
+                content = validate_packet_arguments(args, binding=binding)
+                validate_packet_policy(content, self.profile, process_version=checkpoint.process_version,
+                                       policy_version=checkpoint.policy_version)
+                scope_now = max(facts[key].observed_at for key in ("operator.packet_catalog", "operator.packet_access"))
+                catalog, access = validate_packet_scope(values.get("operator.packet_catalog"), values.get("operator.packet_access"),
+                    case_id=binding.case_id, object_id=binding.object_id, sender=binding.principal_id,
+                    recipient=values.get("operator.recipient"), now=scope_now)
+                needed_refs = PACKET_FIELDS | {"operator.packet_hash", "operator.packet_revision", "operator.recipient"}
+                if (content.catalog != catalog or content.access != access
+                        or content.as_of > scope_now or content.expires_at <= scope_now
+                        or content.source.packet_hash != values.get("operator.packet_hash")
+                        or content.source.packet_revision != values.get("operator.packet_revision")
+                        or content.source.owner != values["ownership.owner"]
+                        or content.source.owner_state != values["ownership.state"]
+                        or content.source.state_revision != values["ownership.state_revision"]
+                        or content.source.epoch != values["ownership.epoch"]
+                        or not needed_refs <= {ref.identity for ref in content.source.observations}
+                        or any(ref.identity not in facts or ref.revision != facts[ref.identity].revision
+                               or ref.evidence_ref != facts[ref.identity].evidence_ref for ref in content.source.observations)):
                     raise GateDenied("scope_denied")
             else:
                 keys = {"packet_id", "packet_revision", "packet_hash"} | ({"recipient"} if operation == "enqueue_handoff" else {"transfer_id", "target_owner"})
