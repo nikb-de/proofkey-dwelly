@@ -26,7 +26,9 @@ Files: new `runtime/src/proofkey/host_admission.py`, modify
 3. Implement exact detached trusted bridge and finite synthetic review resolver;
    validate actual local pins/profile/fixture/resource/account identities.
 4. Exclusive durable marker binds resource to composition, with new-root-only
-   first adoption. Validate marker before reopening, fixed host denies marker.
+   first adoption and absent claim/route control DBs/sidecars. Any pre-existing
+   unmarked control data denies; interrupted setup is not auto-repaired.
+   Validate marker before reopening, fixed host denies marker.
 5. Focused GREEN. Preserve original output; no sweeping formatting changes.
 
 ## Task 2 — durable prepared/sealed/observed admission

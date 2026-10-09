@@ -47,9 +47,12 @@ never let the B3 constructor recreate a lost route store or initialize a missing
 claim store. First adoption initializes/validates the two control stores before
 installing the marker, and initializes runtime DBs afterward. A crash leaving a
 marker without complete runtime DBs also denies on reopen; repair is out of
-scope. Existing control material on an unmarked first-adoption root must be
-validated as exact and empty, not silently discarded. Marker/control identity
-checks prevent a changed configured control directory from laundering debt.
+scope. First adoption also requires absent claim/route databases and sidecars in
+the dedicated control directory: pre-existing unmarked control material denies,
+even if apparently empty. A pre-marker interrupted setup may remain blocked;
+do not inspect private B3 connections or discard files to manufacture freshness.
+Marker/control identity checks prevent a changed configured control directory
+from laundering debt.
 
 ## Trusted inputs and public seams
 
@@ -98,6 +101,12 @@ profile and supported v1 process/policy. Missing, extra, unsupported, stale or
 unreadable material denies before either runtime database is opened. Dependency
 inventory completeness/native closure remains unestablished. Never import/exec
 blobs or copy current hashes into historical qualifications.
+
+The host profile file is formatted JSON; B3 stores canonical JSON. Check the
+actual file's raw bytes against the independently registered host file hash,
+then compare the **entire canonical validated profile** with B3's profile blob.
+Do not require formatted and canonical serializations to be byte-identical, and
+do not substitute semantic hash equality for that full-content comparison.
 
 ## Durable claim protocol
 
