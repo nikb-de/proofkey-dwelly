@@ -396,13 +396,12 @@ def check_wrong_proof(prepared, request, receipt):
     assert {path.name for path in paths} == {"host-claims.sqlite", "routes.sqlite", "journal.sqlite", "world.sqlite"}
     assert len(paths) == 4
     counts = {}
-    for path in paths:
-        with readonly(path) as db:
-            tables = {row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
-            counts[path.name] = {table: db.execute("SELECT count(*) FROM " + table).fetchone()[0]
-                                 for table in sorted(tables)}
+    def count_tables(db):
+        tables = {row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        return {table: db.execute("SELECT count(*) FROM " + table).fetchone()[0] for table in sorted(tables)}
     body = request.model_dump(mode="json")
     with readonly(prepared.control_parent / "host-claims.sqlite") as db:
+        counts["host-claims.sqlite"] = count_tables(db)
         row = one(db, "claims")
         AdmissionClaimV1(row["wire"].encode())
         claim = strict(row["wire"])
@@ -411,11 +410,13 @@ def check_wrong_proof(prepared, request, receipt):
         assert row["claim_id"] == claim["claim_id"] and row["attempt_id"] == claim["attempt_id"]
         assert claim["artifact_hash"] == prepared.binding.artifact_hash
     with readonly(prepared.control_parent / "routes.sqlite") as db:
+        counts["routes.sqlite"] = count_tables(db)
         assert not rows(db, "routes")
         row = one(db, "releases")
         registered = RegisteredReleaseV1(row["artifact_json"].encode())
         assert registered.artifact_hash == row["artifact_hash"] == prepared.binding.artifact_hash
     with readonly(prepared.host_release.resource_root / "journal.sqlite") as db:
+        counts["journal.sqlite"] = count_tables(db)
         for table in ("cases", "requests", "original_requests", "intents", "results"):
             assert not rows(db, table), "denial advanced into " + table
         row = one(db, "admission_attempts")
@@ -435,6 +436,7 @@ def check_wrong_proof(prepared, request, receipt):
         assert row["attempt_id"] == lease.attempt_id == attempt.attempt_id
         assert row["claimed_case_id"] == lease.claimed_case_id == request.case_id
     with readonly(prepared.host_release.resource_root / "world.sqlite") as db:
+        counts["world.sqlite"] = count_tables(db)
         assert not rows(db, "effects") and not rows(db, "reservations")
         assert all(row["active"] == 0 for row in rows(db, "pressure"))
     return counts

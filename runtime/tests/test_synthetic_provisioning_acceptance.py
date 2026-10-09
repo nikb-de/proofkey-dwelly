@@ -39,7 +39,7 @@ class AcceptanceFailureTests(unittest.TestCase):
         assert cls.receipt["code"] != 0
         assert cls.receipt["shutdown"].owner_closed
 
-    def copy_prepared(self):
+    def copy_prepared(self, *, rollback=True):
         folder = tempfile.TemporaryDirectory()
         self.addCleanup(folder.cleanup)
         parent = Path(folder.name).resolve()
@@ -49,6 +49,8 @@ class AcceptanceFailureTests(unittest.TestCase):
         # Test-owned copies use rollback journals so SQLite read-only attachment
         # does not allocate WAL coordination sidecars during the immutability check.
         for path in root.rglob("*.sqlite"):
+            if not rollback:
+                continue
             db = sqlite3.connect(path)
             try:
                 db.execute("PRAGMA journal_mode=DELETE")
@@ -63,6 +65,12 @@ class AcceptanceFailureTests(unittest.TestCase):
         before = driver.snapshot(prepared.root)
         driver.check_wrong_proof(prepared, self.request, self.receipt)
         self.assertEqual(driver.snapshot(prepared.root), before)
+
+    def test_native_wal_format_denial_needs_only_one_read_per_database(self):
+        prepared = self.copy_prepared(rollback=False)
+        before = {str(path): driver.digest(path) for path in prepared.root.rglob("*.sqlite")}
+        driver.check_wrong_proof(prepared, self.request, self.receipt)
+        self.assertEqual({str(path): driver.digest(path) for path in prepared.root.rglob("*.sqlite")}, before)
 
     def test_missing_or_pending_shutdown_is_rejected(self):
         pending = self.receipt["shutdown"].model_copy(update={"owner_closed": False,
