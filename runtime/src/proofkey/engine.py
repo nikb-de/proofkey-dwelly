@@ -15,6 +15,7 @@ from .identity import request_fingerprint
 from .journal import JournalFailure
 from .policy import GateDenied, qualified_observations
 from .process import ProcessController
+from .replay import ReplayService
 
 
 _BUSINESS = {"reschedule_window": "reschedule", "reschedule_exact": "reschedule",
@@ -93,12 +94,21 @@ class WorkflowEngine:
         case_id = request.case_id if isinstance(request, CanonicalRequest) else "invalid-request"
         try:
             with self._entry_scope():
+                if not isinstance(request, CanonicalRequest) or not isinstance(auth, AuthContext):
+                    raise GateDenied("scope_denied")
+                request = CanonicalRequest.model_validate(request.model_dump())
+                auth = AuthContext.model_validate(auth.model_dump())
+                replay = ReplayService(self.profile, self.bundle, self.store, self.clock).lookup(request, auth)
+                if replay is not None:
+                    return replay
+                # None permits only the independent fresh gate below, preserving
+                # exact unfinished input/phase and its shared accounting.
                 checkpoint = self.authenticate_and_bind(request, auth)
                 original = self.store.original_request(case_id, checkpoint.binding.generation)
                 if original != request:
                     raise GateDenied("scope_denied")
-                # Task9 supplies current-ACL historical disclosure; completed input
-                # must not accidentally enter recovery or refresh a business effect.
+                # Completed duplicates returned above; unfinished recovery remains
+                # explicit and must never refresh a saved historical unknown.
                 if checkpoint.stop.requested or self.process.is_terminal(checkpoint.phase):
                     return self._public_denial(case_id, "unavailable")
                 return self._drive(checkpoint, original, auth)
