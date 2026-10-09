@@ -7,9 +7,9 @@ the material before testing regression, approval and staging behavior. Replacing
 the old hashes would erase historical identity; accepting self-computed expected
 hashes would bypass the independent admission boundary.
 
-Status: design accepted by the user's request to work on all post-assessment
-recommendations. Implementation plan is prepared for review; no implementation
-has been made.
+Status: design and corrected written implementation plan accepted by the user
+on 2026-10-09 ("подтверждаю"). Implementation is now in progress under that
+bounded scope; no qualification or activation is implied by approval.
 
 ## What Changes
 
