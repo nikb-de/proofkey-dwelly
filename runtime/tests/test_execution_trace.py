@@ -13,7 +13,7 @@ from proofkey.host_contracts import (BatchInputV1, BatchPositionInventoryV1,
     BatchPositionReceiptV1, BatchRunReceiptV1, CommandReceiptV1)
 from proofkey.identity import fingerprint
 from proofkey.execution_trace import (TraceError, build_execution_trace,
-    parse_cli_receipt, render_trace_json, render_trace_markdown)
+    parse_cli_receipt, render_trace_json, render_trace_markdown, _bounded_output)
 from test_batch_contracts import window, START
 from test_cli import request
 
@@ -238,17 +238,60 @@ class ExecutionTraceTests(unittest.TestCase):
             render_trace_json(trace)
         self.assertEqual(str(caught.exception), "trace_limit_exceeded")
         self.invalid(self.many_effects(4097), "trace_limit_exceeded")
-        for renderer in (render_trace_json, render_trace_markdown):
-            base = build_execution_trace(CliReceiptV1()).model_copy(update={"run": "run-1"})
-            overhead = len(renderer(base).encode()) - len("run-1")
-            for size, accepted in ((262144, True), (262145, False)):
-                actual = base.model_copy(update={"run": "run-" + "1" * (size - overhead - 4)})
-                if accepted:
-                    self.assertEqual(len(renderer(actual).encode()), 262144)
-                else:
+        # Isolate the byte-boundary helper; never use impossible alias payloads.
+        text = "é" * 131072
+        self.assertEqual(len(_bounded_output(text).encode("utf-8")), 262144)
+        with self.assertRaises(TraceError) as caught:
+            _bounded_output(text + "a")
+        self.assertEqual(str(caught.exception), "trace_limit_exceeded")
+
+    def test_renderers_reject_numeric_secrets_and_impossible_counter_shapes(self):
+        base = build_execution_trace(self.real)
+        row = base.positions[0]
+        probes = [
+            base.model_copy(update={"run": "run-4111111111111111"}),
+            base.model_copy(update={"release": "release-2"}),
+            base.model_copy(update={"position_count": 999999999}),
+            base.model_copy(update={"position_count": 0}),
+            base.model_copy(update={"position_count": None}),
+            base.model_copy(update={"unresolved_ordinals": (999999999,)}),
+            base.model_copy(update={"unresolved_ordinals": (0,)}),
+            base.model_copy(update={"positions": (row.model_copy(update={"ordinal": 999999999}),)}),
+            base.model_copy(update={"positions": (row.model_copy(update={"case": "case-2"}),)}),
+            base.model_copy(update={"positions": (row.model_copy(update={"command": "command-2"}),)}),
+            base.model_copy(update={"positions": (row.model_copy(update={"effects": (
+                row.effects[0].model_copy(update={"effect": "effect-2"}),)}),)}),
+            base.model_copy(update={"pending_commands": ("command-2",)}),
+            base.model_copy(update={"position_count": 2, "positions": (row,
+                row.model_copy(update={"ordinal": 1}))}),
+            base.model_copy(update={"shutdown": base.shutdown.model_copy(update={"pending_count": 999999999})}),
+        ]
+        review_probe = type(base).model_construct(run="run-4111111111111111",
+            position_count=999999999, unresolved_ordinals=(999999999,))
+        probes.append(review_probe)
+        for index, probe in enumerate(probes):
+            for renderer in (render_trace_json, render_trace_markdown):
+                with self.subTest(probe=index, renderer=renderer.__name__):
                     with self.assertRaises(TraceError) as caught:
-                        renderer(actual)
-                    self.assertEqual(str(caught.exception), "trace_limit_exceeded")
+                        renderer(probe)
+                    self.assertEqual(str(caught.exception), "invalid_receipt")
+
+    def test_shutdown_aliases_continue_counters_and_reuse_existing_identities(self):
+        receipt = self.real.model_copy(deep=True)
+        object.__setattr__(receipt, "shutdown", receipt.shutdown.model_copy(update={
+            "pending_command_ids": (receipt.run.command.command_id, "private-new-id"),
+            "cancelled_command_ids": ("private-new-id", "private-third-id")}))
+        trace = build_execution_trace(receipt)
+        wire = json.loads(render_trace_json(trace))
+        self.assertEqual(wire["shutdown"]["pending_commands"], ["command-1", "command-2"])
+        self.assertEqual(wire["shutdown"]["cancelled_commands"], ["command-2", "command-3"])
+        self.assertNotIn("private", render_trace_markdown(trace))
+        bad = trace.model_copy(update={"shutdown": trace.shutdown.model_copy(update={
+            "pending_commands": ("command-1", "command-3")})})
+        for renderer in (render_trace_json, render_trace_markdown):
+            with self.assertRaises(TraceError) as caught:
+                renderer(bad)
+            self.assertEqual(str(caught.exception), "invalid_receipt")
 
     def test_position_and_effect_limits_and_forged_renderer_inputs(self):
         self.assertEqual(len(self.wire(batch_receipt(128))["positions"]), 128)

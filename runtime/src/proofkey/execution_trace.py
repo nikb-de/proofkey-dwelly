@@ -37,12 +37,14 @@ class _TraceModel(BaseModel):
         allow_inf_nan=False, validate_default=True, revalidate_instances="always")
 
 
-CaseAlias = Annotated[str, Field(pattern=r"^case-[1-9][0-9]*$")]
-CommandAlias = Annotated[str, Field(pattern=r"^command-[1-9][0-9]*$")]
-EffectAlias = Annotated[str, Field(pattern=r"^effect-[1-9][0-9]*$")]
-RunAlias = Annotated[str, Field(pattern=r"^run-[1-9][0-9]*$")]
-ReleaseAlias = Annotated[str, Field(pattern=r"^release-[1-9][0-9]*$")]
-Count = Annotated[int, Field(ge=0)]
+CaseAlias = Annotated[str, Field(pattern=r"^case-[1-9][0-9]{0,2}$")]
+CommandAlias = Annotated[str, Field(pattern=r"^command-[1-9][0-9]{0,4}$")]
+EffectAlias = Annotated[str, Field(pattern=r"^effect-[1-9][0-9]{0,3}$")]
+RunAlias = Literal["run-1"]
+ReleaseAlias = Literal["release-1"]
+Count = Annotated[int, Field(ge=0, le=MAX_NODES)]
+Ordinal = Annotated[int, Field(ge=0, lt=MAX_POSITIONS)]
+PositionCount = Annotated[int, Field(ge=0, le=MAX_POSITIONS)]
 Duration = Annotated[float, Field(ge=0)]
 Publication = Literal["unknown", "not_started", "not_attempted", "partial", "committed"]
 
@@ -54,7 +56,7 @@ class EffectTraceV1(_TraceModel):
 
 
 class PositionTraceV1(_TraceModel):
-    ordinal: Count
+    ordinal: Ordinal
     case: CaseAlias | None
     command: CommandAlias | None
     admission_status: Literal["not_attempted", "unresolved", "joined"]
@@ -101,9 +103,9 @@ class ExecutionTraceV1(_TraceModel):
     input_outcome: Literal["unknown", "admitted", "invalid_command", "invalid_document"] = "unknown"
     run_outcome: Literal["unknown", "completed", "invalid_document", "deadline_exceeded", "publication_failed", "abandoned_pending", "runtime_error"] = "unknown"
     publication_status: Publication = "unknown"
-    position_count: Count | None = None
+    position_count: PositionCount | None = None
     positions: tuple[PositionTraceV1, ...] = ()
-    unresolved_ordinals: tuple[Count, ...] = ()
+    unresolved_ordinals: tuple[Ordinal, ...] = ()
     pending_commands: tuple[CommandAlias, ...] = ()
     elapsed_seconds: Duration | None = None
     publication_seconds: Duration | None = None
@@ -351,6 +353,66 @@ def build_execution_trace(receipt: CliReceiptV1) -> ExecutionTraceV1:
     return ExecutionTraceV1(**fields)
 
 
+def _trace_shape(value):
+    """Check the representation the local projector can actually produce."""
+    count = value.position_count
+    if count is None:
+        if value.positions or value.unresolved_ordinals:
+            raise TraceError()
+    elif len(value.positions) != count or tuple(p.ordinal for p in value.positions) != tuple(range(count)):
+        raise TraceError()
+    if value.run is None and (value.release is not None or value.mode is not None
+            or value.clock_mode is not None or value.input_outcome != "unknown"
+            or value.run_outcome != "unknown" or value.publication_status != "unknown"
+            or count is not None or value.pending_commands or value.elapsed_seconds is not None
+            or value.publication_seconds is not None or value.overrun_seconds is not None):
+        raise TraceError()
+    if value.input_outcome == "admitted" and count is None:
+        raise TraceError()
+    if value.unresolved_ordinals != tuple(p.ordinal for p in value.positions if p.admission_status == "unresolved"):
+        raise TraceError()
+
+    seen = {"case": set(), "command": set(), "effect": set()}
+    def counter(namespace, token):
+        if token is None:
+            return
+        known = seen[namespace]
+        if token not in known:
+            if token != f"{namespace}-{len(known) + 1}":
+                raise TraceError()
+            known.add(token)
+
+    commands = []
+    for row in value.positions:
+        counter("case", row.case)
+        counter("command", row.command)
+        if (row.command is not None) != (row.admission_status == "joined"):
+            raise TraceError()
+        if row.command is not None:
+            if row.command in commands:
+                raise TraceError()
+            commands.append(row.command)
+        row_effects = set()
+        for effect in row.effects:
+            counter("effect", effect.effect)
+            if effect.effect in row_effects:
+                raise TraceError()
+            row_effects.add(effect.effect)
+    pending = set(value.pending_commands)
+    if (len(pending) != len(value.pending_commands)
+            or tuple(command for command in commands if command in pending) != value.pending_commands
+            or any(row.host_outcome == "started_pending" and row.command not in pending for row in value.positions)):
+        raise TraceError()
+    # Shutdown is only envelope-grouped: it may introduce additional command identities.
+    if value.shutdown is not None:
+        shutdown = value.shutdown
+        if (shutdown.pending_count != len(shutdown.pending_commands)
+                or shutdown.cancelled_count != len(shutdown.cancelled_commands)):
+            raise TraceError()
+        for command in (*shutdown.pending_commands, *shutdown.cancelled_commands):
+            counter("command", command)
+
+
 def _validated_trace(trace):
     if type(trace) is not ExecutionTraceV1:
         raise TraceError()
@@ -364,6 +426,7 @@ def _validated_trace(trace):
         # Literal[False] accepts integer zero in Pydantic; retain exact boolean type.
         if type(detached["publication_files_checked"]) is not bool:
             raise TraceError()
+        _trace_shape(value)
         return value
     except TraceError:
         raise
