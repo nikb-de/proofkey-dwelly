@@ -4,7 +4,8 @@ No external action is performed here. A successful pre-entry commit is required
 before a gateway enters transport; it is not proof of an external outcome.
 """
 from contextlib import contextmanager
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
+import codecs
 from pathlib import Path
 import json
 import math
@@ -22,12 +23,52 @@ from .contracts import (AuthorityObservation, CampaignPermit, CanonicalRequest, 
                         ScopedReply, StopState, TransferIntent, VerificationResult, WaitState, WireModel)
 from .identity import fingerprint, request_fingerprint
 from .execution import ExecutionContext
+from .retained_state import (RetainedStateClock, RetainedStateLimitsV1, RetainedStateSnapshotV1,
+                             _DOMAIN, _TABLES, _INTEGER_COLUMNS, _NULLABLE, _canonical)
 from .wait_contracts import ControlReadScopeV1, RefusalAdmissionHistoryV1, WaitRecordV1
 from .ownership_contracts import OperatorDecisionSubmissionV1, OwnershipEventV1, OwnershipProcessRegistryV1
 
 
 class JournalFailure(RuntimeError):
     """Storage/identity failure; never permission to enter a transport."""
+
+
+class _RetainedCaptureGuard:
+    """One original window, private cooperative SQLite instruction accounting."""
+    def __init__(self, execution, clock, limits):
+        self.execution, self.clock, self.limits = execution, clock, limits
+        self.last_utc, self.last_tick = execution.captured_at, execution.captured_monotonic
+        self.steps, self.interrupted = 0, None
+
+    def check(self):
+        invalid = False
+        try:
+            now, tick = self.clock.now(), self.clock.monotonic()
+            if (type(now) is not datetime or now.utcoffset() is None or type(tick) is not float
+                    or not math.isfinite(tick)):
+                raise ValueError()
+            now = now.astimezone(timezone.utc)
+        except Exception:
+            invalid = True
+        if invalid:
+            raise JournalFailure('retained_state_invalid')
+        if now < self.last_utc or tick < self.last_tick:
+            raise JournalFailure('retained_state_invalid')
+        self.last_utc, self.last_tick = now, tick
+        if now >= self.execution.deadline or tick >= self.execution.monotonic_deadline:
+            raise JournalFailure('retained_state_timeout')
+        return now, tick
+
+    def progress(self):
+        self.steps += 1
+        try:
+            if self.steps > self.limits.max_sqlite_steps:
+                raise JournalFailure('retained_state_limit')
+            self.check()
+        except (JournalFailure, ValueError, TypeError, OverflowError) as error:
+            self.interrupted = (str(error) if isinstance(error, JournalFailure) else 'retained_state_invalid')
+            return 1
+        return 0
 
 
 class IntentRecord(WireModel):
@@ -170,6 +211,181 @@ class CaseStore:
         if self._db is not None:
             self._db.close()
             self._db = None
+
+    def capture_retained_state(self, *, execution: ExecutionContext, clock: RetainedStateClock,
+                               limits: RetainedStateLimitsV1 = RetainedStateLimitsV1()) -> RetainedStateSnapshotV1:
+        """Private as-of retained image; never an activation/current-state lease."""
+        from hashlib import sha256
+        if (threading.get_ident() != self._owner_thread or self._db is None or self._execution is not None
+                or self._db.in_transaction or type(execution) is not ExecutionContext):
+            raise JournalFailure('retained_state_scope')
+        guard = None
+        try:
+            if type(limits) is not RetainedStateLimitsV1:
+                raise JournalFailure('retained_state_invalid')
+            RetainedStateLimitsV1(limits.max_rows, limits.max_row_bytes, limits.max_payload_bytes,
+                                  limits.max_capture_seconds, limits.max_sqlite_steps)
+            ExecutionContext(execution.deadline, execution.captured_at, execution.captured_monotonic,
+                             execution.monotonic_deadline)
+            duration = (execution.deadline - execution.captured_at).total_seconds()
+            if duration > limits.max_capture_seconds:
+                raise JournalFailure('retained_state_scope')
+            guard = _RetainedCaptureGuard(execution, clock, limits)
+            guard.check()
+            with self.execution_scope(execution, clock):
+                try:
+                    self._db.set_progress_handler(guard.progress, 1)
+                    self._db.execute('BEGIN')
+                    schema, expected_bytes = self._retained_preflight(guard, limits)
+                    guard.check()
+                    self._validate_all()
+                    guard.check()
+                    tables = []
+                    for name, columns, keys in _TABLES:
+                        guard.check()
+                        sql = 'SELECT ' + ','.join(columns) + ' FROM ' + name
+                        if keys:
+                            sql += ' ORDER BY ' + ','.join(keys)
+                        rows = []
+                        for row in self._db.execute(sql):
+                            guard.check()
+                            rows.append(tuple(row))
+                        tables.append(dict(name=name, columns=columns, rows=rows))
+                    data = dict(domain=_DOMAIN, schema_version=1, schema=schema, tables=tables)
+                    buffer = bytearray()
+                    encoder = json.JSONEncoder(sort_keys=True, separators=(',', ':'), ensure_ascii=False, allow_nan=False)
+                    for token in encoder.iterencode(data):
+                        guard.check()
+                        chunk = token.encode('utf-8')
+                        if len(buffer) + len(chunk) > limits.max_payload_bytes:
+                            raise JournalFailure('retained_state_limit')
+                        buffer.extend(chunk)
+                    payload = bytes(buffer)
+                    if len(payload) != expected_bytes:
+                        raise JournalFailure('retained_state_invalid')
+                    finished, tick = guard.check()
+                    snapshot = RetainedStateSnapshotV1(_DOMAIN, 1, sha256(_canonical(schema)).hexdigest(),
+                        payload, sha256(payload).hexdigest(), tuple((table['name'], len(table['rows'])) for table in tables),
+                        sum(len(table['rows']) for table in tables), execution.captured_at, finished,
+                        tick - execution.captured_monotonic)
+                    guard.check()
+                    self._db.execute('COMMIT')
+                finally:
+                    # Cleanup must remain possible when the original window or VM budget is exhausted.
+                    self._db.set_progress_handler(None, 0)
+                    if self._db.in_transaction:
+                        self._db.execute('ROLLBACK')
+            finished, tick = guard.check()
+            # The detached object is still private here; stamp the final sample after validation/cleanup.
+            object.__setattr__(snapshot, 'finished_at', finished)
+            object.__setattr__(snapshot, 'elapsed_seconds', tick - execution.captured_monotonic)
+            return snapshot
+        except sqlite3.Error:
+            reason = guard.interrupted if guard and guard.interrupted else 'retained_state_storage'
+        except JournalFailure as error:
+            reason = str(error)
+            if reason not in {'retained_state_scope', 'retained_state_limit', 'retained_state_timeout',
+                              'retained_state_invalid', 'retained_state_storage'}:
+                reason = 'retained_state_invalid'
+        except Exception:
+            reason = 'retained_state_invalid'
+        # Raise after leaving the handler: callers cannot inspect a raw content/SQL exception chain.
+        raise JournalFailure(reason)
+
+    def _retained_preflight(self, guard, limits):
+        """Bound all original scalars before legacy eager schema/model validation."""
+        skeleton = dict(domain=_DOMAIN, schema_version=1, schema=[],
+            tables=[dict(name=name, columns=columns, rows=[]) for name, columns, _ in _TABLES])
+        payload_bytes = len(_canonical(skeleton))
+        if payload_bytes > limits.max_payload_bytes:
+            raise JournalFailure('retained_state_limit')
+
+        def row_bytes(table, columns, rowid, metadata, index):
+            nonlocal payload_bytes
+            encoded = 2 + max(0, len(columns) - 1)
+            for number, column in enumerate(columns):
+                guard.check()
+                kind, length = metadata[2 * number:2 * number + 2]
+                expected = 'integer' if column in _INTEGER_COLUMNS else 'text'
+                if kind == 'null':
+                    if column not in _NULLABLE.get(table, ()):
+                        raise JournalFailure('retained_state_invalid')
+                    encoded += 4
+                elif kind != expected or type(length) is not int or length < 0:
+                    raise JournalFailure('retained_state_invalid')
+                elif kind == 'integer':
+                    encoded += length
+                else:
+                    # Raw length is a necessary lower bound, not a substitute encoded-row ceiling.
+                    if encoded + length + 2 > limits.max_row_bytes or payload_bytes + encoded + length + 2 > limits.max_payload_bytes:
+                        raise JournalFailure('retained_state_limit')
+                    encoded += 2
+                    decoder = codecs.getincrementaldecoder('utf-8')('strict')
+                    for offset in range(0, length, 4096):
+                        guard.check()
+                        raw = self._db.execute('SELECT substr(CAST(' + column + ' AS BLOB),?,?) FROM ' + table + ' WHERE rowid=?',
+                            (offset + 1, min(4096, length - offset), rowid)).fetchone()
+                        if raw is None or type(raw[0]) is not bytes or len(raw[0]) != min(4096, length - offset):
+                            raise JournalFailure('retained_state_invalid')
+                        fragment = decoder.decode(raw[0], final=offset + 4096 >= length)
+                        encoded += len(_canonical(fragment)) - 2
+                        if encoded > limits.max_row_bytes or payload_bytes + encoded + int(index > 0) > limits.max_payload_bytes:
+                            raise JournalFailure('retained_state_limit')
+                if encoded > limits.max_row_bytes or payload_bytes + encoded + int(index > 0) > limits.max_payload_bytes:
+                    raise JournalFailure('retained_state_limit')
+            payload_bytes += encoded + int(index > 0)
+
+        # First read pins the snapshot without retrieving any unchecked schema SQL or name.
+        metadata_sql = "SELECT rowid," + ','.join('typeof(' + column + '),length(CAST(' + column + ' AS BLOB))'
+            for column in ('type', 'name', 'sql')) + " FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' ORDER BY type,name LIMIT ?"
+        schema = []
+        for index, metadata in enumerate(self._db.execute(metadata_sql, (len(self._expected_schema) + 1,))):
+            guard.check()
+            if index >= len(self._expected_schema):
+                raise JournalFailure('retained_state_invalid')
+            row_bytes('sqlite_master', ('type', 'name', 'sql'), metadata[0], tuple(metadata)[1:], index)
+            row = self._db.execute('SELECT type,name,sql FROM sqlite_master WHERE rowid=?', (metadata[0],)).fetchone()
+            if row is None or tuple(row) != self._expected_schema[index]:
+                raise JournalFailure('retained_state_invalid')
+            schema.append(tuple(row))
+        if len(schema) != len(self._expected_schema):
+            raise JournalFailure('retained_state_invalid')
+        total_rows = 0
+        for name, columns, keys in _TABLES:
+            guard.check()
+            # Bound actual live column metadata too: cached shape need not match tampered DDL text.
+            actual_columns = 0
+            column_sql = ('SELECT cid,length(CAST(name AS BLOB)),length(CAST(type AS BLOB)),"notnull",pk,'
+                          'typeof(dflt_value),length(CAST(dflt_value AS BLOB)) FROM pragma_table_info(?) LIMIT ?')
+            for index, metadata in enumerate(self._db.execute(column_sql, (name, len(columns) + 1))):
+                guard.check()
+                if index >= len(columns):
+                    raise JournalFailure('retained_state_invalid')
+                column = columns[index]
+                kind = 'INTEGER' if column in _INTEGER_COLUMNS else 'TEXT'
+                nullable = column in _NULLABLE.get(name, ()) or (column == 'sequence' and name in ('audit', 'admission_audit'))
+                default = '0' if name == 'requests' and column == 'stop_requested' else None
+                expected = (index, len(column.encode('utf-8')), len(kind), int(not nullable),
+                    keys.index(column) + 1 if column in keys else 0, 'text' if default else 'null', 1 if default else None)
+                if tuple(metadata) != expected:
+                    raise JournalFailure('retained_state_invalid')
+                actual = self._db.execute('SELECT name,type,dflt_value FROM pragma_table_info(?) WHERE cid=? LIMIT 1', (name, index)).fetchone()
+                if actual is None or tuple(actual) != (column, kind, default):
+                    raise JournalFailure('retained_state_invalid')
+                actual_columns += 1
+            if actual_columns != len(columns):
+                raise JournalFailure('retained_state_invalid')
+            sql = 'SELECT rowid,' + ','.join('typeof(' + column + '),length(CAST(' + column + ' AS BLOB))' for column in columns) + ' FROM ' + name
+            if keys:
+                sql += ' ORDER BY ' + ','.join(keys)
+            sql += ' LIMIT ?'
+            for index, metadata in enumerate(self._db.execute(sql, (limits.max_rows - total_rows + 1,))):
+                guard.check()
+                total_rows += 1
+                if total_rows > limits.max_rows:
+                    raise JournalFailure('retained_state_limit')
+                row_bytes(name, columns, metadata[0], tuple(metadata)[1:], index)
+        return schema, payload_bytes
 
     @contextmanager
     def execution_scope(self, execution, clock):
