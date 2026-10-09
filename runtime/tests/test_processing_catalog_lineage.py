@@ -218,6 +218,279 @@ class ProcessingCatalogTests(unittest.TestCase):
         self.save_output(identity, output)
         return audio, self.catalog.publish_processing_output(self.binding, "invoke-1", self.auth)
 
+    def fix_legacy_input(self):
+        # Two real constructor policies intentionally disagree; no body grants.
+        from proofkey.evidence.processing_contracts import ProcessingCatalogBindings
+        self.saved_access_denied = False
+        self.denied_saved_records = set()
+        self.fix_access_calls = []
+        def access(auth, record, scope, purpose):
+            self.fix_access_calls.append((record.artifact_id, scope.get("scope_id"), purpose))
+            return self.access(auth, record, scope, purpose) and not (
+                scope.get("scope_id") == "saved-scope" and (self.saved_access_denied
+                    or record.artifact_id in self.denied_saved_records))
+        def original(binding):
+            if self.store.find_request(binding.case_id, binding.request_id, binding.request_revision,
+                    binding.consent_revision, binding.fingerprint) != binding:
+                raise ValueError("Not exact saved binding")
+            return self.store.original_request(binding.case_id, binding.generation)
+        self.catalog = EvidenceCatalog(self.folder / "catalog", self.clock,
+            allowed_input_roots=[self.folder], access_resolver=access,
+            processing_bindings=ProcessingCatalogBindings(original,
+                lambda binding: self.store.checkpoint(binding.case_id), self.store.invocation, self.scope))
+        path = self.folder / "legacy-parent.txt"
+        path.write_bytes(b"Box damaged.\n")
+        return self.catalog.register(path, "C1", "synthetic-local-text",
+            {"allowed_actors": ["U1"], "scope_id": "parent"})
+
+    def fix_files(self):
+        return {str(p.relative_to(self.catalog.root)): (p.read_bytes(), p.stat().st_mtime_ns)
+                for p in self.catalog.root.rglob("*") if p.is_file()}
+
+    def test_legacy_seal_intersects_independent_saved_scope_before_new_bytes(self):
+        from proofkey.evidence.processing_contracts import ProcessingPublicationError
+        record = self.fix_legacy_input()
+        self.reserve([record])
+        before, debt = self.fix_files(), self.store.checkpoint("C1").budget
+        self.saved_access_denied = True
+        # The registered original/proof still validates, and legacy get still allows.
+        self.assertIsNotNone(self.scope(self.binding, self.original, self.auth, "provider_processing"))
+        self.assertEqual(self.catalog.get(record.artifact_id, self.auth), record)
+        with self.assertRaises(ProcessingPublicationError) as denied:
+            self.catalog.seal_invocation_inputs(self.binding, "invoke-1", (record.artifact_id,), self.auth)
+        self.assertEqual(denied.exception.code, "scope_denied")
+        self.assertIn((record.artifact_id, "saved-scope", "provider_processing"), self.fix_access_calls)
+        self.assertEqual(before, self.fix_files())
+        self.assertEqual(debt, self.store.checkpoint("C1").budget)
+        self.assertEqual(self.store.invocation("invoke-1")[0].status, "consumed")
+
+    def test_legacy_output_intersects_saved_scope_after_lawful_seal(self):
+        from proofkey.evidence.processing_contracts import ProcessingPublicationError
+        record = self.fix_legacy_input()
+        identity = self.reserve([record])
+        self.catalog.seal_invocation_inputs(self.binding, "invoke-1", (record.artifact_id,), self.auth)
+        self.save_output(identity, AssertionsOutput(kind="assertions", assertions=[self.assertion(record)]))
+        before, debt = self.fix_files(), self.store.checkpoint("C1").budget
+        self.saved_access_denied = True
+        with self.assertRaises(ProcessingPublicationError) as denied:
+            self.catalog.publish_processing_output(self.binding, "invoke-1", self.auth)
+        self.assertEqual(denied.exception.code, "scope_denied")
+        self.assertEqual(before, self.fix_files())
+        self.assertEqual(debt, self.store.checkpoint("C1").budget)
+
+    def test_real_marker_write_crossing_expiry_denies_return_preserves_marker_and_debt(self):
+        from proofkey.evidence.processing_contracts import ProcessingPublicationError
+        record = self.fix_legacy_input()
+        identity = self.reserve([record])
+        self.catalog.seal_invocation_inputs(self.binding, "invoke-1", (record.artifact_id,), self.auth)
+        self.save_output(identity, AssertionsOutput(kind="assertions", assertions=[self.assertion(record)]))
+        debt = self.store.checkpoint("C1").budget
+        real_store, forwarded = self.catalog._store, []
+        def write_then_expire(path, payload):
+            result = real_store(path, payload)
+            if path.name.startswith("output-marker-"):
+                forwarded.append(path)
+                self.assertEqual(path.read_bytes(), payload)
+                self.clock.advance((DEADLINE - self.clock.now()).total_seconds())
+            return result
+        self.catalog._store = write_then_expire
+        with self.assertRaises(ProcessingPublicationError) as denied:
+            self.catalog.publish_processing_output(self.binding, "invoke-1", self.auth)
+        self.assertEqual(denied.exception.code, "scope_denied")
+        self.assertEqual(len(forwarded), 1)
+        self.assertEqual(self.clock.now(), DEADLINE)
+        self.assertEqual(json.loads(forwarded[0].read_bytes())["status"], "completed")
+        after = self.fix_files()
+        with self.assertRaises(ProcessingPublicationError):
+            self.catalog.publish_processing_output(self.binding, "invoke-1", self.auth)
+        self.assertEqual(after, self.fix_files())
+        self.assertEqual(debt, self.store.checkpoint("C1").budget)
+        self.assertEqual(self.store.invocation("invoke-1")[0].status, "completed")
+
+    def test_real_seal_write_crossing_expiry_denies_usable_input_without_refund(self):
+        from proofkey.evidence.processing_contracts import ProcessingPublicationError
+        record = self.fix_legacy_input()
+        self.reserve([record])
+        debt, real_store, forwarded = self.store.checkpoint("C1").budget, self.catalog._store, []
+        def write_then_expire(path, payload):
+            result = real_store(path, payload)
+            if path.name.startswith("inputs-"):
+                forwarded.append(path)
+                self.assertEqual(path.read_bytes(), payload)
+                self.clock.advance((DEADLINE - self.clock.now()).total_seconds())
+            return result
+        self.catalog._store = write_then_expire
+        with self.assertRaises(ProcessingPublicationError) as denied:
+            self.catalog.seal_invocation_inputs(self.binding, "invoke-1", (record.artifact_id,), self.auth)
+        self.assertEqual(denied.exception.code, "scope_denied")
+        self.assertEqual(len(forwarded), 1)
+        after = self.fix_files()
+        with self.assertRaises(ProcessingPublicationError):
+            self.catalog.seal_invocation_inputs(self.binding, "invoke-1", (record.artifact_id,), self.auth)
+        self.assertEqual(after, self.fix_files())
+        self.assertEqual(debt, self.store.checkpoint("C1").budget)
+        self.assertEqual(self.store.invocation("invoke-1")[0].status, "consumed")
+
+    def test_planning_final_record_write_cannot_return_stale_predebit_checkpoint(self):
+        from proofkey.evidence.processing_contracts import ProcessingPublicationError
+        checkpoint = self.planning()
+        real_store, forwarded = self.catalog._store, []
+        def write_then_stop(path, payload):
+            result = real_store(path, payload)
+            if path.parent.name == "records":
+                forwarded.append(path)
+                self.store.set_stop("C1", "G1")
+            return result
+        self.catalog._store = write_then_stop
+        with self.assertRaises(ProcessingPublicationError) as denied:
+            self.catalog.register_planning_snapshot(checkpoint, (), self.auth)
+        self.assertEqual(denied.exception.code, "identity_mismatch")
+        self.assertEqual(len(forwarded), 1)
+        self.assertTrue(self.store.checkpoint("C1").stop.requested)
+        self.assertEqual(self.store.checkpoint("C1").budget.tool_calls, 0)
+        after = self.fix_files()
+        with self.assertRaises(ProcessingPublicationError):
+            self.catalog.register_planning_snapshot(checkpoint, (), self.auth)
+        self.assertEqual(after, self.fix_files())
+
+    def test_intersected_legacy_publication_positive_is_exact_idempotent_and_no_new_debit(self):
+        record = self.fix_legacy_input()
+        identity = self.reserve([record])
+        seal = self.catalog.seal_invocation_inputs(self.binding, "invoke-1", (record.artifact_id,), self.auth)
+        self.assertEqual(seal.input_records(), (record,))
+        assertion = self.assertion(record)
+        self.save_output(identity, AssertionsOutput(kind="assertions", assertions=[assertion]))
+        before = self.store.checkpoint("C1").budget
+        result = self.catalog.publish_processing_output(self.binding, "invoke-1", self.auth)
+        self.assertEqual(result.assertions(), (assertion,))
+        self.assertIn((record.artifact_id, "parent", "provider_processing"), self.fix_access_calls)
+        self.assertIn((record.artifact_id, "saved-scope", "provider_processing"), self.fix_access_calls)
+        after = self.fix_files()
+        self.assertEqual(result, self.catalog.publish_processing_output(self.binding, "invoke-1", self.auth))
+        self.assertEqual(after, self.fix_files())
+        self.assertEqual(before, self.store.checkpoint("C1").budget)
+        self.assertEqual(before.tool_calls, 1)
+        self.assertEqual(before.active_seconds, 10.0)
+        self.assertEqual(before.planner_calls, 0)
+
+    def test_saved_scope_allow_cannot_replace_denied_original_opaque_parent(self):
+        from proofkey.evidence.processing_contracts import ProcessingPublicationError
+        record = self.fix_legacy_input()
+        self.reserve([record])
+        before, debt = self.fix_files(), self.store.checkpoint("C1").budget
+        self.revoked.add("parent")
+        self.assertIsNotNone(self.scope(self.binding, self.original, self.auth, "provider_processing"))
+        with self.assertRaises(ProcessingPublicationError) as denied:
+            self.catalog.seal_invocation_inputs(self.binding, "invoke-1", (record.artifact_id,), self.auth)
+        self.assertEqual(denied.exception.code, "scope_denied")
+        self.assertEqual(before, self.fix_files())
+        self.assertEqual(debt, self.store.checkpoint("C1").budget)
+
+    def test_derived_input_intersection_reaches_actual_original_ancestor(self):
+        from proofkey.evidence.processing_contracts import ProcessingPublicationError
+        self.fix_legacy_input()
+        audio, publication = self.transcript()
+        record = publication.transcript_record()
+        self.reserve([record], "extraction", "extract-transcript")
+        # Legacy derived get and both original opaque ACLs still allow.
+        self.denied_saved_records.add(audio.artifact_id)
+        self.assertEqual(self.catalog.get(record.artifact_id, self.auth), record)
+        before, debt = self.fix_files(), self.store.checkpoint("C1").budget
+        with self.assertRaises(ProcessingPublicationError) as denied:
+            self.catalog.seal_invocation_inputs(self.binding, "extract-transcript", (record.artifact_id,), self.auth)
+        self.assertEqual(denied.exception.code, "scope_denied")
+        self.assertIn((audio.artifact_id, "saved-scope", "provider_processing"), self.fix_access_calls)
+        self.assertEqual(before, self.fix_files())
+        self.assertEqual(debt, self.store.checkpoint("C1").budget)
+
+    def test_real_marker_parent_revocation_denies_return_and_repeat_without_file_growth(self):
+        from proofkey.evidence.processing_contracts import ProcessingPublicationError
+        record = self.fix_legacy_input()
+        identity = self.reserve([record])
+        self.catalog.seal_invocation_inputs(self.binding, "invoke-1", (record.artifact_id,), self.auth)
+        self.save_output(identity, AssertionsOutput(kind="assertions", assertions=[self.assertion(record)]))
+        debt, real_store, paths = self.store.checkpoint("C1").budget, self.catalog._store, []
+        def write_then_revoke(path, payload):
+            result = real_store(path, payload)
+            if path.name.startswith("output-marker-"):
+                paths.append(path)
+                self.revoked.add("parent")
+            return result
+        self.catalog._store = write_then_revoke
+        with self.assertRaises(ProcessingPublicationError) as denied:
+            self.catalog.publish_processing_output(self.binding, "invoke-1", self.auth)
+        self.assertEqual(denied.exception.code, "scope_denied")
+        self.assertEqual(len(paths), 1)
+        self.assertEqual(json.loads(paths[0].read_bytes())["status"], "completed")
+        after = self.fix_files()
+        with self.assertRaises(ProcessingPublicationError):
+            self.catalog.publish_processing_output(self.binding, "invoke-1", self.auth)
+        self.assertEqual(after, self.fix_files())
+        self.assertEqual(debt, self.store.checkpoint("C1").budget)
+
+    def test_real_marker_original_proof_revocation_denies_usable_return_keeps_private_marker(self):
+        from proofkey.evidence.processing_contracts import ProcessingPublicationError
+        record = self.fix_legacy_input()
+        identity = self.reserve([record])
+        self.catalog.seal_invocation_inputs(self.binding, "invoke-1", (record.artifact_id,), self.auth)
+        self.save_output(identity, AssertionsOutput(kind="assertions", assertions=[self.assertion(record)]))
+        debt, real_store, paths = self.store.checkpoint("C1").budget, self.catalog._store, []
+        def write_then_revoke(path, payload):
+            result = real_store(path, payload)
+            if path.name.startswith("output-marker-"):
+                paths.append(path)
+                self.revoked.add("saved-scope")
+            return result
+        self.catalog._store = write_then_revoke
+        with self.assertRaises(ProcessingPublicationError) as denied:
+            self.catalog.publish_processing_output(self.binding, "invoke-1", self.auth)
+        self.assertEqual(denied.exception.code, "scope_denied")
+        self.assertEqual(len(paths), 1)
+        after = self.fix_files()
+        with self.assertRaises(ProcessingPublicationError):
+            self.catalog.publish_processing_output(self.binding, "invoke-1", self.auth)
+        self.assertEqual(after, self.fix_files())
+        self.assertEqual(debt, self.store.checkpoint("C1").budget)
+
+    def test_final_seal_rechecks_actual_saved_attempt_after_real_write(self):
+        from proofkey.evidence.processing_contracts import ProcessingPublicationError
+        record = self.fix_legacy_input()
+        identity = self.reserve([record])
+        debt, real_store, paths = self.store.checkpoint("C1").budget, self.catalog._store, []
+        def write_then_record(path, payload):
+            result = real_store(path, payload)
+            if path.name.startswith("inputs-"):
+                paths.append(path)
+                self.save_output(identity, AssertionsOutput(kind="assertions", assertions=[]))
+            return result
+        self.catalog._store = write_then_record
+        with self.assertRaises(ProcessingPublicationError) as denied:
+            self.catalog.seal_invocation_inputs(self.binding, "invoke-1", (record.artifact_id,), self.auth)
+        self.assertEqual(denied.exception.code, "identity_mismatch")
+        self.assertEqual(len(paths), 1)
+        self.assertEqual(self.store.invocation("invoke-1")[0].status, "completed")
+        self.assertEqual(debt, self.store.checkpoint("C1").budget)
+
+    def test_saved_narrative_real_final_write_expiry_stays_unavailable_with_private_bytes(self):
+        from proofkey.evidence.processing_contracts import ProcessingPublicationError
+        real_store, paths = self.catalog._store, []
+        def write_then_expire(path, payload):
+            result = real_store(path, payload)
+            if path.parent.name == "records":
+                paths.append(path)
+                self.clock.advance((DEADLINE - self.clock.now()).total_seconds())
+            return result
+        self.catalog._store = write_then_expire
+        with self.assertRaises(ProcessingPublicationError) as denied:
+            self.catalog.register_saved_narrative(self.binding, self.auth)
+        self.assertEqual(denied.exception.code, "scope_denied")
+        self.assertEqual(len(paths), 1)
+        after = self.fix_files()
+        self.assertEqual(self.store.checkpoint("C1").budget.tool_calls, 0)
+        with self.assertRaises(ProcessingPublicationError):
+            self.catalog.register_saved_narrative(self.binding, self.auth)
+        self.assertEqual(after, self.fix_files())
+
     def test_saved_narrative_preserves_exact_original_and_repeat_identity(self):
         record = self.catalog.register_saved_narrative(self.binding, self.auth)
         self.assertEqual(self.catalog.read_original(record.artifact_id, self.auth),

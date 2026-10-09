@@ -257,21 +257,26 @@ class EvidenceCatalog:
                 "observations": [o.model_dump(mode="json") for o in observations]})
         except Exception as exc:
             raise ProcessingPublicationError("identity_mismatch") from exc
-        return self._processing_record(payload, checkpoint.binding, scope, auth,
+        record = self._processing_record(payload, checkpoint.binding, scope, auth,
             "saved-planning-snapshot-v1", "application/json", (),
             {"kind": "planning_snapshot_v1", "checkpoint_hash": fingerprint(checkpoint.model_dump(mode="json"))})
+        current = self._processing_bindings.checkpoint_lookup(checkpoint.binding)
+        if type(current) is not PhaseCheckpoint or current != checkpoint:
+            raise ProcessingPublicationError("identity_mismatch")
+        self._processing_current_scope(checkpoint.binding, scope, auth)
+        return record
 
     @_publication_operation
     def seal_invocation_inputs(self, binding: RequestBinding, invocation_id: str,
             artifact_ids: tuple[str, ...], auth: AuthContext) -> InputPublication:
-        self._processing_scope(binding, auth, "provider_processing")
+        _, scope = self._processing_scope(binding, auth, "provider_processing")
         attempt, receipt = self._processing_attempt(binding, invocation_id)
         if receipt is not None or attempt.status != "consumed":
             raise ProcessingPublicationError("not_reserved")
         if (type(artifact_ids) is not tuple or not 0 < len(artifact_ids) <= self._processing_bindings.max_inputs
                 or any(type(a) is not str for a in artifact_ids) or len(set(artifact_ids)) != len(artifact_ids)):
             raise ProcessingPublicationError("identity_mismatch")
-        records, envelopes = self._processing_inputs(artifact_ids, binding, auth)
+        records, envelopes = self._processing_inputs(artifact_ids, binding, auth, scope=scope)
         if [r.original_hash for r in records] != attempt.identity.input_hashes:
             raise ProcessingPublicationError("identity_mismatch")
         envelope = {"binding": binding.model_dump(mode="json"),
@@ -281,6 +286,7 @@ class EvidenceCatalog:
             "record_envelopes": envelopes}
         encoded = canonical(envelope)
         self._processing_write(self._processing_path("inputs", binding, invocation_id), encoded)
+        self._processing_final_inputs(binding, invocation_id, auth, scope, records, envelopes, (attempt, None))
         return InputPublication(canonical(binding.model_dump(mode="json")), invocation_id,
             envelope["reservation_identity_hash"], tuple(canonical(r.model_dump(mode="json")) for r in records),
             encoded, digest(encoded))
@@ -309,11 +315,12 @@ class EvidenceCatalog:
         except Exception as exc:
             raise ProcessingPublicationError("identity_mismatch") from exc
 
-    def _processing_inputs(self, artifact_ids, binding, auth):
+    def _processing_inputs(self, artifact_ids, binding, auth, *, scope):
         records, envelopes, size = [], [], 0
         try:
             for identifier in artifact_ids:
-                record = self.get(identifier, auth, purpose="provider_processing")
+                record = self._get(identifier, auth, "provider_processing", set(), set(), 0,
+                                   processing_scope=scope)
                 payload = self.read_original(identifier, auth, purpose="provider_processing")
                 _, envelope = self._load(identifier)
                 if (record.case_id != binding.case_id
@@ -330,6 +337,22 @@ class EvidenceCatalog:
         except Exception as exc:
             raise ProcessingPublicationError("input_unavailable") from exc
         return tuple(records), envelopes
+
+    def _processing_current_scope(self, binding, expected, auth):
+        _, current = self._processing_scope(binding, auth, "provider_processing")
+        if current != expected:
+            raise ProcessingPublicationError("identity_mismatch")
+        return current
+
+    def _processing_final_inputs(self, binding, invocation_id, auth, scope, records, envelopes, pair):
+        current = self._processing_current_scope(binding, scope, auth)
+        actual, actual_envelopes = self._processing_inputs(tuple(r.artifact_id for r in records), binding, auth,
+                                                         scope=current)
+        if (actual != records or actual_envelopes != envelopes
+                or self._processing_attempt(binding, invocation_id) != pair):
+            raise ProcessingPublicationError("identity_mismatch")
+        # Input reads/lookup can themselves take time; never reuse the pre-I/O window.
+        self._processing_current_scope(binding, scope, auth)
 
     @_publication_operation
     def publish_processing_output(self, binding: RequestBinding, invocation_id: str,
@@ -368,7 +391,8 @@ class EvidenceCatalog:
             if (not 0 < len(sealed_records) <= self._processing_bindings.max_inputs
                     or len({r.artifact_id for r in sealed_records}) != len(sealed_records)):
                 raise ValueError("Invalid sealed record sequence")
-            records, envelopes = self._processing_inputs(tuple(r.artifact_id for r in sealed_records), binding, auth)
+            records, envelopes = self._processing_inputs(tuple(r.artifact_id for r in sealed_records), binding, auth,
+                                                        scope=scope)
             if (records != sealed_records or envelopes != seal["record_envelopes"]
                     or [r.original_hash for r in records] != identity.input_hashes):
                 raise ValueError("Sealed ACL/bytes/lineage changed")
@@ -423,7 +447,8 @@ class EvidenceCatalog:
         for path, payload in written:
             if _bounded_read(path, self.max_bytes, private=True) != payload:
                 raise ProcessingPublicationError("partial_publication")
-        again_records, again_envelopes = self._processing_inputs(tuple(r.artifact_id for r in records), binding, auth)
+        again_records, again_envelopes = self._processing_inputs(tuple(r.artifact_id for r in records), binding, auth,
+                                                               scope=scope)
         _, current_scope = self._processing_scope(binding, auth, "provider_processing")
         if (again_records != records or again_envelopes != envelopes or current_scope != scope
                 or self._processing_attempt(binding, invocation_id) != (attempt, receipt)):
@@ -440,6 +465,10 @@ class EvidenceCatalog:
             "status": "completed", "mode": "synthetic"}
         marker_bytes = canonical(marker)
         self._processing_write(self._processing_path("output-marker", binding, invocation_id), marker_bytes)
+        if transcript_record is not None:
+            if self.read_original(transcript_record.artifact_id, auth, purpose="provider_processing") != transcript.text.encode("utf-8"):
+                raise ProcessingPublicationError("partial_publication")
+        self._processing_final_inputs(binding, invocation_id, auth, scope, records, envelopes, (attempt, receipt))
         return ProcessingPublication(canonical(binding.model_dump(mode="json")), invocation_id, receipt_hash,
             tuple(receipt.output_hashes), tuple(canonical(r.model_dump(mode="json")) for r in records),
             assertion_bytes, tuple(assertion_refs),
@@ -591,6 +620,7 @@ class EvidenceCatalog:
         self._processing_write(self.root / "records" / (identifier + ".json"), canonical(envelope))
         if self.get(identifier, auth, purpose="provider_processing") != record:
             raise ProcessingPublicationError("publication_conflict")
+        self._processing_current_scope(binding, scope, auth)
         return record
 
     def _authorize(self, record, envelope, auth, purpose):
@@ -617,7 +647,7 @@ class EvidenceCatalog:
     def get(self, artifact_id, auth=None, *, purpose="read"):
         return self._get(artifact_id, auth, purpose, set(), set(), 0)
 
-    def _get(self, artifact_id, auth, purpose, active, seen, depth):
+    def _get(self, artifact_id, auth, purpose, active, seen, depth, *, processing_scope=None):
         if not isinstance(auth, AuthContext):
             raise EvidenceAccessDenied("Evidence unavailable or denied")
         limits = self._processing_bindings
@@ -632,6 +662,10 @@ class EvidenceCatalog:
         if expected != record.lineage_hash:
             raise EvidenceAccessDenied("Evidence unavailable or denied")
         self._authorize(record, envelope, auth, purpose)
+        if processing_scope is not None:
+            # Independent intersection on the actual record, never a fabricated grant.
+            self._authorize(record, {"scope": processing_scope.scope(), "policy": processing_scope.policy_id},
+                            auth, purpose)
         if limits is not None and record.source in {"saved-request-narrative", "saved-planning-snapshot-v1", "saved-synthetic-transcription"} and "processing" not in envelope:
             raise EvidenceAccessDenied("Evidence unavailable or denied")
         if "processing" in envelope:
@@ -657,7 +691,8 @@ class EvidenceCatalog:
                         or record.parent_hashes != [p.original_hash for p in parents]):
                     raise ValueError("Processing scope/parent mismatch")
                 for parent in parents:
-                    current = self._get(parent.artifact_id, auth, purpose, active, seen, depth + 1)
+                    current = self._get(parent.artifact_id, auth, purpose, active, seen, depth + 1,
+                                        processing_scope=processing_scope)
                     if current != parent or current.case_id != record.case_id:
                         raise ValueError("Parent identity mismatch")
                     payload = _bounded_read(self.root / "objects" / current.original_hash, self.max_bytes, private=True)
