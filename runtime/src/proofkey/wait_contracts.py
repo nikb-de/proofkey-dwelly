@@ -109,7 +109,8 @@ class WaitRecordV1(WireModel):
                 or self.expiry_edge.operation != "expire_wait"):
             raise ValueError("Wait continuation must retain its declared accept/expiry edges")
         if self.communication_intent is not None:
-            from .packet_contracts import packet_postcondition, validate_packet_arguments
+            from .packet_contracts import PACKET_FIELDS, packet_postcondition, validate_packet_arguments
+            from .process import material_fields
             intent = self.communication_intent
             content = validate_packet_arguments(intent.arguments, binding=cp.binding)
             source, policy = content.source, content.policy
@@ -151,6 +152,7 @@ class WaitRecordV1(WireModel):
                     or content.expires_at < wait.expires_at
                     or len(observations) != len(cp.observations) or set(references) != set(observations)
                     or "case.question_revision" not in observations
+                    or not (material_fields("enqueue_handoff") | PACKET_FIELDS) <= intent.expected_revisions.revisions.keys()
                     or any(o.object_id != cp.binding.object_id or references[key].revision != o.revision
                            or references[key].evidence_ref != o.evidence_ref for key, o in observations.items())
                     or any(key not in observations or observations[key].revision != revision

@@ -3,6 +3,7 @@ from datetime import timedelta
 from pathlib import Path
 import copy
 import json
+import sqlite3
 import subprocess
 import sys
 import tempfile
@@ -377,6 +378,96 @@ class OperatorWaitGatewayTests(unittest.TestCase):
                 changed["communication_intent"][key] = value
                 with self.assertRaises(ValueError):
                     WaitRecordV1.model_validate(changed)
+
+    def test_public_save_rejects_incomplete_or_mismatching_retained_revision_pins(self):
+        for mutation in ("empty", "partial", "mismatch"):
+            with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as folder:
+                fx = HostWaitFixture(folder)
+                self.addCleanup(fx.store.close)
+                admitted = []
+                def hook(intent, sources, checkpoint):
+                    pins = dict(intent.expected_revisions.revisions)
+                    if mutation == "empty":
+                        pins.clear()
+                    elif mutation == "partial":
+                        del pins["customer.consent"]
+                    else:
+                        pins["customer.consent"] = "valid-looking-but-wrong"
+                    changed = intent.model_copy(update={"expected_revisions":
+                        intent.expected_revisions.model_copy(update={"revisions": pins})})
+                    try:
+                        fx.persist(changed, sources, checkpoint)
+                    except ValueError:
+                        admitted.append(False)
+                    else:
+                        admitted.append(True)
+                    raise RuntimeError("Bounded host interruption after rejected save")
+                self.assertEqual(fx.gateway.enqueue_operator_packet("C1", "review_facts", before_prepare=hook).status, "rejected")
+                self.assertEqual(admitted, [False], "Incomplete original must not be publicly persisted")
+                self.assertIsNone(fx.store.wait(fx.question_id))
+                self.assertEqual(fx.store.intents("C1"), ())
+                self.assertEqual(fx.store.checkpoint("C1").budget.tool_calls, 6)
+                self.assertEqual(fx.world.effect_count("enqueue_handoff"), 0)
+
+    def test_corrupt_retained_revision_pins_deny_before_recovery_hook(self):
+        for mutation in ("empty", "partial", "mismatch"):
+            with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as folder:
+                old = self.fx
+                self.fx = HostWaitFixture(folder)
+                try:
+                    saved = self.saved_only()
+                    raw = saved.model_dump(mode="json")
+                    pins = raw["communication_intent"]["expected_revisions"]["revisions"]
+                    if mutation == "empty":
+                        pins.clear()
+                    elif mutation == "partial":
+                        del pins["customer.consent"]
+                    else:
+                        pins["customer.consent"] = "valid-looking-but-wrong"
+                    encoded = json.dumps(raw)
+                    path = Path(folder) / "journal.sqlite"
+                    # Hostile stored-row setup, not a valid public save or source grant.
+                    with sqlite3.connect(path) as db:
+                        db.execute("UPDATE waits SET wait_json=? WHERE question_id=?", (encoded, self.fx.question_id))
+                    calls = []
+                    debt = self.fx.store.checkpoint("C1").budget
+                    self.assertEqual(self.enqueue(lambda intent, *_: calls.append(intent.action_id)).status, "rejected")
+                    self.assertEqual(calls, [], "Malformed original cannot reach the consumer hook")
+                    self.assertEqual(self.fx.store.intents("C1"), ())
+                    self.assertEqual(self.fx.store.checkpoint("C1").budget, debt)
+                    self.assertEqual(self.fx.world.effect_count("enqueue_handoff"), 0)
+                    with sqlite3.connect(path) as db:
+                        retained = db.execute("SELECT wait_json FROM waits WHERE question_id=?", (self.fx.question_id,)).fetchone()[0]
+                    self.assertEqual(retained, encoded)
+                finally:
+                    self.fx.store.close()
+                    self.fx = old
+
+    def test_valid_saved_revision_pins_reach_recovery_hook_and_dispatch(self):
+        saved = self.saved_only()
+        calls = []
+        def hook(intent, sources, checkpoint):
+            self.assertEqual(intent, saved.communication_intent)
+            self.assertEqual(checkpoint.budget.tool_calls, 12)
+            self.assertEqual(self.fx.store.intents("C1"), ())
+            self.assertNotIn("case.question_revision", intent.expected_revisions.revisions)
+            calls.append(intent)
+        self.assertEqual(self.enqueue(hook).status, "verified")
+        self.assertEqual(calls, [saved.communication_intent])
+        self.assertEqual(self.fx.store.load_wait_record(self.fx.question_id), saved)
+        self.assertEqual(self.fx.store.checkpoint("C1").budget.tool_calls, 14)
+        self.assertEqual(self.fx.world.effect_count("enqueue_handoff"), 1)
+
+    def test_valid_saved_original_with_changed_fresh_revision_denies_before_hook(self):
+        saved = self.saved_only()
+        self.fx.world.mutate("customer.consent", "granted")
+        calls = []
+        self.assertEqual(self.enqueue(lambda intent, *_: calls.append(intent.action_id)).status, "rejected")
+        self.assertEqual(calls, [])
+        self.assertEqual(self.fx.store.intents("C1"), ())
+        self.assertEqual(self.fx.world.effect_count("enqueue_handoff"), 0)
+        self.assertEqual(self.fx.store.load_wait_record(self.fx.question_id), saved)
+        self.assertEqual(self.fx.store.checkpoint("C1").budget.tool_calls, 12)
 
     def test_record_requires_typed_original_question_revision(self):
         saved = self.saved_only()

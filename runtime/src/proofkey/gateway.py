@@ -245,6 +245,10 @@ class ActionGateway:
         if not self.gate.evaluate(original, proposal, sources.observations, checkpoint,
                 journal_predecessor=self._service_predecessor(intent.binding, intent.operation, checkpoint.phase)).allowed:
             raise GateDenied("scope_denied")
+        current = qualified_observations(self.profile, intent.binding.object_id, sources.observations)
+        if any(key not in current or intent.expected_revisions.revisions.get(key) != current[key].revision
+               for key in required_fields(self.profile, intent.operation)):
+            raise GateDenied("scope_denied")
         # Detached immutable inputs protect the actual transport payload even
         # against a host callback bypassing Python's normal frozen setters.
         detached_intent = EffectIntent.model_validate(intent.model_dump())
