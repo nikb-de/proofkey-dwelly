@@ -1,6 +1,14 @@
 # Current support matrix — documentation draft
 
-Prepared 2026-10-09 from current source and test inspection. This draft is proposed engineer-facing documentation, not a fresh verification receipt. No runtime tests, providers, installs or server launches were run. References use repository-relative paths and current line numbers. Historical test/run claims in other documents have not been promoted to current passes here.
+Prepared 2026-10-09 from source and test inspection; that discovery pass did not run runtime tests, providers, installs or servers. The matrices and their repository-relative source/line references retain that discovery snapshot. The addendum below records subsequent installed evidence; it does not turn the other source-inspection claims into fresh passes.
+
+## Installed-target addendum — 2026-10-09
+
+The [final installation receipt](../../../outputs/proofkey-installation-2026-10-09/fixed-3/receipt.json) records `installed_verification_passed` on **CPython 3.12.14 / macOS arm64**. Its `HEAD` selector is resolved to commit `5bc38c8824f425acae699aed940f028a283f7df1` by the [source-resolution receipt](../../../outputs/proofkey-installation-2026-10-09/fixed-3/source-resolution.json), which verifies the source archive against that exact commit. The wheel and sdist inventories contain the same thirteen pinned resources: ten built-in profiles, the two fixed host fixtures and `schema.sql`. A fresh virtual environment outside the checkout installed the exact local dependency closure and project wheel with `--no-index`; all 55 recorded module origins resolve to that environment's site-packages. See the [installed-target guide](../../../runtime/README.md#installed-target).
+
+The [final installed smoke receipt](../../../outputs/proofkey-installation-2026-10-09/fixed-3/smoke/receipt.json) records **8 attempted / 8 passed** positions: console, module, trusted library composition and explicitly constructed in-process API, each exercising both `host-window-replay-v1` and `host-goods-replay-v1`. All positions record verified intent states, persisted effects, export hashes and owner closure; all 1,732 inventoried site-packages files remained unchanged. Window runs record one reschedule; goods runs record one refusal registration and one return creation.
+
+This evidence covers only those two fixed synthetic cases on that target. It does not establish native providers, other interpreters/platforms, zipped/frozen execution, wider registered controls, arbitrary workflows, complete six-port coverage or full release/assessment readiness. The historical discovery limits below still apply outside this specific installed evidence.
 
 ## Read the support levels correctly
 
@@ -11,7 +19,7 @@ Prepared 2026-10-09 from current source and test inspection. This draft is propo
 
 ## Commands by entrypoint
 
-CLI syntax is `python -m proofkey.cli [--release ID] [--credential-ref REF] COMMAND`. The installed `proofkey` script is declared in `runtime/pyproject.toml`; a successful clean installation has not been verified in this investigation. CLI flags may also follow the subcommand (`cli.py:32-47`).
+CLI syntax is `python -m proofkey.cli [--release ID] [--credential-ref REF] COMMAND`. The installed `proofkey` script is declared in `runtime/pyproject.toml`; the initial discovery pass did not verify clean installation, while the addendum above supplies subsequent evidence for the specific target and cases. CLI flags may also follow the subcommand (`cli.py:32-47`).
 
 | Command | Builtin CLI / public library / explicitly constructed API | Registered admission composition | Current code/test anchors and limits |
 |---|---|---|---|
@@ -62,7 +70,7 @@ The world records conditional idempotent effects and original readback separatel
 
 ## Proposed short engineer onboarding
 
-1. Read the source-checkout recipe at `runtime/README.md:7-36`, then select **one of the two fixed replay examples**. Python >=3.11 and exact core dependency versions are declared in `runtime/pyproject.toml`; optional API and API-test dependencies are separate. Confirm the actual environment separately. This draft does not authorize installation or claim the declarations are a verified clean environment.
+1. Read the [current installed-target guide](../../../runtime/README.md#installed-target) or the source-checkout recipe (discovery reference: `runtime/README.md:7-36`), then select **one of the two fixed replay examples**. Python >=3.11 and exact core dependency versions are declared in `runtime/pyproject.toml`; optional API and API-test dependencies are separate. Only CPython 3.12.14 / macOS arm64 has the installed evidence above; the version declarations do not qualify other environments.
 2. Use a new temporary launch directory for each example, preserve the absolute runtime source path, and keep the exact documented request and replay dates. The default CLI creates `.proofkey/resources`, `.proofkey/inventories` and `.proofkey/runs` under its working directory. Do not point it at an unrelated existing state directory or edit fixture facts to make an outcome succeed.
 3. For an application, construct trusted clock/resolver/registry/limits and one creator-owned `HostDispatcher`; use `run_command` or `run_batch` with explicit original execution and publication bounds (`batch.py:22-38,234-235,341-342`). Close the owner and preserve its receipt. API users must call `create_app` with the same trusted inputs plus a real transport-proof mapping; no global ASGI app is supplied.
 4. Use the registered admission bridge only when independently supplying its exact executable/profile/resource binding and synthetic review resolver. It requires a fresh isolated root and dedicated control stores. It currently enables fresh fixed-case runs only. Do not try to enable it through command JSON or copy a stored claim as proof.
@@ -91,9 +99,9 @@ CLI exit mapping is 0 coordinated result/inspection, 2 denial/unavailable/input,
 
 ## Evidence limits and open documentation gaps
 
-- Current source tests define positive CLI/API/library parity for **two fixed synthetic examples** (`test_cli_parity.py:122`; `test_api_parity.py:18`). They are not fresh passes from this task and cannot demonstrate clean installation, other platforms, native providers or six-port completeness.
+- Source tests define positive CLI/API/library parity for **two fixed synthetic examples** (`test_cli_parity.py:122`; `test_api_parity.py:18`). Those source references are not fresh passes; clean installation is evidenced separately by the addendum's receipts. Neither establishes other platforms, native providers or six-port completeness.
 - Source tests cover core service/handoff, waits, durable stop and subprocess crashes. The positive scope varies by fixture, profile, clock and entrypoint; a single global “supports recovery” label would overstate it.
 - Registered route lacks CLI/API selection, reusable wider provisioning, recover/reply/stop and safe classification/recovery of interrupted claims. Exact code compatibility and resource identity remain deliberately restrictive.
 - A frozen end-to-end receipt set for service refusal, real retained reply/stop, all six port uses and the four declared crash cases remains a distinct evidence deliverable. Do not omit denied, failed, missing or partial cases from its denominator.
-- Native authority/conditional-write/readback semantics, operator identity, actual model/transcription calls, actual human review, clean package/platform reproduction and timed drill outcomes remain unestablished here.
+- Native authority/conditional-write/readback semantics, operator identity, actual model/transcription calls, actual human review, package/platform reproduction beyond the recorded installed target and timed drill outcomes remain unestablished here.
 - The final public README should adopt a shortened version of these matrices only after root review. This draft does not change existing README, tests, runtime behavior or OpenSpec contracts.

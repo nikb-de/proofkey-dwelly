@@ -17,6 +17,7 @@
 ## 3. Integration and packaging child changes
 
 - [ ] 3.1 Specify, review, implement and verify installed-resource/package/release reproduction: J13, J14.
+  - J13 completed and archived in `../archive/2026-10-09-installed-offline-resources/`: full suite 1,696/1,696, final installed 8/8, qualifier 37/37 and independent review C0/I0/M0. J14 general release reproduction remains open, so this combined task remains unchecked.
 - [ ] 3.2 Specify, review, implement and verify trusted nonbuiltin registration/launch: J06.
 - [ ] 3.3 Specify, review, implement and verify original observed-route controls: J07.
 - [ ] 3.4 Specify, review, implement and verify continuation timing and interrupted claims: J10.
