@@ -19,7 +19,7 @@ from ..contracts import (AuthorityObservation, AuthorityReadback, DispatchResult
 from ..identity import fingerprint
 from ..ports import AdapterBundle
 from ..process import material_fields
-from ..profiles import load_profile
+from ..profiles import load_profile, requires_completed_service
 
 _EFFECTS = frozenset({"reschedule", "register_goods_refusal", "register_service_refusal", "create_return",
                       "send_clarification", "send_status", "enqueue_handoff", "transfer_owner"})
@@ -79,6 +79,8 @@ def required_material_keys(connection, profile, operation, stage):
         minimum |= _SCOPE_MATERIAL
         if operation == "reschedule":
             minimum |= {"scheduling.slot_details"}
+    if operation == "register_service_refusal" and requires_completed_service(profile):
+        minimum |= {"delivery.status"}
     if operation not in _EFFECTS or capability is None or not stage:
         return None
     contracts = (capability.permission_basis, capability.acknowledgement, capability.readback,
@@ -456,7 +458,8 @@ class SimulatedWorld:
                 outcome = {"returns.status": stage, "goods.inventory": inventory, "goods.quantity": values["goods.quantity"],
                            "returns.destination": values["returns.destination"]}
         elif operation == "register_service_refusal":
-            if args.get("scope") != "service":
+            if (args.get("scope") != "service" or
+                    requires_completed_service(self._profile) and values.get("delivery.status") != "completed"):
                 return None
             self._update(connection, case, obj, "service.refusal", "verified")
             outcome = {"service.refusal": "verified"}
