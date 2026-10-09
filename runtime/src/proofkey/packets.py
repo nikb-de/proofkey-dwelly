@@ -39,6 +39,8 @@ class PacketService:
             facts = qualified_observations(self.profile, binding.object_id, source.observations)
             values = {key: item.value for key, item in facts.items()}
             now = self.clock.now()
+            snapshot_at = max(facts[key].observed_at for key in
+                ("operator.packet_catalog", "operator.packet_access"))
             catalog, access = validate_packet_scope(source.catalog, source.access,
                 case_id=case_id, object_id=binding.object_id, sender=binding.principal_id,
                 recipient=values["operator.recipient"], now=now)
@@ -108,7 +110,7 @@ class PacketService:
                 profile_hash=self.profile.release_hash, process_version=checkpoint.process_version,
                 process_hash=self.profile.process_hash, policy_id="synthetic-test-policy-v1",
                 policy_hash=self.profile.policy_hash, observed_version=values["policy.version"], references=["synthetic-test-policy-v1"])
-            content = PacketContentV1(source=identity, catalog=catalog, access=access, as_of=now,
+            content = PacketContentV1(source=identity, catalog=catalog, access=access, as_of=snapshot_at,
                 history=history, generation_stops=stops, policy=policy, conflicts=conflicts,
                 unknowns=unknowns, disposition=disposition, expires_at=min(checkpoint.deadline, access.expires_at))
             validate_packet_policy(content, self.profile, process_version=checkpoint.process_version, policy_version=checkpoint.policy_version)

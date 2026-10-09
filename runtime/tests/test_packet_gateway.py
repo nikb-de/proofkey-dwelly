@@ -385,6 +385,103 @@ raise RuntimeError("Crash boundary was not reached")
             self.gateway.read_material_authorities(intent)
         self.assertEqual(self.store.checkpoint("C1").budget.active_seconds, 10)
 
+    def test_elapsed_assembly_uses_source_snapshot_time_and_still_stores_packet(self):
+        source_reader = self.gateway.read_packet_sources
+        returned = []
+        def progressing_reader(binding, auth):
+            sources = source_reader(binding, auth)
+            returned.append(sources)
+            self.clock.advance(0.01)
+            return sources
+        self.gateway.read_packet_sources = progressing_reader
+        self.assertEqual(self.enqueue().status, "verified",
+            "Elapsed assembly time must not invalidate an otherwise current source snapshot")
+        content = self.store.intents("C1")[0].intent.arguments["content"]
+        from datetime import datetime
+        snapshot_time = datetime.fromisoformat(content["as_of"].replace("Z", "+00:00"))
+        source_time = max(item.observed_at for item in returned[0].observations
+            if item.authority == "operator" and item.fact in {"packet_catalog", "packet_access"})
+        self.assertEqual(snapshot_time, source_time)
+        self.assertLess(snapshot_time, self.clock.now())
+        self.assertEqual(self.store.checkpoint("C1").budget.tool_calls, 8)
+        self.assertEqual(self.world.effect_count("enqueue_handoff"), 1)
+
+    def test_elapsed_assembly_cannot_reuse_snapshot_after_actual_access_expiry(self):
+        source_reader = self.gateway.read_packet_sources
+        def expired_reader(binding, auth):
+            sources = source_reader(binding, auth)
+            self.clock.advance((sources.access.expires_at - self.clock.now()).total_seconds() + 0.01)
+            return sources
+        self.gateway.read_packet_sources = expired_reader
+        self.assertEqual(self.enqueue().status, "rejected")
+        self.assertEqual(self.store.intents("C1"), ())
+        self.assertEqual(self.world.effect_count("enqueue_handoff"), 0)
+
+    def test_malformed_packet_identity_retains_reservation_on_first_and_later_reads(self):
+        for mode in ("enqueue", "later_material"):
+            for fact, bad_value in (("packet_hash", "invalid-digest"), ("packet_revision", ""),
+                                    ("packet_revision", "   "), ("packet_revision", 7)):
+                with self.subTest(mode=mode, fact=fact, value=bad_value):
+                    fixture = PacketGatewayTests()
+                    fixture.setUp()
+                    try:
+                        intent = None
+                        if mode == "later_material":
+                            def persist_only(intent, observations, **kwargs):
+                                fixture.store.prepare(intent)
+                                raise JournalFailure("simulated interruption after prepare")
+                            fixture.gateway._run = persist_only
+                            self.assertEqual(fixture.enqueue().status, "rejected")
+                            intent = fixture.store.intents("C1")[0].intent
+                        original = fixture.gateway.bundle.operator
+                        class MalformedIdentity:
+                            def __getattr__(self, name):
+                                return getattr(original, name)
+                            def read_receipt(self, request):
+                                reply = original.read_receipt(request)
+                                observations = [item.model_copy(update={"value": bad_value})
+                                    if item.fact == fact else item for item in reply.observations]
+                                return reply.model_copy(update={"observations": observations})
+                        fixture.gateway.bundle = replace(fixture.gateway.bundle, operator=MalformedIdentity())
+                        if mode == "enqueue":
+                            self.assertEqual(fixture.enqueue().status, "rejected")
+                            self.assertEqual(fixture.store.intents("C1"), ())
+                        else:
+                            try:
+                                fixture.gateway.read_material_authorities(intent)
+                                denied = False
+                            except GateDenied:
+                                denied = True
+                            self.assertTrue(denied, "Later material read must reject malformed typed packet identity")
+                            self.assertEqual(fixture.store.intents("C1")[0].intent, intent)
+                        self.assertEqual(fixture.store.checkpoint("C1").budget.active_seconds, 10,
+                            "Malformed packet identity must retain the full operator read reservation")
+                        self.assertEqual(fixture.world.effect_count("enqueue_handoff"), 0)
+                    finally:
+                        fixture.doCleanups()
+
+    def test_packet_owner_epoch_type_is_validated_before_ownership_read_settlement(self):
+        for bad_epoch in (False, 0.0):
+            with self.subTest(value=bad_epoch):
+                fixture = PacketGatewayTests()
+                fixture.setUp()
+                try:
+                    original = fixture.gateway.bundle.operator
+                    class MalformedOwner:
+                        def __getattr__(self, name):
+                            return getattr(original, name)
+                        def read_owner(self, request):
+                            reply = original.read_owner(request)
+                            return reply.model_copy(update={"observations": [
+                                item.model_copy(update={"value": bad_epoch}) if item.fact == "epoch" else item
+                                for item in reply.observations]})
+                    fixture.gateway.bundle = replace(fixture.gateway.bundle, operator=MalformedOwner())
+                    self.assertEqual(fixture.enqueue().status, "rejected")
+                    self.assertEqual(fixture.store.checkpoint("C1").budget.active_seconds, 10)
+                    self.assertEqual(fixture.store.intents("C1"), ())
+                finally:
+                    fixture.doCleanups()
+
 
 if __name__ == "__main__":
     unittest.main()

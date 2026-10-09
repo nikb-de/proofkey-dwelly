@@ -4,8 +4,11 @@ from contextlib import contextmanager
 import math
 from uuid import uuid4
 
-from .contracts import (ActionProposal, AuthContext, AuthorityReadback, CanonicalRequest, EffectIntent, PhaseCheckpoint, ReadRequest, RequestBinding,
-                        ReadTarget, RevisionVector, StopState, VerificationResult)
+from pydantic import TypeAdapter
+
+from .contracts import (ActionProposal, AuthContext, AuthorityReadback, CanonicalRequest, EffectIntent, Hash, Identifier,
+                        NonnegativeInt, OwnerState, PhaseCheckpoint, ReadRequest, RequestBinding,
+                        ReadTarget, Revision, RevisionVector, StopState, VerificationResult)
 from .identity import fingerprint, request_fingerprint, stable_action_id
 from .journal import JournalFailure
 from .policy import (BUSINESS, GateDenied, IDENTITY_FIELDS, OWNER_FIELDS, PolicyGate,
@@ -280,6 +283,10 @@ class ActionGateway:
                 raise GateDenied("scope_denied")
         def owner(read):
             current = values(read)
+            if packet:
+                for key, schema in (("ownership.owner", Identifier), ("ownership.state", OwnerState),
+                                    ("ownership.state_revision", Revision), ("ownership.epoch", NonnegativeInt)):
+                    TypeAdapter(schema).validate_python(current[key], strict=True)
             if (current["ownership.state"] != checkpoint.ownership_state
                     or current["ownership.state_revision"] != checkpoint.ownership_state_revision
                     or current["ownership.epoch"] != checkpoint.ownership_epoch
@@ -293,6 +300,9 @@ class ActionGateway:
                 raise GateDenied("scope_denied")
         def packet_scope(read):
             current = values(read)
+            for key, schema in (("operator.packet_hash", Hash), ("operator.packet_revision", Revision),
+                                ("operator.recipient", Identifier)):
+                TypeAdapter(schema).validate_python(current[key], strict=True)
             validate_packet_scope(current["operator.packet_catalog"], current["operator.packet_access"],
                 case_id=binding.case_id, object_id=binding.object_id, sender=binding.principal_id,
                 recipient=current["operator.recipient"], now=self.clock.now())
