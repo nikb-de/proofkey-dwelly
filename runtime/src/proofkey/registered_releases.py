@@ -399,7 +399,7 @@ class ReleaseRegistryV1:
             _id(pair[0])
             _require(type(pair[1]) is bytes)
             total += len(pair[1])
-            _require(len(pair[1]) <= 8 * _MIB and total <= 32 * _MIB, 'limit')
+            _require(0 < len(pair[1]) <= 8 * _MIB and total <= 32 * _MIB, 'limit')
         names = tuple(name for name, _ in records)
         _require(names == tuple(sorted(set(names))))
         result = []

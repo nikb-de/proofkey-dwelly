@@ -201,6 +201,15 @@ class ReleaseRouteTests(unittest.TestCase):
                 alias.commitments()
             self.assertEqual(caught.exception.code, 'invalid')
 
+    def test_commitments_reject_later_empty_envelope_before_parsing(self):
+        # The later zero-byte limit must be detected before parsing the earlier invalid envelope.
+        with tempfile.TemporaryDirectory() as d:
+            registry = registry_at(Path(d).resolve(strict=True))
+            object.__setattr__(registry, '_releases', (('A', b'{}'), ('B', b'')))
+            with self.assertRaises(RouteFoundationFailure) as caught:
+                registry.commitments()
+            self.assertEqual(caught.exception.code, 'limit')
+
     def test_public_inventory_preserves_route_release_bytes_and_registry_digest(self):
         # Re-encoding a release or changing the digest recipe breaks independent persisted expectations.
         import sqlite3
