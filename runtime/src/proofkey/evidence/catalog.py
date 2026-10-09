@@ -772,9 +772,12 @@ class EvidenceCatalog:
         if expected != record.lineage_hash:
             raise EvidenceAccessDenied("Evidence unavailable or denied")
         self._authorize(record, envelope, auth, purpose)
+        scopes = ()
         if processing_scope is not None:
+            scopes = (processing_scope,) if type(processing_scope) is SavedOriginalScope else processing_scope
+        for inherited in scopes:
             # Independent intersection on the actual record, never a fabricated grant.
-            self._authorize(record, {"scope": processing_scope.scope(), "policy": processing_scope.policy_id},
+            self._authorize(record, {"scope": inherited.scope(), "policy": inherited.policy_id},
                             auth, purpose)
         if limits is not None and record.source in {"saved-request-narrative", "saved-planning-snapshot-v1", "saved-synthetic-transcription", "saved-planning-evidence-v2"} and "processing" not in envelope:
             raise EvidenceAccessDenied("Evidence unavailable or denied")
@@ -792,8 +795,10 @@ class EvidenceCatalog:
                 binding = RequestBinding.model_validate(metadata["binding"])
                 _, scope = self._processing_scope(binding, auth, purpose)
                 if record.source == "saved-planning-evidence-v2":
-                    # V2 reads inherit both policies on the actual direct inputs/ancestors.
-                    processing_scope = scope
+                    # Add this V2 policy without losing any outer current-policy intersection.
+                    # Each ancestry level can add at most one scope; existing depth/count caps bind it.
+                    if scope not in scopes:
+                        scopes = (*scopes, scope)
                 raw_parents = metadata["parents"]
                 if type(raw_parents) is not list or len(raw_parents) > limits.max_inputs:
                     raise ValueError("Finite exact parent inventory required")
@@ -805,7 +810,7 @@ class EvidenceCatalog:
                     raise ValueError("Processing scope/parent mismatch")
                 for parent in parents:
                     current = self._get(parent.artifact_id, auth, purpose, active, seen, depth + 1,
-                                        processing_scope=processing_scope)
+                                        processing_scope=scopes)
                     if current != parent or current.case_id != record.case_id:
                         raise ValueError("Parent identity mismatch")
                     payload = _bounded_read(self.root / "objects" / current.original_hash, self.max_bytes, private=True)

@@ -79,7 +79,7 @@ class PlanningEvidenceCatalogTests(unittest.TestCase):
         grant = make_fixture_campaign(role=role, input_hashes=[r.original_hash for r in records],
             campaign_id="campaign-" + invocation_id)
         self.store.register_campaign(grant)
-        identity = ProcessorIdentity(case_id="C1", generation="G1", role=role,
+        identity = ProcessorIdentity(case_id="C1", generation=self.binding.generation, role=role,
             campaign_id=grant.campaign_id, permit_hash=grant.permit_hash, input_hashes=grant.input_hashes,
             provider=grant.provider, model=grant.model, endpoint=grant.endpoint, prompt_hash="2" * 64,
             version="v1", profile_version="v1", process_version="v1", deadline=DEADLINE)
@@ -620,6 +620,111 @@ class PlanningEvidenceCatalogTests(unittest.TestCase):
         payload = json.loads(self.catalog.read_original(empty.artifact_id, self.auth))
         self.assertEqual(payload["authority_observations"], [])
         self.assertEqual(payload["extraction_publications"][0]["assertion_bytes"][0]["claim"], "Damaged")
+
+    def nested_v2(self, *, publish_outer=False):
+        """Two public durable generations with independently registered current scopes."""
+        original_a, binding_a = self.original, self.binding
+        original_b = make_request(request_revision="v2", narrative="Review derived input.\n")
+        binding_b = make_binding(original_b, generation="G2", supersedes_generation="G1")
+        registered = {"G1": (binding_a, original_a, "scope-a"), "G2": (binding_b, original_b, "scope-b")}
+        self.nested_scope_denials = {"scope-a": set(), "scope-b": set()}
+        def original(binding):
+            if self.store.find_request(binding.case_id, binding.request_id, binding.request_revision,
+                    binding.consent_revision, binding.fingerprint) != binding:
+                raise ValueError("Exact public saved original required")
+            return self.store.original_request(binding.case_id, binding.generation)
+        def scope(binding, saved, auth, purpose):
+            item = registered.get(binding.generation)
+            if (item is None or (binding, saved) != item[:2] or auth != self.auth
+                    or self.clock.now() >= DEADLINE):
+                return None
+            raw = dict(allowed_actors=["U1"], case_id="C1", object_id="O1",
+                binding_hash=fingerprint(binding.model_dump(mode="json")),
+                original_request_hash=fingerprint(saved.model_dump(mode="json")), scope_id=item[2],
+                policy_id="local-policy", authorization_reference="local-proof",
+                provenance="synthetic_host_registration", expires_at=DEADLINE.isoformat())
+            return SavedOriginalScope(encoded(binding.model_dump(mode="json")), raw["original_request_hash"],
+                raw["scope_id"], encoded(raw), raw["policy_id"], raw["provenance"],
+                raw["authorization_reference"], DEADLINE)
+        def access(auth, record, saved_scope, purpose):
+            return (auth == self.auth and record.case_id == "C1" and saved_scope["allowed_actors"] == ("U1",)
+                and record.artifact_id not in self.nested_scope_denials.get(saved_scope.get("scope_id"), set()))
+        self.catalog = EvidenceCatalog(self.folder / "catalog", self.clock,
+            allowed_input_roots=[self.folder], access_resolver=access,
+            processing_bindings=ProcessingCatalogBindings(original, lambda b: self.store.checkpoint(b.case_id),
+                self.store.invocation, scope, profile_lookup=lambda b, o: self.profile))
+        path = self.folder / "nested-parent.txt"
+        path.write_bytes(b"Original damaged box")
+        parent = self.catalog.register(path, "C1", "synthetic-text",
+            {"allowed_actors": ["U1"], "scope_id": "opaque-parent"})
+        self.extraction((parent,), "extract-a")
+        record_a = self.register_evidence(("extract-a",))
+        self.store.admit(binding_b, original_b, make_checkpoint(binding=binding_b,
+            phase="window_gate", next_gate="reschedule", budget=self.store.checkpoint("C1").budget))
+        self.binding, self.original = binding_b, original_b
+        self.extraction((record_a,), "extract-b")
+        publication_b = self.catalog.publish_processing_output(binding_b, "extract-b", self.auth)
+        record_b = self.register_evidence(("extract-b",)) if publish_outer else None
+        return parent, record_a, record_b, publication_b, registered
+
+    def test_nested_v2_lawful_scopes_keep_exact_parents_and_idempotent_debt(self):
+        # Break: denying all cross-binding nested inputs avoids the missing intersection.
+        parent, record_a, record_b, publication_b, registered = self.nested_v2(publish_outer=True)
+        self.assertEqual(record_a.parent_hashes, [parent.original_hash])
+        self.assertEqual(record_b.parent_hashes, [record_a.original_hash])
+        self.assertEqual(publication_b.input_records(), (record_a,))
+        payload = json.loads(self.catalog.read_original(record_b.artifact_id, self.auth))
+        self.assertEqual(payload["checkpoint"]["binding"]["generation"], "G2")
+        self.assertEqual(payload["extraction_publications"][0]["input_record_bytes"][0]["artifact_id"], record_a.artifact_id)
+        before, checkpoint = self.files(), self.store.checkpoint("C1")
+        self.assertEqual(self.register_evidence(("extract-b",)), record_b)
+        self.assertEqual(self.catalog.publish_processing_output(self.binding, "extract-b", self.auth), publication_b)
+        self.assertEqual(self.files(), before)
+        self.assertEqual(self.store.checkpoint("C1"), checkpoint)
+        self.assertEqual(checkpoint.budget.role_allowances["extraction"].invocations, 2)
+        for generation, (_, original, _) in registered.items():
+            self.assertEqual(self.store.original_request("C1", generation), original)
+            self.assertIsNone(self.store.saved_result("C1", generation))
+
+    def test_nested_v2_outer_scope_denies_deeper_parent_before_new_envelope_bytes(self):
+        # Break: V2A replaces the B scope before checking the actual deeper parent P.
+        parent, record_a, _, publication_b, registered = self.nested_v2()
+        self.nested_scope_denials["scope-b"].add(parent.artifact_id)
+        before, checkpoint = self.files(), self.store.checkpoint("C1")
+        saved = self.store.invocation("extract-b")
+        self.assertEqual(self.catalog.get(parent.artifact_id, self.auth), parent)
+        self.assertEqual(self.catalog.get(record_a.artifact_id, self.auth), record_a)
+        for _ in range(2):
+            with self.assertRaises(ProcessingPublicationError) as denied:
+                self.register_evidence(("extract-b",))
+            self.assertEqual(denied.exception.code, "scope_denied")
+            with self.assertRaises(ProcessingPublicationError) as denied:
+                self.catalog.publish_processing_output(self.binding, "extract-b", self.auth)
+            self.assertEqual(denied.exception.code, "scope_denied")
+        self.assertEqual(self.files(), before)
+        self.assertEqual(self.store.checkpoint("C1"), checkpoint)
+        self.assertEqual(self.store.invocation("extract-b"), saved)
+        self.assertEqual(saved[1].status, "completed")
+        self.assertEqual(publication_b.input_records(), (record_a,))
+        for generation, (_, original, _) in registered.items():
+            self.assertEqual(self.store.original_request("C1", generation), original)
+            self.assertIsNone(self.store.saved_result("C1", generation))
+
+    def test_nested_v2_public_outer_read_keeps_current_scope_on_deeper_parent(self):
+        # Break: ordinary V2B reads discard B when they reach the nested V2A record.
+        from proofkey.evidence.catalog import EvidenceAccessDenied
+        parent, record_a, record_b, _, _ = self.nested_v2(publish_outer=True)
+        self.nested_scope_denials["scope-b"].add(parent.artifact_id)
+        before, checkpoint = self.files(), self.store.checkpoint("C1")
+        self.assertEqual(self.catalog.get(record_a.artifact_id, self.auth), record_a)
+        self.assertEqual(self.catalog.read_original(parent.artifact_id, self.auth), b"Original damaged box")
+        for _ in range(2):
+            with self.assertRaises(EvidenceAccessDenied):
+                self.catalog.get(record_b.artifact_id, self.auth)
+            with self.assertRaises(EvidenceAccessDenied):
+                self.catalog.read_original(record_b.artifact_id, self.auth)
+        self.assertEqual(self.files(), before)
+        self.assertEqual(self.store.checkpoint("C1"), checkpoint)
 
 
 if __name__ == "__main__":
