@@ -329,6 +329,12 @@ class AdmissionLedger:
         self._write_account(AdmissionAccount.model_validate(account_data))
 
     def admit(self, attempt_id, binding, request, checkpoint):
+        return self._admit(attempt_id, binding, request, checkpoint)
+
+    def admit_refusal(self, attempt_id, binding, request, checkpoint, expected_previous_binding):
+        return self._admit(attempt_id, binding, request, checkpoint, expected_previous_binding)
+
+    def _admit(self, attempt_id, binding, request, checkpoint, expected_previous_binding=None):
         binding, request = _typed(RequestBinding, binding), _typed(CanonicalRequest, request)
         with self.store._transaction():
             attempt = self.attempt(attempt_id)
@@ -338,7 +344,10 @@ class AdmissionLedger:
                     or attempt.claimed_case_id != binding.case_id or attempt.business_fingerprint != binding.fingerprint):
                 raise JournalFailure("Admission original input conflicts with immutable attempt")
             self.store._request_identity(binding, request)
-            self.store.admit(binding, request, checkpoint)
+            if expected_previous_binding is None:
+                self.store.admit(binding, request, checkpoint)
+            else:
+                self.store._admit_refusal(binding, request, checkpoint, expected_previous_binding)
             transferred = AdmissionAttempt.model_validate({**attempt.model_dump(), "state": "transferred"})
             self.store._db.execute("UPDATE admission_attempts SET attempt_json=?,state='transferred' WHERE attempt_id=?",
                 (transferred.model_dump_json(), attempt_id))

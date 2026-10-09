@@ -17,9 +17,10 @@ from pydantic import model_validator
 from .budget import BudgetExceeded, check_time, debit, initial_budget, preserve_budget, tool_timeout, validate_budget
 from .contracts import (CampaignPermit, CanonicalRequest, EffectIntent, InvocationRequest, InvocationReservation,
                         Hash, Identifier, NonnegativeFloat, NonnegativeInt, PositiveFloat, Revision, Timestamp,
-                        PhaseCheckpoint, ProcessingReceipt, RequestBinding, SavedResult,
-                        StopState, TransferIntent, VerificationResult, WaitState, WireModel)
+                        PhaseCheckpoint, ProcessingReceipt, ReadTarget, RequestBinding, SavedResult,
+                        ScopedReply, StopState, TransferIntent, VerificationResult, WaitState, WireModel)
 from .identity import fingerprint, request_fingerprint
+from .wait_contracts import ControlReadScopeV1, RefusalAdmissionHistoryV1, WaitRecordV1
 
 
 class JournalFailure(RuntimeError):
@@ -41,6 +42,7 @@ class CheckpointAudit(WireModel):
     kind: Literal["checkpoint"] = "checkpoint"
     checkpoint_hash: Hash
     entry_id: Identifier | None = None
+    refusal_history: RefusalAdmissionHistoryV1 | None = None
 
 
 class CampaignUsage(WireModel):
@@ -67,9 +69,15 @@ class EntryLease(WireModel):
     deadline: Timestamp
     state: Literal["active", "settled", "overrun"] = "active"
     elapsed_seconds: NonnegativeFloat | None = None
+    control_scope: ControlReadScopeV1 | None = None
 
     @model_validator(mode="after")
     def consistent_completion(self):
+        if self.entry_id.startswith("control:") != (self.control_scope is not None):
+            raise ValueError("Tagged control entry cannot decode as a legacy lease")
+        if self.control_scope is not None and (self.kind != "read" or self.subject_id is not None
+                or (self.case_id, self.generation) != (self.control_scope.binding.case_id, self.control_scope.binding.generation)):
+            raise ValueError("Control scope requires its exact original read lease")
         if self.reserved_seconds > 10.0 or self.deadline <= self.started_at or self.deadline > self.started_at + timedelta(seconds=self.reserved_seconds):
             raise ValueError("Lease must retain its bounded entry deadline")
         if self.state == "active" and self.elapsed_seconds is not None:
@@ -182,6 +190,46 @@ class CaseStore:
 
     def admit_from_attempt(self, attempt_id, binding, request, checkpoint):
         return self._admission.admit(attempt_id, binding, request, checkpoint)
+
+    def admit_refusal_after_stopped_reschedule(self, attempt_id, binding, request, checkpoint, expected_previous_binding):
+        """Restricted atomic storage admission; gateway must authenticate fresh sources."""
+        return self._admission.admit_refusal(attempt_id, binding, request, checkpoint, expected_previous_binding)
+
+    def _admit_refusal(self, binding, request, checkpoint, expected_previous_binding):
+        binding, request = _typed(RequestBinding, binding), _typed(CanonicalRequest, request)
+        checkpoint = _typed(PhaseCheckpoint, checkpoint)
+        expected = _typed(RequestBinding, expected_previous_binding)
+        current = self.checkpoint(binding.case_id)
+        predecessor = self.original_request(expected.case_id, expected.generation)
+        if (current.binding != expected or predecessor is None or predecessor.kind not in {"reschedule_window", "reschedule_exact"}
+                or not self.generation_stop(expected).requested or not current.stop.requested
+                or request.kind not in {"goods_refusal", "service_refusal"}
+                or binding.generation == expected.generation or binding.request_id == expected.request_id
+                or binding.supersedes_generation != expected.generation
+                or (binding.case_id, binding.object_id, binding.principal_id) !=
+                   (expected.case_id, expected.object_id, expected.principal_id)
+                or self._db.execute("SELECT 1 FROM requests WHERE case_id=? AND generation=?", (binding.case_id, binding.generation)).fetchone()
+                or checkpoint.binding != binding or checkpoint.phase != "intake" or checkpoint.next_gate != "extract_input"
+                or checkpoint.stop != StopState() or checkpoint.question_id is not None or checkpoint.awaited_fields
+                or checkpoint.observations or checkpoint.processing_status != "pending"
+                or checkpoint.ownership_state in {"pending", "transfer_pending", "stopped"}
+                or checkpoint.deadline > current.deadline):
+            raise JournalFailure("Refusal requires a fresh explicit intake and exact stopped reschedule predecessor")
+        self._request_identity(binding, request)
+        try:
+            budget = preserve_budget(checkpoint.budget, current.budget)
+        except ValueError as error:
+            raise JournalFailure("Refusal cannot reset shared case accounting") from error
+        budget = budget.model_copy(update={"deadline": min(budget.deadline, checkpoint.deadline)})
+        checkpoint = checkpoint.model_copy(update={"budget": budget})
+        self.bind(binding)
+        self.save_request(binding, request)
+        self._db.execute("UPDATE requests SET versions_json=? WHERE case_id=? AND generation=?",
+            (json.dumps(self._versions(checkpoint)), binding.case_id, binding.generation))
+        history = RefusalAdmissionHistoryV1(predecessor=current,
+            predecessor_input_hash=fingerprint(predecessor.model_dump(mode="json")), successor_binding=binding)
+        self._write_checkpoint(checkpoint, refusal_history=history)
+        self._admission.import_pending(binding.case_id)
 
     def _schema(self):
         if self._db is None:
@@ -329,9 +377,10 @@ class CaseStore:
     def _versions(value):
         return {key: getattr(value, key) for key in ("profile_version", "process_version", "policy_version")}
 
-    def _write_checkpoint(self, value, *, entry_id=None):
+    def _write_checkpoint(self, value, *, entry_id=None, refusal_history=None):
         self._db.execute("UPDATE cases SET checkpoint_json=?,revision=revision+1 WHERE case_id=?", (value.model_dump_json(), value.binding.case_id))
-        audit = CheckpointAudit(checkpoint_hash=fingerprint(value.model_dump(mode="json")), entry_id=entry_id)
+        audit = CheckpointAudit(checkpoint_hash=fingerprint(value.model_dump(mode="json")), entry_id=entry_id,
+            refusal_history=refusal_history)
         self._db.execute("INSERT INTO audit(case_id,event_json) VALUES(?,?)", (value.binding.case_id, audit.model_dump_json()))
 
     def save_checkpoint(self, checkpoint: PhaseCheckpoint):
@@ -376,8 +425,50 @@ class CaseStore:
             self._db.execute("UPDATE requests SET stop_requested=1 WHERE case_id=? AND generation=?", (case_id, generation))
             if value.binding.generation == generation:
                 data = value.model_dump()
-                data["stop"] = StopState(requested=True)
-                self._write_checkpoint(PhaseCheckpoint.model_validate(data))
+                data["stop"] = value.stop if value.stop.requested else StopState(requested=True)
+                value = PhaseCheckpoint.model_validate(data)
+                self._write_checkpoint(value)
+            for row in self._db.execute("SELECT question_id FROM waits WHERE case_id=? AND generation=?", (case_id, generation)).fetchall():
+                record = self._wait_value(row[0])
+                if isinstance(record, WaitRecordV1) and record.lifecycle == "pending":
+                    stopped = record.model_copy(update={"lifecycle": "stopped", "successor_hash": fingerprint(value.model_dump(mode="json"))})
+                    self._db.execute("UPDATE waits SET wait_json=? WHERE question_id=?", (stopped.model_dump_json(), row[0]))
+
+    def generation_stop(self, binding: RequestBinding):
+        """Original generation stop bookkeeping, never a caller permission grant."""
+        binding = _typed(RequestBinding, binding)
+        self._assert_binding(binding)
+        stopped = bool(self._db.execute("SELECT stop_requested FROM requests WHERE case_id=? AND generation=?",
+            (binding.case_id, binding.generation)).fetchone()[0])
+        current = self.checkpoint(binding.case_id)
+        if current.binding == binding:
+            return current.stop
+        for row in self._db.execute("SELECT event_json FROM audit WHERE case_id=? ORDER BY sequence DESC", (binding.case_id,)).fetchall():
+            history = _read(CheckpointAudit, row[0]).refusal_history
+            if history is not None and history.predecessor.binding == binding:
+                self._validate_refusal_history(history)
+                return history.predecessor.stop
+        return StopState(requested=stopped)
+
+    def _validate_refusal_history(self, history):
+        old = history.predecessor.binding
+        self._assert_binding(old)
+        self._assert_binding(history.successor_binding)
+        original = self.original_request(old.case_id, old.generation)
+        successor = self.original_request(old.case_id, history.successor_binding.generation)
+        row = self._db.execute("SELECT versions_json,stop_requested FROM requests WHERE case_id=? AND generation=?",
+            (old.case_id, old.generation)).fetchone()
+        if (original is None or original.kind not in {"reschedule_window", "reschedule_exact"}
+                or successor is None or successor.kind not in {"goods_refusal", "service_refusal"}
+                or history.predecessor_input_hash != fingerprint(original.model_dump(mode="json"))
+                or not row[1] or _json(row[0]) != self._versions(history.predecessor)):
+            raise JournalFailure("Refusal history differs from exact immutable predecessor/stop")
+        if not self._audited_checkpoint_hash(old.case_id, fingerprint(history.predecessor.model_dump(mode="json"))):
+            raise JournalFailure("Refusal predecessor checkpoint has no original audit")
+
+    def _audited_checkpoint_hash(self, case_id, checkpoint_hash):
+        return any(_read(CheckpointAudit, row[0]).checkpoint_hash == checkpoint_hash
+            for row in self._db.execute("SELECT event_json FROM audit WHERE case_id=?", (case_id,)).fetchall())
 
     def _intent(self, action_id):
         self._schema()
@@ -452,7 +543,7 @@ class CaseStore:
                 if record.state != "prepared":
                     raise JournalFailure("Entry already consumed; reconcile original action")
                 budget = debit(budget, "effects", 1, now, handoff=intent.operation == "enqueue_handoff")
-                if intent.operation == "send_clarification":
+                if intent.operation == "send_clarification" and not self._wait_charged_clarification(intent):
                     budget = debit(budget, "clarifications", 1, now)
             budget = debit(budget, "tool_calls", 1, now)
             attempt = budget.retries.get(intent.action_id, 0) + 1
@@ -462,7 +553,7 @@ class CaseStore:
             self._db.execute("UPDATE intents SET dispatch_state='dispatching',verification_json=NULL WHERE action_id=?", (intent.action_id,))
             return lease
 
-    def _reserve_entry(self, checkpoint, budget, now, entry_id, kind, subject_id=None, *, scope_deadline=None, scope_binding=None):
+    def _reserve_entry(self, checkpoint, budget, now, entry_id, kind, subject_id=None, *, scope_deadline=None, scope_binding=None, control_scope=None):
         deadline = min(budget.deadline, scope_deadline) if scope_deadline is not None else budget.deadline
         seconds = min(tool_timeout(budget, now), (deadline - now).total_seconds())
         if seconds <= 0:
@@ -471,7 +562,7 @@ class CaseStore:
         binding = checkpoint.binding if scope_binding is None else scope_binding
         lease = EntryLease(entry_id=entry_id, case_id=binding.case_id, generation=binding.generation,
             kind=kind, subject_id=subject_id, reserved_seconds=seconds, started_at=now,
-            deadline=min(deadline, now + timedelta(seconds=seconds)))
+            deadline=min(deadline, now + timedelta(seconds=seconds)), control_scope=control_scope)
         self._db.execute("INSERT INTO entries VALUES(?,?,?,?,?,?,?)", (lease.entry_id, lease.case_id,
             lease.generation, lease.kind, lease.subject_id, lease.model_dump_json(), lease.state))
         return budget, lease
@@ -519,6 +610,28 @@ class CaseStore:
             self._write_checkpoint(PhaseCheckpoint.model_validate({**current.model_dump(), "budget": budget}), entry_id=lease.entry_id)
             return lease
 
+    def begin_control_read(self, binding: RequestBinding, target, purpose, now):
+        """Pre-charge narrow physical identity/control reads, including stopped originals."""
+        binding, target = _typed(RequestBinding, binding), _typed(ReadTarget, target)
+        with self._transaction():
+            self._admission.require_imported(binding.case_id)
+            self._assert_binding(binding)
+            original = self.original_request(binding.case_id, binding.generation)
+            if original is None:
+                raise JournalFailure("Control read requires exact durable original input")
+            try:
+                scope = ControlReadScopeV1(binding=binding, original_input_hash=fingerprint(original.model_dump(mode="json")),
+                    target=target, purpose=purpose)
+            except (ValueError, TypeError) as error:
+                raise JournalFailure("Invalid control purpose/target") from error
+            current = self.checkpoint(binding.case_id)
+            budget = debit(current.budget, "tool_calls", 1, now)
+            budget, lease = self._reserve_entry(current, budget, now,
+                "control:" + fingerprint(scope.model_dump(mode="json")) + ":" + uuid4().hex, "read",
+                scope_binding=binding, control_scope=scope)
+            self._write_checkpoint(current.model_copy(update={"budget": budget}), entry_id=lease.entry_id)
+            return lease
+
     def entry(self, entry_id):
         self._schema()
         row = self._db.execute("SELECT * FROM entries WHERE entry_id=?", (entry_id,)).fetchone()
@@ -534,6 +647,13 @@ class CaseStore:
             if (self.original_request(lease.case_id, lease.generation) is None or result is None
                     or lease.subject_id != fingerprint(result.model_dump(mode="json"))):
                 raise JournalFailure("Disclosure lease differs from immutable historical scope")
+        if lease.control_scope is not None:
+            scope = lease.control_scope
+            self._assert_binding(scope.binding)
+            original = self.original_request(lease.case_id, lease.generation)
+            if (original is None or scope.original_input_hash != fingerprint(original.model_dump(mode="json"))
+                    or not lease.entry_id.startswith("control:" + fingerprint(scope.model_dump(mode="json")) + ":")):
+                raise JournalFailure("Control lease differs from immutable original input")
         return lease
 
     def finish_entry(self, entry_id, elapsed_seconds):
@@ -798,15 +918,169 @@ class CaseStore:
                 wait.binding.generation, wait.model_dump_json()))
 
     def wait(self, question_id):
+        value = self._wait_value(question_id)
+        return value.wait if isinstance(value, WaitRecordV1) else value
+
+    def _wait_value(self, question_id):
         self._schema()
         row = self._db.execute("SELECT * FROM waits WHERE question_id=?", (question_id,)).fetchone()
         if row is None:
             return None
-        value = _read(WaitState, row["wait_json"])
-        self._assert_binding(value.binding)
-        if (value.question_id, value.binding.case_id, value.binding.generation) != (row["question_id"], row["case_id"], row["generation"]):
+        raw = _json(row["wait_json"])
+        value = _read(WaitRecordV1 if isinstance(raw, dict) and "kind" in raw else WaitState, row["wait_json"])
+        wait = value.wait if isinstance(value, WaitRecordV1) else value
+        self._assert_binding(wait.binding)
+        if (wait.question_id, wait.binding.case_id, wait.binding.generation) != (row["question_id"], row["case_id"], row["generation"]):
             raise JournalFailure("Wait scope mismatch")
+        if isinstance(value, WaitRecordV1):
+            row_versions = self._db.execute("SELECT versions_json FROM requests WHERE case_id=? AND generation=?",
+                (wait.binding.case_id, wait.binding.generation)).fetchone()[0]
+            if _json(row_versions) != self._versions(value.origin_checkpoint):
+                raise JournalFailure("Wait differs from frozen generation versions")
+            if not self._audited_checkpoint_hash(wait.binding.case_id, value.origin_hash):
+                raise JournalFailure("Wait original control checkpoint has no committed audit")
+            if value.successor_hash is not None and not self._audited_checkpoint_hash(wait.binding.case_id, value.successor_hash):
+                raise JournalFailure("Wait disposition has no committed successor audit")
+            try:
+                validate_budget(wait.budget)
+            except ValueError as error:
+                raise JournalFailure("Wait accounting is incompatible") from error
         return value
+
+    def load_wait_record(self, question_id):
+        value = self._wait_value(question_id)
+        if not isinstance(value, WaitRecordV1):
+            raise JournalFailure("Unknown or legacy question has no resumable scope")
+        return value
+
+    def create_wait_atomic(self, record: WaitRecordV1, now):
+        """Persist bounded scope/debit before send; keep the physical origin active."""
+        record = _typed(WaitRecordV1, record)
+        with self._transaction():
+            self._admission.require_imported(record.wait.binding.case_id)
+            existing = self._wait_value(record.wait.question_id)
+            if existing is not None:
+                if existing != record:
+                    raise JournalFailure("Immutable question conflict")
+                return existing.wait
+            current = self.checkpoint(record.wait.binding.case_id)
+            self._assert_binding(record.wait.binding)
+            if (current != record.origin_checkpoint or record.lifecycle != "pending" or now != record.created_at
+                    or self.original_request(current.binding.case_id, current.binding.generation) is None):
+                raise JournalFailure("Wait creation requires exact current original control checkpoint")
+            if self._db.execute("SELECT 1 FROM intents WHERE action_id=?", (record.communication_action_id,)).fetchone():
+                communication = self._intent(record.communication_action_id)
+                if (communication.state != "prepared" or communication.intent.binding != current.binding
+                        or self._versions(communication.intent) != self._versions(current)
+                        or (communication.intent.operation == "send_clarification" and
+                            (communication.intent.arguments.get("question_id") != record.wait.question_id
+                             or communication.intent.arguments.get("recipient") != record.wait.recipient))):
+                    raise JournalFailure("Wait must be persisted before its exact original communication enters")
+            check_time(current.budget, now)
+            for row in self._db.execute("SELECT question_id FROM waits WHERE case_id=? AND generation=?",
+                    (current.binding.case_id, current.binding.generation)).fetchall():
+                old = self._wait_value(row[0])
+                if isinstance(old, WaitRecordV1) and (old.lifecycle == "pending" or old.communication_action_id == record.communication_action_id):
+                    raise JournalFailure("Question or physical communication already scoped")
+            budget = current.budget
+            if record.communication_edge.operation == "send_clarification":
+                budget = debit(budget, "clarifications", 1, now)
+            self._db.execute("INSERT INTO waits VALUES(?,?,?,?)", (record.wait.question_id, current.binding.case_id,
+                current.binding.generation, record.model_dump_json()))
+            self._write_checkpoint(current.model_copy(update={"budget": budget}))
+            return record.wait
+
+    def _wait_charged_clarification(self, intent):
+        current = self.checkpoint(intent.binding.case_id)
+        for row in self._db.execute("SELECT question_id FROM waits WHERE case_id=? AND generation=?",
+                (intent.binding.case_id, intent.binding.generation)).fetchall():
+            value = self._wait_value(row[0])
+            if isinstance(value, WaitRecordV1) and value.communication_action_id == intent.action_id:
+                if (value.communication_edge.operation != intent.operation or value.lifecycle != "pending"
+                        or value.wait.binding != intent.binding or self._versions(value.origin_checkpoint) != self._versions(intent)
+                        or value.origin_checkpoint.phase != current.phase
+                        or intent.arguments.get("question_id") != value.wait.question_id
+                        or intent.arguments.get("recipient") != value.wait.recipient
+                        or (current.ownership_state, current.ownership_state_revision, current.ownership_epoch) !=
+                           (value.owner_state, value.owner_revision, value.owner_epoch)
+                        or (intent.ownership_state_revision, intent.ownership_epoch) != (value.owner_revision, value.owner_epoch)):
+                    raise JournalFailure("Clarification intent differs from its pre-send scope")
+                return True
+        return False
+
+    def _current_wait(self, question_id, expected_current):
+        expected = _typed(PhaseCheckpoint, expected_current)
+        record = self.load_wait_record(question_id)
+        current = self.checkpoint(record.wait.binding.case_id)
+        if (current != expected or record.lifecycle != "pending" or current.binding != record.wait.binding
+                or self._versions(current) != self._versions(record.origin_checkpoint)
+                or current.stop.requested or self.generation_stop(current.binding).requested
+                or current.question_id != question_id or current.phase != record.wait_phase
+                or current.awaited_fields != record.wait.awaited_fields
+                or (current.ownership_state, current.ownership_state_revision, current.ownership_epoch) !=
+                   (record.owner_state, record.owner_revision, record.owner_epoch)):
+            raise JournalFailure("Question is not pending in the exact current control context")
+        return record, current
+
+    def _wait_successor(self, record, current, successor, edge):
+        successor = _typed(PhaseCheckpoint, successor)
+        if (successor.binding != current.binding or self._versions(successor) != self._versions(current)
+                or successor.phase != edge.target or successor.deadline > current.deadline
+                or not any(e.origin == successor.phase and e.operation == successor.next_gate for e in record.process.edges)):
+            raise JournalFailure("Successor must retain its graph-specific declared continuation")
+        try:
+            budget = preserve_budget(successor.budget, current.budget)
+        except ValueError as error:
+            raise JournalFailure("Wait successor cannot reset case budgets") from error
+        data = successor.model_dump()
+        data.update(budget=budget, deadline=min(current.deadline, successor.deadline), stop=current.stop,
+            ownership_state=current.ownership_state, ownership_state_revision=current.ownership_state_revision,
+            ownership_epoch=current.ownership_epoch, observations=[], question_id=None, awaited_fields=[])
+        data["budget"] = budget.model_copy(update={"deadline": min(budget.deadline, data["deadline"])})
+        return PhaseCheckpoint.model_validate(data)
+
+    def _finish_wait(self, record, successor, lifecycle, **receipt):
+        finished = record.model_copy(update={"lifecycle": lifecycle,
+            "successor_hash": fingerprint(successor.model_dump(mode="json")), **receipt})
+        self._db.execute("UPDATE waits SET wait_json=? WHERE question_id=?", (finished.model_dump_json(), record.wait.question_id))
+        self._write_checkpoint(successor)
+        return successor
+
+    def consume_wait_reply_atomic(self, question_id, expected_current, reply, successor, now):
+        """One-use storage transition; authentic source/reply authority is external."""
+        reply = _typed(ScopedReply, reply)
+        with self._transaction():
+            record, current = self._current_wait(question_id, expected_current)
+            check_time(current.budget, now)
+            if (reply.question_id != question_id or reply.binding != current.binding
+                    or reply.actor_id != record.wait.recipient
+                    or reply.request_revision != current.binding.request_revision
+                    or reply.consent_revision != current.binding.consent_revision
+                    or reply.owner_state_revision != record.owner_revision
+                    or set(reply.fields) != set(record.wait.awaited_fields)
+                    or not record.created_at <= reply.received_at <= now < record.wait.expires_at):
+                raise JournalFailure("Reply differs from pending immutable question scope")
+            successor = self._wait_successor(record, current, successor, record.accept_edge)
+            return self._finish_wait(record, successor, "answered",
+                accepted_reply_hash=fingerprint(reply.model_dump(mode="json")), accepted_actor=reply.actor_id,
+                accepted_reply=reply)
+
+    def expire_wait_atomic(self, question_id, expected_current, successor, now):
+        with self._transaction():
+            record, current = self._current_wait(question_id, expected_current)
+            if not hasattr(now, "utcoffset") or now.utcoffset() is None or now < record.wait.expires_at:
+                raise JournalFailure("Wait requires an observed finite expiry")
+            successor = self._wait_successor(record, current, successor, record.expiry_edge)
+            return self._finish_wait(record, successor, "expired")
+
+    def stop_waits_atomic(self, binding, expected_current):
+        binding, expected = _typed(RequestBinding, binding), _typed(PhaseCheckpoint, expected_current)
+        with self._transaction():
+            current = self.checkpoint(binding.case_id)
+            if current != expected or current.binding != binding:
+                raise JournalFailure("Stop requires exact current control checkpoint")
+            self.set_stop(binding.case_id, binding.generation)
+            return self.checkpoint(binding.case_id)
 
     def save_transfer(self, intent: TransferIntent, state="prepared"):
         intent = _typed(TransferIntent, intent)
@@ -858,4 +1132,8 @@ class CaseStore:
             audit = _read(CheckpointAudit, row[1])
             if audit.entry_id is not None and self.entry(audit.entry_id).case_id != row[0]:
                 raise JournalFailure("Audit references another case entry")
+            if audit.refusal_history is not None:
+                if audit.refusal_history.predecessor.binding.case_id != row[0]:
+                    raise JournalFailure("Refusal audit history belongs to another case")
+                self._validate_refusal_history(audit.refusal_history)
         self._admission.validate_all()
