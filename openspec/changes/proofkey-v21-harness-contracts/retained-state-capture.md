@@ -6,7 +6,11 @@
 
 RetainedStateClock has now()->aware datetime and monotonic()->finite float. Frozen/slotted RetainedStateLimitsV1 fields/default/hard ceilings: max_rows4096, max_row_bytes262144, max_payload_bytes4194304, max_capture_seconds5.0, max_sqlite_steps1000000. Exact positive types, no bool/nonfinite/zero/negative; trusted limits may only lower ceilings.
 
+max_row_bytes counts the exact complete canonical encoded row array including brackets, commas and scalar escaping; necessary raw-length or conservative expansion estimates cannot replace exact-limit acceptance.
+
 Frozen/slotted RetainedStateSnapshotV1 contains exact kind="case-store-retained-state-v1", schema_version=1, schema_hash, complete payload bytes, content_hash=SHA256(payload), table_counts tuple of(table-name,int), total_rows, captured_at, finished_at, elapsed_seconds. Validate detached immutable exact types, canonical complete bytes and count/hash/timing consistency. Complete payload is private original content, never automatic command/export material, authority proof, compatibility or approval. No arbitrary paths/SQL/filters/case lists/release hashes/pending-intent shortcuts. Pure companion encoding has no DB/source/registry access.
+
+captured_at preserves supplied execution.captured_at; finished_at is the actual final UTC sample; elapsed_seconds is the actual monotonic difference from original captured_monotonic, including setup. UTC values must be aware/nondecreasing and elapsed finite/nonnegative within the original bounded duration, without assuming wall-clock and monotonic deltas are identical.
 
 CaseStore.capture_retained_state(*,execution:ExecutionContext,clock:RetainedStateClock,limits:RetainedStateLimitsV1=RetainedStateLimitsV1())->RetainedStateSnapshotV1 is creator-thread-only, open, no active transaction/execution_scope. It requires the exact supplied original UTC/monotonic context, original duration at most max_capture_seconds and unexpired current window; no fresh/recaptured anchor, timing renewal or budget funding.
 
@@ -15,6 +19,8 @@ CaseStore.capture_retained_state(*,execution:ExecutionContext,clock:RetainedStat
 Include ALL16 fixed schema tables including empty tables and EVERY exact checked-in column/scalar: admission_accounts/admission_attempts/admission_audit/admission_entries/audit/campaigns/cases/entries/intents/invocations/original_requests/requests/results/schema_meta/transfers/waits. Tables lexical order, columns schema order, rows explicit primary-key order: claimed_case_id/attempt_id/sequence/entry_id/sequence/permit_hash/case_id/entry_id/action_id/invocation_id/(case_id,generation)/(case_id,generation)/(case_id,generation)/singleton/transfer_id/question_id respectively.
 
 Canonical UTF-8 JSON payload contains fixed domain, schema_version, exact actual checked schema DDL inventory(type,name,sql) and tables[{name,columns,rows}], sorted object keys/compact separators/UTF-8/noNaN. Every row's SQL TEXT/INTEGER/NULL permitted by fixed schema is retained; stored JSON stays exact original TEXT, not model projection/reserialization. Full schema participates in content_hash; timing does not, so unchanged logical state is stable across reopening/capture times. Derive counts from actual complete rows, not supplied assertions. Schema equality/version, unknown/missing/extra objects/columns and invalid scalar types fail closed.
+
+schema_meta's "singleton" order means its single validated version row, not a nonexistent singleton column or schema change.
 
 ## One bounded read transaction
 
