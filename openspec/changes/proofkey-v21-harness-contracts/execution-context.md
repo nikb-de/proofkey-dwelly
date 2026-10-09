@@ -40,11 +40,15 @@ Full declared account pacing must fit both UTC and captured monotonic allowance.
 
 Every read uses the existing admission/control/ordinary/original reservation selection. Outbound ReadRequest deadline is min(current cutoff, exact original/current scope, committed lease); gateway effects likewise include tagged wait expiry. No callback rebuild, altered content/key, budget reset or new ownership grant. Original readbacks cannot begin after expiry.
 
+In context-aware paths, an individual committed slice may expire before the overall host window. Immediately before each physical read/effect, resample the host/UTC cutoff and monotonic elapsed since the pre-reservation anchor; elapsed >= lease.reserved_seconds, invalid or reversed measurement blocks entry with full conservative debt/unknown state. A timely outgoing deadline is additionally capped by observed UTC now + (lease.reserved_seconds - elapsed), so a frozen/backwards UTC clock cannot restore slice time. Retain every existing original/wait/host/lease limit. DefaultNone remains the legacy measurement route; this is not a cancellation or on-time-return promise.
+
 Replay still requires current scoped disclosure proof/binding/ACL and returns the exact historical result/as-of/generation only if that read is lawful. No expired public entry discloses saved details. A backwards UTC shift may deny evidence but never restore elapsed allowance.
 
 ## Elapsed/debt rules
 
 Context-aware transport captures a monotonic anchor immediately before public reservation; it conservatively includes lock/commit/setup time rather than inventing a monotonic start from a persisted UTC lease. Known timely completion can settle actual measured duration; unknown/invalid/throw/interruption/failed finalization retains full slice. Reversed/nonfinite elapsed rejects without refund. An overrun cannot initiate readback or be described as on-time success. Factual already-verified evidence is not erased just because later local finalization runs past a scheduling cutoff; the future host/batch records actual finish/overrun separately.
+
+Absolute monotonic observations and anchors may have any finite origin, including negative, matching approved ExecutionContext. Their elapsed difference must be finite/nonnegative and current observation cannot precede capture/anchor. Do not apply a duration's nonnegative rule to an absolute clock origin.
 
 Default None preserves existing gateway/replay measurement behavior and existing invocation monotonic checks. No SystemClock or native cancellation is claimed here. Hard exit preserves predebit; reopening never recaptures a free execution context for the same host run.
 
