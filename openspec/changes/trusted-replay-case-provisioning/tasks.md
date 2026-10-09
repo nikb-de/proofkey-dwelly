@@ -8,21 +8,21 @@
 
 ## 2. Preparation and trusted composition
 
-- [ ] 2.1 Add failing tests for strict bounded case/fixture validation, fixed-family preparation and no execution/automatic authority.
-- [ ] 2.2 Implement private exclusive preparation, immutable source snapshots and honest existing synthetic declarations with stage-specific failure evidence.
-- [ ] 2.3 Add failing CLI/library tests for exact optional composition, explicit grants, default compatibility and input authority rejection.
-- [ ] 2.4 Implement trusted configuration construction and forwarding without changing host/admission/engine policy or parser authority.
-- [ ] 2.5 Independently review implementation and fix verified issues; preserve original cases and denial contracts.
+- [x] 2.1 Add failing tests for strict bounded case/fixture validation, fixed-family preparation and no execution/automatic authority.
+- [x] 2.2 Implement private exclusive preparation, immutable source snapshots and honest existing synthetic declarations with stage-specific failure evidence.
+- [x] 2.3 Add failing CLI/library tests for exact optional composition, explicit grants, default compatibility and input authority rejection.
+- [x] 2.4 Implement trusted configuration construction and forwarding without changing host/admission/engine policy or parser authority.
+- [x] 2.5 Independently review implementation and fix verified issues; preserve original cases and denial contracts. Final scoped re-review cleared I1/I2/M1 at `80e0d6f`.
 
 ## 3. Evidence and regression
 
 - [x] 3.1 Prepare independent new window and goods fixtures/requests and separate private roots; assert changed business fingerprints. Candidate `c26d743`, Task 4 installed receipt.
-- [x] 3.2 Exercise four positive installed positions and representative negative positions; retain actual claims/routes/source/journal/export/closure evidence. Review-fix candidate `da11e76`: 4/4 positives and 7/7 negatives; final full regression/review remain separate gates.
-- [ ] 3.3 Check filesystem/proof/grant/pin/source mismatch, malformed input, partial preparation and occupied/ambiguous-state behavior.
-- [ ] 3.4 Run focused regressions and one frozen full suite; retain source stability and installation/import evidence without new downloads or live providers.
+- [x] 3.2 Exercise four positive installed positions and representative negative positions; retain actual claims/routes/source/journal/export/closure evidence. Final candidate `80e0d6f`: 4/4 positives and 7/7 negatives; five-attempt totals 16/20 positive complete-check passes and 34/35 negatives. Historical `da11e76` and failed attempts remain retained.
+- [x] 3.3 Check filesystem/proof/grant/pin/source mismatch, malformed input, partial preparation and occupied/ambiguous-state behavior.
+- [x] 3.4 Run focused regressions and one frozen full suite; retain source stability and installation/import evidence without new downloads or live providers. Frozen `ea0aa4e` runtime matches `80e0d6f`: 1,769 run, 1,768 passed, one environment-dependent skip separately passed, zero failures/errors; 272 files and HEAD unchanged. Exact separate denominators and hashes: `docs/verification/2026-10-09-trusted-replay-cases.md`.
 
 ## 4. Completion
 
-- [x] 4.1 Update support/docs with the exact trusted Python-hook scope and remaining manifest/native/process/control/assessment limits. J06 remains open pending final gates.
-- [ ] 4.2 Obtain final independent review and reconcile the narrow J06 evidence; keep all unrelated items open.
+- [x] 4.1 Update support/docs with the exact trusted Python-hook scope and remaining manifest/native/process/control/assessment limits. J06 remains open pending strict final validation and archival.
+- [x] 4.2 Obtain final independent review and reconcile the narrow J06 evidence; keep all unrelated items open. Whole-change C0/I2/M1 followed by scoped I1/I2/M1 clearance at `80e0d6f`; no new finding in the fix diff.
 - [ ] 4.3 Archive only this completed child after acceptance; keep unfinished parent specifications open.

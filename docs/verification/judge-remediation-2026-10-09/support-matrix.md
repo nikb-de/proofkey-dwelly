@@ -17,10 +17,13 @@ J06 adds an opt-in trusted Python hook: `SyntheticCaseReleaseSpecV1`,
 separately supplies a review resolver and transport resolver, then explicitly
 selects its prepared release through the existing library or `cli.main` API.
 Candidate `80e0d6f` passed four fresh installed new-case positions and seven
-negative positions. Scoped final-fix re-review passed; final full regression
-and archival remain pending.
-See [J06 verification](../2026-10-09-trusted-replay-cases.md) for the failed earlier
-checker attempt, exact target, hashes, return-initiation boundary and remaining
+negative positions. Scoped final-fix re-review and frozen regression passed:
+1,769 tests run, 1,768 passed, one environment-dependent macOS alias skip,
+zero failures/errors; the skipped test separately passed with inherited macOS
+TMPDIR. Strict final validation and archival remain pending.
+See [J06 verification](../2026-10-09-trusted-replay-cases.md) for all five
+attempts (16/20 positive complete-check passes, 34/35 negatives), exact target,
+hashes, return-initiation boundary and remaining
 gates. No public authority flag, manifest launcher, native connector or API
 composition selector was added.
 
@@ -50,9 +53,9 @@ The API is created explicitly with `create_app(...)`, trusted factory/resolver/r
 
 | Capability | Core / trusted synthetic fixture | Builtin public reachability | Registered bridge / live limit |
 |---|---|---|---|
-| Window rescheduling | Finite process and authoritative readback implemented. | Fixed window example. | Same fixed example can be registered; still synthetic. |
+| Window rescheduling | Finite process and authoritative readback implemented. | Fixed window example. | Bounded trusted preparation also accepts an independently supplied window case; installed library/trusted-CLI evidence verified. Still synthetic. |
 | Exact-slot rescheduling / confirmation | Core process and wait handling exist; `test_workflows.py:73` covers exact-slot behavior. | No builtin exact-slot release: host release constructor permits only window/goods kinds (`host.py:74-78`). | No exact-slot registration through current bridge. |
-| Whole-order goods refusal + return | Separate refusal and return effects, with partial/unknown states. | Fixed goods example. | Supported fixed goods admission. Verified return creation means initiated return, not receipt of goods or payment. `test_workflows.py:83-130`; `verifier.py:29-32`. |
+| Whole-order goods refusal + return | Separate refusal and return effects, with partial/unknown states. | Fixed goods example. | Bounded trusted preparation also accepts an independently supplied goods case; installed library/trusted-CLI evidence verified. Return creation means initiated return, not receipt of goods or payment. `test_workflows.py:83-130`; `verifier.py:29-32`. |
 | Completed-service refusal + operator handoff | Implemented; test source checks verified refusal and queue receipt, plus handoff rejection preserving refusal (`test_workflows.py:132-154`). | No builtin service release. | Host constructor excludes the kind. No public registered service receipt; no native operator connection. |
 | Customer/operator clarification | `WaitService` and scoped replies exist (`engine.py:65,363-384`), with source authority and actor checks. | Command routing exists; builtin fixed positives are not positive clarification examples. | Registered reply denied. Scripted/simulated replies must be labeled; external human response is not fabricated. |
 | Durable stop / original-effect recovery | Core code and test sources exist, including process exit. | Same-owner stop has source test support; positive restart behavior must be qualified separately. | Registered controls denied; pending prepared/sealed claims block new entry/reopen (`host_admission.py:469-471,606,662`). |
@@ -85,7 +88,7 @@ The world records conditional idempotent effects and original readback separatel
 1. Read the [current installed-target guide](../../../runtime/README.md#installed-target) or the source-checkout recipe (discovery reference: `runtime/README.md:7-36`), then select **one of the two fixed replay examples**. Python >=3.11 and exact core dependency versions are declared in `runtime/pyproject.toml`; optional API and API-test dependencies are separate. Only CPython 3.12.14 / macOS arm64 has the installed evidence above; the version declarations do not qualify other environments.
 2. Use a new temporary launch directory for each example, preserve the absolute runtime source path, and keep the exact documented request and replay dates. The default CLI creates `.proofkey/resources`, `.proofkey/inventories` and `.proofkey/runs` under its working directory. Do not point it at an unrelated existing state directory or edit fixture facts to make an outcome succeed.
 3. For an application, construct trusted clock/resolver/registry/limits and one creator-owned `HostDispatcher`; use `run_command` or `run_batch` with explicit original execution and publication bounds (`batch.py:22-38,234-235,341-342`). Close the owner and preserve its receipt. API users must call `create_app` with the same trusted inputs plus a real transport-proof mapping; no global ASGI app is supplied.
-4. Use the registered admission bridge only when independently supplying its exact executable/profile/resource binding and synthetic review resolver. It requires a fresh isolated root and dedicated control stores. It currently enables fresh fixed-case runs only. Do not try to enable it through command JSON or copy a stored claim as proof.
+4. Use the registered admission bridge only when independently supplying its exact executable/profile/resource binding and synthetic review resolver. It requires a fresh isolated root and dedicated control stores. The [trusted Python example](../../../runtime/examples/registered_case_bootstrap.py) prepares independent structured window/goods cases within the fixed family; [J06 evidence](../2026-10-09-trusted-replay-cases.md) records the installed results. Do not try to enable it through command JSON or copy a stored claim as proof.
 5. Inspect the returned result, export and shutdown independently. For a positive window expect verified `reschedule`; for goods expect both verified refusal and verified `create_return`. Verify actual exported file hashes and final manifest joins using the existing recipe at `runtime/DEMO.md:119-124`. A zero process exit or HTTP 200 alone is insufficient.
 
 This is onboarding to the currently bounded replay harness, not onboarding for arbitrary production workloads. Broader trusted registration, registered controls, service cases, semantic media, current live authentication and native adapters remain separate implementation/qualification work.
@@ -113,7 +116,7 @@ CLI exit mapping is 0 coordinated result/inspection, 2 denial/unavailable/input,
 
 - Source tests define positive CLI/API/library parity for **two fixed synthetic examples** (`test_cli_parity.py:122`; `test_api_parity.py:18`). Those source references are not fresh passes; clean installation is evidenced separately by the addendum's receipts. Neither establishes other platforms, native providers or six-port completeness.
 - Source tests cover core service/handoff, waits, durable stop and subprocess crashes. The positive scope varies by fixture, profile, clock and entrypoint; a single global “supports recovery” label would overstate it.
-- Registered route lacks CLI/API selection, reusable wider provisioning, recover/reply/stop and safe classification/recovery of interrupted claims. Exact code compatibility and resource identity remain deliberately restrictive.
+- Registered selection and bounded window/goods provisioning are available through trusted Python library/CLI configuration. Public authority flags, an API composition selector, persistent manifest launcher, recover/reply/stop and safe classification/recovery of interrupted claims remain unavailable/unestablished. Exact code compatibility and resource identity remain deliberately restrictive.
 - A frozen end-to-end receipt set for service refusal, real retained reply/stop, all six port uses and the four declared crash cases remains a distinct evidence deliverable. Do not omit denied, failed, missing or partial cases from its denominator.
 - Native authority/conditional-write/readback semantics, operator identity, actual model/transcription calls, actual human review, package/platform reproduction beyond the recorded installed target and timed drill outcomes remain unestablished here.
 - The final public README should adopt a shortened version of these matrices only after root review. This draft does not change existing README, tests, runtime behavior or OpenSpec contracts.
