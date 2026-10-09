@@ -16,7 +16,7 @@ from uuid import uuid4
 from pydantic import model_validator
 
 from .budget import BudgetExceeded, check_time, debit, initial_budget, preserve_budget, tool_timeout, validate_budget
-from .contracts import (CampaignPermit, CanonicalRequest, EffectIntent, InvocationRequest, InvocationReservation,
+from .contracts import (AuthorityObservation, CampaignPermit, CanonicalRequest, EffectIntent, InvocationRequest, InvocationReservation,
                         Hash, Identifier, NonnegativeFloat, NonnegativeInt, PositiveFloat, Revision, Timestamp,
                         PhaseCheckpoint, ProcessingReceipt, ReadTarget, RequestBinding, SavedResult,
                         ScopedReply, StopState, TransferIntent, VerificationResult, WaitState, WireModel)
@@ -1185,6 +1185,39 @@ class CaseStore:
                 raise JournalFailure("Wait requires an observed finite expiry")
             successor = self._wait_successor(record, current, successor, record.expiry_edge)
             return self._finish_wait(record, successor, "expired")
+
+    def attach_wait_reply_sources_atomic(self, question_id, expected_consumed, observations) -> PhaseCheckpoint:
+        """Attach detached host sources only to the exact one-use successor.
+
+        Typing/integrity is not source authentication; the leased gateway owns
+        that authority. No reply receipt, control field or accounting is merged.
+        """
+        with self._transaction():
+            expected = _typed(PhaseCheckpoint, expected_consumed)
+            if not isinstance(observations, (list, tuple)) or len(observations) > 64:
+                raise JournalFailure("Invalid wait reply source attachment")
+            sources = [_typed(AuthorityObservation, item) for item in observations]
+            identities = {(item.authority, item.fact) for item in sources}
+            if (len(identities) != len(sources)
+                    or any(item.object_id != expected.binding.object_id for item in sources)):
+                raise JournalFailure("Invalid wait reply source attachment")
+            record = self.load_wait_record(question_id)
+            current = self.checkpoint(record.wait.binding.case_id)
+            if (record.lifecycle != "answered" or record.wait.binding != expected.binding
+                    or self._versions(expected) != self._versions(record.origin_checkpoint)
+                    or record.successor_hash != fingerprint(expected.model_dump(mode="json"))
+                    or expected.observations or expected.question_id is not None or expected.awaited_fields
+                    or expected.phase != record.accept_edge.target
+                    or not any(edge.origin == expected.phase and edge.operation == expected.next_gate
+                               for edge in record.process.edges)
+                    or (expected.ownership_state, expected.ownership_state_revision, expected.ownership_epoch) !=
+                       (record.owner_state, record.owner_revision, record.owner_epoch)
+                    or expected.stop.requested or self.generation_stop(expected.binding).requested
+                    or current != expected):
+                raise JournalFailure("Invalid wait reply source attachment")
+            attached = PhaseCheckpoint.model_validate({**current.model_dump(), "observations": sources})
+            self._write_checkpoint(attached)
+            return attached
 
     def stop_waits_atomic(self, binding, expected_current):
         binding, expected = _typed(RequestBinding, binding), _typed(PhaseCheckpoint, expected_current)

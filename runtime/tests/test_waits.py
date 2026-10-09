@@ -27,6 +27,127 @@ def scoped_reply(fx, **changes):
 
 
 class WaitTests(unittest.TestCase):
+    def test_uncontended_customer_and_true_operator_attach_only_four_read_source_batch(self):
+        from test_operator_boundary import operator_runtime
+        for role in ("customer", "operator"):
+            with self.subTest(role=role), tempfile.TemporaryDirectory() as folder:
+                if role == "customer":
+                    fx = self.fixture(folder)
+                    fx.world.mutate("case.completeness", "missing")
+                    fx.engine.run(fx.request, fx.auth)
+                    auth = fx.auth
+                else:
+                    fx = operator_runtime(folder)
+                    self.addCleanup(fx.store.close)
+                    # Explicit trusted-host selection at the physical origin;
+                    # no saved fake wait, provider receipt or free source batch.
+                    with fx.engine._entry_scope():
+                        cp = fx.engine.authenticate_and_bind(fx.request, fx.auth)
+                    fx.store.save_checkpoint(cp.model_copy(update={"next_gate": "enqueue_handoff"}))
+                    fx.engine.recover("C1", fx.auth)
+                    auth = make_auth(caller_id="OP1", proof_reference="synthetic-operator-proof")
+                reply = scoped_reply(fx)
+                captured = {}
+                real = fx.store.attach_wait_reply_sources_atomic
+                def attach(question, expected, observations):
+                    captured["expected"] = expected
+                    captured["sources"] = list(observations)
+                    captured["receipt"] = fx.store.load_wait_record(question)
+                    captured["attached"] = real(question, expected, observations)
+                    return captured["attached"]
+                fx.store.attach_wait_reply_sources_atomic = attach
+                calls = len(fx.world.calls)
+                self.assertEqual(fx.engine.reply(reply, auth).status, "authorized")
+                self.assertEqual(captured["attached"].model_copy(update={"observations": []}),
+                    captured["expected"])
+                self.assertEqual(captured["attached"].observations, captured["sources"])
+                self.assertEqual(len(captured["sources"]), 12)
+                self.assertEqual(captured["expected"].observations, [])
+                self.assertEqual(fx.store.load_wait_record(reply.question_id), captured["receipt"])
+                self.assertEqual(captured["receipt"].accepted_reply, reply)
+                self.assertEqual(len(fx.world.calls) - calls, 4)
+                self.assertEqual(fx.world.effect_count("reschedule"), 0)
+                self.assertFalse(any(o.authority == "customer" and o.fact in {"consent", "confirmation"}
+                    for o in captured["sources"]))
+
+    def test_public_stop_after_consume_preserves_exact_newer_control_at_source_attachment(self):
+        # Removing the atomic expected-current attachment resurrects the stale
+        # completeness phase after a lawful second host has finished stop.
+        from proofkey.engine import WorkflowEngine
+        from proofkey.journal import CaseStore
+        with tempfile.TemporaryDirectory() as folder:
+            fx = self.fixture(folder)
+            fx.world.mutate("case.completeness", "missing")
+            fx.engine.run(fx.request, fx.auth)
+            reply = scoped_reply(fx)
+            stopped = {}
+
+            def concurrent_stop():
+                try:
+                    with_store = CaseStore(Path(folder) / "journal.sqlite")
+                    try:
+                        engine = WorkflowEngine(fx.profile, fx.world.bundle(), with_store, fx.clock)
+                        stopped["result"] = engine.stop("C1", "G1", fx.auth)
+                        stopped["checkpoint"] = with_store.checkpoint("C1")
+                    finally:
+                        with_store.close()
+                except Exception as error:
+                    stopped["error"] = error
+
+            def pause_then_forward(real, *args):
+                consumed = fx.store.checkpoint("C1")
+                self.assertEqual((consumed.phase, consumed.next_gate, consumed.budget.tool_calls),
+                    ("completeness", "authenticate", 15))
+                self.assertEqual(consumed.observations, [])
+                self.assertEqual(fx.store.load_wait_record(reply.question_id).lifecycle, "answered")
+                worker = threading.Thread(target=concurrent_stop)
+                worker.start()
+                worker.join(5)
+                self.assertFalse(worker.is_alive(), "Second creator-owned host must finish its public stop")
+                if "error" in stopped:
+                    raise stopped["error"]
+                self.assertEqual(stopped["result"].status, "authorized")
+                self.assertEqual((stopped["checkpoint"].phase, stopped["checkpoint"].next_gate),
+                    ("stopped", "stopped"))
+                return real(*args)
+
+            # RED forwards the genuine old source-only save, not a fake result.
+            # GREEN pauses at the public atomic attachment's transaction entry.
+            if hasattr(fx.store, "attach_wait_reply_sources_atomic"):
+                real = fx.store.attach_wait_reply_sources_atomic
+                fx.store.attach_wait_reply_sources_atomic = lambda *args: pause_then_forward(real, *args)
+            else:
+                real = fx.store.save_checkpoint
+                def save(value):
+                    if (value.phase == "completeness" and value.observations
+                            and fx.store.load_wait_record(reply.question_id).lifecycle == "answered"):
+                        return pause_then_forward(real, value)
+                    return real(value)
+                fx.store.save_checkpoint = save
+
+            before_calls = len(fx.world.calls)
+            result = fx.engine.reply(reply, fx.auth)
+            self.assertEqual(fx.store.checkpoint("C1"), stopped["checkpoint"],
+                "Source attachment must not overwrite the completed public stop's exact checkpoint")
+            self.assertEqual(result.status, "denied")
+            self.assertEqual([call.operation for call in fx.world.calls[before_calls:]],
+                ["read_case", "read_principal", "read_owner", "read_message", "read_case"])
+            answered = fx.store.load_wait_record(reply.question_id)
+            self.assertEqual((answered.lifecycle, answered.accepted_reply), ("answered", reply))
+            self.assertEqual(stopped["checkpoint"].budget.tool_calls, 16)
+            self.assertEqual(fx.world.effect_count("send_clarification"), 1)
+            self.assertEqual(fx.world.effect_count("reschedule"), 0)
+            self.assertIsNone(fx.store.saved_result("C1", "G1"))
+            reopened = CaseStore(Path(folder) / "journal.sqlite")
+            try:
+                self.assertEqual(reopened.checkpoint("C1"), stopped["checkpoint"])
+                self.assertEqual(reopened.load_wait_record(reply.question_id), answered)
+            finally:
+                reopened.close()
+            before_duplicate = len(fx.world.calls)
+            self.assertEqual(fx.engine.reply(reply, fx.auth).status, "denied")
+            self.assertEqual(len(fx.world.calls), before_duplicate)
+
     def fixture(self, folder):
         fx = build_test_runtime(folder)
         self.addCleanup(fx.store.close)

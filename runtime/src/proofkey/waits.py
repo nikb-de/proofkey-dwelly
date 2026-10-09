@@ -335,11 +335,7 @@ class WaitService:
         successor = self._successor(record, current, record.accept_edge)
         consumed = self.store.consume_wait_reply_atomic(reply.question_id, current, reply, successor, self.clock.now())
         # Canonical private accepted_reply is never copied into authority data.
-        if self.store.checkpoint(reply.binding.case_id) != consumed:
-            raise GateDenied("scope_denied")
-        sourced = PhaseCheckpoint.model_validate({**consumed.model_dump(), "observations": list(observations)})
-        self.store.save_checkpoint(sourced)
-        return self.store.checkpoint(reply.binding.case_id)
+        return self.store.attach_wait_reply_sources_atomic(reply.question_id, consumed, observations)
 
     def expire(self, question_id):
         record, current = self._pending(question_id)
