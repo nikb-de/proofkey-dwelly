@@ -22,6 +22,8 @@ Canonical UTF-8 JSON payload contains fixed domain, schema_version, exact actual
 
 schema_meta's "singleton" order means its single validated version row, not a nonexistent singleton column or schema change.
 
+Primary-key order preserves SQLite's existing NULL-first scalar ordering. Equal keys are permitted only where a key component is NULL and the unchanged SQLite constraints permit their multiplicity; within that group, order by the complete canonical encoded row bytes. Preserve every row, including identical rows. NonNULL primary-key identities remain unique. Capture and detached validation use the same rule; neither the schema nor inherited validation is tightened, and no synthetic IDs, private rowids or deduplication may replace original rows.
+
 ## One bounded read transaction
 
 Inside existing execution_scope preserve/restore original connection busy-timeout/deadline behavior; install temporary SQLite progress handler every at-most1000 VM steps enforcing original deadline/max_sqlite_steps, clear on EVERY exit. Validate UTC and monotonic window between schema/rows/validation/encoding. No durability setting changes or hard OS cancellation guarantee.
@@ -37,6 +39,8 @@ Raise JournalFailure with finite safe reason only: retained_state_scope|retained
 Genuine RED then minimal implementation: empty valid16-table complete image, two cases/older stopped successor/history/unknown effect/wait/ownership/invocation/campaign and admission debt WITHOUTcase, actual original/scalar/debt preservation, immutable count/hash checks, reopen stable logical hash and public mutation changed hash. Deterministic second WAL writer between table reads must yield wholly-before image then wholly-after recapture, not mixed joins.
 
 Exact/one-over rows/scalars/encoded payload/SQL steps/deadline and backwards/exhausted/foreign-thread/nested/corrupt schema/JSON/joins fail without success/mutation; subsequent normal operation proves transaction/handler restoration. New test-owned forwarding barriers only, no production capture hook/oldtest invocation/real DB modifications. Reserve/settled/overrun/unknown accounting unchanged, no budgets refunded/debited/renewed.
+
+Nullable-key regression: checkpoint-free cases with multiple NULL keys, distinct revisions and repeated identical rows must retain full payload/count/multiplicity and a stable logical hash across physical insertion order and reopening. Detached out-of-order ties and duplicate ordinary nonNULL identities must still reject.
 
 Focused author TDD then frozen actual named source/test/schema/profile closure, ONE final amended cohort including selected existing journal controls only after root coordinated hold/GO. Root proportionate verification/exact3 commit/DIFFERENT NONAUTHOR separate Spec+Quality gate. Larger no-writer whole-suite remains final obligation.
 

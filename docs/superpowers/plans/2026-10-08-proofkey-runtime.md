@@ -765,6 +765,275 @@ The provider foundation is independently Approved; the whole task remains unchec
 
 - [x] 12B3c saved V2 planning-output publication exact2b9a626f independently Spec/Quality Approved0C/I/M under [planning-evidence-publication.md](../../../openspec/changes/proofkey-v21-harness-contracts/planning-evidence-publication.md). Actual primary RED output_invalid retained; author50/6.821s after two preserved BEFORE-test observer failures/root6/1.508s SAME49+exactplatform, all52 hashes/50outcomes/fullraw independently verified. Exact saved control/ordered parents/durable publications before and after real marker I/O; preserve V1/debt/historical output under current scopes, never post-debit checkpoint equality or fresh entry/effect grant. Full orchestrator/summary/media/native/rights remains open; not a wholecandidate gate.
 
+- [ ] 12B4a existing-parent composition exact THREE gateway.py/providers/invocations.py/NEW test_processing_parent_scope.py is formally closed in [processing-parent-scope.md](../../../openspec/changes/proofkey-v21-harness-contracts/processing-parent-scope.md), not dispatched until13B1 different gate/shared hold release. Same original active creator-owned timing/no second journal scope; fixed constructor association, public call_in_parent and repeated actual-parent validation retain durable reserve/receipt/debt/cleanup. No caller Timing/flags, implicit campaign, recipe, engine/summary or actual-provider qualification.
+
+  - [ ] Step1 — write the genuine RED in NEW test_processing_parent_scope.py. The self-contained starting fixture below uses explicit simulated campaign registration and real public admission; it proves parent composition/accounting, not engine content, V2 publication or actual-model authority.
+
+```python
+from contextlib import contextmanager
+from datetime import timedelta
+from pathlib import Path
+import tempfile
+import unittest
+from unittest.mock import patch
+
+from proofkey.contracts import BudgetLedger, RoleAllowance
+from proofkey.execution import ExecutionContext
+from proofkey.gateway import ActionGateway
+from proofkey.journal import CaseStore, JournalFailure
+from proofkey.providers.invocations import InvocationService
+from support import (DEADLINE, FakeClock, build_test_runtime, make_binding,
+                     make_checkpoint, make_fixture_campaign,
+                     make_processing_receipt, make_processor_identity,
+                     make_request)
+
+
+class ParentClock:
+    """Task-local trusted synthetic clock; no wall-clock sleep."""
+    def __init__(self, utc_clock):
+        self.utc_clock = utc_clock
+        self.seconds = 0.0
+
+    def now(self):
+        return self.utc_clock.now()
+
+    def monotonic(self):
+        return self.seconds
+
+    def advance(self, seconds, *, utc=True):
+        self.seconds += seconds
+        if utc:
+            self.utc_clock.advance(seconds)
+
+    def wait(self, seconds):
+        self.advance(seconds)
+
+
+class ProcessingParentScopeTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        # Existing support creates isolated synthetic world/store resources.
+        # It does not admit/run the engine or invoke a processing provider.
+        self.fx = build_test_runtime(self.root,
+            request=make_request(narrative="Synthetic parent accounting fixture"))
+        self.store = self.fx.store
+        self.addCleanup(self.store.close)
+        self.clock = ParentClock(self.fx.clock)
+        self.binding = make_binding(self.fx.request)
+        self.gateway = ActionGateway(self.fx.profile, self.fx.world.bundle(),
+            self.store, self.clock, auth=self.fx.auth)
+        # Public direct admission is intentional for a parent-service boundary
+        # test; it is not evidence of engine recipe/content integration.
+        budget = BudgetLedger(case_id="C1", deadline=DEADLINE,
+            max_planner_calls=3,
+            role_allowances={"planning": RoleAllowance(max_invocations=3,
+                max_cost=3.0, usage_allowances={"tokens": 30.0})})
+        self.store.admit(self.binding, self.fx.request,
+            make_checkpoint(binding=self.binding, phase="intake", next_gate="intake",
+                profile_version=self.fx.profile.version,
+                process_version=self.fx.profile.processes[self.fx.request.kind].version,
+                budget=budget))
+        self.grant = make_fixture_campaign(role="planning")
+        self.store.register_campaign(self.grant)  # explicit synthetic registration
+        cp = self.store.checkpoint("C1")
+        self.identity = make_processor_identity(role="planning",
+            generation=cp.binding.generation, campaign_id=self.grant.campaign_id,
+            permit_hash=self.grant.permit_hash, input_hashes=self.grant.input_hashes,
+            provider=self.grant.provider, model=self.grant.model,
+            endpoint=self.grant.endpoint, profile_version=cp.profile_version,
+            process_version=cp.process_version, deadline=cp.deadline)
+        self.ids, self.callbacks = [], []
+        for target in ("socket.socket.connect", "socket.socket.connect_ex",
+                       "socket.create_connection"):
+            blocker = patch(target, side_effect=AssertionError("No network in 12B4a"))
+            blocker.start()
+            self.addCleanup(blocker.stop)
+
+    def next_id(self):
+        value = "parent-plan-" + str(len(self.ids) + 1)
+        self.ids.append(value)
+        return value
+
+    def service(self, parent):
+        return InvocationService("C1", self.store, self.clock, self.grant,
+            self.identity, worst_case_cost=1.0,
+            invocation_id_factory=self.next_id, parent_gateway=parent)
+
+    def durable_state(self):
+        return (self.store.checkpoint("C1"),
+                self.store.campaign_usage(self.grant.permit_hash),
+                self.store.processing_attempts(self.binding))
+
+    def receipt(self, service):
+        request = service.current_request
+        identity = request.identity
+        return make_processing_receipt(role="planning",
+            invocation_id=request.invocation_id, provider=identity.provider,
+            requested_model=identity.model, prompt_hash=identity.prompt_hash,
+            version=identity.version, input_hashes=identity.input_hashes,
+            processed_at=self.clock.now(), usage={"tokens": 1.0})
+
+    def test_parent_planning_receipt_uses_one_original_scope_and_real_debit(self):
+        service = self.service(self.gateway)
+        self.assertIs(service.parent_gateway, self.gateway)
+        with self.assertRaises(AttributeError):
+            service.parent_gateway = self.gateway
+        execution = ExecutionContext.capture(
+            self.clock.now() + timedelta(seconds=20), self.clock)
+        captured = (execution.deadline, execution.captured_at,
+                    execution.captured_monotonic, execution.monotonic_deadline)
+        before = self.store.checkpoint("C1").budget
+        real_scope = self.store.execution_scope
+        scope_entries = []
+
+        @contextmanager
+        def counted_scope(context, clock):
+            scope_entries.append((context, clock))
+            with real_scope(context, clock):
+                yield
+
+        real_reserve = self.store.reserve_invocation
+
+        def reserve_with_setup_time(request, now):
+            attempt = real_reserve(request, now)
+            self.clock.advance(0.25, utc=False)
+            return attempt
+
+        def invoke():
+            request = service.current_request
+            self.callbacks.append(request.invocation_id)
+            attempt, saved = self.store.invocation(request.invocation_id)
+            self.assertEqual(attempt.status, "consumed")
+            self.assertIsNone(saved)
+            budget = self.store.checkpoint("C1").budget
+            self.assertEqual(budget.tool_calls, before.tool_calls + 1)
+            self.assertEqual(budget.planner_calls, before.planner_calls + 1)
+            self.assertEqual(budget.role_allowances["planning"].invocations, 1)
+            self.assertEqual(budget.role_allowances["planning"].usage, {"tokens": 10.0})
+            self.assertEqual(budget.role_allowances["planning"].cost, 1.0)
+            # Public context construction belongs only to the owned reservation.
+            # No client/catalog is used by this accounting callback.
+            context = service.processing_context(None, None)
+            lease = self.store.entry("invocation:" + request.invocation_id)
+            self.assertEqual(lease.reserved_seconds, 10.0)
+            self.assertLessEqual(lease.deadline, execution.deadline)
+            self.assertAlmostEqual(context.timeout_seconds, 9.75)
+            self.assertEqual(context.identity, self.identity)
+            self.assertEqual(dict(context.reserved_usage), {"tokens": 10.0})
+            self.clock.advance(0.5, utc=False)
+            return self.receipt(service)
+
+        with patch.object(self.store, "execution_scope", counted_scope), \
+             patch.object(self.store, "reserve_invocation", reserve_with_setup_time):
+            with self.gateway.execution_scope(execution) as timing:
+                self.assertIs(self.gateway.processing_parent_timing(
+                    store=self.store, clock=self.clock), timing)
+                receipt = service.call_in_parent("planning", self.identity.input_hashes,
+                    {"tokens": 10.0}, invoke)
+                # The service did not exit/replace the surrounding gateway scope.
+                self.assertIs(self.gateway.processing_parent_timing(
+                    store=self.store, clock=self.clock), timing)
+                self.assertIs(timing.execution, execution)
+                with self.assertRaises(JournalFailure):
+                    service.processing_context(None, None)
+                attempt, saved = self.store.invocation(receipt.invocation_id)
+                self.assertEqual(saved, receipt)
+                self.assertEqual(attempt.status, "completed")
+                self.assertEqual(receipt.output.proposal.operation, "reschedule")
+                self.assertEqual(receipt.mode, "synthetic")
+                lease = self.store.entry("invocation:" + receipt.invocation_id)
+                self.assertEqual(lease.state, "settled")
+                budget = self.store.checkpoint("C1").budget
+                self.assertAlmostEqual(budget.active_seconds, before.active_seconds + 0.75)
+                self.assertEqual(self.store.campaign_usage(self.grant.permit_hash),
+                    {"invocations": 1, "cost": 1.0, "usage": {"tokens": 10.0}})
+        self.assertEqual(scope_entries, [(execution, self.clock)])
+        self.assertEqual(self.ids, ["parent-plan-1"])
+        self.assertEqual(self.callbacks, ["parent-plan-1"])
+        self.assertEqual(captured, (execution.deadline, execution.captured_at,
+            execution.captured_monotonic, execution.monotonic_deadline))
+        with self.assertRaises(JournalFailure):
+            self.gateway.processing_parent_timing(store=self.store, clock=self.clock)
+
+    def test_inactive_parent_denies_before_id_callback_or_any_debit(self):
+        service = self.service(self.gateway)  # inactive is valid construction
+        before, calls = self.durable_state(), self.fx.world.calls
+
+        def invoke():
+            self.callbacks.append("unsafe")
+            return self.receipt(service)
+
+        with self.assertRaises(JournalFailure):
+            service.call_in_parent("planning", self.identity.input_hashes,
+                {"tokens": 10.0}, invoke)
+        self.assertEqual(self.ids, [])
+        self.assertEqual(self.callbacks, [])
+        self.assertEqual(self.durable_state(), before)
+        self.assertEqual(self.fx.world.calls, calls)
+        # Configured ordinary public call must not choose a wall-time fallback.
+        with self.assertRaises(JournalFailure):
+            service.call("planning", self.identity.input_hashes,
+                {"tokens": 10.0}, invoke)
+        self.assertEqual(self.ids, [])
+        self.assertEqual(self.callbacks, [])
+        self.assertEqual(self.durable_state(), before)
+
+    def test_foreign_store_or_clock_parent_denies_at_construction_without_debit(self):
+        foreign_store = CaseStore(self.root / "foreign.sqlite")
+        self.addCleanup(foreign_store.close)
+        foreign_clock = ParentClock(FakeClock())
+        parents = (
+            ActionGateway(self.fx.profile, self.fx.world.bundle(),
+                          foreign_store, self.clock, auth=self.fx.auth),
+            ActionGateway(self.fx.profile, self.fx.world.bundle(),
+                          self.store, foreign_clock, auth=self.fx.auth),
+        )
+        before, calls = self.durable_state(), self.fx.world.calls
+        for parent in parents:
+            with self.subTest(parent_store_matches=parent.store is self.store), \
+                 self.assertRaises(JournalFailure):
+                self.service(parent)
+            self.assertEqual(self.ids, [])
+            self.assertEqual(self.callbacks, [])
+            self.assertEqual(self.durable_state(), before)
+            self.assertEqual(self.fx.world.calls, calls)
+```
+
+  - [ ] Step2 — run the three NEW methods before implementation; preserve exact original commands/tool metadata/stdout. Run from the managed worktree with PYTHONDONTWRITEBYTECODE=1, PYTHONPATH=runtime/src:runtime/tests and the configured Python3.12 runtime:
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 PYTHONPYCACHEPREFIX='/Users/nbk/.codex/worktrees/proofkey-runtime/Pitch project/.superpowers/sdd/2026-10-08-proofkey-runtime/task-12-parent-pycache-development' PYTHONPATH=runtime/src:runtime/tests /Users/nbk/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 -m unittest -v test_processing_parent_scope
+```
+
+Expected RED is the absent parent_gateway constructor/accessor/call_in_parent interface, never an undefined test helper. Extend the same NEW module with concrete regressions for exact-type/mutated association/wrong thread/configured ordinary-call/forged keywords, default explicit and legacy controls, setup/UTC observation expiry, expiry after reserve, callback invalidity/clock failure, public context lifetime, public parent exit/reentry, recursion/lock restoration, stopped and ownership-fenced reservations. Each assertion inspects actual retained usage/unknown state and callback count; no old unittest method invocation.
+
+  - [ ] Step3 — implement the formal exact-three boundary, without touching engine/journal/schema/catalog/old tests. The gateway accessor's complete defensive skeleton is:
+
+```python
+def processing_parent_timing(self, *, store, clock):
+    if (get_ident() != self._owner_thread or not self._execution_active
+            or store is not self.store or clock is not self.clock
+            or type(self._timing) is not ExecutionTiming
+            or self._timing.clock is not clock):
+        raise JournalFailure("Invalid processing parent scope")
+    timing = self._timing
+    try:
+        if (timing.execution is not None
+                and timing.remaining_seconds(timing.execution.deadline) <= 0):
+            raise ValueError("Expired processing parent scope")
+    except (TypeError, ValueError, OverflowError):
+        raise JournalFailure("Invalid processing parent scope") from None
+    return timing
+
+```
+
+InvocationService's constructor validates exact ActionGateway and identical store/clock before DB/source access, retains fixed private parent/store/clock references and exposes only the read-only parent_gateway property. Configured ordinary call denies before ID/debit. call_in_parent obtains the existing service creator/lock guard, borrows the accessor's actual Timing, installs a service-private verifier that rechecks the fixed association and Timing object identity, then delegates internally to existing _call_in_scope without installing another journal scope. Invoke that verifier before ID/setup, before reserve, after reserve/before callback, in processing_context, after callback before receipt validation/save, and before returning saved output. Existing _call_in_scope owns request/reserve/debt/lease/receipt/readback/finally; clear private verifier in the same finally path and release the public lock on every exit. A lost/changed parent never returns usable completed output or refunds consumed debt. Legacy unconfigured flow remains unchanged.
+
+  - [ ] Step4 — run narrowly focused NEW tests/control methods as they are added, then freeze the actual changed files and forecasted source/data/private observer superset. Root authorizes ONE covering run with actual late-import/open union, PRE=POST and complete raw output; no full API/V2/driver repetition. Selected unchanged controls: InvocationTests valid saved receipt/recursion/commit failure and ExecutionConsumerTests reservation setup/after-reserve expiry/recursive scope restoration, plus ProcessingAdmissionTests per-role precharge/reopen debt where needed.
+  - [ ] Step5 — root performs proportional checks and exact3 commit, followed by DIFFERENT NONAUTHOR separate Spec+Quality review. The parent block checkbox stays open until that gate. Then assign the separate engine recipe/V2/summary consumer; this block alone does not close Task12.
+
 **Files:** Create `runtime/src/proofkey/providers/{__init__,protocols,invocations,replay,unavailable,anthropic,elevenlabs}.py`, `runtime/src/proofkey/planner.py`, `runtime/src/proofkey/assessment/{__init__,readiness}.py`, `runtime/tests/{test_processing_protocols,test_model_plan_gate,test_readiness_ledger}.py`; extend `runtime/tests/support.py`, Task 4's invocation recovery tests and Task 11 catalog integration.
 
 **Interfaces:** `Extractor.extract(records,context) -> ProcessingReceipt`, `Transcriber.transcribe(record,context) -> ProcessingReceipt`, `Planner.propose(checkpoint,observations) -> ProcessingReceipt`. A successful planning receipt contains a typed `ActionProposal`; an interrupted/invalid receipt contains no usable proposal. Engine calls every model-backed role through `InvocationService(case_id,store,clock,campaign,processor_identity).call(role,input_hashes,usage_ceiling,invoke) -> ProcessingReceipt`, then passes only the validated receipt's proposal to PolicyGate. The service constructs Task 1's immutable InvocationRequest and reserves/debits before invoking the callable. `ReadinessLedger(required).record(dimension,receipt)` / `.complete() -> bool` never upgrades replay/unavailable to actual-role readiness. Support adds `make_processing_receipt(**overrides) -> ProcessingReceipt`, `make_processor_identity(**overrides) -> ProcessorIdentity` and `make_fixture_campaign(**overrides) -> CampaignPermit`, with synthetic input `fixture_hash`, injected transport mode, finite ceilings and no live endpoint/approval.
@@ -829,7 +1098,7 @@ The live gate defaults closed: subscription alone is insufficient; exact API ent
 
 ### Task 13: Engineer adaptation proposals, compatible release and process views
 
-- [ ] 13B1 complete retained-state storage prerequisite exact3 NEW retained_state.py/existing journal.py/NEW test_retained_state.py now has ROOT implementation GO at8d08006 after shared API/V2/driver holds release and fresh original7/source+schema/newpath checks. Main FULLread prepared strategy and updated [retained-state-capture.md](../../../openspec/changes/proofkey-v21-harness-contracts/retained-state-capture.md): all16tables, exact canonical row/payload bytes, JSON1-free bounded chunk preflight before eager validation, one read snapshot/original time+SQL limits/handler restoration, real WAL beforeimage/debt/history. Not activation/migration or retroactive wholecandidate qualification. Genuine TDD/frozen actual closure/separate finalGO/rootproportional/exact3commit/different Spec+Quality gate remain required.
+- [ ] 13B1 complete retained-state storage prerequisite exact3f954249 plus nullable-key FIX1 exact3 at261bdd77 is under original DIFFERENT NONAUTHOR scoped re-review. Initial25/root4 are historical; NEW genuine RED2/3assertion failures then GREEN2, ONE final8/.293s/rootNEW2/.107s SAME42 qualify corrected bytes, not approval. Full original rows and permitted NULL-key multiplicity retained by canonical complete-row tie ordering; unchanged schema/validator/debt, exact canonical row/payload bytes, JSON1-free bounded chunk preflight, one read snapshot/original time+SQL limits/handler restoration/WAL remain. [retained-state-capture.md](../../../openspec/changes/proofkey-v21-harness-contracts/retained-state-capture.md) governs. Different Spec+Quality gate/sharedhold release precedes12B4a; full13 activation/migration/source/host/registry/actualhuman/native/wholecandidate remains incomplete.
 
 **Files:** Create `runtime/src/proofkey/factory/{__init__,proposal,release,views}.py`, `runtime/tests/{test_adaptation_factory,test_process_views}.py`, synthetic `runtime/fixtures/development/adaptation/` packet. Extend `runtime/tests/support.py` and CLI with `propose-profile`, `check-profile`, `release-profile`; runtime input cannot invoke activation.
 
