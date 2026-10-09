@@ -1617,6 +1617,301 @@ The live gate defaults closed: subscription alone is insufficient; exact API ent
 - [ ] **Step 4 — green and conditional content acceptance.** Run offline contracts/adversarial cases and suite. Only run an explicitly authorized capped actual-processing campaign when its permit exists; otherwise deliver interfaces with unavailable/replay rows and retain incomplete readiness, not a fabricated pass. Inspect raw content/receipts and failed cases.
 - [ ] **Step 5 — commit.** Stage Task 12 and scoped core/catalog wiring only; commit `feat: guard provider roles and constrain model step proposals`.
 
+#### Task12B4d — authenticated fresh originals; intake-only, exact TWO
+
+**Binding:** [fresh-original-intake.md](../../../openspec/changes/proofkey-v21-harness-contracts/fresh-original-intake.md). This internal refinement of approved Task12 is not a new execution choice. Semantic extraction/ASR/planning/V2 continuation remains separate; the public unavailable boundary is retained.
+
+**Files:** Modify ONLY `runtime/src/proofkey/engine.py` (fresh run seam after replay/admission/full-original/stop/terminal, before driver); create ONLY `runtime/tests/test_engine_fresh_intake.py`. Preserve signatures and every shared gateway/catalog/journal/consumer/profile/helper/old test. Root owns formal/plan/ledger and commits.
+
+**Interfaces:** Public existing `catalog.register_saved_narrative(binding, auth)`, `get(id, auth, purpose='provider_processing')`, `read_original(id, auth, purpose='provider_processing', max_bytes=remaining)`; public `gateway.processing_parent_timing(store=store, clock=clock)` and `authenticate_control(binding, auth, purpose='recorded_state')`; public original/checkpoint/stop getters. Optional PRIVATE `_intake_originals(checkpoint, original, auth, timing) -> PhaseCheckpoint` only. No new receipt/status/permission API.
+
+- [ ] **Step1 — place complete public fixture and two genuine behavioral RED tests.** Use this complete local scaffold in NEW test only. All catalog, world, journal and gateway operations are real; trusted synthetic callbacks are not native permission. Existing support factories supply typed data only, never old unittest methods. Correct fixture/import errors before claiming behavioral RED.
+
+```python
+from contextlib import contextmanager
+from dataclasses import asdict
+from datetime import timedelta
+from pathlib import Path
+from types import SimpleNamespace
+import tempfile
+import unittest
+from unittest.mock import patch
+
+from proofkey.adapters.world import SimulatedWorld
+from proofkey.contracts import CaseResult
+from proofkey.engine import WorkflowEngine
+from proofkey.evidence.catalog import EvidenceCatalog
+from proofkey.evidence.processing_contracts import ProcessingCatalogBindings, SavedOriginalScope, canonical
+from proofkey.execution import ExecutionContext
+from proofkey.gateway import ActionGateway
+from proofkey.identity import fingerprint, request_fingerprint
+from proofkey.journal import CaseStore, JournalFailure
+from proofkey.processing import RoleAdmissionLimits
+from proofkey.processing_orchestration import ProcessingOrchestrator, ProcessingRecipe
+from proofkey.processing_summary import ProcessingSummaryV1
+from support import DEADLINE, FakeClock, load_test_profile, make_auth, make_request
+
+class IntakeClock(FakeClock):
+    def __init__(self):
+        super().__init__()
+        self.tick = 100.0
+
+    def monotonic(self):
+        return self.tick
+
+    def advance(self, seconds):
+        super().advance(seconds)
+        self.tick += seconds
+
+class FreshIntakeTests(unittest.TestCase):
+    def fixture(self, *, narrative=None, evidence=False):
+        folder = tempfile.TemporaryDirectory()
+        self.addCleanup(folder.cleanup)
+        root = Path(folder.name).resolve()
+        fx = SimpleNamespace(root=root, clock=IntakeClock(),
+            profile=load_test_profile('flat-v1.2'), store=CaseStore(root / 'journal.sqlite'),
+            auth=make_auth(), request=make_request(narrative=narrative),
+            revoked=False, ids=[], evidence=None)
+        self.addCleanup(fx.store.close)
+
+        def original(binding):
+            actual = fx.store.find_request(binding.case_id, binding.request_id,
+                binding.request_revision, binding.consent_revision, binding.fingerprint)
+            if actual != binding:
+                raise ValueError('Exact original binding required')
+            return fx.store.original_request(binding.case_id, binding.generation)
+
+        def scope(binding, saved, auth, purpose):
+            if saved != fx.request or auth != fx.auth or fx.revoked or fx.clock.now() >= DEADLINE:
+                return None
+            raw = dict(allowed_actors=['U1'], case_id=binding.case_id,
+                object_id=binding.object_id, binding_hash=fingerprint(binding.model_dump(mode='json')),
+                original_request_hash=fingerprint(saved.model_dump(mode='json')),
+                scope_id='saved-scope', policy_id='local-policy',
+                authorization_reference='synthetic-proof',
+                provenance='synthetic_host_registration', expires_at=DEADLINE.isoformat())
+            return SavedOriginalScope(canonical(binding.model_dump(mode='json')),
+                raw['original_request_hash'], 'saved-scope', canonical(raw),
+                'local-policy', 'synthetic_host_registration', 'synthetic-proof', DEADLINE)
+
+        def access(auth, record, source_scope, purpose):
+            return (auth == fx.auth and not fx.revoked and record.case_id == 'C1'
+                and source_scope.get('allowed_actors') == ('U1',)
+                and source_scope.get('scope_id') in {'saved-scope', 'fixture-input'})
+
+        fx.catalog = EvidenceCatalog(root / 'catalog', fx.clock,
+            allowed_input_roots=[root], access_resolver=access,
+            processing_bindings=ProcessingCatalogBindings(original,
+                lambda binding: fx.store.checkpoint(binding.case_id),
+                fx.store.invocation, scope, profile_lookup=lambda binding, saved: fx.profile))
+        if evidence:
+            source = root / 'source.txt'
+            source.write_bytes(b'PRIVATE original evidence; not semantic proof.\n')
+            fx.evidence = fx.catalog.register(source, 'C1', 'synthetic-intake-evidence',
+                {'allowed_actors': ['U1'], 'scope_id': 'fixture-input'})
+            fx.request = make_request(narrative=narrative,
+                evidence_ids=[fx.evidence.artifact_id])
+        fx.world = SimulatedWorld(root / 'world.sqlite',
+            Path(__file__).resolve().parents[1] / 'fixtures/development/world.json',
+            profile=fx.profile, clock=fx.clock)
+        fx.world.mutate('customer.request_fingerprint', request_fingerprint(fx.request))
+        fx.world.mutate('customer.consent_mode', fx.request.consent_mode)
+        fx.bundle = fx.world.bundle()
+        allowances = (
+            RoleAdmissionLimits('extraction', 2, (('tokens', 4.0),), 2.0),
+            RoleAdmissionLimits('planning', 1, (('tokens', 2.0),), 1.0))
+        recipe = ProcessingRecipe(allowances=allowances, planning_registrations=())
+        fx.gateway = ActionGateway(fx.profile, fx.bundle, fx.store, fx.clock,
+            auth=fx.auth, processing_allowances=recipe.allowances)
+
+        def no_invocation():
+            fx.ids.append('unexpected')
+            raise AssertionError('Intake cannot allocate an invocation')
+
+        fx.processing = ProcessingOrchestrator(fx.store, fx.clock, fx.catalog,
+            parent_gateway=fx.gateway, recipe=recipe, invocation_id_factory=no_invocation)
+        fx.engine = WorkflowEngine(fx.profile, fx.bundle, fx.store, fx.clock,
+            evidence=fx.catalog, processing=fx.processing)
+        return fx
+
+    def execution(self, fx):
+        return ExecutionContext.capture(fx.clock.now() + timedelta(seconds=30), fx.clock)
+
+    def assert_no_processing(self, fx):
+        cp = fx.store.checkpoint('C1')
+        self.assertEqual(fx.ids, [])
+        self.assertEqual(fx.store.processing_attempts(cp.binding), ())
+        self.assertEqual(cp.budget.planner_calls, 0)
+        self.assertEqual(cp.budget.role_allowances['extraction'].invocations, 0)
+        self.assertEqual(cp.budget.role_allowances['planning'].invocations, 0)
+        self.assertEqual(cp.budget.role_allowances['extraction'].max_invocations, 2)
+        self.assertEqual(cp.budget.role_allowances['planning'].max_invocations, 1)
+        self.assertEqual(fx.world.effect_count('reschedule'), 0)
+        return cp
+
+    def test_fresh_narrative_is_saved_exactly_without_model_or_semantic_claim(self):
+        secret = 'PRIVATE original narrative.  Preserve whitespace.\n'
+        fx = self.fixture(narrative=secret)
+        registered, observed_contexts = [], []
+        real_register = fx.catalog.register_saved_narrative
+        execution = self.execution(fx)
+
+        def register(binding, auth):
+            # Real operation and fresh public saved-original readback, not a mock result.
+            timing = fx.gateway.processing_parent_timing(store=fx.store, clock=fx.clock)
+            observed_contexts.append(timing.execution)
+            record = real_register(binding, auth)
+            registered.append(record)
+            return record
+
+        with patch.object(fx.catalog, 'register_saved_narrative', register):
+            result = fx.engine.run(fx.request, fx.auth, execution=execution)
+        self.assertEqual(result.status, 'authorized')
+        self.assertEqual(result.media_status, 'unavailable')
+        self.assertEqual(len(registered), 1)
+        record = registered[0]
+        self.assertEqual(record.source, 'saved-request-narrative')
+        self.assertEqual(fx.catalog.get(record.artifact_id, fx.auth), record)
+        self.assertEqual(fx.catalog.read_original(record.artifact_id, fx.auth), secret.encode())
+        self.assertEqual(observed_contexts, [execution])
+        self.assertIs(fx.engine.gateway, fx.processing.parent_gateway)
+        cp = self.assert_no_processing(fx)
+        self.assertEqual(fx.store.original_request('C1', cp.binding.generation), fx.request)
+        summary = fx.engine.processing_summary('C1', fx.auth, execution=self.execution(fx))
+        self.assertIsInstance(summary, ProcessingSummaryV1)
+        self.assertEqual(summary.attempts, ())
+        self.assertEqual([(n.kind, n.reason) for n in summary.entry_local],
+            [('unavailable', 'input_unavailable')])
+        self.assertNotIn(secret, repr(asdict(summary)))
+        self.assertNotIn(record.artifact_id, repr(asdict(summary)))
+
+    def test_fresh_evidence_waits_for_source_auth_and_rechecks_acl_after_real_read(self):
+        for revoke_after_read in (False, True):
+            with self.subTest(revoke_after_read=revoke_after_read):
+                fx = self.fixture(evidence=True)
+                observed = []
+                real_read = fx.catalog.read_original
+                def read(identifier, auth=None, *, purpose='read', max_bytes=None):
+                    timing = fx.gateway.processing_parent_timing(store=fx.store, clock=fx.clock)
+                    data = real_read(identifier, auth, purpose=purpose, max_bytes=max_bytes)
+                    observed.append((identifier, data, timing.execution))
+                    if revoke_after_read:
+                        fx.revoked = True
+                    return data
+
+                with patch.object(fx.catalog, 'read_original', read):
+                    # Wrong proof can consume real admission pressure, but cannot read content.
+                    wrong = fx.engine.run(fx.request, make_auth(proof_reference='wrong'),
+                        execution=self.execution(fx))
+                    self.assertEqual(wrong.model_dump(mode='json'),
+                        CaseResult(status='denied', correlation_id='C1',
+                            reason='denied').model_dump(mode='json'))
+                    self.assertEqual(observed, [])
+                    with self.assertRaises(JournalFailure):
+                        fx.store.checkpoint('C1')
+                    execution = self.execution(fx)
+                    result = fx.engine.run(fx.request, fx.auth, execution=execution)
+                self.assertTrue(observed)
+                self.assertEqual(observed[0],
+                    (fx.evidence.artifact_id,
+                     b'PRIVATE original evidence; not semantic proof.\n', execution))
+                if revoke_after_read:
+                    self.assertEqual(result.model_dump(mode='json'),
+                        CaseResult(status='denied', correlation_id='C1',
+                            reason='denied').model_dump(mode='json'))
+                else:
+                    self.assertEqual(result.status, 'authorized')
+                    self.assertEqual(result.media_status, 'unavailable')
+                cp = self.assert_no_processing(fx)
+                self.assertEqual(fx.store.original_request('C1', cp.binding.generation), fx.request)
+                self.assertNotIn('PRIVATE original evidence', repr(result.model_dump()))
+
+    def test_count_and_duplicates_deny_before_narrative_publication(self):
+        for selected in ('duplicate', 'excess'):
+            with self.subTest(selected=selected):
+                fx = self.fixture(narrative='PRIVATE selected original', evidence=True)
+                ids = ([fx.evidence.artifact_id] * 2 if selected == 'duplicate'
+                       else ['artifact-' + format(n, '032x') for n in range(16)])
+                fx.request = make_request(narrative=fx.request.narrative, evidence_ids=ids)
+                fx.world.mutate('customer.request_fingerprint', request_fingerprint(fx.request))
+                published = []
+                real_register = fx.catalog.register_saved_narrative
+                def register(binding, auth):
+                    record = real_register(binding, auth)
+                    published.append(record)
+                    return record
+                with patch.object(fx.catalog, 'register_saved_narrative', register):
+                    result = fx.engine.run(fx.request, fx.auth, execution=self.execution(fx))
+                self.assertEqual(result.model_dump(mode='json'),
+                    CaseResult(status='denied', correlation_id='C1', reason='denied').model_dump(mode='json'))
+                self.assertEqual(published, [])
+                self.assert_no_processing(fx)
+
+    def test_current_case_drift_after_actual_content_read_denies(self):
+        fx = self.fixture(evidence=True)
+        real_read = fx.catalog.read_original
+        observed = []
+        def read(identifier, auth=None, *, purpose='read', max_bytes=None):
+            data = real_read(identifier, auth, purpose=purpose, max_bytes=max_bytes)
+            observed.append(identifier)
+            fx.world.mutate('case.authorization', 'unverified')
+            return data
+        with patch.object(fx.catalog, 'read_original', read):
+            result = fx.engine.run(fx.request, fx.auth, execution=self.execution(fx))
+        self.assertTrue(observed)
+        self.assertEqual(result.model_dump(mode='json'),
+            CaseResult(status='denied', correlation_id='C1', reason='denied').model_dump(mode='json'))
+        self.assert_no_processing(fx)
+
+    def test_final_real_read_expiry_retains_original_window_and_denies(self):
+        fx = self.fixture(evidence=True)
+        real_read = fx.catalog.read_original
+        observed = []
+        execution = self.execution(fx)
+        def read(identifier, auth=None, *, purpose='read', max_bytes=None):
+            data = real_read(identifier, auth, purpose=purpose, max_bytes=max_bytes)
+            observed.append(fx.gateway.processing_parent_timing(store=fx.store, clock=fx.clock).execution)
+            fx.clock.advance(31)
+            return data
+        with patch.object(fx.catalog, 'read_original', read):
+            result = fx.engine.run(fx.request, fx.auth, execution=execution)
+        self.assertEqual(observed, [execution])
+        self.assertEqual(result.model_dump(mode='json'),
+            CaseResult(status='denied', correlation_id='C1', reason='denied').model_dump(mode='json'))
+        self.assert_no_processing(fx)
+
+```
+
+The first test must fail on absent actual saved bytes, the second on absent actual original read/post-I/O ACL denial. Count, actual-source drift and final-read expiry are additional literal regressions, not call-count-only substitutes. An already-green characterization is not invented RED.
+
+- [ ] **Step2 — run each NEW behavioral group before production change.** From workspace root use the qualified bundled interpreter with `PYTHONPATH=runtime/src:runtime/tests`, `PYTHONDONTWRITEBYTECODE=1`, `-B -m unittest` and the exact new method IDs above. Capture original argv/cwd/interpreter/UTC/monotonic and complete raw stdout/stderr plus errors/IDs; no old method/cohort invocation. Missing module errors are scaffolding only. Run one module discovery during development only after the new cases exist.
+
+- [ ] **Step3 — minimal fresh-only pipeline, itemwise TDD.** Do not implement everything before its failing test. Entry selection requires configured fixed processing component, original intake/extraction phase and actual nonblank narrative/evidence after replay/admission. Preflight16/count/distinct and UTF-8 narrative ceiling before writing. Register exact saved narrative, then original evidence order. Exact ArtifactRecord/no parent/known-derived exclusions, actual bytes and aggregate catalog ceiling are checked; re-get current ACL and full equality after reads. Original timing before/after every real operation; track nondecreasing actual UTC and, for an ORIGINAL scoped execution, public monotonic_anchor samples so reversal above captured anchor cannot pass. execution=None keeps existing UTC-only mode, never manufactures a context. Final actual recorded_state current-case gate, current checkpoint/original/stop/versions/saved-ownership/phase/gate/associations/time fence, then return its accounted checkpoint to unchanged driver. Normalize expected catalog failures to generic engine denial; do not swallow BaseException or expose partial content. Do not capture another context, call a model/processor/ID factory/consumer, inspect private allowances, create campaign/receipt, decode media, dispatch business effects or weaken graph facts.
+
+- [ ] **Step4 — finite concrete guard matrix, genuine tests before each missing guard.**
+
+| Controlled input/event | Observable required result |
+|---|---|
+| Structured or whitespace-only, processing=None legacy | Existing structured/no-model behavior; no new catalog read/publication or invocation. |
+| Duplicate evidence or16 evidence plus narrative | Generic denied before publication; original selection not truncated/deduplicated. |
+| Missing ID, same ID for foreign case, derived parent or known planning/transcription record | Generic denied, no output/locator/count or processing/effect entry. |
+| Narrative or ordered aggregate exceeds catalog.max_bytes | Generic denied; no all-or-none artifact claim; prior private artifacts preserved. |
+| Missing SavedOriginalScope, ACL false/exception, record drift AFTER real read | Generic denied/current original/caps retained; no hash-as-permission. |
+| Current case authorization/revision/generation drift after real I/O | Real final source fence denies; keep actual source-read debt. |
+| Original host expiry or reversed observation after final byte/ACL read | Generic denied without fresh capture or output success. |
+| Saved stop/generation stop or ownership pending/transfer_pending/stopped; phase/gate/version changes during I/O | Generic denied, no stale driver entry or reset. |
+| Reentry/foreign thread/fixed catalog/gateway/profile/bundle association change | Deny before foreign entry or after actual change; owner original remains intact. |
+| Same-original intake retry/reopen, completed replay, recover/reply, later phase | Deterministic narrative identity not duplicated; no rewind or implicit processing. |
+| Ordered consumed/completed/failed/unknown/unavailable historical reservations | Retain every row/status and exact case/role/campaign balances; never refund/filter/create an invocation. |
+| Summary/reconstructed engine/private partial catalog state | Four fields/no refs or secrets; no durable local history fabricated; interrupted files retained, never repaired/deleted. |
+
+For the unchanged structured/recovery/status obligations, use NEW public fixture bodies and real public producers only, not existing test method calls or broad old-suite repeats. Compare actual before/after role/campaign/effect rows and allowances; real current-case read may debit tool/time, so whole-checkpoint equality is not the expected contract.
+
+- [ ] **Step5 — freeze and ONE root-authorized finite final.** Full-read binding, exact2 and original RED/GREEN/errors. Freeze literal actual current new IDs plus actual source/data/import/open/private/interpreter/platform closure; qualify old receipts as historical when dependencies changed. Freeze unavailable removed/native/audit limits explicitly. Root verifies original receipts/current pins and separately chooses ONE final cohort plus proportionate NEW checks; no repeated broad API/V2/old processing cohorts. Whole project suite/finalmostcap remains separate unfinished whole-candidate gate.
+
+- [ ] **Step6 — exact-two local commit and separate independent gates.** Root checks empty index/exact names/diff hygiene, commits only the two files and supplies plan-first package. DIFFERENT NONAUTHOR separately assesses Spec then Quality; original writer fixes findings. Only bounded B4d status closes after both approve. Actual extraction/model/media/provider/V2 campaign/output-reference/durable-history/activation/rights/reproduction/custody/drills/whole16/archive remain open.
+
+
 ### Task 13: Engineer adaptation proposals, compatible release and process views
 
 - [x] 13B1 complete retained-state storage prerequisite exact3f954249 plus nullable-key FIX1 exact3 at261bdd77 independently Spec Approved/Quality Approved by original DIFFERENT NONAUTHOR runtime_retained_state_review; I1ADDRESSED/newC0/I0/M0. Initial25/root4 historical; NEW genuine RED2/3assertion failures then GREEN2, ONE final8/.293s/rootNEW2/.107s SAME42 qualify corrected epoch, not future changed gateway/wholecandidate. Full original rows/NULL-key multiplicity/canonical ties retained; unchanged schema/validator/debt, exact row/payload bounds, bounded chunk preflight/one read snapshot/original clocks+SQL limits/restoration/WAL. [retained-state-capture.md](../../../openspec/changes/proofkey-v21-harness-contracts/retained-state-capture.md) governs. Review hold released for12B4a; full13 activation/migration/source/host/registry/actualhuman/native/wholecandidate remains incomplete.
@@ -1814,6 +2109,8 @@ Define these helpers here; release artifacts pin adapter/process/policy/contract
 
 
 #### Task13B3 — complete registered declarations and durable original-route foundation
+
+- [x] Bounded exact3 stage32dab4619 plus original-author exact2 scoped-parent FIX1c43a7c1 independently Spec Approved/Quality Approved by original DIFFERENT NONAUTHOR runtime_registered_routes_review; I1 addressed/newC0/I0/M0, root FULLread review9f8feacd2fe29a0b7dfcb4491e9352f5843bd3fd0c7a91c19e9a91dd2eaa0a43. Genuine new path RED retained; ONE correction final NEW4+two constructor/reopen/ownership controls6/.421s, all395 named current pins/actual227 joins. Earlier45/rootNEW2 preserved historical after correction; no broad repeat. Pure synthetic registrations/full-original durable observations only, not active selection, human approval, pre-debt host claim/seal, source origin, factory execution, migration or wholeTask13. The following recipe is retained historical specification. Bounded source hold released; other gates remain open.
 
 Internal Task13 refinement; binding [registered-release-routes.md](../../../openspec/changes/proofkey-v21-harness-contracts/registered-release-routes.md). Existing approved adaptation/preserved-contract scope; no activation/migration/pre-debt-host-integration/actual human approval. Three NEW files only: registered_releases.py pure artifacts/registry; admission_routes.py independent control-store bookkeeping; test_release_route_foundation.py public synthetic TDD. Existing modules, source/journal DDL, old tests/fixtures/recipes unchanged. Original author owns corrections; root owns formal/plan/commits, DIFFERENT NONAUTHOR separate Spec/Quality gate.
 
@@ -2122,6 +2419,8 @@ Read [release-preparation.md](../../../openspec/changes/proofkey-v21-harness-con
 Every stage keeps shared receipts unchanged and separates actual expected candidate/release hash recipes from differently scoped assessment hashes. Root exactstages exit-gated checks; different nonauthor spec/quality review is required. No static test/context fixture can complete real rights, dependency/install/media/event/production obligations.
 
 #### Task15B0 — truthful local engineer guide before release qualification
+
+- [x] Exact5 guide33b24df independently Spec Approved/Quality Approved C0/I0/M0 by DIFFERENT NONAUTHOR runtime_delivery_docs_review; report7c4fa828e27428142f6082dc651620d14004f178d53e3223dab51f824fd7b697 FULLread by root. README/RIGHTS/standard Apache LICENSE/NOTICE/.gitignore only; static57 checks/manual public signature and complete license readback, no quickstart execution or new operational demo. Full15B/source rights/dependency clearance/reproduction/install/package/video/provider/native/drills/finalmostcap/archive remain unfinished. Following bounded guide recipe remains historical, not a request to repeat57 checks.
 
 Internal documentation slice; binding [delivery-documentation.md](../../../openspec/changes/proofkey-v21-harness-contracts/delivery-documentation.md). Independent from concurrent Task13B3's NEW source targets. Exactly NEW `runtime/README.md`, `runtime/RIGHTS.md`, `runtime/LICENSE`, `runtime/NOTICE`, `runtime/.gitignore`; no existing public file, product import/operational launch/test/SQL, install/server/network/provider/spend or publication. Root formal/plan/commits; original author owns corrections, different nonauthor separate Spec/Quality gate. This does not complete15B source freeze/package/reproduction/video.
 
