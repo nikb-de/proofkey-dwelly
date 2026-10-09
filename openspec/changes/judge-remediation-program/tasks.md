@@ -8,8 +8,8 @@
 
 ## 2. Baseline and small hygiene leaves
 
-- [ ] 2.1 Complete synthetic factory registration and current-source evidence: J02.
-- [ ] 2.2 Capture a green complete-suite frozen baseline: J01.
+- [x] 2.1 Complete synthetic factory registration and current-source evidence: J02.
+- [x] 2.2 Capture a green complete-suite frozen baseline: J01.
 - [x] 2.3 Retain corrected evidence and API environment evidence: J03, J04.
 - [x] 2.4 Retain timing correction and truthful labels: J28, J29.
 - [ ] 2.5 Implement/review immutable public registry inventory and short-parent regression: J22, J32.

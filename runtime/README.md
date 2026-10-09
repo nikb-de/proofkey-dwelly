@@ -11,7 +11,7 @@ The default executable exposes two registered **synthetic replay** examples. Thi
 - **Understand a result:** read [Read results](#read-results). Acknowledged, verified, pending, physically received and paid are different outcomes. Do not retry an unknown effect with a new key.
 - **Work on remaining capabilities:** use the [complete remediation register](../docs/verification/judge-remediation-2026-10-09/README.md), not the historical panel score, to find the next dependency and its exit evidence.
 
-The latest recorded full-suite baseline is **1,646 tests with 14 errors**, all at the factory's historical implementation gate; see [baseline corrections](../docs/verification/2026-10-09-baseline-corrections.md). This README edit does not rerun that suite. The fixed-case CLI, registered admission bridge, core engine and live integrations have different support boundaries.
+The latest recorded full-suite baseline is **1,685 tests, all passing**, on runtime commit `ecf36ac`, with 236 source/configuration files unchanged before and after execution. [Factory-registration verification](../docs/verification/2026-10-09-factory-registration.md) records the exact run, independent reviews and synthetic limits; the [earlier baseline corrections](../docs/verification/2026-10-09-baseline-corrections.md) remain historical evidence. This documentation-only edit does not change the tested code. The fixed-case CLI, registered admission bridge, core engine and live integrations have different support boundaries.
 
 ## Source-checkout quickstart
 

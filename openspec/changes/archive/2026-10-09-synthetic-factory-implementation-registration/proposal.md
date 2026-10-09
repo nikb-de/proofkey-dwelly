@@ -8,8 +8,10 @@ the old hashes would erase historical identity; accepting self-computed expected
 hashes would bypass the independent admission boundary.
 
 Status: design and corrected written implementation plan accepted by the user
-on 2026-10-09 ("подтверждаю"). Implementation is now in progress under that
-bounded scope; no qualification or activation is implied by approval.
+on 2026-10-09 ("подтверждаю"). The bounded implementation, independent reviews,
+fresh-process captures and complete 1,685-test suite are complete. See
+`docs/verification/2026-10-09-factory-registration.md`. This establishes only
+the stated local synthetic scope, not production qualification or activation.
 
 ## What Changes
 

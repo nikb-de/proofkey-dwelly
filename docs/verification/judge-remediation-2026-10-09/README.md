@@ -1,6 +1,6 @@
 # Judge remediation: complete work register
 
-Updated: 9 October 2026. Code baseline: `69738ea`; planning/docs changes are not a new runtime qualification. **Four narrow items are closed, one is partial, 27 remain open.** This register covers every recommendation, not a claim that all recommendations have been implemented.
+Updated: 9 October 2026. Tested runtime baseline: `ecf36ac`; subsequent documentation changes do not alter tested runtime behavior. **Six narrow items are closed and 26 remain open.** This register covers every recommendation, not a claim that all recommendations have been implemented or that synthetic verification qualifies production.
 
 ## Decision
 
@@ -18,9 +18,9 @@ The original five-provider assessment and ZIP are immutable. This register is a 
 | Evidence regression expectations corrected | `9c1ea1c`; [baseline verification](../2026-10-09-baseline-corrections.md) | Real original evidence, malformed/missing/revoked references and unavailable processing are distinguished; production behavior unchanged |
 | API environment selected and checked | Same baseline verification | Existing isolated environment, 24 API tests; no new installation claim |
 | Full recommendation inventory and source-backed design inputs | This directory | 31 findings, 31 recommendations, 15 next actions, 40 rubric explanations and 24 declined-scope entries mapped; discovery/documentation only |
-| Synthetic factory registration plan prepared and corrected after independent review | [implementation plan](../../superpowers/plans/2026-10-09-synthetic-factory-registration.md), [plan review](factory-plan-review.md) | User accepted the design; written-plan confirmation is pending. No factory code changed yet |
+| Explicit synthetic factory registration and fresh-process verification implemented | `94b0eec`, `ecf36ac`; [verification](../2026-10-09-factory-registration.md), [completed plan](../../superpowers/plans/2026-10-09-synthetic-factory-registration.md) | User approved the corrected plan; both task reviews and whole-leaf review approved. Historical pins/bytes preserved; no activation or changed-process authority added |
 
-Last full runtime run: **1,646 tests, 14 errors, no failures**, 396.912 seconds. All 14 errors stop at the historical factory implementation gate. The current suite is not green. Selected passing tests are not a substitute for fixing that gate and rerunning the complete suite.
+Latest full runtime run: **1,685 tests, zero errors/failures/skips**, 742.788 seconds, on frozen `ecf36ac`. All 236 inventoried runtime source/configuration files and HEAD remained stable. The prior 1,646-test/14-error result remains preserved as historical evidence. This green local suite closes the baseline, not live integration, installation, timed adaptation or production qualification.
 
 ## Execution order
 
@@ -49,8 +49,8 @@ State meanings: **closed** = named evidence meets the narrow criterion; **partia
 
 | ID | State | Wave / owner | Next action and required exit evidence |
 | --- | --- | --- | --- |
-| J01 | partial | W0 / implementer + independent verifier | Run the entire suite on a frozen candidate, retaining environment, every selector and pre/post source inventory. No skipped old failures. |
-| J02 | open | W0 / factory implementer | Implement explicit immutable synthetic registration and fresh-process receipt binding. Preserve historical pins, legacy bytes, denied non-v1 execution and no activation. Written plan prepared. |
+| J01 | closed | W0 / implementer + independent verifier | [Frozen complete suite](../2026-10-09-factory-registration.md): 1,685/1,685 passed, no skipped old failures; raw selectors, environment, hashes and stable 236-file pre/post inventory retained. |
+| J02 | closed | W0 / factory implementer | [Implemented and independently reviewed](../2026-10-09-factory-registration.md): immutable explicit registration, historical byte vectors and current-source receipt binding; non-v1 remains unavailable and staging remains synthetic. |
 | J03 | closed | W0 / regression verifier | Retain the corrected evidence tests and contract; future work must not turn recovery into implicit evidence intake. |
 | J04 | closed | W0 / verifier | Keep using the verified existing API environment. Fresh installation remains J13. |
 | J05 | open | W3 / process-adaptation implementer | Actually execute a finite changed response-envelope parser and readiness phase under a new registered version, then prove baseline/candidate differences, preserved old routes and reviewed release. Metadata-only version changes do not pass. |
@@ -82,7 +82,7 @@ State meanings: **closed** = named evidence meets the narrow criterion; **partia
 | J31 | open | W4 + external gate / label author and human validator | Generate versioned provisional development labels, preserve provenance/disagreement, and obtain separate revalidation. These are not protected truth labels. |
 | J32 | open | W0 / timing-test author | Add an independent positive-but-under-five-second parent remainder probe; final observation must use only the remaining original parent window. No fresh budget. |
 
-The four closed rows stay in the register. No item is removed because another judge omitted it or because it is an optional suggestion. Optional items may be explicitly deferred, but currently remain open.
+The six closed rows stay in the register. No item is removed because another judge omitted it or because it is an optional suggestion. Optional items may be explicitly deferred, but currently remain open.
 
 ## Chosen defaults for the next specifications
 
@@ -114,12 +114,12 @@ Creating these packs does not authorize sending them, enrolling accounts, buying
 - A failed or absent check remains visible. No deletion of an old receipt or failed position to improve the score.
 - If authority, account scope, install artifact, real human decision or isolated environment is missing, continue independent offline work and report that exact gate.
 - No blanket “all fixed”, “production-ready”, “protected assessment passed” or “six integrations connected” label from this program's planning or unit tests.
-- Next runtime action is the **factory registration plan**, once its written-plan review is confirmed. Its independent review issues F1–F4 have been incorporated; the old review is retained for provenance.
+- The factory registration leaf is complete. Next bounded implementation candidates are **J22/J32**, followed by packaging and trusted integration slices; their behavior changes still need the prescribed design/plan review. Original factory-plan review issues F1–F4 and their resolution remain preserved for provenance.
 
 ## Reading order
 
 1. This register — decisions, scope, all J-IDs and sequencing.
-2. [Factory implementation plan](../../superpowers/plans/2026-10-09-synthetic-factory-registration.md) — the next bounded code leaf.
+2. [Factory verification](../2026-10-09-factory-registration.md) and [completed implementation plan](../../superpowers/plans/2026-10-09-synthetic-factory-registration.md) — the closed baseline leaf and its limits.
 3. [Support matrix](support-matrix.md) — exact current public/registered/core boundaries, source-reviewed draft.
 4. [Integration discovery](integration-discovery.md) and [qualification discovery](qualification-discovery.md) — source-backed seams, prohibited shortcuts and independent slice proposals.
 5. [source-map.json](source-map.json) — all original source text/mappings and observed seat identity limits.

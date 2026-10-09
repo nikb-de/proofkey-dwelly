@@ -8,7 +8,9 @@
 
 **Tech Stack:** Existing Python 3.12 runtime, dataclasses, SHA-256, unittest, existing isolated API-test environment; no new dependencies.
 
-**Spec:** `openspec/changes/synthetic-factory-implementation-registration/specs/synthetic-factory-registration/spec.md` and its `design.md`.
+**Spec:** `openspec/specs/synthetic-factory-registration/spec.md`. Completed change and design: `openspec/changes/archive/2026-10-09-synthetic-factory-implementation-registration/`.
+
+**Completion:** Implemented in `94b0eec` and `ecf36ac`; independently reviewed; 1,685 complete-suite tests passed. See [verification record](../../verification/2026-10-09-factory-registration.md). This closes the approved leaf, not the wider remediation program.
 
 ## Global Constraints
 
@@ -46,7 +48,7 @@
 - `_material_proposal(material, implementation_registration=None)` receives the normalized host registration. All four existing call sites must pass it consistently.
 - Current test helper `factory_for` accepts an explicit registration override including None; its default uses the independently fixed fixture. `current_registration()` loads literals, never hashes material to create expected authority.
 
-- [ ] **Step 1: Capture historical reference vectors before implementation and record baseline RED.**
+- [x] **Step 1: Capture historical reference vectors before implementation and record baseline RED.**
 
 Use `git show 336b0bb0f9b9e2b6118c34de825200c80764fd2e:runtime/src/proofkey/<path>` to recover the six historical source blobs into memory for serialization-only input. Build fixed supported-control material with current unchanged factory code; capture the full canonical proposal body, proposal hash, regression/approval inputs and staged manifest/receipt bytes. Supply fixed synthetic regression rows directly via `evidence(..., cases=...)`, and construct the approval/review event explicitly. Do not call `reviewed()` or the default `evidence()` for historical vectors: both would execute current behavior against historical material. Store literal vectors with source commit and an explicit `serialization_only` scope. No historical execution claim. The golden test must compare fixed values, not recompute its expectation from the implementation under test.
 
@@ -57,7 +59,7 @@ import proofkey.factory as factory_api
 self.assertIsNotNone(getattr(factory_api, 'SyntheticImplementationRegistration', None))
 ```
 
-- [ ] **Step 2: Add the fixed current registration fixture and validation cases.**
+- [x] **Step 2: Add the fixed current registration fixture and validation cases.**
 
 Fixture ID: `synthetic-factory-current-69738ea-v1`; provenance: `local_controlled_synthetic`. Use these independently observed literals, checking their correspondence to current bytes without replacing them if drift is found:
 
@@ -74,7 +76,7 @@ Fixture ID: `synthetic-factory-current-69738ea-v1`; provenance: `local_controlle
 
 New tests must cover None rejecting current bytes; unchanged historical vectors; valid explicit material; reordered pins; malformed/empty/oversize ID; wrong provenance; subclasses; lists/dicts/nested mutable aliases; duplicate/missing/extra/relative/absolute alias paths; invalid hash; one-byte source drift; missing/extra/duplicate source; explicit source size ceilings. Expected error for invalid registration is `invalid_implementation_registration`, mismatch is `unsupported_adapter_implementation`, oversize is `material_limit_exceeded`.
 
-- [ ] **Step 3: Implement the bounded immutable host value and thread it through all resolution paths.**
+- [x] **Step 3: Implement the bounded immutable host value and thread it through all resolution paths.**
 
 ```python
 @dataclass(frozen=True, slots=True)
@@ -99,7 +101,7 @@ registration_body = {
 
 Copy that resolved body's `implementation_registration` object into the staged manifest before calculating release hash. Do not rebuild it from caller data. Preserve every existing denial, including non-v1 dispatch and pending-intent staging.
 
-- [ ] **Step 4: Prove cross-registration separation and current behavioral coverage.**
+- [x] **Step 4: Prove cross-registration separation and current behavioral coverage.**
 
 Tests compare proposal/stage hashes under two IDs with identical pins; reject each other's proposals, regression bindings and simulated-review evidence in both directions. Verify prepare/resolve/check/stage all use one registration and returned material cannot mutate it. Add an explicit golden digest vector for the registration object. Existing 21 factory tests must reach their intended assertions; do not weaken reason checks or skip any test.
 
@@ -107,7 +109,7 @@ Tests compare proposal/stage hashes under two IDs with identical pins; reject ea
 PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1 PYTHONPATH=runtime/src:runtime/tests .superpowers/sdd/2026-10-08-proofkey-runtime/api-env.GEsSnS/bin/python -B -m unittest test_factory_registration test_adaptation_factory -v
 ```
 
-- [ ] **Step 5: Self-review and report, then root obtains independent review and commits.**
+- [x] **Step 5: Self-review and report, then root obtains independent review and commits.**
 
 Report exact commands, raw RED/GREEN paths, counts, source fixture checks, historical vector provenance, changed files and any limits. No broader source requalification claim. Root's independent reviewer checks both the diff and relevant semantic changes from historical to current six-source inventory; record what was inspected and what remains outside scope.
 
@@ -125,7 +127,7 @@ Report exact commands, raw RED/GREEN paths, counts, source fixture checks, histo
 - Output schema: `status`, `registration`, `python`, `distributions`, `source_before`, `source_after`, `source_stable`, `imports`, `tests`, `artifacts`, `limitations`. Artifacts retain raw canonical bytes plus SHA-256, kind, proposal hash, regression execution ID when present, and stage hash when present.
 - Inner suite is exactly `test_adaptation_factory` plus `test_factory_registration`. The outer `test_factory_qualification` module is NEVER loaded by this child. Collect the full inner test-ID inventory before execution; require all IDs to run once, zero skips, zero expected failures, zero unexpected successes, zero errors and zero failures before reporting success.
 
-- [ ] **Step 1: Add failing preflight, import-identity and capture tests.**
+- [x] **Step 1: Add failing preflight, import-identity and capture tests.**
 
 Cover preloaded module (including an object claiming the correct `__file__`), wrong local module origin, optimized interpreter, changed pinned source, changed broader inventory including added/untracked executing files, skipped/omitted/duplicate test ID, failure during tests, missing artifact and existing output directory. Negative tests must not mutate the checkout or generate fake passing receipts. Use temporary copies for controlled source drift. Show that a disk hash match does not bless a previously loaded module.
 
@@ -146,7 +148,7 @@ def test_inner_suite_is_non_recursive_and_complete(self):
 
 These two test helpers belong to the new qualification test class; `run_lane` launches the declared current interpreter and `read_manifest` reads its result directory. A failed launch without a manifest is itself failed capture, never a pass.
 
-- [ ] **Step 2: Implement one bounded fresh-process lane using existing test behaviors.**
+- [x] **Step 2: Implement one bounded fresh-process lane using existing test behaviors.**
 
 Bootstrap with standard library only. Reject optimized invocation, then re-execute in the same declared interpreter using `-B`, no `PYTHONOPTIMIZE`, and a newly empty private `-X pycache_prefix=...` directory before importing runtime/tests. Assert the child's optimization flag is zero before any helper runs. Verify fixed six pins and capture the runtime source/test/profile/fixture inventory, including new or untracked files, the qualifier itself and its registration/golden fixtures; do not use `git ls-files` alone. Reject symlinked/aliased inventory entries and keep paths relative to the selected root. Assert pinned modules are absent.
 
@@ -154,7 +156,7 @@ Then load exactly the two inner factory test modules, retain their complete test
 
 After execution, repeat the entire file inventory and local import-origin/identity checks, including files/modules added during execution. Finalize a successful manifest only after all checks and test-ID accounting pass; on failure emit an explicit invalid/failed record without a qualification claim. Bind exact emitted artifacts into the manifest. File/module checks are evidence for trusted fixed tests, not hostile-code isolation or proof against invisible transient in-process mutation.
 
-- [ ] **Step 3: Focused tests, independent review, root full suite.**
+- [x] **Step 3: Focused tests, independent review, root full suite.**
 
 ```sh
 PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1 PYTHONPATH=runtime/src:runtime/tests .superpowers/sdd/2026-10-08-proofkey-runtime/api-env.GEsSnS/bin/python -B -m unittest test_factory_qualification test_factory_registration test_adaptation_factory -v
@@ -162,6 +164,6 @@ PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1 PYTHONPATH=runtime/src:runtime/test
 
 Root runs the new script into a fresh output directory and checks exact bytes/manifest joins. Root then freezes the candidate and runs the complete runtime suite once with the existing isolated API environment, collecting raw output and pre/post inventory. A green suite closes only the baseline item, not adaptation, install, human review or the wider project.
 
-- [ ] **Step 4: Record limitations, archive only the completed registration leaf.**
+- [x] **Step 4: Record limitations, archive only the completed registration leaf.**
 
 Preserve the original five-provider bundle and historical factory constants. Archive the leaf only after tests/review/manifest verification complete; keep the broader judge-remediation and harness changes open. Return exact local commits, evidence paths and the next unresolved J-IDs. No merge, push, publication or provider regrade.
