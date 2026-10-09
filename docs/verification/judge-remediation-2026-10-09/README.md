@@ -1,6 +1,6 @@
 # Judge remediation: complete work register
 
-Updated: 9 October 2026. Tested runtime baseline: `ecf36ac`; subsequent documentation changes do not alter tested runtime behavior. **Six narrow items are closed and 26 remain open.** This register covers every recommendation, not a claim that all recommendations have been implemented or that synthetic verification qualifies production.
+Updated: 9 October 2026. Tested runtime baseline: `40138e1433b9f7ba782385124727dd2ea842f97f`; subsequent documentation changes do not alter tested runtime behavior. **Eight narrow items are closed and 24 remain open.** J22/J32 verification is complete and their [OpenSpec leaf is archived](../../../openspec/changes/archive/2026-10-09-registry-commitments-and-short-parent-evidence/tasks.md). This register covers every recommendation, not a claim that all recommendations have been implemented or that synthetic verification qualifies production.
 
 ## Decision
 
@@ -8,7 +8,7 @@ Keep the product bet: **easy integration → rapid adaptation → reliable case 
 
 The first business demonstrations remain rescheduling and whole-order refusal/return. Service refusal and operator handoff are the next public-path evidence slice; a queued handoff is not an operator's acceptance. Six provider-neutral interfaces remain in scope; six live integrations do not.
 
-The original five-provider assessment and ZIP are immutable. This register is a response to those findings, **not a new judge score**. The complete original-to-work-item mapping is in [source-map.json](source-map.json). That file is a preserved discovery snapshot; its references to approval being pending precede the user's current instruction. Current execution status is below.
+The original five-provider assessment and ZIP are immutable. This register is a response to those findings, **not a new judge score**. The complete original-to-work-item mapping is in [source-map.json](source-map.json). That file is a preserved discovery snapshot; its references to approval being pending precede the user's current instruction. The separate [r2 assessment and source adjudication](../../../outputs/proofkey_runtime_panel_2026-10-09_r2/reports/ASSESSMENT.md) are complete: five named seats answered, four satisfy the strict aggregate schema, and all 30 findings were checked. No additional J22/J32 defect was reproduced, so no second panel was warranted. Current execution status is below.
 
 ## What has actually changed
 
@@ -19,8 +19,9 @@ The original five-provider assessment and ZIP are immutable. This register is a 
 | API environment selected and checked | Same baseline verification | Existing isolated environment, 24 API tests; no new installation claim |
 | Full recommendation inventory and source-backed design inputs | This directory | 31 findings, 31 recommendations, 15 next actions, 40 rubric explanations and 24 declined-scope entries mapped; discovery/documentation only |
 | Explicit synthetic factory registration and fresh-process verification implemented | `94b0eec`, `ecf36ac`; [verification](../2026-10-09-factory-registration.md), [completed plan](../../superpowers/plans/2026-10-09-synthetic-factory-registration.md) | User approved the corrected plan; both task reviews and whole-leaf review approved. Historical pins/bytes preserved; no activation or changed-process authority added |
+| Public registry commitments and positive short-parent evidence implemented | `0e71716`, `0122660`, `40138e1`; [verification](../2026-10-09-registry-commitments.md), [implementation plan](../../superpowers/plans/2026-10-09-registry-commitments-and-short-parent-evidence.md) | J22/J32 narrow criteria verified and independently reviewed; unchanged wire/digest and authority boundaries. J32 changes tests only. Leaf archived; strict OpenSpec validation 6/6 passed |
 
-Latest full runtime run: **1,685 tests, zero errors/failures/skips**, 742.788 seconds, on frozen `ecf36ac`. All 236 inventoried runtime source/configuration files and HEAD remained stable. The prior 1,646-test/14-error result remains preserved as historical evidence. This green local suite closes the baseline, not live integration, installation, timed adaptation or production qualification.
+Latest full runtime run: **1,693 tests, zero errors/failures/skips**, 888.064 test seconds, on frozen `40138e1`. All 246 inventoried runtime files and HEAD remained stable. The current-source factory qualifier separately passed all 37 planned tests, with eight artifact hashes independently checked; non-v1 execution remains unavailable and staging remains simulated. [Verification and exact receipt hashes](../2026-10-09-registry-commitments.md) distinguish these local checks from production qualification. The earlier 1,685-test/742.788-second/236-file run on `ecf36ac` and the 1,646-test/14-error result remain preserved historical evidence. No live integration, fresh installation or timed adaptation claim follows.
 
 ## Execution order
 
@@ -49,7 +50,7 @@ State meanings: **closed** = named evidence meets the narrow criterion; **partia
 
 | ID | State | Wave / owner | Next action and required exit evidence |
 | --- | --- | --- | --- |
-| J01 | closed | W0 / implementer + independent verifier | [Frozen complete suite](../2026-10-09-factory-registration.md): 1,685/1,685 passed, no skipped old failures; raw selectors, environment, hashes and stable 236-file pre/post inventory retained. |
+| J01 | closed | W0 / implementer + independent verifier | [Latest frozen complete suite](../2026-10-09-registry-commitments.md): 1,693/1,693 passed, no skipped old failures, stable 246-file pre/post inventory and HEAD. The [original 1,685-test baseline](../2026-10-09-factory-registration.md) remains preserved. |
 | J02 | closed | W0 / factory implementer | [Implemented and independently reviewed](../2026-10-09-factory-registration.md): immutable explicit registration, historical byte vectors and current-source receipt binding; non-v1 remains unavailable and staging remains synthetic. |
 | J03 | closed | W0 / regression verifier | Retain the corrected evidence tests and contract; future work must not turn recovery into implicit evidence intake. |
 | J04 | closed | W0 / verifier | Keep using the verified existing API environment. Fresh installation remains J13. |
@@ -70,7 +71,7 @@ State meanings: **closed** = named evidence meets the narrow criterion; **partia
 | J19 | open | W4–5 / run controller + independent grader | Freeze and run A=1, B=7, C=4, D=12 positions, each complete exercise within one measured 600-second target. Include setup, waits and export; record misses honestly. A also needs real review. |
 | J20 | open | W4 / eval implementer | Version and execute all declared workload positions and R01–R15 obligations, using independent expected effects. Keep failure, timeout, denied and unsupported rows in the denominator. |
 | J21 | open | External gate / unfamiliar engineer and operator | Observe real onboarding and packet use, task outcome and effort. Model review is not user research. Prepared script first; actual observation later. |
-| J22 | open | W1 / bounded API implementer | Replace direct `_releases` coupling with a detached immutable public commitment inventory. Preserve one-composition invariants and add mutation/invariant tests. |
+| J22 | closed | W1 / bounded API implementer | [Implemented and independently reviewed](../2026-10-09-registry-commitments.md): detached validated public commitments replace private consumer coupling; malformed/empty/bounded records, substitution, single-composition and literal wire/digest regressions covered. Full frozen suite passed; leaf archived. Maximum-envelope performance remains unmeasured. |
 | J23 | open | W4 / evidence implementer | Render a content-free correlated trace from existing receipts: admission → authorization → dispatch → original readback → publication/shutdown. No hosted collector required. Redact credentials and raw content. |
 | J24 | open | W1 / documentation reviewer | Add a short outcome-first quickstart with supported path, output interpretation and safe failure handling. Prepared matrix exists; real unfamiliar-user validation remains J21. |
 | J25 | open | External gate / human team lead | Confirm actual event acceptance, eligible work, five human participants, ownership and availability. Existing conversation names are not current confirmation. |
@@ -80,9 +81,9 @@ State meanings: **closed** = named evidence meets the narrow criterion; **partia
 | J29 | closed | All / every author and reviewer | Keep original scores and all synthetic/actual/unverified labels truthful. Closure applies to reviewed artifacts, not automatic approval of future claims. |
 | J30 | open | W5 / nonauthor reviewer + root | Whole-change review after implementation and evidence; archive only genuinely complete leaves, then the parent when all its requirements are met. |
 | J31 | open | W4 + external gate / label author and human validator | Generate versioned provisional development labels, preserve provenance/disagreement, and obtain separate revalidation. These are not protected truth labels. |
-| J32 | open | W0 / timing-test author | Add an independent positive-but-under-five-second parent remainder probe; final observation must use only the remaining original parent window. No fresh budget. |
+| J32 | closed | W0 / timing-test author | [Real-component short-parent evidence](../2026-10-09-registry-commitments.md): UTC- and monotonic-limited two-second phases, final-write expiry and generous-budget sensitivity control; original parent authority and durable timing preserved. No production timing change. Full frozen suite passed; leaf archived. |
 
-The six closed rows stay in the register. No item is removed because another judge omitted it or because it is an optional suggestion. Optional items may be explicitly deferred, but currently remain open.
+The eight closed rows stay in the register. No item is removed because another judge omitted it or because it is an optional suggestion. Optional items may be explicitly deferred, but currently remain open.
 
 ## Chosen defaults for the next specifications
 
@@ -114,12 +115,13 @@ Creating these packs does not authorize sending them, enrolling accounts, buying
 - A failed or absent check remains visible. No deletion of an old receipt or failed position to improve the score.
 - If authority, account scope, install artifact, real human decision or isolated environment is missing, continue independent offline work and report that exact gate.
 - No blanket “all fixed”, “production-ready”, “protected assessment passed” or “six integrations connected” label from this program's planning or unit tests.
-- The factory registration leaf is complete. Next bounded implementation candidates are **J22/J32**, followed by packaging and trusted integration slices; their behavior changes still need the prescribed design/plan review. Original factory-plan review issues F1–F4 and their resolution remain preserved for provenance.
+- The factory registration and **J22/J32 leaves are complete and archived.** Packaging and trusted integration slices remain future work; their behavior changes still need the prescribed design/plan review. Original factory-plan review issues F1–F4 and their resolution remain preserved for provenance.
 
 ## Reading order
 
 1. This register — decisions, scope, all J-IDs and sequencing.
-2. [Factory verification](../2026-10-09-factory-registration.md) and [completed implementation plan](../../superpowers/plans/2026-10-09-synthetic-factory-registration.md) — the closed baseline leaf and its limits.
+2. [Current registry/timing verification](../2026-10-09-registry-commitments.md) and [implementation plan](../../superpowers/plans/2026-10-09-registry-commitments-and-short-parent-evidence.md), then [factory verification](../2026-10-09-factory-registration.md) and its [completed plan](../../superpowers/plans/2026-10-09-synthetic-factory-registration.md) — current and historical bounded evidence, with their limits.
 3. [Support matrix](support-matrix.md) — exact current public/registered/core boundaries, source-reviewed draft.
 4. [Integration discovery](integration-discovery.md) and [qualification discovery](qualification-discovery.md) — source-backed seams, prohibited shortcuts and independent slice proposals.
 5. [source-map.json](source-map.json) — all original source text/mappings and observed seat identity limits.
+6. [r2 assessment](../../../outputs/proofkey_runtime_panel_2026-10-09_r2/reports/ASSESSMENT.md) — five returned answers, four schema-eligible score sets, all 30 source-adjudicated findings and the bounded stop decision.

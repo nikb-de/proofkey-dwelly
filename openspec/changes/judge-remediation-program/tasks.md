@@ -12,7 +12,7 @@
 - [x] 2.2 Capture a green complete-suite frozen baseline: J01.
 - [x] 2.3 Retain corrected evidence and API environment evidence: J03, J04.
 - [x] 2.4 Retain timing correction and truthful labels: J28, J29.
-- [ ] 2.5 Implement/review immutable public registry inventory and short-parent regression: J22, J32.
+- [x] 2.5 Implement/review immutable public registry inventory and short-parent regression: J22, J32. Evidence: `40138e1`, independent task/whole-package reviews, 1,693 passed tests with stable 246-file inventory and current-source qualifier 37/37; see `docs/verification/2026-10-09-registry-commitments.md`. [This bounded leaf is archived](../archive/2026-10-09-registry-commitments-and-short-parent-evidence/tasks.md), with strict OpenSpec validation 6/6 passed; the wider program remains open.
 
 ## 3. Integration and packaging child changes
 

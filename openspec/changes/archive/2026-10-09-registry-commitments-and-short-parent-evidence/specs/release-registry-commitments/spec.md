@@ -2,7 +2,7 @@
 
 ### Requirement: Public inventory is detached and validated
 
-The registry SHALL expose `commitments() -> tuple[tuple[str, str], ...]` as sorted exact built-in tuples and strings containing release IDs and artifact hashes only. It SHALL validate its actual current retained records: exact registry, container, pair, ID and bytes types; one through 32 unique sorted IDs; at most 8 MiB per release and 32 MiB total before parsing; valid canonical envelopes; and matching outer and embedded release IDs. It SHALL not return mutable aliases or a stale independent cache.
+The registry SHALL expose `commitments() -> tuple[tuple[str, str], ...]` as sorted exact built-in tuples and strings containing release IDs and artifact hashes only. It SHALL validate its actual current retained records: exact registry, container, pair, ID and bytes types; one through 32 unique sorted IDs; nonempty bytes with at most 8 MiB per release and 32 MiB total before parsing any envelope; valid canonical envelopes; and matching outer and embedded release IDs. It SHALL not return mutable aliases or a stale independent cache.
 
 #### Scenario: Registry has multiple valid releases
 - **WHEN** a caller obtains the inventory
@@ -10,8 +10,12 @@ The registry SHALL expose `commitments() -> tuple[tuple[str, str], ...]` as sort
 - **AND** later retained-record replacement cannot change the old projection or evade a new validation
 
 #### Scenario: Retained records have been corrupted
-- **WHEN** records are malformed, relabeled, duplicated, unsorted or exceed bounds
+- **WHEN** records are malformed, empty, relabeled, duplicated, unsorted or exceed bounds
 - **THEN** inventory acquisition SHALL fail closed before the malformed records can authorize admission
+
+#### Scenario: A later record is empty
+- **WHEN** an earlier record contains invalid envelope bytes and a later record contains zero bytes
+- **THEN** complete byte preflight SHALL reject the zero-byte record before parsing the earlier envelope
 
 ### Requirement: Admission consumes public commitments without widening authority
 
