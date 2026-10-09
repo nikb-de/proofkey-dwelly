@@ -264,3 +264,69 @@ class PacketSourceTests(unittest.TestCase):
         result = PolicyGate(self.profile).evaluate(make_request(), ActionProposal(operation="enqueue_handoff",
             stage="enqueue", arguments=intent.arguments, evidence_refs=[]), observations, checkpoint)
         self.assertFalse(result.allowed)
+
+    def test_legacy_profile_reopen_cannot_disclose_content_bearing_original(self):
+        intent = self.intent()
+        self.assertEqual(self.port.enqueue_handoff(intent).status, "acknowledged")
+        self.assertEqual(self.read(intent, caller="OP1", proof="synthetic-operator-proof").observations, [])
+        for name in ["flat-v1", "flat-v1.1", "flat-v1.2", "nested-v1.2"]:
+            with self.subTest(profile=name):
+                self.clock.advance(1)  # Respect the shared synthetic read-rate budget.
+                reopened = SimulatedWorld(self.db, self.fixture_path, profile=load_profile(name), clock=self.clock)
+                self.port = reopened.bundle().operator
+                denied = self.read(intent, caller="OP1", proof="synthetic-operator-proof")
+                self.assertEqual(denied.observations, [])
+                allowed = self.read(intent)
+                self.assertNotIn("packet_content", [obs.fact for obs in allowed.observations])
+                self.assertIn("packet_content_receipt", [obs.fact for obs in allowed.observations])
+                packet_target = ReadTarget(kind="operator_packet", packet_id="P1", packet_revision="v1")
+                for method in [self.port.read_receipt, self.port.read_resume]:
+                    read = method(ReadRequest(case_id="C1", object_id="O1", caller_id="OP1",
+                        proof_reference="synthetic-operator-proof", purpose="reconcile", deadline=DEADLINE, target=packet_target))
+                    self.assertEqual(read.observations, [])
+
+    def test_legacy_reopen_keeps_revoked_content_receipt_private(self):
+        intent = self.intent()
+        self.assertEqual(self.port.enqueue_handoff(intent).status, "acknowledged")
+        self.world.mutate("operator.packet_access", {**self.content["access"], "permitted_originals": []})
+        reopened = SimulatedWorld(self.db, self.fixture_path, profile=load_profile("flat-v1.2"), clock=self.clock)
+        self.port = reopened.bundle().operator
+        self.assertEqual(self.read(intent).observations, [])
+
+    def test_genuine_legacy_metadata_only_original_keeps_legacy_read_semantics(self):
+        legacy = load_profile("flat-v1.2")
+        world = SimulatedWorld(Path(self.folder.name) / "legacy.sqlite", ROOT / "fixtures/development/world.json",
+                               profile=legacy, clock=self.clock)
+        self.port = world.bundle().operator
+        args = {"packet_id": "P1", "packet_revision": "v1", "packet_hash": "packet-hash", "recipient": "OP1"}
+        intent = make_intent(operation="enqueue_handoff", stage="enqueue", arguments=args, profile_version="v1.2",
+            expected_revisions=world.material_revisions(), postcondition={"packet_id": "P1", "packet_revision": "v1",
+                "packet_hash": "packet-hash", "operator.handoff_disposition": "pending"})
+        self.assertEqual(self.port.enqueue_handoff(intent).status, "acknowledged")
+        read = self.read(intent, caller="OP1", proof="synthetic-operator-proof")
+        self.assertEqual(len(read.observations), 4)
+        self.assertEqual(verify(intent, read).status, "verified")
+
+    def test_advancing_clock_uses_one_original_receipt_observation_timestamp(self):
+        class AdvancingClock(FakeClock):
+            def now(self):
+                current = super().now()
+                self.advance(0.000001)
+                return current
+
+        self.clock = AdvancingClock()
+        self.db = Path(self.folder.name) / "advancing.sqlite"
+        self.world = SimulatedWorld(self.db, self.fixture_path,
+                                    profile=self.profile, clock=self.clock)
+        self.port = self.world.bundle().operator
+        intent = self.intent()
+        self.assertEqual(self.port.enqueue_handoff(intent).status, "acknowledged")
+        with sqlite3.connect(self.db) as connection:
+            stored = json.loads(connection.execute("SELECT observations FROM effects").fetchone()[0])
+        observation = next(item for item in stored if item["fact"] == "packet_content_receipt")
+        self.assertEqual(observation["value"]["stored_at"], observation["provider_at"])
+        self.assertEqual(observation["observed_at"], observation["provider_at"])
+        read = self.read(intent)
+        self.assertEqual(verify(intent, read, profile=self.profile).status, "verified")
+        receipt = next(obs for obs in read.observations if obs.fact == "packet_content_receipt")
+        self.assertLess(receipt.provider_at, read.as_of)

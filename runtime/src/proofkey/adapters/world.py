@@ -544,7 +544,11 @@ class SimulatedWorld:
 
     def _effect_observations(self, connection, intent, values):
         facts = self._facts(connection, intent.binding.case_id, intent.binding.object_id)
-        now = self._now()
+        receipt = values.get("operator.packet_content_receipt")
+        # The original receipt and its evidence describe one provider event.
+        # This receipt was generated above by the provider, never supplied in
+        # caller arguments; sampling again would create a distinct event time.
+        now = PacketContentReceiptV1.model_validate(receipt).stored_at if receipt is not None else self._now()
         return [AuthorityObservation(authority=key.partition(".")[0], fact=key.partition(".")[2],
                 object_id=intent.binding.object_id, value=value, revision=facts[key]["revision"] if key in facts else "v1",
                 provider_at=now, observed_at=now, evidence_ref="synthetic-provider:effect:" + intent.action_id)
@@ -642,7 +646,12 @@ class SimulatedWorld:
                         return empty("unavailable")
                     observations = [AuthorityObservation.model_validate({**item, "observed_at": self._now()})
                                     for item in json.loads(record["observations"])]
-                    if record["operation"] == "enqueue_handoff" and packet_enabled(self._profile):
+                    content_bearing = any(obs.authority == "operator" and obs.fact in
+                                          {"packet_content", "packet_content_receipt"} for obs in observations)
+                    # Disclosure follows the stored provider-owned outcome,
+                    # not a later profile selection when reopening this DB.
+                    # Genuine legacy metadata-only rows retain their semantics.
+                    if record["operation"] == "enqueue_handoff" and content_bearing:
                         facts = self._facts(connection, request.case_id, request.object_id)
                         if not self._packet_disclosure_allowed(facts, request, original=True):
                             return empty("scope_rejected")
