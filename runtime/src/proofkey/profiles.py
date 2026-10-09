@@ -78,6 +78,12 @@ def load_profile(path: str | Path) -> EnvironmentProfile:
     except (OSError, json.JSONDecodeError) as error:
         raise ValueError("Profile is unavailable or invalid JSON") from error
     profile = EnvironmentProfile.model_validate(raw)
+    return validate_profile(profile)
+
+
+def validate_profile(profile: EnvironmentProfile) -> EnvironmentProfile:
+    """Apply the loader's canonical checks to detached in-memory profile data."""
+    profile = EnvironmentProfile.model_validate(profile.model_dump(mode="json"))
     data = profile.model_dump(mode="json")
     if profile.release_hash != fingerprint({k: v for k, v in data.items() if k != "release_hash"}):
         raise ValueError("Profile release hash mismatch")
