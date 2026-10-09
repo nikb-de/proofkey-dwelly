@@ -22,7 +22,8 @@ from .host import (ApprovedProfileRelease, ProfileRegistry, RuntimeFactory,
                    _PROFILE_RAW as _PINNED_PROFILE_FILE, _PROFILE as _PINNED_PROFILE,
                    _PROCESS as _PINNED_PROCESS, _POLICY as _PINNED_POLICY)
 from .host_admission import (AdmissionCompositionFailure, HostExecutableBindingV1, FIXED_IMPLEMENTATION_PATHS,
-                             LocalAdmissionCompositionV1, control_context, validate_composition, _id)
+                             LocalAdmissionCompositionV1, control_context, validate_composition,
+                             _id, _implementation_paths)
 from .host_contracts import parse_command
 from .host_files import _read, _write
 from .identity import request_fingerprint
@@ -101,6 +102,7 @@ class _ValidatedInput:
     profile_bytes: bytes
     declarations: tuple[tuple[str, bytes], ...]
     implementations: tuple[ReleaseBlobV1, ...]
+    factory_key: str
 
 
 def _fixture_json(raw):
@@ -214,10 +216,12 @@ def _installed_bytes(path):
         pins.close()
 
 
-def _validate_input(spec, clock, execution):
+def _validate_input(spec, clock, execution, *, factory_key='fixed-synthetic-v1'):
     """Return detached fixed-family snapshots after every preallocation check."""
     try:
         _boundary(clock, execution)
+        _require(type(factory_key) is str)
+        implementation_paths = _implementation_paths(factory_key)
         _require(type(spec) is SyntheticCaseReleaseSpecV1)
         copied = SyntheticCaseReleaseSpecV1(spec.host_release_id, spec.registered_release_id,
                                           spec.resource_id, spec.request, spec.fixture_bytes)
@@ -234,7 +238,7 @@ def _validate_input(spec, clock, execution):
                  == (_PINNED_PROFILE, _PINNED_PROCESS, _PINNED_POLICY)
                  and all(item.version == "v1" for item in profile.processes.values()))
         implementations = []
-        for name in FIXED_IMPLEMENTATION_PATHS:
+        for name in implementation_paths:
             _boundary(clock, execution)
             implementations.append(ReleaseBlobV1(name, _installed_bytes(package / name)))
         implementations = tuple(implementations)
@@ -255,14 +259,15 @@ def _validate_input(spec, clock, execution):
             agent=_canonical(dict(kind="route-agent-declaration-v1", mode="synthetic",
                 authorship="unestablished", agent_label="synthetic-provisioning-v1")),
             dependency=_canonical(dict(kind="route-closure-declaration-v1", mode="synthetic_declaration",
-                completeness="unestablished", entries=[dict(name=item.name, sha256=item.sha256, role="code")
+                completeness="unestablished", entries=[dict(name=item.name, sha256=item.sha256,
+                    role="data" if item.name == "schema.sql" else "code")
                                                        for item in implementations])))
         # Exercise all existing declaration and aggregate limits before allocation.
-        ReleaseArtifactV1(copied.registered_release_id, "fixed-synthetic-v1", copied.resource_id,
+        ReleaseArtifactV1(copied.registered_release_id, factory_key, copied.resource_id,
             **{name + "_json": data for name, data in declarations.items()}, implementations=implementations)
         _boundary(clock, execution)
         return _ValidatedInput(copied.host_release_id, copied.registered_release_id, copied.resource_id,
-            request, raw, business, profile_bytes, tuple(declarations.items()), implementations)
+            request, raw, business, profile_bytes, tuple(declarations.items()), implementations, factory_key)
     except SyntheticPreparationFailureV1:
         raise
     except OSError:
@@ -615,14 +620,14 @@ def _revalidate_prepared(prepared, clock, execution):
         raise SyntheticPreparationFailureV1("io_failure", retained_root=root) from None
 
 
-def prepare_synthetic_release(spec, *, parent, clock, execution):
+def prepare_synthetic_release(spec, *, parent, clock, execution, factory_key='fixed-synthetic-v1'):
     """Stage one fixed synthetic release for separate review and authorization."""
     try:
-        snapshot = _validate_input(spec, clock, execution)
+        snapshot = _validate_input(spec, clock, execution, factory_key=factory_key)
         declarations = dict(snapshot.declarations)
-        artifact = ReleaseArtifactV1(snapshot.registered_release_id, "fixed-synthetic-v1", snapshot.resource_id,
+        artifact = ReleaseArtifactV1(snapshot.registered_release_id, snapshot.factory_key, snapshot.resource_id,
             **{name + "_json": data for name, data in declarations.items()}, implementations=snapshot.implementations)
-        factory = KnownFactoryV1("fixed-synthetic-v1",
+        factory = KnownFactoryV1(snapshot.factory_key,
             tuple((item.name, item.sha256) for item in snapshot.implementations),
             sha256(declarations["dependency"]).hexdigest(), "offline_synthetic")
         profile = validate_profile(EnvironmentProfile.model_validate_json(snapshot.profile_bytes))
@@ -644,7 +649,7 @@ def prepare_synthetic_release(spec, *, parent, clock, execution):
         registry = ReleaseRegistryV1(artifacts=(artifact,), factories=(factory,), resources=(resource,))
         binding = HostExecutableBindingV1(snapshot.host_release_id, snapshot.registered_release_id,
             registry.resolve(snapshot.registered_release_id).artifact_hash, factory.factory_id,
-            factory.implementation_pins, factory.dependency_hash)
+            factory.implementation_pins, factory.dependency_hash, host_factory_key=snapshot.factory_key)
         host = ApprovedProfileRelease(snapshot.host_release_id, "synthetic_replay", profile_path,
             fixture_path, allocation.resources, sha256(snapshot.profile_bytes).hexdigest(),
             profile.release_hash, profile.process_hash, profile.policy_hash,

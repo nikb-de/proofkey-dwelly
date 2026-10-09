@@ -108,6 +108,41 @@ FIXED_IMPLEMENTATION_PATHS = ('adapters/world.py', 'admission.py', 'admission_ro
     'host_admission.py', 'host_writer.py', 'journal.py', 'policy.py', 'process.py',
     'registered_releases.py', 'retained_state.py', 'source_retained_state.py')
 
+OBSERVED_STOP_V2_FACTORY_KEY = 'fixed-synthetic-observed-stop-v2'
+OBSERVED_STOP_V2_IMPLEMENTATION_PATHS = (
+    '__init__.py', 'adapters/__init__.py', 'adapters/case.py', 'adapters/delivery.py',
+    'adapters/messaging.py', 'adapters/operator.py', 'adapters/ownership.py',
+    'adapters/returns.py', 'adapters/scheduling.py', 'adapters/world.py',
+    'admission.py', 'admission_routes.py', 'api.py', 'assessment/__init__.py',
+    'assessment/audit.py', 'assessment/cache.py', 'assessment/contracts.py',
+    'assessment/coverage.py', 'assessment/drills.py', 'assessment/driver_contracts.py',
+    'assessment/drivers.py', 'assessment/isolation.py', 'assessment/labels.py',
+    'assessment/ledger.py', 'assessment/readiness.py', 'batch.py', 'batch_files.py',
+    'bootstrap.py', 'budget.py', 'cli.py', 'clock.py', 'contracts.py', 'engine.py',
+    'evidence/__init__.py', 'evidence/catalog.py', 'evidence/intake.py',
+    'evidence/processing_contracts.py', 'evidence/redaction.py', 'execution.py',
+    'execution_consumer.py', 'execution_trace.py', 'exporter.py', 'factory/__init__.py',
+    'factory/proposal.py', 'factory/release.py', 'factory/views.py', 'gateway.py',
+    'host.py', 'host_admission.py', 'host_contracts.py', 'host_files.py', 'host_writer.py',
+    'identity.py', 'journal.py', 'ownership.py', 'ownership_contracts.py',
+    'ownership_gateway.py', 'ownership_store.py', 'packet_contracts.py', 'packets.py',
+    'planner.py', 'policy.py', 'ports.py', 'process.py', 'processing.py',
+    'processing_orchestration.py', 'processing_summary.py', 'profiles.py',
+    'providers/__init__.py', 'providers/anthropic.py', 'providers/elevenlabs.py',
+    'providers/invocations.py', 'providers/protocols.py', 'providers/replay.py',
+    'providers/unavailable.py', 'registered_releases.py', 'release.py', 'replay.py',
+    'retained_state.py', 'schema.sql', 'source_retained_state.py',
+    'synthetic_provisioning.py', 'trace.py', 'verifier.py', 'wait_contracts.py', 'waits.py')
+
+
+def _implementation_paths(factory_key: str) -> tuple[str, ...]:
+    _require(type(factory_key) is str, 'unsupported_release')
+    if factory_key == 'fixed-synthetic-v1':
+        return FIXED_IMPLEMENTATION_PATHS
+    if factory_key == OBSERVED_STOP_V2_FACTORY_KEY:
+        return OBSERVED_STOP_V2_IMPLEMENTATION_PATHS
+    raise AdmissionCompositionFailure('unsupported_release')
+
 
 @dataclass(frozen=True, slots=True)
 class HostExecutableBindingV1:
@@ -125,12 +160,13 @@ class HostExecutableBindingV1:
         for value in (self.host_release_id, self.registered_release_id, self.factory_id):
             _id(value)
         _digest(self.artifact_hash); _digest(self.dependency_hash)
-        _require(self.host_factory_key == self.factory_id == 'fixed-synthetic-v1', 'unsupported_release')
-        _require(type(self.implementation_pins) is tuple and len(self.implementation_pins) == len(FIXED_IMPLEMENTATION_PATHS))
+        _require(self.host_factory_key == self.factory_id, 'unsupported_release')
+        implementation_paths = _implementation_paths(self.host_factory_key)
+        _require(type(self.implementation_pins) is tuple and len(self.implementation_pins) == len(implementation_paths))
         for pair in self.implementation_pins:
             _require(type(pair) is tuple and len(pair) == 2)
             _id(pair[0]); _digest(pair[1])
-        _require(tuple(pair[0] for pair in self.implementation_pins) == FIXED_IMPLEMENTATION_PATHS)
+        _require(tuple(pair[0] for pair in self.implementation_pins) == implementation_paths)
 
 
 @dataclass(frozen=True, slots=True)
