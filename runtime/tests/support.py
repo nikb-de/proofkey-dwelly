@@ -103,6 +103,13 @@ class FakeClock:
     def advance(self, seconds: float) -> None:
         self._now += timedelta(seconds=seconds)
 
+    def wait(self, seconds: float) -> None:
+        """Trusted finite test pacing; no wall-clock sleep or account override."""
+        import math
+        if not math.isfinite(seconds) or seconds < 0:
+            raise ValueError("Pacing requires finite nonnegative seconds")
+        self.advance(seconds)
+
 
 class CommitFault:
     """Host-only transaction failure fixture, deliberately not a runtime tool."""
@@ -170,3 +177,39 @@ def make_processing_receipt(**overrides):
         receipt = ProcessingReceipt.model_validate({**receipt.model_dump(), "output_hashes":
             [sha256(receipt.output.model_dump_json().encode()).hexdigest()] if receipt.output else []})
     return receipt
+
+
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class RuntimeFixture:
+    engine: object
+    store: object
+    world: object
+    clock: FakeClock
+    profile: EnvironmentProfile
+    auth: AuthContext
+    request: CanonicalRequest
+
+
+def build_test_runtime(folder, before_commit=None, *, request=None, profile_name="flat-v1.2") -> RuntimeFixture:
+    """Independent synthetic authority setup before engine entry; never runtime input."""
+    from pathlib import Path
+    from proofkey.adapters.world import SimulatedWorld
+    from proofkey.engine import WorkflowEngine
+    from proofkey.journal import CaseStore
+    clock, profile = FakeClock(), load_test_profile(profile_name)
+    request = request or make_request()
+    root = Path(folder)
+    world = SimulatedWorld(root / "world.sqlite", Path(__file__).resolve().parents[1] /
+        "fixtures/development/world.json", profile=profile, clock=clock)
+    world.mutate("customer.request_fingerprint", request_fingerprint(request))
+    world.mutate("customer.consent_mode", request.consent_mode)
+    if request.kind == "goods_refusal":
+        world.mutate("delivery.status", "delivered")
+    elif request.kind == "service_refusal":
+        world.mutate("delivery.status", "completed")
+    store = CaseStore(root / "journal.sqlite", before_commit=before_commit)
+    return RuntimeFixture(WorkflowEngine(profile, world.bundle(), store, clock), store, world,
+        clock, profile, make_auth(), request)

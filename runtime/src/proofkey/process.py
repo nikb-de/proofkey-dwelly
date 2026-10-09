@@ -124,6 +124,13 @@ class ProcessController:
     def permits(self, phase: str, operation: str, observed_prerequisites: Mapping[str, object]) -> bool:
         return self.next_phase(phase, operation, observed_prerequisites) is not None
 
+    def is_terminal(self, phase: str) -> bool:
+        """Only declared completion or sticky stopped state ends execution."""
+        specs = ([self.profile.processes[self.kind]] if self.kind is not None
+                 else self.profile.processes.values())
+        return any(phase in spec.phases and phase in {spec.completion.phase, "stopped"}
+                   for spec in specs)
+
     def next_phase(self, phase: str, operation: str, observed_prerequisites: Mapping[str, object]) -> str | None:
         """Return the unique permitted successor, or None (never guess a kind)."""
         if not isinstance(observed_prerequisites, Mapping):
