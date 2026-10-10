@@ -34,6 +34,54 @@
       ]
     },
     "media": {
+      "$ref": "#/$defs/observedMedia"
+    },
+    "extraction_status": {
+      "enum": [
+        "not_started",
+        "queued",
+        "running",
+        "completed",
+        "failed",
+        "unavailable"
+      ]
+    },
+    "provenance": {
+      "$ref": "https://proofkey.local/contracts/v1/local-case.schema.json#/$defs/provenance"
+    },
+    "error_category": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "enum": [
+            "empty",
+            "oversized",
+            "unsupported_type",
+            "corrupt_content",
+            "read_failed",
+            "storage_failed"
+          ]
+        }
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "asset_id",
+    "source",
+    "filename",
+    "storage_scope",
+    "status",
+    "media",
+    "extraction_status",
+    "provenance",
+    "error_category"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "validatedMedia": {
       "anyOf": [
         {
           "type": "object",
@@ -101,32 +149,147 @@
         }
       ]
     },
-    "extraction_status": {
-      "enum": [
-        "not_started",
-        "queued",
-        "running",
-        "completed",
-        "failed",
-        "unavailable"
-      ]
-    },
-    "provenance": {
-      "$ref": "https://proofkey.local/contracts/v1/local-case.schema.json#/$defs/provenance"
+    "observedMedia": {
+      "type": "object",
+      "properties": {
+        "asset_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "sha256": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          ]
+        },
+        "mime_type": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "maxLength": 255
+            }
+          ]
+        },
+        "size_bytes": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "integer",
+              "minimum": 0
+            }
+          ]
+        }
+      },
+      "required": [
+        "asset_id",
+        "sha256",
+        "mime_type",
+        "size_bytes"
+      ],
+      "additionalProperties": false
     }
   },
-  "required": [
-    "schema_version",
-    "asset_id",
-    "source",
-    "filename",
-    "storage_scope",
-    "status",
-    "media",
-    "extraction_status",
-    "provenance"
-  ],
-  "additionalProperties": false,
-  "$defs": {},
-  "description": "Metadata never proves persisted bytes, MIME validation, extraction or upload. Verify bytes and atomic persistence separately."
+  "description": "State-specific asset observations. Only ready requires a supported MIME, complete hash and positive bounded size. Other states preserve observed metadata, including unavailable null values. Metadata never proves byte persistence, authenticity, extraction or upload; verify bytes separately.",
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "ready"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "media": {
+            "$ref": "#/$defs/validatedMedia"
+          },
+          "error_category": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "validating"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "error_category": {
+            "type": "null"
+          },
+          "extraction_status": {
+            "const": "not_started"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "rejected"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "error_category": {
+            "enum": [
+              "empty",
+              "oversized",
+              "unsupported_type",
+              "corrupt_content"
+            ]
+          },
+          "extraction_status": {
+            "enum": [
+              "not_started",
+              "unavailable"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "failed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "error_category": {
+            "enum": [
+              "read_failed",
+              "storage_failed"
+            ]
+          },
+          "extraction_status": {
+            "enum": [
+              "not_started",
+              "unavailable"
+            ]
+          }
+        }
+      }
+    }
+  ]
 }

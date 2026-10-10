@@ -149,7 +149,7 @@ class ContractTests(unittest.TestCase):
             self.validator('local-case', 'appendRequest').validate(value)
             value['event']['media']['size_bytes'] += 1
             self.assert_invalid('local-case', value, 'appendRequest')
-        for field, invalid in [('occurred_at', '2026-10-10T10:00:00'), ('text', '   '),
+        for field, invalid in [('text', '   '),
                                ('sender_id', '../unsafe'), ('recipient_ids', ['operator-1'] * 2)]:
             value = deepcopy(body)
             value['event'][field] = invalid
@@ -173,6 +173,96 @@ class ContractTests(unittest.TestCase):
         self.assert_invalid('transition', value)
         value['conditions'] = [{'type': 'policy_approved', 'value': True}]
         self.assert_invalid('transition', value)
+
+    def test_service_accepted_source_timestamps_remain_valid_without_normalization(self):
+        for timestamp in ('2026-10-10T10:00:00+00:00:30', '2026-10-10X10:00:00+00:00'):
+            with self.subTest(timestamp=timestamp), tempfile.TemporaryDirectory() as tmp:
+                owner = JobStore(Path(tmp).resolve() / 'state')
+                self.addCleanup(owner.close)
+                store = CaseStore(owner)
+                store.create('create-1', self.example('declaration'))
+                body = self.example('append-request')
+                body['event']['occurred_at'] = timestamp
+                snapshot, _ = store.append('demo-1', 'append-1', body)
+                self.assertEqual(snapshot['events'][0]['occurred_at'], timestamp)
+                self.validator('local-case').validate(snapshot)
+
+    def test_timestamp_date_and_timezone_semantics_remain_in_casestore(self):
+        for timestamp in ('not-a-date', '2026-10-10T10:00:00'):
+            with self.subTest(timestamp=timestamp), tempfile.TemporaryDirectory() as tmp:
+                owner = JobStore(Path(tmp).resolve() / 'state')
+                self.addCleanup(owner.close)
+                store = CaseStore(owner)
+                store.create('create-1', self.example('declaration'))
+                body = self.example('append-request')
+                body['event']['occurred_at'] = timestamp
+                self.validator('local-case', 'append').validate(body)
+                with self.assertRaises(CaseError):
+                    store.append('demo-1', 'append-1', body)
+
+    def test_asset_states_represent_observed_invalid_or_unreadable_files(self):
+        for status, mime, size, category in (
+                ('rejected', 'image/png', 0, 'empty'),
+                ('rejected', 'image/png', 10485761, 'oversized'),
+                ('rejected', 'text/plain', 50, 'unsupported_type'),
+                ('failed', None, None, 'read_failed')):
+            value = self.example('asset')
+            value.update(status=status, error_category=category)
+            value['media'].update(sha256=None, mime_type=mime, size_bytes=size)
+            with self.subTest(category=category):
+                self.validator('asset').validate(value)
+                value['status'] = 'ready'
+                self.assert_invalid('asset', value)
+
+    def test_completed_analysis_requires_run_and_result_references(self):
+        value = self.example('analysis')
+        value['status'] = 'completed'
+        self.assert_invalid('analysis', value)
+        value['run_id'] = 'run-1'
+        self.assert_invalid('analysis', value)
+        value['result_id'] = 'result-1'
+        self.validator('analysis').validate(value)
+
+    def test_state_specific_positive_examples(self):
+        for name in ('asset-empty', 'asset-oversized', 'asset-unsupported_type',
+                     'asset-read_failed', 'asset-ready'):
+            self.validator('asset').validate(self.example(name))
+        self.validator('analysis').validate(self.example('analysis-completed'))
+        self.validator('analysis', 'result').validate(self.example('analysis-result'))
+
+    def test_connected_episode_contains_two_immutable_revisions(self):
+        bundle = self.example('connected-episode')
+        inputs = {item['input_id']: item for item in bundle['inputs']}
+        transitions = {item['transition_id']: item for item in bundle['transitions']}
+        episode = bundle['episode']
+        self.validator('episode').validate(episode)
+        self.assertEqual(set(episode['input_ids']), set(inputs))
+        self.assertEqual(set(episode['transition_ids']), set(transitions))
+        labels = {item['label_id']: item for item in bundle['labels']}
+        self.assertEqual(set(episode['label_ids']), set(labels))
+        for label in labels.values():
+            self.validator('decision-label').validate(label)
+            self.assertEqual(label['source'], inputs[label['input_id']]['source'])
+        for item in inputs.values():
+            self.validator('decision-input').validate(item)
+            self.assertEqual(item['source'], {key: item['snapshot'][key]
+                                             for key in ('case_id', 'revision', 'snapshot_hash')})
+        for edge in transitions.values():
+            self.validator('transition').validate(edge)
+            self.assertIn(edge['from_input_id'], inputs)
+            self.assertIn(edge['to_input_id'], inputs)
+        before, after = inputs['input-0']['snapshot'], inputs['input-1']['snapshot']
+        self.assertEqual(before['events'], [])
+        self.assertEqual(after['previous_snapshot_hash'], before['snapshot_hash'])
+        self.assertEqual(len(after['events']), 1)
+        with tempfile.TemporaryDirectory() as tmp:
+            owner = JobStore(Path(tmp).resolve() / 'state')
+            self.addCleanup(owner.close)
+            store = CaseStore(owner)
+            zero, _ = store.create('create-1', self.example('declaration'))
+            one, _ = store.append('demo-1', 'append-1', self.example('append-request'))
+            self.assertEqual(before, zero)
+            self.assertEqual(after, one)
 
     def test_state_machine_edges_reference_declared_states(self):
         machines = json.loads((ROOT / 'state-machines.json').read_text())

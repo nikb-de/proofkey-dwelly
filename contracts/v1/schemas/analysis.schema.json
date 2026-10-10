@@ -50,7 +50,8 @@
           "type": "string",
           "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
         }
-      ]
+      ],
+      "description": "Identifier of an immutable result record conforming to analysis.schema.json#/$defs/result. Completed requires a persisted result and run reference; consumers verify reference existence and source/run linkage."
     },
     "review": {
       "$ref": "https://proofkey.local/contracts/v1/local-case.schema.json#/$defs/review"
@@ -74,5 +75,75 @@
     "provenance",
     "operational_effects"
   ],
-  "additionalProperties": false
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "completed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+          },
+          "result_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "result": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "proofkey-analysis-result-v1"
+        },
+        "result_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "run_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "source": {
+          "$ref": "https://proofkey.local/contracts/v1/local-case.schema.json#/$defs/source"
+        },
+        "disposition": {
+          "enum": [
+            "request_information",
+            "hold",
+            "propose_reschedule",
+            "escalate",
+            "no_action"
+          ]
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "$ref": "https://proofkey.local/contracts/v1/local-case.schema.json#/$defs/provenance"
+        }
+      },
+      "required": [
+        "schema_version",
+        "result_id",
+        "run_id",
+        "source",
+        "disposition",
+        "rationale",
+        "provenance"
+      ],
+      "additionalProperties": false
+    }
+  }
 }
