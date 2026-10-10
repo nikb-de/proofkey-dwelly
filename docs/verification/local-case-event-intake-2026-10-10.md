@@ -24,7 +24,7 @@ Result: **82 passed in2.025s**, no skips, including actual runtime shadow compos
 
 ## Review status
 
-Independent task reviews accepted both contracts/storage and HTTP integration without actionable findings. Controller verified the final combined service and shadow suites. Final whole-change review is pending; do not treat this document as its approval.
+Independent task reviews accepted both contracts/storage and HTTP integration without actionable findings. Controller verified the final combined service and shadow suites. Final whole-change review accepted the exact09d4a82..3a29b46diff for this local intake scope, with no Critical, Important or Minor findings. This is not approval for automatic analysis or operational effects.
 
 ## Precise boundary
 
@@ -34,4 +34,4 @@ Independent task reviews accepted both contracts/storage and HTTP integration wi
 - Operations: no scheduling, customer messages, returns, refunds, payouts or learned-policy activation.
 - Deployment: local POSIX SQLite; cloud settings are reserved, no cloud resources created.
 
-These are software contract tests, not correct-outcome rates or calibrated semantic evaluations. The older full runtime regression is separate and is not used as evidence for this increment. `.env` remains private and is not committed.
+These are software contract tests, not correct-outcome rates or calibrated semantic evaluations. The older full runtime regression subsequently completed with1963tests and2package-closure failures caused by the separate shadow helper; remediation is tracked in `shadow-runtime-package-isolation`. It is not a passing regression for this increment. `.env` remains private and is not committed.

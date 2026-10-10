@@ -8,7 +8,9 @@
 
 **Tech Stack:** Python 3.11+, standard library HTTP/SQLite, existing unittest fixtures; no new dependencies.
 
-**Spec:** `openspec/changes/local-case-event-intake/design.md` and `specs/local-case-event-intake/spec.md`.
+**Spec:** `openspec/specs/local-case-event-intake/spec.md`; design archived at `openspec/changes/archive/2026-10-10-local-case-event-intake/design.md`.
+
+**Delivery:** Implemented and independently reviewed; local intake scope archived on 2026-10-10. See `docs/verification/local-case-event-intake-2026-10-10.md`. Automatic analysis and rescheduling remain follow-on work.
 
 ## Global constraints
 
