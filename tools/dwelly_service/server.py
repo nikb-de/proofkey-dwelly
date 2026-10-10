@@ -13,6 +13,7 @@ from tools.dwelly_cases.importer import read_bytes
 from tools.dwelly_cases.runner import strict_json
 from tools.dwelly_model.__main__ import load_config
 from tools.dwelly_model.runner import preflight
+from .cases import CaseError, CaseStore
 from .store import JobStore, MAX_PENDING_JOBS, safe_path
 from .worker import Worker
 
@@ -20,6 +21,10 @@ from .worker import Worker
 DEFAULTS = {"mode": "dry_run", "limit": 1, "evaluate": False,
             "max_parallel_requests": 4, "per_provider_limit": 2}
 ROUTE = re.compile(r"/v1/jobs/([a-f0-9]{32})(/summary|/proposals|/cancel)?")
+CASE_ROUTE = re.compile(r"/v1/cases/([A-Za-z0-9][A-Za-z0-9_-]{0,63})(/events)?")
+CASE_STATUS = {"invalid_case_request": 400, "case_not_found": 404, "revision_not_found": 404,
+               "idempotency_conflict": 409, "revision_conflict": 409, "event_conflict": 409,
+               "case_capacity": 429, "case_storage_error": 503}
 BODY_LIMIT = 16384
 
 
@@ -123,6 +128,10 @@ class Handler(BaseHTTPRequestHandler):
             "progress": self.server.store.progress(job["job_id"]),
             "status_url": "/v1/jobs/" + job["job_id"], "operational_effects": 0}
 
+    def _case_error(self, error):
+        code = error.code if error.code in CASE_STATUS else "case_storage_error"
+        self._send(CASE_STATUS[code], {"error": code})
+
     def do_GET(self):
         if not self._guard():
             return
@@ -134,7 +143,23 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, {"live_enabled": self.server.allow_live, "storage": "local_posix",
                                         "operational_effects": 0, "defaults": DEFAULTS,
                                         "max_pending_jobs": MAX_PENDING_JOBS,
-                                        "recovery": "running_jobs_interrupted_without_replay"})
+                                        "recovery": "running_jobs_interrupted_without_replay",
+                                        "case_intake": {"enabled": True, "source_mode": "local_fixture",
+                                                        "analysis_status": "pending_not_started",
+                                                        "automated_analysis": False, "runtime_binding": None,
+                                                        "authorization": "unverified", "operational_effects": 0}})
+            path, query_marker, query = self.path.partition("?")
+            case_route = CASE_ROUTE.fullmatch(path)
+            if case_route and case_route[2] is None:
+                revision = None
+                if query_marker:
+                    if re.fullmatch(r"revision=(0|[1-9][0-9]*)", query) is None:
+                        raise CaseError("invalid_case_request")
+                    try:
+                        revision = int(query[len("revision="):])
+                    except ValueError:
+                        raise CaseError("invalid_case_request") from None
+                return self._send(200, self.server.cases.get(case_route[1], revision))
             route = ROUTE.fullmatch(self.path)
             if not route or route[2] == "/cancel":
                 return self._send(404, {"error": "not_found"})
@@ -144,6 +169,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, {"job_id": route[1], "proposals": self.server.store.proposals(route[1]),
                                         "operational_effects": 0})
             return self._send(200, self._public(self.server.store.get(route[1])))
+        except CaseError as error:
+            self._case_error(error)
         except KeyError:
             self._send(404, {"error": "not_found"})
         except ValueError:
@@ -154,7 +181,20 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if not self._guard():
             return
+        case_request = False
         try:
+            case_route = CASE_ROUTE.fullmatch(self.path)
+            case_request = self.path == "/v1/cases" or bool(case_route and case_route[2] == "/events")
+            if case_request:
+                body = self._body()
+                keys = self.headers.get_all("Idempotency-Key", [])
+                if len(keys) != 1 or not re.fullmatch(r"[A-Za-z0-9._:-]{1,128}", keys[0]):
+                    raise CaseError("invalid_case_request")
+                if case_route:
+                    snapshot, created = self.server.cases.append(case_route[1], keys[0], body)
+                else:
+                    snapshot, created = self.server.cases.create(keys[0], body)
+                return self._send(201 if created else 200, snapshot)
             route = ROUTE.fullmatch(self.path)
             if self.path != "/v1/jobs" and (not route or route[2] != "/cancel"):
                 return self._send(404, {"error": "not_found"})
@@ -173,6 +213,8 @@ class Handler(BaseHTTPRequestHandler):
             if self.server.worker is not None:
                 self.server.worker.wakeup.set()
             self._send(202 if created else 200, self._public(job))
+        except CaseError as error:
+            self._case_error(error)
         except KeyError:
             self._send(404, {"error": "not_found"})
         except PermissionError:
@@ -182,12 +224,14 @@ class Handler(BaseHTTPRequestHandler):
         except TypeError:
             self._send(415, {"error": "unsupported_media_type"})
         except (ValueError, UnicodeError, RecursionError) as error:
+            if case_request:
+                return self._send(400, {"error": "invalid_case_request"})
             conflict = error.args == ("idempotency_conflict",)
             full = error.args == ("queue_full",)
             self._send(409 if conflict else 429 if full else 400,
                        {"error": "idempotency_conflict" if conflict else "queue_full" if full else "invalid_request"})
         except (OSError, sqlite3.Error):
-            self._send(503, {"error": "storage_unavailable"})
+            self._send(503, {"error": "case_storage_error" if case_request else "storage_unavailable"})
 
 
 def create_server(bundle, config, state_dir, *, token, host="127.0.0.1", port=8080,
@@ -219,6 +263,7 @@ def create_server(bundle, config, state_dir, *, token, host="127.0.0.1", port=80
         store.bind_inputs(identity)
         server = ServiceServer((host, port), Handler)
         server.store, server.bundle, server.config = store, bundle, value
+        server.cases = CaseStore(store)
         server.token, server.allow_live, server.worker = token, allow_live, None
         actual_port = server.server_address[1]
         accepted = {"127.0.0.1", "localhost", host}
