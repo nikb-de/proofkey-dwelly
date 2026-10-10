@@ -5,8 +5,11 @@ from tools.dwelly_model.runner import run_experiment
 
 
 class Worker:
-    def __init__(self, store, bundle, config):
+    def __init__(self, store, bundle, config, *, allow_live=False):
+        if type(allow_live) is not bool:
+            raise ValueError("invalid_execution_policy")
         self.store, self.bundle, self.config = store, bundle, config
+        self.allow_live = allow_live
         self.stopping = threading.Event()
         self.wakeup = threading.Event()
         self.failure = None
@@ -30,7 +33,7 @@ class Worker:
 
     def _run(self):
         while not self.stopping.is_set():
-            job = self.store.claim_next()
+            job = self.store.claim_next(allow_live=self.allow_live)
             if job is None:
                 self.wakeup.wait(0.2)
                 self.wakeup.clear()

@@ -124,6 +124,21 @@ class StoreTests(unittest.TestCase):
             self.store.submit("overflow", {"mode": "dry_run"})
         self.assertEqual(self.store.submit("job-0", {"mode": "dry_run"})[0]["job_id"], first["job_id"])
 
+    def test_claim_defaults_to_offline_and_preserves_live_until_explicitly_enabled(self):
+        live, _ = self.store.submit("prior-live", {"mode": "live"})
+        offline, _ = self.store.submit("later-offline", {"mode": "dry_run"})
+        self.assertEqual(self.store.claim_next()["job_id"], offline["job_id"])
+        self.store.finish(offline["job_id"], "completed")
+        self.assertIsNone(self.store.claim_next())
+        self.assertEqual(self.store.get(live["job_id"])["status"], "queued")
+        self.assertEqual(self.store.claim_next(allow_live=True)["job_id"], live["job_id"])
+
+    def test_live_claim_permission_requires_an_explicit_boolean(self):
+        self.store.submit("prior-live", {"mode": "live"})
+        for value in ("yes", 1, None):
+            with self.subTest(value=value), self.assertRaisesRegex(ValueError, "invalid_execution_policy"):
+                self.store.claim_next(allow_live=value)
+
 
 class HTTPTests(unittest.TestCase):
     def setUp(self):
@@ -374,6 +389,34 @@ class HTTPTests(unittest.TestCase):
                                 capture_output=True, text=True, env=environment, timeout=10)
         self.assertEqual(result.returncode, 2)
         self.assertEqual(result.stderr.strip(), '{"error": "service_start_failed"}')
+
+    def test_restart_without_live_permission_skips_persisted_live_job_and_runs_offline(self):
+        def restart(allow_live, start_worker):
+            self.cleanup_server()
+            self.server = server_module.create_server(self.bundle, self.config, self.state,
+                                                      token=self.token, port=0,
+                                                      allow_live=allow_live, start_worker=start_worker)
+            self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
+            self.thread.start()
+
+        restart(allow_live=True, start_worker=False)
+        _, live = self.submit("prior-live", {"mode": "live"})
+        _, offline = self.submit("later-offline", {"mode": "dry_run"})
+        with patch.dict(os.environ, {"OPENAI_TEST_KEY": "synthetic-disabled-test"}), \
+                patch("tools.dwelly_model.providers._open", side_effect=AssertionError("network forbidden")) as transport:
+            restart(allow_live=False, start_worker=True)
+            for _ in range(500):
+                _, offline_result = self.request("GET", "/v1/jobs/" + offline["job_id"])
+                if offline_result["status"] not in ("queued", "running"):
+                    break
+                time.sleep(0.01)
+            self.assertEqual(offline_result["status"], "completed", offline_result)
+            _, live_result = self.request("GET", "/v1/jobs/" + live["job_id"])
+            self.assertEqual(live_result["status"], "queued", live_result)
+            self.assertFalse((self.state / "jobs" / live["job_id"]).exists())
+            transport.assert_not_called()
+        restart(allow_live=True, start_worker=False)
+        self.assertEqual(self.server.store.claim_next(allow_live=True)["job_id"], live["job_id"])
 
 
 if __name__ == "__main__":

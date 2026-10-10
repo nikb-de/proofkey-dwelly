@@ -137,12 +137,18 @@ class JobStore:
         with self._connect() as connection:
             return self._row(connection.execute("SELECT * FROM jobs WHERE job_id=?", (job_id,)).fetchone())
 
-    def claim_next(self):
+    def claim_next(self, *, allow_live=False):
+        """Claim the oldest eligible job under the current execution permission."""
+        if type(allow_live) is not bool:
+            raise ValueError("invalid_execution_policy")
         with self._connect() as connection:
             connection.execute("BEGIN IMMEDIATE")
             if connection.execute("SELECT 1 FROM jobs WHERE status='running'").fetchone():
                 return None
-            row = connection.execute("SELECT * FROM jobs WHERE status='queued' ORDER BY created, job_id LIMIT 1").fetchone()
+            queued = connection.execute("SELECT * FROM jobs WHERE status='queued' ORDER BY created, job_id").fetchall()
+            permitted_modes = {"dry_run", "live"} if allow_live else {"dry_run"}
+            row = next((candidate for candidate in queued
+                        if json.loads(candidate["body"]).get("mode") in permitted_modes), None)
             if row is None:
                 return None
             connection.execute("UPDATE jobs SET status='running', updated=? WHERE job_id=?", (time.time(), row["job_id"]))

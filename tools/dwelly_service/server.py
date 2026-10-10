@@ -43,7 +43,7 @@ class ServiceServer(ThreadingHTTPServer):
 
     def start_worker(self):
         if self.worker is None:
-            self.worker = Worker(self.store, self.bundle, self.config)
+            self.worker = Worker(self.store, self.bundle, self.config, allow_live=self.allow_live)
             self.worker.start()
 
     def check_ready(self):
