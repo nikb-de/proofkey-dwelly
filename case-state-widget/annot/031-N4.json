@@ -1,0 +1,725 @@
+{
+ "case_id": "031-N4",
+ "lang": "en",
+ "title": "031-N4 · Issued label carries mismatched references",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is the customer, Kessa Ulm. From the case card: the merchant approved a return for DL-031 but has not issued its printable label; the label in this case is a synthetic facsimile for the exercise, not for actual shipping.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "customer",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get the missing return label issued and the customer's confirmation that it is usable and matches the approved return.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "customer": {
+   "name": "Kessa Ulm",
+   "organization": null,
+   "role": "customer",
+   "responsibility": "Ask for the missing return label and check that it opens, prints and matches the approved return.",
+   "from_start": true,
+   "source_names": [
+    "Kessa Ulm, customer"
+   ]
+  },
+  "returns_support": {
+   "name": "Returns support",
+   "organization": "Tallowmere Goods",
+   "role": "merchant",
+   "responsibility": "Confirm the approved return RT-031 and report that its label field is empty.",
+   "from_start": false,
+   "source_names": [
+    "Returns support, Tallowmere Goods"
+   ]
+  },
+  "label_team": {
+   "name": "Return label team",
+   "organization": "Tallowmere Goods",
+   "role": "returns_desk",
+   "responsibility": "Issue the printable return label against RT-031.",
+   "from_start": false,
+   "source_names": [
+    "Return label team, Tallowmere Goods"
+   ]
+  }
+ },
+ "goal": "Get the merchant's label team to issue the missing return label and the customer's confirmation that it is usable and matches the approved return.",
+ "limits": [
+  "Do not treat label issuance as return collection, warehouse receipt or refund.",
+  "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+ ],
+ "intake": {
+  "summary": "Obtain the missing return label for the approved return on DL-031.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The approved return has no printable label.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-031.",
+    "source": {
+     "type": "case_card",
+     "id": "031"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The merchant approved a return but has not issued its printable label.",
+    "source": {
+     "type": "case_card",
+     "id": "031"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The label in this case is a synthetic facsimile for exercise completeness, not for actual shipping.",
+    "source": {
+     "type": "case_card",
+     "id": "031"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The merchant has issued the return label."
+   },
+   {
+    "id": "c2",
+    "description": "The customer has confirmed that the label is usable."
+   },
+   {
+    "id": "c3",
+    "description": "The customer has confirmed that the label matches the approved return."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/031/N4-CONFLICTING_RECORDS",
+  "branch_id": "031-N4",
+  "derived_from_case": "031",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003",
+   "004"
+  ],
+  "diverges_after_event": "004",
+  "failure_mode": "CONFLICTING_RECORDS",
+  "expected_decision": "RECONCILE_CONFLICT",
+  "workflow_sheet": "E",
+  "branch_label": "Issued label carries mismatched references",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "dbb019a9d79068968b423ebb196b809dad03e71713f9f0d11820d70a2c68dc53",
+   "history.md": "87414cf1f26f4c7112a8e0693151089ffe2078ee9703bd003f0e8c14103460dd"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Merchant email",
+   "title": "Returns support reports an empty label field",
+   "explanation": "Return RT-031 is approved, but its label field is empty, and only the authorised label team can issue the label against RT-031. Until then the customer cannot prepare the return.",
+   "conversation_id": "returns_support",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "Return RT-031 for TG-031 / DL-031 is approved; the label field is empty.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f4",
+     "text": "The merchant's authorised label team needs to issue the label against RT-031 before the customer can prepare the return.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Take in the customer's request about the return label."
+   },
+   "blocker": "The label field for RT-031 is empty.",
+   "status": "context_received",
+   "next_step": null,
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Kessa asks for the return label",
+   "explanation": "Kessa has nothing to print and asks us to obtain the label. Only the label team can issue it against RT-031, so we ask them.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f5",
+     "text": "Kessa reports there is nothing to print in the order.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "customer",
+     "to_actor": "coordinator",
+     "responsible_actor": "label_team",
+     "purpose": "Obtain Kessa's return label.",
+     "expected_response": "A printable return label.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "label_team",
+     "responsible_actor": "label_team",
+     "purpose": "Issue the missing printable return label for RT-031, matching TG-031 and original shipment DL-031.",
+     "expected_response": "A printable label for RT-031.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask the label team to issue the printable return label for RT-031, matching TG-031 and DL-031."
+   },
+   "blocker": "No printable label has been issued for RT-031.",
+   "status": "escalated",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "label_team",
+    "request_id": "r1",
+    "description": "Issue the printable return label for RT-031."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We ask the label team for the label",
+   "explanation": "We asked for a printable label for RT-031 with the matching order and shipment references, sent in the verified returns thread. Now we wait for the label team.",
+   "conversation_id": "label_team",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "label_team",
+     "responsible_actor": "label_team",
+     "purpose": "Issue the missing printable return label for RT-031, matching TG-031 and original shipment DL-031.",
+     "expected_response": "A printable label for RT-031, sent in the verified returns thread.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "label_team",
+      "request_id": "r1",
+      "expected": "Printable return label for RT-031"
+     }
+    ],
+    "next_action": "Once the label is issued, have Kessa check that it opens, prints and matches the return."
+   },
+   "blocker": "The label team has not yet issued the label.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "label_team",
+    "request_id": "r1",
+    "description": "Wait for the label team to issue the label."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "Label issued",
+   "title": "Label team issues RL-031 to Kessa",
+   "explanation": "The label team sent label RL-031 for RT-031 directly to Kessa, with us in copy. Issuing a label does not show that it works for Kessa, so we still need Kessa's check.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f6",
+     "text": "Return label RL-031 is issued for RT-031 and sent to Kessa, with us in copy.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "f7",
+     "text": "Instructions: place the printed label on the return carton and use the approved drop-off route.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "f3",
+     "text": "The label file is an exercise facsimile, not a live shipping label.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "customer",
+     "to_actor": "coordinator",
+     "responsible_actor": "label_team",
+     "responded_by": "label_team",
+     "purpose": "Obtain Kessa's return label.",
+     "expected_response": "A printable return label.",
+     "status": "completed",
+     "response": "Label RL-031 for RT-031 was sent to Kessa.",
+     "evidence_event_ids": [
+      "002",
+      "004"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "label_team",
+     "responsible_actor": "label_team",
+     "purpose": "Issue the missing printable return label for RT-031, matching TG-031 and original shipment DL-031.",
+     "expected_response": "A printable label for RT-031, sent in the verified returns thread.",
+     "status": "completed",
+     "response": "Label RL-031 issued for RT-031 and sent to Kessa.",
+     "evidence_event_ids": [
+      "002",
+      "003",
+      "004"
+     ]
+    },
+    "r2": {
+     "type": "confirmation",
+     "from_actor": "coordinator",
+     "to_actor": "customer",
+     "responsible_actor": "customer",
+     "purpose": "Confirm that RL-031 opens, prints and matches the approved return.",
+     "expected_response": "Kessa's confirmation that the label is usable and matches RT-031.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c1",
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask Kessa to confirm that RL-031 opens, prints and matches the approved return.",
+    "note": "A message asking Kessa to check the label is not recorded as a separate event. So in this snapshot the agent is still preparing the request; it is not given waiting status without evidence that the request was sent."
+   },
+   "blocker": "Kessa has not yet confirmed that the label is usable and matches the return.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "confirmation",
+    "responsible_actor": "customer",
+    "request_id": "r2",
+    "description": "Kessa checks RL-031 and confirms it is usable and matches the approved return."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "missing-check-request",
+     "kind": "gap",
+     "title": "Next action · us → Kessa",
+     "text": "The label team sent RL-031 to Kessa directly. Issuance alone does not show that the label opens, prints and matches the approved return, so we now have to ask Kessa to check it; after sending, the agent waits for Kessa's confirmation. At this step the request is not recorded in the history.",
+     "source_event_ids": [
+      "004"
+     ],
+     "implied_action": {
+      "from_actor": "coordinator",
+      "to_actor": "customer",
+      "type": "confirmation",
+      "purpose": "Check that RL-031 opens, prints and matches the approved return."
+     }
+    }
+   ]
+  },
+  {
+   "event_id": "005",
+   "label": "New escalation",
+   "title": "Issued label carries mismatched references",
+   "explanation": "Keep both records and request evidence from their owner. Do not erase either conflicting record or infer a finding before the owner supplies evidence.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Kessa Ulm reports: I opened RL-031.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Kessa Ulm reports: It shows RT-031, but the order line reads TG-013 and the original shipment reads DL-013.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Kessa Ulm reports: My order is TG-031.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_report_4",
+     "text": "Kessa Ulm reports: Is this the right label, or should I print it anyway?",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "label_team",
+     "responsible_actor": "label_team",
+     "purpose": "Email the Return label team in the verified returns thread with both readings, RL-031 showing TG-013 / DL-013 against approved RT-031 for TG-031 / DL-031, ask it to verify the label against the return record, and tell Kessa to hold the label until then.",
+     "expected_response": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Email the Return label team in the verified returns thread with both readings, RL-031 showing TG-013 / DL-013 against approved RT-031 for TG-031 / DL-031, ask it to verify the label against the return record, and tell Kessa to hold the label until then."
+   },
+   "blocker": "The new escalation requires a scoped response. I opened RL-031. It shows RT-031, but the order line reads TG-013 and the original shipment reads DL-013. My order is TG-031. Is this the right label, or should I print it anyway?",
+   "status": "verification_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Email the Return label team in the verified returns thread with both readings, RL-031 showing TG-013 / DL-013 against approved RT-031 for TG-031 / DL-031, ask it to verify the label against the return record, and tell Kessa to hold the label until then."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "missing-check-request",
+     "kind": "context",
+     "title": "Unrecorded parent action",
+     "text": "A separate record of this parent action is absent. The branch does not by itself establish that it occurred. The next action is now the scoped branch response. The label team sent RL-031 to Kessa directly. Issuance alone does not show that the label opens, prints and matches the approved return, so we now have to ask Kessa to check it; after sending, the agent waits for Kessa's confirmation. At this step the request is not recorded in the history.",
+     "source_event_ids": [
+      "004"
+     ],
+     "implied_action": {
+      "from_actor": "coordinator",
+      "to_actor": "customer",
+      "type": "confirmation",
+      "purpose": "Check that RL-031 opens, prints and matches the approved return."
+     },
+     "before_message_id": "005"
+    },
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "005",
+     "source_event_ids": [
+      "005"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c2",
+    "c3"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "reconcile_conflict",
+      "action": "Email the Return label team in the verified returns thread with both readings, RL-031 showing TG-013 / DL-013 against approved RT-031 for TG-031 / DL-031, ask it to verify the label against the return record, and tell Kessa to hold the label until then.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "tell Kessa to use RL-031 because RT-031 matches, and order a replacement label before the label team has checked which record is right.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "031-N4"
+    },
+    "summary": "Keep both records and request evidence from their owner.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Keep both records and request evidence from their owner."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Desk response",
+   "title": "Keep both records and request evidence from their owner",
+   "explanation": "The desk sends the recorded response. Do not erase either conflicting record or infer a finding before the owner supplies evidence.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "label_team",
+     "responsible_actor": "label_team",
+     "purpose": "Email the Return label team in the verified returns thread with both readings, RL-031 showing TG-013 / DL-013 against approved RT-031 for TG-031 / DL-031, ask it to verify the label against the return record, and tell Kessa to hold the label until then.",
+     "expected_response": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "label_team",
+      "request_id": "branch_request",
+      "expected": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_verification",
+   "next_step": {
+    "type": "verification",
+    "responsible_actor": "label_team",
+    "request_id": "branch_request",
+    "description": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "reconcile_conflict",
+      "action": "Email the Return label team in the verified returns thread with both readings, RL-031 showing TG-013 / DL-013 against approved RT-031 for TG-031 / DL-031, ask it to verify the label against the return record, and tell Kessa to hold the label until then.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "tell Kessa to use RL-031 because RT-031 matches, and order a replacement label before the label team has checked which record is right.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "reconcile_conflict",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "007",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. We checked RL-031 against RT-031. The order and shipment fields were filled from the wrong record. RL-031 is void, and replacement label RL-031A, showing RT-031, TG-031 and DL-031, is in the verified returns thread. The parcel has not been dropped off, received or refunded.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Return label team reports: We checked RL-031 against RT-031.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Return label team reports: The order and shipment fields were filled from the wrong record.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Return label team reports: RL-031 is void, and replacement label RL-031A, showing RT-031, TG-031 and DL-031, is in the verified returns thread.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_4",
+     "text": "Return label team reports: The parcel has not been dropped off, received or refunded.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "label_team",
+     "responsible_actor": "label_team",
+     "purpose": "Email the Return label team in the verified returns thread with both readings, RL-031 showing TG-013 / DL-013 against approved RT-031 for TG-031 / DL-031, ask it to verify the label against the return record, and tell Kessa to hold the label until then.",
+     "expected_response": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+     "status": "answered",
+     "response": "We checked RL-031 against RT-031. The order and shipment fields were filled from the wrong record. RL-031 is void, and replacement label RL-031A, showing RT-031, TG-031 and DL-031, is in the verified returns thread. The parcel has not been dropped off, received or refunded.",
+     "evidence_event_ids": [
+      "005",
+      "006",
+      "007"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "006",
+      "007"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "We checked RL-031 against RT-031. The order and shipment fields were filled from the wrong record. RL-031 is void, and replacement label RL-031A, showing RT-031, TG-031 and DL-031, is in the verified returns thread. The parcel has not been dropped off, received or refunded.",
+    "confirmed_by": "label_team",
+    "evidence_event_ids": [
+     "007"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not tell Kessa to use RL-031 because RT-031 matches, and do not order a replacement label before the label team has checked which record is right."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "reconcile_conflict",
+      "action": "Email the Return label team in the verified returns thread with both readings, RL-031 showing TG-013 / DL-013 against approved RT-031 for TG-031 / DL-031, ask it to verify the label against the return record, and tell Kessa to hold the label until then.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "tell Kessa to use RL-031 because RT-031 matches, and order a replacement label before the label team has checked which record is right.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "reconcile_conflict",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ],
+ "source_attachments": [
+  {
+   "event_id": "004",
+   "attachment": {
+    "name": "return-label.pdf",
+    "type": "application/pdf",
+    "url": "https://github.com/DwellyOrg/HackatonPublicCases/blob/9bcdca585955dfb930005ed742572606e68f5688/Delivery%20%26%20Logistics/031/attachments/return-label.pdf"
+   }
+  }
+ ]
+}

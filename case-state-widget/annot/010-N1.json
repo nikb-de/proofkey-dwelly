@@ -1,0 +1,557 @@
+{
+ "case_id": "010-N1",
+ "lang": "en",
+ "title": "010-N1 · Return date exceeds the hold limit",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Daro Lusk. From the case card: DL-010 is at a depot and has not entered the delivery route, and dispatch permits a three-day hold for this service.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: request the hold with the recipient's release date and get dispatch's confirmation.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Daro Lusk",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Give the date the parcel should be released from the hold.",
+   "from_start": true,
+   "source_names": [
+    "Daro Lusk, recipient"
+   ]
+  },
+  "dispatch": {
+   "name": "Dispatch",
+   "organization": "Plover Arc Logistics",
+   "role": "dispatch",
+   "responsibility": "Apply the eligible hold in the depot and schedule the release to routing.",
+   "from_start": false,
+   "source_names": [
+    "Dispatch, Plover Arc Logistics"
+   ]
+  }
+ },
+ "goal": "Get dispatch's confirmation of a hold on DL-010 and of the planned release date the recipient asked for.",
+ "limits": [
+  "Do not treat the planned release date as a delivery date.",
+  "Do not claim physical receipt of the parcel.",
+  "Do not promise or perform the prohibited request."
+ ],
+ "intake": {
+  "summary": "DL-010: the recipient wants the delivery held during a short absence; the shipment is still at the depot.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The recipient will be away for a short time; no hold or release date has been set.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-010.",
+    "source": {
+     "type": "case_card",
+     "id": "010"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The shipment is at a depot and has not entered the delivery route.",
+    "source": {
+     "type": "case_card",
+     "id": "010"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "Dispatch permits a three-day hold for this service.",
+    "source": {
+     "type": "case_card",
+     "id": "010"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The recipient has given the date the parcel should be released."
+   },
+   {
+    "id": "c2",
+    "description": "Dispatch has confirmed the hold on DL-010."
+   },
+   {
+    "id": "c3",
+    "description": "Dispatch has confirmed the planned release date."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/010/N1-SNAPSHOT_CONFLICT",
+  "branch_id": "010-N1",
+  "derived_from_case": "010",
+  "retained_public_events": [
+   "001",
+   "002"
+  ],
+  "diverges_after_event": "002",
+  "failure_mode": "SNAPSHOT_CONFLICT",
+  "expected_decision": "DECLINE_EXPLAIN",
+  "workflow_sheet": "A",
+  "branch_label": "Return date exceeds the hold limit",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "61f13a458b086eeab755a97c5fc4950f3d328182d109033b1bf62b4052b426de",
+   "history.md": "bb9b64ccbd5fa1334def40dc94092cf2e836b59249fa4af63cb5e9176edbbbb6"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Dispatch email",
+   "title": "Dispatch states the hold rules",
+   "explanation": "Dispatch confirmed the parcel is in depot stock and that a hold of up to three calendar days needs a confirmed release date. Nobody has asked for a hold yet, so we take in the recipient's request first.",
+   "conversation_id": "dispatch",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "DL-010 is in depot stock.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f3",
+     "text": "This service allows a hold of up to three calendar days before routing.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f4",
+     "text": "A hold requires a confirmed release date.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Take in the recipient's request; any hold needs a confirmed release date."
+   },
+   "blocker": "No hold has been requested and no release date has been confirmed.",
+   "status": "context_received",
+   "next_step": null,
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Daro asks to hold until his return",
+   "explanation": "Daro gave the release date that dispatch requires. Only dispatch applies a hold, so the next step is a hold request to dispatch with release on 2026-02-14.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f5",
+     "text": "The recipient is away and returns on 2026-02-14.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f6",
+     "text": "The recipient asks to hold the parcel and release it on 2026-02-14, not earlier.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "dispatch",
+     "purpose": "Hold the parcel and release it on 2026-02-14, not earlier.",
+     "expected_response": "A hold with release on 2026-02-14.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "dispatch",
+     "responsible_actor": "dispatch",
+     "purpose": "Apply the three-day hold to DL-010 with release on 2026-02-14, and confirm the stock and routing status.",
+     "expected_response": "Confirmation of the hold, the release date, and the stock and routing status.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c1",
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask dispatch to apply the three-day hold to DL-010 with release on 2026-02-14 and to confirm the stock and routing status."
+   },
+   "blocker": "Release date known; no hold has been applied.",
+   "status": "escalated",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "dispatch",
+    "request_id": "r1",
+    "description": "Apply the hold to DL-010 with release on 2026-02-14."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "New escalation",
+   "title": "Return date exceeds the hold limit",
+   "explanation": "Explain the policy boundary and the permitted next step. Do not promise or perform the prohibited request.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Daro Lusk reports: Correction to my last message: my return has moved.",
+     "source": {
+      "type": "message",
+      "id": "003"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Daro Lusk reports: I am now back on 2026-02-16.",
+     "source": {
+      "type": "message",
+      "id": "003"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Daro Lusk reports: Please hold DL-010 until then and release it on 2026-02-16, not before.",
+     "source": {
+      "type": "message",
+      "id": "003"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Tell Daro in the verified order thread that this service allows a hold of up to three calendar days before routing, so a release on 2026-02-16 is outside it, and ask whether he wants the longest permitted hold instead.",
+     "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "003"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Tell Daro in the verified order thread that this service allows a hold of up to three calendar days before routing, so a release on 2026-02-16 is outside it, and ask whether he wants the longest permitted hold instead."
+   },
+   "blocker": "The new escalation requires a scoped response. Correction to my last message: my return has moved. I am now back on 2026-02-16. Please hold DL-010 until then and release it on 2026-02-16, not before.",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Tell Daro in the verified order thread that this service allows a hold of up to three calendar days before routing, so a release on 2026-02-16 is outside it, and ask whether he wants the longest permitted hold instead."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "003",
+     "source_event_ids": [
+      "003"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c2",
+    "c3"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "decline_explain",
+      "action": "Tell Daro in the verified order thread that this service allows a hold of up to three calendar days before routing, so a release on 2026-02-16 is outside it, and ask whether he wants the longest permitted hold instead.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Ask Dispatch for a hold to 2026-02-16 or an exception, or request any hold before Daro confirms a release date within the limit.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "010-N1"
+    },
+    "summary": "Explain the policy boundary and the permitted next step.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Explain the policy boundary and the permitted next step."
+   }
+  },
+  {
+   "event_id": "004",
+   "label": "Desk response",
+   "title": "Explain the policy boundary and the permitted next step",
+   "explanation": "The desk sends the recorded response. Do not promise or perform the prohibited request.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Tell Daro in the verified order thread that this service allows a hold of up to three calendar days before routing, so a release on 2026-02-16 is outside it, and ask whether he wants the longest permitted hold instead.",
+     "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "003",
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "recipient",
+      "request_id": "branch_request",
+      "expected": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_response",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "recipient",
+    "request_id": "branch_request",
+    "description": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "decline_explain",
+      "action": "Tell Daro in the verified order thread that this service allows a hold of up to three calendar days before routing, so a release on 2026-02-16 is outside it, and ask whether he wants the longest permitted hold instead.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Ask Dispatch for a hold to 2026-02-16 or an exception, or request any hold before Daro confirms a release date within the limit.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "decline_explain",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "005",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. Following Daro's confirmation, DL-010 is marked HOLD in depot stock through 2026-02-13, with release to routing on 2026-02-14. That is the longest hold this service allows. A release date is not a delivery date.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Dispatch reports: Following Daro's confirmation, DL-010 is marked HOLD in depot stock through 2026-02-13, with release to routing on 2026-02-14.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Dispatch reports: That is the longest hold this service allows.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Dispatch reports: A release date is not a delivery date.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Tell Daro in the verified order thread that this service allows a hold of up to three calendar days before routing, so a release on 2026-02-16 is outside it, and ask whether he wants the longest permitted hold instead.",
+     "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+     "status": "answered",
+     "response": "Following Daro's confirmation, DL-010 is marked HOLD in depot stock through 2026-02-13, with release to routing on 2026-02-14. That is the longest hold this service allows. A release date is not a delivery date.",
+     "evidence_event_ids": [
+      "003",
+      "004",
+      "005"
+     ],
+     "responded_by": "dispatch"
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "Following Daro's confirmation, DL-010 is marked HOLD in depot stock through 2026-02-13, with release to routing on 2026-02-14. That is the longest hold this service allows. A release date is not a delivery date.",
+    "confirmed_by": "dispatch",
+    "evidence_event_ids": [
+     "005"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Ask Dispatch for a hold to 2026-02-16 or an exception, or request any hold before Daro confirms a release date within the limit."
+   },
+   "annotations_add": [
+    {
+     "id": "branch_followthrough_relay",
+     "kind": "gap",
+     "title": "Unrecorded intermediate action",
+     "text": "The follow-through is from a different party than the recorded desk response. An intermediate exchange or service-to-service relay is absent; only the final reporter’s stated outcome is confirmed.",
+     "before_message_id": "005",
+     "source_event_ids": [
+      "005"
+     ],
+     "implied_action": {
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "type": "action",
+      "purpose": "Pass the relevant verified instruction or request to the party reporting the follow-through."
+     }
+    }
+   ],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "decline_explain",
+      "action": "Tell Daro in the verified order thread that this service allows a hold of up to three calendar days before routing, so a release on 2026-02-16 is outside it, and ask whether he wants the longest permitted hold instead.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Ask Dispatch for a hold to 2026-02-16 or an exception, or request any hold before Daro confirms a release date within the limit.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "decline_explain",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

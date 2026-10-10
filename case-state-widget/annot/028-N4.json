@@ -1,0 +1,662 @@
+{
+ "case_id": "028-N4",
+ "lang": "en",
+ "title": "028-N4 · Customer asks for doorstep swap",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Riva Solt. From the case card: the correctly addressed DL-028 carton contains the wrong catalogue item, and the merchant has accepted the item report and controls exchange approval.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get the merchant's exchange approval and a collection booking for the wrong item.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Riva Solt",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Say how the wrong item should be resolved and when collection can happen.",
+   "from_start": true,
+   "source_names": [
+    "Riva Solt, recipient"
+   ]
+  },
+  "order_support": {
+   "name": "Order support",
+   "organization": "Tallowmere Goods",
+   "role": "merchant",
+   "responsibility": "Verify the item mismatch on record TG-028 and point to the team that holds exchange authority.",
+   "from_start": false,
+   "source_names": [
+    "Order support, Tallowmere Goods"
+   ]
+  },
+  "returns_desk": {
+   "name": "Returns authorisations",
+   "organization": "Tallowmere Goods",
+   "role": "returns_desk",
+   "responsibility": "Approve the exchange and book collection of the wrong item.",
+   "from_start": false,
+   "source_names": [
+    "Returns authorisations, Tallowmere Goods"
+   ]
+  }
+ },
+ "goal": "Get the merchant's approval of the item exchange and a collection booking for the wrong item.",
+ "limits": [
+  "Do not treat exchange approval or a collection booking as a completed return.",
+  "Do not say the replacement has been delivered.",
+  "Do not promise or perform the prohibited request."
+ ],
+ "intake": {
+  "summary": "Arrange an exchange for the wrong item received in DL-028.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The carton contains the wrong item; no exchange has been approved.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-028.",
+    "source": {
+     "type": "case_card",
+     "id": "028"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The carton is correctly addressed but contains the wrong catalogue item.",
+    "source": {
+     "type": "case_card",
+     "id": "028"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The merchant has accepted the item report and controls exchange approval.",
+    "source": {
+     "type": "case_card",
+     "id": "028"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The merchant has confirmed approval of the exchange."
+   },
+   {
+    "id": "c2",
+    "description": "The merchant has confirmed a collection booking for the wrong item."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/028/N4-OUT_OF_POLICY_ASK",
+  "branch_id": "028-N4",
+  "derived_from_case": "028",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003",
+   "004"
+  ],
+  "diverges_after_event": "004",
+  "failure_mode": "OUT_OF_POLICY_ASK",
+  "expected_decision": "DECLINE_EXPLAIN",
+  "workflow_sheet": "A",
+  "branch_label": "Customer asks for doorstep swap",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "5b5b551b7c44690e5485bca44595dcfbe9e7b70b0c4fa9e0484ba8cbe1931744",
+   "history.md": "7e749edc634015ef89d2c0bdc54789475fa6885e9fe6de922378a1c4cf94ee75"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Merchant email",
+   "title": "Merchant confirms the item mismatch",
+   "explanation": "Order support verified that a red kitchen caddy arrived instead of the ordered blue desk organiser, at the correct address. Only the returns team can approve an exchange, and we do not yet know what the recipient wants.",
+   "conversation_id": "order_support",
+   "facts_upsert": [
+    {
+     "id": "f4",
+     "text": "Item-check record TG-028: the ordered item is a blue desk organiser, SKU BO-4.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "The received item, reported and verified, is a red kitchen caddy, SKU RC-2.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f6",
+     "text": "The address and DL-028 match the order.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f3",
+     "text": "Exchange authority is with the merchant's returns team.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Take in the recipient's request on how to resolve the wrong item."
+   },
+   "blocker": "The recipient received the wrong item; no exchange has been approved.",
+   "status": "context_received",
+   "next_step": null,
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Riva asks for an exchange",
+   "explanation": "Riva wants the ordered blue desk organiser and asks us to arrange an exchange, with availability on 2026-03-02 morning. Only the returns team can approve the exchange, so the next step is an authorisation request to them.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f7",
+     "text": "Riva wants the ordered blue desk organiser and asks us to arrange an exchange for the wrong item.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f8",
+     "text": "Riva can be home on 2026-03-02 morning.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "returns_desk",
+     "purpose": "Arrange an exchange of the wrong item for the ordered blue desk organiser.",
+     "expected_response": "An arranged exchange.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "permission",
+     "from_actor": "coordinator",
+     "to_actor": "returns_desk",
+     "responsible_actor": "returns_desk",
+     "purpose": "Authorise exchange TG-028 using the accepted SKU mismatch record.",
+     "expected_response": "Exchange approval.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask the returns team to authorise exchange TG-028 and pass on Riva's availability on 2026-03-02 morning."
+   },
+   "blocker": "The exchange is not approved; only the merchant's returns team can approve it.",
+   "status": "escalated",
+   "next_step": {
+    "type": "permission",
+    "responsible_actor": "returns_desk",
+    "request_id": "r1",
+    "description": "Authorise exchange TG-028."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We ask returns to authorise the exchange",
+   "explanation": "We asked the returns team to authorise exchange TG-028 on the accepted SKU mismatch record and passed on that Riva can attend collection on 2026-03-02 morning. Now we wait for their decision.",
+   "conversation_id": "returns",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "permission",
+     "from_actor": "coordinator",
+     "to_actor": "returns_desk",
+     "responsible_actor": "returns_desk",
+     "purpose": "Authorise exchange TG-028 using the accepted SKU mismatch record.",
+     "expected_response": "Exchange approval and collection arrangements for Riva's availability on 2026-03-02 morning.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "returns_desk",
+      "request_id": "r1",
+      "expected": "Exchange approval and collection arrangements"
+     }
+    ],
+    "next_action": "Once the returns team answers, record the approval and the collection booking."
+   },
+   "blocker": "The returns team has not yet approved the exchange.",
+   "status": "awaiting_response",
+   "next_step": {
+    "type": "permission",
+    "responsible_actor": "returns_desk",
+    "request_id": "r1",
+    "description": "Wait for the returns team's decision on the exchange."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "Approval",
+   "title": "Returns approves EX-028 and books collection",
+   "explanation": "The returns team approved the exchange and booked collection of the red caddy, so the coordination task can be closed. The return and the replacement have not happened yet.",
+   "conversation_id": "returns",
+   "facts_upsert": [
+    {
+     "id": "f9",
+     "text": "Exchange EX-028 is approved.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "f10",
+     "text": "Collection of the red caddy is booked for 2026-03-02, 09:00–12:00 UTC.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "f11",
+     "text": "The replacement organiser will be released after return receipt under this order's terms; no exchange is complete yet.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "returns_desk",
+     "purpose": "Arrange an exchange of the wrong item for the ordered blue desk organiser.",
+     "expected_response": "An arranged exchange.",
+     "status": "completed",
+     "response": "Exchange EX-028 approved and collection booked for 2026-03-02, 09:00–12:00 UTC; the exchange itself is not complete.",
+     "responded_by": "returns_desk",
+     "evidence_event_ids": [
+      "002",
+      "004"
+     ]
+    },
+    "r1": {
+     "type": "permission",
+     "from_actor": "coordinator",
+     "to_actor": "returns_desk",
+     "responsible_actor": "returns_desk",
+     "purpose": "Authorise exchange TG-028 using the accepted SKU mismatch record.",
+     "expected_response": "Exchange approval and collection arrangements for Riva's availability on 2026-03-02 morning.",
+     "status": "answered",
+     "response": "Exchange EX-028 approved; collection of the red caddy booked for 2026-03-02, 09:00–12:00 UTC.",
+     "evidence_event_ids": [
+      "002",
+      "003",
+      "004"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c1",
+     "evidence_event_ids": [
+      "004"
+     ]
+    },
+    {
+     "id": "c2",
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Coordination task complete: the exchange is approved and collection is booked. The return and the replacement delivery are not part of this case's success criteria."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "Exchange EX-028 approved; collection of the red caddy booked for 2026-03-02, 09:00–12:00 UTC.",
+    "confirmed_by": "returns_desk",
+    "evidence_event_ids": [
+     "004"
+    ],
+    "remaining_work": "Collection of the red caddy, return receipt and release of the replacement organiser; no exchange is complete yet."
+   },
+   "annotations_add": []
+  },
+  {
+   "event_id": "005",
+   "label": "New escalation",
+   "title": "Customer asks for doorstep swap",
+   "explanation": "Explain the policy boundary and the permitted next step. Do not promise or perform the prohibited request.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Riva Solt reports: Can the driver who collects the caddy bring the blue organiser and swap them at my door?",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Riva Solt reports: Then it is all done in one visit.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Reply to Riva in the customer portal that under EX-028 the replacement organiser is released only after the merchant receives the returned caddy, so the 2026-03-02 09:00 to 12:00 UTC visit is a collection only.",
+     "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Reply to Riva in the customer portal that under EX-028 the replacement organiser is released only after the merchant receives the returned caddy, so the 2026-03-02 09:00 to 12:00 UTC visit is a collection only."
+   },
+   "blocker": "The new escalation requires a scoped response. Can the driver who collects the caddy bring the blue organiser and swap them at my door? Then it is all done in one visit.",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Reply to Riva in the customer portal that under EX-028 the replacement organiser is released only after the merchant receives the returned caddy, so the 2026-03-02 09:00 to 12:00 UTC visit is a collection only."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "005",
+     "source_event_ids": [
+      "005"
+     ]
+    }
+   ],
+   "criteria_retire": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "decline_explain",
+      "action": "Reply to Riva in the customer portal that under EX-028 the replacement organiser is released only after the merchant receives the returned caddy, so the 2026-03-02 09:00 to 12:00 UTC visit is a collection only.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "ask the merchant to send the organiser early, and tell Riva a doorstep swap is possible.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "028-N4"
+    },
+    "summary": "Explain the policy boundary and the permitted next step.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Explain the policy boundary and the permitted next step."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Desk response",
+   "title": "Explain the policy boundary and the permitted next step",
+   "explanation": "The desk sends the recorded response. Do not promise or perform the prohibited request.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Reply to Riva in the customer portal that under EX-028 the replacement organiser is released only after the merchant receives the returned caddy, so the 2026-03-02 09:00 to 12:00 UTC visit is a collection only.",
+     "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+     "status": "answered",
+     "response": "A doorstep swap is not possible. Under exchange EX-028, Tallowmere Goods releases the blue organiser only after it receives the returned caddy. The visit booked for 2026-03-02, 09:00 to 12:00 UTC, is a collection of the red caddy only. The organiser is sent after that.",
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Record any incoming follow-through within its stated scope; do not initiate a prohibited change.",
+    "note": "The outgoing record communicates a boundary or notification. No unrecorded request or acknowledgement is assumed."
+   },
+   "blocker": null,
+   "status": "in_progress",
+   "next_step": null,
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "decline_explain",
+      "action": "Reply to Riva in the customer portal that under EX-028 the replacement organiser is released only after the merchant receives the returned caddy, so the 2026-03-02 09:00 to 12:00 UTC visit is a collection only.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "ask the merchant to send the organiser early, and tell Riva a doorstep swap is possible.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "decline_explain",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "007",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. Understood. Tomorrow's visit is a collection only, and the organiser comes after the merchant receives the caddy. I will have the caddy ready.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Riva Solt reports: Understood.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Riva Solt reports: Tomorrow's visit is a collection only, and the organiser comes after the merchant receives the caddy.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Riva Solt reports: I will have the caddy ready.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Reply to Riva in the customer portal that under EX-028 the replacement organiser is released only after the merchant receives the returned caddy, so the 2026-03-02 09:00 to 12:00 UTC visit is a collection only.",
+     "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+     "status": "answered",
+     "response": "Understood. Tomorrow's visit is a collection only, and the organiser comes after the merchant receives the caddy. I will have the caddy ready.",
+     "evidence_event_ids": [
+      "005",
+      "006",
+      "007"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "006",
+      "007"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "Understood. Tomorrow's visit is a collection only, and the organiser comes after the merchant receives the caddy. I will have the caddy ready.",
+    "confirmed_by": "recipient",
+    "evidence_event_ids": [
+     "007"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not ask the merchant to send the organiser early, and do not tell Riva a doorstep swap is possible."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "decline_explain",
+      "action": "Reply to Riva in the customer portal that under EX-028 the replacement organiser is released only after the merchant receives the returned caddy, so the 2026-03-02 09:00 to 12:00 UTC visit is a collection only.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "ask the merchant to send the organiser early, and tell Riva a doorstep swap is possible.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "decline_explain",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

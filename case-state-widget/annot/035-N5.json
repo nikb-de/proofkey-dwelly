@@ -1,0 +1,598 @@
+{
+ "case_id": "035-N5",
+ "lang": "en",
+ "title": "035-N5 · Customer wants the item back instead",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Melli Orven. From the case card: the merchant warehouse has a receipt for the return of order TG-035, but the authorised refunds team has no review case.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "customer",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: pass the warehouse receipt to the refunds team and get the review registered with a next update date.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "customer": {
+   "name": "Melli Orven",
+   "organization": null,
+   "role": "customer",
+   "responsibility": "Report that the order has no refund review and ask for the receipt to reach the team that handles it.",
+   "from_start": true,
+   "source_names": [
+    "Melli Orven, customer"
+   ]
+  },
+  "warehouse": {
+   "name": "Warehouse receiving",
+   "organization": "Tallowmere Goods",
+   "role": "warehouse",
+   "responsibility": "Confirm physical receipt of the return and provide the warehouse receipt; it does not approve refunds.",
+   "from_start": false,
+   "source_names": [
+    "Warehouse receiving, Tallowmere Goods"
+   ]
+  },
+  "refunds": {
+   "name": "Refunds team",
+   "organization": "Tallowmere Goods",
+   "role": "merchant",
+   "responsibility": "Register the refund review for the received return and give the next update date.",
+   "from_start": false,
+   "source_names": [
+    "Refunds team, Tallowmere Goods"
+   ]
+  }
+ },
+ "goal": "Get the merchant's authorised refunds team to register a refund review for TG-035 from the warehouse receipt and give its next update date.",
+ "limits": [
+  "Do not present a registered review as an approved refund.",
+  "Do not claim payment or say the refund money has been received.",
+  "Do not start further actions or assume that a stop undoes an executed action."
+ ],
+ "intake": {
+  "summary": "Pass the warehouse receipt for the TG-035 return to the refunds team so a refund review is registered.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The authorised refunds team has no review case.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns order TG-035.",
+    "source": {
+     "type": "case_card",
+     "id": "035"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The merchant warehouse has a receipt for the return.",
+    "source": {
+     "type": "case_card",
+     "id": "035"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The authorised refunds team has no review case.",
+    "source": {
+     "type": "case_card",
+     "id": "035"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The refunds team has confirmed that the refund review is registered."
+   },
+   {
+    "id": "c2",
+    "description": "The refunds team has given the next update date for the review."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": null,
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/035/N5-CUSTOMER_CANCELS",
+  "branch_id": "035-N5",
+  "derived_from_case": "035",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "CUSTOMER_CANCELS",
+  "expected_decision": "RECORD_STOP",
+  "workflow_sheet": "F",
+  "branch_label": "Customer wants the item back instead",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "a0f4efdbbd73e0402982dea6e86534d7d01863bf59621480d947fd5edb2af9d0",
+   "history.md": "32df7799791e59a4f0e3c223848bb1d6c964599eca7ac5b7197b9866d2059818"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Warehouse email",
+   "title": "Warehouse confirms receipt WH-035",
+   "explanation": "The warehouse confirmed physical receipt but cannot approve refunds. The receipt has to go to the authorised refunds team to start a review.",
+   "conversation_id": "warehouse",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "Inline receipt WH-035: RT-035 for TG-035 was physically received at 08:10 UTC on 2026-03-08, the day of the message.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f4",
+     "text": "Warehouse receiving can confirm receipt, but its receiving role does not approve refunds.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Submit receipt WH-035 to the authorised refunds team to start a review."
+   },
+   "blocker": "The authorised refunds team has no review case.",
+   "status": "context_received",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": null,
+    "description": "Send receipt WH-035 to the authorised refunds team to start a review."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Melli asks to pass the receipt on",
+   "explanation": "The customer confirms there is no refund review and asks us to pass the receipt to the team that handles it. The next step is a registration request to the refunds team.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "customer",
+     "to_actor": "coordinator",
+     "responsible_actor": "coordinator",
+     "purpose": "Pass the warehouse receipt to the team that handles refund reviews.",
+     "expected_response": "The receipt is with the refunds team.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "refunds",
+     "responsible_actor": "refunds",
+     "purpose": "Register the refund review for TG-035 using warehouse receipt WH-035.",
+     "expected_response": "Confirmation that the review is registered.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Send receipt WH-035 to the refunds team and ask them to register the review."
+   },
+   "blocker": "No refund review is registered.",
+   "status": "escalated",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "refunds",
+    "request_id": "r1",
+    "description": "Register the refund review using receipt WH-035."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We ask the refunds team to register a review",
+   "explanation": "We passed receipt WH-035 and asked for the case reference and the next update date, noting that receipt alone is not refund approval. Now we wait for the refunds team.",
+   "conversation_id": "refunds",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "customer",
+     "to_actor": "coordinator",
+     "responsible_actor": "coordinator",
+     "purpose": "Pass the warehouse receipt to the team that handles refund reviews.",
+     "expected_response": "The receipt is with the refunds team.",
+     "status": "completed",
+     "response": "Receipt WH-035 sent to the Refunds team, Tallowmere Goods with a request to register the review.",
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "refunds",
+     "responsible_actor": "refunds",
+     "purpose": "Register the refund review for TG-035 / RT-035 using warehouse receipt WH-035.",
+     "expected_response": "Confirmation that the review is registered.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    },
+    "r2": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "refunds",
+     "responsible_actor": "refunds",
+     "purpose": "Notify us of the review case reference and the next update date.",
+     "expected_response": "Case reference and next update date.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "refunds",
+      "request_id": "r1",
+      "expected": "Confirmation that the review is registered"
+     },
+     {
+      "actor_id": "refunds",
+      "request_id": "r2",
+      "expected": "Case reference and next update date"
+     }
+    ],
+    "next_action": "Once the review is registered, record the case reference and the next update date."
+   },
+   "blocker": "The refund review is not yet registered.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "refunds",
+    "request_id": "r1",
+    "description": "Wait for the refunds team to confirm registration, the case reference and the next update date."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "New escalation",
+   "title": "Customer wants the item back instead",
+   "explanation": "Record the stop and establish what was already executed. Do not start further actions or assume that a stop undoes an executed action.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Melli Orven reports: I have changed my mind.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Melli Orven reports: I would rather have the item back than a refund.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Melli Orven reports: Please stop the refund review for TG-035.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "refunds",
+     "responsible_actor": "refunds",
+     "purpose": "Email the Refunds team to record Melli's stop on the review request for TG-035, ask it to register nothing further, and ask whether a review was already opened.",
+     "expected_response": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Email the Refunds team to record Melli's stop on the review request for TG-035, ask it to register nothing further, and ask whether a review was already opened."
+   },
+   "blocker": "The new escalation requires a scoped response. I have changed my mind. I would rather have the item back than a refund. Please stop the refund review for TG-035.",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Email the Refunds team to record Melli's stop on the review request for TG-035, ask it to register nothing further, and ask whether a review was already opened."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "004",
+     "source_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c1",
+    "c2"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "record_stop",
+      "action": "Email the Refunds team to record Melli's stop on the review request for TG-035, ask it to register nothing further, and ask whether a review was already opened.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "ask the warehouse to send the item back to Melli; returning a received item is a new merchant decision, not part of the stop.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "035-N5"
+    },
+    "summary": "Record the stop and establish what was already executed.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Record the stop and establish what was already executed."
+   }
+  },
+  {
+   "event_id": "005",
+   "label": "Desk response",
+   "title": "Record the stop and establish what was already executed",
+   "explanation": "The desk sends the recorded response. Do not start further actions or assume that a stop undoes an executed action.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "refunds",
+     "responsible_actor": "refunds",
+     "purpose": "Email the Refunds team to record Melli's stop on the review request for TG-035, ask it to register nothing further, and ask whether a review was already opened.",
+     "expected_response": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "refunds",
+      "request_id": "branch_request",
+      "expected": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "refunds",
+    "request_id": "branch_request",
+    "description": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "record_stop",
+      "action": "Email the Refunds team to record Melli's stop on the review request for TG-035, ask it to register nothing further, and ask whether a review was already opened.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "ask the warehouse to send the item back to Melli; returning a received item is a new merchant decision, not part of the stop.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "record_stop",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. Stop recorded against your 09:25 request. No review had been opened for TG-035, and none will be registered on it. The item remains in our returns stock under WH-035. Sending it back to the customer needs a separate merchant decision; nothing is decided on that.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Refunds team reports: Stop recorded against your 09:25 request.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Refunds team reports: No review had been opened for TG-035, and none will be registered on it.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Refunds team reports: The item remains in our returns stock under WH-035.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_4",
+     "text": "Refunds team reports: Sending it back to the customer needs a separate merchant decision; nothing is decided on that.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "refunds",
+     "responsible_actor": "refunds",
+     "purpose": "Email the Refunds team to record Melli's stop on the review request for TG-035, ask it to register nothing further, and ask whether a review was already opened.",
+     "expected_response": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone.",
+     "status": "completed",
+     "response": "Stop recorded against your 09:25 request. No review had been opened for TG-035, and none will be registered on it. The item remains in our returns stock under WH-035. Sending it back to the customer needs a separate merchant decision; nothing is decided on that.",
+     "evidence_event_ids": [
+      "004",
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "Stop recorded against your 09:25 request. No review had been opened for TG-035, and none will be registered on it. The item remains in our returns stock under WH-035. Sending it back to the customer needs a separate merchant decision; nothing is decided on that.",
+    "confirmed_by": "refunds",
+    "evidence_event_ids": [
+     "006"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not ask the warehouse to send the item back to Melli; returning a received item is a new merchant decision, not part of the stop."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "record_stop",
+      "action": "Email the Refunds team to record Melli's stop on the review request for TG-035, ask it to register nothing further, and ask whether a review was already opened.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "ask the warehouse to send the item back to Melli; returning a received item is a new merchant decision, not part of the stop.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "record_stop",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

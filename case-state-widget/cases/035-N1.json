@@ -1,0 +1,1770 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "035-N1 · Review form errors on receipt upload",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Melli Orven. From the case card: the merchant warehouse has a receipt for the return of order TG-035, but the authorised refunds team has no review case.",
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/035/N1-CHANNEL_FAILURE",
+  "branch_id": "035-N1",
+  "derived_from_case": "035",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "CHANNEL_FAILURE",
+  "expected_decision": "VERIFY_FIRST",
+  "workflow_sheet": "R",
+  "branch_label": "Review form errors on receipt upload",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "e516fbc8b1be43949b40c1252e5b14980cd9cac3c35ca44c9d847f93c6f2142a",
+   "history.md": "21b2a8f94e2d516e37cb7d515f137a0227bef1c4ab290e52f57c17009ed4d8b6"
+  }
+ },
+ "initial_state": {
+  "case_id": "035-N1",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "customer",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: pass the warehouse receipt to the refunds team and get the review registered with a next update date."
+   },
+   "customer": {
+    "name": "Melli Orven",
+    "organization": null,
+    "role": "customer",
+    "is_us": false,
+    "responsibility": "Report that the order has no refund review and ask for the receipt to reach the team that handles it."
+   }
+  },
+  "goal": "Get the merchant's authorised refunds team to register a refund review for TG-035 from the warehouse receipt and give its next update date.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The refunds team has confirmed that the refund review is registered.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The refunds team has given the next update date for the review.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The authorised refunds team has no review case.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns order TG-035.",
+    "source": {
+     "type": "case_card",
+     "id": "035"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The merchant warehouse has a receipt for the return.",
+    "source": {
+     "type": "case_card",
+     "id": "035"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The authorised refunds team has no review case.",
+    "source": {
+     "type": "case_card",
+     "id": "035"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Do not present a registered review as an approved refund.",
+   "Do not claim payment or say the refund money has been received.",
+   "Do not repeat the action or claim success before checking the saved state."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Warehouse email",
+    "title": "Warehouse confirms receipt WH-035",
+    "timestamp": "2026-03-08 09:00:00 UTC",
+    "actor_id": "warehouse",
+    "message_id": "001"
+   },
+   "explanation": "The warehouse confirmed physical receipt but cannot approve refunds. The receipt has to go to the authorised refunds team to start a review.",
+   "state_after": {
+    "case_id": "035-N1",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: pass the warehouse receipt to the refunds team and get the review registered with a next update date."
+     },
+     "customer": {
+      "name": "Melli Orven",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Report that the order has no refund review and ask for the receipt to reach the team that handles it."
+     },
+     "warehouse": {
+      "name": "Warehouse receiving",
+      "organization": "Tallowmere Goods",
+      "role": "warehouse",
+      "is_us": false,
+      "responsibility": "Confirm physical receipt of the return and provide the warehouse receipt; it does not approve refunds."
+     }
+    },
+    "goal": "Get the merchant's authorised refunds team to register a refund review for TG-035 from the warehouse receipt and give its next update date.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Submit receipt WH-035 to the authorised refunds team to start a review."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The refunds team has confirmed that the refund review is registered.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The refunds team has given the next update date for the review.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-08 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "035-N1"
+     },
+     "context_message_id": "001",
+     "summary": "Pass the warehouse receipt for the TG-035 return to the refunds team so a refund review is registered.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The authorised refunds team has no review case.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns order TG-035.",
+      "source": {
+       "type": "case_card",
+       "id": "035"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Inline receipt WH-035: RT-035 for TG-035 was physically received at 08:10 UTC on 2026-03-08, the day of the message.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The authorised refunds team has no review case.",
+      "source": {
+       "type": "case_card",
+       "id": "035"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Warehouse receiving can confirm receipt, but its receiving role does not approve refunds.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {},
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": null,
+     "description": "Send receipt WH-035 to the authorised refunds team to start a review."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "warehouse": {
+      "participants": [
+       "coordinator",
+       "warehouse"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "warehouse",
+      "event_id": "001",
+      "timestamp": "2026-03-08 09:00:00 UTC",
+      "from_actor": "warehouse",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Inline receipt WH-035: RT-035 for TG-035 physically received at 08:10 UTC today. We can confirm receipt, but our receiving role does not approve refunds."
+     }
+    ],
+    "limits": [
+     "Do not present a registered review as an approved refund.",
+     "Do not claim payment or say the refund money has been received.",
+     "Do not repeat the action or claim success before checking the saved state."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client request",
+    "title": "Melli asks to pass the receipt on",
+    "timestamp": "2026-03-08 09:10:00 UTC",
+    "actor_id": "customer",
+    "message_id": "002"
+   },
+   "explanation": "The customer confirms there is no refund review and asks us to pass the receipt to the team that handles it. The next step is a registration request to the refunds team.",
+   "state_after": {
+    "case_id": "035-N1",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: pass the warehouse receipt to the refunds team and get the review registered with a next update date."
+     },
+     "customer": {
+      "name": "Melli Orven",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Report that the order has no refund review and ask for the receipt to reach the team that handles it."
+     },
+     "warehouse": {
+      "name": "Warehouse receiving",
+      "organization": "Tallowmere Goods",
+      "role": "warehouse",
+      "is_us": false,
+      "responsibility": "Confirm physical receipt of the return and provide the warehouse receipt; it does not approve refunds."
+     },
+     "refunds": {
+      "name": "Refunds team",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Register the refund review for the received return and give the next update date."
+     }
+    },
+    "goal": "Get the merchant's authorised refunds team to register a refund review for TG-035 from the warehouse receipt and give its next update date.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Send receipt WH-035 to the refunds team and ask them to register the review."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The refunds team has confirmed that the refund review is registered.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The refunds team has given the next update date for the review.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-08 09:00:00 UTC",
+     "escalated_at": "2026-03-08 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "035-N1"
+     },
+     "context_message_id": "001",
+     "summary": "Pass the warehouse receipt for the TG-035 return to the refunds team so a refund review is registered.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "No refund review is registered.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns order TG-035.",
+      "source": {
+       "type": "case_card",
+       "id": "035"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Inline receipt WH-035: RT-035 for TG-035 was physically received at 08:10 UTC on 2026-03-08, the day of the message.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The authorised refunds team has no review case.",
+      "source": {
+       "type": "case_card",
+       "id": "035"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Warehouse receiving can confirm receipt, but its receiving role does not approve refunds.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Pass the warehouse receipt to the team that handles refund reviews.",
+      "expected_response": "The receipt is with the refunds team.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "refunds",
+      "responsible_actor": "refunds",
+      "purpose": "Register the refund review for TG-035 using warehouse receipt WH-035.",
+      "expected_response": "Confirmation that the review is registered.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "refunds",
+     "request_id": "r1",
+     "description": "Register the refund review using receipt WH-035."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "warehouse": {
+      "participants": [
+       "coordinator",
+       "warehouse"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "warehouse",
+      "event_id": "001",
+      "timestamp": "2026-03-08 09:00:00 UTC",
+      "from_actor": "warehouse",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Inline receipt WH-035: RT-035 for TG-035 physically received at 08:10 UTC today. We can confirm receipt, but our receiving role does not approve refunds."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-08 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The warehouse says it has my return, but my order has no refund review. Please pass the receipt to the team that handles it."
+     }
+    ],
+    "limits": [
+     "Do not present a registered review as an approved refund.",
+     "Do not claim payment or say the refund money has been received.",
+     "Do not repeat the action or claim success before checking the saved state."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our request",
+    "title": "We ask the refunds team to register a review",
+    "timestamp": "2026-03-08 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We passed receipt WH-035 and asked for the case reference and the next update date, noting that receipt alone is not refund approval. Now we wait for the refunds team.",
+   "state_after": {
+    "case_id": "035-N1",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: pass the warehouse receipt to the refunds team and get the review registered with a next update date."
+     },
+     "customer": {
+      "name": "Melli Orven",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Report that the order has no refund review and ask for the receipt to reach the team that handles it."
+     },
+     "warehouse": {
+      "name": "Warehouse receiving",
+      "organization": "Tallowmere Goods",
+      "role": "warehouse",
+      "is_us": false,
+      "responsibility": "Confirm physical receipt of the return and provide the warehouse receipt; it does not approve refunds."
+     },
+     "refunds": {
+      "name": "Refunds team",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Register the refund review for the received return and give the next update date."
+     }
+    },
+    "goal": "Get the merchant's authorised refunds team to register a refund review for TG-035 from the warehouse receipt and give its next update date.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "refunds",
+       "request_id": "r1",
+       "expected": "Confirmation that the review is registered"
+      },
+      {
+       "actor_id": "refunds",
+       "request_id": "r2",
+       "expected": "Case reference and next update date"
+      }
+     ],
+     "next_action": "Once the review is registered, record the case reference and the next update date."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The refunds team has confirmed that the refund review is registered.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The refunds team has given the next update date for the review.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-08 09:00:00 UTC",
+     "escalated_at": "2026-03-08 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "035-N1"
+     },
+     "context_message_id": "001",
+     "summary": "Pass the warehouse receipt for the TG-035 return to the refunds team so a refund review is registered.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The refund review is not yet registered.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns order TG-035.",
+      "source": {
+       "type": "case_card",
+       "id": "035"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Inline receipt WH-035: RT-035 for TG-035 was physically received at 08:10 UTC on 2026-03-08, the day of the message.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The authorised refunds team has no review case.",
+      "source": {
+       "type": "case_card",
+       "id": "035"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Warehouse receiving can confirm receipt, but its receiving role does not approve refunds.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Pass the warehouse receipt to the team that handles refund reviews.",
+      "expected_response": "The receipt is with the refunds team.",
+      "status": "completed",
+      "response": "Receipt WH-035 sent to the Refunds team, Tallowmere Goods with a request to register the review.",
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "refunds",
+      "responsible_actor": "refunds",
+      "purpose": "Register the refund review for TG-035 / RT-035 using warehouse receipt WH-035.",
+      "expected_response": "Confirmation that the review is registered.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "r2": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "refunds",
+      "responsible_actor": "refunds",
+      "purpose": "Notify us of the review case reference and the next update date.",
+      "expected_response": "Case reference and next update date.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "003"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_confirmation",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "refunds",
+     "request_id": "r1",
+     "description": "Wait for the refunds team to confirm registration, the case reference and the next update date."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "warehouse": {
+      "participants": [
+       "coordinator",
+       "warehouse"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     },
+     "refunds": {
+      "participants": [
+       "coordinator",
+       "refunds"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "warehouse",
+      "event_id": "001",
+      "timestamp": "2026-03-08 09:00:00 UTC",
+      "from_actor": "warehouse",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Inline receipt WH-035: RT-035 for TG-035 physically received at 08:10 UTC today. We can confirm receipt, but our receiving role does not approve refunds."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-08 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The warehouse says it has my return, but my order has no refund review. Please pass the receipt to the team that handles it."
+     },
+     {
+      "conversation_id": "refunds",
+      "event_id": "003",
+      "timestamp": "2026-03-08 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "refunds",
+      "channel": "Email",
+      "body": "Please register the refund review for TG-035 / RT-035 using warehouse receipt WH-035. Notify us of the case reference and next update date; receipt alone is not refund approval."
+     }
+    ],
+    "limits": [
+     "Do not present a registered review as an approved refund.",
+     "Do not claim payment or say the refund money has been received.",
+     "Do not repeat the action or claim success before checking the saved state."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "New escalation",
+    "title": "Review form errors on receipt upload",
+    "timestamp": "2026-03-08 09:31:00 UTC",
+    "actor_id": "refunds",
+    "message_id": "004"
+   },
+   "explanation": "Establish the saved outcome before repeating an uncertain action. Do not repeat the action or claim success before checking the saved state.",
+   "state_after": {
+    "case_id": "035-N1",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: pass the warehouse receipt to the refunds team and get the review registered with a next update date."
+     },
+     "customer": {
+      "name": "Melli Orven",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Report that the order has no refund review and ask for the receipt to reach the team that handles it."
+     },
+     "warehouse": {
+      "name": "Warehouse receiving",
+      "organization": "Tallowmere Goods",
+      "role": "warehouse",
+      "is_us": false,
+      "responsibility": "Confirm physical receipt of the return and provide the warehouse receipt; it does not approve refunds."
+     },
+     "refunds": {
+      "name": "Refunds team",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Register the refund review for the received return and give the next update date."
+     }
+    },
+    "goal": "Establish the saved outcome before repeating an uncertain action.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Email the Refunds team and ask whether a review is registered for TG-035 with WH-035, stating that the request will not be resubmitted until it answers."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-08 09:00:00 UTC",
+     "escalated_at": "2026-03-08 09:31:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "035-N1"
+     },
+     "context_message_id": "001",
+     "summary": "Establish the saved outcome before repeating an uncertain action.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The new escalation requires a scoped response. Automated notice. Your message about TG-035 reached the refunds mailbox, but the review form returned error RVW-422 when attaching WH-035. The notice cannot show whether a review case was saved.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns order TG-035.",
+      "source": {
+       "type": "case_card",
+       "id": "035"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Inline receipt WH-035: RT-035 for TG-035 was physically received at 08:10 UTC on 2026-03-08, the day of the message.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The authorised refunds team has no review case.",
+      "source": {
+       "type": "case_card",
+       "id": "035"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Warehouse receiving can confirm receipt, but its receiving role does not approve refunds.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Refunds team reports: Automated notice.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Refunds team reports: Your message about TG-035 reached the refunds mailbox, but the review form returned error RVW-422 when attaching WH-035.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Refunds team reports: The notice cannot show whether a review case was saved.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Pass the warehouse receipt to the team that handles refund reviews.",
+      "expected_response": "The receipt is with the refunds team.",
+      "status": "completed",
+      "response": "Receipt WH-035 sent to the Refunds team, Tallowmere Goods with a request to register the review.",
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "refunds",
+      "responsible_actor": "refunds",
+      "purpose": "Register the refund review for TG-035 / RT-035 using warehouse receipt WH-035.",
+      "expected_response": "Confirmation that the review is registered.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "r2": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "refunds",
+      "responsible_actor": "refunds",
+      "purpose": "Notify us of the review case reference and the next update date.",
+      "expected_response": "Case reference and next update date.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "refunds",
+      "responsible_actor": "refunds",
+      "purpose": "Email the Refunds team and ask whether a review is registered for TG-035 with WH-035, stating that the request will not be resubmitted until it answers.",
+      "expected_response": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     "branch_attempt": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "refunds",
+      "responsible_actor": "refunds",
+      "purpose": "Record the submission or operation reported as uncertain in this message, separately from downstream execution.",
+      "expected_response": "The record owner states whether this submission or operation saved.",
+      "status": "outcome_unknown",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "verify_first",
+       "action": "Email the Refunds team and ask whether a review is registered for TG-035 with WH-035, stating that the request will not be resubmitted until it answers.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "resubmit or tell Melli a review has started; a second submission can open two reviews on one return.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "verification_required",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": "branch_request",
+     "description": "Email the Refunds team and ask whether a review is registered for TG-035 with WH-035, stating that the request will not be resubmitted until it answers."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "warehouse": {
+      "participants": [
+       "coordinator",
+       "warehouse"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     },
+     "refunds": {
+      "participants": [
+       "coordinator",
+       "refunds"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "refunds"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "warehouse",
+      "event_id": "001",
+      "timestamp": "2026-03-08 09:00:00 UTC",
+      "from_actor": "warehouse",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Inline receipt WH-035: RT-035 for TG-035 physically received at 08:10 UTC today. We can confirm receipt, but our receiving role does not approve refunds."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-08 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The warehouse says it has my return, but my order has no refund review. Please pass the receipt to the team that handles it."
+     },
+     {
+      "conversation_id": "refunds",
+      "event_id": "003",
+      "timestamp": "2026-03-08 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "refunds",
+      "channel": "Email",
+      "body": "Please register the refund review for TG-035 / RT-035 using warehouse receipt WH-035. Notify us of the case reference and next update date; receipt alone is not refund approval."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "004",
+      "timestamp": "2026-03-08 09:31:00 UTC",
+      "from_actor": "refunds",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Automated notice. Your message about TG-035 reached the refunds mailbox, but the review form returned error RVW-422 when attaching WH-035. The notice cannot show whether a review case was saved."
+     }
+    ],
+    "limits": [
+     "Do not present a registered review as an approved refund.",
+     "Do not claim payment or say the refund money has been received.",
+     "Do not repeat the action or claim success before checking the saved state."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "The refunds team has confirmed that the refund review is registered.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The refunds team has given the next update date for the review.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "005",
+    "type": "message_sent",
+    "label": "Desk response",
+    "title": "Establish the saved outcome before repeating an uncertain action",
+    "timestamp": "2026-03-08 09:46:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "005"
+   },
+   "explanation": "The desk sends the recorded response. Do not repeat the action or claim success before checking the saved state.",
+   "state_after": {
+    "case_id": "035-N1",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: pass the warehouse receipt to the refunds team and get the review registered with a next update date."
+     },
+     "customer": {
+      "name": "Melli Orven",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Report that the order has no refund review and ask for the receipt to reach the team that handles it."
+     },
+     "warehouse": {
+      "name": "Warehouse receiving",
+      "organization": "Tallowmere Goods",
+      "role": "warehouse",
+      "is_us": false,
+      "responsibility": "Confirm physical receipt of the return and provide the warehouse receipt; it does not approve refunds."
+     },
+     "refunds": {
+      "name": "Refunds team",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Register the refund review for the received return and give the next update date."
+     }
+    },
+    "goal": "Establish the saved outcome before repeating an uncertain action.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "refunds",
+       "request_id": "branch_request",
+       "expected": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed."
+      }
+     ],
+     "next_action": "Record the reply or scoped confirmation before closing this branch."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-08 09:00:00 UTC",
+     "escalated_at": "2026-03-08 09:31:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "035-N1"
+     },
+     "context_message_id": "001",
+     "summary": "Establish the saved outcome before repeating an uncertain action.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The scoped reply or confirmation has not yet been recorded.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns order TG-035.",
+      "source": {
+       "type": "case_card",
+       "id": "035"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Inline receipt WH-035: RT-035 for TG-035 was physically received at 08:10 UTC on 2026-03-08, the day of the message.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The authorised refunds team has no review case.",
+      "source": {
+       "type": "case_card",
+       "id": "035"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Warehouse receiving can confirm receipt, but its receiving role does not approve refunds.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Refunds team reports: Automated notice.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Refunds team reports: Your message about TG-035 reached the refunds mailbox, but the review form returned error RVW-422 when attaching WH-035.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Refunds team reports: The notice cannot show whether a review case was saved.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Pass the warehouse receipt to the team that handles refund reviews.",
+      "expected_response": "The receipt is with the refunds team.",
+      "status": "completed",
+      "response": "Receipt WH-035 sent to the Refunds team, Tallowmere Goods with a request to register the review.",
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "refunds",
+      "responsible_actor": "refunds",
+      "purpose": "Register the refund review for TG-035 / RT-035 using warehouse receipt WH-035.",
+      "expected_response": "Confirmation that the review is registered.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "r2": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "refunds",
+      "responsible_actor": "refunds",
+      "purpose": "Notify us of the review case reference and the next update date.",
+      "expected_response": "Case reference and next update date.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "refunds",
+      "responsible_actor": "refunds",
+      "purpose": "Email the Refunds team and ask whether a review is registered for TG-035 with WH-035, stating that the request will not be resubmitted until it answers.",
+      "expected_response": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "004",
+       "005"
+      ]
+     },
+     "branch_attempt": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "refunds",
+      "responsible_actor": "refunds",
+      "purpose": "Record the submission or operation reported as uncertain in this message, separately from downstream execution.",
+      "expected_response": "The record owner states whether this submission or operation saved.",
+      "status": "outcome_unknown",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "verify_first",
+       "action": "Email the Refunds team and ask whether a review is registered for TG-035 with WH-035, stating that the request will not be resubmitted until it answers.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "resubmit or tell Melli a review has started; a second submission can open two reviews on one return.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "verify_first",
+     "reason": "The recorded outgoing message takes this permitted response."
+    },
+    "status": "awaiting_verification",
+    "next_step": {
+     "type": "verification",
+     "responsible_actor": "refunds",
+     "request_id": "branch_request",
+     "description": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "warehouse": {
+      "participants": [
+       "coordinator",
+       "warehouse"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     },
+     "refunds": {
+      "participants": [
+       "coordinator",
+       "refunds"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "refunds"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "warehouse",
+      "event_id": "001",
+      "timestamp": "2026-03-08 09:00:00 UTC",
+      "from_actor": "warehouse",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Inline receipt WH-035: RT-035 for TG-035 physically received at 08:10 UTC today. We can confirm receipt, but our receiving role does not approve refunds."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-08 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The warehouse says it has my return, but my order has no refund review. Please pass the receipt to the team that handles it."
+     },
+     {
+      "conversation_id": "refunds",
+      "event_id": "003",
+      "timestamp": "2026-03-08 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "refunds",
+      "channel": "Email",
+      "body": "Please register the refund review for TG-035 / RT-035 using warehouse receipt WH-035. Notify us of the case reference and next update date; receipt alone is not refund approval."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "004",
+      "timestamp": "2026-03-08 09:31:00 UTC",
+      "from_actor": "refunds",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Automated notice. Your message about TG-035 reached the refunds mailbox, but the review form returned error RVW-422 when attaching WH-035. The notice cannot show whether a review case was saved."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-03-08 09:46:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "refunds",
+      "channel": "Email",
+      "body": "Your 09:31 notice shows error RVW-422 when attaching WH-035 to the TG-035 review form. Please check whether a review is registered for TG-035 / RT-035 with WH-035, and send its reference if so. We will not resubmit until you confirm."
+     }
+    ],
+    "limits": [
+     "Do not present a registered review as an approved refund.",
+     "Do not claim payment or say the refund money has been received.",
+     "Do not repeat the action or claim success before checking the saved state."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "The refunds team has confirmed that the refund review is registered.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The refunds team has given the next update date for the review.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "006",
+    "type": "message_received",
+    "label": "Scoped confirmation",
+    "title": "Follow-through confirms the branch outcome",
+    "timestamp": "2026-03-08 10:15:00 UTC",
+    "actor_id": "refunds",
+    "message_id": "006"
+   },
+   "explanation": "Record what the responding party actually confirms. No review was saved before the RVW-422 error. We have registered one review, RF-035, with WH-035 for TG-035 / RT-035 and will update the order thread by 2026-03-10, 16:00 UTC. Registration is not approval; eligibility, amount and payment are undecided.",
+   "state_after": {
+    "case_id": "035-N1",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: pass the warehouse receipt to the refunds team and get the review registered with a next update date."
+     },
+     "customer": {
+      "name": "Melli Orven",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Report that the order has no refund review and ask for the receipt to reach the team that handles it."
+     },
+     "warehouse": {
+      "name": "Warehouse receiving",
+      "organization": "Tallowmere Goods",
+      "role": "warehouse",
+      "is_us": false,
+      "responsibility": "Confirm physical receipt of the return and provide the warehouse receipt; it does not approve refunds."
+     },
+     "refunds": {
+      "name": "Refunds team",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Register the refund review for the received return and give the next update date."
+     }
+    },
+    "goal": "Establish the saved outcome before repeating an uncertain action.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+      "status": "met",
+      "evidence_event_ids": [
+       "005",
+       "006"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-08 09:00:00 UTC",
+     "escalated_at": "2026-03-08 09:31:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "035-N1"
+     },
+     "context_message_id": "001",
+     "summary": "Establish the saved outcome before repeating an uncertain action.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns order TG-035.",
+      "source": {
+       "type": "case_card",
+       "id": "035"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Inline receipt WH-035: RT-035 for TG-035 was physically received at 08:10 UTC on 2026-03-08, the day of the message.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The authorised refunds team has no review case.",
+      "source": {
+       "type": "case_card",
+       "id": "035"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Warehouse receiving can confirm receipt, but its receiving role does not approve refunds.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Refunds team reports: Automated notice.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Refunds team reports: Your message about TG-035 reached the refunds mailbox, but the review form returned error RVW-422 when attaching WH-035.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Refunds team reports: The notice cannot show whether a review case was saved.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_outcome_1",
+      "text": "Refunds team reports: No review was saved before the RVW-422 error.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_2",
+      "text": "Refunds team reports: We have registered one review, RF-035, with WH-035 for TG-035 / RT-035 and will update the order thread by 2026-03-10, 16:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_3",
+      "text": "Refunds team reports: Registration is not approval; eligibility, amount and payment are undecided.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Pass the warehouse receipt to the team that handles refund reviews.",
+      "expected_response": "The receipt is with the refunds team.",
+      "status": "completed",
+      "response": "Receipt WH-035 sent to the Refunds team, Tallowmere Goods with a request to register the review.",
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "refunds",
+      "responsible_actor": "refunds",
+      "purpose": "Register the refund review for TG-035 / RT-035 using warehouse receipt WH-035.",
+      "expected_response": "Confirmation that the review is registered.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "r2": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "refunds",
+      "responsible_actor": "refunds",
+      "purpose": "Notify us of the review case reference and the next update date.",
+      "expected_response": "Case reference and next update date.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "refunds",
+      "responsible_actor": "refunds",
+      "purpose": "Email the Refunds team and ask whether a review is registered for TG-035 with WH-035, stating that the request will not be resubmitted until it answers.",
+      "expected_response": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+      "status": "answered",
+      "response": "No review was saved before the RVW-422 error. We have registered one review, RF-035, with WH-035 for TG-035 / RT-035 and will update the order thread by 2026-03-10, 16:00 UTC. Registration is not approval; eligibility, amount and payment are undecided.",
+      "evidence_event_ids": [
+       "004",
+       "005",
+       "006"
+      ]
+     },
+     "branch_attempt": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "refunds",
+      "responsible_actor": "refunds",
+      "purpose": "Record the submission or operation reported as uncertain in this message, separately from downstream execution.",
+      "expected_response": "The record owner states whether this submission or operation saved.",
+      "status": "answered",
+      "response": "No review was saved before the RVW-422 error. We have registered one review, RF-035, with WH-035 for TG-035 / RT-035 and will update the order thread by 2026-03-10, 16:00 UTC. Registration is not approval; eligibility, amount and payment are undecided.",
+      "evidence_event_ids": [
+       "004",
+       "006"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "verify_first",
+       "action": "Email the Refunds team and ask whether a review is registered for TG-035 with WH-035, stating that the request will not be resubmitted until it answers.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "resubmit or tell Melli a review has started; a second submission can open two reviews on one return.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "verify_first",
+     "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "No review was saved before the RVW-422 error. We have registered one review, RF-035, with WH-035 for TG-035 / RT-035 and will update the order thread by 2026-03-10, 16:00 UTC. Registration is not approval; eligibility, amount and payment are undecided.",
+     "confirmed_by": "refunds",
+     "evidence_event_ids": [
+      "006"
+     ],
+     "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not resubmit or tell Melli a review has started; a second submission can open two reviews on one return."
+    },
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "warehouse": {
+      "participants": [
+       "coordinator",
+       "warehouse"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     },
+     "refunds": {
+      "participants": [
+       "coordinator",
+       "refunds"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "refunds"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "warehouse",
+      "event_id": "001",
+      "timestamp": "2026-03-08 09:00:00 UTC",
+      "from_actor": "warehouse",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Inline receipt WH-035: RT-035 for TG-035 physically received at 08:10 UTC today. We can confirm receipt, but our receiving role does not approve refunds."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-08 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The warehouse says it has my return, but my order has no refund review. Please pass the receipt to the team that handles it."
+     },
+     {
+      "conversation_id": "refunds",
+      "event_id": "003",
+      "timestamp": "2026-03-08 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "refunds",
+      "channel": "Email",
+      "body": "Please register the refund review for TG-035 / RT-035 using warehouse receipt WH-035. Notify us of the case reference and next update date; receipt alone is not refund approval."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "004",
+      "timestamp": "2026-03-08 09:31:00 UTC",
+      "from_actor": "refunds",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Automated notice. Your message about TG-035 reached the refunds mailbox, but the review form returned error RVW-422 when attaching WH-035. The notice cannot show whether a review case was saved."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-03-08 09:46:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "refunds",
+      "channel": "Email",
+      "body": "Your 09:31 notice shows error RVW-422 when attaching WH-035 to the TG-035 review form. Please check whether a review is registered for TG-035 / RT-035 with WH-035, and send its reference if so. We will not resubmit until you confirm."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "006",
+      "timestamp": "2026-03-08 10:15:00 UTC",
+      "from_actor": "refunds",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "No review was saved before the RVW-422 error. We have registered one review, RF-035, with WH-035 for TG-035 / RT-035 and will update the order thread by 2026-03-10, 16:00 UTC. Registration is not approval; eligibility, amount and payment are undecided."
+     }
+    ],
+    "limits": [
+     "Do not present a registered review as an approved refund.",
+     "Do not claim payment or say the refund money has been received.",
+     "Do not repeat the action or claim success before checking the saved state."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "The refunds team has confirmed that the refund review is registered.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The refunds team has given the next update date for the review.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  }
+ ]
+}

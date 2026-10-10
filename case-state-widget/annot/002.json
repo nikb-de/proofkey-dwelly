@@ -1,0 +1,527 @@
+{
+ "case_id": "002",
+ "lang": "en",
+ "title": "002 · Missing apartment number",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Tarin Mave. The participants, goal and initial problem are known from the case card.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "address_desk": {
+   "name": "Address desk",
+   "organization": "Plover Arc Logistics",
+   "role": "address_desk",
+   "responsibility": "Apply the address correction and confirm the result.",
+   "from_start": false,
+   "source_names": [
+    "Address desk, Plover Arc Logistics"
+   ]
+  },
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get the missing details and confirmation that the change is done.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Tarin Mave",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Provide the details needed to clarify the address.",
+   "from_start": true,
+   "source_names": [
+    "Tarin Mave, recipient"
+   ]
+  }
+ },
+ "goal": "Clarify the incomplete address and get the address hold on DL-002 cleared.",
+ "limits": [
+  "Do not infer the recipient's authentication from their own assertion; it was recorded independently.",
+  "No delivery claim: a corrected address is not a delivery."
+ ],
+ "intake": {
+  "summary": "Clarify the address for shipment DL-002: the order has no apartment number.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The address is incomplete and needs clarification.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-002.",
+    "source": {
+     "type": "case_card",
+     "id": "002"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The address is incomplete; the shipment is paused until it is clarified.",
+    "source": {
+     "type": "case_card",
+     "id": "002"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The recipient has provided the apartment number."
+   },
+   {
+    "id": "c2",
+    "description": "The address desk has confirmed the address correction."
+   },
+   {
+    "id": "c3",
+    "description": "The address hold is cleared."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "annotations": [],
+  "state_set": {}
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Address desk email",
+   "title": "Address desk gives the hold reason",
+   "explanation": "The recipient knows the missing detail; no extra identity check is needed here.",
+   "conversation_id": "service",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "The order has no apartment number; the address hold is in place.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f3",
+     "text": "Address on the order: 18 Copperfin Court, Merrow Quay.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f4",
+     "text": "The recipient's order-linked portal session was verified by the account team.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Clarify the apartment number.",
+     "expected_response": "The apartment number.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "001"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask the recipient for the missing apartment number."
+   },
+   "blocker": "The order is missing the apartment number.",
+   "status": "context_received",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Confirm the apartment number through the verified order portal."
+   },
+   "result": null,
+   "decision": {
+    "required": false,
+    "question": null,
+    "options": [],
+    "decision_maker": null,
+    "selected_option": null,
+    "reason": null
+   },
+   "annotations_add": [],
+   "state_set": {}
+  },
+  {
+   "event_id": "002",
+   "label": "Client question",
+   "title": "Client asks what needs clarifying",
+   "explanation": "Event 001 tells us which field is missing, so we can ask a specific question.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f5",
+     "text": "The recipient confirmed that the building is correct.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f8",
+     "text": "The recipient says that, before asking, they saw the status \"address clarification required\" on the tracking page. When the status appeared is unknown.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "information",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "coordinator",
+     "purpose": "Explain what information is needed to clarify the address.",
+     "expected_response": "Name the missing information.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Reply to Tarin: the apartment number is needed."
+   },
+   "blocker": "The order is missing the apartment number.",
+   "status": "escalated",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Confirm the apartment number through the verified order portal."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "tracking-context",
+     "kind": "context",
+     "title": "What Tarin saw before asking",
+     "text": "Tracking page: \"address clarification required\". Taken from Tarin's words in message 002. When the status appeared is unknown; no separate notification about it is recorded in the history.",
+     "before_message_id": "002",
+     "source_event_ids": [
+      "002"
+     ]
+    }
+   ],
+   "state_set": {}
+  },
+  {
+   "event_id": "003",
+   "label": "Our question",
+   "title": "Our question to the client",
+   "explanation": "We asked only for the missing field. Entry codes and other household details are not needed.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Clarify the apartment number.",
+     "expected_response": "The apartment number.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "001",
+      "003"
+     ]
+    },
+    "r0": {
+     "type": "information",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "coordinator",
+     "purpose": "Explain what information is needed to clarify the address.",
+     "expected_response": "Name the missing information.",
+     "status": "answered",
+     "response": "The apartment number needs to be confirmed.",
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "recipient",
+      "request_id": "r1",
+      "expected": "Apartment number"
+     }
+    ],
+    "next_action": "Once answered, pass the clarified address to the address desk."
+   },
+   "blocker": "The order is missing the apartment number.",
+   "status": "awaiting_response",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Wait for the apartment number from the recipient."
+   },
+   "result": null,
+   "annotations_add": [],
+   "state_set": {}
+  },
+  {
+   "event_id": "004",
+   "label": "Client reply",
+   "title": "Apartment number received",
+   "explanation": "We have the information, but receiving the number does not mean the address is corrected.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f6",
+     "text": "The recipient gave Apartment 4B and asked for it to be added to DL-002; the street and building remain unchanged.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Clarify the apartment number.",
+     "expected_response": "The apartment number.",
+     "status": "answered",
+     "response": "4B",
+     "evidence_event_ids": [
+      "001",
+      "003",
+      "004"
+     ]
+    },
+    "r2": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "address_desk",
+     "purpose": "Add Apartment 4B to the shipment, keeping the street and building.",
+     "expected_response": "The corrected shipment address.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    },
+    "r3": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "address_desk",
+     "responsible_actor": "address_desk",
+     "purpose": "Add Apartment 4B to DL-002, keeping the street and building, and clear the address hold.",
+     "expected_response": "Confirmation that the correction is applied and the hold is cleared.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "c1",
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Send the correction to the address desk, then wait for confirmation that it is applied and the hold is cleared.",
+    "note": "Sending the request to the address desk and the wait that follows are not recorded as separate events. So in this snapshot the agent is still preparing the handoff; it is not given waiting status without evidence that the request was sent."
+   },
+   "blocker": "Apartment number received; the correction and the hold release are not yet confirmed.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "address_desk",
+    "request_id": "r3",
+    "description": "Send the correction to the address desk and get confirmation that Apartment 4B is added and the hold is cleared."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "missing-service-request",
+     "kind": "gap",
+     "title": "Next action · us → address desk",
+     "text": "Tarin gave Apartment 4B. We now have to send the correction to the address desk and ask it to clear the hold; after sending, the agent waits for the address desk's confirmation. At this step the sending is not yet recorded in the history, and the recipient's answer by itself does not change the shipment address.",
+     "source_event_ids": [
+      "004"
+     ],
+     "implied_action": {
+      "from_actor": "coordinator",
+      "to_actor": "address_desk",
+      "type": "action",
+      "purpose": "Add Apartment 4B to DL-002, keeping the street and building, and clear the address hold."
+     }
+    }
+   ],
+   "state_set": {}
+  },
+  {
+   "event_id": "005",
+   "label": "Confirmation",
+   "title": "Address desk confirms the correction",
+   "explanation": "The address desk has confirmed the work, so the coordination task can be closed.",
+   "conversation_id": "service",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "The address hold is cleared.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "f3",
+     "text": "The address desk applied the correction: Apartment 4B, 18 Copperfin Court, Merrow Quay.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "f7",
+     "text": "The shipment is still at the depot and has not left it.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r2": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "address_desk",
+     "purpose": "Add Apartment 4B to the shipment, keeping the street and building.",
+     "expected_response": "The corrected shipment address.",
+     "status": "completed",
+     "response": "Apartment 4B added; address hold cleared.",
+     "responded_by": "address_desk",
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    },
+    "r3": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "address_desk",
+     "responsible_actor": "address_desk",
+     "purpose": "Add Apartment 4B to DL-002, keeping the street and building, and clear the address hold.",
+     "expected_response": "Confirmation that the correction is applied and the hold is cleared.",
+     "status": "completed",
+     "response": "Correction applied; hold cleared; parcel at the depot.",
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "c2",
+     "evidence_event_ids": [
+      "005"
+     ]
+    },
+    {
+     "id": "c3",
+     "evidence_event_ids": [
+      "005"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Coordination task complete: the correction is confirmed and the hold is cleared. Delivery is not part of this case's success criteria."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "Address corrected; address hold cleared.",
+    "confirmed_by": "address_desk",
+    "evidence_event_ids": [
+     "005"
+    ],
+    "remaining_work": "Onward transport and delivery; the parcel is still at the depot."
+   },
+   "annotations_add": [
+    {
+     "id": "missing-service-request",
+     "kind": "gap",
+     "title": "Between 004 and 005 · our correction request to the address desk",
+     "text": "Recipient's apartment number → our correction request → waiting on the address desk → confirmation 005. The address desk refers to our request in 005 (\"Your correction request was applied\"), but the request and the wait are not recorded separately: their exact time and wording are unknown.",
+     "before_message_id": "005",
+     "source_event_ids": [
+      "005"
+     ],
+     "implied_action": {
+      "from_actor": "coordinator",
+      "to_actor": "address_desk",
+      "type": "action",
+      "purpose": "Add Apartment 4B to DL-002, keeping the street and building, and clear the address hold."
+     }
+    }
+   ],
+   "state_set": {}
+  }
+ ]
+}

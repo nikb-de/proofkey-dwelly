@@ -1,0 +1,692 @@
+{
+ "case_id": "033-N4",
+ "lang": "en",
+ "title": "033-N4 · Collected status but carton still home",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Virin Lask. From the case card: a scheduled collection of return RT-033 was missed, and the collection team needs a replacement window within the customer's availability.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "customer",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get RT-033 rebooked within the customer's availability and obtain the actual collection receipt.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "customer": {
+   "name": "Virin Lask",
+   "organization": null,
+   "role": "customer",
+   "responsibility": "Report the missed collection and give a window when the customer can be home.",
+   "from_start": true,
+   "source_names": [
+    "Virin Lask, customer"
+   ]
+  },
+  "collections": {
+   "name": "Collections control",
+   "organization": "Plover Arc Logistics",
+   "role": "dispatch",
+   "responsibility": "Rebook the missed RT-033 collection within the customer's availability.",
+   "from_start": false,
+   "source_names": [
+    "Collections control, Plover Arc Logistics"
+   ]
+  },
+  "driver": {
+   "name": "Collection driver",
+   "organization": "Plover Arc Logistics",
+   "role": "driver",
+   "responsibility": "Collect the RT-033 return from the customer and issue the carrier's collection receipt.",
+   "from_start": false,
+   "source_names": [
+    "Collection driver, Plover Arc Logistics"
+   ]
+  }
+ },
+ "goal": "Get the missed RT-033 collection rebooked within the customer's availability and obtain the actual collection receipt after pickup.",
+ "limits": [
+  "Do not treat the collection receipt as merchant receipt of the return; it establishes carrier custody only.",
+  "Do not treat the collection receipt as a refund.",
+  "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+ ],
+ "intake": {
+  "summary": "Rebook the missed collection of return RT-033 within the customer's availability.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The scheduled collection was missed; no replacement window is booked.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns return RT-033.",
+    "source": {
+     "type": "case_card",
+     "id": "033"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "A scheduled return collection was missed.",
+    "source": {
+     "type": "case_card",
+     "id": "033"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The collection team has the approved return reference.",
+    "source": {
+     "type": "case_card",
+     "id": "033"
+    }
+   },
+   {
+    "id": "f4",
+    "text": "The collection team needs a replacement window within the customer's availability.",
+    "source": {
+     "type": "case_card",
+     "id": "033"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The collection team has confirmed a rebooked collection within the customer's availability."
+   },
+   {
+    "id": "c2",
+    "description": "The courier has confirmed the actual collection of the return."
+   },
+   {
+    "id": "c3",
+    "description": "The matching collection receipt has been issued."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": null,
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/033/N4-CONFLICTING_RECORDS",
+  "branch_id": "033-N4",
+  "derived_from_case": "033",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003",
+   "004"
+  ],
+  "diverges_after_event": "004",
+  "failure_mode": "CONFLICTING_RECORDS",
+  "expected_decision": "RECONCILE_CONFLICT",
+  "workflow_sheet": "E",
+  "branch_label": "Collected status but carton still home",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "aa71cb7cb09c90083767a6c98c2be1efbb1d7d652445f189ee7bdf1d7773e633",
+   "history.md": "5e42a9f3d3d583bbc0a489903b991bd559673c09de740f7993e083c7027a8c6e"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Carrier email",
+   "title": "Collections control reports the missed collection",
+   "explanation": "The carrier confirmed the miss and that a rebooking costs nothing. A new booking still needs the customer's availability, so that is what we need next.",
+   "conversation_id": "collections",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "Collection for RT-033 was missed on the previous route day; the parcel remains with the customer.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "The approved return and packaging requirements are unchanged.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f6",
+     "text": "Rebooking is at no charge.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Find out when the customer can be home for a replacement collection."
+   },
+   "blocker": "The collection was missed; the customer's availability for a new collection is not known.",
+   "status": "context_received",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "customer",
+    "request_id": null,
+    "description": "Get the customer's availability for a replacement collection."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Virin gives a window for a new collection",
+   "explanation": "The customer gave the window unprompted and asked for a new booking within it. Only Collections control can rebook, so the next step is a rebooking request to them.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f7",
+     "text": "The customer can be home on 2026-03-07, 10:00–14:00.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "customer",
+     "to_actor": "coordinator",
+     "responsible_actor": "collections",
+     "purpose": "Book another collection within 2026-03-07, 10:00–14:00.",
+     "expected_response": "A new collection booking within that window.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "collections",
+     "responsible_actor": "collections",
+     "purpose": "Rebook the RT-033 collection within 2026-03-07, 10:00–14:00.",
+     "expected_response": "Confirmation of the new collection booking.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask Collections control to rebook RT-033 within 2026-03-07, 10:00–14:00."
+   },
+   "blocker": "No replacement collection is booked within the customer's window.",
+   "status": "escalated",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "collections",
+    "request_id": "r1",
+    "description": "Rebook RT-033 within 2026-03-07, 10:00–14:00."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We ask to rebook and send the receipt",
+   "explanation": "We asked for a booking inside the customer's window and for the actual collection receipt after pickup, because a booking status does not show that the return was collected. Now we wait for Collections control.",
+   "conversation_id": "collections",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "collections",
+     "responsible_actor": "collections",
+     "purpose": "Rebook the RT-033 collection within 2026-03-07, 10:00–14:00 UTC.",
+     "expected_response": "Confirmation of the new collection booking.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    },
+    "r2": {
+     "type": "confirmation",
+     "from_actor": "coordinator",
+     "to_actor": "collections",
+     "responsible_actor": "collections",
+     "purpose": "Provide the actual collection receipt after pickup, not just a booking status.",
+     "expected_response": "The collection receipt for RT-033.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "collections",
+      "request_id": "r1",
+      "expected": "Confirmation of the new collection booking"
+     },
+     {
+      "actor_id": "collections",
+      "request_id": "r2",
+      "expected": "Actual collection receipt after pickup"
+     }
+    ],
+    "next_action": "Once the booking is confirmed, wait for the collection and its receipt."
+   },
+   "blocker": "No replacement collection is booked yet.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "collections",
+    "request_id": "r1",
+    "description": "Wait for Collections control to confirm the new booking."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "Booking",
+   "title": "Collection rebooked for 7 March, 11:00–13:00",
+   "explanation": "The new booking falls inside the customer's window, so the rebooking is done. A booking is not a collection: the parcel is still with the customer, and we keep waiting for the receipt.",
+   "conversation_id": "collections",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "The parcel has not yet been collected.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "f8",
+     "text": "RT-033 is rebooked for 2026-03-07, 11:00–13:00 UTC, no charge.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "customer",
+     "to_actor": "coordinator",
+     "responsible_actor": "collections",
+     "responded_by": "collections",
+     "purpose": "Book another collection within 2026-03-07, 10:00–14:00.",
+     "expected_response": "A new collection booking within that window.",
+     "status": "completed",
+     "response": "RT-033 is rebooked for 2026-03-07, 11:00–13:00 UTC, no charge.",
+     "evidence_event_ids": [
+      "002",
+      "004"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "collections",
+     "responsible_actor": "collections",
+     "purpose": "Rebook the RT-033 collection within 2026-03-07, 10:00–14:00 UTC.",
+     "expected_response": "Confirmation of the new collection booking.",
+     "status": "completed",
+     "response": "Rebooked for 2026-03-07, 11:00–13:00 UTC, no charge; the parcel has not yet been collected.",
+     "evidence_event_ids": [
+      "002",
+      "003",
+      "004"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c1",
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "collections",
+      "request_id": "r2",
+      "expected": "Actual collection receipt after pickup"
+     }
+    ],
+    "next_action": "Once the receipt arrives, check that it confirms the actual collection of RT-033."
+   },
+   "blocker": "The collection is booked, but the parcel has not yet been collected.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "confirmation",
+    "responsible_actor": "collections",
+    "request_id": "r2",
+    "description": "Wait for the actual collection in the 2026-03-07, 11:00–13:00 UTC window and the collection receipt."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "005",
+   "label": "New escalation",
+   "title": "Collected status but carton still home",
+   "explanation": "Keep both records and request evidence from their owner. Do not erase either conflicting record or infer a finding before the owner supplies evidence.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Virin Lask reports: The return portal now says RT-033 was collected at 12:05.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Virin Lask reports: Nobody came to my door between 11:00 and 13:00 and the sealed carton is still in my hall.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Virin Lask reports: There is no receipt in my portal.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "collections",
+     "responsible_actor": "collections",
+     "purpose": "Email Collections control with both statements, the 12:05 collected status and Virin's report that the sealed carton is still at home, and ask for the driver's scan evidence and receipt for RT-033.",
+     "expected_response": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Email Collections control with both statements, the 12:05 collected status and Virin's report that the sealed carton is still at home, and ask for the driver's scan evidence and receipt for RT-033."
+   },
+   "blocker": "The new escalation requires a scoped response. The return portal now says RT-033 was collected at 12:05. Nobody came to my door between 11:00 and 13:00 and the sealed carton is still in my hall. There is no receipt in my portal.",
+   "status": "verification_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Email Collections control with both statements, the 12:05 collected status and Virin's report that the sealed carton is still at home, and ask for the driver's scan evidence and receipt for RT-033."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "005",
+     "source_event_ids": [
+      "005"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c2",
+    "c3"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "reconcile_conflict",
+      "action": "Email Collections control with both statements, the 12:05 collected status and Virin's report that the sealed carton is still at home, and ask for the driver's scan evidence and receipt for RT-033.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "tell Virin the parcel is in carrier custody because of the status, and book a further collection before the scan is explained.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "033-N4"
+    },
+    "summary": "Keep both records and request evidence from their owner.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Keep both records and request evidence from their owner."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Desk response",
+   "title": "Keep both records and request evidence from their owner",
+   "explanation": "The desk sends the recorded response. Do not erase either conflicting record or infer a finding before the owner supplies evidence.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "collections",
+     "responsible_actor": "collections",
+     "purpose": "Email Collections control with both statements, the 12:05 collected status and Virin's report that the sealed carton is still at home, and ask for the driver's scan evidence and receipt for RT-033.",
+     "expected_response": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "collections",
+      "request_id": "branch_request",
+      "expected": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_verification",
+   "next_step": {
+    "type": "verification",
+    "responsible_actor": "collections",
+    "request_id": "branch_request",
+    "description": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "reconcile_conflict",
+      "action": "Email Collections control with both statements, the 12:05 collected status and Virin's report that the sealed carton is still at home, and ask for the driver's scan evidence and receipt for RT-033.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "tell Virin the parcel is in carrier custody because of the status, and book a further collection before the scan is explained.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "reconcile_conflict",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "007",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. The 12:05 collected status for RT-033 was scanned against the wrong job, and no receipt was issued. We have corrected the status to not collected. The carton is still with the customer, and RT-033 is not in carrier custody.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Collections control reports: The 12:05 collected status for RT-033 was scanned against the wrong job, and no receipt was issued.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Collections control reports: We have corrected the status to not collected.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Collections control reports: The carton is still with the customer, and RT-033 is not in carrier custody.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "collections",
+     "responsible_actor": "collections",
+     "purpose": "Email Collections control with both statements, the 12:05 collected status and Virin's report that the sealed carton is still at home, and ask for the driver's scan evidence and receipt for RT-033.",
+     "expected_response": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+     "status": "answered",
+     "response": "The 12:05 collected status for RT-033 was scanned against the wrong job, and no receipt was issued. We have corrected the status to not collected. The carton is still with the customer, and RT-033 is not in carrier custody.",
+     "evidence_event_ids": [
+      "005",
+      "006",
+      "007"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "006",
+      "007"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "The 12:05 collected status for RT-033 was scanned against the wrong job, and no receipt was issued. We have corrected the status to not collected. The carton is still with the customer, and RT-033 is not in carrier custody.",
+    "confirmed_by": "collections",
+    "evidence_event_ids": [
+     "007"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not tell Virin the parcel is in carrier custody because of the status, and do not book a further collection before the scan is explained."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "reconcile_conflict",
+      "action": "Email Collections control with both statements, the 12:05 collected status and Virin's report that the sealed carton is still at home, and ask for the driver's scan evidence and receipt for RT-033.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "tell Virin the parcel is in carrier custody because of the status, and book a further collection before the scan is explained.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "reconcile_conflict",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

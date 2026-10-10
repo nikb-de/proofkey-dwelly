@@ -1,0 +1,626 @@
+{
+ "case_id": "002-N3",
+ "lang": "en",
+ "title": "002-N3 · No apartment number before label cut-off",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Tarin Mave. The participants, goal and initial problem are known from the case card.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "address_desk": {
+   "name": "Address desk",
+   "organization": "Plover Arc Logistics",
+   "role": "address_desk",
+   "responsibility": "Apply the address correction and confirm the result.",
+   "from_start": false,
+   "source_names": [
+    "Address desk, Plover Arc Logistics"
+   ]
+  },
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get the missing details and confirmation that the change is done.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Tarin Mave",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Provide the details needed to clarify the address.",
+   "from_start": true,
+   "source_names": [
+    "Tarin Mave, recipient"
+   ]
+  }
+ },
+ "goal": "Clarify the incomplete address and get the address hold on DL-002 cleared.",
+ "limits": [
+  "Do not infer the recipient's authentication from their own assertion; it was recorded independently.",
+  "No delivery claim: a corrected address is not a delivery.",
+  "Do not treat a reminder or silence as consent, a booking or execution."
+ ],
+ "intake": {
+  "summary": "Clarify the address for shipment DL-002: the order has no apartment number.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The address is incomplete and needs clarification.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-002.",
+    "source": {
+     "type": "case_card",
+     "id": "002"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The address is incomplete; the shipment is paused until it is clarified.",
+    "source": {
+     "type": "case_card",
+     "id": "002"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The recipient has provided the apartment number."
+   },
+   {
+    "id": "c2",
+    "description": "The address desk has confirmed the address correction."
+   },
+   {
+    "id": "c3",
+    "description": "The address hold is cleared."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "annotations": [],
+  "state_set": {}
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/002/N3-NO_REPLY",
+  "branch_id": "002-N3",
+  "derived_from_case": "002",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "NO_REPLY",
+  "expected_decision": "WAIT_WITH_DEADLINE",
+  "workflow_sheet": "B",
+  "branch_label": "No apartment number before label cut-off",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "5113e02c0cae6e6b19927d30a348c953f7bdb7acfb4314ace8702883c5153bb2",
+   "history.md": "f7d15333477d4658efc64b1d20f17a048bbf672c740f23937cf45b1fb5f95ff1"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Address desk email",
+   "title": "Address desk gives the hold reason",
+   "explanation": "The recipient knows the missing detail; no extra identity check is needed here.",
+   "conversation_id": "service",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "The order has no apartment number; the address hold is in place.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f3",
+     "text": "Address on the order: 18 Copperfin Court, Merrow Quay.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f4",
+     "text": "The recipient's order-linked portal session was verified by the account team.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Clarify the apartment number.",
+     "expected_response": "The apartment number.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "001"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask the recipient for the missing apartment number."
+   },
+   "blocker": "The order is missing the apartment number.",
+   "status": "context_received",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Confirm the apartment number through the verified order portal."
+   },
+   "result": null,
+   "decision": {
+    "required": false,
+    "question": null,
+    "options": [],
+    "decision_maker": null,
+    "selected_option": null,
+    "reason": null
+   },
+   "annotations_add": [],
+   "state_set": {}
+  },
+  {
+   "event_id": "002",
+   "label": "Client question",
+   "title": "Client asks what needs clarifying",
+   "explanation": "Event 001 tells us which field is missing, so we can ask a specific question.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f5",
+     "text": "The recipient confirmed that the building is correct.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f8",
+     "text": "The recipient says that, before asking, they saw the status \"address clarification required\" on the tracking page. When the status appeared is unknown.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "information",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "coordinator",
+     "purpose": "Explain what information is needed to clarify the address.",
+     "expected_response": "Name the missing information.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Reply to Tarin: the apartment number is needed."
+   },
+   "blocker": "The order is missing the apartment number.",
+   "status": "escalated",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Confirm the apartment number through the verified order portal."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "tracking-context",
+     "kind": "context",
+     "title": "What Tarin saw before asking",
+     "text": "Tracking page: \"address clarification required\". Taken from Tarin's words in message 002. When the status appeared is unknown; no separate notification about it is recorded in the history.",
+     "before_message_id": "002",
+     "source_event_ids": [
+      "002"
+     ]
+    }
+   ],
+   "state_set": {}
+  },
+  {
+   "event_id": "003",
+   "label": "Our question",
+   "title": "Our question to the client",
+   "explanation": "We asked only for the missing field. Entry codes and other household details are not needed.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Clarify the apartment number.",
+     "expected_response": "The apartment number.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "001",
+      "003"
+     ]
+    },
+    "r0": {
+     "type": "information",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "coordinator",
+     "purpose": "Explain what information is needed to clarify the address.",
+     "expected_response": "Name the missing information.",
+     "status": "answered",
+     "response": "The apartment number needs to be confirmed.",
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "recipient",
+      "request_id": "r1",
+      "expected": "Apartment number"
+     }
+    ],
+    "next_action": "Once answered, pass the clarified address to the address desk."
+   },
+   "blocker": "The order is missing the apartment number.",
+   "status": "awaiting_response",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Wait for the apartment number from the recipient."
+   },
+   "result": null,
+   "annotations_add": [],
+   "state_set": {}
+  },
+  {
+   "event_id": "004",
+   "label": "New escalation",
+   "title": "No apartment number before label cut-off",
+   "explanation": "Send one reminder with the recorded deadline and consequence. Do not treat a reminder or silence as consent, a booking or execution.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Address desk reports: DL-002 still has no apartment number.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Address desk reports: Route labels for tomorrow's loading close at 16:00 UTC today.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Address desk reports: If no correction is recorded by then, DL-002 stays on hold in the depot and misses that loading.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Send Tarin one reminder in the Customer portal asking for the apartment number before 16:00 UTC, stating that otherwise DL-002 stays on hold, and record the Address desk as owner of that deadline.",
+     "expected_response": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Send Tarin one reminder in the Customer portal asking for the apartment number before 16:00 UTC, stating that otherwise DL-002 stays on hold, and record the Address desk as owner of that deadline."
+   },
+   "blocker": "The new escalation requires a scoped response. DL-002 still has no apartment number. Route labels for tomorrow's loading close at 16:00 UTC today. If no correction is recorded by then, DL-002 stays on hold in the depot and misses that loading.",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Send Tarin one reminder in the Customer portal asking for the apartment number before 16:00 UTC, stating that otherwise DL-002 stays on hold, and record the Address desk as owner of that deadline."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "004",
+     "source_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c1",
+    "c2",
+    "c3"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "wait_with_deadline",
+      "action": "Send Tarin one reminder in the Customer portal asking for the apartment number before 16:00 UTC, stating that otherwise DL-002 stays on hold, and record the Address desk as owner of that deadline.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Chase Tarin through another channel or number, or ask the Address desk to release DL-002 with the building address only.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "002-N3"
+    },
+    "summary": "Send one reminder with the recorded deadline and consequence.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Send one reminder with the recorded deadline and consequence."
+   }
+  },
+  {
+   "event_id": "005",
+   "label": "Desk response",
+   "title": "Send one reminder with the recorded deadline and consequence",
+   "explanation": "The desk sends the recorded response. Do not treat a reminder or silence as consent, a booking or execution.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Send Tarin one reminder in the Customer portal asking for the apartment number before 16:00 UTC, stating that otherwise DL-002 stays on hold, and record the Address desk as owner of that deadline.",
+     "expected_response": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "recipient",
+      "request_id": "branch_request",
+      "expected": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_response",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "recipient",
+    "request_id": "branch_request",
+    "description": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "wait_with_deadline",
+      "action": "Send Tarin one reminder in the Customer portal asking for the apartment number before 16:00 UTC, stating that otherwise DL-002 stays on hold, and record the Address desk as owner of that deadline.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Chase Tarin through another channel or number, or ask the Address desk to release DL-002 with the building address only.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "wait_with_deadline",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. No apartment number for DL-002 was recorded by 16:00 UTC. DL-002 stays on hold in the depot under the incomplete-address reason and has missed tomorrow's loading. A correction can still be applied for a later loading. Nothing has been delivered.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Address desk reports: No apartment number for DL-002 was recorded by 16:00 UTC.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Address desk reports: DL-002 stays on hold in the depot under the incomplete-address reason and has missed tomorrow's loading.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Address desk reports: A correction can still be applied for a later loading.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_4",
+     "text": "Address desk reports: Nothing has been delivered.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Send Tarin one reminder in the Customer portal asking for the apartment number before 16:00 UTC, stating that otherwise DL-002 stays on hold, and record the Address desk as owner of that deadline.",
+     "expected_response": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking.",
+     "status": "superseded",
+     "response": "The record owner confirms the deadline outcome; no answer or consent from the silent party is inferred.",
+     "evidence_event_ids": [
+      "004",
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "No apartment number for DL-002 was recorded by 16:00 UTC. DL-002 stays on hold in the depot under the incomplete-address reason and has missed tomorrow's loading. A correction can still be applied for a later loading. Nothing has been delivered.",
+    "confirmed_by": "address_desk",
+    "evidence_event_ids": [
+     "006"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Chase Tarin through another channel or number, or ask the Address desk to release DL-002 with the building address only."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "wait_with_deadline",
+      "action": "Send Tarin one reminder in the Customer portal asking for the apartment number before 16:00 UTC, stating that otherwise DL-002 stays on hold, and record the Address desk as owner of that deadline.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Chase Tarin through another channel or number, or ask the Address desk to release DL-002 with the building address only.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "wait_with_deadline",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

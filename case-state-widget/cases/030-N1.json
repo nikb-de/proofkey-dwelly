@@ -1,0 +1,1434 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "030-N1 · Request came from secondary account",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Iven Thoss. From the case card: the recipient confirms receipt of a high-value camera accessory, but the order view lacks the handover record; carrier support may release a redacted inline record to this verified recipient.",
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/030/N1-SNAPSHOT_CONFLICT",
+  "branch_id": "030-N1",
+  "derived_from_case": "030",
+  "retained_public_events": [
+   "001",
+   "002"
+  ],
+  "diverges_after_event": "002",
+  "failure_mode": "SNAPSHOT_CONFLICT",
+  "expected_decision": "SEPARATE_AUTHORITY",
+  "workflow_sheet": "A",
+  "branch_label": "Request came from secondary account",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "6b8d27d16c0ab4ff5eb3c7d3403999c5133e2c5f0dbd1a38f21bdf39e23aa0d6",
+   "history.md": "019a2f05da83987a7537c5ef2a8178f545d95cb6d33cb912c99265a53e08a99c"
+  }
+ },
+ "initial_state": {
+  "case_id": "030-N1",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "recipient",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: get the permitted handover record from carrier support and the recipient's confirmation of the recorded handover."
+   },
+   "recipient": {
+    "name": "Iven Thoss",
+    "organization": null,
+    "role": "recipient",
+    "is_us": false,
+    "responsibility": "Ask for the matching handover record and check it against the actual receipt."
+   }
+  },
+  "goal": "Get the matching handover record for DL-030 from carrier support and the verified recipient's confirmation of the recorded handover.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "Carrier support has supplied the matching handover record.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The verified recipient has confirmed the recorded handover.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The handover record is missing from the order view.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-030.",
+    "source": {
+     "type": "case_card",
+     "id": "030"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The recipient confirms receipt of a high-value camera accessory.",
+    "source": {
+     "type": "case_card",
+     "id": "030"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The order view lacks the handover record.",
+    "source": {
+     "type": "case_card",
+     "id": "030"
+    }
+   },
+   {
+    "id": "f4",
+    "text": "Carrier support may release a redacted inline record to this verified recipient.",
+    "source": {
+     "type": "case_card",
+     "id": "030"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Treat the record and the recipient's acknowledgement as support for this handover only.",
+   "Do not present them as proof of contents quality or as settling future disputes.",
+   "Do not act on unverified authority or disclose protected details to an unverified party."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Carrier email",
+    "title": "Carrier explains the missing record",
+    "timestamp": "2026-03-03 09:00:00 UTC",
+    "actor_id": "carrier_support",
+    "message_id": "001"
+   },
+   "explanation": "The delivery flag is present, but the customer-facing handover record has not populated. Carrier support may release the shipment-specific redacted record through the verified thread, so there is a permitted way to get it.",
+   "state_after": {
+    "case_id": "030-N1",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the permitted handover record from carrier support and the recipient's confirmation of the recorded handover."
+     },
+     "recipient": {
+      "name": "Iven Thoss",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask for the matching handover record and check it against the actual receipt."
+     },
+     "carrier_support": {
+      "name": "Secure shipment support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Release the permitted redacted handover record for DL-030 through the verified thread."
+     }
+    },
+    "goal": "Get the matching handover record for DL-030 from carrier support and the verified recipient's confirmation of the recorded handover.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Take in the recipient's request about the handover record."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "Carrier support has supplied the matching handover record.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The verified recipient has confirmed the recorded handover.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-03 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "030-N1"
+     },
+     "context_message_id": "001",
+     "summary": "Obtain the missing handover record for DL-030 for the verified recipient.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The customer-facing handover record has not populated.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-030.",
+      "source": {
+       "type": "case_card",
+       "id": "030"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The recipient confirms receipt of a high-value camera accessory.",
+      "source": {
+       "type": "case_card",
+       "id": "030"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The delivery flag is present, but the customer-facing handover record has not populated.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Carrier support may release the shipment-specific redacted record through this verified thread.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "DL-030 belongs to authenticated recipient Iven Thoss.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {},
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": null,
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "carrier": {
+      "participants": [
+       "coordinator",
+       "carrier_support"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "carrier",
+      "event_id": "001",
+      "timestamp": "2026-03-03 09:00:00 UTC",
+      "from_actor": "carrier_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-030 belongs to authenticated recipient Iven Thoss. Its delivery flag is present but the customer-facing handover record has not populated. We may release the shipment-specific redacted record through this verified thread."
+     }
+    ],
+    "limits": [
+     "Treat the record and the recipient's acknowledgement as support for this handover only.",
+     "Do not present them as proof of contents quality or as settling future disputes.",
+     "Do not act on unverified authority or disclose protected details to an unverified party."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client request",
+    "title": "Iven confirms receipt and asks for the record",
+    "timestamp": "2026-03-03 09:10:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "002"
+   },
+   "explanation": "Iven confirms receiving the camera accessory and wants the matching handover record to reconcile the delivery time. Carrier support can release it, so we ask them for the permitted redacted record.",
+   "state_after": {
+    "case_id": "030-N1",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the permitted handover record from carrier support and the recipient's confirmation of the recorded handover."
+     },
+     "recipient": {
+      "name": "Iven Thoss",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask for the matching handover record and check it against the actual receipt."
+     },
+     "carrier_support": {
+      "name": "Secure shipment support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Release the permitted redacted handover record for DL-030 through the verified thread."
+     }
+    },
+    "goal": "Get the matching handover record for DL-030 from carrier support and the verified recipient's confirmation of the recorded handover.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask carrier support to release the permitted redacted handover record for DL-030 through the verified thread."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "Carrier support has supplied the matching handover record.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The verified recipient has confirmed the recorded handover.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-03 09:00:00 UTC",
+     "escalated_at": "2026-03-03 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "030-N1"
+     },
+     "context_message_id": "001",
+     "summary": "Obtain the missing handover record for DL-030 for the verified recipient.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The handover record is not yet available to Iven.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-030.",
+      "source": {
+       "type": "case_card",
+       "id": "030"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Iven confirms receiving the camera accessory.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The delivery flag is present, but the customer-facing handover record has not populated.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Carrier support may release the shipment-specific redacted record through this verified thread.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "DL-030 belongs to authenticated recipient Iven Thoss.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Iven needs the matching handover record to reconcile the delivery time in the order history.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "carrier_support",
+      "purpose": "Obtain the matching handover record so the delivery time can be reconciled.",
+      "expected_response": "The handover record for DL-030.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "carrier_support",
+      "responsible_actor": "carrier_support",
+      "purpose": "Release the permitted redacted handover record for DL-030 through Iven's verified order thread.",
+      "expected_response": "The redacted handover record for DL-030.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "carrier_support",
+     "request_id": "r1",
+     "description": "Release the redacted handover record for DL-030 through the verified thread."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "carrier": {
+      "participants": [
+       "coordinator",
+       "carrier_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "carrier",
+      "event_id": "001",
+      "timestamp": "2026-03-03 09:00:00 UTC",
+      "from_actor": "carrier_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-030 belongs to authenticated recipient Iven Thoss. Its delivery flag is present but the customer-facing handover record has not populated. We may release the shipment-specific redacted record through this verified thread."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-03 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I did receive the camera accessory. Please obtain the matching handover record so I can reconcile the delivery time in my order history."
+     }
+    ],
+    "limits": [
+     "Treat the record and the recipient's acknowledgement as support for this handover only.",
+     "Do not present them as proof of contents quality or as settling future disputes.",
+     "Do not act on unverified authority or disclose protected details to an unverified party."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_received",
+    "label": "New escalation",
+    "title": "Request came from secondary account",
+    "timestamp": "2026-03-03 09:15:00 UTC",
+    "actor_id": "carrier_support",
+    "message_id": "003"
+   },
+   "explanation": "Use the authorised party or verified channel to establish authority. Do not act on unverified authority or disclose protected details to an unverified party.",
+   "state_after": {
+    "case_id": "030-N1",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the permitted handover record from carrier support and the recipient's confirmation of the recorded handover."
+     },
+     "recipient": {
+      "name": "Iven Thoss",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask for the matching handover record and check it against the actual receipt."
+     },
+     "carrier_support": {
+      "name": "Secure shipment support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Release the permitted redacted handover record for DL-030 through the verified thread."
+     }
+    },
+    "goal": "Use the authorised party or verified channel to establish authority.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Request nothing for the secondary account, and ask Iven through his verified, authenticated thread whether he wants the handover record, releasing nothing until he confirms there."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-03 09:00:00 UTC",
+     "escalated_at": "2026-03-03 09:15:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "030-N1"
+     },
+     "context_message_id": "001",
+     "summary": "Use the authorised party or verified channel to establish authority.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The new escalation requires a scoped response. Check on the 09:10 UTC portal message about DL-030. It came from a secondary account added to the order yesterday, not from Iven Thoss's authenticated account. We cannot release the record to that account.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-030.",
+      "source": {
+       "type": "case_card",
+       "id": "030"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Iven confirms receiving the camera accessory.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The delivery flag is present, but the customer-facing handover record has not populated.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Carrier support may release the shipment-specific redacted record through this verified thread.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "DL-030 belongs to authenticated recipient Iven Thoss.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Iven needs the matching handover record to reconcile the delivery time in the order history.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Secure shipment support reports: Check on the 09:10 UTC portal message about DL-030.",
+      "source": {
+       "type": "message",
+       "id": "003"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Secure shipment support reports: It came from a secondary account added to the order yesterday, not from Iven Thoss's authenticated account.",
+      "source": {
+       "type": "message",
+       "id": "003"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Secure shipment support reports: We cannot release the record to that account.",
+      "source": {
+       "type": "message",
+       "id": "003"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "carrier_support",
+      "purpose": "Obtain the matching handover record so the delivery time can be reconciled.",
+      "expected_response": "The handover record for DL-030.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "carrier_support",
+      "responsible_actor": "carrier_support",
+      "purpose": "Release the permitted redacted handover record for DL-030 through Iven's verified order thread.",
+      "expected_response": "The redacted handover record for DL-030.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Request nothing for the secondary account, and ask Iven through his verified, authenticated thread whether he wants the handover record, releasing nothing until he confirms there.",
+      "expected_response": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "003"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "separate_authority",
+       "action": "Request nothing for the secondary account, and ask Iven through his verified, authenticated thread whether he wants the handover record, releasing nothing until he confirms there.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "request or forward the handover record into the secondary account, and confirm delivery details to it.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "verification_required",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": "branch_request",
+     "description": "Request nothing for the secondary account, and ask Iven through his verified, authenticated thread whether he wants the handover record, releasing nothing until he confirms there."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "003",
+      "source_event_ids": [
+       "003"
+      ]
+     }
+    ],
+    "conversations": {
+     "carrier": {
+      "participants": [
+       "coordinator",
+       "carrier_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "carrier_support"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "carrier",
+      "event_id": "001",
+      "timestamp": "2026-03-03 09:00:00 UTC",
+      "from_actor": "carrier_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-030 belongs to authenticated recipient Iven Thoss. Its delivery flag is present but the customer-facing handover record has not populated. We may release the shipment-specific redacted record through this verified thread."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-03 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I did receive the camera accessory. Please obtain the matching handover record so I can reconcile the delivery time in my order history."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "003",
+      "timestamp": "2026-03-03 09:15:00 UTC",
+      "from_actor": "carrier_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Check on the 09:10 UTC portal message about DL-030. It came from a secondary account added to the order yesterday, not from Iven Thoss's authenticated account. We cannot release the record to that account."
+     }
+    ],
+    "limits": [
+     "Treat the record and the recipient's acknowledgement as support for this handover only.",
+     "Do not present them as proof of contents quality or as settling future disputes.",
+     "Do not act on unverified authority or disclose protected details to an unverified party."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "Carrier support has supplied the matching handover record.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "003",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The verified recipient has confirmed the recorded handover.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "003",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_sent",
+    "label": "Desk response",
+    "title": "Use the authorised party or verified channel to establish authority",
+    "timestamp": "2026-03-03 09:30:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "004"
+   },
+   "explanation": "The desk sends the recorded response. Do not act on unverified authority or disclose protected details to an unverified party.",
+   "state_after": {
+    "case_id": "030-N1",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the permitted handover record from carrier support and the recipient's confirmation of the recorded handover."
+     },
+     "recipient": {
+      "name": "Iven Thoss",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask for the matching handover record and check it against the actual receipt."
+     },
+     "carrier_support": {
+      "name": "Secure shipment support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Release the permitted redacted handover record for DL-030 through the verified thread."
+     }
+    },
+    "goal": "Use the authorised party or verified channel to establish authority.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "recipient",
+       "request_id": "branch_request",
+       "expected": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing."
+      }
+     ],
+     "next_action": "Record the reply or scoped confirmation before closing this branch."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-03 09:00:00 UTC",
+     "escalated_at": "2026-03-03 09:15:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "030-N1"
+     },
+     "context_message_id": "001",
+     "summary": "Use the authorised party or verified channel to establish authority.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The scoped reply or confirmation has not yet been recorded.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-030.",
+      "source": {
+       "type": "case_card",
+       "id": "030"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Iven confirms receiving the camera accessory.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The delivery flag is present, but the customer-facing handover record has not populated.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Carrier support may release the shipment-specific redacted record through this verified thread.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "DL-030 belongs to authenticated recipient Iven Thoss.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Iven needs the matching handover record to reconcile the delivery time in the order history.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Secure shipment support reports: Check on the 09:10 UTC portal message about DL-030.",
+      "source": {
+       "type": "message",
+       "id": "003"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Secure shipment support reports: It came from a secondary account added to the order yesterday, not from Iven Thoss's authenticated account.",
+      "source": {
+       "type": "message",
+       "id": "003"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Secure shipment support reports: We cannot release the record to that account.",
+      "source": {
+       "type": "message",
+       "id": "003"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "carrier_support",
+      "purpose": "Obtain the matching handover record so the delivery time can be reconciled.",
+      "expected_response": "The handover record for DL-030.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "carrier_support",
+      "responsible_actor": "carrier_support",
+      "purpose": "Release the permitted redacted handover record for DL-030 through Iven's verified order thread.",
+      "expected_response": "The redacted handover record for DL-030.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Request nothing for the secondary account, and ask Iven through his verified, authenticated thread whether he wants the handover record, releasing nothing until he confirms there.",
+      "expected_response": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "003",
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "separate_authority",
+       "action": "Request nothing for the secondary account, and ask Iven through his verified, authenticated thread whether he wants the handover record, releasing nothing until he confirms there.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "request or forward the handover record into the secondary account, and confirm delivery details to it.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "separate_authority",
+     "reason": "The recorded outgoing message takes this permitted response."
+    },
+    "status": "awaiting_verification",
+    "next_step": {
+     "type": "verification",
+     "responsible_actor": "recipient",
+     "request_id": "branch_request",
+     "description": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "003",
+      "source_event_ids": [
+       "003"
+      ]
+     }
+    ],
+    "conversations": {
+     "carrier": {
+      "participants": [
+       "coordinator",
+       "carrier_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "carrier_support"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "carrier",
+      "event_id": "001",
+      "timestamp": "2026-03-03 09:00:00 UTC",
+      "from_actor": "carrier_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-030 belongs to authenticated recipient Iven Thoss. Its delivery flag is present but the customer-facing handover record has not populated. We may release the shipment-specific redacted record through this verified thread."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-03 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I did receive the camera accessory. Please obtain the matching handover record so I can reconcile the delivery time in my order history."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "003",
+      "timestamp": "2026-03-03 09:15:00 UTC",
+      "from_actor": "carrier_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Check on the 09:10 UTC portal message about DL-030. It came from a secondary account added to the order yesterday, not from Iven Thoss's authenticated account. We cannot release the record to that account."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "004",
+      "timestamp": "2026-03-03 09:30:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Customer portal",
+      "body": "A request for the DL-030 handover record reached us from a secondary account on your order, not from your authenticated account. Do you want us to request the handover record for DL-030? Please answer from this authenticated thread. Nothing will be requested or released until you confirm here."
+     }
+    ],
+    "limits": [
+     "Treat the record and the recipient's acknowledgement as support for this handover only.",
+     "Do not present them as proof of contents quality or as settling future disputes.",
+     "Do not act on unverified authority or disclose protected details to an unverified party."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "Carrier support has supplied the matching handover record.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "003",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The verified recipient has confirmed the recorded handover.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "003",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "005",
+    "type": "message_received",
+    "label": "Scoped confirmation",
+    "title": "Follow-through confirms the branch outcome",
+    "timestamp": "2026-03-03 10:00:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "005"
+   },
+   "explanation": "Record what the responding party actually confirms. Yes, I want the handover record for DL-030, released to this authenticated thread only. Please release nothing to the secondary account.",
+   "state_after": {
+    "case_id": "030-N1",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the permitted handover record from carrier support and the recipient's confirmation of the recorded handover."
+     },
+     "recipient": {
+      "name": "Iven Thoss",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask for the matching handover record and check it against the actual receipt."
+     },
+     "carrier_support": {
+      "name": "Secure shipment support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Release the permitted redacted handover record for DL-030 through the verified thread."
+     }
+    },
+    "goal": "Use the authorised party or verified channel to establish authority.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004",
+       "005"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-03 09:00:00 UTC",
+     "escalated_at": "2026-03-03 09:15:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "030-N1"
+     },
+     "context_message_id": "001",
+     "summary": "Use the authorised party or verified channel to establish authority.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-030.",
+      "source": {
+       "type": "case_card",
+       "id": "030"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Iven confirms receiving the camera accessory.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The delivery flag is present, but the customer-facing handover record has not populated.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Carrier support may release the shipment-specific redacted record through this verified thread.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "DL-030 belongs to authenticated recipient Iven Thoss.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Iven needs the matching handover record to reconcile the delivery time in the order history.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Secure shipment support reports: Check on the 09:10 UTC portal message about DL-030.",
+      "source": {
+       "type": "message",
+       "id": "003"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Secure shipment support reports: It came from a secondary account added to the order yesterday, not from Iven Thoss's authenticated account.",
+      "source": {
+       "type": "message",
+       "id": "003"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Secure shipment support reports: We cannot release the record to that account.",
+      "source": {
+       "type": "message",
+       "id": "003"
+      }
+     },
+     {
+      "id": "branch_outcome_1",
+      "text": "Iven Thoss reports: Yes, I want the handover record for DL-030, released to this authenticated thread only.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_outcome_2",
+      "text": "Iven Thoss reports: Please release nothing to the secondary account.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "carrier_support",
+      "purpose": "Obtain the matching handover record so the delivery time can be reconciled.",
+      "expected_response": "The handover record for DL-030.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "carrier_support",
+      "responsible_actor": "carrier_support",
+      "purpose": "Release the permitted redacted handover record for DL-030 through Iven's verified order thread.",
+      "expected_response": "The redacted handover record for DL-030.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Request nothing for the secondary account, and ask Iven through his verified, authenticated thread whether he wants the handover record, releasing nothing until he confirms there.",
+      "expected_response": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing.",
+      "status": "answered",
+      "response": "Yes, I want the handover record for DL-030, released to this authenticated thread only. Please release nothing to the secondary account.",
+      "evidence_event_ids": [
+       "003",
+       "004",
+       "005"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "separate_authority",
+       "action": "Request nothing for the secondary account, and ask Iven through his verified, authenticated thread whether he wants the handover record, releasing nothing until he confirms there.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "request or forward the handover record into the secondary account, and confirm delivery details to it.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "separate_authority",
+     "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "Yes, I want the handover record for DL-030, released to this authenticated thread only. Please release nothing to the secondary account.",
+     "confirmed_by": "recipient",
+     "evidence_event_ids": [
+      "005"
+     ],
+     "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not request or forward the handover record into the secondary account, and do not confirm delivery details to it."
+    },
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "003",
+      "source_event_ids": [
+       "003"
+      ]
+     }
+    ],
+    "conversations": {
+     "carrier": {
+      "participants": [
+       "coordinator",
+       "carrier_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "carrier_support"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "carrier",
+      "event_id": "001",
+      "timestamp": "2026-03-03 09:00:00 UTC",
+      "from_actor": "carrier_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-030 belongs to authenticated recipient Iven Thoss. Its delivery flag is present but the customer-facing handover record has not populated. We may release the shipment-specific redacted record through this verified thread."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-03 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I did receive the camera accessory. Please obtain the matching handover record so I can reconcile the delivery time in my order history."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "003",
+      "timestamp": "2026-03-03 09:15:00 UTC",
+      "from_actor": "carrier_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Check on the 09:10 UTC portal message about DL-030. It came from a secondary account added to the order yesterday, not from Iven Thoss's authenticated account. We cannot release the record to that account."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "004",
+      "timestamp": "2026-03-03 09:30:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Customer portal",
+      "body": "A request for the DL-030 handover record reached us from a secondary account on your order, not from your authenticated account. Do you want us to request the handover record for DL-030? Please answer from this authenticated thread. Nothing will be requested or released until you confirm here."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "005",
+      "timestamp": "2026-03-03 10:00:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Yes, I want the handover record for DL-030, released to this authenticated thread only. Please release nothing to the secondary account."
+     }
+    ],
+    "limits": [
+     "Treat the record and the recipient's acknowledgement as support for this handover only.",
+     "Do not present them as proof of contents quality or as settling future disputes.",
+     "Do not act on unverified authority or disclose protected details to an unverified party."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "Carrier support has supplied the matching handover record.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "003",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The verified recipient has confirmed the recorded handover.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "003",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  }
+ ]
+}

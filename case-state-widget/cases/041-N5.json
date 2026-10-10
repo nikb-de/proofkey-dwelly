@@ -1,0 +1,2172 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "041-N5 · Automatic notice gives a different date",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Freight dispatch at Plover Arc Logistics. From the case card: pallet DL-041 is booked for a business consignee whose warehouse requires a receiving-dock appointment, and the carrier and consignee must use the same reference and time.",
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/041/N5-CONFLICTING_RECORDS",
+  "branch_id": "041-N5",
+  "derived_from_case": "041",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003",
+   "004"
+  ],
+  "diverges_after_event": "004",
+  "failure_mode": "CONFLICTING_RECORDS",
+  "expected_decision": "RECONCILE_CONFLICT",
+  "workflow_sheet": "E",
+  "branch_label": "Automatic notice gives a different date",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "31928187651ae8d13bfffddb6a0fc17a30f0167a94de0a14137488ed09f75dab",
+   "history.md": "cd5e4d1d213b6d03a2e40b06bdcadaee6c26767b5646151028b9908bc1d8c3cc"
+  }
+ },
+ "initial_state": {
+  "case_id": "041-N5",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "freight_dispatch",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: book a dock appointment with the consignee and get the carrier and consignee to confirm the same reference and time."
+   },
+   "freight_dispatch": {
+    "name": "Freight dispatch",
+    "organization": "Plover Arc Logistics",
+    "role": "dispatch",
+    "is_us": false,
+    "responsibility": "Plan the truck run for DL-041 and accept the consignee's dock appointment."
+   }
+  },
+  "goal": "Get a receiving-dock appointment for DL-041 from the consignee and confirmation that the carrier and consignee use the same reference and time.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The consignee has reserved a receiving-dock appointment with a reference and time.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The carrier has confirmed the same appointment reference and time.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The consignee's warehouse requires a receiving-dock appointment; no common reference and time is confirmed.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns pallet shipment DL-041.",
+    "source": {
+     "type": "case_card",
+     "id": "041"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The pallet is booked for a business consignee whose warehouse requires a receiving-dock appointment.",
+    "source": {
+     "type": "case_card",
+     "id": "041"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "Carrier and consignee must use the same appointment reference and time.",
+    "source": {
+     "type": "case_card",
+     "id": "041"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Treat the appointment reference as a coordinated booking only.",
+   "Do not say the pallet has been received.",
+   "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Carrier email",
+    "title": "No dock appointment for pallet DL-041",
+    "timestamp": "2026-03-14 09:00:00 UTC",
+    "actor_id": "freight_dispatch",
+    "message_id": "001"
+   },
+   "explanation": "The carrier can reach the Arcloom Components dock on 2026-03-15 afternoon but will not send the truck without a consignee appointment. The appointment has to come from the consignee's side.",
+   "state_after": {
+    "case_id": "041-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "freight_dispatch",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: book a dock appointment with the consignee and get the carrier and consignee to confirm the same reference and time."
+     },
+     "freight_dispatch": {
+      "name": "Freight dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Plan the truck run for DL-041 and accept the consignee's dock appointment."
+     }
+    },
+    "goal": "Get a receiving-dock appointment for DL-041 from the consignee and confirmation that the carrier and consignee use the same reference and time.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Take in Freight dispatch's request on DL-041."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The consignee has reserved a receiving-dock appointment with a reference and time.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The carrier has confirmed the same appointment reference and time.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-14 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "041-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Book a receiving-dock appointment for pallet DL-041: the consignee's warehouse requires one, and the carrier and consignee must use the same reference and time.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "No consignee appointment exists, so the carrier will not send the truck.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns pallet shipment DL-041.",
+      "source": {
+       "type": "case_card",
+       "id": "041"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Pallet DL-041 for Arcloom Components has no receiving appointment.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Carrier and consignee must use the same appointment reference and time.",
+      "source": {
+       "type": "case_card",
+       "id": "041"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The carrier can reach the consignee's dock on 2026-03-15 afternoon.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The carrier will not send the truck without a consignee appointment.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {},
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": null,
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "client": {
+      "participants": [
+       "coordinator",
+       "freight_dispatch"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "client",
+      "event_id": "001",
+      "timestamp": "2026-03-14 09:00:00 UTC",
+      "from_actor": "freight_dispatch",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Pallet DL-041 for Arcloom Components has no receiving appointment. We can reach its dock on 2026-03-15 afternoon, but will not send the truck without a consignee appointment."
+     }
+    ],
+    "limits": [
+     "Treat the appointment reference as a coordinated booking only.",
+     "Do not say the pallet has been received.",
+     "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client request",
+    "title": "Carrier asks us to book with Ossa Rell",
+    "timestamp": "2026-03-14 09:10:00 UTC",
+    "actor_id": "freight_dispatch",
+    "message_id": "002"
+   },
+   "explanation": "Freight dispatch named the authorised receiving coordinator, Ossa Rell, and needs the dock reference, time and receiving entrance for the driver. We ask Ossa for an available slot in the carrier's 2026-03-15 afternoon window.",
+   "state_after": {
+    "case_id": "041-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "freight_dispatch",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: book a dock appointment with the consignee and get the carrier and consignee to confirm the same reference and time."
+     },
+     "freight_dispatch": {
+      "name": "Freight dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Plan the truck run for DL-041 and accept the consignee's dock appointment."
+     },
+     "receiving": {
+      "name": "Ossa Rell",
+      "organization": "Arcloom",
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Reserve a receiving-dock appointment for DL-041 and give its reference, time and dock."
+     }
+    },
+    "goal": "Get a receiving-dock appointment for DL-041 from the consignee and confirmation that the carrier and consignee use the same reference and time.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask Ossa Rell for an available receiving-dock appointment on 2026-03-15 afternoon, with dock reference and entrance."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The consignee has reserved a receiving-dock appointment with a reference and time.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The carrier has confirmed the same appointment reference and time.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-14 09:00:00 UTC",
+     "escalated_at": "2026-03-14 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "041-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Book a receiving-dock appointment for pallet DL-041: the consignee's warehouse requires one, and the carrier and consignee must use the same reference and time.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "No consignee appointment exists, so the carrier will not send the truck.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns pallet shipment DL-041.",
+      "source": {
+       "type": "case_card",
+       "id": "041"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Pallet DL-041 for Arcloom Components has no receiving appointment.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Carrier and consignee must use the same appointment reference and time.",
+      "source": {
+       "type": "case_card",
+       "id": "041"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The carrier can reach the consignee's dock on 2026-03-15 afternoon.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The carrier will not send the truck without a consignee appointment.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Ossa Rell is the authorised receiving coordinator to book with.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "freight_dispatch",
+      "to_actor": "coordinator",
+      "responsible_actor": "receiving",
+      "purpose": "Book with Ossa Rell and obtain the dock reference, time and receiving entrance for the driver.",
+      "expected_response": "The dock reference, time and receiving entrance.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "receiving",
+      "responsible_actor": "receiving",
+      "purpose": "Offer an available receiving-dock appointment for pallet DL-041 on 2026-03-15 afternoon, with dock reference and entrance.",
+      "expected_response": "A reserved appointment with dock reference, time and entrance.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "receiving",
+     "request_id": "r1",
+     "description": "Offer an available dock appointment for 2026-03-15 afternoon with reference and entrance."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "client": {
+      "participants": [
+       "coordinator",
+       "freight_dispatch"
+      ],
+      "channel": "Email",
+      "other_channels": [
+       "Freight portal"
+      ]
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "client",
+      "event_id": "001",
+      "timestamp": "2026-03-14 09:00:00 UTC",
+      "from_actor": "freight_dispatch",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Pallet DL-041 for Arcloom Components has no receiving appointment. We can reach its dock on 2026-03-15 afternoon, but will not send the truck without a consignee appointment."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-14 09:10:00 UTC",
+      "from_actor": "freight_dispatch",
+      "to_actor": "coordinator",
+      "channel": "Freight portal",
+      "body": "Please book with authorised receiving coordinator Ossa Rell. Obtain the dock reference, time and receiving entrance for our driver."
+     }
+    ],
+    "limits": [
+     "Treat the appointment reference as a coordinated booking only.",
+     "Do not say the pallet has been received.",
+     "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our request",
+    "title": "We ask Ossa for a dock appointment",
+    "timestamp": "2026-03-14 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We asked Ossa for an available receiving-dock appointment for DL-041 on 2026-03-15 afternoon, with the dock reference and entrance. Now we wait for her reply.",
+   "state_after": {
+    "case_id": "041-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "freight_dispatch",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: book a dock appointment with the consignee and get the carrier and consignee to confirm the same reference and time."
+     },
+     "freight_dispatch": {
+      "name": "Freight dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Plan the truck run for DL-041 and accept the consignee's dock appointment."
+     },
+     "receiving": {
+      "name": "Ossa Rell",
+      "organization": "Arcloom",
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Reserve a receiving-dock appointment for DL-041 and give its reference, time and dock."
+     }
+    },
+    "goal": "Get a receiving-dock appointment for DL-041 from the consignee and confirmation that the carrier and consignee use the same reference and time.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "receiving",
+       "request_id": "r1",
+       "expected": "Dock appointment for 2026-03-15 afternoon with reference and entrance"
+      }
+     ],
+     "next_action": "Once reserved, pass the appointment to Freight dispatch for confirmation."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The consignee has reserved a receiving-dock appointment with a reference and time.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The carrier has confirmed the same appointment reference and time.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-14 09:00:00 UTC",
+     "escalated_at": "2026-03-14 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "041-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Book a receiving-dock appointment for pallet DL-041: the consignee's warehouse requires one, and the carrier and consignee must use the same reference and time.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "No dock appointment has been reserved yet.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns pallet shipment DL-041.",
+      "source": {
+       "type": "case_card",
+       "id": "041"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Pallet DL-041 for Arcloom Components has no receiving appointment.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Carrier and consignee must use the same appointment reference and time.",
+      "source": {
+       "type": "case_card",
+       "id": "041"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The carrier can reach the consignee's dock on 2026-03-15 afternoon.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The carrier will not send the truck without a consignee appointment.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Ossa Rell is the authorised receiving coordinator to book with.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "freight_dispatch",
+      "to_actor": "coordinator",
+      "responsible_actor": "receiving",
+      "purpose": "Book with Ossa Rell and obtain the dock reference, time and receiving entrance for the driver.",
+      "expected_response": "The dock reference, time and receiving entrance.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "receiving",
+      "responsible_actor": "receiving",
+      "purpose": "Offer an available receiving-dock appointment for pallet DL-041 on 2026-03-15 afternoon, with dock reference and entrance.",
+      "expected_response": "A reserved appointment with dock reference, time and entrance.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_confirmation",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "receiving",
+     "request_id": "r1",
+     "description": "Wait for Ossa to offer a dock appointment."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "client": {
+      "participants": [
+       "coordinator",
+       "freight_dispatch"
+      ],
+      "channel": "Email",
+      "other_channels": [
+       "Freight portal"
+      ]
+     },
+     "consignee": {
+      "participants": [
+       "coordinator",
+       "receiving"
+      ],
+      "channel": "Business portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "client",
+      "event_id": "001",
+      "timestamp": "2026-03-14 09:00:00 UTC",
+      "from_actor": "freight_dispatch",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Pallet DL-041 for Arcloom Components has no receiving appointment. We can reach its dock on 2026-03-15 afternoon, but will not send the truck without a consignee appointment."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-14 09:10:00 UTC",
+      "from_actor": "freight_dispatch",
+      "to_actor": "coordinator",
+      "channel": "Freight portal",
+      "body": "Please book with authorised receiving coordinator Ossa Rell. Obtain the dock reference, time and receiving entrance for our driver."
+     },
+     {
+      "conversation_id": "consignee",
+      "event_id": "003",
+      "timestamp": "2026-03-14 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "receiving",
+      "channel": "Business portal",
+      "body": "Please offer an available receiving-dock appointment for pallet DL-041 on 2026-03-15 afternoon, with dock reference and entrance."
+     }
+    ],
+    "limits": [
+     "Treat the appointment reference as a coordinated booking only.",
+     "Do not say the pallet has been received.",
+     "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "Appointment",
+    "title": "Ossa reserves ARC-041 at dock D3",
+    "timestamp": "2026-03-14 09:50:00 UTC",
+    "actor_id": "receiving",
+    "message_id": "004"
+   },
+   "explanation": "The consignee reserved ARC-041 for 2026-03-15, 14:00–15:00 UTC at dock D3 and will staff receiving, which answers Freight dispatch's booking request. The carrier has not accepted it yet, so we still have to pass the appointment to Freight dispatch.",
+   "state_after": {
+    "case_id": "041-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "freight_dispatch",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: book a dock appointment with the consignee and get the carrier and consignee to confirm the same reference and time."
+     },
+     "freight_dispatch": {
+      "name": "Freight dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Plan the truck run for DL-041 and accept the consignee's dock appointment."
+     },
+     "receiving": {
+      "name": "Ossa Rell",
+      "organization": "Arcloom",
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Reserve a receiving-dock appointment for DL-041 and give its reference, time and dock."
+     }
+    },
+    "goal": "Get a receiving-dock appointment for DL-041 from the consignee and confirmation that the carrier and consignee use the same reference and time.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Pass ARC-041 (2026-03-15, 14:00–15:00 UTC, dock D3) to Freight dispatch and get their acceptance.",
+     "note": "Passing the appointment to Freight dispatch and the wait that follows are not recorded as separate events. So in this snapshot the agent is still preparing the handoff; it is not given waiting status without evidence that the message was sent."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The consignee has reserved a receiving-dock appointment with a reference and time.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The carrier has confirmed the same appointment reference and time.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-14 09:00:00 UTC",
+     "escalated_at": "2026-03-14 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "041-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Book a receiving-dock appointment for pallet DL-041: the consignee's warehouse requires one, and the carrier and consignee must use the same reference and time.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The consignee appointment is reserved; the carrier has not yet confirmed the same reference and time.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns pallet shipment DL-041.",
+      "source": {
+       "type": "case_card",
+       "id": "041"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Appointment ARC-041 is reserved for 2026-03-15, 14:00–15:00 UTC at dock D3.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Carrier and consignee must use the same appointment reference and time.",
+      "source": {
+       "type": "case_card",
+       "id": "041"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The carrier can reach the consignee's dock on 2026-03-15 afternoon.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The carrier will not send the truck without a consignee appointment.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Ossa Rell is the authorised receiving coordinator to book with.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The consignee's receiving team will be staffed for this slot.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "freight_dispatch",
+      "to_actor": "coordinator",
+      "responsible_actor": "receiving",
+      "purpose": "Book with Ossa Rell and obtain the dock reference, time and receiving entrance for the driver.",
+      "expected_response": "The dock reference, time and receiving entrance.",
+      "status": "completed",
+      "response": "ARC-041 reserved for 2026-03-15, 14:00–15:00 UTC at dock D3.",
+      "responded_by": "receiving",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "receiving",
+      "responsible_actor": "receiving",
+      "purpose": "Offer an available receiving-dock appointment for pallet DL-041 on 2026-03-15 afternoon, with dock reference and entrance.",
+      "expected_response": "A reserved appointment with dock reference, time and entrance.",
+      "status": "completed",
+      "response": "ARC-041 reserved for 2026-03-15, 14:00–15:00 UTC at dock D3; receiving team staffed.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     },
+     "r2": {
+      "type": "confirmation",
+      "from_actor": "coordinator",
+      "to_actor": "freight_dispatch",
+      "responsible_actor": "freight_dispatch",
+      "purpose": "Accept ARC-041, 2026-03-15 14:00–15:00 UTC, dock D3, so that the carrier booking matches the consignee appointment.",
+      "expected_response": "Carrier acceptance of the same reference and time.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_confirmation",
+    "next_step": {
+     "type": "confirmation",
+     "responsible_actor": "freight_dispatch",
+     "request_id": "r2",
+     "description": "Pass ARC-041 to Freight dispatch and get confirmation of the same reference and time."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "missing-carrier-handoff",
+      "kind": "gap",
+      "title": "Next action · us → Freight dispatch",
+      "text": "Ossa reserved ARC-041 for 2026-03-15, 14:00–15:00 UTC at dock D3, and her message went only to us. We now have to pass the appointment to Freight dispatch and ask them to accept it; after sending, the agent waits for the carrier's acceptance. At this step the handoff is not yet recorded in the history, and the consignee's reservation alone does not align the carrier booking.",
+      "source_event_ids": [
+       "004"
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "freight_dispatch",
+       "type": "confirmation",
+       "purpose": "Pass ARC-041, 2026-03-15 14:00–15:00 UTC, dock D3, to Freight dispatch and get the carrier's acceptance of the same reference and time."
+      }
+     }
+    ],
+    "conversations": {
+     "client": {
+      "participants": [
+       "coordinator",
+       "freight_dispatch"
+      ],
+      "channel": "Email",
+      "other_channels": [
+       "Freight portal"
+      ]
+     },
+     "consignee": {
+      "participants": [
+       "coordinator",
+       "receiving"
+      ],
+      "channel": "Business portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "client",
+      "event_id": "001",
+      "timestamp": "2026-03-14 09:00:00 UTC",
+      "from_actor": "freight_dispatch",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Pallet DL-041 for Arcloom Components has no receiving appointment. We can reach its dock on 2026-03-15 afternoon, but will not send the truck without a consignee appointment."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-14 09:10:00 UTC",
+      "from_actor": "freight_dispatch",
+      "to_actor": "coordinator",
+      "channel": "Freight portal",
+      "body": "Please book with authorised receiving coordinator Ossa Rell. Obtain the dock reference, time and receiving entrance for our driver."
+     },
+     {
+      "conversation_id": "consignee",
+      "event_id": "003",
+      "timestamp": "2026-03-14 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "receiving",
+      "channel": "Business portal",
+      "body": "Please offer an available receiving-dock appointment for pallet DL-041 on 2026-03-15 afternoon, with dock reference and entrance."
+     },
+     {
+      "conversation_id": "consignee",
+      "event_id": "004",
+      "timestamp": "2026-03-14 09:50:00 UTC",
+      "from_actor": "receiving",
+      "to_actor": "coordinator",
+      "channel": "Business portal",
+      "body": "Appointment ARC-041 is reserved for 2026-03-15, 14:00–15:00 UTC at dock D3. Our receiving team will be staffed for this slot."
+     }
+    ],
+    "limits": [
+     "Treat the appointment reference as a coordinated booking only.",
+     "Do not say the pallet has been received.",
+     "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "005",
+    "type": "message_received",
+    "label": "New escalation",
+    "title": "Automatic notice gives a different date",
+    "timestamp": "2026-03-14 09:55:00 UTC",
+    "actor_id": "branch_system",
+    "message_id": "005"
+   },
+   "explanation": "Keep both records and request evidence from their owner. Do not erase either conflicting record or infer a finding before the owner supplies evidence.",
+   "state_after": {
+    "case_id": "041-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "freight_dispatch",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: book a dock appointment with the consignee and get the carrier and consignee to confirm the same reference and time."
+     },
+     "freight_dispatch": {
+      "name": "Freight dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Plan the truck run for DL-041 and accept the consignee's dock appointment."
+     },
+     "receiving": {
+      "name": "Ossa Rell",
+      "organization": "Arcloom",
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Reserve a receiving-dock appointment for DL-041 and give its reference, time and dock."
+     },
+     "branch_system": {
+      "name": "Arcloom dock schedule, automatic notice",
+      "organization": null,
+      "role": "system",
+      "is_us": false,
+      "responsibility": "Report or handle the state within the scope stated in the source message; no wider authority is inferred."
+     }
+    },
+    "goal": "Keep both records and request evidence from their owner.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask Ossa Rell in the business portal which date the Arcloom dock schedule holds for ARC-041, 2026-03-15 or 2026-03-16, keeping both records on file."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The consignee has reserved a receiving-dock appointment with a reference and time.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-14 09:00:00 UTC",
+     "escalated_at": "2026-03-14 09:55:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "041-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Keep both records and request evidence from their owner.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The new escalation requires a scoped response. Automatic confirmation. Appointment ARC-041, consignment DL-041, dock D3, 2026-03-16, 14:00 to 15:00 UTC. Report to the receiving entrance 15 minutes before the slot. This message is generated from the Arcloom dock schedule.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns pallet shipment DL-041.",
+      "source": {
+       "type": "case_card",
+       "id": "041"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Appointment ARC-041 is reserved for 2026-03-15, 14:00–15:00 UTC at dock D3.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Carrier and consignee must use the same appointment reference and time.",
+      "source": {
+       "type": "case_card",
+       "id": "041"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The carrier can reach the consignee's dock on 2026-03-15 afternoon.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The carrier will not send the truck without a consignee appointment.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Ossa Rell is the authorised receiving coordinator to book with.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The consignee's receiving team will be staffed for this slot.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Arcloom dock schedule, automatic notice reports: Automatic confirmation.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Arcloom dock schedule, automatic notice reports: Appointment ARC-041, consignment DL-041, dock D3, 2026-03-16, 14:00 to 15:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Arcloom dock schedule, automatic notice reports: Report to the receiving entrance 15 minutes before the slot.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_4",
+      "text": "Arcloom dock schedule, automatic notice reports: This message is generated from the Arcloom dock schedule.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "freight_dispatch",
+      "to_actor": "coordinator",
+      "responsible_actor": "receiving",
+      "purpose": "Book with Ossa Rell and obtain the dock reference, time and receiving entrance for the driver.",
+      "expected_response": "The dock reference, time and receiving entrance.",
+      "status": "completed",
+      "response": "ARC-041 reserved for 2026-03-15, 14:00–15:00 UTC at dock D3.",
+      "responded_by": "receiving",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "receiving",
+      "responsible_actor": "receiving",
+      "purpose": "Offer an available receiving-dock appointment for pallet DL-041 on 2026-03-15 afternoon, with dock reference and entrance.",
+      "expected_response": "A reserved appointment with dock reference, time and entrance.",
+      "status": "completed",
+      "response": "ARC-041 reserved for 2026-03-15, 14:00–15:00 UTC at dock D3; receiving team staffed.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     },
+     "r2": {
+      "type": "confirmation",
+      "from_actor": "coordinator",
+      "to_actor": "freight_dispatch",
+      "responsible_actor": "freight_dispatch",
+      "purpose": "Accept ARC-041, 2026-03-15 14:00–15:00 UTC, dock D3, so that the carrier booking matches the consignee appointment.",
+      "expected_response": "Carrier acceptance of the same reference and time.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "receiving",
+      "responsible_actor": "receiving",
+      "purpose": "Ask Ossa Rell in the business portal which date the Arcloom dock schedule holds for ARC-041, 2026-03-15 or 2026-03-16, keeping both records on file.",
+      "expected_response": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "005"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "reconcile_conflict",
+       "action": "Ask Ossa Rell in the business portal which date the Arcloom dock schedule holds for ARC-041, 2026-03-15 or 2026-03-16, keeping both records on file.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Pass 2026-03-15 to dispatch because it matches the truck plan, or dismiss the automatic notice as a typo.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "verification_required",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": "branch_request",
+     "description": "Ask Ossa Rell in the business portal which date the Arcloom dock schedule holds for ARC-041, 2026-03-15 or 2026-03-16, keeping both records on file."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "missing-carrier-handoff",
+      "kind": "context",
+      "title": "Unrecorded parent action",
+      "text": "A separate record of this parent action is absent. The branch does not by itself establish that it occurred. The next action is now the scoped branch response. Ossa reserved ARC-041 for 2026-03-15, 14:00–15:00 UTC at dock D3, and her message went only to us. We now have to pass the appointment to Freight dispatch and ask them to accept it; after sending, the agent waits for the carrier's acceptance. At this step the handoff is not yet recorded in the history, and the consignee's reservation alone does not align the carrier booking.",
+      "source_event_ids": [
+       "004"
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "freight_dispatch",
+       "type": "confirmation",
+       "purpose": "Pass ARC-041, 2026-03-15 14:00–15:00 UTC, dock D3, to Freight dispatch and get the carrier's acceptance of the same reference and time."
+      },
+      "before_message_id": "005"
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "client": {
+      "participants": [
+       "coordinator",
+       "freight_dispatch"
+      ],
+      "channel": "Email",
+      "other_channels": [
+       "Freight portal"
+      ]
+     },
+     "consignee": {
+      "participants": [
+       "coordinator",
+       "receiving"
+      ],
+      "channel": "Business portal"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "branch_system"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "client",
+      "event_id": "001",
+      "timestamp": "2026-03-14 09:00:00 UTC",
+      "from_actor": "freight_dispatch",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Pallet DL-041 for Arcloom Components has no receiving appointment. We can reach its dock on 2026-03-15 afternoon, but will not send the truck without a consignee appointment."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-14 09:10:00 UTC",
+      "from_actor": "freight_dispatch",
+      "to_actor": "coordinator",
+      "channel": "Freight portal",
+      "body": "Please book with authorised receiving coordinator Ossa Rell. Obtain the dock reference, time and receiving entrance for our driver."
+     },
+     {
+      "conversation_id": "consignee",
+      "event_id": "003",
+      "timestamp": "2026-03-14 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "receiving",
+      "channel": "Business portal",
+      "body": "Please offer an available receiving-dock appointment for pallet DL-041 on 2026-03-15 afternoon, with dock reference and entrance."
+     },
+     {
+      "conversation_id": "consignee",
+      "event_id": "004",
+      "timestamp": "2026-03-14 09:50:00 UTC",
+      "from_actor": "receiving",
+      "to_actor": "coordinator",
+      "channel": "Business portal",
+      "body": "Appointment ARC-041 is reserved for 2026-03-15, 14:00–15:00 UTC at dock D3. Our receiving team will be staffed for this slot."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-03-14 09:55:00 UTC",
+      "from_actor": "branch_system",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Automatic confirmation. Appointment ARC-041, consignment DL-041, dock D3, 2026-03-16, 14:00 to 15:00 UTC. Report to the receiving entrance 15 minutes before the slot. This message is generated from the Arcloom dock schedule."
+     }
+    ],
+    "limits": [
+     "Treat the appointment reference as a coordinated booking only.",
+     "Do not say the pallet has been received.",
+     "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c2",
+      "description": "The carrier has confirmed the same appointment reference and time.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "006",
+    "type": "message_sent",
+    "label": "Desk response",
+    "title": "Keep both records and request evidence from their owner",
+    "timestamp": "2026-03-14 10:10:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "006"
+   },
+   "explanation": "The desk sends the recorded response. Do not erase either conflicting record or infer a finding before the owner supplies evidence.",
+   "state_after": {
+    "case_id": "041-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "freight_dispatch",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: book a dock appointment with the consignee and get the carrier and consignee to confirm the same reference and time."
+     },
+     "freight_dispatch": {
+      "name": "Freight dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Plan the truck run for DL-041 and accept the consignee's dock appointment."
+     },
+     "receiving": {
+      "name": "Ossa Rell",
+      "organization": "Arcloom",
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Reserve a receiving-dock appointment for DL-041 and give its reference, time and dock."
+     },
+     "branch_system": {
+      "name": "Arcloom dock schedule, automatic notice",
+      "organization": null,
+      "role": "system",
+      "is_us": false,
+      "responsibility": "Report or handle the state within the scope stated in the source message; no wider authority is inferred."
+     }
+    },
+    "goal": "Keep both records and request evidence from their owner.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "receiving",
+       "request_id": "branch_request",
+       "expected": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit."
+      }
+     ],
+     "next_action": "Record the reply or scoped confirmation before closing this branch."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The consignee has reserved a receiving-dock appointment with a reference and time.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-14 09:00:00 UTC",
+     "escalated_at": "2026-03-14 09:55:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "041-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Keep both records and request evidence from their owner.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The scoped reply or confirmation has not yet been recorded.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns pallet shipment DL-041.",
+      "source": {
+       "type": "case_card",
+       "id": "041"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Appointment ARC-041 is reserved for 2026-03-15, 14:00–15:00 UTC at dock D3.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Carrier and consignee must use the same appointment reference and time.",
+      "source": {
+       "type": "case_card",
+       "id": "041"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The carrier can reach the consignee's dock on 2026-03-15 afternoon.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The carrier will not send the truck without a consignee appointment.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Ossa Rell is the authorised receiving coordinator to book with.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The consignee's receiving team will be staffed for this slot.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Arcloom dock schedule, automatic notice reports: Automatic confirmation.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Arcloom dock schedule, automatic notice reports: Appointment ARC-041, consignment DL-041, dock D3, 2026-03-16, 14:00 to 15:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Arcloom dock schedule, automatic notice reports: Report to the receiving entrance 15 minutes before the slot.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_4",
+      "text": "Arcloom dock schedule, automatic notice reports: This message is generated from the Arcloom dock schedule.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "freight_dispatch",
+      "to_actor": "coordinator",
+      "responsible_actor": "receiving",
+      "purpose": "Book with Ossa Rell and obtain the dock reference, time and receiving entrance for the driver.",
+      "expected_response": "The dock reference, time and receiving entrance.",
+      "status": "completed",
+      "response": "ARC-041 reserved for 2026-03-15, 14:00–15:00 UTC at dock D3.",
+      "responded_by": "receiving",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "receiving",
+      "responsible_actor": "receiving",
+      "purpose": "Offer an available receiving-dock appointment for pallet DL-041 on 2026-03-15 afternoon, with dock reference and entrance.",
+      "expected_response": "A reserved appointment with dock reference, time and entrance.",
+      "status": "completed",
+      "response": "ARC-041 reserved for 2026-03-15, 14:00–15:00 UTC at dock D3; receiving team staffed.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     },
+     "r2": {
+      "type": "confirmation",
+      "from_actor": "coordinator",
+      "to_actor": "freight_dispatch",
+      "responsible_actor": "freight_dispatch",
+      "purpose": "Accept ARC-041, 2026-03-15 14:00–15:00 UTC, dock D3, so that the carrier booking matches the consignee appointment.",
+      "expected_response": "Carrier acceptance of the same reference and time.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "receiving",
+      "responsible_actor": "receiving",
+      "purpose": "Ask Ossa Rell in the business portal which date the Arcloom dock schedule holds for ARC-041, 2026-03-15 or 2026-03-16, keeping both records on file.",
+      "expected_response": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "005",
+       "006"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "reconcile_conflict",
+       "action": "Ask Ossa Rell in the business portal which date the Arcloom dock schedule holds for ARC-041, 2026-03-15 or 2026-03-16, keeping both records on file.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Pass 2026-03-15 to dispatch because it matches the truck plan, or dismiss the automatic notice as a typo.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "reconcile_conflict",
+     "reason": "The recorded outgoing message takes this permitted response."
+    },
+    "status": "awaiting_verification",
+    "next_step": {
+     "type": "verification",
+     "responsible_actor": "receiving",
+     "request_id": "branch_request",
+     "description": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "missing-carrier-handoff",
+      "kind": "context",
+      "title": "Unrecorded parent action",
+      "text": "A separate record of this parent action is absent. The branch does not by itself establish that it occurred. The next action is now the scoped branch response. Ossa reserved ARC-041 for 2026-03-15, 14:00–15:00 UTC at dock D3, and her message went only to us. We now have to pass the appointment to Freight dispatch and ask them to accept it; after sending, the agent waits for the carrier's acceptance. At this step the handoff is not yet recorded in the history, and the consignee's reservation alone does not align the carrier booking.",
+      "source_event_ids": [
+       "004"
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "freight_dispatch",
+       "type": "confirmation",
+       "purpose": "Pass ARC-041, 2026-03-15 14:00–15:00 UTC, dock D3, to Freight dispatch and get the carrier's acceptance of the same reference and time."
+      },
+      "before_message_id": "005"
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "client": {
+      "participants": [
+       "coordinator",
+       "freight_dispatch"
+      ],
+      "channel": "Email",
+      "other_channels": [
+       "Freight portal"
+      ]
+     },
+     "consignee": {
+      "participants": [
+       "coordinator",
+       "receiving"
+      ],
+      "channel": "Business portal"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "branch_system",
+       "receiving"
+      ],
+      "channel": "Email",
+      "other_channels": [
+       "Business portal"
+      ]
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "client",
+      "event_id": "001",
+      "timestamp": "2026-03-14 09:00:00 UTC",
+      "from_actor": "freight_dispatch",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Pallet DL-041 for Arcloom Components has no receiving appointment. We can reach its dock on 2026-03-15 afternoon, but will not send the truck without a consignee appointment."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-14 09:10:00 UTC",
+      "from_actor": "freight_dispatch",
+      "to_actor": "coordinator",
+      "channel": "Freight portal",
+      "body": "Please book with authorised receiving coordinator Ossa Rell. Obtain the dock reference, time and receiving entrance for our driver."
+     },
+     {
+      "conversation_id": "consignee",
+      "event_id": "003",
+      "timestamp": "2026-03-14 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "receiving",
+      "channel": "Business portal",
+      "body": "Please offer an available receiving-dock appointment for pallet DL-041 on 2026-03-15 afternoon, with dock reference and entrance."
+     },
+     {
+      "conversation_id": "consignee",
+      "event_id": "004",
+      "timestamp": "2026-03-14 09:50:00 UTC",
+      "from_actor": "receiving",
+      "to_actor": "coordinator",
+      "channel": "Business portal",
+      "body": "Appointment ARC-041 is reserved for 2026-03-15, 14:00–15:00 UTC at dock D3. Our receiving team will be staffed for this slot."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-03-14 09:55:00 UTC",
+      "from_actor": "branch_system",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Automatic confirmation. Appointment ARC-041, consignment DL-041, dock D3, 2026-03-16, 14:00 to 15:00 UTC. Report to the receiving entrance 15 minutes before the slot. This message is generated from the Arcloom dock schedule."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "006",
+      "timestamp": "2026-03-14 10:10:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "receiving",
+      "channel": "Business portal",
+      "body": "Your portal message gives ARC-041 for DL-041 on 2026-03-15, 14:00 to 15:00 UTC at dock D3. An automatic notice from the Arcloom dock schedule at 09:55 UTC gives 2026-03-16 for the same appointment. Which date does the dock schedule hold for ARC-041? We are keeping both records and passing no date to the carrier until you confirm."
+     }
+    ],
+    "limits": [
+     "Treat the appointment reference as a coordinated booking only.",
+     "Do not say the pallet has been received.",
+     "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c2",
+      "description": "The carrier has confirmed the same appointment reference and time.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "007",
+    "type": "message_received",
+    "label": "Scoped confirmation",
+    "title": "Follow-through confirms the branch outcome",
+    "timestamp": "2026-03-14 10:35:00 UTC",
+    "actor_id": "receiving",
+    "message_id": "007"
+   },
+   "explanation": "Record what the responding party actually confirms. The dock schedule now holds ARC-041 for 2026-03-15, 14:00 to 15:00 UTC, dock D3. The 2026-03-16 entry was a keying error and I have corrected it; a corrected notice will follow. This settles the booking date only. The pallet has not been received.",
+   "state_after": {
+    "case_id": "041-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "freight_dispatch",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: book a dock appointment with the consignee and get the carrier and consignee to confirm the same reference and time."
+     },
+     "freight_dispatch": {
+      "name": "Freight dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Plan the truck run for DL-041 and accept the consignee's dock appointment."
+     },
+     "receiving": {
+      "name": "Ossa Rell",
+      "organization": "Arcloom",
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Reserve a receiving-dock appointment for DL-041 and give its reference, time and dock."
+     },
+     "branch_system": {
+      "name": "Arcloom dock schedule, automatic notice",
+      "organization": null,
+      "role": "system",
+      "is_us": false,
+      "responsibility": "Report or handle the state within the scope stated in the source message; no wider authority is inferred."
+     }
+    },
+    "goal": "Keep both records and request evidence from their owner.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The consignee has reserved a receiving-dock appointment with a reference and time.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+      "status": "met",
+      "evidence_event_ids": [
+       "006",
+       "007"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-14 09:00:00 UTC",
+     "escalated_at": "2026-03-14 09:55:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "041-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Keep both records and request evidence from their owner.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns pallet shipment DL-041.",
+      "source": {
+       "type": "case_card",
+       "id": "041"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Appointment ARC-041 is reserved for 2026-03-15, 14:00–15:00 UTC at dock D3.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Carrier and consignee must use the same appointment reference and time.",
+      "source": {
+       "type": "case_card",
+       "id": "041"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The carrier can reach the consignee's dock on 2026-03-15 afternoon.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The carrier will not send the truck without a consignee appointment.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Ossa Rell is the authorised receiving coordinator to book with.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The consignee's receiving team will be staffed for this slot.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Arcloom dock schedule, automatic notice reports: Automatic confirmation.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Arcloom dock schedule, automatic notice reports: Appointment ARC-041, consignment DL-041, dock D3, 2026-03-16, 14:00 to 15:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Arcloom dock schedule, automatic notice reports: Report to the receiving entrance 15 minutes before the slot.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_4",
+      "text": "Arcloom dock schedule, automatic notice reports: This message is generated from the Arcloom dock schedule.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_outcome_1",
+      "text": "Ossa Rell reports: The dock schedule now holds ARC-041 for 2026-03-15, 14:00 to 15:00 UTC, dock D3.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     },
+     {
+      "id": "branch_outcome_2",
+      "text": "Ossa Rell reports: The 2026-03-16 entry was a keying error and I have corrected it; a corrected notice will follow.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     },
+     {
+      "id": "branch_outcome_3",
+      "text": "Ossa Rell reports: This settles the booking date only.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     },
+     {
+      "id": "branch_outcome_4",
+      "text": "Ossa Rell reports: The pallet has not been received.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "freight_dispatch",
+      "to_actor": "coordinator",
+      "responsible_actor": "receiving",
+      "purpose": "Book with Ossa Rell and obtain the dock reference, time and receiving entrance for the driver.",
+      "expected_response": "The dock reference, time and receiving entrance.",
+      "status": "completed",
+      "response": "ARC-041 reserved for 2026-03-15, 14:00–15:00 UTC at dock D3.",
+      "responded_by": "receiving",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "receiving",
+      "responsible_actor": "receiving",
+      "purpose": "Offer an available receiving-dock appointment for pallet DL-041 on 2026-03-15 afternoon, with dock reference and entrance.",
+      "expected_response": "A reserved appointment with dock reference, time and entrance.",
+      "status": "completed",
+      "response": "ARC-041 reserved for 2026-03-15, 14:00–15:00 UTC at dock D3; receiving team staffed.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     },
+     "r2": {
+      "type": "confirmation",
+      "from_actor": "coordinator",
+      "to_actor": "freight_dispatch",
+      "responsible_actor": "freight_dispatch",
+      "purpose": "Accept ARC-041, 2026-03-15 14:00–15:00 UTC, dock D3, so that the carrier booking matches the consignee appointment.",
+      "expected_response": "Carrier acceptance of the same reference and time.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "receiving",
+      "responsible_actor": "receiving",
+      "purpose": "Ask Ossa Rell in the business portal which date the Arcloom dock schedule holds for ARC-041, 2026-03-15 or 2026-03-16, keeping both records on file.",
+      "expected_response": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+      "status": "answered",
+      "response": "The dock schedule now holds ARC-041 for 2026-03-15, 14:00 to 15:00 UTC, dock D3. The 2026-03-16 entry was a keying error and I have corrected it; a corrected notice will follow. This settles the booking date only. The pallet has not been received.",
+      "evidence_event_ids": [
+       "005",
+       "006",
+       "007"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "reconcile_conflict",
+       "action": "Ask Ossa Rell in the business portal which date the Arcloom dock schedule holds for ARC-041, 2026-03-15 or 2026-03-16, keeping both records on file.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Pass 2026-03-15 to dispatch because it matches the truck plan, or dismiss the automatic notice as a typo.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "reconcile_conflict",
+     "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "The dock schedule now holds ARC-041 for 2026-03-15, 14:00 to 15:00 UTC, dock D3. The 2026-03-16 entry was a keying error and I have corrected it; a corrected notice will follow. This settles the booking date only. The pallet has not been received.",
+     "confirmed_by": "receiving",
+     "evidence_event_ids": [
+      "007"
+     ],
+     "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Pass 2026-03-15 to dispatch because it matches the truck plan, or dismiss the automatic notice as a typo."
+    },
+    "annotations": [
+     {
+      "id": "missing-carrier-handoff",
+      "kind": "context",
+      "title": "Unrecorded parent action",
+      "text": "A separate record of this parent action is absent. The branch does not by itself establish that it occurred. The next action is now the scoped branch response. Ossa reserved ARC-041 for 2026-03-15, 14:00–15:00 UTC at dock D3, and her message went only to us. We now have to pass the appointment to Freight dispatch and ask them to accept it; after sending, the agent waits for the carrier's acceptance. At this step the handoff is not yet recorded in the history, and the consignee's reservation alone does not align the carrier booking.",
+      "source_event_ids": [
+       "004"
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "freight_dispatch",
+       "type": "confirmation",
+       "purpose": "Pass ARC-041, 2026-03-15 14:00–15:00 UTC, dock D3, to Freight dispatch and get the carrier's acceptance of the same reference and time."
+      },
+      "before_message_id": "005"
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "client": {
+      "participants": [
+       "coordinator",
+       "freight_dispatch"
+      ],
+      "channel": "Email",
+      "other_channels": [
+       "Freight portal"
+      ]
+     },
+     "consignee": {
+      "participants": [
+       "coordinator",
+       "receiving"
+      ],
+      "channel": "Business portal"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "branch_system",
+       "receiving"
+      ],
+      "channel": "Email",
+      "other_channels": [
+       "Business portal"
+      ]
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "client",
+      "event_id": "001",
+      "timestamp": "2026-03-14 09:00:00 UTC",
+      "from_actor": "freight_dispatch",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Pallet DL-041 for Arcloom Components has no receiving appointment. We can reach its dock on 2026-03-15 afternoon, but will not send the truck without a consignee appointment."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-14 09:10:00 UTC",
+      "from_actor": "freight_dispatch",
+      "to_actor": "coordinator",
+      "channel": "Freight portal",
+      "body": "Please book with authorised receiving coordinator Ossa Rell. Obtain the dock reference, time and receiving entrance for our driver."
+     },
+     {
+      "conversation_id": "consignee",
+      "event_id": "003",
+      "timestamp": "2026-03-14 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "receiving",
+      "channel": "Business portal",
+      "body": "Please offer an available receiving-dock appointment for pallet DL-041 on 2026-03-15 afternoon, with dock reference and entrance."
+     },
+     {
+      "conversation_id": "consignee",
+      "event_id": "004",
+      "timestamp": "2026-03-14 09:50:00 UTC",
+      "from_actor": "receiving",
+      "to_actor": "coordinator",
+      "channel": "Business portal",
+      "body": "Appointment ARC-041 is reserved for 2026-03-15, 14:00–15:00 UTC at dock D3. Our receiving team will be staffed for this slot."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-03-14 09:55:00 UTC",
+      "from_actor": "branch_system",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Automatic confirmation. Appointment ARC-041, consignment DL-041, dock D3, 2026-03-16, 14:00 to 15:00 UTC. Report to the receiving entrance 15 minutes before the slot. This message is generated from the Arcloom dock schedule."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "006",
+      "timestamp": "2026-03-14 10:10:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "receiving",
+      "channel": "Business portal",
+      "body": "Your portal message gives ARC-041 for DL-041 on 2026-03-15, 14:00 to 15:00 UTC at dock D3. An automatic notice from the Arcloom dock schedule at 09:55 UTC gives 2026-03-16 for the same appointment. Which date does the dock schedule hold for ARC-041? We are keeping both records and passing no date to the carrier until you confirm."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "007",
+      "timestamp": "2026-03-14 10:35:00 UTC",
+      "from_actor": "receiving",
+      "to_actor": "coordinator",
+      "channel": "Business portal",
+      "body": "The dock schedule now holds ARC-041 for 2026-03-15, 14:00 to 15:00 UTC, dock D3. The 2026-03-16 entry was a keying error and I have corrected it; a corrected notice will follow. This settles the booking date only. The pallet has not been received."
+     }
+    ],
+    "limits": [
+     "Treat the appointment reference as a coordinated booking only.",
+     "Do not say the pallet has been received.",
+     "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c2",
+      "description": "The carrier has confirmed the same appointment reference and time.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  }
+ ]
+}

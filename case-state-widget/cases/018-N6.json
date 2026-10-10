@@ -1,0 +1,2220 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "018-N6 · Recipient withdraws choice, wants money back",
+ "initial_explanation": "We are the coordinator, Iona Quill. The request comes from the Exception desk, Plover Arc Logistics. From the case card: the return timer on DL-018 is nearing its cutoff, and the carrier permits a new collection arrangement only if the verified recipient chooses before that cutoff.",
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/018/N6-CUSTOMER_CANCELS",
+  "branch_id": "018-N6",
+  "derived_from_case": "018",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003",
+   "004"
+  ],
+  "diverges_after_event": "004",
+  "failure_mode": "CUSTOMER_CANCELS",
+  "expected_decision": "RECORD_STOP",
+  "workflow_sheet": "F",
+  "branch_label": "Recipient withdraws choice, wants money back",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "267b048823b59c3605bc758e03461aee0be087c1faf69cf55aa2a2b70d0c4e3d",
+   "history.md": "19750adc557e26f905fde12cdae39c04b95db9504469596cf318e3a650dc7dfe"
+  }
+ },
+ "initial_state": {
+  "case_id": "018-N6",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "exception_desk",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: get the recipient's choice before the cutoff and the carrier's confirmation that it is applied."
+   },
+   "exception_desk": {
+    "name": "Exception desk",
+    "organization": "Plover Arc Logistics",
+    "role": "carrier",
+    "is_us": false,
+    "responsibility": "Track the DL-018 return timer and apply the recipient's permitted choice."
+   }
+  },
+  "goal": "Get the verified recipient's choice of a permitted option before the cutoff and the carrier's confirmation that the option is applied and the return is cancelled.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The verified recipient has chosen a permitted option before the cutoff.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The carrier has confirmed that the chosen option is applied.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c3",
+    "description": "The carrier has confirmed that the scheduled return is cancelled.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "No recipient choice is known, and the return timer is nearing its cutoff.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-018.",
+    "source": {
+     "type": "case_card",
+     "id": "018"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The parcel's return timer is nearing its cutoff.",
+    "source": {
+     "type": "case_card",
+     "id": "018"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The carrier permits a new collection arrangement if the verified recipient chooses before the cutoff.",
+    "source": {
+     "type": "case_card",
+     "id": "018"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Do not treat the return as cancelled until the carrier confirms it.",
+   "Do not say the parcel has been collected; collection remains pending.",
+   "Do not start further actions or assume that a stop undoes an executed action."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Carrier email",
+    "title": "Exception desk sets the 16:00 UTC cutoff",
+    "timestamp": "2026-02-19 09:00:00 UTC",
+    "actor_id": "exception_desk",
+    "message_id": "001"
+   },
+   "explanation": "The exception desk gave the cutoff and the two options that stop the return. A customer has to choose one of them before 16:00 UTC, so we need that choice.",
+   "state_after": {
+    "case_id": "018-N6",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "exception_desk",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the recipient's choice before the cutoff and the carrier's confirmation that it is applied."
+     },
+     "exception_desk": {
+      "name": "Exception desk",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Track the DL-018 return timer and apply the recipient's permitted choice."
+     }
+    },
+    "goal": "Get the verified recipient's choice of a permitted option before the cutoff and the carrier's confirmation that the option is applied and the return is cancelled.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Get a choice between the two options from the verified recipient before 16:00 UTC."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The verified recipient has chosen a permitted option before the cutoff.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The carrier has confirmed that the chosen option is applied.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The carrier has confirmed that the scheduled return is cancelled.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-19 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "018-N6"
+     },
+     "context_message_id": "001",
+     "summary": "Stop the DL-018 return to sender: the verified recipient must choose a permitted option before the cutoff.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "No customer choice is recorded; return-to-sender processing starts at 16:00 UTC today.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-018.",
+      "source": {
+       "type": "case_card",
+       "id": "018"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-018 will enter return-to-sender processing at 16:00 UTC today unless a customer selects an option.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The carrier permits a new collection arrangement if the verified recipient chooses before the cutoff.",
+      "source": {
+       "type": "case_card",
+       "id": "018"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Two options are currently available: redelivery on 2026-02-20 or depot collection on 2026-02-20.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {},
+    "decision": {
+     "required": true,
+     "question": "Which option should replace the return to sender?",
+     "options": [
+      {
+       "id": "o1",
+       "label": "Redelivery on 2026-02-20",
+       "conditions": "Must be selected before 16:00 UTC today."
+      },
+      {
+       "id": "o2",
+       "label": "Depot collection on 2026-02-20",
+       "conditions": "Must be selected before 16:00 UTC today."
+      }
+     ],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": null,
+     "description": "Reach the verified recipient and get a choice before 16:00 UTC."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "exception": {
+      "participants": [
+       "coordinator",
+       "exception_desk"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "exception",
+      "event_id": "001",
+      "timestamp": "2026-02-19 09:00:00 UTC",
+      "from_actor": "exception_desk",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-018 will enter return-to-sender processing at 16:00 UTC today unless a customer selects redelivery on 2026-02-20 or depot collection on 2026-02-20. Both options are currently available."
+     }
+    ],
+    "limits": [
+     "Do not treat the return as cancelled until the carrier confirms it.",
+     "Do not say the parcel has been collected; collection remains pending.",
+     "Do not start further actions or assume that a stop undoes an executed action."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Escalation",
+    "title": "Exception desk asks us to call Nalo Vere",
+    "timestamp": "2026-02-19 09:10:00 UTC",
+    "actor_id": "exception_desk",
+    "message_id": "002"
+   },
+   "explanation": "No choice is recorded, and the exception desk named the authorised recipient. We contact Nalo Vere now and offer only the two options the carrier listed.",
+   "state_after": {
+    "case_id": "018-N6",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "exception_desk",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the recipient's choice before the cutoff and the carrier's confirmation that it is applied."
+     },
+     "exception_desk": {
+      "name": "Exception desk",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Track the DL-018 return timer and apply the recipient's permitted choice."
+     },
+     "recipient": {
+      "name": "Nalo Vere",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Choose redelivery or depot collection for DL-018 before the return cutoff."
+     }
+    },
+    "goal": "Get the verified recipient's choice of a permitted option before the cutoff and the carrier's confirmation that the option is applied and the return is cancelled.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Call Nalo Vere now and ask for a choice between redelivery and depot collection on 2026-02-20."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The verified recipient has chosen a permitted option before the cutoff.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The carrier has confirmed that the chosen option is applied.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The carrier has confirmed that the scheduled return is cancelled.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-19 09:00:00 UTC",
+     "escalated_at": "2026-02-19 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "018-N6"
+     },
+     "context_message_id": "001",
+     "summary": "Stop the DL-018 return to sender: the verified recipient must choose a permitted option before the cutoff.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "No recipient choice is recorded; return-to-sender processing starts at 16:00 UTC today.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-018.",
+      "source": {
+       "type": "case_card",
+       "id": "018"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-018 will enter return-to-sender processing at 16:00 UTC today unless a customer selects an option.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The carrier permits a new collection arrangement if the verified recipient chooses before the cutoff.",
+      "source": {
+       "type": "case_card",
+       "id": "018"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Two options are currently available: redelivery on 2026-02-20 or depot collection on 2026-02-20.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "No recipient choice is recorded.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Nalo Vere is the authorised recipient.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "exception_desk",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Contact authorised recipient Nalo Vere now, before the cutoff, rather than let the return timer expire.",
+      "expected_response": "The recipient's choice recorded before the cutoff.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "decision",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Choose redelivery or depot collection on 2026-02-20 before 16:00 UTC.",
+      "expected_response": "The chosen option.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which option should replace the return to sender?",
+     "options": [
+      {
+       "id": "o1",
+       "label": "Redelivery on 2026-02-20",
+       "conditions": "Must be selected before 16:00 UTC today."
+      },
+      {
+       "id": "o2",
+       "label": "Depot collection on 2026-02-20",
+       "conditions": "Must be selected before 16:00 UTC today."
+      }
+     ],
+     "decision_maker": "recipient",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "decision",
+     "responsible_actor": "recipient",
+     "request_id": "r1",
+     "description": "Choose redelivery or depot collection on 2026-02-20 before 16:00 UTC."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "exception": {
+      "participants": [
+       "coordinator",
+       "exception_desk"
+      ],
+      "channel": "Email",
+      "other_channels": [
+       "Dispatch chat"
+      ]
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "exception",
+      "event_id": "001",
+      "timestamp": "2026-02-19 09:00:00 UTC",
+      "from_actor": "exception_desk",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-018 will enter return-to-sender processing at 16:00 UTC today unless a customer selects redelivery on 2026-02-20 or depot collection on 2026-02-20. Both options are currently available."
+     },
+     {
+      "conversation_id": "exception",
+      "event_id": "002",
+      "timestamp": "2026-02-19 09:10:00 UTC",
+      "from_actor": "exception_desk",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "No recipient choice is recorded. Please contact authorised recipient Nalo Vere now, before the cutoff, rather than let the return timer expire."
+     }
+    ],
+    "limits": [
+     "Do not treat the return as cancelled until the carrier confirms it.",
+     "Do not say the parcel has been collected; collection remains pending.",
+     "Do not start further actions or assume that a stop undoes an executed action."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our call",
+    "title": "We ask Nalo to choose an option",
+    "timestamp": "2026-02-19 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "On the call we named the 16:00 UTC return and only the two options the carrier listed. Now we wait for Nalo's choice.",
+   "state_after": {
+    "case_id": "018-N6",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "exception_desk",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the recipient's choice before the cutoff and the carrier's confirmation that it is applied."
+     },
+     "exception_desk": {
+      "name": "Exception desk",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Track the DL-018 return timer and apply the recipient's permitted choice."
+     },
+     "recipient": {
+      "name": "Nalo Vere",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Choose redelivery or depot collection for DL-018 before the return cutoff."
+     }
+    },
+    "goal": "Get the verified recipient's choice of a permitted option before the cutoff and the carrier's confirmation that the option is applied and the return is cancelled.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "recipient",
+       "request_id": "r1",
+       "expected": "Choice of redelivery or depot collection on 2026-02-20"
+      }
+     ],
+     "next_action": "Once Nalo chooses, pass the choice to the exception desk so the carrier can stop the return."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The verified recipient has chosen a permitted option before the cutoff.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The carrier has confirmed that the chosen option is applied.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The carrier has confirmed that the scheduled return is cancelled.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-19 09:00:00 UTC",
+     "escalated_at": "2026-02-19 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "018-N6"
+     },
+     "context_message_id": "001",
+     "summary": "Stop the DL-018 return to sender: the verified recipient must choose a permitted option before the cutoff.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "No recipient choice is recorded yet.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-018.",
+      "source": {
+       "type": "case_card",
+       "id": "018"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-018 will enter return-to-sender processing at 16:00 UTC today unless a customer selects an option.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The carrier permits a new collection arrangement if the verified recipient chooses before the cutoff.",
+      "source": {
+       "type": "case_card",
+       "id": "018"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Two options are currently available: redelivery on 2026-02-20 or depot collection on 2026-02-20.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "No recipient choice is recorded.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Nalo Vere is the authorised recipient.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "exception_desk",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Contact authorised recipient Nalo Vere now, before the cutoff, rather than let the return timer expire.",
+      "expected_response": "The recipient's choice recorded before the cutoff.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "decision",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Choose redelivery or depot collection on 2026-02-20 before 16:00 UTC.",
+      "expected_response": "The chosen option.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which option should replace the return to sender?",
+     "options": [
+      {
+       "id": "o1",
+       "label": "Redelivery on 2026-02-20",
+       "conditions": "Must be selected before 16:00 UTC today."
+      },
+      {
+       "id": "o2",
+       "label": "Depot collection on 2026-02-20",
+       "conditions": "Must be selected before 16:00 UTC today."
+      }
+     ],
+     "decision_maker": "recipient",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_decision",
+    "next_step": {
+     "type": "decision",
+     "responsible_actor": "recipient",
+     "request_id": "r1",
+     "description": "Wait for Nalo's choice."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "exception": {
+      "participants": [
+       "coordinator",
+       "exception_desk"
+      ],
+      "channel": "Email",
+      "other_channels": [
+       "Dispatch chat"
+      ]
+     },
+     "recipient": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Call transcript"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "exception",
+      "event_id": "001",
+      "timestamp": "2026-02-19 09:00:00 UTC",
+      "from_actor": "exception_desk",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-018 will enter return-to-sender processing at 16:00 UTC today unless a customer selects redelivery on 2026-02-20 or depot collection on 2026-02-20. Both options are currently available."
+     },
+     {
+      "conversation_id": "exception",
+      "event_id": "002",
+      "timestamp": "2026-02-19 09:10:00 UTC",
+      "from_actor": "exception_desk",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "No recipient choice is recorded. Please contact authorised recipient Nalo Vere now, before the cutoff, rather than let the return timer expire."
+     },
+     {
+      "conversation_id": "recipient",
+      "event_id": "003",
+      "timestamp": "2026-02-19 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Call transcript",
+      "body": "DL-018 is due to return at 16:00 UTC today. Would you like redelivery on 2026-02-20 or depot collection on 2026-02-20? Please select an option so the carrier can stop the return."
+     }
+    ],
+    "limits": [
+     "Do not treat the return as cancelled until the carrier confirms it.",
+     "Do not say the parcel has been collected; collection remains pending.",
+     "Do not start further actions or assume that a stop undoes an executed action."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "Recipient choice",
+    "title": "Nalo picks depot collection on 20 February",
+    "timestamp": "2026-02-19 09:50:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "004"
+   },
+   "explanation": "We have Nalo's choice before the cutoff, but a choice does not stop the return: only the carrier can apply it and cancel the return.",
+   "state_after": {
+    "case_id": "018-N6",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "exception_desk",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the recipient's choice before the cutoff and the carrier's confirmation that it is applied."
+     },
+     "exception_desk": {
+      "name": "Exception desk",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Track the DL-018 return timer and apply the recipient's permitted choice."
+     },
+     "recipient": {
+      "name": "Nalo Vere",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Choose redelivery or depot collection for DL-018 before the return cutoff."
+     }
+    },
+    "goal": "Get the verified recipient's choice of a permitted option before the cutoff and the carrier's confirmation that the option is applied and the return is cancelled.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Pass Nalo's choice of depot collection on 2026-02-20 to the exception desk, then wait for confirmation that the return is cancelled.",
+     "note": "Passing the choice to the exception desk and the wait that follows are not recorded as separate events. So in this snapshot the agent is still preparing the handoff; it is not given waiting status without evidence that the choice was sent."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The verified recipient has chosen a permitted option before the cutoff.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The carrier has confirmed that the chosen option is applied.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The carrier has confirmed that the scheduled return is cancelled.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-19 09:00:00 UTC",
+     "escalated_at": "2026-02-19 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "018-N6"
+     },
+     "context_message_id": "001",
+     "summary": "Stop the DL-018 return to sender: the verified recipient must choose a permitted option before the cutoff.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "Choice made; the carrier has not yet applied it or cancelled the return.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-018.",
+      "source": {
+       "type": "case_card",
+       "id": "018"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-018 will enter return-to-sender processing at 16:00 UTC today unless a customer selects an option.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The carrier permits a new collection arrangement if the verified recipient chooses before the cutoff.",
+      "source": {
+       "type": "case_card",
+       "id": "018"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Two options are currently available: redelivery on 2026-02-20 or depot collection on 2026-02-20.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "No recipient choice is recorded.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Nalo Vere is the authorised recipient.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Nalo Vere chose depot collection on 2026-02-20 and can attend during the depot's collection hours.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "exception_desk",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Contact authorised recipient Nalo Vere now, before the cutoff, rather than let the return timer expire.",
+      "expected_response": "The recipient's choice recorded before the cutoff.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "decision",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Choose redelivery or depot collection on 2026-02-20 before 16:00 UTC.",
+      "expected_response": "The chosen option.",
+      "status": "answered",
+      "response": "Depot collection on 2026-02-20.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     },
+     "r2": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "exception_desk",
+      "responsible_actor": "exception_desk",
+      "purpose": "Apply Nalo Vere's choice of depot collection on 2026-02-20 and cancel the return before 16:00 UTC.",
+      "expected_response": "Confirmation that the choice is applied and the return is cancelled.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which option should replace the return to sender?",
+     "options": [
+      {
+       "id": "o1",
+       "label": "Redelivery on 2026-02-20",
+       "conditions": "Must be selected before 16:00 UTC today."
+      },
+      {
+       "id": "o2",
+       "label": "Depot collection on 2026-02-20",
+       "conditions": "Must be selected before 16:00 UTC today."
+      }
+     ],
+     "decision_maker": "recipient",
+     "selected_option": "o2",
+     "reason": "Nalo can attend during the depot's collection hours."
+    },
+    "status": "awaiting_confirmation",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "exception_desk",
+     "request_id": "r2",
+     "description": "Pass Nalo's choice to the exception desk and get confirmation that the return is cancelled."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "missing-choice-handoff",
+      "kind": "gap",
+      "title": "Next action · us → exception desk",
+      "text": "Nalo chose depot collection on 2026-02-20. We now have to pass this choice to the exception desk so the carrier can apply it and cancel the return before the cutoff; after sending, the agent waits for the carrier's confirmation. At this step the handoff is not yet recorded in the history, and the recipient's choice by itself does not stop the return.",
+      "source_event_ids": [
+       "004"
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "exception_desk",
+       "type": "action",
+       "purpose": "Pass Nalo Vere's choice of depot collection on 2026-02-20 so the carrier applies it and cancels the return before the 16:00 UTC cutoff."
+      }
+     }
+    ],
+    "conversations": {
+     "exception": {
+      "participants": [
+       "coordinator",
+       "exception_desk"
+      ],
+      "channel": "Email",
+      "other_channels": [
+       "Dispatch chat"
+      ]
+     },
+     "recipient": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Call transcript"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "exception",
+      "event_id": "001",
+      "timestamp": "2026-02-19 09:00:00 UTC",
+      "from_actor": "exception_desk",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-018 will enter return-to-sender processing at 16:00 UTC today unless a customer selects redelivery on 2026-02-20 or depot collection on 2026-02-20. Both options are currently available."
+     },
+     {
+      "conversation_id": "exception",
+      "event_id": "002",
+      "timestamp": "2026-02-19 09:10:00 UTC",
+      "from_actor": "exception_desk",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "No recipient choice is recorded. Please contact authorised recipient Nalo Vere now, before the cutoff, rather than let the return timer expire."
+     },
+     {
+      "conversation_id": "recipient",
+      "event_id": "003",
+      "timestamp": "2026-02-19 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Call transcript",
+      "body": "DL-018 is due to return at 16:00 UTC today. Would you like redelivery on 2026-02-20 or depot collection on 2026-02-20? Please select an option so the carrier can stop the return."
+     },
+     {
+      "conversation_id": "recipient",
+      "event_id": "004",
+      "timestamp": "2026-02-19 09:50:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Call transcript",
+      "body": "Please choose depot collection on 2026-02-20. I can attend during the depot’s collection hours."
+     }
+    ],
+    "limits": [
+     "Do not treat the return as cancelled until the carrier confirms it.",
+     "Do not say the parcel has been collected; collection remains pending.",
+     "Do not start further actions or assume that a stop undoes an executed action."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "005",
+    "type": "message_received",
+    "label": "New escalation",
+    "title": "Recipient withdraws choice, wants money back",
+    "timestamp": "2026-02-19 10:20:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "005"
+   },
+   "explanation": "Record the stop and establish what was already executed. Do not start further actions or assume that a stop undoes an executed action.",
+   "state_after": {
+    "case_id": "018-N6",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "exception_desk",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the recipient's choice before the cutoff and the carrier's confirmation that it is applied."
+     },
+     "exception_desk": {
+      "name": "Exception desk",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Track the DL-018 return timer and apply the recipient's permitted choice."
+     },
+     "recipient": {
+      "name": "Nalo Vere",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Choose redelivery or depot collection for DL-018 before the return cutoff."
+     }
+    },
+    "goal": "Record the stop and establish what was already executed.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Record Nalo's stop with the Exception desk in Dispatch chat, forbid any new action on DL-018, and ask whether the collection choice had already been applied and what the return status now shows."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The verified recipient has chosen a permitted option before the cutoff.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-19 09:00:00 UTC",
+     "escalated_at": "2026-02-19 10:20:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "018-N6"
+     },
+     "context_message_id": "001",
+     "summary": "Record the stop and establish what was already executed.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The new escalation requires a scoped response. I've changed my mind. Don't arrange the collection. Let it go back to the sender; I will ask the seller for my money back.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-018.",
+      "source": {
+       "type": "case_card",
+       "id": "018"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-018 will enter return-to-sender processing at 16:00 UTC today unless a customer selects an option.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The carrier permits a new collection arrangement if the verified recipient chooses before the cutoff.",
+      "source": {
+       "type": "case_card",
+       "id": "018"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Two options are currently available: redelivery on 2026-02-20 or depot collection on 2026-02-20.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "No recipient choice is recorded.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Nalo Vere is the authorised recipient.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Nalo Vere chose depot collection on 2026-02-20 and can attend during the depot's collection hours.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Nalo Vere reports: I've changed my mind.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Nalo Vere reports: Don't arrange the collection.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Nalo Vere reports: Let it go back to the sender; I will ask the seller for my money back.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "exception_desk",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Contact authorised recipient Nalo Vere now, before the cutoff, rather than let the return timer expire.",
+      "expected_response": "The recipient's choice recorded before the cutoff.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "decision",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Choose redelivery or depot collection on 2026-02-20 before 16:00 UTC.",
+      "expected_response": "The chosen option.",
+      "status": "answered",
+      "response": "Depot collection on 2026-02-20.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     },
+     "r2": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "exception_desk",
+      "responsible_actor": "exception_desk",
+      "purpose": "Apply Nalo Vere's choice of depot collection on 2026-02-20 and cancel the return before 16:00 UTC.",
+      "expected_response": "Confirmation that the choice is applied and the return is cancelled.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     "branch_request": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "exception_desk",
+      "responsible_actor": "exception_desk",
+      "purpose": "Record Nalo's stop with the Exception desk in Dispatch chat, forbid any new action on DL-018, and ask whether the collection choice had already been applied and what the return status now shows.",
+      "expected_response": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "005"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "record_stop",
+       "action": "Record Nalo's stop with the Exception desk in Dispatch chat, forbid any new action on DL-018, and ask whether the collection choice had already been applied and what the return status now shows.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "tell Nalo that a return means a refund, and ask the Exception desk to reinstate a return its records may already have cancelled.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "action_required",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": "branch_request",
+     "description": "Record Nalo's stop with the Exception desk in Dispatch chat, forbid any new action on DL-018, and ask whether the collection choice had already been applied and what the return status now shows."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "missing-choice-handoff",
+      "kind": "context",
+      "title": "Unrecorded parent action",
+      "text": "A separate record of this parent action is absent. The branch does not by itself establish that it occurred. The next action is now the scoped branch response. Nalo chose depot collection on 2026-02-20. We now have to pass this choice to the exception desk so the carrier can apply it and cancel the return before the cutoff; after sending, the agent waits for the carrier's confirmation. At this step the handoff is not yet recorded in the history, and the recipient's choice by itself does not stop the return.",
+      "source_event_ids": [
+       "004"
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "exception_desk",
+       "type": "action",
+       "purpose": "Pass Nalo Vere's choice of depot collection on 2026-02-20 so the carrier applies it and cancels the return before the 16:00 UTC cutoff."
+      },
+      "before_message_id": "005"
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "exception": {
+      "participants": [
+       "coordinator",
+       "exception_desk"
+      ],
+      "channel": "Email",
+      "other_channels": [
+       "Dispatch chat"
+      ]
+     },
+     "recipient": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Call transcript"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Call transcript"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "exception",
+      "event_id": "001",
+      "timestamp": "2026-02-19 09:00:00 UTC",
+      "from_actor": "exception_desk",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-018 will enter return-to-sender processing at 16:00 UTC today unless a customer selects redelivery on 2026-02-20 or depot collection on 2026-02-20. Both options are currently available."
+     },
+     {
+      "conversation_id": "exception",
+      "event_id": "002",
+      "timestamp": "2026-02-19 09:10:00 UTC",
+      "from_actor": "exception_desk",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "No recipient choice is recorded. Please contact authorised recipient Nalo Vere now, before the cutoff, rather than let the return timer expire."
+     },
+     {
+      "conversation_id": "recipient",
+      "event_id": "003",
+      "timestamp": "2026-02-19 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Call transcript",
+      "body": "DL-018 is due to return at 16:00 UTC today. Would you like redelivery on 2026-02-20 or depot collection on 2026-02-20? Please select an option so the carrier can stop the return."
+     },
+     {
+      "conversation_id": "recipient",
+      "event_id": "004",
+      "timestamp": "2026-02-19 09:50:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Call transcript",
+      "body": "Please choose depot collection on 2026-02-20. I can attend during the depot’s collection hours."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-02-19 10:20:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Call transcript",
+      "body": "I've changed my mind. Don't arrange the collection. Let it go back to the sender; I will ask the seller for my money back."
+     }
+    ],
+    "limits": [
+     "Do not treat the return as cancelled until the carrier confirms it.",
+     "Do not say the parcel has been collected; collection remains pending.",
+     "Do not start further actions or assume that a stop undoes an executed action."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c2",
+      "description": "The carrier has confirmed that the chosen option is applied.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "The carrier has confirmed that the scheduled return is cancelled.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "006",
+    "type": "message_sent",
+    "label": "Desk response",
+    "title": "Record the stop and establish what was already executed",
+    "timestamp": "2026-02-19 10:35:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "006"
+   },
+   "explanation": "The desk sends the recorded response. Do not start further actions or assume that a stop undoes an executed action.",
+   "state_after": {
+    "case_id": "018-N6",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "exception_desk",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the recipient's choice before the cutoff and the carrier's confirmation that it is applied."
+     },
+     "exception_desk": {
+      "name": "Exception desk",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Track the DL-018 return timer and apply the recipient's permitted choice."
+     },
+     "recipient": {
+      "name": "Nalo Vere",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Choose redelivery or depot collection for DL-018 before the return cutoff."
+     }
+    },
+    "goal": "Record the stop and establish what was already executed.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "exception_desk",
+       "request_id": "branch_request",
+       "expected": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone."
+      }
+     ],
+     "next_action": "Record the reply or scoped confirmation before closing this branch."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The verified recipient has chosen a permitted option before the cutoff.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-19 09:00:00 UTC",
+     "escalated_at": "2026-02-19 10:20:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "018-N6"
+     },
+     "context_message_id": "001",
+     "summary": "Record the stop and establish what was already executed.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The scoped reply or confirmation has not yet been recorded.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-018.",
+      "source": {
+       "type": "case_card",
+       "id": "018"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-018 will enter return-to-sender processing at 16:00 UTC today unless a customer selects an option.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The carrier permits a new collection arrangement if the verified recipient chooses before the cutoff.",
+      "source": {
+       "type": "case_card",
+       "id": "018"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Two options are currently available: redelivery on 2026-02-20 or depot collection on 2026-02-20.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "No recipient choice is recorded.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Nalo Vere is the authorised recipient.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Nalo Vere chose depot collection on 2026-02-20 and can attend during the depot's collection hours.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Nalo Vere reports: I've changed my mind.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Nalo Vere reports: Don't arrange the collection.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Nalo Vere reports: Let it go back to the sender; I will ask the seller for my money back.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "exception_desk",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Contact authorised recipient Nalo Vere now, before the cutoff, rather than let the return timer expire.",
+      "expected_response": "The recipient's choice recorded before the cutoff.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "decision",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Choose redelivery or depot collection on 2026-02-20 before 16:00 UTC.",
+      "expected_response": "The chosen option.",
+      "status": "answered",
+      "response": "Depot collection on 2026-02-20.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     },
+     "r2": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "exception_desk",
+      "responsible_actor": "exception_desk",
+      "purpose": "Apply Nalo Vere's choice of depot collection on 2026-02-20 and cancel the return before 16:00 UTC.",
+      "expected_response": "Confirmation that the choice is applied and the return is cancelled.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     "branch_request": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "exception_desk",
+      "responsible_actor": "exception_desk",
+      "purpose": "Record Nalo's stop with the Exception desk in Dispatch chat, forbid any new action on DL-018, and ask whether the collection choice had already been applied and what the return status now shows.",
+      "expected_response": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "005",
+       "006"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "record_stop",
+       "action": "Record Nalo's stop with the Exception desk in Dispatch chat, forbid any new action on DL-018, and ask whether the collection choice had already been applied and what the return status now shows.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "tell Nalo that a return means a refund, and ask the Exception desk to reinstate a return its records may already have cancelled.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "record_stop",
+     "reason": "The recorded outgoing message takes this permitted response."
+    },
+    "status": "awaiting_confirmation",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "exception_desk",
+     "request_id": "branch_request",
+     "description": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "missing-choice-handoff",
+      "kind": "context",
+      "title": "Unrecorded parent action",
+      "text": "A separate record of this parent action is absent. The branch does not by itself establish that it occurred. The next action is now the scoped branch response. Nalo chose depot collection on 2026-02-20. We now have to pass this choice to the exception desk so the carrier can apply it and cancel the return before the cutoff; after sending, the agent waits for the carrier's confirmation. At this step the handoff is not yet recorded in the history, and the recipient's choice by itself does not stop the return.",
+      "source_event_ids": [
+       "004"
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "exception_desk",
+       "type": "action",
+       "purpose": "Pass Nalo Vere's choice of depot collection on 2026-02-20 so the carrier applies it and cancels the return before the 16:00 UTC cutoff."
+      },
+      "before_message_id": "005"
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "exception": {
+      "participants": [
+       "coordinator",
+       "exception_desk"
+      ],
+      "channel": "Email",
+      "other_channels": [
+       "Dispatch chat"
+      ]
+     },
+     "recipient": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Call transcript"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Call transcript"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "exception_desk"
+      ],
+      "channel": "Dispatch chat"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "exception",
+      "event_id": "001",
+      "timestamp": "2026-02-19 09:00:00 UTC",
+      "from_actor": "exception_desk",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-018 will enter return-to-sender processing at 16:00 UTC today unless a customer selects redelivery on 2026-02-20 or depot collection on 2026-02-20. Both options are currently available."
+     },
+     {
+      "conversation_id": "exception",
+      "event_id": "002",
+      "timestamp": "2026-02-19 09:10:00 UTC",
+      "from_actor": "exception_desk",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "No recipient choice is recorded. Please contact authorised recipient Nalo Vere now, before the cutoff, rather than let the return timer expire."
+     },
+     {
+      "conversation_id": "recipient",
+      "event_id": "003",
+      "timestamp": "2026-02-19 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Call transcript",
+      "body": "DL-018 is due to return at 16:00 UTC today. Would you like redelivery on 2026-02-20 or depot collection on 2026-02-20? Please select an option so the carrier can stop the return."
+     },
+     {
+      "conversation_id": "recipient",
+      "event_id": "004",
+      "timestamp": "2026-02-19 09:50:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Call transcript",
+      "body": "Please choose depot collection on 2026-02-20. I can attend during the depot’s collection hours."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-02-19 10:20:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Call transcript",
+      "body": "I've changed my mind. Don't arrange the collection. Let it go back to the sender; I will ask the seller for my money back."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "006",
+      "timestamp": "2026-02-19 10:35:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "exception_desk",
+      "channel": "Dispatch chat",
+      "body": "Nalo Vere called at 10:20 UTC and withdrew the depot collection choice for DL-018. Please record the stop and take no new action on DL-018. Had the collection choice already been applied, and what does the return status show now? Nalo will contact the seller separately about any refund."
+     }
+    ],
+    "limits": [
+     "Do not treat the return as cancelled until the carrier confirms it.",
+     "Do not say the parcel has been collected; collection remains pending.",
+     "Do not start further actions or assume that a stop undoes an executed action."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c2",
+      "description": "The carrier has confirmed that the chosen option is applied.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "The carrier has confirmed that the scheduled return is cancelled.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "007",
+    "type": "message_received",
+    "label": "Scoped confirmation",
+    "title": "Follow-through confirms the branch outcome",
+    "timestamp": "2026-02-19 11:00:00 UTC",
+    "actor_id": "exception_desk",
+    "message_id": "007"
+   },
+   "explanation": "Record what the responding party actually confirms. Stop recorded for DL-018 at 10:45 UTC. The depot collection choice had already been applied at 10:08 UTC, so return-to-sender is cancelled and DL-018 stays assigned to depot collection on 2026-02-20. No new action will be taken. The return, any seller refund and collection remain separate matters.",
+   "state_after": {
+    "case_id": "018-N6",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "exception_desk",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the recipient's choice before the cutoff and the carrier's confirmation that it is applied."
+     },
+     "exception_desk": {
+      "name": "Exception desk",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Track the DL-018 return timer and apply the recipient's permitted choice."
+     },
+     "recipient": {
+      "name": "Nalo Vere",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Choose redelivery or depot collection for DL-018 before the return cutoff."
+     }
+    },
+    "goal": "Record the stop and establish what was already executed.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The verified recipient has chosen a permitted option before the cutoff.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone.",
+      "status": "met",
+      "evidence_event_ids": [
+       "006",
+       "007"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-19 09:00:00 UTC",
+     "escalated_at": "2026-02-19 10:20:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "018-N6"
+     },
+     "context_message_id": "001",
+     "summary": "Record the stop and establish what was already executed.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-018.",
+      "source": {
+       "type": "case_card",
+       "id": "018"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-018 will enter return-to-sender processing at 16:00 UTC today unless a customer selects an option.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The carrier permits a new collection arrangement if the verified recipient chooses before the cutoff.",
+      "source": {
+       "type": "case_card",
+       "id": "018"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Two options are currently available: redelivery on 2026-02-20 or depot collection on 2026-02-20.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "No recipient choice is recorded.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Nalo Vere is the authorised recipient.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Nalo Vere chose depot collection on 2026-02-20 and can attend during the depot's collection hours.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Nalo Vere reports: I've changed my mind.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Nalo Vere reports: Don't arrange the collection.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Nalo Vere reports: Let it go back to the sender; I will ask the seller for my money back.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_outcome_1",
+      "text": "Exception desk reports: Stop recorded for DL-018 at 10:45 UTC.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     },
+     {
+      "id": "branch_outcome_2",
+      "text": "Exception desk reports: The depot collection choice had already been applied at 10:08 UTC, so return-to-sender is cancelled and DL-018 stays assigned to depot collection on 2026-02-20.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     },
+     {
+      "id": "branch_outcome_3",
+      "text": "Exception desk reports: No new action will be taken.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     },
+     {
+      "id": "branch_outcome_4",
+      "text": "Exception desk reports: The return, any seller refund and collection remain separate matters.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "exception_desk",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Contact authorised recipient Nalo Vere now, before the cutoff, rather than let the return timer expire.",
+      "expected_response": "The recipient's choice recorded before the cutoff.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "decision",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Choose redelivery or depot collection on 2026-02-20 before 16:00 UTC.",
+      "expected_response": "The chosen option.",
+      "status": "answered",
+      "response": "Depot collection on 2026-02-20.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     },
+     "r2": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "exception_desk",
+      "responsible_actor": "exception_desk",
+      "purpose": "Apply Nalo Vere's choice of depot collection on 2026-02-20 and cancel the return before 16:00 UTC.",
+      "expected_response": "Confirmation that the choice is applied and the return is cancelled.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     "branch_request": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "exception_desk",
+      "responsible_actor": "exception_desk",
+      "purpose": "Record Nalo's stop with the Exception desk in Dispatch chat, forbid any new action on DL-018, and ask whether the collection choice had already been applied and what the return status now shows.",
+      "expected_response": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone.",
+      "status": "completed",
+      "response": "Stop recorded for DL-018 at 10:45 UTC. The depot collection choice had already been applied at 10:08 UTC, so return-to-sender is cancelled and DL-018 stays assigned to depot collection on 2026-02-20. No new action will be taken. The return, any seller refund and collection remain separate matters.",
+      "evidence_event_ids": [
+       "005",
+       "006",
+       "007"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "record_stop",
+       "action": "Record Nalo's stop with the Exception desk in Dispatch chat, forbid any new action on DL-018, and ask whether the collection choice had already been applied and what the return status now shows.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "tell Nalo that a return means a refund, and ask the Exception desk to reinstate a return its records may already have cancelled.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "record_stop",
+     "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "Stop recorded for DL-018 at 10:45 UTC. The depot collection choice had already been applied at 10:08 UTC, so return-to-sender is cancelled and DL-018 stays assigned to depot collection on 2026-02-20. No new action will be taken. The return, any seller refund and collection remain separate matters.",
+     "confirmed_by": "exception_desk",
+     "evidence_event_ids": [
+      "007"
+     ],
+     "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not tell Nalo that a return means a refund, and do not ask the Exception desk to reinstate a return its records may already have cancelled."
+    },
+    "annotations": [
+     {
+      "id": "missing-choice-handoff",
+      "kind": "context",
+      "title": "Unrecorded parent action",
+      "text": "A separate record of this parent action is absent. The branch does not by itself establish that it occurred. The next action is now the scoped branch response. Nalo chose depot collection on 2026-02-20. We now have to pass this choice to the exception desk so the carrier can apply it and cancel the return before the cutoff; after sending, the agent waits for the carrier's confirmation. At this step the handoff is not yet recorded in the history, and the recipient's choice by itself does not stop the return.",
+      "source_event_ids": [
+       "004"
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "exception_desk",
+       "type": "action",
+       "purpose": "Pass Nalo Vere's choice of depot collection on 2026-02-20 so the carrier applies it and cancels the return before the 16:00 UTC cutoff."
+      },
+      "before_message_id": "005"
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "exception": {
+      "participants": [
+       "coordinator",
+       "exception_desk"
+      ],
+      "channel": "Email",
+      "other_channels": [
+       "Dispatch chat"
+      ]
+     },
+     "recipient": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Call transcript"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Call transcript"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "exception_desk"
+      ],
+      "channel": "Dispatch chat"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "exception",
+      "event_id": "001",
+      "timestamp": "2026-02-19 09:00:00 UTC",
+      "from_actor": "exception_desk",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-018 will enter return-to-sender processing at 16:00 UTC today unless a customer selects redelivery on 2026-02-20 or depot collection on 2026-02-20. Both options are currently available."
+     },
+     {
+      "conversation_id": "exception",
+      "event_id": "002",
+      "timestamp": "2026-02-19 09:10:00 UTC",
+      "from_actor": "exception_desk",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "No recipient choice is recorded. Please contact authorised recipient Nalo Vere now, before the cutoff, rather than let the return timer expire."
+     },
+     {
+      "conversation_id": "recipient",
+      "event_id": "003",
+      "timestamp": "2026-02-19 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Call transcript",
+      "body": "DL-018 is due to return at 16:00 UTC today. Would you like redelivery on 2026-02-20 or depot collection on 2026-02-20? Please select an option so the carrier can stop the return."
+     },
+     {
+      "conversation_id": "recipient",
+      "event_id": "004",
+      "timestamp": "2026-02-19 09:50:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Call transcript",
+      "body": "Please choose depot collection on 2026-02-20. I can attend during the depot’s collection hours."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-02-19 10:20:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Call transcript",
+      "body": "I've changed my mind. Don't arrange the collection. Let it go back to the sender; I will ask the seller for my money back."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "006",
+      "timestamp": "2026-02-19 10:35:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "exception_desk",
+      "channel": "Dispatch chat",
+      "body": "Nalo Vere called at 10:20 UTC and withdrew the depot collection choice for DL-018. Please record the stop and take no new action on DL-018. Had the collection choice already been applied, and what does the return status show now? Nalo will contact the seller separately about any refund."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "007",
+      "timestamp": "2026-02-19 11:00:00 UTC",
+      "from_actor": "exception_desk",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "Stop recorded for DL-018 at 10:45 UTC. The depot collection choice had already been applied at 10:08 UTC, so return-to-sender is cancelled and DL-018 stays assigned to depot collection on 2026-02-20. No new action will be taken. The return, any seller refund and collection remain separate matters."
+     }
+    ],
+    "limits": [
+     "Do not treat the return as cancelled until the carrier confirms it.",
+     "Do not say the parcel has been collected; collection remains pending.",
+     "Do not start further actions or assume that a stop undoes an executed action."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c2",
+      "description": "The carrier has confirmed that the chosen option is applied.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "The carrier has confirmed that the scheduled return is cancelled.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  }
+ ]
+}

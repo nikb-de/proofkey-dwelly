@@ -1,0 +1,524 @@
+{
+ "case_id": "021",
+ "lang": "en",
+ "title": "021 · Dented carton evidence",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Lessa Vire. From the case card: a carton for DL-021 has a dented corner, and the merchant requires two customer image views before it can assess the packaging damage; the request does not determine compensation.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get the views the merchant specified from the recipient and the merchant's confirmation that they are sufficient.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Lessa Vire",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Report the dented carton and submit the requested image views.",
+   "from_start": true,
+   "source_names": [
+    "Lessa Vire, recipient"
+   ]
+  },
+  "damage_intake": {
+   "name": "Damage intake",
+   "organization": "Tallowmere Goods",
+   "role": "merchant",
+   "responsibility": "Specify the image views needed and confirm whether the evidence is sufficient for the packaging-damage assessment.",
+   "from_start": false,
+   "source_names": [
+    "Damage intake, Tallowmere Goods"
+   ]
+  }
+ },
+ "goal": "Get the two image views the merchant requires from the recipient and the merchant's confirmation that the evidence is sufficient for its packaging-damage assessment.",
+ "limits": [
+  "Do not present the submitted image views as real photographs or as proof of actual physical damage.",
+  "Do not say that receipt of the views establishes the contents condition.",
+  "Do not promise or decide compensation; the evidence request does not determine it."
+ ],
+ "intake": {
+  "summary": "DL-021 carton has a dented corner; collect the two image views the merchant needs for its packaging-damage assessment.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The merchant cannot assess the packaging damage without two customer image views.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-021.",
+    "source": {
+     "type": "case_card",
+     "id": "021"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "A carton has a dented corner.",
+    "source": {
+     "type": "case_card",
+     "id": "021"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The merchant requires two customer image views before it can assess the packaging damage.",
+    "source": {
+     "type": "case_card",
+     "id": "021"
+    }
+   },
+   {
+    "id": "f4",
+    "text": "The image request does not determine compensation.",
+    "source": {
+     "type": "case_card",
+     "id": "021"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The recipient has submitted the two image views the merchant specified."
+   },
+   {
+    "id": "c2",
+    "description": "The merchant has confirmed receipt of both views."
+   },
+   {
+    "id": "c3",
+    "description": "The merchant has confirmed that the evidence is sufficient for its assessment."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "annotations": []
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Merchant email",
+   "title": "Damage intake specifies the two views",
+   "explanation": "The merchant named the two views, the upload channel and a safety limit on unpacking. Now we know exactly what to ask the recipient for.",
+   "conversation_id": "merchant",
+   "facts_upsert": [
+    {
+     "id": "f3",
+     "text": "For TG-021 / DL-021 the merchant needs a full carton view with the shipment marking visible and a closer view of the dented corner.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "The views must be sent through the order-linked upload channel.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f6",
+     "text": "The customer must not be asked to unpack an item they consider unsafe.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Upload a full carton view with the DL-021 marking visible and a close view of the dented corner through the order-linked upload channel.",
+     "expected_response": "The two image views.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "001"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask the recipient for the two views through the order-linked upload channel, without asking for unsafe unpacking."
+   },
+   "blocker": "The merchant does not yet have the two required views.",
+   "status": "context_received",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Upload the full carton view and the dented-corner view through the order-linked upload channel."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client question",
+   "title": "Lessa asks which views are needed",
+   "explanation": "Lessa reports the dented corner, has not opened the carton and asks what to send. We already have the merchant's list, so we can answer precisely.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "The outside corner of the recipient's carton is dented.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f7",
+     "text": "The recipient has not opened the carton.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "information",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "coordinator",
+     "purpose": "Tell the recipient which views the merchant needs for the damage assessment.",
+     "expected_response": "The list of required views.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Reply to Lessa with the two views and the order-linked upload channel; do not ask for unpacking if it is unsafe."
+   },
+   "blocker": "The merchant does not yet have the two required views.",
+   "status": "escalated",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Upload the full carton view and the dented-corner view through the order-linked upload channel."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "assessment-context",
+     "kind": "context",
+     "title": "What Lessa knew before writing",
+     "text": "Lessa asks which views \"your merchant\" needs for the damage assessment, so Lessa already knows the merchant will assess the damage. How this was learned is not recorded in the history.",
+     "before_message_id": "002",
+     "source_event_ids": [
+      "002"
+     ]
+    }
+   ]
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We ask Lessa for the two views",
+   "explanation": "We named exactly the merchant's two views and channel, ruled out unsafe unpacking and promised no remedy. Now we wait for the upload.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r0": {
+     "type": "information",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "coordinator",
+     "purpose": "Tell the recipient which views the merchant needs for the damage assessment.",
+     "expected_response": "The list of required views.",
+     "status": "answered",
+     "response": "A full carton view with the DL-021 marking and a close view of the dented corner, through the order-linked upload channel.",
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    },
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Upload a full carton view with the DL-021 marking visible and a close view of the dented corner through the order-linked upload channel.",
+     "expected_response": "The two image views.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "001",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "recipient",
+      "request_id": "r1",
+      "expected": "Full carton view and dented-corner view"
+     }
+    ],
+    "next_action": "Once the views are uploaded, get the merchant's confirmation that they are sufficient."
+   },
+   "blocker": "The recipient has not yet uploaded the two views.",
+   "status": "awaiting_response",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Wait for the two views from Lessa."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "Client upload",
+   "title": "Lessa submits the two views",
+   "explanation": "Both requested views are submitted, but only the merchant can say whether they are enough for the assessment.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f8",
+     "text": "The recipient submitted the two requested views: full carton (carton-overview.png) and corner detail (carton-detail.png).",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "f9",
+     "text": "The files are labelled synthetic rendered scene simulations for this fictional exercise, not actual customer photographs.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Upload a full carton view with the DL-021 marking visible and a close view of the dented corner through the order-linked upload channel.",
+     "expected_response": "The two image views.",
+     "status": "answered",
+     "response": "Full carton view (carton-overview.png) and corner detail (carton-detail.png) submitted.",
+     "evidence_event_ids": [
+      "001",
+      "003",
+      "004"
+     ]
+    },
+    "r2": {
+     "type": "confirmation",
+     "from_actor": "coordinator",
+     "to_actor": "damage_intake",
+     "responsible_actor": "damage_intake",
+     "purpose": "Confirm receipt of both views and whether they are sufficient for the packaging-damage assessment.",
+     "expected_response": "Confirmation from damage intake.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c1",
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Get the merchant's confirmation that both views are received and sufficient for the assessment.",
+    "note": "No message from us to damage intake after the upload is recorded. So in this snapshot the agent is not given waiting status without evidence that a request was sent."
+   },
+   "blocker": "The merchant has not yet confirmed receipt or sufficiency of the views.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "confirmation",
+    "responsible_actor": "damage_intake",
+    "request_id": "r2",
+    "description": "Get the merchant's confirmation that both views are received and sufficient."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "missing-merchant-handoff",
+     "kind": "gap",
+     "title": "Next action · us → damage intake",
+     "text": "Lessa submitted both views. We now have to tell damage intake that the views are in and ask it to confirm receipt and whether they are sufficient; after sending, the agent waits for its reply. At this step no such message is recorded, and the history does not say whether the order-linked upload channel delivers the views to the merchant directly or we pass them on.",
+     "source_event_ids": [
+      "004"
+     ],
+     "implied_action": {
+      "from_actor": "coordinator",
+      "to_actor": "damage_intake",
+      "type": "confirmation",
+      "purpose": "Tell damage intake that both views are submitted and ask it to confirm receipt and whether they are sufficient for the packaging-damage assessment."
+     }
+    }
+   ]
+  },
+  {
+   "event_id": "005",
+   "label": "Confirmation",
+   "title": "Merchant accepts the views for assessment",
+   "explanation": "The merchant received both views and found them sufficient to open the assessment, so the coordination task can be closed. Contents condition and compensation are still undecided.",
+   "conversation_id": "merchant",
+   "facts_upsert": [
+    {
+     "id": "f10",
+     "text": "Damage intake received both requested views for TG-021 / DL-021 at 09:55 UTC.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "f11",
+     "text": "The views are sufficient to open the packaging-damage assessment.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "f4",
+     "text": "Contents condition and compensation have not been decided.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r2": {
+     "type": "confirmation",
+     "from_actor": "coordinator",
+     "to_actor": "damage_intake",
+     "responsible_actor": "damage_intake",
+     "purpose": "Confirm receipt of both views and whether they are sufficient for the packaging-damage assessment.",
+     "expected_response": "Confirmation from damage intake.",
+     "status": "answered",
+     "response": "Both views received at 09:55 UTC; sufficient to open the packaging-damage assessment.",
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c2",
+     "evidence_event_ids": [
+      "005"
+     ]
+    },
+    {
+     "id": "c3",
+     "evidence_event_ids": [
+      "005"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Coordination task complete: the merchant confirmed it has sufficient evidence to open the assessment. Contents condition and compensation are not part of this case's success criteria."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "Damage intake received both views and found them sufficient to open the packaging-damage assessment for DL-021.",
+    "confirmed_by": "damage_intake",
+    "evidence_event_ids": [
+     "005"
+    ],
+    "remaining_work": "The assessment itself; contents condition and compensation have not been decided. The views are synthetic rendered scene simulations, not proof of actual physical damage."
+   },
+   "annotations_add": [
+    {
+     "id": "missing-merchant-handoff",
+     "kind": "gap",
+     "title": "Between 004 and 005 · our confirmation request to damage intake",
+     "text": "Upload 004 → our message to damage intake → waiting → confirmation 005. Damage intake replies to us that it received \"both requested views\" at 09:55 UTC, five minutes after Lessa's submission, but 005 does not mention a message from us. Whether we passed the views on or the upload channel delivered them directly, and the time and wording of our request, are not recorded.",
+     "before_message_id": "005",
+     "source_event_ids": [
+      "004",
+      "005"
+     ],
+     "implied_action": {
+      "from_actor": "coordinator",
+      "to_actor": "damage_intake",
+      "type": "confirmation",
+      "purpose": "Tell damage intake that both views are submitted and ask it to confirm receipt and whether they are sufficient for the packaging-damage assessment."
+     }
+    }
+   ]
+  }
+ ],
+ "source_attachments": [
+  {
+   "event_id": "004",
+   "attachment": {
+    "name": "carton-detail.png",
+    "type": "image/png",
+    "url": "https://github.com/DwellyOrg/HackatonPublicCases/blob/9bcdca585955dfb930005ed742572606e68f5688/Delivery%20%26%20Logistics/021/attachments/carton-detail.png"
+   }
+  },
+  {
+   "event_id": "004",
+   "attachment": {
+    "name": "carton-overview.png",
+    "type": "image/png",
+    "url": "https://github.com/DwellyOrg/HackatonPublicCases/blob/9bcdca585955dfb930005ed742572606e68f5688/Delivery%20%26%20Logistics/021/attachments/carton-overview.png"
+   }
+  }
+ ]
+}

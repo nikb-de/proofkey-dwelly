@@ -1,0 +1,585 @@
+{
+ "case_id": "028-N3",
+ "lang": "en",
+ "title": "028-N3 · No answer, customer needs plan today",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Riva Solt. From the case card: the correctly addressed DL-028 carton contains the wrong catalogue item, and the merchant has accepted the item report and controls exchange approval.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get the merchant's exchange approval and a collection booking for the wrong item.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Riva Solt",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Say how the wrong item should be resolved and when collection can happen.",
+   "from_start": true,
+   "source_names": [
+    "Riva Solt, recipient"
+   ]
+  },
+  "order_support": {
+   "name": "Order support",
+   "organization": "Tallowmere Goods",
+   "role": "merchant",
+   "responsibility": "Verify the item mismatch on record TG-028 and point to the team that holds exchange authority.",
+   "from_start": false,
+   "source_names": [
+    "Order support, Tallowmere Goods"
+   ]
+  },
+  "returns_desk": {
+   "name": "Returns authorisations",
+   "organization": "Tallowmere Goods",
+   "role": "returns_desk",
+   "responsibility": "Approve the exchange and book collection of the wrong item.",
+   "from_start": false,
+   "source_names": [
+    "Returns authorisations, Tallowmere Goods"
+   ]
+  }
+ },
+ "goal": "Get the merchant's approval of the item exchange and a collection booking for the wrong item.",
+ "limits": [
+  "Do not treat exchange approval or a collection booking as a completed return.",
+  "Do not say the replacement has been delivered.",
+  "Do not treat a reminder or silence as consent, a booking or execution."
+ ],
+ "intake": {
+  "summary": "Arrange an exchange for the wrong item received in DL-028.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The carton contains the wrong item; no exchange has been approved.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-028.",
+    "source": {
+     "type": "case_card",
+     "id": "028"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The carton is correctly addressed but contains the wrong catalogue item.",
+    "source": {
+     "type": "case_card",
+     "id": "028"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The merchant has accepted the item report and controls exchange approval.",
+    "source": {
+     "type": "case_card",
+     "id": "028"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The merchant has confirmed approval of the exchange."
+   },
+   {
+    "id": "c2",
+    "description": "The merchant has confirmed a collection booking for the wrong item."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/028/N3-NO_REPLY",
+  "branch_id": "028-N3",
+  "derived_from_case": "028",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "NO_REPLY",
+  "expected_decision": "WAIT_WITH_DEADLINE",
+  "workflow_sheet": "B",
+  "branch_label": "No answer, customer needs plan today",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "21c195e012c7fb902d64ff54859b85a11e54562d01c6d6f8c79e1bf3ca6c971f",
+   "history.md": "46aa10fd476f0474f3897d2558102fe44e0c580d83c3de274cde8d2771e1a122"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Merchant email",
+   "title": "Merchant confirms the item mismatch",
+   "explanation": "Order support verified that a red kitchen caddy arrived instead of the ordered blue desk organiser, at the correct address. Only the returns team can approve an exchange, and we do not yet know what the recipient wants.",
+   "conversation_id": "order_support",
+   "facts_upsert": [
+    {
+     "id": "f4",
+     "text": "Item-check record TG-028: the ordered item is a blue desk organiser, SKU BO-4.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "The received item, reported and verified, is a red kitchen caddy, SKU RC-2.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f6",
+     "text": "The address and DL-028 match the order.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f3",
+     "text": "Exchange authority is with the merchant's returns team.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Take in the recipient's request on how to resolve the wrong item."
+   },
+   "blocker": "The recipient received the wrong item; no exchange has been approved.",
+   "status": "context_received",
+   "next_step": null,
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Riva asks for an exchange",
+   "explanation": "Riva wants the ordered blue desk organiser and asks us to arrange an exchange, with availability on 2026-03-02 morning. Only the returns team can approve the exchange, so the next step is an authorisation request to them.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f7",
+     "text": "Riva wants the ordered blue desk organiser and asks us to arrange an exchange for the wrong item.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f8",
+     "text": "Riva can be home on 2026-03-02 morning.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "returns_desk",
+     "purpose": "Arrange an exchange of the wrong item for the ordered blue desk organiser.",
+     "expected_response": "An arranged exchange.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "permission",
+     "from_actor": "coordinator",
+     "to_actor": "returns_desk",
+     "responsible_actor": "returns_desk",
+     "purpose": "Authorise exchange TG-028 using the accepted SKU mismatch record.",
+     "expected_response": "Exchange approval.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask the returns team to authorise exchange TG-028 and pass on Riva's availability on 2026-03-02 morning."
+   },
+   "blocker": "The exchange is not approved; only the merchant's returns team can approve it.",
+   "status": "escalated",
+   "next_step": {
+    "type": "permission",
+    "responsible_actor": "returns_desk",
+    "request_id": "r1",
+    "description": "Authorise exchange TG-028."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We ask returns to authorise the exchange",
+   "explanation": "We asked the returns team to authorise exchange TG-028 on the accepted SKU mismatch record and passed on that Riva can attend collection on 2026-03-02 morning. Now we wait for their decision.",
+   "conversation_id": "returns",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "permission",
+     "from_actor": "coordinator",
+     "to_actor": "returns_desk",
+     "responsible_actor": "returns_desk",
+     "purpose": "Authorise exchange TG-028 using the accepted SKU mismatch record.",
+     "expected_response": "Exchange approval and collection arrangements for Riva's availability on 2026-03-02 morning.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "returns_desk",
+      "request_id": "r1",
+      "expected": "Exchange approval and collection arrangements"
+     }
+    ],
+    "next_action": "Once the returns team answers, record the approval and the collection booking."
+   },
+   "blocker": "The returns team has not yet approved the exchange.",
+   "status": "awaiting_response",
+   "next_step": {
+    "type": "permission",
+    "responsible_actor": "returns_desk",
+    "request_id": "r1",
+    "description": "Wait for the returns team's decision on the exchange."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "New escalation",
+   "title": "No answer, customer needs plan today",
+   "explanation": "Send one reminder with the recorded deadline and consequence. Do not treat a reminder or silence as consent, a booking or execution.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Riva Solt reports: Any news on the exchange?",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Riva Solt reports: I need to know today whether someone is coming tomorrow morning, otherwise I will arrange to go out.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "confirmation",
+     "from_actor": "coordinator",
+     "to_actor": "returns_desk",
+     "responsible_actor": "returns_desk",
+     "purpose": "Send Returns authorisations, Tallowmere Goods, one email reminder that Riva's availability on the morning of 2026-03-02 needs an answer by the end of today, record the returns team as owner with that deadline, and tell Riva nothing is booked yet.",
+     "expected_response": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Send Returns authorisations, Tallowmere Goods, one email reminder that Riva's availability on the morning of 2026-03-02 needs an answer by the end of today, record the returns team as owner with that deadline, and tell Riva nothing is booked yet."
+   },
+   "blocker": "The new escalation requires a scoped response. Any news on the exchange? I need to know today whether someone is coming tomorrow morning, otherwise I will arrange to go out.",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Send Returns authorisations, Tallowmere Goods, one email reminder that Riva's availability on the morning of 2026-03-02 needs an answer by the end of today, record the returns team as owner with that deadline, and tell Riva nothing is booked yet."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "004",
+     "source_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c1",
+    "c2"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "wait_with_deadline",
+      "action": "Send Returns authorisations, Tallowmere Goods, one email reminder that Riva's availability on the morning of 2026-03-02 needs an answer by the end of today, record the returns team as owner with that deadline, and tell Riva nothing is booked yet.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "tell Riva that a collection is booked for tomorrow morning, and arrange a carrier collection without the returns team's authorisation.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "028-N3"
+    },
+    "summary": "Send one reminder with the recorded deadline and consequence.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Send one reminder with the recorded deadline and consequence."
+   }
+  },
+  {
+   "event_id": "005",
+   "label": "Desk response",
+   "title": "Send one reminder with the recorded deadline and consequence",
+   "explanation": "The desk sends the recorded response. Do not treat a reminder or silence as consent, a booking or execution.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "confirmation",
+     "from_actor": "coordinator",
+     "to_actor": "returns_desk",
+     "responsible_actor": "returns_desk",
+     "purpose": "Send Returns authorisations, Tallowmere Goods, one email reminder that Riva's availability on the morning of 2026-03-02 needs an answer by the end of today, record the returns team as owner with that deadline, and tell Riva nothing is booked yet.",
+     "expected_response": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "returns_desk",
+      "request_id": "branch_request",
+      "expected": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "confirmation",
+    "responsible_actor": "returns_desk",
+    "request_id": "branch_request",
+    "description": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "wait_with_deadline",
+      "action": "Send Returns authorisations, Tallowmere Goods, one email reminder that Riva's availability on the morning of 2026-03-02 needs an answer by the end of today, record the returns team as owner with that deadline, and tell Riva nothing is booked yet.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "tell Riva that a collection is booked for tomorrow morning, and arrange a carrier collection without the returns team's authorisation.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "wait_with_deadline",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. Exchange EX-028 is approved. Collection of the red caddy is booked for 2026-03-02, 09:00 to 12:00 UTC. The blue organiser will be released after we receive the caddy. A booking is not a completed exchange.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Returns authorisations reports: Exchange EX-028 is approved.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Returns authorisations reports: Collection of the red caddy is booked for 2026-03-02, 09:00 to 12:00 UTC.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Returns authorisations reports: The blue organiser will be released after we receive the caddy.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_4",
+     "text": "Returns authorisations reports: A booking is not a completed exchange.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "confirmation",
+     "from_actor": "coordinator",
+     "to_actor": "returns_desk",
+     "responsible_actor": "returns_desk",
+     "purpose": "Send Returns authorisations, Tallowmere Goods, one email reminder that Riva's availability on the morning of 2026-03-02 needs an answer by the end of today, record the returns team as owner with that deadline, and tell Riva nothing is booked yet.",
+     "expected_response": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking.",
+     "status": "answered",
+     "response": "Exchange EX-028 is approved. Collection of the red caddy is booked for 2026-03-02, 09:00 to 12:00 UTC. The blue organiser will be released after we receive the caddy. A booking is not a completed exchange.",
+     "evidence_event_ids": [
+      "004",
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "Exchange EX-028 is approved. Collection of the red caddy is booked for 2026-03-02, 09:00 to 12:00 UTC. The blue organiser will be released after we receive the caddy. A booking is not a completed exchange.",
+    "confirmed_by": "returns_desk",
+    "evidence_event_ids": [
+     "006"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not tell Riva that a collection is booked for tomorrow morning, and do not arrange a carrier collection without the returns team's authorisation."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "wait_with_deadline",
+      "action": "Send Returns authorisations, Tallowmere Goods, one email reminder that Riva's availability on the morning of 2026-03-02 needs an answer by the end of today, record the returns team as owner with that deadline, and tell Riva nothing is booked yet.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "tell Riva that a collection is booked for tomorrow morning, and arrange a carrier collection without the returns team's authorisation.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "wait_with_deadline",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

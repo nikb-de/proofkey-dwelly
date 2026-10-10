@@ -1,0 +1,1948 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "047-N4 · Billing ticketing outage, request unlogged",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Teren Osk, the recipient. From the case card: the carrier issued an import charge on DL-047 that the recipient does not understand; billing must explain the lines, and the desk cannot waive them or invent tax rules.",
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/047/N4-CHANNEL_FAILURE",
+  "branch_id": "047-N4",
+  "derived_from_case": "047",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "CHANNEL_FAILURE",
+  "expected_decision": "VERIFY_FIRST",
+  "workflow_sheet": "R",
+  "branch_label": "Billing ticketing outage, request unlogged",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "cfb838c462edc581764757c74917e235aeb05413e0f1f51b880ab31e624f4efa",
+   "history.md": "cdb8496984be7f08b33e840408b727b74674cc6306b7fe761ea6b4ce91344cc1"
+  }
+ },
+ "initial_state": {
+  "case_id": "047-N4",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "recipient",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: get billing's itemised explanation of the charge and pass it to the recipient without implying payment or waiver."
+   },
+   "recipient": {
+    "name": "Teren Osk",
+    "organization": null,
+    "role": "recipient",
+    "is_us": false,
+    "responsibility": "Ask for an explanation of the import charge before deciding what to do."
+   }
+  },
+  "goal": "Get the carrier's billing team to supply an itemised breakdown of the import charge and pass it to the recipient, without implying payment or waiver.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "Billing has supplied an itemised explanation of the charge lines, including the total.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The breakdown has been passed to the recipient.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The recipient does not understand the import charge, and the desk has no itemisation.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-047.",
+    "source": {
+     "type": "case_card",
+     "id": "047"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The carrier issued an import charge that the recipient does not understand.",
+    "source": {
+     "type": "case_card",
+     "id": "047"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "Billing must explain the charge lines; the desk cannot waive them or invent tax rules.",
+    "source": {
+     "type": "case_card",
+     "id": "047"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Do not invent statutory rates.",
+   "Do not send payment links.",
+   "Do not treat the explanation as settlement or release of goods.",
+   "Do not repeat the action or claim success before checking the saved state."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Carrier email",
+    "title": "Import support reports the charge total",
+    "timestamp": "2026-03-20 09:00:00 UTC",
+    "actor_id": "import_support",
+    "message_id": "001"
+   },
+   "explanation": "We know the total of charge notice IC-047, but the itemisation is held by the carrier's billing team. Only billing can explain the lines, so the next step is a request to billing.",
+   "state_after": {
+    "case_id": "047-N4",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get billing's itemised explanation of the charge and pass it to the recipient without implying payment or waiver."
+     },
+     "recipient": {
+      "name": "Teren Osk",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask for an explanation of the import charge before deciding what to do."
+     },
+     "import_support": {
+      "name": "Import support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the charge notice total and where the itemisation is held."
+     },
+     "billing": {
+      "name": "Import billing",
+      "organization": "Plover Arc Logistics",
+      "role": "billing",
+      "is_us": false,
+      "responsibility": "Explain the charge lines and the total for this charge notice."
+     }
+    },
+    "goal": "Get the carrier's billing team to supply an itemised breakdown of the import charge and pass it to the recipient, without implying payment or waiver.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask the carrier's billing team for the itemised explanation of IC-047."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "Billing has supplied an itemised explanation of the charge lines, including the total.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The breakdown has been passed to the recipient.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-20 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "047-N4"
+     },
+     "context_message_id": "001",
+     "summary": "Explain the carrier-issued import charge on DL-047 to the recipient.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The desk has only the IC-047 total; the itemisation is held by billing.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-047.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The carrier issued an import charge that the recipient does not understand.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Billing must explain the charge lines; the desk cannot waive them or invent tax rules.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Charge notice IC-047 for DL-047 totals GBP 32.00.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The itemisation is held by the carrier's billing team.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "This is a fictional operator notice; payment is not confirmed.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "responsible_actor": "billing",
+      "purpose": "Get the itemised explanation of IC-047 for DL-047, including the total.",
+      "expected_response": "An itemised breakdown of IC-047 with the total.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "001"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": {
+     "type": "information",
+     "responsible_actor": "billing",
+     "request_id": "r1",
+     "description": "Provide the itemised explanation of IC-047, including the total."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "import_support": {
+      "participants": [
+       "coordinator",
+       "import_support"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "import_support",
+      "event_id": "001",
+      "timestamp": "2026-03-20 09:00:00 UTC",
+      "from_actor": "import_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Charge notice IC-047 for DL-047 totals GBP 32.00. The itemisation is held by our billing team. This is a fictional operator notice; payment is not confirmed."
+     }
+    ],
+    "limits": [
+     "Do not invent statutory rates.",
+     "Do not send payment links.",
+     "Do not treat the explanation as settlement or release of goods.",
+     "Do not repeat the action or claim success before checking the saved state."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client request",
+    "title": "Teren asks what the GBP 32.00 covers",
+    "timestamp": "2026-03-20 09:10:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "002"
+   },
+   "explanation": "Teren wants to know which part of the charge is handling and which is the import assessment before deciding what to do. Only billing holds the itemisation, so we ask billing for information, not for payment authorisation.",
+   "state_after": {
+    "case_id": "047-N4",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get billing's itemised explanation of the charge and pass it to the recipient without implying payment or waiver."
+     },
+     "recipient": {
+      "name": "Teren Osk",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask for an explanation of the import charge before deciding what to do."
+     },
+     "import_support": {
+      "name": "Import support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the charge notice total and where the itemisation is held."
+     },
+     "billing": {
+      "name": "Import billing",
+      "organization": "Plover Arc Logistics",
+      "role": "billing",
+      "is_us": false,
+      "responsibility": "Explain the charge lines and the total for this charge notice."
+     }
+    },
+    "goal": "Get the carrier's billing team to supply an itemised breakdown of the import charge and pass it to the recipient, without implying payment or waiver.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask import billing for the itemised explanation of IC-047, including the total, as a request for information, not payment authorisation."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "Billing has supplied an itemised explanation of the charge lines, including the total.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The breakdown has been passed to the recipient.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-20 09:00:00 UTC",
+     "escalated_at": "2026-03-20 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "047-N4"
+     },
+     "context_message_id": "001",
+     "summary": "Explain the carrier-issued import charge on DL-047 to the recipient.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The recipient does not understand the charge; the itemisation is held by billing.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-047.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The carrier issued an import charge that the recipient does not understand.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Billing must explain the charge lines; the desk cannot waive them or invent tax rules.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Charge notice IC-047 for DL-047 totals GBP 32.00.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The itemisation is held by the carrier's billing team.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "This is a fictional operator notice; payment is not confirmed.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient asks for the GBP 32.00 charge to be explained before deciding what to do, and does not understand which part is handling and which is the import assessment.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "responsible_actor": "billing",
+      "purpose": "Get the itemised explanation of IC-047 for DL-047, including the total.",
+      "expected_response": "An itemised breakdown of IC-047 with the total.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "001"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "billing",
+      "purpose": "Explain the GBP 32.00 charge: which part is handling and which part is the import assessment.",
+      "expected_response": "A breakdown of the charge into handling and import assessment.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "information",
+     "responsible_actor": "billing",
+     "request_id": "r1",
+     "description": "Provide the itemised explanation of IC-047, including the total."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "charge-context",
+      "kind": "context",
+      "title": "What Teren knew before the message",
+      "text": "Teren refers to a GBP 32.00 charge, so Teren already knows the charge total. How Teren was notified of it is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "import_support": {
+      "participants": [
+       "coordinator",
+       "import_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "import_support",
+      "event_id": "001",
+      "timestamp": "2026-03-20 09:00:00 UTC",
+      "from_actor": "import_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Charge notice IC-047 for DL-047 totals GBP 32.00. The itemisation is held by our billing team. This is a fictional operator notice; payment is not confirmed."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-20 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Please explain the GBP 32.00 charge before I decide what to do. I do not understand which part is handling and which part is the import assessment."
+     }
+    ],
+    "limits": [
+     "Do not invent statutory rates.",
+     "Do not send payment links.",
+     "Do not treat the explanation as settlement or release of goods.",
+     "Do not repeat the action or claim success before checking the saved state."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our request",
+    "title": "We ask billing for the itemisation",
+    "timestamp": "2026-03-20 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We asked billing for the itemised explanation of IC-047 with the total, through Teren's verified order thread, and stated that this is not payment authorisation. Now we wait for billing.",
+   "state_after": {
+    "case_id": "047-N4",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get billing's itemised explanation of the charge and pass it to the recipient without implying payment or waiver."
+     },
+     "recipient": {
+      "name": "Teren Osk",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask for an explanation of the import charge before deciding what to do."
+     },
+     "import_support": {
+      "name": "Import support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the charge notice total and where the itemisation is held."
+     },
+     "billing": {
+      "name": "Import billing",
+      "organization": "Plover Arc Logistics",
+      "role": "billing",
+      "is_us": false,
+      "responsibility": "Explain the charge lines and the total for this charge notice."
+     }
+    },
+    "goal": "Get the carrier's billing team to supply an itemised breakdown of the import charge and pass it to the recipient, without implying payment or waiver.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "billing",
+       "request_id": "r1",
+       "expected": "Itemised breakdown of IC-047 with the total"
+      }
+     ],
+     "next_action": "Once billing replies, make sure Teren receives the breakdown."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "Billing has supplied an itemised explanation of the charge lines, including the total.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The breakdown has been passed to the recipient.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-20 09:00:00 UTC",
+     "escalated_at": "2026-03-20 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "047-N4"
+     },
+     "context_message_id": "001",
+     "summary": "Explain the carrier-issued import charge on DL-047 to the recipient.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "Billing has not yet supplied the itemisation.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-047.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The carrier issued an import charge that the recipient does not understand.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Billing must explain the charge lines; the desk cannot waive them or invent tax rules.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Charge notice IC-047 for DL-047 totals GBP 32.00.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The itemisation is held by the carrier's billing team.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "This is a fictional operator notice; payment is not confirmed.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient asks for the GBP 32.00 charge to be explained before deciding what to do, and does not understand which part is handling and which is the import assessment.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "responsible_actor": "billing",
+      "purpose": "Provide the itemised explanation for IC-047 / DL-047 through Teren's verified order thread, including the total; this is a request for information, not payment authorisation.",
+      "expected_response": "An itemised breakdown of IC-047 with the total.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "001",
+       "003"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "billing",
+      "purpose": "Explain the GBP 32.00 charge: which part is handling and which part is the import assessment.",
+      "expected_response": "A breakdown of the charge into handling and import assessment.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_response",
+    "next_step": {
+     "type": "information",
+     "responsible_actor": "billing",
+     "request_id": "r1",
+     "description": "Wait for billing's itemised explanation of IC-047."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "charge-context",
+      "kind": "context",
+      "title": "What Teren knew before the message",
+      "text": "Teren refers to a GBP 32.00 charge, so Teren already knows the charge total. How Teren was notified of it is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "import_support": {
+      "participants": [
+       "coordinator",
+       "import_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "billing": {
+      "participants": [
+       "coordinator",
+       "billing"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "import_support",
+      "event_id": "001",
+      "timestamp": "2026-03-20 09:00:00 UTC",
+      "from_actor": "import_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Charge notice IC-047 for DL-047 totals GBP 32.00. The itemisation is held by our billing team. This is a fictional operator notice; payment is not confirmed."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-20 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Please explain the GBP 32.00 charge before I decide what to do. I do not understand which part is handling and which part is the import assessment."
+     },
+     {
+      "conversation_id": "billing",
+      "event_id": "003",
+      "timestamp": "2026-03-20 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "channel": "Email",
+      "body": "Please provide the itemised explanation for IC-047 / DL-047 through Teren’s verified order thread, including the total. This is a request for information, not payment authorisation."
+     }
+    ],
+    "limits": [
+     "Do not invent statutory rates.",
+     "Do not send payment links.",
+     "Do not treat the explanation as settlement or release of goods.",
+     "Do not repeat the action or claim success before checking the saved state."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "New escalation",
+    "title": "Billing ticketing outage, request unlogged",
+    "timestamp": "2026-03-20 09:27:00 UTC",
+    "actor_id": "branch_system",
+    "message_id": "004"
+   },
+   "explanation": "Establish the saved outcome before repeating an uncertain action. Do not repeat the action or claim success before checking the saved state.",
+   "state_after": {
+    "case_id": "047-N4",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get billing's itemised explanation of the charge and pass it to the recipient without implying payment or waiver."
+     },
+     "recipient": {
+      "name": "Teren Osk",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask for an explanation of the import charge before deciding what to do."
+     },
+     "import_support": {
+      "name": "Import support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the charge notice total and where the itemisation is held."
+     },
+     "billing": {
+      "name": "Import billing",
+      "organization": "Plover Arc Logistics",
+      "role": "billing",
+      "is_us": false,
+      "responsibility": "Explain the charge lines and the total for this charge notice."
+     },
+     "branch_system": {
+      "name": "Mail system",
+      "organization": "Plover Arc Logistics",
+      "role": "system",
+      "is_us": false,
+      "responsibility": "Report or handle the state within the scope stated in the source message; no wider authority is inferred."
+     }
+    },
+    "goal": "Establish the saved outcome before repeating an uncertain action.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "After 10:00 UTC, ask Import billing by email whether a request for the IC-047 breakdown is logged, before sending it again."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-20 09:00:00 UTC",
+     "escalated_at": "2026-03-20 09:27:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "047-N4"
+     },
+     "context_message_id": "001",
+     "summary": "Establish the saved outcome before repeating an uncertain action.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The new escalation requires a scoped response. Automatic reply from Import billing: our ticketing system is unavailable between 09:20 and 10:00 UTC. Messages received in this period may not be logged. No ticket number has been issued for your message.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-047.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The carrier issued an import charge that the recipient does not understand.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Billing must explain the charge lines; the desk cannot waive them or invent tax rules.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Charge notice IC-047 for DL-047 totals GBP 32.00.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The itemisation is held by the carrier's billing team.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "This is a fictional operator notice; payment is not confirmed.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient asks for the GBP 32.00 charge to be explained before deciding what to do, and does not understand which part is handling and which is the import assessment.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Mail system reports: Automatic reply from Import billing: our ticketing system is unavailable between 09:20 and 10:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Mail system reports: Messages received in this period may not be logged.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Mail system reports: No ticket number has been issued for your message.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "responsible_actor": "billing",
+      "purpose": "Provide the itemised explanation for IC-047 / DL-047 through Teren's verified order thread, including the total; this is a request for information, not payment authorisation.",
+      "expected_response": "An itemised breakdown of IC-047 with the total.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "001",
+       "003"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "billing",
+      "purpose": "Explain the GBP 32.00 charge: which part is handling and which part is the import assessment.",
+      "expected_response": "A breakdown of the charge into handling and import assessment.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "responsible_actor": "billing",
+      "purpose": "After 10:00 UTC, ask Import billing by email whether a request for the IC-047 breakdown is logged, before sending it again.",
+      "expected_response": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     "branch_attempt": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "responsible_actor": "billing",
+      "purpose": "Record the submission or operation reported as uncertain in this message, separately from downstream execution.",
+      "expected_response": "The record owner states whether this submission or operation saved.",
+      "status": "outcome_unknown",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "verify_first",
+       "action": "After 10:00 UTC, ask Import billing by email whether a request for the IC-047 breakdown is logged, before sending it again.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Send a second request that could open two tickets, or tell Teren that billing is already working on it.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "verification_required",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": "branch_request",
+     "description": "After 10:00 UTC, ask Import billing by email whether a request for the IC-047 breakdown is logged, before sending it again."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "charge-context",
+      "kind": "context",
+      "title": "What Teren knew before the message",
+      "text": "Teren refers to a GBP 32.00 charge, so Teren already knows the charge total. How Teren was notified of it is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "import_support": {
+      "participants": [
+       "coordinator",
+       "import_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "billing": {
+      "participants": [
+       "coordinator",
+       "billing"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "branch_system"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "import_support",
+      "event_id": "001",
+      "timestamp": "2026-03-20 09:00:00 UTC",
+      "from_actor": "import_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Charge notice IC-047 for DL-047 totals GBP 32.00. The itemisation is held by our billing team. This is a fictional operator notice; payment is not confirmed."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-20 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Please explain the GBP 32.00 charge before I decide what to do. I do not understand which part is handling and which part is the import assessment."
+     },
+     {
+      "conversation_id": "billing",
+      "event_id": "003",
+      "timestamp": "2026-03-20 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "channel": "Email",
+      "body": "Please provide the itemised explanation for IC-047 / DL-047 through Teren’s verified order thread, including the total. This is a request for information, not payment authorisation."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "004",
+      "timestamp": "2026-03-20 09:27:00 UTC",
+      "from_actor": "branch_system",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Automatic reply from Import billing: our ticketing system is unavailable between 09:20 and 10:00 UTC. Messages received in this period may not be logged. No ticket number has been issued for your message."
+     }
+    ],
+    "limits": [
+     "Do not invent statutory rates.",
+     "Do not send payment links.",
+     "Do not treat the explanation as settlement or release of goods.",
+     "Do not repeat the action or claim success before checking the saved state."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "Billing has supplied an itemised explanation of the charge lines, including the total.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The breakdown has been passed to the recipient.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "005",
+    "type": "message_sent",
+    "label": "Desk response",
+    "title": "Establish the saved outcome before repeating an uncertain action",
+    "timestamp": "2026-03-20 09:42:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "005"
+   },
+   "explanation": "The desk sends the recorded response. Do not repeat the action or claim success before checking the saved state.",
+   "state_after": {
+    "case_id": "047-N4",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get billing's itemised explanation of the charge and pass it to the recipient without implying payment or waiver."
+     },
+     "recipient": {
+      "name": "Teren Osk",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask for an explanation of the import charge before deciding what to do."
+     },
+     "import_support": {
+      "name": "Import support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the charge notice total and where the itemisation is held."
+     },
+     "billing": {
+      "name": "Import billing",
+      "organization": "Plover Arc Logistics",
+      "role": "billing",
+      "is_us": false,
+      "responsibility": "Explain the charge lines and the total for this charge notice."
+     },
+     "branch_system": {
+      "name": "Mail system",
+      "organization": "Plover Arc Logistics",
+      "role": "system",
+      "is_us": false,
+      "responsibility": "Report or handle the state within the scope stated in the source message; no wider authority is inferred."
+     }
+    },
+    "goal": "Establish the saved outcome before repeating an uncertain action.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "billing",
+       "request_id": "branch_request",
+       "expected": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed."
+      }
+     ],
+     "next_action": "Record the reply or scoped confirmation before closing this branch."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-20 09:00:00 UTC",
+     "escalated_at": "2026-03-20 09:27:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "047-N4"
+     },
+     "context_message_id": "001",
+     "summary": "Establish the saved outcome before repeating an uncertain action.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The scoped reply or confirmation has not yet been recorded.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-047.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The carrier issued an import charge that the recipient does not understand.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Billing must explain the charge lines; the desk cannot waive them or invent tax rules.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Charge notice IC-047 for DL-047 totals GBP 32.00.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The itemisation is held by the carrier's billing team.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "This is a fictional operator notice; payment is not confirmed.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient asks for the GBP 32.00 charge to be explained before deciding what to do, and does not understand which part is handling and which is the import assessment.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Mail system reports: Automatic reply from Import billing: our ticketing system is unavailable between 09:20 and 10:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Mail system reports: Messages received in this period may not be logged.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Mail system reports: No ticket number has been issued for your message.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "responsible_actor": "billing",
+      "purpose": "Provide the itemised explanation for IC-047 / DL-047 through Teren's verified order thread, including the total; this is a request for information, not payment authorisation.",
+      "expected_response": "An itemised breakdown of IC-047 with the total.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "001",
+       "003"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "billing",
+      "purpose": "Explain the GBP 32.00 charge: which part is handling and which part is the import assessment.",
+      "expected_response": "A breakdown of the charge into handling and import assessment.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "responsible_actor": "billing",
+      "purpose": "After 10:00 UTC, ask Import billing by email whether a request for the IC-047 breakdown is logged, before sending it again.",
+      "expected_response": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "004",
+       "005"
+      ]
+     },
+     "branch_attempt": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "responsible_actor": "billing",
+      "purpose": "Record the submission or operation reported as uncertain in this message, separately from downstream execution.",
+      "expected_response": "The record owner states whether this submission or operation saved.",
+      "status": "outcome_unknown",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "verify_first",
+       "action": "After 10:00 UTC, ask Import billing by email whether a request for the IC-047 breakdown is logged, before sending it again.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Send a second request that could open two tickets, or tell Teren that billing is already working on it.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "verify_first",
+     "reason": "The recorded outgoing message takes this permitted response."
+    },
+    "status": "awaiting_verification",
+    "next_step": {
+     "type": "verification",
+     "responsible_actor": "billing",
+     "request_id": "branch_request",
+     "description": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "charge-context",
+      "kind": "context",
+      "title": "What Teren knew before the message",
+      "text": "Teren refers to a GBP 32.00 charge, so Teren already knows the charge total. How Teren was notified of it is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "import_support": {
+      "participants": [
+       "coordinator",
+       "import_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "billing": {
+      "participants": [
+       "coordinator",
+       "billing"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "branch_system",
+       "billing"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "import_support",
+      "event_id": "001",
+      "timestamp": "2026-03-20 09:00:00 UTC",
+      "from_actor": "import_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Charge notice IC-047 for DL-047 totals GBP 32.00. The itemisation is held by our billing team. This is a fictional operator notice; payment is not confirmed."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-20 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Please explain the GBP 32.00 charge before I decide what to do. I do not understand which part is handling and which part is the import assessment."
+     },
+     {
+      "conversation_id": "billing",
+      "event_id": "003",
+      "timestamp": "2026-03-20 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "channel": "Email",
+      "body": "Please provide the itemised explanation for IC-047 / DL-047 through Teren’s verified order thread, including the total. This is a request for information, not payment authorisation."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "004",
+      "timestamp": "2026-03-20 09:27:00 UTC",
+      "from_actor": "branch_system",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Automatic reply from Import billing: our ticketing system is unavailable between 09:20 and 10:00 UTC. Messages received in this period may not be logged. No ticket number has been issued for your message."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-03-20 09:42:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "channel": "Email",
+      "body": "Our email of 09:25 UTC asked for the itemised IC-047 / DL-047 explanation, and your ticketing system was down when it arrived. Once the system is back after 10:00 UTC, please check whether that request is logged. We will not resend it, so that no second ticket is opened."
+     }
+    ],
+    "limits": [
+     "Do not invent statutory rates.",
+     "Do not send payment links.",
+     "Do not treat the explanation as settlement or release of goods.",
+     "Do not repeat the action or claim success before checking the saved state."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "Billing has supplied an itemised explanation of the charge lines, including the total.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The breakdown has been passed to the recipient.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "006",
+    "type": "message_received",
+    "label": "Scoped confirmation",
+    "title": "Follow-through confirms the branch outcome",
+    "timestamp": "2026-03-20 10:20:00 UTC",
+    "actor_id": "billing",
+    "message_id": "006"
+   },
+   "explanation": "Record what the responding party actually confirms. One request for the IC-047 / DL-047 breakdown is logged, received at 09:25 UTC. No second ticket exists. The breakdown is not yet supplied; this confirms only that the request is on file.",
+   "state_after": {
+    "case_id": "047-N4",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get billing's itemised explanation of the charge and pass it to the recipient without implying payment or waiver."
+     },
+     "recipient": {
+      "name": "Teren Osk",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask for an explanation of the import charge before deciding what to do."
+     },
+     "import_support": {
+      "name": "Import support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the charge notice total and where the itemisation is held."
+     },
+     "billing": {
+      "name": "Import billing",
+      "organization": "Plover Arc Logistics",
+      "role": "billing",
+      "is_us": false,
+      "responsibility": "Explain the charge lines and the total for this charge notice."
+     },
+     "branch_system": {
+      "name": "Mail system",
+      "organization": "Plover Arc Logistics",
+      "role": "system",
+      "is_us": false,
+      "responsibility": "Report or handle the state within the scope stated in the source message; no wider authority is inferred."
+     }
+    },
+    "goal": "Establish the saved outcome before repeating an uncertain action.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+      "status": "met",
+      "evidence_event_ids": [
+       "005",
+       "006"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-20 09:00:00 UTC",
+     "escalated_at": "2026-03-20 09:27:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "047-N4"
+     },
+     "context_message_id": "001",
+     "summary": "Establish the saved outcome before repeating an uncertain action.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-047.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The carrier issued an import charge that the recipient does not understand.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Billing must explain the charge lines; the desk cannot waive them or invent tax rules.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Charge notice IC-047 for DL-047 totals GBP 32.00.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The itemisation is held by the carrier's billing team.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "This is a fictional operator notice; payment is not confirmed.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient asks for the GBP 32.00 charge to be explained before deciding what to do, and does not understand which part is handling and which is the import assessment.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Mail system reports: Automatic reply from Import billing: our ticketing system is unavailable between 09:20 and 10:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Mail system reports: Messages received in this period may not be logged.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Mail system reports: No ticket number has been issued for your message.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_outcome_1",
+      "text": "Import billing reports: One request for the IC-047 / DL-047 breakdown is logged, received at 09:25 UTC.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_2",
+      "text": "Import billing reports: No second ticket exists.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_3",
+      "text": "Import billing reports: The breakdown is not yet supplied; this confirms only that the request is on file.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "responsible_actor": "billing",
+      "purpose": "Provide the itemised explanation for IC-047 / DL-047 through Teren's verified order thread, including the total; this is a request for information, not payment authorisation.",
+      "expected_response": "An itemised breakdown of IC-047 with the total.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "001",
+       "003"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "billing",
+      "purpose": "Explain the GBP 32.00 charge: which part is handling and which part is the import assessment.",
+      "expected_response": "A breakdown of the charge into handling and import assessment.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "responsible_actor": "billing",
+      "purpose": "After 10:00 UTC, ask Import billing by email whether a request for the IC-047 breakdown is logged, before sending it again.",
+      "expected_response": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+      "status": "answered",
+      "response": "One request for the IC-047 / DL-047 breakdown is logged, received at 09:25 UTC. No second ticket exists. The breakdown is not yet supplied; this confirms only that the request is on file.",
+      "evidence_event_ids": [
+       "004",
+       "005",
+       "006"
+      ]
+     },
+     "branch_attempt": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "responsible_actor": "billing",
+      "purpose": "Record the submission or operation reported as uncertain in this message, separately from downstream execution.",
+      "expected_response": "The record owner states whether this submission or operation saved.",
+      "status": "answered",
+      "response": "One request for the IC-047 / DL-047 breakdown is logged, received at 09:25 UTC. No second ticket exists. The breakdown is not yet supplied; this confirms only that the request is on file.",
+      "evidence_event_ids": [
+       "004",
+       "006"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "verify_first",
+       "action": "After 10:00 UTC, ask Import billing by email whether a request for the IC-047 breakdown is logged, before sending it again.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Send a second request that could open two tickets, or tell Teren that billing is already working on it.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "verify_first",
+     "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "One request for the IC-047 / DL-047 breakdown is logged, received at 09:25 UTC. No second ticket exists. The breakdown is not yet supplied; this confirms only that the request is on file.",
+     "confirmed_by": "billing",
+     "evidence_event_ids": [
+      "006"
+     ],
+     "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Send a second request that could open two tickets, or tell Teren that billing is already working on it."
+    },
+    "annotations": [
+     {
+      "id": "charge-context",
+      "kind": "context",
+      "title": "What Teren knew before the message",
+      "text": "Teren refers to a GBP 32.00 charge, so Teren already knows the charge total. How Teren was notified of it is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "import_support": {
+      "participants": [
+       "coordinator",
+       "import_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "billing": {
+      "participants": [
+       "coordinator",
+       "billing"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "branch_system",
+       "billing"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "import_support",
+      "event_id": "001",
+      "timestamp": "2026-03-20 09:00:00 UTC",
+      "from_actor": "import_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Charge notice IC-047 for DL-047 totals GBP 32.00. The itemisation is held by our billing team. This is a fictional operator notice; payment is not confirmed."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-20 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Please explain the GBP 32.00 charge before I decide what to do. I do not understand which part is handling and which part is the import assessment."
+     },
+     {
+      "conversation_id": "billing",
+      "event_id": "003",
+      "timestamp": "2026-03-20 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "channel": "Email",
+      "body": "Please provide the itemised explanation for IC-047 / DL-047 through Teren’s verified order thread, including the total. This is a request for information, not payment authorisation."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "004",
+      "timestamp": "2026-03-20 09:27:00 UTC",
+      "from_actor": "branch_system",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Automatic reply from Import billing: our ticketing system is unavailable between 09:20 and 10:00 UTC. Messages received in this period may not be logged. No ticket number has been issued for your message."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-03-20 09:42:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "channel": "Email",
+      "body": "Our email of 09:25 UTC asked for the itemised IC-047 / DL-047 explanation, and your ticketing system was down when it arrived. Once the system is back after 10:00 UTC, please check whether that request is logged. We will not resend it, so that no second ticket is opened."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "006",
+      "timestamp": "2026-03-20 10:20:00 UTC",
+      "from_actor": "billing",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "One request for the IC-047 / DL-047 breakdown is logged, received at 09:25 UTC. No second ticket exists. The breakdown is not yet supplied; this confirms only that the request is on file."
+     }
+    ],
+    "limits": [
+     "Do not invent statutory rates.",
+     "Do not send payment links.",
+     "Do not treat the explanation as settlement or release of goods.",
+     "Do not repeat the action or claim success before checking the saved state."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "Billing has supplied an itemised explanation of the charge lines, including the total.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The breakdown has been passed to the recipient.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  }
+ ]
+}

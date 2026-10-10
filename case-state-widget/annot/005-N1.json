@@ -1,0 +1,537 @@
+{
+ "case_id": "005-N1",
+ "lang": "en",
+ "title": "005-N1 · Recipient verification found incomplete at escalation",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Lira Venn. From the case card: the recipient asks for an authorised household member to receive DL-005; the carrier's service rules let a standard parcel go to a nominated adult household receiver, and no restricted or identity-specific goods are involved.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get the nominated receiver's name and confirmation that the nomination is recorded.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Lira Venn",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Nominate by name the adult household member who will receive the parcel.",
+   "from_start": true,
+   "source_names": [
+    "Lira Venn, recipient"
+   ]
+  },
+  "recipient_services": {
+   "name": "Recipient services",
+   "organization": "Plover Arc Logistics",
+   "role": "carrier",
+   "responsibility": "State the nomination rules for this parcel and record the approved receiver on the route.",
+   "from_start": false,
+   "source_names": [
+    "Recipient services, Plover Arc Logistics"
+   ]
+  }
+ },
+ "goal": "Get the recipient's nomination of an adult household receiver for DL-005 and the carrier's confirmation that the approved receiver is recorded.",
+ "limits": [
+  "Apply the nomination policy only to this ordinary parcel.",
+  "Do not treat the nomination as delivery.",
+  "Do not promise or perform the prohibited request."
+ ],
+ "intake": {
+  "summary": "Let an adult household member receive DL-005 in place of the recipient.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The recipient wants a household member to receive the parcel; no receiver has been nominated.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-005.",
+    "source": {
+     "type": "case_card",
+     "id": "005"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "Under the carrier's service rules, a standard parcel permits a nominated adult household receiver.",
+    "source": {
+     "type": "case_card",
+     "id": "005"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "No restricted or identity-specific goods are involved.",
+    "source": {
+     "type": "case_card",
+     "id": "005"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The recipient has named the adult household member authorised to receive DL-005."
+   },
+   {
+    "id": "c2",
+    "description": "The carrier has confirmed that the approved receiver is recorded for DL-005."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": null,
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/005/N1-SNAPSHOT_CONFLICT",
+  "branch_id": "005-N1",
+  "derived_from_case": "005",
+  "retained_public_events": [
+   "001",
+   "002"
+  ],
+  "diverges_after_event": "002",
+  "failure_mode": "SNAPSHOT_CONFLICT",
+  "expected_decision": "DECLINE_EXPLAIN",
+  "workflow_sheet": "A",
+  "branch_label": "Recipient verification found incomplete at escalation",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "d10817edbb4f661d288ddbe9881aa7399e89f6a81f4afaa45ec442c500b48e34",
+   "history.md": "02698fe9e1540dae27d57f47b877128265756721d484adf441afaae1a299a3f6"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Service email",
+   "title": "Recipient services state the nomination rules",
+   "explanation": "Recipient services set the conditions: a verified recipient names an adult household member in the order portal, and the nomination must be recorded before the route is released. We take in the recipient's request next.",
+   "conversation_id": "service",
+   "facts_upsert": [
+    {
+     "id": "f4",
+     "text": "DL-005 uses the ordinary household parcel service.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "A verified recipient may nominate an adult household member by name in the order portal.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f6",
+     "text": "The nomination must be recorded before the route is released.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Take in the recipient's request for an alternate receiver."
+   },
+   "blocker": "No receiver has been nominated; the nomination must be recorded before the route is released.",
+   "status": "context_received",
+   "next_step": null,
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Lira asks for the brother to receive",
+   "explanation": "Lira asks for an adult brother to receive the parcel, and the brother's name is not on the booking. Nominations are recorded by name, so we ask Lira to confirm it.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f7",
+     "text": "Lira needs to step out during the delivery window and asks whether Lira's adult brother can receive the parcel instead.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f8",
+     "text": "Lira has not added the brother's name to the booking.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "permission",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "recipient_services",
+     "purpose": "Allow Lira's adult brother to receive the parcel instead of Lira.",
+     "expected_response": "Approval of the brother as receiver.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Confirm the name of the adult household member authorised to receive DL-005.",
+     "expected_response": "The receiver's name.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask Lira to confirm the name of the adult household member authorised to receive DL-005."
+   },
+   "blocker": "The brother's name is not on the booking.",
+   "status": "escalated",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Confirm the name of the authorised adult household member."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "New escalation",
+   "title": "Recipient verification found incomplete at escalation",
+   "explanation": "Explain the policy boundary and the permitted next step. Do not promise or perform the prohibited request.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Recipient services reports: Further to our 09:00 note on DL-005: the order portal shows Lira Venn's recipient verification as incomplete.",
+     "source": {
+      "type": "message",
+      "id": "003"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Recipient services reports: The identity step was started at checkout but not finished.",
+     "source": {
+      "type": "message",
+      "id": "003"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Recipient services reports: Our nomination rule applies only to verified recipients.",
+     "source": {
+      "type": "message",
+      "id": "003"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Tell Lira in the Customer portal that a receiver can be nominated only once her recipient verification is complete, and that until then DL-005 stays addressed to her alone.",
+     "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "003"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Tell Lira in the Customer portal that a receiver can be nominated only once her recipient verification is complete, and that until then DL-005 stays addressed to her alone."
+   },
+   "blocker": "The new escalation requires a scoped response. Further to our 09:00 note on DL-005: the order portal shows Lira Venn's recipient verification as incomplete. The identity step was started at checkout but not finished. Our nomination rule applies only to verified recipients.",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Tell Lira in the Customer portal that a receiver can be nominated only once her recipient verification is complete, and that until then DL-005 stays addressed to her alone."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "003",
+     "source_event_ids": [
+      "003"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c1",
+    "c2"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "decline_explain",
+      "action": "Tell Lira in the Customer portal that a receiver can be nominated only once her recipient verification is complete, and that until then DL-005 stays addressed to her alone.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Ask for the brother's name, or submit a nomination to Recipient services from an unverified account.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "005-N1"
+    },
+    "summary": "Explain the policy boundary and the permitted next step.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Explain the policy boundary and the permitted next step."
+   }
+  },
+  {
+   "event_id": "004",
+   "label": "Desk response",
+   "title": "Explain the policy boundary and the permitted next step",
+   "explanation": "The desk sends the recorded response. Do not promise or perform the prohibited request.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Tell Lira in the Customer portal that a receiver can be nominated only once her recipient verification is complete, and that until then DL-005 stays addressed to her alone.",
+     "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+     "status": "answered",
+     "response": "Recipient services tells us your recipient verification for DL-005 is not yet complete. Under this service, only a verified recipient can nominate an adult household member. Until your verification is complete, DL-005 stays addressed to you alone, and we cannot submit a nomination.",
+     "evidence_event_ids": [
+      "003",
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Record any incoming follow-through within its stated scope; do not initiate a prohibited change.",
+    "note": "The outgoing record communicates a boundary or notification. No unrecorded request or acknowledgement is assumed."
+   },
+   "blocker": null,
+   "status": "in_progress",
+   "next_step": null,
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "decline_explain",
+      "action": "Tell Lira in the Customer portal that a receiver can be nominated only once her recipient verification is complete, and that until then DL-005 stays addressed to her alone.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Ask for the brother's name, or submit a nomination to Recipient services from an unverified account.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "decline_explain",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "005",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. Lira Venn's recipient verification for DL-005 is now complete in the order portal. No nomination has been recorded, and DL-005 is still addressed to her alone. The route has not been released. Verification does not nominate anyone or deliver the parcel.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Recipient services reports: Lira Venn's recipient verification for DL-005 is now complete in the order portal.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Recipient services reports: No nomination has been recorded, and DL-005 is still addressed to her alone.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Recipient services reports: The route has not been released.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_outcome_4",
+     "text": "Recipient services reports: Verification does not nominate anyone or deliver the parcel.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Tell Lira in the Customer portal that a receiver can be nominated only once her recipient verification is complete, and that until then DL-005 stays addressed to her alone.",
+     "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+     "status": "answered",
+     "response": "Lira Venn's recipient verification for DL-005 is now complete in the order portal. No nomination has been recorded, and DL-005 is still addressed to her alone. The route has not been released. Verification does not nominate anyone or deliver the parcel.",
+     "evidence_event_ids": [
+      "003",
+      "004",
+      "005"
+     ],
+     "responded_by": "recipient_services"
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "Lira Venn's recipient verification for DL-005 is now complete in the order portal. No nomination has been recorded, and DL-005 is still addressed to her alone. The route has not been released. Verification does not nominate anyone or deliver the parcel.",
+    "confirmed_by": "recipient_services",
+    "evidence_event_ids": [
+     "005"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Ask for the brother's name, or submit a nomination to Recipient services from an unverified account."
+   },
+   "annotations_add": [
+    {
+     "id": "branch_followthrough_relay",
+     "kind": "gap",
+     "title": "Unrecorded intermediate action",
+     "text": "The service reports follow-through after a policy explanation addressed to another party. The notification or relay to this service is absent; no extra desk message has been added.",
+     "before_message_id": "005",
+     "source_event_ids": [
+      "005"
+     ],
+     "implied_action": {
+      "from_actor": "coordinator",
+      "to_actor": "recipient_services",
+      "type": "action",
+      "purpose": "Pass the relevant verified instruction or request to the party reporting the follow-through."
+     }
+    }
+   ],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "decline_explain",
+      "action": "Tell Lira in the Customer portal that a receiver can be nominated only once her recipient verification is complete, and that until then DL-005 stays addressed to her alone.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Ask for the brother's name, or submit a nomination to Recipient services from an unverified account.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "decline_explain",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

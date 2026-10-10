@@ -1,0 +1,649 @@
+{
+ "case_id": "018-N3",
+ "lang": "en",
+ "title": "018-N3 · Recipient agrees without naming option",
+ "initial_explanation": "We are the coordinator, Iona Quill. The request comes from the Exception desk, Plover Arc Logistics. From the case card: the return timer on DL-018 is nearing its cutoff, and the carrier permits a new collection arrangement only if the verified recipient chooses before that cutoff.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "exception_desk",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get the recipient's choice before the cutoff and the carrier's confirmation that it is applied.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "exception_desk": {
+   "name": "Exception desk",
+   "organization": "Plover Arc Logistics",
+   "role": "carrier",
+   "responsibility": "Track the DL-018 return timer and apply the recipient's permitted choice.",
+   "from_start": true,
+   "source_names": [
+    "Exception desk, Plover Arc Logistics"
+   ]
+  },
+  "recipient": {
+   "name": "Nalo Vere",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Choose redelivery or depot collection for DL-018 before the return cutoff.",
+   "from_start": false,
+   "source_names": [
+    "Nalo Vere, recipient"
+   ]
+  }
+ },
+ "goal": "Get the verified recipient's choice of a permitted option before the cutoff and the carrier's confirmation that the option is applied and the return is cancelled.",
+ "limits": [
+  "Do not treat the return as cancelled until the carrier confirms it.",
+  "Do not say the parcel has been collected; collection remains pending.",
+  "Do not choose for the customer or treat a choice as a confirmed booking."
+ ],
+ "intake": {
+  "summary": "Stop the DL-018 return to sender: the verified recipient must choose a permitted option before the cutoff.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "No recipient choice is known, and the return timer is nearing its cutoff.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-018.",
+    "source": {
+     "type": "case_card",
+     "id": "018"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The parcel's return timer is nearing its cutoff.",
+    "source": {
+     "type": "case_card",
+     "id": "018"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The carrier permits a new collection arrangement if the verified recipient chooses before the cutoff.",
+    "source": {
+     "type": "case_card",
+     "id": "018"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The verified recipient has chosen a permitted option before the cutoff."
+   },
+   {
+    "id": "c2",
+    "description": "The carrier has confirmed that the chosen option is applied."
+   },
+   {
+    "id": "c3",
+    "description": "The carrier has confirmed that the scheduled return is cancelled."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/018/N3-AMBIGUOUS_REPLY",
+  "branch_id": "018-N3",
+  "derived_from_case": "018",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "AMBIGUOUS_REPLY",
+  "expected_decision": "ASK_CUSTOMER",
+  "workflow_sheet": "A",
+  "branch_label": "Recipient agrees without naming option",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "06d2ab9d12efc1aa6a50d5f90486d1448958ae09fc6116badaa1cfa661cc0d44",
+   "history.md": "37e8c89f9c91c0743842f8c92feeb5bd892719ea7eb926784b9f75b3b71ca71d"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Carrier email",
+   "title": "Exception desk sets the 16:00 UTC cutoff",
+   "explanation": "The exception desk gave the cutoff and the two options that stop the return. A customer has to choose one of them before 16:00 UTC, so we need that choice.",
+   "conversation_id": "exception",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "DL-018 will enter return-to-sender processing at 16:00 UTC today unless a customer selects an option.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f4",
+     "text": "Two options are currently available: redelivery on 2026-02-20 or depot collection on 2026-02-20.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Get a choice between the two options from the verified recipient before 16:00 UTC."
+   },
+   "blocker": "No customer choice is recorded; return-to-sender processing starts at 16:00 UTC today.",
+   "status": "context_received",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": null,
+    "description": "Reach the verified recipient and get a choice before 16:00 UTC."
+   },
+   "result": null,
+   "decision": {
+    "required": true,
+    "question": "Which option should replace the return to sender?",
+    "options": [
+     {
+      "id": "o1",
+      "label": "Redelivery on 2026-02-20",
+      "conditions": "Must be selected before 16:00 UTC today."
+     },
+     {
+      "id": "o2",
+      "label": "Depot collection on 2026-02-20",
+      "conditions": "Must be selected before 16:00 UTC today."
+     }
+    ],
+    "decision_maker": null,
+    "selected_option": null,
+    "reason": null
+   },
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Escalation",
+   "title": "Exception desk asks us to call Nalo Vere",
+   "explanation": "No choice is recorded, and the exception desk named the authorised recipient. We contact Nalo Vere now and offer only the two options the carrier listed.",
+   "conversation_id": "exception",
+   "facts_upsert": [
+    {
+     "id": "f5",
+     "text": "No recipient choice is recorded.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f6",
+     "text": "Nalo Vere is the authorised recipient.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "exception_desk",
+     "to_actor": "coordinator",
+     "responsible_actor": "coordinator",
+     "purpose": "Contact authorised recipient Nalo Vere now, before the cutoff, rather than let the return timer expire.",
+     "expected_response": "The recipient's choice recorded before the cutoff.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "decision",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Choose redelivery or depot collection on 2026-02-20 before 16:00 UTC.",
+     "expected_response": "The chosen option.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Call Nalo Vere now and ask for a choice between redelivery and depot collection on 2026-02-20."
+   },
+   "blocker": "No recipient choice is recorded; return-to-sender processing starts at 16:00 UTC today.",
+   "status": "escalated",
+   "next_step": {
+    "type": "decision",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Choose redelivery or depot collection on 2026-02-20 before 16:00 UTC."
+   },
+   "result": null,
+   "decision": {
+    "required": true,
+    "question": "Which option should replace the return to sender?",
+    "options": [
+     {
+      "id": "o1",
+      "label": "Redelivery on 2026-02-20",
+      "conditions": "Must be selected before 16:00 UTC today."
+     },
+     {
+      "id": "o2",
+      "label": "Depot collection on 2026-02-20",
+      "conditions": "Must be selected before 16:00 UTC today."
+     }
+    ],
+    "decision_maker": "recipient",
+    "selected_option": null,
+    "reason": null
+   },
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "Our call",
+   "title": "We ask Nalo to choose an option",
+   "explanation": "On the call we named the 16:00 UTC return and only the two options the carrier listed. Now we wait for Nalo's choice.",
+   "conversation_id": "recipient",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "decision",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Choose redelivery or depot collection on 2026-02-20 before 16:00 UTC.",
+     "expected_response": "The chosen option.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "recipient",
+      "request_id": "r1",
+      "expected": "Choice of redelivery or depot collection on 2026-02-20"
+     }
+    ],
+    "next_action": "Once Nalo chooses, pass the choice to the exception desk so the carrier can stop the return."
+   },
+   "blocker": "No recipient choice is recorded yet.",
+   "status": "awaiting_decision",
+   "next_step": {
+    "type": "decision",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Wait for Nalo's choice."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "New escalation",
+   "title": "Recipient agrees without naming option",
+   "explanation": "Obtain the authorised party’s precise choice or missing detail. Do not choose for the customer or treat a choice as a confirmed booking.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Nalo Vere reports: Yes, tomorrow is fine for me.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Nalo Vere reports: Just make sure it does not go back to the sender.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Nalo Vere reports: I have been waiting for it all week.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "decision",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Ask Nalo once on the same call whether to choose redelivery on 2026-02-20 or depot collection on 2026-02-20.",
+     "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask Nalo once on the same call whether to choose redelivery on 2026-02-20 or depot collection on 2026-02-20."
+   },
+   "blocker": "The new escalation requires a scoped response. Yes, tomorrow is fine for me. Just make sure it does not go back to the sender. I have been waiting for it all week.",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Ask Nalo once on the same call whether to choose redelivery on 2026-02-20 or depot collection on 2026-02-20."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "004",
+     "source_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c1",
+    "c2",
+    "c3"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "ask_customer",
+      "action": "Ask Nalo once on the same call whether to choose redelivery on 2026-02-20 or depot collection on 2026-02-20.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "record redelivery because 'tomorrow is fine' sounds like a home delivery; Nalo has not chosen an option.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "018-N3"
+    },
+    "summary": "Obtain the authorised party’s precise choice or missing detail.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Obtain the authorised party’s precise choice or missing detail."
+   }
+  },
+  {
+   "event_id": "005",
+   "label": "Desk response",
+   "title": "Obtain the authorised party’s precise choice or missing detail",
+   "explanation": "The desk sends the recorded response. Do not choose for the customer or treat a choice as a confirmed booking.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "decision",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Ask Nalo once on the same call whether to choose redelivery on 2026-02-20 or depot collection on 2026-02-20.",
+     "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "recipient",
+      "request_id": "branch_request",
+      "expected": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_decision",
+   "next_step": {
+    "type": "decision",
+    "responsible_actor": "recipient",
+    "request_id": "branch_request",
+    "description": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "ask_customer",
+      "action": "Ask Nalo once on the same call whether to choose redelivery on 2026-02-20 or depot collection on 2026-02-20.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "record redelivery because 'tomorrow is fine' sounds like a home delivery; Nalo has not chosen an option.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "ask_customer",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. We applied Nalo Vere's choice, relayed by you at 10:00 UTC: redelivery on 2026-02-20. It was applied at 10:08 UTC, before the 16:00 cutoff, and return-to-sender is cancelled. DL-018 has not been delivered.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Exception desk reports: We applied Nalo Vere's choice, relayed by you at 10:00 UTC: redelivery on 2026-02-20.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Exception desk reports: It was applied at 10:08 UTC, before the 16:00 cutoff, and return-to-sender is cancelled.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Exception desk reports: DL-018 has not been delivered.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "decision",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Ask Nalo once on the same call whether to choose redelivery on 2026-02-20 or depot collection on 2026-02-20.",
+     "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+     "status": "answered",
+     "response": "We applied Nalo Vere's choice, relayed by you at 10:00 UTC: redelivery on 2026-02-20. It was applied at 10:08 UTC, before the 16:00 cutoff, and return-to-sender is cancelled. DL-018 has not been delivered.",
+     "evidence_event_ids": [
+      "004",
+      "005",
+      "006"
+     ],
+     "responded_by": "exception_desk"
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "We applied Nalo Vere's choice, relayed by you at 10:00 UTC: redelivery on 2026-02-20. It was applied at 10:08 UTC, before the 16:00 cutoff, and return-to-sender is cancelled. DL-018 has not been delivered.",
+    "confirmed_by": "exception_desk",
+    "evidence_event_ids": [
+     "006"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not record redelivery because 'tomorrow is fine' sounds like a home delivery; Nalo has not chosen an option."
+   },
+   "annotations_add": [
+    {
+     "id": "branch_followthrough_relay",
+     "kind": "gap",
+     "title": "Unrecorded intermediate action",
+     "text": "The follow-through is from a different party than the recorded desk response. An intermediate exchange or service-to-service relay is absent; only the final reporter’s stated outcome is confirmed.",
+     "before_message_id": "006",
+     "source_event_ids": [
+      "006"
+     ],
+     "implied_action": {
+      "from_actor": "coordinator",
+      "to_actor": "exception_desk",
+      "type": "action",
+      "purpose": "Pass the relevant verified instruction or request to the party reporting the follow-through."
+     }
+    },
+    {
+     "id": "branch_missing_authorised_reply",
+     "kind": "gap",
+     "title": "Unrecorded intermediate action",
+     "text": "The authorised party’s separate reply is not recorded here. The service’s follow-through is indirect evidence; no extra customer message has been added.",
+     "before_message_id": "006",
+     "source_event_ids": [
+      "006"
+     ],
+     "implied_action": {
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "type": "decision",
+      "purpose": "Supply the authorised choice or verification before the responsible service acts."
+     }
+    }
+   ],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "ask_customer",
+      "action": "Ask Nalo once on the same call whether to choose redelivery on 2026-02-20 or depot collection on 2026-02-20.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "record redelivery because 'tomorrow is fine' sounds like a home delivery; Nalo has not chosen an option.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "ask_customer",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

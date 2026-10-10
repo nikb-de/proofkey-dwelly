@@ -1,0 +1,399 @@
+{
+ "case_id": "025",
+ "lang": "en",
+ "title": "025 · Replacement for a lost parcel",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Aven Korrin, the recipient. From the case card: the carrier has completed its trace and confirmed DL-025 lost, the recipient has chosen a replacement, and only the merchant can approve and create it.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Pass the recipient's replacement choice to the merchant and get the merchant's confirmation of the replacement order.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Aven Korrin",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Choose between a replacement and a refund for the lost order.",
+   "from_start": true,
+   "source_names": [
+    "Aven Korrin, recipient"
+   ]
+  },
+  "loss_investigations": {
+   "name": "Loss investigations",
+   "organization": "Plover Arc Logistics",
+   "role": "carrier",
+   "responsibility": "Trace DL-025 and record the final loss finding.",
+   "from_start": false,
+   "source_names": [
+    "Loss investigations, Plover Arc Logistics"
+   ]
+  },
+  "merchant": {
+   "name": "Replacement authorisations",
+   "organization": "Tallowmere Goods",
+   "role": "merchant",
+   "responsibility": "Approve the replacement and create the replacement order.",
+   "from_start": false,
+   "source_names": [
+    "Replacement authorisations, Tallowmere Goods"
+   ]
+  }
+ },
+ "goal": "Get the merchant to approve the recipient's chosen replacement and confirm that the replacement order is created.",
+ "limits": [
+  "Do not approve the replacement on the merchant's behalf; confirmed loss does not give the desk that authority.",
+  "Do not claim the replacement has been delivered."
+ ],
+ "intake": {
+  "summary": "DL-025 is confirmed lost: get the merchant to approve the recipient's chosen replacement.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The parcel is lost and the merchant has not approved a replacement.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-025.",
+    "source": {
+     "type": "case_card",
+     "id": "025"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The carrier has completed its trace and confirmed loss.",
+    "source": {
+     "type": "case_card",
+     "id": "025"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The recipient has chosen a replacement.",
+    "source": {
+     "type": "case_card",
+     "id": "025"
+    }
+   },
+   {
+    "id": "f4",
+    "text": "The merchant must approve and create the replacement.",
+    "source": {
+     "type": "case_card",
+     "id": "025"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The merchant has approved the recipient's chosen replacement."
+   },
+   {
+    "id": "c2",
+    "description": "The merchant has confirmed that the replacement order is created."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "annotations": []
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Carrier finding",
+   "title": "Carrier records DL-025 as confirmed lost",
+   "explanation": "The trace is complete and the loss is confirmed, but the finding does not create a replacement order. A replacement needs the merchant's approval.",
+   "conversation_id": "carrier",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "Final trace record INV-025: DL-025 could not be located after the completed depot and route search; carrier status is confirmed lost.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "The loss finding does not itself create a merchant replacement order.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask the merchant to approve the recipient's chosen replacement."
+   },
+   "blocker": "The parcel is lost and no replacement order exists.",
+   "status": "context_received",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": null,
+    "description": "Ask the merchant to approve the recipient's chosen replacement."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client choice",
+   "title": "Aven chooses a like-for-like replacement",
+   "explanation": "Aven chose a replacement over a refund and asked us to get the merchant's approval. Approval is the merchant's call, not ours, so we send the request to replacement authorisations.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f3",
+     "text": "The recipient chooses a like-for-like replacement rather than a refund.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f6",
+     "text": "The recipient still needs the kettle from order TG-025.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "merchant",
+     "purpose": "Ask the merchant to approve a like-for-like kettle replacement for TG-025.",
+     "expected_response": "The merchant's approval of the replacement.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "permission",
+     "from_actor": "coordinator",
+     "to_actor": "merchant",
+     "responsible_actor": "merchant",
+     "purpose": "Approve the customer-selected like-for-like kettle replacement for TG-025.",
+     "expected_response": "The merchant's approval and the replacement order.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Email the merchant's replacement authorisations team to approve the selected kettle replacement, citing the carrier's loss finding."
+   },
+   "blocker": "The merchant has not approved the replacement.",
+   "status": "escalated",
+   "next_step": {
+    "type": "permission",
+    "responsible_actor": "merchant",
+    "request_id": "r1",
+    "description": "Ask the merchant to approve the like-for-like replacement."
+   },
+   "result": null,
+   "decision": {
+    "required": true,
+    "question": "Replacement or refund for the lost kettle?",
+    "options": [
+     {
+      "id": "o1",
+      "label": "Like-for-like replacement",
+      "conditions": "Needs the merchant's approval."
+     },
+     {
+      "id": "o2",
+      "label": "Refund",
+      "conditions": null
+     }
+    ],
+    "decision_maker": "recipient",
+    "selected_option": "o1",
+    "reason": "The recipient still needs the kettle."
+   },
+   "annotations_add": [
+    {
+     "id": "remedy-options-context",
+     "kind": "context",
+     "title": "What Aven knew before writing",
+     "text": "Aven chooses a like-for-like replacement over a refund, so Aven already knows both remedies are possible. Who offered them is not recorded in the history.",
+     "before_message_id": "002",
+     "source_event_ids": ["002"]
+    }
+   ]
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We ask the merchant to approve the replacement",
+   "explanation": "We cited the carrier's loss finding and the recipient's recorded choice and asked only for approval. Now we wait for the merchant's decision.",
+   "conversation_id": "merchant",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "permission",
+     "from_actor": "coordinator",
+     "to_actor": "merchant",
+     "responsible_actor": "merchant",
+     "purpose": "Approve the customer-selected like-for-like kettle replacement for TG-025.",
+     "expected_response": "The merchant's approval and the replacement order.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "merchant",
+      "request_id": "r1",
+      "expected": "Approval of the kettle replacement"
+     }
+    ],
+    "next_action": "Once the merchant replies, record the approval and the replacement order."
+   },
+   "blocker": "The merchant has not approved the replacement.",
+   "status": "awaiting_response",
+   "next_step": {
+    "type": "permission",
+    "responsible_actor": "merchant",
+    "request_id": "r1",
+    "description": "Wait for the merchant to approve the replacement."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "Confirmation",
+   "title": "Merchant approves and creates TG-025-R",
+   "explanation": "The merchant approved the replacement at no additional charge and created the order, so the coordination task is done. Shipment is not booked yet.",
+   "conversation_id": "merchant",
+   "facts_upsert": [
+    {
+     "id": "f7",
+     "text": "The replacement is approved at no additional charge.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "f8",
+     "text": "Order TG-025-R has been created for the same kettle.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "f9",
+     "text": "Shipment of the replacement has not yet been booked.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "merchant",
+     "purpose": "Ask the merchant to approve a like-for-like kettle replacement for TG-025.",
+     "expected_response": "The merchant's approval of the replacement.",
+     "status": "completed",
+     "response": "Replacement approved at no additional charge; order TG-025-R created.",
+     "evidence_event_ids": [
+      "002",
+      "004"
+     ]
+    },
+    "r1": {
+     "type": "permission",
+     "from_actor": "coordinator",
+     "to_actor": "merchant",
+     "responsible_actor": "merchant",
+     "purpose": "Approve the customer-selected like-for-like kettle replacement for TG-025.",
+     "expected_response": "The merchant's approval and the replacement order.",
+     "status": "answered",
+     "response": "Approved at no additional charge; order TG-025-R created for the same kettle; shipment not yet booked.",
+     "evidence_event_ids": [
+      "002",
+      "003",
+      "004"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c1",
+     "evidence_event_ids": [
+      "004"
+     ]
+    },
+    {
+     "id": "c2",
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Coordination task complete: the merchant approved the replacement and created order TG-025-R. Shipment and delivery of the replacement are not part of this case's success criteria."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "Merchant approved the like-for-like kettle replacement at no additional charge and created order TG-025-R.",
+    "confirmed_by": "merchant",
+    "evidence_event_ids": [
+     "004"
+    ],
+    "remaining_work": "Shipment of TG-025-R has not been booked; shipment and delivery are separate later stages."
+   },
+   "annotations_add": []
+  }
+ ]
+}

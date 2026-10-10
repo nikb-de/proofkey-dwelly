@@ -1,0 +1,662 @@
+{
+ "case_id": "013-N3",
+ "lang": "en",
+ "title": "013-N3 · Requested morning no longer available",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Yara Elt. From the case card: a failed-attempt scan on DL-013 is disputed, and the carrier must review its record without assuming the customer or driver is dishonest.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get the carrier's review of the disputed attempt record and a confirmed replacement attempt, without inferring fault.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Yara Elt",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Dispute the recorded failed attempt and give the time available for another visit.",
+   "from_start": true,
+   "source_names": [
+    "Yara Elt, recipient"
+   ]
+  },
+  "tracking_support": {
+   "name": "Tracking support",
+   "organization": "Plover Arc Logistics",
+   "role": "carrier",
+   "responsibility": "Report the failed-attempt scan on DL-013 and whether its route record has been reviewed.",
+   "from_start": false,
+   "source_names": [
+    "Tracking support, Plover Arc Logistics"
+   ]
+  },
+  "dispatch_review": {
+   "name": "Dispatch review team",
+   "organization": "Plover Arc Logistics",
+   "role": "dispatch",
+   "responsibility": "Review the failed-attempt record against the delivery stop, report the finding and book a repeat attempt.",
+   "from_start": false,
+   "source_names": [
+    "Dispatch review team, Plover Arc Logistics"
+   ]
+  }
+ },
+ "goal": "Get dispatch's review result on the disputed failed-attempt record for DL-013 and its confirmation of a replacement attempt, without assuming anyone is dishonest.",
+ "limits": [
+  "Do not treat the review finding as proof of fraud.",
+  "Do not treat the replacement attempt as done: it remains pending, and successful delivery is not assumed.",
+  "Do not choose for the customer or treat a choice as a confirmed booking."
+ ],
+ "intake": {
+  "summary": "The recipient disputes a recorded failed delivery attempt on DL-013.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "A failed-attempt scan is disputed and the carrier has not yet reviewed its record.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-013.",
+    "source": {
+     "type": "case_card",
+     "id": "013"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "A failed-attempt scan is disputed.",
+    "source": {
+     "type": "case_card",
+     "id": "013"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The carrier must review its record without assuming the customer or driver is dishonest.",
+    "source": {
+     "type": "case_card",
+     "id": "013"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "Dispatch has reported the result of its review of the failed-attempt record."
+   },
+   {
+    "id": "c2",
+    "description": "Dispatch has confirmed a replacement delivery attempt."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/013/N3-STALE_STATE",
+  "branch_id": "013-N3",
+  "derived_from_case": "013",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "STALE_STATE",
+  "expected_decision": "ASK_CUSTOMER",
+  "workflow_sheet": "B",
+  "branch_label": "Requested morning no longer available",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "afce947a0f87af4b1ea63f23f3788c5a51534c57d78247893a975c2708716a66",
+   "history.md": "4bd19d8ec76268aba394f01546842e2a6abe49e65802779e018f0b052c288b5b"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Tracking email",
+   "title": "Tracking support reports an unreviewed failed attempt",
+   "explanation": "Tracking support confirms only that a failed-attempt scan exists; nobody has reviewed the route record yet, so there is no conclusion to pass on. The record has to be reviewed before anyone says what happened.",
+   "conversation_id": "tracking",
+   "facts_upsert": [
+    {
+     "id": "f4",
+     "text": "DL-013 has a failed-attempt scan at 08:40 UTC today.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "The route record has not yet been reviewed; no conclusion about the attempt is available.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Take in the recipient's dispute, then ask the carrier to review the failed-attempt record."
+   },
+   "blocker": "The failed-attempt scan is disputed and its route record has not been reviewed.",
+   "status": "context_received",
+   "next_step": null,
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client dispute",
+   "title": "Yara disputes the attempt and asks for a visit",
+   "explanation": "Yara says they were at home and asks for a review and another visit on the morning of 2026-02-15. Yara's account is not a review finding, so we ask the dispatch review team to check the record and book the repeat attempt.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f6",
+     "text": "The recipient says they were at home and did not hear the intercom.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f7",
+     "text": "The recipient is available on 2026-02-15 morning.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "dispatch_review",
+     "purpose": "Review the missed attempt and arrange another visit.",
+     "expected_response": "The review result and a booked repeat visit.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "dispatch_review",
+     "responsible_actor": "dispatch_review",
+     "purpose": "Review the DL-013 failed-attempt record and report the finding without inferring fault.",
+     "expected_response": "The review finding.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r2": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "dispatch_review",
+     "responsible_actor": "dispatch_review",
+     "purpose": "Arrange a repeat attempt on 2026-02-15 morning, when the recipient is available.",
+     "expected_response": "Confirmation of the booked repeat attempt.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask the dispatch review team to review the failed-attempt record and arrange a repeat attempt on 2026-02-15 morning."
+   },
+   "blocker": "The failed-attempt record has not been reviewed and no repeat attempt is booked.",
+   "status": "escalated",
+   "next_step": {
+    "type": "verification",
+    "responsible_actor": "dispatch_review",
+    "request_id": "r1",
+    "description": "Review the failed-attempt record and report the finding."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "missed-attempt-context",
+     "kind": "context",
+     "title": "What Yara knew before the message",
+     "text": "Yara refers to the missed attempt, so Yara knows a failed attempt was recorded on DL-013. How Yara learned this is not recorded in the history.",
+     "before_message_id": "002",
+     "source_event_ids": [
+      "002"
+     ]
+    }
+   ]
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We ask dispatch to review and rebook",
+   "explanation": "We asked for the record to be checked against the delivery stop and for a finding rather than a guess about fault, plus a repeat attempt on the morning Yara gave. Now we wait for the dispatch review team.",
+   "conversation_id": "dispatch",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "dispatch_review",
+     "responsible_actor": "dispatch_review",
+     "purpose": "Review DL-013's failed-attempt record against the delivery stop and report the review finding rather than infer fault.",
+     "expected_response": "The review finding.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    },
+    "r2": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "dispatch_review",
+     "responsible_actor": "dispatch_review",
+     "purpose": "Arrange an available repeat attempt on 2026-02-15 morning.",
+     "expected_response": "Confirmation of the booked repeat attempt.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "dispatch_review",
+      "request_id": "r1",
+      "expected": "Review finding on the failed-attempt record"
+     },
+     {
+      "actor_id": "dispatch_review",
+      "request_id": "r2",
+      "expected": "Booked repeat attempt on 2026-02-15 morning"
+     }
+    ],
+    "next_action": "Once dispatch replies, record the review finding and the repeat-attempt booking."
+   },
+   "blocker": "The review finding and the repeat-attempt booking are pending.",
+   "status": "awaiting_verification",
+   "next_step": {
+    "type": "verification",
+    "responsible_actor": "dispatch_review",
+    "request_id": "r1",
+    "description": "Wait for the review finding and the repeat-attempt booking."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "New escalation",
+   "title": "Requested morning no longer available",
+   "explanation": "Obtain the authorised party’s precise choice or missing detail. Do not choose for the customer or treat a choice as a confirmed booking.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Dispatch review team reports: Review started.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Dispatch review team reports: Morning capacity on 2026-02-15 for this route was filled at 09:35 UTC.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Dispatch review team reports: Available repeat attempts: 2026-02-15, 13:00–17:00 UTC, or 2026-02-16, 09:00–12:00 UTC, both at no charge.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_4",
+     "text": "Dispatch review team reports: Nothing is booked.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "decision",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Ask Yara in the Customer portal to choose between 2026-02-15, 13:00–17:00 UTC and 2026-02-16, 09:00–12:00 UTC, and pass only that choice to the review team.",
+     "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask Yara in the Customer portal to choose between 2026-02-15, 13:00–17:00 UTC and 2026-02-16, 09:00–12:00 UTC, and pass only that choice to the review team."
+   },
+   "blocker": "The new escalation requires a scoped response. Review started. Morning capacity on 2026-02-15 for this route was filled at 09:35 UTC. Available repeat attempts: 2026-02-15, 13:00–17:00 UTC, or 2026-02-16, 09:00–12:00 UTC, both at no charge. Nothing is booked.",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Ask Yara in the Customer portal to choose between 2026-02-15, 13:00–17:00 UTC and 2026-02-16, 09:00–12:00 UTC, and pass only that choice to the review team."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "004",
+     "source_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c1",
+    "c2"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "ask_customer",
+      "action": "Ask Yara in the Customer portal to choose between 2026-02-15, 13:00–17:00 UTC and 2026-02-16, 09:00–12:00 UTC, and pass only that choice to the review team.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "book the 2026-02-15 afternoon because the date matches; Yara offered the morning only.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "013-N3"
+    },
+    "summary": "Obtain the authorised party’s precise choice or missing detail.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Obtain the authorised party’s precise choice or missing detail."
+   }
+  },
+  {
+   "event_id": "005",
+   "label": "Desk response",
+   "title": "Obtain the authorised party’s precise choice or missing detail",
+   "explanation": "The desk sends the recorded response. Do not choose for the customer or treat a choice as a confirmed booking.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "decision",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Ask Yara in the Customer portal to choose between 2026-02-15, 13:00–17:00 UTC and 2026-02-16, 09:00–12:00 UTC, and pass only that choice to the review team.",
+     "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "recipient",
+      "request_id": "branch_request",
+      "expected": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_decision",
+   "next_step": {
+    "type": "decision",
+    "responsible_actor": "recipient",
+    "request_id": "branch_request",
+    "description": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "ask_customer",
+      "action": "Ask Yara in the Customer portal to choose between 2026-02-15, 13:00–17:00 UTC and 2026-02-16, 09:00–12:00 UTC, and pass only that choice to the review team.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "book the 2026-02-15 afternoon because the date matches; Yara offered the morning only.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "ask_customer",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. Yara's choice, relayed by you at 10:40 UTC, is booked: DL-013 repeat attempt on 2026-02-16, 09:00–12:00 UTC, at no charge. The review of the 08:40 attempt is still open. This is a repeat attempt booking, not a handover or a review finding.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Dispatch review team reports: Yara's choice, relayed by you at 10:40 UTC, is booked: DL-013 repeat attempt on 2026-02-16, 09:00–12:00 UTC, at no charge.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Dispatch review team reports: The review of the 08:40 attempt is still open.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Dispatch review team reports: This is a repeat attempt booking, not a handover or a review finding.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "decision",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Ask Yara in the Customer portal to choose between 2026-02-15, 13:00–17:00 UTC and 2026-02-16, 09:00–12:00 UTC, and pass only that choice to the review team.",
+     "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+     "status": "answered",
+     "response": "Yara's choice, relayed by you at 10:40 UTC, is booked: DL-013 repeat attempt on 2026-02-16, 09:00–12:00 UTC, at no charge. The review of the 08:40 attempt is still open. This is a repeat attempt booking, not a handover or a review finding.",
+     "evidence_event_ids": [
+      "004",
+      "005",
+      "006"
+     ],
+     "responded_by": "dispatch_review"
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "Yara's choice, relayed by you at 10:40 UTC, is booked: DL-013 repeat attempt on 2026-02-16, 09:00–12:00 UTC, at no charge. The review of the 08:40 attempt is still open. This is a repeat attempt booking, not a handover or a review finding.",
+    "confirmed_by": "dispatch_review",
+    "evidence_event_ids": [
+     "006"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not book the 2026-02-15 afternoon because the date matches; Yara offered the morning only."
+   },
+   "annotations_add": [
+    {
+     "id": "branch_followthrough_relay",
+     "kind": "gap",
+     "title": "Unrecorded intermediate action",
+     "text": "The follow-through is from a different party than the recorded desk response. An intermediate exchange or service-to-service relay is absent; only the final reporter’s stated outcome is confirmed.",
+     "before_message_id": "006",
+     "source_event_ids": [
+      "006"
+     ],
+     "implied_action": {
+      "from_actor": "coordinator",
+      "to_actor": "dispatch_review",
+      "type": "action",
+      "purpose": "Pass the relevant verified instruction or request to the party reporting the follow-through."
+     }
+    },
+    {
+     "id": "branch_missing_authorised_reply",
+     "kind": "gap",
+     "title": "Unrecorded intermediate action",
+     "text": "The authorised party’s separate reply is not recorded here. The service’s follow-through is indirect evidence; no extra customer message has been added.",
+     "before_message_id": "006",
+     "source_event_ids": [
+      "006"
+     ],
+     "implied_action": {
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "type": "decision",
+      "purpose": "Supply the authorised choice or verification before the responsible service acts."
+     }
+    }
+   ],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "ask_customer",
+      "action": "Ask Yara in the Customer portal to choose between 2026-02-15, 13:00–17:00 UTC and 2026-02-16, 09:00–12:00 UTC, and pass only that choice to the review team.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "book the 2026-02-15 afternoon because the date matches; Yara offered the morning only.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "ask_customer",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

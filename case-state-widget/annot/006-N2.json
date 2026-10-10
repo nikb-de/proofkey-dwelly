@@ -1,0 +1,642 @@
+{
+ "case_id": "006-N2",
+ "lang": "en",
+ "title": "006-N2 · Routing ticket creation failed",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Pella Rusk. From the case card: the customer has already selected an available staffed pickup point for DL-006, and routing confirms the parcel is eligible for redirection before delivery.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: pass the customer's choice to routing, get the pickup point's confirmation and give the customer the collection instructions.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Pella Rusk",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Choose the pickup point instead of home delivery and collect the parcel there.",
+   "from_start": true,
+   "source_names": [
+    "Pella Rusk, recipient"
+   ]
+  },
+  "routing": {
+   "name": "Routing",
+   "organization": "Plover Arc Logistics",
+   "role": "carrier",
+   "responsibility": "Redirect the eligible parcel to the chosen pickup point on the customer's recorded choice.",
+   "from_start": false,
+   "source_names": [
+    "Routing, Plover Arc Logistics"
+   ]
+  },
+  "pickup_point": {
+   "name": "Copperfin Counter supervisor",
+   "organization": "Copperfin Counter",
+   "role": "pickup_point",
+   "responsibility": "Confirm the physical receipt of the parcel and state the collection terms.",
+   "from_start": false,
+   "source_names": [
+    "Copperfin Counter supervisor"
+   ]
+  },
+  "branch_system": {
+   "name": "Routing request system",
+   "organization": "Plover Arc Logistics",
+   "role": "system",
+   "from_start": false,
+   "source_names": [
+    "Routing request system, Plover Arc Logistics"
+   ],
+   "responsibility": "Report or handle the state within the scope stated in the source message; no wider authority is inferred."
+  }
+ },
+ "goal": "Get DL-006 redirected to the customer's chosen pickup point, get the pickup point's confirmation that the parcel is available, and give the customer the collection instructions.",
+ "limits": [
+  "Do not treat ready for collection as collected.",
+  "Do not invent a universal identification requirement.",
+  "Do not repeat the action or claim success before checking the saved state."
+ ],
+ "intake": {
+  "summary": "Redirect DL-006 from home delivery to the staffed pickup point the customer selected.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The parcel is not yet redirected to the selected pickup point.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-006.",
+    "source": {
+     "type": "case_card",
+     "id": "006"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The customer has already selected an available staffed pickup point.",
+    "source": {
+     "type": "case_card",
+     "id": "006"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "Routing confirms the parcel is eligible for redirection before delivery.",
+    "source": {
+     "type": "case_card",
+     "id": "006"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The customer has confirmed the chosen pickup point to the desk."
+   },
+   {
+    "id": "c2",
+    "description": "The pickup point has confirmed the parcel is physically there and available for collection."
+   },
+   {
+    "id": "c3",
+    "description": "The customer has been sent the collection instructions confirmed by the pickup point."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": null,
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/006/N2-CHANNEL_FAILURE",
+  "branch_id": "006-N2",
+  "derived_from_case": "006",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "CHANNEL_FAILURE",
+  "expected_decision": "VERIFY_FIRST",
+  "workflow_sheet": "R",
+  "branch_label": "Routing ticket creation failed",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "6adc1255dae8336c1bb956d3dd68e15572376b7b9893067a8b2cb31904fef66c",
+   "history.md": "317941c56f9050dd8b36ca2fcb2af7a83b1931cab40def5820f10e3581e861b8"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Routing email",
+   "title": "Routing confirms the counter has space",
+   "explanation": "Routing can redirect DL-006 without charge, and Copperfin Counter has space, but the transfer needs the customer's recorded choice. We take in that choice before asking routing to act.",
+   "conversation_id": "routing",
+   "facts_upsert": [
+    {
+     "id": "f3",
+     "text": "DL-006 is redirectable without charge before route release.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f4",
+     "text": "Copperfin Counter has space and is open 10:00–18:00 UTC on 2026-02-08.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "Routing needs the customer's recorded choice before transfer.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Take in the customer's recorded choice of pickup point; routing needs it before transfer."
+   },
+   "blocker": "Routing cannot transfer the parcel without the customer's recorded choice.",
+   "status": "context_received",
+   "next_step": null,
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client choice",
+   "title": "Pella chooses Copperfin Counter",
+   "explanation": "Pella's portal message is the recorded choice routing asked for. We can pass it to routing and ask for the redirect.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "Pella asks to send DL-006 to Copperfin Counter rather than home.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f6",
+     "text": "Pella can collect at Copperfin Counter on 2026-02-08.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "routing",
+     "purpose": "Send DL-006 to Copperfin Counter instead of Pella's home.",
+     "expected_response": "The parcel at Copperfin Counter, available for collection.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "routing",
+     "responsible_actor": "routing",
+     "purpose": "Redirect DL-006 to Copperfin Counter on Pella's recorded choice.",
+     "expected_response": "Confirmation that the counter has the parcel.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c1",
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Pass Pella's choice to routing and ask for DL-006 to be redirected to Copperfin Counter."
+   },
+   "blocker": "The parcel is not yet redirected to Copperfin Counter.",
+   "status": "escalated",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "routing",
+    "request_id": "r1",
+    "description": "Redirect DL-006 to Copperfin Counter."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We ask routing to redirect DL-006",
+   "explanation": "We passed on Pella's choice and asked to be told only once the counter physically has the parcel, so a redirect order is not mistaken for arrival. Now we wait.",
+   "conversation_id": "routing",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "routing",
+     "responsible_actor": "routing",
+     "purpose": "Redirect eligible parcel DL-006 to Copperfin Counter, as Pella chose in the verified order thread, and notify us only when the counter has physically received it.",
+     "expected_response": "Notice that the counter has physically received the parcel.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "routing",
+      "request_id": "r1",
+      "expected": "Notice that Copperfin Counter has physically received DL-006"
+     }
+    ],
+    "next_action": "Once the counter has the parcel, send Pella the collection instructions."
+   },
+   "blocker": "The parcel is not yet at Copperfin Counter.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "routing",
+    "request_id": "r1",
+    "description": "Wait for notice that the counter has physically received DL-006."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "New escalation",
+   "title": "Routing ticket creation failed",
+   "explanation": "Establish the saved outcome before repeating an uncertain action. Do not repeat the action or claim success before checking the saved state.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Routing request system reports: Automatic reply.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Routing request system reports: Your message about DL-006 was received at 09:25.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Routing request system reports: Ticket creation failed with a system error, so no reference number was issued.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_4",
+     "text": "Routing request system reports: Your request may not appear in the Routing queue.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "routing",
+     "responsible_actor": "routing",
+     "purpose": "Ask Routing in Dispatch chat what DL-006's saved destination shows now, and state that no second redirect request will be sent until that is known.",
+     "expected_response": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    },
+    "branch_attempt": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "routing",
+     "responsible_actor": "routing",
+     "purpose": "Record the submission or operation reported as uncertain in this message, separately from downstream execution.",
+     "expected_response": "The record owner states whether this submission or operation saved.",
+     "status": "outcome_unknown",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask Routing in Dispatch chat what DL-006's saved destination shows now, and state that no second redirect request will be sent until that is known."
+   },
+   "blocker": "The new escalation requires a scoped response. Automatic reply. Your message about DL-006 was received at 09:25. Ticket creation failed with a system error, so no reference number was issued. Your request may not appear in the Routing queue.",
+   "status": "verification_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Ask Routing in Dispatch chat what DL-006's saved destination shows now, and state that no second redirect request will be sent until that is known."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "004",
+     "source_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c2",
+    "c3"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "verify_first",
+      "action": "Ask Routing in Dispatch chat what DL-006's saved destination shows now, and state that no second redirect request will be sent until that is known.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Email the redirect request again, or tell Pella the parcel is on its way to Copperfin Counter.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "006-N2"
+    },
+    "summary": "Establish the saved outcome before repeating an uncertain action.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Establish the saved outcome before repeating an uncertain action."
+   }
+  },
+  {
+   "event_id": "005",
+   "label": "Desk response",
+   "title": "Establish the saved outcome before repeating an uncertain action",
+   "explanation": "The desk sends the recorded response. Do not repeat the action or claim success before checking the saved state.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "routing",
+     "responsible_actor": "routing",
+     "purpose": "Ask Routing in Dispatch chat what DL-006's saved destination shows now, and state that no second redirect request will be sent until that is known.",
+     "expected_response": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "routing",
+      "request_id": "branch_request",
+      "expected": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_verification",
+   "next_step": {
+    "type": "verification",
+    "responsible_actor": "routing",
+    "request_id": "branch_request",
+    "description": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "verify_first",
+      "action": "Ask Routing in Dispatch chat what DL-006's saved destination shows now, and state that no second redirect request will be sent until that is known.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Email the redirect request again, or tell Pella the parcel is on its way to Copperfin Counter.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "verify_first",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. DL-006's saved destination is Copperfin Counter. Your 09:25 request reached our queue despite the ticket error and was applied once at 09:38. There is one transfer task. The counter has not yet received the parcel.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Routing reports: DL-006's saved destination is Copperfin Counter.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Routing reports: Your 09:25 request reached our queue despite the ticket error and was applied once at 09:38.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Routing reports: There is one transfer task.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_4",
+     "text": "Routing reports: The counter has not yet received the parcel.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "routing",
+     "responsible_actor": "routing",
+     "purpose": "Ask Routing in Dispatch chat what DL-006's saved destination shows now, and state that no second redirect request will be sent until that is known.",
+     "expected_response": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+     "status": "answered",
+     "response": "DL-006's saved destination is Copperfin Counter. Your 09:25 request reached our queue despite the ticket error and was applied once at 09:38. There is one transfer task. The counter has not yet received the parcel.",
+     "evidence_event_ids": [
+      "004",
+      "005",
+      "006"
+     ]
+    },
+    "branch_attempt": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "routing",
+     "responsible_actor": "routing",
+     "purpose": "Record the submission or operation reported as uncertain in this message, separately from downstream execution.",
+     "expected_response": "The record owner states whether this submission or operation saved.",
+     "status": "answered",
+     "response": "DL-006's saved destination is Copperfin Counter. Your 09:25 request reached our queue despite the ticket error and was applied once at 09:38. There is one transfer task. The counter has not yet received the parcel.",
+     "evidence_event_ids": [
+      "004",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "DL-006's saved destination is Copperfin Counter. Your 09:25 request reached our queue despite the ticket error and was applied once at 09:38. There is one transfer task. The counter has not yet received the parcel.",
+    "confirmed_by": "routing",
+    "evidence_event_ids": [
+     "006"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Email the redirect request again, or tell Pella the parcel is on its way to Copperfin Counter."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "verify_first",
+      "action": "Ask Routing in Dispatch chat what DL-006's saved destination shows now, and state that no second redirect request will be sent until that is known.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Email the redirect request again, or tell Pella the parcel is on its way to Copperfin Counter.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "verify_first",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

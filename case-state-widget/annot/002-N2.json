@@ -1,0 +1,610 @@
+{
+ "case_id": "002-N2",
+ "lang": "en",
+ "title": "002-N2 · Door description instead of apartment number",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Tarin Mave. The participants, goal and initial problem are known from the case card.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "address_desk": {
+   "name": "Address desk",
+   "organization": "Plover Arc Logistics",
+   "role": "address_desk",
+   "responsibility": "Apply the address correction and confirm the result.",
+   "from_start": false,
+   "source_names": [
+    "Address desk, Plover Arc Logistics"
+   ]
+  },
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get the missing details and confirmation that the change is done.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Tarin Mave",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Provide the details needed to clarify the address.",
+   "from_start": true,
+   "source_names": [
+    "Tarin Mave, recipient"
+   ]
+  }
+ },
+ "goal": "Clarify the incomplete address and get the address hold on DL-002 cleared.",
+ "limits": [
+  "Do not infer the recipient's authentication from their own assertion; it was recorded independently.",
+  "No delivery claim: a corrected address is not a delivery.",
+  "Do not choose for the customer or treat a choice as a confirmed booking."
+ ],
+ "intake": {
+  "summary": "Clarify the address for shipment DL-002: the order has no apartment number.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The address is incomplete and needs clarification.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-002.",
+    "source": {
+     "type": "case_card",
+     "id": "002"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The address is incomplete; the shipment is paused until it is clarified.",
+    "source": {
+     "type": "case_card",
+     "id": "002"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The recipient has provided the apartment number."
+   },
+   {
+    "id": "c2",
+    "description": "The address desk has confirmed the address correction."
+   },
+   {
+    "id": "c3",
+    "description": "The address hold is cleared."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "annotations": [],
+  "state_set": {}
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/002/N2-AMBIGUOUS_REPLY",
+  "branch_id": "002-N2",
+  "derived_from_case": "002",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "AMBIGUOUS_REPLY",
+  "expected_decision": "ASK_CUSTOMER",
+  "workflow_sheet": "A",
+  "branch_label": "Door description instead of apartment number",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "3c8cacbb12d4d54a7fee3ced41e61b74299d10478d6cf7f94af3e12d09af64e6",
+   "history.md": "a2e0eb9d2aed0547861b0ef7217b8cdbe6f43aeb5a9984ca3d033f4c84f2877f"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Address desk email",
+   "title": "Address desk gives the hold reason",
+   "explanation": "The recipient knows the missing detail; no extra identity check is needed here.",
+   "conversation_id": "service",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "The order has no apartment number; the address hold is in place.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f3",
+     "text": "Address on the order: 18 Copperfin Court, Merrow Quay.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f4",
+     "text": "The recipient's order-linked portal session was verified by the account team.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Clarify the apartment number.",
+     "expected_response": "The apartment number.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "001"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask the recipient for the missing apartment number."
+   },
+   "blocker": "The order is missing the apartment number.",
+   "status": "context_received",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Confirm the apartment number through the verified order portal."
+   },
+   "result": null,
+   "decision": {
+    "required": false,
+    "question": null,
+    "options": [],
+    "decision_maker": null,
+    "selected_option": null,
+    "reason": null
+   },
+   "annotations_add": [],
+   "state_set": {}
+  },
+  {
+   "event_id": "002",
+   "label": "Client question",
+   "title": "Client asks what needs clarifying",
+   "explanation": "Event 001 tells us which field is missing, so we can ask a specific question.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f5",
+     "text": "The recipient confirmed that the building is correct.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f8",
+     "text": "The recipient says that, before asking, they saw the status \"address clarification required\" on the tracking page. When the status appeared is unknown.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "information",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "coordinator",
+     "purpose": "Explain what information is needed to clarify the address.",
+     "expected_response": "Name the missing information.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Reply to Tarin: the apartment number is needed."
+   },
+   "blocker": "The order is missing the apartment number.",
+   "status": "escalated",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Confirm the apartment number through the verified order portal."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "tracking-context",
+     "kind": "context",
+     "title": "What Tarin saw before asking",
+     "text": "Tracking page: \"address clarification required\". Taken from Tarin's words in message 002. When the status appeared is unknown; no separate notification about it is recorded in the history.",
+     "before_message_id": "002",
+     "source_event_ids": [
+      "002"
+     ]
+    }
+   ],
+   "state_set": {}
+  },
+  {
+   "event_id": "003",
+   "label": "Our question",
+   "title": "Our question to the client",
+   "explanation": "We asked only for the missing field. Entry codes and other household details are not needed.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Clarify the apartment number.",
+     "expected_response": "The apartment number.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "001",
+      "003"
+     ]
+    },
+    "r0": {
+     "type": "information",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "coordinator",
+     "purpose": "Explain what information is needed to clarify the address.",
+     "expected_response": "Name the missing information.",
+     "status": "answered",
+     "response": "The apartment number needs to be confirmed.",
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "recipient",
+      "request_id": "r1",
+      "expected": "Apartment number"
+     }
+    ],
+    "next_action": "Once answered, pass the clarified address to the address desk."
+   },
+   "blocker": "The order is missing the apartment number.",
+   "status": "awaiting_response",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Wait for the apartment number from the recipient."
+   },
+   "result": null,
+   "annotations_add": [],
+   "state_set": {}
+  },
+  {
+   "event_id": "004",
+   "label": "New escalation",
+   "title": "Door description instead of apartment number",
+   "explanation": "Obtain the authorised party’s precise choice or missing detail. Do not choose for the customer or treat a choice as a confirmed booking.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Tarin Mave reports: It is the top-floor flat on the left as you come up the stairs, the one with the green door.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Tarin Mave reports: There is no number on the door itself, but the driver cannot miss it.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Ask Tarin in the Customer portal for the apartment number or name as shown on the building's bell panel or post boxes, and nothing else.",
+     "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask Tarin in the Customer portal for the apartment number or name as shown on the building's bell panel or post boxes, and nothing else."
+   },
+   "blocker": "The new escalation requires a scoped response. It is the top-floor flat on the left as you come up the stairs, the one with the green door. There is no number on the door itself, but the driver cannot miss it.",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Ask Tarin in the Customer portal for the apartment number or name as shown on the building's bell panel or post boxes, and nothing else."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "004",
+     "source_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c1",
+    "c2",
+    "c3"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "ask_customer",
+      "action": "Ask Tarin in the Customer portal for the apartment number or name as shown on the building's bell panel or post boxes, and nothing else.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Send 'top floor, left, green door' to the Address desk as the apartment, or ask for an entry code, phone number or floor plan.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "002-N2"
+    },
+    "summary": "Obtain the authorised party’s precise choice or missing detail.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Obtain the authorised party’s precise choice or missing detail."
+   }
+  },
+  {
+   "event_id": "005",
+   "label": "Desk response",
+   "title": "Obtain the authorised party’s precise choice or missing detail",
+   "explanation": "The desk sends the recorded response. Do not choose for the customer or treat a choice as a confirmed booking.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Ask Tarin in the Customer portal for the apartment number or name as shown on the building's bell panel or post boxes, and nothing else.",
+     "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "recipient",
+      "request_id": "branch_request",
+      "expected": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_response",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "recipient",
+    "request_id": "branch_request",
+    "description": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "ask_customer",
+      "action": "Ask Tarin in the Customer portal for the apartment number or name as shown on the building's bell panel or post boxes, and nothing else.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Send 'top floor, left, green door' to the Address desk as the apartment, or ask for an entry code, phone number or floor plan.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "ask_customer",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. The bell panel and our post box both show 3C for our flat. Please add 3C to DL-002. The street and building are unchanged.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Tarin Mave reports: The bell panel and our post box both show 3C for our flat.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Tarin Mave reports: Please add 3C to DL-002.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Tarin Mave reports: The street and building are unchanged.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Ask Tarin in the Customer portal for the apartment number or name as shown on the building's bell panel or post boxes, and nothing else.",
+     "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+     "status": "answered",
+     "response": "The bell panel and our post box both show 3C for our flat. Please add 3C to DL-002. The street and building are unchanged.",
+     "evidence_event_ids": [
+      "004",
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "The bell panel and our post box both show 3C for our flat. Please add 3C to DL-002. The street and building are unchanged.",
+    "confirmed_by": "recipient",
+    "evidence_event_ids": [
+     "006"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Send 'top floor, left, green door' to the Address desk as the apartment, or ask for an entry code, phone number or floor plan."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "ask_customer",
+      "action": "Ask Tarin in the Customer portal for the apartment number or name as shown on the building's bell panel or post boxes, and nothing else.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Send 'top floor, left, green door' to the Address desk as the apartment, or ask for an entry code, phone number or floor plan.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "ask_customer",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

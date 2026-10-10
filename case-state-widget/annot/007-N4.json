@@ -1,0 +1,650 @@
+{
+ "case_id": "007-N4",
+ "lang": "en",
+ "title": "007-N4 · Recipient cancels an applied extension",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Ciro Fale. From the case card: DL-007 is already at a pickup counter, the pickup deadline is too short for the recipient, and the operator allows a short extension that only it may approve.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: request the permitted extension from the pickup-point operator and tell the recipient the confirmed deadline.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Ciro Fale",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Say until when the parcel needs to be kept, and collect it by the deadline.",
+   "from_start": true,
+   "source_names": [
+    "Ciro Fale, recipient"
+   ]
+  },
+  "pickup_point": {
+   "name": "Sedgeglass Counter supervisor",
+   "organization": "Sedgeglass Counter",
+   "role": "pickup_point",
+   "responsibility": "Approve the permitted extension and update the collection deadline.",
+   "from_start": false,
+   "source_names": [
+    "Sedgeglass Counter supervisor"
+   ]
+  }
+ },
+ "goal": "Get the pickup-point operator to approve an extension of the DL-007 collection deadline within its policy and notify the recipient of the confirmed deadline.",
+ "limits": [
+  "Do not treat the extension as proof that the customer collected the parcel.",
+  "Do not start further actions or assume that a stop undoes an executed action."
+ ],
+ "intake": {
+  "summary": "Extend the pickup deadline for DL-007: the current deadline is too short for the recipient.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The pickup deadline is too short for the recipient; no extension is approved.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-007.",
+    "source": {
+     "type": "case_card",
+     "id": "007"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The parcel is already at a pickup counter.",
+    "source": {
+     "type": "case_card",
+     "id": "007"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The operator allows a short extension; only the operator may approve it.",
+    "source": {
+     "type": "case_card",
+     "id": "007"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The recipient has stated until when the parcel should be kept."
+   },
+   {
+    "id": "c2",
+    "description": "The operator has approved the extension and confirmed the new collection deadline."
+   },
+   {
+    "id": "c3",
+    "description": "The recipient has been notified of the confirmed deadline."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": null,
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/007/N4-CUSTOMER_CANCELS",
+  "branch_id": "007-N4",
+  "derived_from_case": "007",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003",
+   "004"
+  ],
+  "diverges_after_event": "004",
+  "failure_mode": "CUSTOMER_CANCELS",
+  "expected_decision": "RECORD_STOP",
+  "workflow_sheet": "F",
+  "branch_label": "Recipient cancels an applied extension",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "b9100a9859025c8fd49a37797cd5318ed089c16aed342440d0d4bb1b6043892b",
+   "history.md": "1b643fa5dbd0df182883f306f48217b55bd50fe30049acea6d5b1e06c45a9e65"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Counter email",
+   "title": "Counter states the hold and extension rule",
+   "explanation": "The counter gives the current deadline and the rule: one two-day extension, requested before expiry, if capacity permits, and there is capacity now. We take in the recipient's request before asking for the extension.",
+   "conversation_id": "pickup_point",
+   "facts_upsert": [
+    {
+     "id": "f4",
+     "text": "DL-007 is held until 2026-02-09, 18:00 UTC.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f3",
+     "text": "Local policy allows a single two-day extension if requested before expiry and stock capacity permits.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "The counter currently has capacity.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Take in the recipient's request before asking the counter for an extension."
+   },
+   "blocker": "The current deadline is 2026-02-09, 18:00 UTC; no extension is approved.",
+   "status": "context_received",
+   "next_step": null,
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Ciro asks to keep DL-007 longer",
+   "explanation": "Ciro needs the parcel kept until 2026-02-11 and does not want it returned. That fits the one two-day extension the counter allows, so we ask the operator to approve it before the current deadline expires.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f6",
+     "text": "Ciro's work trip ends on 2026-02-10.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f7",
+     "text": "Ciro asks to keep DL-007 until 2026-02-11 and does not want it returned.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "pickup_point",
+     "purpose": "Keep DL-007 until 2026-02-11 instead of returning it.",
+     "expected_response": "A collection deadline extended to 2026-02-11.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "permission",
+     "from_actor": "coordinator",
+     "to_actor": "pickup_point",
+     "responsible_actor": "pickup_point",
+     "purpose": "Approve the permitted two-day extension of DL-007 to 2026-02-11.",
+     "expected_response": "Approval and the new collection deadline.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c1",
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask the counter operator to approve the permitted two-day extension of DL-007 to 2026-02-11."
+   },
+   "blocker": "The extension is not yet approved; the current deadline is 2026-02-09, 18:00 UTC.",
+   "status": "escalated",
+   "next_step": {
+    "type": "permission",
+    "responsible_actor": "pickup_point",
+    "request_id": "r1",
+    "description": "Approve the two-day extension of DL-007 to 2026-02-11."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We ask the counter for the extension",
+   "explanation": "We asked for the permitted extension to 2026-02-11, 18:00 UTC, and for word once the return timer is updated. Approval is the operator's alone, so now we wait.",
+   "conversation_id": "pickup_point",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "permission",
+     "from_actor": "coordinator",
+     "to_actor": "pickup_point",
+     "responsible_actor": "pickup_point",
+     "purpose": "Approve the permitted two-day extension of DL-007 to 2026-02-11, 18:00 UTC, and confirm once the return timer is updated.",
+     "expected_response": "Approval and confirmation that the return timer is updated.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "pickup_point",
+      "request_id": "r1",
+      "expected": "Approval of the extension and the updated return timer"
+     }
+    ],
+    "next_action": "Once the counter confirms, notify Ciro of the new deadline."
+   },
+   "blocker": "The extension is not yet approved.",
+   "status": "awaiting_response",
+   "next_step": {
+    "type": "permission",
+    "responsible_actor": "pickup_point",
+    "request_id": "r1",
+    "description": "Wait for the operator to approve the extension and update the return timer."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "Counter approves",
+   "title": "Counter accepts the extension",
+   "explanation": "The operator approved the extension and moved the return timer to the new date. Ciro does not know yet, so our next step is to notify Ciro.",
+   "conversation_id": "pickup_point",
+   "facts_upsert": [
+    {
+     "id": "f4",
+     "text": "The collection deadline is now 2026-02-11, 18:00 UTC, and the return timer uses that date.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "f8",
+     "text": "This is the one permitted extension.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "pickup_point",
+     "purpose": "Keep DL-007 until 2026-02-11 instead of returning it.",
+     "expected_response": "A collection deadline extended to 2026-02-11.",
+     "status": "completed",
+     "response": "Collection deadline extended to 2026-02-11, 18:00 UTC; the return timer uses that date.",
+     "responded_by": "pickup_point",
+     "evidence_event_ids": [
+      "002",
+      "004"
+     ]
+    },
+    "r1": {
+     "type": "permission",
+     "from_actor": "coordinator",
+     "to_actor": "pickup_point",
+     "responsible_actor": "pickup_point",
+     "purpose": "Approve the permitted two-day extension of DL-007 to 2026-02-11, 18:00 UTC, and confirm once the return timer is updated.",
+     "expected_response": "Approval and confirmation that the return timer is updated.",
+     "status": "answered",
+     "response": "Extension accepted; the collection deadline is 2026-02-11, 18:00 UTC and the return timer uses that date.",
+     "evidence_event_ids": [
+      "002",
+      "003",
+      "004"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c2",
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Notify Ciro of the confirmed deadline: 2026-02-11 at 18:00 UTC."
+   },
+   "blocker": "Ciro has not yet been notified of the new deadline.",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": null,
+    "description": "Notify Ciro of the new collection deadline."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "005",
+   "label": "New escalation",
+   "title": "Recipient cancels an applied extension",
+   "explanation": "Record the stop and establish what was already executed. Do not start further actions or assume that a stop undoes an executed action.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Ciro Fale reports: My trip has been cut short and I can collect tomorrow, 2026-02-09.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Ciro Fale reports: Please cancel the extension request; I do not need it now.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "pickup_point",
+     "responsible_actor": "pickup_point",
+     "purpose": "Record Ciro's withdrawal with the Sedgeglass Counter supervisor by Email with no change requested, and tell Ciro the extension was already applied and his deadline is 2026-02-11, 18:00 UTC.",
+     "expected_response": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Record Ciro's withdrawal with the Sedgeglass Counter supervisor by Email with no change requested, and tell Ciro the extension was already applied and his deadline is 2026-02-11, 18:00 UTC."
+   },
+   "blocker": "The new escalation requires a scoped response. My trip has been cut short and I can collect tomorrow, 2026-02-09. Please cancel the extension request; I do not need it now.",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Record Ciro's withdrawal with the Sedgeglass Counter supervisor by Email with no change requested, and tell Ciro the extension was already applied and his deadline is 2026-02-11, 18:00 UTC."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "005",
+     "source_event_ids": [
+      "005"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c3"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "record_stop",
+      "action": "Record Ciro's withdrawal with the Sedgeglass Counter supervisor by Email with no change requested, and tell Ciro the extension was already applied and his deadline is 2026-02-11, 18:00 UTC.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Ask the counter to restore the 2026-02-09 deadline, which would undo the one permitted extension.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "007-N4"
+    },
+    "summary": "Record the stop and establish what was already executed.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Record the stop and establish what was already executed."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Desk response",
+   "title": "Record the stop and establish what was already executed",
+   "explanation": "The desk sends the recorded response. Do not start further actions or assume that a stop undoes an executed action.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "pickup_point",
+     "responsible_actor": "pickup_point",
+     "purpose": "Record Ciro's withdrawal with the Sedgeglass Counter supervisor by Email with no change requested, and tell Ciro the extension was already applied and his deadline is 2026-02-11, 18:00 UTC.",
+     "expected_response": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "pickup_point",
+      "request_id": "branch_request",
+      "expected": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "pickup_point",
+    "request_id": "branch_request",
+    "description": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "record_stop",
+      "action": "Record Ciro's withdrawal with the Sedgeglass Counter supervisor by Email with no change requested, and tell Ciro the extension was already applied and his deadline is 2026-02-11, 18:00 UTC.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Ask the counter to restore the 2026-02-09 deadline, which would undo the one permitted extension.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "record_stop",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "007",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. Ciro's withdrawal is noted on DL-007 with no change made. The return timer stays at 2026-02-11, 18:00 UTC, the one permitted extension. The parcel is still awaiting collection.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Sedgeglass Counter supervisor reports: Ciro's withdrawal is noted on DL-007 with no change made.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Sedgeglass Counter supervisor reports: The return timer stays at 2026-02-11, 18:00 UTC, the one permitted extension.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Sedgeglass Counter supervisor reports: The parcel is still awaiting collection.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "pickup_point",
+     "responsible_actor": "pickup_point",
+     "purpose": "Record Ciro's withdrawal with the Sedgeglass Counter supervisor by Email with no change requested, and tell Ciro the extension was already applied and his deadline is 2026-02-11, 18:00 UTC.",
+     "expected_response": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone.",
+     "status": "completed",
+     "response": "Ciro's withdrawal is noted on DL-007 with no change made. The return timer stays at 2026-02-11, 18:00 UTC, the one permitted extension. The parcel is still awaiting collection.",
+     "evidence_event_ids": [
+      "005",
+      "006",
+      "007"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "006",
+      "007"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "Ciro's withdrawal is noted on DL-007 with no change made. The return timer stays at 2026-02-11, 18:00 UTC, the one permitted extension. The parcel is still awaiting collection.",
+    "confirmed_by": "pickup_point",
+    "evidence_event_ids": [
+     "007"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Ask the counter to restore the 2026-02-09 deadline, which would undo the one permitted extension."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "record_stop",
+      "action": "Record Ciro's withdrawal with the Sedgeglass Counter supervisor by Email with no change requested, and tell Ciro the extension was already applied and his deadline is 2026-02-11, 18:00 UTC.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Ask the counter to restore the 2026-02-09 deadline, which would undo the one permitted extension.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "record_stop",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

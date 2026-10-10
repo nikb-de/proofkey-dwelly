@@ -1,6 +1,6 @@
 # Case JSON catalog for the viewer
 
-This folder on `main` is the catalog of annotated cases that the viewer reads through the GitHub API. Add one self-contained JSON per case directly here. No redeploy is needed for new files.
+This folder on `main` is the catalog of annotated cases that the viewer reads through the GitHub API. Edit the compact source in `../annot/<id>.json`, then rebuild this folder with `../pipeline/compile.py`. No redeploy is needed for new files.
 
 - Name: `<id>.json`, e.g. `003.json` for the public case or `003-N2.json` for a negative branch (branch ids follow `data/negative-branches-001-050/index.csv`). Ids: letters, digits, hyphen and underscore, up to 100 characters, starting with a letter or digit.
 - Language: English. All human-readable text (goal, facts, requests, criteria, agent state, explanations) is in English; message bodies are the verbatim source history.
@@ -19,7 +19,22 @@ The catalog refreshes when the page opens, on "Refresh list", and periodically w
 
 ## Currently annotated
 
-50 public cases (001–050) and 1 negative branch. Every file is built from a compact annotation by the pipeline and validated against `viewer.js`, `schema.json`, patch replay and a future-leak check before publishing.
+50 public cases (001–050) and all 275 negative branches listed in `data/negative-branches-001-050/index.csv`. Every file is built from a compact annotation by the pipeline and validated against `viewer.js`, `schema.json`, patch replay and a future-leak check before publishing. The negative branches retain the reviewed parent states before divergence and add their authored escalation, desk response and follow-through.
+
+Three independent training context cases are added here: `001-A1-NOISE`, `012-N2-A1-MISSING`, and `002-N4-A1-LONG`. Each adds one complication to its parent and ends at an open decision cutoff. Their narrative sources, separate model inputs and supervision are in [training-context-cases](../../data/training-context-cases/README.md). The catalog also includes the earlier `001-A1`, `012-A1`, and `019-A1` variants from [context-augmentations-001-050](../../data/context-augmentations-001-050/README.md).
+
+Branch completion covers the alternative coordination task. For example, an operator's registration is not its decision, and a customer's selection is not a booking. Unmet parent criteria at the scope change are archived in `prior_success_criteria` with their original status and retirement event; they are never marked met to force branch closure. The final source message states what is confirmed and what remains.
+
+Rebuild and check from the repository root:
+
+```sh
+python3 case-state-widget/pipeline/compile.py --all
+python3 case-state-widget/pipeline/test_negative.py
+node case-state-widget/pipeline/validate.mjs case-state-widget/cases/*.json
+npm test --prefix case-state-widget
+```
+
+The table below lists the public scenarios and the original channel-failure reference. The full negative branch inventory is in [NEGATIVE-REPORT.md](../pipeline/NEGATIVE-REPORT.md).
 
 | File | Case | Steps | Scenario |
 |---|---|---|---|

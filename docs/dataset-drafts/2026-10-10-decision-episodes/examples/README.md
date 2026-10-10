@@ -27,3 +27,7 @@ All files are original synthetic development examples. Labels are assistant-auth
 The manifest binds exact bytes and families. Simulator files describe seven hypothetical episodes; no replay runner is included. For the timeout example d019, the snapshot advances to 11 October so that a full 24 hours has elapsed after the request described in d017.
 
 Useful contrasts: d002 vs d016 (missing file/content vs sufficient inline evidence), d006 vs d007 vs d008 (missing, valid, stale approval), d013 vs d015 (accepted vs authoritatively applied), d009 vs d010 (selection needed vs options refused).
+
+## Separate draft
+
+[case-001-terms.json](case-001-terms.json) is a full case in `case-step-viewer/1.0`, not one of the decision snapshots above. Для Ника.

@@ -1,0 +1,1809 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "029-N5 · No disposition before customer leaves",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Enna Vosk. From the case card: the refrigerated grocery delivery DL-029 has an out-of-range logger reading under the merchant's own order conditions, and food-safety staff must decide the disposition.",
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/029/N5-NO_REPLY",
+  "branch_id": "029-N5",
+  "derived_from_case": "029",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "NO_REPLY",
+  "expected_decision": "WAIT_WITH_DEADLINE",
+  "workflow_sheet": "B",
+  "branch_label": "No disposition before customer leaves",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "d5d97947e1e02393ac5f859d23183ebcb8290401a459cabdde3e55ad9688be6f",
+   "history.md": "4e9674c3b08e780e2c8801506dde9cb67d985d9b9423090f204e977434dcdb89"
+  }
+ },
+ "initial_state": {
+  "case_id": "029-N5",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "recipient",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: pass the recorded temperature evidence to the merchant's authorised food-safety staff and get their disposition and remedy, without making a safety judgment."
+   },
+   "recipient": {
+    "name": "Enna Vosk",
+    "organization": null,
+    "role": "recipient",
+    "is_us": false,
+    "responsibility": "Report the logger reading and whether anything was eaten, and ask for the merchant's instructions and remedy."
+   }
+  },
+  "goal": "Get the merchant's authorised food-safety team to confirm its disposition and remedy for this order, without the desk making any safety judgment.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The authorised food-safety team has confirmed the disposition of the contents.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The authorised food-safety team has confirmed the remedy for this order.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The logger reading is out of range; no disposition has been decided.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-029, a refrigerated grocery delivery.",
+    "source": {
+     "type": "case_card",
+     "id": "029"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The logger reading is out of range under the merchant's own order conditions.",
+    "source": {
+     "type": "case_card",
+     "id": "029"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "Food-safety staff must decide the disposition.",
+    "source": {
+     "type": "case_card",
+     "id": "029"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Treat the temperature range as the merchant's own order condition, not a universal legal rule.",
+   "Make no independent food-safety assessment.",
+   "Do not treat a reminder or silence as consent, a booking or execution."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Merchant email",
+    "title": "Food-safety intake reports 9.2 °C",
+    "timestamp": "2026-03-02 09:00:00 UTC",
+    "actor_id": "safety_intake",
+    "message_id": "001"
+   },
+   "explanation": "The merchant's intake reports a 9.2 °C handover reading against its 0–5 °C order range and says only food-safety staff may authorise disposition. We do not judge the food ourselves; that decision belongs to the merchant's food-safety staff.",
+   "state_after": {
+    "case_id": "029-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: pass the recorded temperature evidence to the merchant's authorised food-safety staff and get their disposition and remedy, without making a safety judgment."
+     },
+     "recipient": {
+      "name": "Enna Vosk",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report the logger reading and whether anything was eaten, and ask for the merchant's instructions and remedy."
+     },
+     "safety_intake": {
+      "name": "Food-safety intake",
+      "organization": "Brineleaf Pantry",
+      "role": "safety_desk",
+      "is_us": false,
+      "responsibility": "Report the order's temperature condition and the logger reading, and say who may authorise disposition."
+     }
+    },
+    "goal": "Get the merchant's authorised food-safety team to confirm its disposition and remedy for this order, without the desk making any safety judgment.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Take in the recipient's request about the out-of-range delivery."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The authorised food-safety team has confirmed the disposition of the contents.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The authorised food-safety team has confirmed the remedy for this order.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-02 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "029-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Get the merchant's disposition and remedy for chilled delivery DL-029 after an out-of-range logger reading.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The reading is outside the merchant's range; no disposition has been decided.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-029, a refrigerated grocery delivery.",
+      "source": {
+       "type": "case_card",
+       "id": "029"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The merchant states that the 9.2 °C reading is outside its range.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Only the merchant's food-safety staff may authorise disposition.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Order BP-029 / DL-029 uses the merchant's documented chilled-delivery range of 0–5 °C at handover.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Logger excerpt: sensor BL-29, handover capture 2026-03-02 08:50 UTC, 9.2 °C.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {},
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": null,
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "safety_intake": {
+      "participants": [
+       "coordinator",
+       "safety_intake"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "safety_intake",
+      "event_id": "001",
+      "timestamp": "2026-03-02 09:00:00 UTC",
+      "from_actor": "safety_intake",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Order BP-029 / DL-029 uses our documented chilled-delivery range of 0–5 °C at handover. Inline logger excerpt: sensor BL-29, handover capture 2026-03-02 08:50 UTC, 9.2 °C. This is outside our range; only food-safety staff may authorise disposition."
+     }
+    ],
+    "limits": [
+     "Treat the temperature range as the merchant's own order condition, not a universal legal rule.",
+     "Make no independent food-safety assessment.",
+     "Do not treat a reminder or silence as consent, a booking or execution."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client request",
+    "title": "Enna asks for instructions and a remedy",
+    "timestamp": "2026-03-02 09:10:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "002"
+   },
+   "explanation": "Enna has eaten nothing from the box and asks what to do and whether the merchant will replace it. We cannot answer either question ourselves, so we escalate the reading to the merchant's food-safety staff without advising consumption.",
+   "state_after": {
+    "case_id": "029-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: pass the recorded temperature evidence to the merchant's authorised food-safety staff and get their disposition and remedy, without making a safety judgment."
+     },
+     "recipient": {
+      "name": "Enna Vosk",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report the logger reading and whether anything was eaten, and ask for the merchant's instructions and remedy."
+     },
+     "safety_intake": {
+      "name": "Food-safety intake",
+      "organization": "Brineleaf Pantry",
+      "role": "safety_desk",
+      "is_us": false,
+      "responsibility": "Report the order's temperature condition and the logger reading, and say who may authorise disposition."
+     },
+     "safety_lead": {
+      "name": "Food-safety lead",
+      "organization": "Brineleaf Pantry",
+      "role": "safety_desk",
+      "is_us": false,
+      "responsibility": "Decide the disposition of the contents and the remedy for this order."
+     }
+    },
+    "goal": "Get the merchant's authorised food-safety team to confirm its disposition and remedy for this order, without the desk making any safety judgment.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Escalate the 9.2 °C reading to the merchant's food-safety staff and ask for their disposition and remedy, without advising consumption."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The authorised food-safety team has confirmed the disposition of the contents.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The authorised food-safety team has confirmed the remedy for this order.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-02 09:00:00 UTC",
+     "escalated_at": "2026-03-02 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "029-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Get the merchant's disposition and remedy for chilled delivery DL-029 after an out-of-range logger reading.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "No disposition or remedy has been decided; only the merchant's food-safety staff can decide.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-029, a refrigerated grocery delivery.",
+      "source": {
+       "type": "case_card",
+       "id": "029"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The merchant states that the 9.2 °C reading is outside its range.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Only the merchant's food-safety staff may authorise disposition.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Order BP-029 / DL-029 uses the merchant's documented chilled-delivery range of 0–5 °C at handover.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Logger excerpt: sensor BL-29, handover capture 2026-03-02 08:50 UTC, 9.2 °C.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Enna has not eaten anything from the box.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Enna reports that the logger shows 9.2 °C.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "safety_lead",
+      "purpose": "Get the merchant to say what to do with the box and whether it will be replaced.",
+      "expected_response": "The merchant's instructions and remedy.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "decision",
+      "from_actor": "coordinator",
+      "to_actor": "safety_lead",
+      "responsible_actor": "safety_lead",
+      "purpose": "Assess BP-029 using the recorded 9.2 °C handover reading against the 0–5 °C order condition and issue the disposition and order-specific remedy.",
+      "expected_response": "The disposition of the contents and the remedy for this order.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "decision",
+     "responsible_actor": "safety_lead",
+     "request_id": "r1",
+     "description": "Issue the disposition and order-specific remedy for BP-029."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "safety_intake": {
+      "participants": [
+       "coordinator",
+       "safety_intake"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "safety_intake",
+      "event_id": "001",
+      "timestamp": "2026-03-02 09:00:00 UTC",
+      "from_actor": "safety_intake",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Order BP-029 / DL-029 uses our documented chilled-delivery range of 0–5 °C at handover. Inline logger excerpt: sensor BL-29, handover capture 2026-03-02 08:50 UTC, 9.2 °C. This is outside our range; only food-safety staff may authorise disposition."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-02 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I have not eaten anything from this box. The logger shows 9.2 °C. Please get the merchant to tell me what to do and whether they will replace it."
+     }
+    ],
+    "limits": [
+     "Treat the temperature range as the merchant's own order condition, not a universal legal rule.",
+     "Make no independent food-safety assessment.",
+     "Do not treat a reminder or silence as consent, a booking or execution."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our escalation",
+    "title": "We escalate the reading to food safety",
+    "timestamp": "2026-03-02 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We passed the 9.2 °C handover reading, the 0–5 °C order condition and the fact that nothing was consumed, and asked for a disposition and remedy. We gave no consumption advice; now we wait for the food-safety lead.",
+   "state_after": {
+    "case_id": "029-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: pass the recorded temperature evidence to the merchant's authorised food-safety staff and get their disposition and remedy, without making a safety judgment."
+     },
+     "recipient": {
+      "name": "Enna Vosk",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report the logger reading and whether anything was eaten, and ask for the merchant's instructions and remedy."
+     },
+     "safety_intake": {
+      "name": "Food-safety intake",
+      "organization": "Brineleaf Pantry",
+      "role": "safety_desk",
+      "is_us": false,
+      "responsibility": "Report the order's temperature condition and the logger reading, and say who may authorise disposition."
+     },
+     "safety_lead": {
+      "name": "Food-safety lead",
+      "organization": "Brineleaf Pantry",
+      "role": "safety_desk",
+      "is_us": false,
+      "responsibility": "Decide the disposition of the contents and the remedy for this order."
+     }
+    },
+    "goal": "Get the merchant's authorised food-safety team to confirm its disposition and remedy for this order, without the desk making any safety judgment.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "safety_lead",
+       "request_id": "r1",
+       "expected": "Disposition and remedy for BP-029"
+      }
+     ],
+     "next_action": "Once the food-safety lead answers, record the disposition and the remedy."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The authorised food-safety team has confirmed the disposition of the contents.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The authorised food-safety team has confirmed the remedy for this order.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-02 09:00:00 UTC",
+     "escalated_at": "2026-03-02 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "029-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Get the merchant's disposition and remedy for chilled delivery DL-029 after an out-of-range logger reading.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The food-safety lead has not yet issued a disposition or remedy.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-029, a refrigerated grocery delivery.",
+      "source": {
+       "type": "case_card",
+       "id": "029"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The merchant states that the 9.2 °C reading is outside its range.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Only the merchant's food-safety staff may authorise disposition.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Order BP-029 / DL-029 uses the merchant's documented chilled-delivery range of 0–5 °C at handover.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Logger excerpt: sensor BL-29, handover capture 2026-03-02 08:50 UTC, 9.2 °C.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Enna has not eaten anything from the box.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Enna reports that the logger shows 9.2 °C.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "safety_lead",
+      "purpose": "Get the merchant to say what to do with the box and whether it will be replaced.",
+      "expected_response": "The merchant's instructions and remedy.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "decision",
+      "from_actor": "coordinator",
+      "to_actor": "safety_lead",
+      "responsible_actor": "safety_lead",
+      "purpose": "Assess BP-029 using the recorded 9.2 °C handover reading against the 0–5 °C order condition and issue the disposition and order-specific remedy.",
+      "expected_response": "The disposition of the contents and the remedy for this order.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_decision",
+    "next_step": {
+     "type": "decision",
+     "responsible_actor": "safety_lead",
+     "request_id": "r1",
+     "description": "Wait for the food-safety lead's disposition and remedy."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "safety_intake": {
+      "participants": [
+       "coordinator",
+       "safety_intake"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "food_safety": {
+      "participants": [
+       "coordinator",
+       "safety_lead"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "safety_intake",
+      "event_id": "001",
+      "timestamp": "2026-03-02 09:00:00 UTC",
+      "from_actor": "safety_intake",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Order BP-029 / DL-029 uses our documented chilled-delivery range of 0–5 °C at handover. Inline logger excerpt: sensor BL-29, handover capture 2026-03-02 08:50 UTC, 9.2 °C. This is outside our range; only food-safety staff may authorise disposition."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-02 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I have not eaten anything from this box. The logger shows 9.2 °C. Please get the merchant to tell me what to do and whether they will replace it."
+     },
+     {
+      "conversation_id": "food_safety",
+      "event_id": "003",
+      "timestamp": "2026-03-02 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "safety_lead",
+      "channel": "Email",
+      "body": "Please assess BP-029 using the recorded 9.2 °C handover reading against your 0–5 °C order condition. The customer has not consumed the contents. Please issue your disposition and order-specific remedy; I am not advising consumption."
+     }
+    ],
+    "limits": [
+     "Treat the temperature range as the merchant's own order condition, not a universal legal rule.",
+     "Make no independent food-safety assessment.",
+     "Do not treat a reminder or silence as consent, a booking or execution."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "New escalation",
+    "title": "No disposition before customer leaves",
+    "timestamp": "2026-03-02 11:30:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "004"
+   },
+   "explanation": "Send one reminder with the recorded deadline and consequence. Do not treat a reminder or silence as consent, a booking or execution.",
+   "state_after": {
+    "case_id": "029-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: pass the recorded temperature evidence to the merchant's authorised food-safety staff and get their disposition and remedy, without making a safety judgment."
+     },
+     "recipient": {
+      "name": "Enna Vosk",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report the logger reading and whether anything was eaten, and ask for the merchant's instructions and remedy."
+     },
+     "safety_intake": {
+      "name": "Food-safety intake",
+      "organization": "Brineleaf Pantry",
+      "role": "safety_desk",
+      "is_us": false,
+      "responsibility": "Report the order's temperature condition and the logger reading, and say who may authorise disposition."
+     },
+     "safety_lead": {
+      "name": "Food-safety lead",
+      "organization": "Brineleaf Pantry",
+      "role": "safety_desk",
+      "is_us": false,
+      "responsibility": "Decide the disposition of the contents and the remedy for this order."
+     }
+    },
+    "goal": "Send one reminder with the recorded deadline and consequence.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Send the Brineleaf Pantry food-safety lead one email reminder citing Enna's 13:00 UTC departure, record the lead as owner and 13:00 UTC as the deadline, and tell Enna the instruction is still pending."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-02 09:00:00 UTC",
+     "escalated_at": "2026-03-02 11:30:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "029-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Send one reminder with the recorded deadline and consequence.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The new escalation requires a scoped response. Still no word from the merchant. The box is on my kitchen floor. I leave for work at 13:00 UTC and nobody will be home until 19:00 UTC. I need to know what to do with it before I go.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-029, a refrigerated grocery delivery.",
+      "source": {
+       "type": "case_card",
+       "id": "029"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The merchant states that the 9.2 °C reading is outside its range.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Only the merchant's food-safety staff may authorise disposition.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Order BP-029 / DL-029 uses the merchant's documented chilled-delivery range of 0–5 °C at handover.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Logger excerpt: sensor BL-29, handover capture 2026-03-02 08:50 UTC, 9.2 °C.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Enna has not eaten anything from the box.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Enna reports that the logger shows 9.2 °C.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Enna Vosk reports: Still no word from the merchant.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Enna Vosk reports: The box is on my kitchen floor.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Enna Vosk reports: I leave for work at 13:00 UTC and nobody will be home until 19:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_4",
+      "text": "Enna Vosk reports: I need to know what to do with it before I go.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "safety_lead",
+      "purpose": "Get the merchant to say what to do with the box and whether it will be replaced.",
+      "expected_response": "The merchant's instructions and remedy.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "decision",
+      "from_actor": "coordinator",
+      "to_actor": "safety_lead",
+      "responsible_actor": "safety_lead",
+      "purpose": "Assess BP-029 using the recorded 9.2 °C handover reading against the 0–5 °C order condition and issue the disposition and order-specific remedy.",
+      "expected_response": "The disposition of the contents and the remedy for this order.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "confirmation",
+      "from_actor": "coordinator",
+      "to_actor": "safety_lead",
+      "responsible_actor": "safety_lead",
+      "purpose": "Send the Brineleaf Pantry food-safety lead one email reminder citing Enna's 13:00 UTC departure, record the lead as owner and 13:00 UTC as the deadline, and tell Enna the instruction is still pending.",
+      "expected_response": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "wait_with_deadline",
+       "action": "Send the Brineleaf Pantry food-safety lead one email reminder citing Enna's 13:00 UTC departure, record the lead as owner and 13:00 UTC as the deadline, and tell Enna the instruction is still pending.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "give Enna your own instruction to refrigerate, use or throw away the food to meet her deadline.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "action_required",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": "branch_request",
+     "description": "Send the Brineleaf Pantry food-safety lead one email reminder citing Enna's 13:00 UTC departure, record the lead as owner and 13:00 UTC as the deadline, and tell Enna the instruction is still pending."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "safety_intake": {
+      "participants": [
+       "coordinator",
+       "safety_intake"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "food_safety": {
+      "participants": [
+       "coordinator",
+       "safety_lead"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "safety_intake",
+      "event_id": "001",
+      "timestamp": "2026-03-02 09:00:00 UTC",
+      "from_actor": "safety_intake",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Order BP-029 / DL-029 uses our documented chilled-delivery range of 0–5 °C at handover. Inline logger excerpt: sensor BL-29, handover capture 2026-03-02 08:50 UTC, 9.2 °C. This is outside our range; only food-safety staff may authorise disposition."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-02 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I have not eaten anything from this box. The logger shows 9.2 °C. Please get the merchant to tell me what to do and whether they will replace it."
+     },
+     {
+      "conversation_id": "food_safety",
+      "event_id": "003",
+      "timestamp": "2026-03-02 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "safety_lead",
+      "channel": "Email",
+      "body": "Please assess BP-029 using the recorded 9.2 °C handover reading against your 0–5 °C order condition. The customer has not consumed the contents. Please issue your disposition and order-specific remedy; I am not advising consumption."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "004",
+      "timestamp": "2026-03-02 11:30:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Still no word from the merchant. The box is on my kitchen floor. I leave for work at 13:00 UTC and nobody will be home until 19:00 UTC. I need to know what to do with it before I go."
+     }
+    ],
+    "limits": [
+     "Treat the temperature range as the merchant's own order condition, not a universal legal rule.",
+     "Make no independent food-safety assessment.",
+     "Do not treat a reminder or silence as consent, a booking or execution."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "The authorised food-safety team has confirmed the disposition of the contents.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The authorised food-safety team has confirmed the remedy for this order.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "005",
+    "type": "message_sent",
+    "label": "Desk response",
+    "title": "Send one reminder with the recorded deadline and consequence",
+    "timestamp": "2026-03-02 11:45:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "005"
+   },
+   "explanation": "The desk sends the recorded response. Do not treat a reminder or silence as consent, a booking or execution.",
+   "state_after": {
+    "case_id": "029-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: pass the recorded temperature evidence to the merchant's authorised food-safety staff and get their disposition and remedy, without making a safety judgment."
+     },
+     "recipient": {
+      "name": "Enna Vosk",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report the logger reading and whether anything was eaten, and ask for the merchant's instructions and remedy."
+     },
+     "safety_intake": {
+      "name": "Food-safety intake",
+      "organization": "Brineleaf Pantry",
+      "role": "safety_desk",
+      "is_us": false,
+      "responsibility": "Report the order's temperature condition and the logger reading, and say who may authorise disposition."
+     },
+     "safety_lead": {
+      "name": "Food-safety lead",
+      "organization": "Brineleaf Pantry",
+      "role": "safety_desk",
+      "is_us": false,
+      "responsibility": "Decide the disposition of the contents and the remedy for this order."
+     }
+    },
+    "goal": "Send one reminder with the recorded deadline and consequence.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "safety_lead",
+       "request_id": "branch_request",
+       "expected": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking."
+      }
+     ],
+     "next_action": "Record the reply or scoped confirmation before closing this branch."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-02 09:00:00 UTC",
+     "escalated_at": "2026-03-02 11:30:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "029-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Send one reminder with the recorded deadline and consequence.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The scoped reply or confirmation has not yet been recorded.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-029, a refrigerated grocery delivery.",
+      "source": {
+       "type": "case_card",
+       "id": "029"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The merchant states that the 9.2 °C reading is outside its range.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Only the merchant's food-safety staff may authorise disposition.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Order BP-029 / DL-029 uses the merchant's documented chilled-delivery range of 0–5 °C at handover.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Logger excerpt: sensor BL-29, handover capture 2026-03-02 08:50 UTC, 9.2 °C.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Enna has not eaten anything from the box.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Enna reports that the logger shows 9.2 °C.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Enna Vosk reports: Still no word from the merchant.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Enna Vosk reports: The box is on my kitchen floor.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Enna Vosk reports: I leave for work at 13:00 UTC and nobody will be home until 19:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_4",
+      "text": "Enna Vosk reports: I need to know what to do with it before I go.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "safety_lead",
+      "purpose": "Get the merchant to say what to do with the box and whether it will be replaced.",
+      "expected_response": "The merchant's instructions and remedy.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "decision",
+      "from_actor": "coordinator",
+      "to_actor": "safety_lead",
+      "responsible_actor": "safety_lead",
+      "purpose": "Assess BP-029 using the recorded 9.2 °C handover reading against the 0–5 °C order condition and issue the disposition and order-specific remedy.",
+      "expected_response": "The disposition of the contents and the remedy for this order.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "confirmation",
+      "from_actor": "coordinator",
+      "to_actor": "safety_lead",
+      "responsible_actor": "safety_lead",
+      "purpose": "Send the Brineleaf Pantry food-safety lead one email reminder citing Enna's 13:00 UTC departure, record the lead as owner and 13:00 UTC as the deadline, and tell Enna the instruction is still pending.",
+      "expected_response": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "004",
+       "005"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "wait_with_deadline",
+       "action": "Send the Brineleaf Pantry food-safety lead one email reminder citing Enna's 13:00 UTC departure, record the lead as owner and 13:00 UTC as the deadline, and tell Enna the instruction is still pending.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "give Enna your own instruction to refrigerate, use or throw away the food to meet her deadline.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "wait_with_deadline",
+     "reason": "The recorded outgoing message takes this permitted response."
+    },
+    "status": "awaiting_confirmation",
+    "next_step": {
+     "type": "confirmation",
+     "responsible_actor": "safety_lead",
+     "request_id": "branch_request",
+     "description": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "safety_intake": {
+      "participants": [
+       "coordinator",
+       "safety_intake"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "food_safety": {
+      "participants": [
+       "coordinator",
+       "safety_lead"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "safety_lead"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "safety_intake",
+      "event_id": "001",
+      "timestamp": "2026-03-02 09:00:00 UTC",
+      "from_actor": "safety_intake",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Order BP-029 / DL-029 uses our documented chilled-delivery range of 0–5 °C at handover. Inline logger excerpt: sensor BL-29, handover capture 2026-03-02 08:50 UTC, 9.2 °C. This is outside our range; only food-safety staff may authorise disposition."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-02 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I have not eaten anything from this box. The logger shows 9.2 °C. Please get the merchant to tell me what to do and whether they will replace it."
+     },
+     {
+      "conversation_id": "food_safety",
+      "event_id": "003",
+      "timestamp": "2026-03-02 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "safety_lead",
+      "channel": "Email",
+      "body": "Please assess BP-029 using the recorded 9.2 °C handover reading against your 0–5 °C order condition. The customer has not consumed the contents. Please issue your disposition and order-specific remedy; I am not advising consumption."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "004",
+      "timestamp": "2026-03-02 11:30:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Still no word from the merchant. The box is on my kitchen floor. I leave for work at 13:00 UTC and nobody will be home until 19:00 UTC. I need to know what to do with it before I go."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-03-02 11:45:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "safety_lead",
+      "channel": "Email",
+      "body": "Reminder on our 09:25 UTC request for BP-029. The customer still has no instruction. Enna Vosk leaves for work at 13:00 UTC and nobody will be home until 19:00 UTC; the box is on her kitchen floor. Please issue your disposition before 13:00 UTC, or she cannot act on it until 19:00 UTC. We are telling her that the instruction is still pending."
+     }
+    ],
+    "limits": [
+     "Treat the temperature range as the merchant's own order condition, not a universal legal rule.",
+     "Make no independent food-safety assessment.",
+     "Do not treat a reminder or silence as consent, a booking or execution."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "The authorised food-safety team has confirmed the disposition of the contents.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The authorised food-safety team has confirmed the remedy for this order.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "006",
+    "type": "message_received",
+    "label": "Scoped confirmation",
+    "title": "Follow-through confirms the branch outcome",
+    "timestamp": "2026-03-02 12:20:00 UTC",
+    "actor_id": "safety_lead",
+    "message_id": "006"
+   },
+   "explanation": "Record what the responding party actually confirms. Disposition for BP-029: do not consume the contents. The customer may leave the box unopened where it is and follow our order-portal disposal instructions when she returns, without opening any leaking packs. A no-charge replacement order is authorised; its delivery is not yet booked.",
+   "state_after": {
+    "case_id": "029-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: pass the recorded temperature evidence to the merchant's authorised food-safety staff and get their disposition and remedy, without making a safety judgment."
+     },
+     "recipient": {
+      "name": "Enna Vosk",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report the logger reading and whether anything was eaten, and ask for the merchant's instructions and remedy."
+     },
+     "safety_intake": {
+      "name": "Food-safety intake",
+      "organization": "Brineleaf Pantry",
+      "role": "safety_desk",
+      "is_us": false,
+      "responsibility": "Report the order's temperature condition and the logger reading, and say who may authorise disposition."
+     },
+     "safety_lead": {
+      "name": "Food-safety lead",
+      "organization": "Brineleaf Pantry",
+      "role": "safety_desk",
+      "is_us": false,
+      "responsibility": "Decide the disposition of the contents and the remedy for this order."
+     }
+    },
+    "goal": "Send one reminder with the recorded deadline and consequence.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking.",
+      "status": "met",
+      "evidence_event_ids": [
+       "005",
+       "006"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-02 09:00:00 UTC",
+     "escalated_at": "2026-03-02 11:30:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "029-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Send one reminder with the recorded deadline and consequence.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-029, a refrigerated grocery delivery.",
+      "source": {
+       "type": "case_card",
+       "id": "029"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The merchant states that the 9.2 °C reading is outside its range.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Only the merchant's food-safety staff may authorise disposition.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Order BP-029 / DL-029 uses the merchant's documented chilled-delivery range of 0–5 °C at handover.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Logger excerpt: sensor BL-29, handover capture 2026-03-02 08:50 UTC, 9.2 °C.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Enna has not eaten anything from the box.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Enna reports that the logger shows 9.2 °C.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Enna Vosk reports: Still no word from the merchant.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Enna Vosk reports: The box is on my kitchen floor.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Enna Vosk reports: I leave for work at 13:00 UTC and nobody will be home until 19:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_4",
+      "text": "Enna Vosk reports: I need to know what to do with it before I go.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_outcome_1",
+      "text": "Food-safety lead reports: Disposition for BP-029: do not consume the contents.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_2",
+      "text": "Food-safety lead reports: The customer may leave the box unopened where it is and follow our order-portal disposal instructions when she returns, without opening any leaking packs.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_3",
+      "text": "Food-safety lead reports: A no-charge replacement order is authorised; its delivery is not yet booked.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "safety_lead",
+      "purpose": "Get the merchant to say what to do with the box and whether it will be replaced.",
+      "expected_response": "The merchant's instructions and remedy.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "decision",
+      "from_actor": "coordinator",
+      "to_actor": "safety_lead",
+      "responsible_actor": "safety_lead",
+      "purpose": "Assess BP-029 using the recorded 9.2 °C handover reading against the 0–5 °C order condition and issue the disposition and order-specific remedy.",
+      "expected_response": "The disposition of the contents and the remedy for this order.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "confirmation",
+      "from_actor": "coordinator",
+      "to_actor": "safety_lead",
+      "responsible_actor": "safety_lead",
+      "purpose": "Send the Brineleaf Pantry food-safety lead one email reminder citing Enna's 13:00 UTC departure, record the lead as owner and 13:00 UTC as the deadline, and tell Enna the instruction is still pending.",
+      "expected_response": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking.",
+      "status": "answered",
+      "response": "Disposition for BP-029: do not consume the contents. The customer may leave the box unopened where it is and follow our order-portal disposal instructions when she returns, without opening any leaking packs. A no-charge replacement order is authorised; its delivery is not yet booked.",
+      "evidence_event_ids": [
+       "004",
+       "005",
+       "006"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "wait_with_deadline",
+       "action": "Send the Brineleaf Pantry food-safety lead one email reminder citing Enna's 13:00 UTC departure, record the lead as owner and 13:00 UTC as the deadline, and tell Enna the instruction is still pending.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "give Enna your own instruction to refrigerate, use or throw away the food to meet her deadline.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "wait_with_deadline",
+     "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "Disposition for BP-029: do not consume the contents. The customer may leave the box unopened where it is and follow our order-portal disposal instructions when she returns, without opening any leaking packs. A no-charge replacement order is authorised; its delivery is not yet booked.",
+     "confirmed_by": "safety_lead",
+     "evidence_event_ids": [
+      "006"
+     ],
+     "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not give Enna your own instruction to refrigerate, use or throw away the food to meet her deadline."
+    },
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "safety_intake": {
+      "participants": [
+       "coordinator",
+       "safety_intake"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "food_safety": {
+      "participants": [
+       "coordinator",
+       "safety_lead"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "safety_lead"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "safety_intake",
+      "event_id": "001",
+      "timestamp": "2026-03-02 09:00:00 UTC",
+      "from_actor": "safety_intake",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Order BP-029 / DL-029 uses our documented chilled-delivery range of 0–5 °C at handover. Inline logger excerpt: sensor BL-29, handover capture 2026-03-02 08:50 UTC, 9.2 °C. This is outside our range; only food-safety staff may authorise disposition."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-02 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I have not eaten anything from this box. The logger shows 9.2 °C. Please get the merchant to tell me what to do and whether they will replace it."
+     },
+     {
+      "conversation_id": "food_safety",
+      "event_id": "003",
+      "timestamp": "2026-03-02 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "safety_lead",
+      "channel": "Email",
+      "body": "Please assess BP-029 using the recorded 9.2 °C handover reading against your 0–5 °C order condition. The customer has not consumed the contents. Please issue your disposition and order-specific remedy; I am not advising consumption."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "004",
+      "timestamp": "2026-03-02 11:30:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Still no word from the merchant. The box is on my kitchen floor. I leave for work at 13:00 UTC and nobody will be home until 19:00 UTC. I need to know what to do with it before I go."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-03-02 11:45:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "safety_lead",
+      "channel": "Email",
+      "body": "Reminder on our 09:25 UTC request for BP-029. The customer still has no instruction. Enna Vosk leaves for work at 13:00 UTC and nobody will be home until 19:00 UTC; the box is on her kitchen floor. Please issue your disposition before 13:00 UTC, or she cannot act on it until 19:00 UTC. We are telling her that the instruction is still pending."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "006",
+      "timestamp": "2026-03-02 12:20:00 UTC",
+      "from_actor": "safety_lead",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Disposition for BP-029: do not consume the contents. The customer may leave the box unopened where it is and follow our order-portal disposal instructions when she returns, without opening any leaking packs. A no-charge replacement order is authorised; its delivery is not yet booked."
+     }
+    ],
+    "limits": [
+     "Treat the temperature range as the merchant's own order condition, not a universal legal rule.",
+     "Make no independent food-safety assessment.",
+     "Do not treat a reminder or silence as consent, a booking or execution."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "The authorised food-safety team has confirmed the disposition of the contents.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The authorised food-safety team has confirmed the remedy for this order.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,1781 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "050-N4 · Customer filed her own claim too",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Nella Voss, the customer. From the case card: the guaranteed-delivery service for DL-050 missed its deadline, and the carrier's guarantee covers only the surcharge, subject to billing approval.",
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/050/N4-DUPLICATE_REQUEST",
+  "branch_id": "050-N4",
+  "derived_from_case": "050",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "DUPLICATE_REQUEST",
+  "expected_decision": "RESOLVE_DUPLICATE",
+  "workflow_sheet": "F",
+  "branch_label": "Customer filed her own claim too",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "c4b1973b590ba9518c358f6016206b1460fc0d362594948cb1e26c676ee69807",
+   "history.md": "01603c78e3fca9ed45f63d754405bf899936e3acad234c00bf1ae5d5ac782bac"
+  }
+ },
+ "initial_state": {
+  "case_id": "050-N4",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "customer",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: submit the surcharge credit request and get billing's decision and the credit reference."
+   },
+   "customer": {
+    "name": "Nella Voss",
+    "organization": null,
+    "role": "customer",
+    "is_us": false,
+    "responsibility": "Ask for the guaranteed-delivery surcharge to be credited after the missed deadline."
+   }
+  },
+  "goal": "Get the authorised billing team's review of a surcharge credit for DL-050 under the guarantee and, if approved, the credit reference.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The authorised billing team has approved the surcharge credit.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The billing team has given the credit reference.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The guaranteed deadline was missed; a surcharge credit needs billing approval.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-050.",
+    "source": {
+     "type": "case_card",
+     "id": "050"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The guaranteed-delivery service missed its deadline.",
+    "source": {
+     "type": "case_card",
+     "id": "050"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The carrier's guarantee covers only the surcharge, subject to billing approval.",
+    "source": {
+     "type": "case_card",
+     "id": "050"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Do not multiply the surcharge.",
+   "Do not promise compensation for losses other than the surcharge.",
+   "Do not present a posted credit as money received.",
+   "Do not create a second operational change, booking, charge or credit."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Terms email",
+    "title": "Guarantee terms and the delay record",
+    "timestamp": "2026-03-23 09:00:00 UTC",
+    "actor_id": "guarantees",
+    "message_id": "001"
+   },
+   "explanation": "The booking terms allow a surcharge credit after billing review if a carrier-caused delay is confirmed, and the route record shows a carrier sorting delay with no exclusion. The credit still needs billing's approval.",
+   "state_after": {
+    "case_id": "050-N4",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: submit the surcharge credit request and get billing's decision and the credit reference."
+     },
+     "customer": {
+      "name": "Nella Voss",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Ask for the guaranteed-delivery surcharge to be credited after the missed deadline."
+     },
+     "guarantees": {
+      "name": "Service guarantees",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Provide the booking's guarantee terms and the route record of the delay."
+     }
+    },
+    "goal": "Get the authorised billing team's review of a surcharge credit for DL-050 under the guarantee and, if approved, the credit reference.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Prepare a service-guarantee credit request for the GBP 7.50 surcharge with the guaranteed and actual times."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The authorised billing team has approved the surcharge credit.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The billing team has given the credit reference.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-23 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "050-N4"
+     },
+     "context_message_id": "001",
+     "summary": "DL-050's guaranteed-delivery service missed its deadline: request a credit of the surcharge, subject to billing approval.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The carrier sorting delay is recorded, but the surcharge credit needs billing review and approval.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-050.",
+      "source": {
+       "type": "case_card",
+       "id": "050"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The route record shows a carrier sorting delay; the actual recipient handover was at 2026-03-23 08:40 UTC.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The carrier's guarantee covers only the surcharge, subject to billing approval.",
+      "source": {
+       "type": "case_card",
+       "id": "050"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-050 was guaranteed by 2026-03-23 08:00 UTC; the surcharge is GBP 7.50.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Under the booking terms, if a carrier-caused delay is confirmed, the surcharge may be credited after billing review.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "No exclusion is recorded.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {},
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": null,
+     "description": "Arrange billing review of the surcharge credit."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "guarantees": {
+      "participants": [
+       "coordinator",
+       "guarantees"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "guarantees",
+      "event_id": "001",
+      "timestamp": "2026-03-23 09:00:00 UTC",
+      "from_actor": "guarantees",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-050 booking terms excerpt: guaranteed by 2026-03-23 08:00 UTC; surcharge GBP 7.50. If carrier-caused delay is confirmed, the surcharge may be credited after billing review. Route record: carrier sorting delay, actual recipient handover 2026-03-23 08:40 UTC. No exclusion is recorded."
+     }
+    ],
+    "limits": [
+     "Do not multiply the surcharge.",
+     "Do not promise compensation for losses other than the surcharge.",
+     "Do not present a posted credit as money received.",
+     "Do not create a second operational change, booking, charge or credit."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client request",
+    "title": "Nella asks to claim the GBP 7.50 surcharge",
+    "timestamp": "2026-03-23 09:10:00 UTC",
+    "actor_id": "customer",
+    "message_id": "002"
+   },
+   "explanation": "Nella confirms the 08:40 arrival against the 08:00 guarantee and asks only for the surcharge under the booking terms. We submit a service-guarantee request to Plover Arc's guarantee billing with the confirmed times and the recorded delay.",
+   "state_after": {
+    "case_id": "050-N4",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: submit the surcharge credit request and get billing's decision and the credit reference."
+     },
+     "customer": {
+      "name": "Nella Voss",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Ask for the guaranteed-delivery surcharge to be credited after the missed deadline."
+     },
+     "guarantees": {
+      "name": "Service guarantees",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Provide the booking's guarantee terms and the route record of the delay."
+     },
+     "guarantee_billing": {
+      "name": "Guarantee billing",
+      "organization": "Plover Arc Logistics",
+      "role": "billing",
+      "is_us": false,
+      "responsibility": "Review the service-guarantee credit request and decide on the surcharge credit."
+     }
+    },
+    "goal": "Get the authorised billing team's review of a surcharge credit for DL-050 under the guarantee and, if approved, the credit reference.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Email Plover Arc guarantee billing a service-guarantee credit request for DL-050 with the guaranteed and actual times, the recorded sorting delay and the GBP 7.50 surcharge."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The authorised billing team has approved the surcharge credit.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The billing team has given the credit reference.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-23 09:00:00 UTC",
+     "escalated_at": "2026-03-23 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "050-N4"
+     },
+     "context_message_id": "001",
+     "summary": "DL-050's guaranteed-delivery service missed its deadline: request a credit of the surcharge, subject to billing approval.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The surcharge credit request has not yet been submitted to billing.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-050.",
+      "source": {
+       "type": "case_card",
+       "id": "050"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The route record shows a carrier sorting delay; the actual recipient handover was at 2026-03-23 08:40 UTC.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The carrier's guarantee covers only the surcharge, subject to billing approval.",
+      "source": {
+       "type": "case_card",
+       "id": "050"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-050 was guaranteed by 2026-03-23 08:00 UTC; the surcharge is GBP 7.50.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Under the booking terms, if a carrier-caused delay is confirmed, the surcharge may be credited after billing review.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "No exclusion is recorded.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The customer says the parcel arrived at 08:40, later than the guaranteed 08:00 deadline.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "guarantee_billing",
+      "purpose": "Submit a request for the GBP 7.50 service surcharge under the booking terms.",
+      "expected_response": "Billing's decision on the surcharge credit.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "guarantee_billing",
+      "responsible_actor": "guarantee_billing",
+      "purpose": "Review a service-guarantee credit of the GBP 7.50 surcharge for DL-050: guaranteed 08:00 UTC, actual handover 08:40, recorded carrier sorting delay.",
+      "expected_response": "Billing's approval decision and the credit reference.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "permission",
+     "responsible_actor": "guarantee_billing",
+     "request_id": "r1",
+     "description": "Ask guarantee billing to review the surcharge credit."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "guarantees": {
+      "participants": [
+       "coordinator",
+       "guarantees"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "guarantees",
+      "event_id": "001",
+      "timestamp": "2026-03-23 09:00:00 UTC",
+      "from_actor": "guarantees",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-050 booking terms excerpt: guaranteed by 2026-03-23 08:00 UTC; surcharge GBP 7.50. If carrier-caused delay is confirmed, the surcharge may be credited after billing review. Route record: carrier sorting delay, actual recipient handover 2026-03-23 08:40 UTC. No exclusion is recorded."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-23 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "My parcel arrived at 08:40, later than the guaranteed 08:00 deadline. Please submit a request for the GBP 7.50 service surcharge under these booking terms."
+     }
+    ],
+    "limits": [
+     "Do not multiply the surcharge.",
+     "Do not promise compensation for losses other than the surcharge.",
+     "Do not present a posted credit as money received.",
+     "Do not create a second operational change, booking, charge or credit."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our request",
+    "title": "We submit the surcharge credit request",
+    "timestamp": "2026-03-23 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We gave billing the guaranteed and actual times, the confirmed sorting delay and the GBP 7.50 surcharge, and stated that the customer seeks only the surcharge. Now we wait for billing's decision.",
+   "state_after": {
+    "case_id": "050-N4",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: submit the surcharge credit request and get billing's decision and the credit reference."
+     },
+     "customer": {
+      "name": "Nella Voss",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Ask for the guaranteed-delivery surcharge to be credited after the missed deadline."
+     },
+     "guarantees": {
+      "name": "Service guarantees",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Provide the booking's guarantee terms and the route record of the delay."
+     },
+     "guarantee_billing": {
+      "name": "Guarantee billing",
+      "organization": "Plover Arc Logistics",
+      "role": "billing",
+      "is_us": false,
+      "responsibility": "Review the service-guarantee credit request and decide on the surcharge credit."
+     }
+    },
+    "goal": "Get the authorised billing team's review of a surcharge credit for DL-050 under the guarantee and, if approved, the credit reference.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "guarantee_billing",
+       "request_id": "r1",
+       "expected": "Approval decision and credit reference"
+      }
+     ],
+     "next_action": "Once billing decides, record the decision and the credit reference."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The authorised billing team has approved the surcharge credit.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The billing team has given the credit reference.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-23 09:00:00 UTC",
+     "escalated_at": "2026-03-23 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "050-N4"
+     },
+     "context_message_id": "001",
+     "summary": "DL-050's guaranteed-delivery service missed its deadline: request a credit of the surcharge, subject to billing approval.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "Billing has not yet decided on the surcharge credit.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-050.",
+      "source": {
+       "type": "case_card",
+       "id": "050"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The route record shows a carrier sorting delay; the actual recipient handover was at 2026-03-23 08:40 UTC.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The carrier's guarantee covers only the surcharge, subject to billing approval.",
+      "source": {
+       "type": "case_card",
+       "id": "050"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-050 was guaranteed by 2026-03-23 08:00 UTC; the surcharge is GBP 7.50.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Under the booking terms, if a carrier-caused delay is confirmed, the surcharge may be credited after billing review.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "No exclusion is recorded.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The customer says the parcel arrived at 08:40, later than the guaranteed 08:00 deadline.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "guarantee_billing",
+      "purpose": "Submit a request for the GBP 7.50 service surcharge under the booking terms.",
+      "expected_response": "Billing's decision on the surcharge credit.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "guarantee_billing",
+      "responsible_actor": "guarantee_billing",
+      "purpose": "Review a service-guarantee credit of the GBP 7.50 surcharge for DL-050: guaranteed 08:00 UTC, actual handover 08:40, recorded carrier sorting delay.",
+      "expected_response": "Billing's approval decision and the credit reference.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_response",
+    "next_step": {
+     "type": "permission",
+     "responsible_actor": "guarantee_billing",
+     "request_id": "r1",
+     "description": "Wait for billing's decision on the surcharge credit."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "guarantees": {
+      "participants": [
+       "coordinator",
+       "guarantees"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     },
+     "billing": {
+      "participants": [
+       "coordinator",
+       "guarantee_billing"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "guarantees",
+      "event_id": "001",
+      "timestamp": "2026-03-23 09:00:00 UTC",
+      "from_actor": "guarantees",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-050 booking terms excerpt: guaranteed by 2026-03-23 08:00 UTC; surcharge GBP 7.50. If carrier-caused delay is confirmed, the surcharge may be credited after billing review. Route record: carrier sorting delay, actual recipient handover 2026-03-23 08:40 UTC. No exclusion is recorded."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-23 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "My parcel arrived at 08:40, later than the guaranteed 08:00 deadline. Please submit a request for the GBP 7.50 service surcharge under these booking terms."
+     },
+     {
+      "conversation_id": "billing",
+      "event_id": "003",
+      "timestamp": "2026-03-23 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "guarantee_billing",
+      "channel": "Email",
+      "body": "Please review a service-guarantee credit request for DL-050: guaranteed 2026-03-23 08:00 UTC, actual handover 08:40, confirmed carrier sorting delay, surcharge GBP 7.50. Customer seeks only the surcharge under this booking’s terms."
+     }
+    ],
+    "limits": [
+     "Do not multiply the surcharge.",
+     "Do not promise compensation for losses other than the surcharge.",
+     "Do not present a posted credit as money received.",
+     "Do not create a second operational change, booking, charge or credit."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "New escalation",
+    "title": "Customer filed her own claim too",
+    "timestamp": "2026-03-23 09:40:00 UTC",
+    "actor_id": "customer",
+    "message_id": "004"
+   },
+   "explanation": "Link duplicate requests and retain one operational record. Do not create a second operational change, booking, charge or credit.",
+   "state_after": {
+    "case_id": "050-N4",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: submit the surcharge credit request and get billing's decision and the credit reference."
+     },
+     "customer": {
+      "name": "Nella Voss",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Ask for the guaranteed-delivery surcharge to be credited after the missed deadline."
+     },
+     "guarantees": {
+      "name": "Service guarantees",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Provide the booking's guarantee terms and the route record of the delay."
+     },
+     "guarantee_billing": {
+      "name": "Guarantee billing",
+      "organization": "Plover Arc Logistics",
+      "role": "billing",
+      "is_us": false,
+      "responsibility": "Review the service-guarantee credit request and decide on the surcharge credit."
+     }
+    },
+    "goal": "Link duplicate requests and retain one operational record.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Email Guarantee billing that Nella's 09:15 UTC claim and the desk's 09:25 UTC request concern the same GBP 7.50 surcharge and ask that they be handled as one."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The owner confirms that the duplicate is linked or closed and only one operational request or change remains.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-23 09:00:00 UTC",
+     "escalated_at": "2026-03-23 09:40:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "050-N4"
+     },
+     "context_message_id": "001",
+     "summary": "Link duplicate requests and retain one operational record.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The new escalation requires a scoped response. I also filed a guarantee claim for DL-050 myself in the carrier's customer portal at 09:15 UTC, before you replied. I hope that speeds things up.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-050.",
+      "source": {
+       "type": "case_card",
+       "id": "050"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The route record shows a carrier sorting delay; the actual recipient handover was at 2026-03-23 08:40 UTC.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The carrier's guarantee covers only the surcharge, subject to billing approval.",
+      "source": {
+       "type": "case_card",
+       "id": "050"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-050 was guaranteed by 2026-03-23 08:00 UTC; the surcharge is GBP 7.50.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Under the booking terms, if a carrier-caused delay is confirmed, the surcharge may be credited after billing review.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "No exclusion is recorded.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The customer says the parcel arrived at 08:40, later than the guaranteed 08:00 deadline.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Nella Voss reports: I also filed a guarantee claim for DL-050 myself in the carrier's customer portal at 09:15 UTC, before you replied.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Nella Voss reports: I hope that speeds things up.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "guarantee_billing",
+      "purpose": "Submit a request for the GBP 7.50 service surcharge under the booking terms.",
+      "expected_response": "Billing's decision on the surcharge credit.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "guarantee_billing",
+      "responsible_actor": "guarantee_billing",
+      "purpose": "Review a service-guarantee credit of the GBP 7.50 surcharge for DL-050: guaranteed 08:00 UTC, actual handover 08:40, recorded carrier sorting delay.",
+      "expected_response": "Billing's approval decision and the credit reference.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "guarantee_billing",
+      "responsible_actor": "guarantee_billing",
+      "purpose": "Email Guarantee billing that Nella's 09:15 UTC claim and the desk's 09:25 UTC request concern the same GBP 7.50 surcharge and ask that they be handled as one.",
+      "expected_response": "The owner confirms that the duplicate is linked or closed and only one operational request or change remains.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "resolve_duplicate",
+       "action": "Email Guarantee billing that Nella's 09:15 UTC claim and the desk's 09:25 UTC request concern the same GBP 7.50 surcharge and ask that they be handled as one.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Let both run, which could post two GBP 7.50 credits, GBP the unconfirmed value in total.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "action_required",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": "branch_request",
+     "description": "Email Guarantee billing that Nella's 09:15 UTC claim and the desk's 09:25 UTC request concern the same GBP 7.50 surcharge and ask that they be handled as one."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "guarantees": {
+      "participants": [
+       "coordinator",
+       "guarantees"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     },
+     "billing": {
+      "participants": [
+       "coordinator",
+       "guarantee_billing"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "guarantees",
+      "event_id": "001",
+      "timestamp": "2026-03-23 09:00:00 UTC",
+      "from_actor": "guarantees",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-050 booking terms excerpt: guaranteed by 2026-03-23 08:00 UTC; surcharge GBP 7.50. If carrier-caused delay is confirmed, the surcharge may be credited after billing review. Route record: carrier sorting delay, actual recipient handover 2026-03-23 08:40 UTC. No exclusion is recorded."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-23 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "My parcel arrived at 08:40, later than the guaranteed 08:00 deadline. Please submit a request for the GBP 7.50 service surcharge under these booking terms."
+     },
+     {
+      "conversation_id": "billing",
+      "event_id": "003",
+      "timestamp": "2026-03-23 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "guarantee_billing",
+      "channel": "Email",
+      "body": "Please review a service-guarantee credit request for DL-050: guaranteed 2026-03-23 08:00 UTC, actual handover 08:40, confirmed carrier sorting delay, surcharge GBP 7.50. Customer seeks only the surcharge under this booking’s terms."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "004",
+      "timestamp": "2026-03-23 09:40:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I also filed a guarantee claim for DL-050 myself in the carrier's customer portal at 09:15 UTC, before you replied. I hope that speeds things up."
+     }
+    ],
+    "limits": [
+     "Do not multiply the surcharge.",
+     "Do not promise compensation for losses other than the surcharge.",
+     "Do not present a posted credit as money received.",
+     "Do not create a second operational change, booking, charge or credit."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "The authorised billing team has approved the surcharge credit.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The billing team has given the credit reference.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "005",
+    "type": "message_sent",
+    "label": "Desk response",
+    "title": "Link duplicate requests and retain one operational record",
+    "timestamp": "2026-03-23 09:55:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "005"
+   },
+   "explanation": "The desk sends the recorded response. Do not create a second operational change, booking, charge or credit.",
+   "state_after": {
+    "case_id": "050-N4",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: submit the surcharge credit request and get billing's decision and the credit reference."
+     },
+     "customer": {
+      "name": "Nella Voss",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Ask for the guaranteed-delivery surcharge to be credited after the missed deadline."
+     },
+     "guarantees": {
+      "name": "Service guarantees",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Provide the booking's guarantee terms and the route record of the delay."
+     },
+     "guarantee_billing": {
+      "name": "Guarantee billing",
+      "organization": "Plover Arc Logistics",
+      "role": "billing",
+      "is_us": false,
+      "responsibility": "Review the service-guarantee credit request and decide on the surcharge credit."
+     }
+    },
+    "goal": "Link duplicate requests and retain one operational record.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "guarantee_billing",
+       "request_id": "branch_request",
+       "expected": "The owner confirms that the duplicate is linked or closed and only one operational request or change remains."
+      }
+     ],
+     "next_action": "Record the reply or scoped confirmation before closing this branch."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The owner confirms that the duplicate is linked or closed and only one operational request or change remains.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-23 09:00:00 UTC",
+     "escalated_at": "2026-03-23 09:40:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "050-N4"
+     },
+     "context_message_id": "001",
+     "summary": "Link duplicate requests and retain one operational record.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The scoped reply or confirmation has not yet been recorded.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-050.",
+      "source": {
+       "type": "case_card",
+       "id": "050"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The route record shows a carrier sorting delay; the actual recipient handover was at 2026-03-23 08:40 UTC.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The carrier's guarantee covers only the surcharge, subject to billing approval.",
+      "source": {
+       "type": "case_card",
+       "id": "050"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-050 was guaranteed by 2026-03-23 08:00 UTC; the surcharge is GBP 7.50.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Under the booking terms, if a carrier-caused delay is confirmed, the surcharge may be credited after billing review.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "No exclusion is recorded.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The customer says the parcel arrived at 08:40, later than the guaranteed 08:00 deadline.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Nella Voss reports: I also filed a guarantee claim for DL-050 myself in the carrier's customer portal at 09:15 UTC, before you replied.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Nella Voss reports: I hope that speeds things up.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "guarantee_billing",
+      "purpose": "Submit a request for the GBP 7.50 service surcharge under the booking terms.",
+      "expected_response": "Billing's decision on the surcharge credit.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "guarantee_billing",
+      "responsible_actor": "guarantee_billing",
+      "purpose": "Review a service-guarantee credit of the GBP 7.50 surcharge for DL-050: guaranteed 08:00 UTC, actual handover 08:40, recorded carrier sorting delay.",
+      "expected_response": "Billing's approval decision and the credit reference.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "guarantee_billing",
+      "responsible_actor": "guarantee_billing",
+      "purpose": "Email Guarantee billing that Nella's 09:15 UTC claim and the desk's 09:25 UTC request concern the same GBP 7.50 surcharge and ask that they be handled as one.",
+      "expected_response": "The owner confirms that the duplicate is linked or closed and only one operational request or change remains.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "004",
+       "005"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "resolve_duplicate",
+       "action": "Email Guarantee billing that Nella's 09:15 UTC claim and the desk's 09:25 UTC request concern the same GBP 7.50 surcharge and ask that they be handled as one.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Let both run, which could post two GBP 7.50 credits, GBP the unconfirmed value in total.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "resolve_duplicate",
+     "reason": "The recorded outgoing message takes this permitted response."
+    },
+    "status": "awaiting_confirmation",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "guarantee_billing",
+     "request_id": "branch_request",
+     "description": "The owner confirms that the duplicate is linked or closed and only one operational request or change remains."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "guarantees": {
+      "participants": [
+       "coordinator",
+       "guarantees"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     },
+     "billing": {
+      "participants": [
+       "coordinator",
+       "guarantee_billing"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "guarantee_billing"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "guarantees",
+      "event_id": "001",
+      "timestamp": "2026-03-23 09:00:00 UTC",
+      "from_actor": "guarantees",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-050 booking terms excerpt: guaranteed by 2026-03-23 08:00 UTC; surcharge GBP 7.50. If carrier-caused delay is confirmed, the surcharge may be credited after billing review. Route record: carrier sorting delay, actual recipient handover 2026-03-23 08:40 UTC. No exclusion is recorded."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-23 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "My parcel arrived at 08:40, later than the guaranteed 08:00 deadline. Please submit a request for the GBP 7.50 service surcharge under these booking terms."
+     },
+     {
+      "conversation_id": "billing",
+      "event_id": "003",
+      "timestamp": "2026-03-23 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "guarantee_billing",
+      "channel": "Email",
+      "body": "Please review a service-guarantee credit request for DL-050: guaranteed 2026-03-23 08:00 UTC, actual handover 08:40, confirmed carrier sorting delay, surcharge GBP 7.50. Customer seeks only the surcharge under this booking’s terms."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "004",
+      "timestamp": "2026-03-23 09:40:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I also filed a guarantee claim for DL-050 myself in the carrier's customer portal at 09:15 UTC, before you replied. I hope that speeds things up."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-03-23 09:55:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "guarantee_billing",
+      "channel": "Email",
+      "body": "Nella Voss filed a guarantee claim for DL-050 in your customer portal at 09:15 UTC. Our request of 09:25 UTC concerns the same GBP 7.50 surcharge. Please handle the two as one claim, so that at most one GBP 7.50 credit can result."
+     }
+    ],
+    "limits": [
+     "Do not multiply the surcharge.",
+     "Do not promise compensation for losses other than the surcharge.",
+     "Do not present a posted credit as money received.",
+     "Do not create a second operational change, booking, charge or credit."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "The authorised billing team has approved the surcharge credit.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The billing team has given the credit reference.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "006",
+    "type": "message_received",
+    "label": "Scoped confirmation",
+    "title": "Follow-through confirms the branch outcome",
+    "timestamp": "2026-03-23 10:20:00 UTC",
+    "actor_id": "guarantee_billing",
+    "message_id": "006"
+   },
+   "explanation": "Record what the responding party actually confirms. Nella Voss's 09:15 UTC claim and your 09:25 UTC request are now one claim for DL-050. Only one GBP 7.50 surcharge credit can be considered. Review is still pending; nothing is approved or posted.",
+   "state_after": {
+    "case_id": "050-N4",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: submit the surcharge credit request and get billing's decision and the credit reference."
+     },
+     "customer": {
+      "name": "Nella Voss",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Ask for the guaranteed-delivery surcharge to be credited after the missed deadline."
+     },
+     "guarantees": {
+      "name": "Service guarantees",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Provide the booking's guarantee terms and the route record of the delay."
+     },
+     "guarantee_billing": {
+      "name": "Guarantee billing",
+      "organization": "Plover Arc Logistics",
+      "role": "billing",
+      "is_us": false,
+      "responsibility": "Review the service-guarantee credit request and decide on the surcharge credit."
+     }
+    },
+    "goal": "Link duplicate requests and retain one operational record.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The owner confirms that the duplicate is linked or closed and only one operational request or change remains.",
+      "status": "met",
+      "evidence_event_ids": [
+       "005",
+       "006"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-23 09:00:00 UTC",
+     "escalated_at": "2026-03-23 09:40:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "050-N4"
+     },
+     "context_message_id": "001",
+     "summary": "Link duplicate requests and retain one operational record.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-050.",
+      "source": {
+       "type": "case_card",
+       "id": "050"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The route record shows a carrier sorting delay; the actual recipient handover was at 2026-03-23 08:40 UTC.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The carrier's guarantee covers only the surcharge, subject to billing approval.",
+      "source": {
+       "type": "case_card",
+       "id": "050"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-050 was guaranteed by 2026-03-23 08:00 UTC; the surcharge is GBP 7.50.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Under the booking terms, if a carrier-caused delay is confirmed, the surcharge may be credited after billing review.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "No exclusion is recorded.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The customer says the parcel arrived at 08:40, later than the guaranteed 08:00 deadline.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Nella Voss reports: I also filed a guarantee claim for DL-050 myself in the carrier's customer portal at 09:15 UTC, before you replied.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Nella Voss reports: I hope that speeds things up.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_outcome_1",
+      "text": "Guarantee billing reports: Nella Voss's 09:15 UTC claim and your 09:25 UTC request are now one claim for DL-050.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_2",
+      "text": "Guarantee billing reports: Only one GBP 7.50 surcharge credit can be considered.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_3",
+      "text": "Guarantee billing reports: Review is still pending; nothing is approved or posted.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "guarantee_billing",
+      "purpose": "Submit a request for the GBP 7.50 service surcharge under the booking terms.",
+      "expected_response": "Billing's decision on the surcharge credit.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "guarantee_billing",
+      "responsible_actor": "guarantee_billing",
+      "purpose": "Review a service-guarantee credit of the GBP 7.50 surcharge for DL-050: guaranteed 08:00 UTC, actual handover 08:40, recorded carrier sorting delay.",
+      "expected_response": "Billing's approval decision and the credit reference.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "guarantee_billing",
+      "responsible_actor": "guarantee_billing",
+      "purpose": "Email Guarantee billing that Nella's 09:15 UTC claim and the desk's 09:25 UTC request concern the same GBP 7.50 surcharge and ask that they be handled as one.",
+      "expected_response": "The owner confirms that the duplicate is linked or closed and only one operational request or change remains.",
+      "status": "completed",
+      "response": "Nella Voss's 09:15 UTC claim and your 09:25 UTC request are now one claim for DL-050. Only one GBP 7.50 surcharge credit can be considered. Review is still pending; nothing is approved or posted.",
+      "evidence_event_ids": [
+       "004",
+       "005",
+       "006"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "resolve_duplicate",
+       "action": "Email Guarantee billing that Nella's 09:15 UTC claim and the desk's 09:25 UTC request concern the same GBP 7.50 surcharge and ask that they be handled as one.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Let both run, which could post two GBP 7.50 credits, GBP the unconfirmed value in total.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "resolve_duplicate",
+     "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "Nella Voss's 09:15 UTC claim and your 09:25 UTC request are now one claim for DL-050. Only one GBP 7.50 surcharge credit can be considered. Review is still pending; nothing is approved or posted.",
+     "confirmed_by": "guarantee_billing",
+     "evidence_event_ids": [
+      "006"
+     ],
+     "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Let both run, which could post two GBP 7.50 credits, GBP 15.00 in total."
+    },
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "guarantees": {
+      "participants": [
+       "coordinator",
+       "guarantees"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     },
+     "billing": {
+      "participants": [
+       "coordinator",
+       "guarantee_billing"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "guarantee_billing"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "guarantees",
+      "event_id": "001",
+      "timestamp": "2026-03-23 09:00:00 UTC",
+      "from_actor": "guarantees",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-050 booking terms excerpt: guaranteed by 2026-03-23 08:00 UTC; surcharge GBP 7.50. If carrier-caused delay is confirmed, the surcharge may be credited after billing review. Route record: carrier sorting delay, actual recipient handover 2026-03-23 08:40 UTC. No exclusion is recorded."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-23 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "My parcel arrived at 08:40, later than the guaranteed 08:00 deadline. Please submit a request for the GBP 7.50 service surcharge under these booking terms."
+     },
+     {
+      "conversation_id": "billing",
+      "event_id": "003",
+      "timestamp": "2026-03-23 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "guarantee_billing",
+      "channel": "Email",
+      "body": "Please review a service-guarantee credit request for DL-050: guaranteed 2026-03-23 08:00 UTC, actual handover 08:40, confirmed carrier sorting delay, surcharge GBP 7.50. Customer seeks only the surcharge under this booking’s terms."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "004",
+      "timestamp": "2026-03-23 09:40:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I also filed a guarantee claim for DL-050 myself in the carrier's customer portal at 09:15 UTC, before you replied. I hope that speeds things up."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-03-23 09:55:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "guarantee_billing",
+      "channel": "Email",
+      "body": "Nella Voss filed a guarantee claim for DL-050 in your customer portal at 09:15 UTC. Our request of 09:25 UTC concerns the same GBP 7.50 surcharge. Please handle the two as one claim, so that at most one GBP 7.50 credit can result."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "006",
+      "timestamp": "2026-03-23 10:20:00 UTC",
+      "from_actor": "guarantee_billing",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Nella Voss's 09:15 UTC claim and your 09:25 UTC request are now one claim for DL-050. Only one GBP 7.50 surcharge credit can be considered. Review is still pending; nothing is approved or posted."
+     }
+    ],
+    "limits": [
+     "Do not multiply the surcharge.",
+     "Do not promise compensation for losses other than the surcharge.",
+     "Do not present a posted credit as money received.",
+     "Do not create a second operational change, booking, charge or credit."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "The authorised billing team has approved the surcharge credit.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The billing team has given the credit reference.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  }
+ ]
+}

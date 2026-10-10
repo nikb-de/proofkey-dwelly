@@ -1,0 +1,604 @@
+{
+ "case_id": "009-N3",
+ "lang": "en",
+ "title": "009-N3 · No checklist confirmation before crew cut-off",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Sena Korr. From the case card: a two-person furniture crew has supplied an access checklist for DL-009, and the customer must confirm it before the crew retains the booking.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: collect the recipient's access details and pass them to the delivery team for review.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Sena Korr",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Report the actual route conditions against the crew's access checklist.",
+   "from_start": true,
+   "source_names": [
+    "Sena Korr, recipient"
+   ]
+  },
+  "delivery_team": {
+   "name": "Furniture delivery team",
+   "organization": "Plover Arc Logistics",
+   "role": "carrier",
+   "responsibility": "Set the access checklist, review the confirmed access details and decide whether the booking stays active.",
+   "from_start": false,
+   "source_names": [
+    "Furniture delivery team, Plover Arc Logistics"
+   ]
+  }
+ },
+ "goal": "Get the recipient's confirmation of the access route against the crew's checklist and the delivery team's acceptance of it, so that the booking stays active.",
+ "limits": [
+  "Do not present the customer's measurements as a guarantee of safe unloading on arrival.",
+  "Do not treat a reminder or silence as consent, a booking or execution."
+ ],
+ "intake": {
+  "summary": "DL-009: bulky delivery; the recipient must confirm the crew's access checklist before the crew keeps the booking.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The customer has not confirmed the crew's access checklist; the crew retains the booking only after that confirmation.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-009.",
+    "source": {
+     "type": "case_card",
+     "id": "009"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "A two-person furniture crew has supplied an access checklist.",
+    "source": {
+     "type": "case_card",
+     "id": "009"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The customer must confirm the checklist before the crew retains the booking.",
+    "source": {
+     "type": "case_card",
+     "id": "009"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The recipient has confirmed the route conditions against the crew's access checklist."
+   },
+   {
+    "id": "c2",
+    "description": "The delivery team has accepted the confirmed access details."
+   },
+   {
+    "id": "c3",
+    "description": "The delivery team has confirmed that the booking remains active."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/009/N3-NO_REPLY",
+  "branch_id": "009-N3",
+  "derived_from_case": "009",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "NO_REPLY",
+  "expected_decision": "WAIT_WITH_DEADLINE",
+  "workflow_sheet": "B",
+  "branch_label": "No checklist confirmation before crew cut-off",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "476affd178c32905272cf1e4011c888377e1a35c244c3c736c39d4670e1bccfb",
+   "history.md": "65ea586d25e46887aeeb7a6b84ac391d95e8b6552cd3b17b9b1bc6292d04a80c"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Crew checklist",
+   "title": "Delivery team sends the access checklist",
+   "explanation": "The delivery team set the route requirements for the armchair. Only the recipient can say whether her route meets them, so the next step is a question to her.",
+   "conversation_id": "delivery_team",
+   "facts_upsert": [
+    {
+     "id": "f4",
+     "text": "DL-009 is a boxed armchair, 82 cm wide.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "The accepted booking needs a clear route with at least 90 cm usable width, no loose obstacles and no unreported stairs.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f6",
+     "text": "The checklist is the crew's requirement, not advice to move heavy furniture yourself.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Confirm whether the route has at least 90 cm usable width, no loose obstacles and no unreported stairs.",
+     "expected_response": "The route conditions against the checklist.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "001"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask the recipient to confirm the route against the crew's checklist."
+   },
+   "blocker": "Nobody has confirmed that the route meets the checklist: at least 90 cm usable width, no loose obstacles, no unreported stairs.",
+   "status": "context_received",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Confirm the route against the crew's access checklist."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Sena asks to keep the booking",
+   "explanation": "Sena cleared the small shoes but has not confirmed the access requirements, and the crew keeps the booking only after that confirmation. So we ask her to check the route against the checklist first.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f7",
+     "text": "The recipient has put the small shoes away.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f8",
+     "text": "The recipient has not confirmed the access requirements.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f9",
+     "text": "The recipient asks us to keep the delivery booking for 2026-02-11.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "delivery_team",
+     "purpose": "Keep the delivery booking for 2026-02-11.",
+     "expected_response": "The booking stays active.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask Sena to confirm the route is at least 90 cm wide, clear of loose obstacles and free of stairs, without moving heavy items."
+   },
+   "blocker": "Sena has not confirmed the access requirements; putting the shoes away does not confirm the checklist.",
+   "status": "escalated",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Confirm the route against the crew's access checklist."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "access-requirements-context",
+     "kind": "context",
+     "title": "What Sena knew before her message",
+     "text": "Sena refers to the access requirements, so she knows the crew has set them. How she learned them is not recorded in the history.",
+     "before_message_id": "002",
+     "source_event_ids": [
+      "002"
+     ]
+    }
+   ]
+  },
+  {
+   "event_id": "003",
+   "label": "Our question",
+   "title": "We ask Sena to check the route",
+   "explanation": "We asked for the three checklist conditions and told Sena not to move heavy items to meet them. If the route falls short, the delivery team reassesses. Now we wait for her answer.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Confirm whether the route is at least 90 cm wide, clear of loose obstacles and free of stairs; if not, say so for the delivery team to reassess, without moving heavy items.",
+     "expected_response": "The route conditions against the checklist.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "001",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "recipient",
+      "request_id": "r1",
+      "expected": "Route width, obstacles and stairs"
+     }
+    ],
+    "next_action": "Once Sena answers, pass her access details to the delivery team for review."
+   },
+   "blocker": "The route has not been confirmed against the checklist.",
+   "status": "awaiting_response",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Wait for Sena's route details."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "New escalation",
+   "title": "No checklist confirmation before crew cut-off",
+   "explanation": "Send one reminder with the recorded deadline and consequence. Do not treat a reminder or silence as consent, a booking or execution.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Furniture delivery team reports: We still have no access confirmation for DL-009.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Furniture delivery team reports: Crews for 2026-02-11 are fixed at 17:00 UTC today.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Furniture delivery team reports: A booking without a confirmed checklist by then moves to the next available two-person date.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Send Sena one reminder in the Customer portal that the checklist must be confirmed before 17:00 UTC or the booking moves, and record the Furniture delivery team as owner of that deadline.",
+     "expected_response": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Send Sena one reminder in the Customer portal that the checklist must be confirmed before 17:00 UTC or the booking moves, and record the Furniture delivery team as owner of that deadline."
+   },
+   "blocker": "The new escalation requires a scoped response. We still have no access confirmation for DL-009. Crews for 2026-02-11 are fixed at 17:00 UTC today. A booking without a confirmed checklist by then moves to the next available two-person date.",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Send Sena one reminder in the Customer portal that the checklist must be confirmed before 17:00 UTC or the booking moves, and record the Furniture delivery team as owner of that deadline."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "004",
+     "source_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c1",
+    "c2",
+    "c3"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "wait_with_deadline",
+      "action": "Send Sena one reminder in the Customer portal that the checklist must be confirmed before 17:00 UTC or the booking moves, and record the Furniture delivery team as owner of that deadline.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Confirm the checklist on Sena's behalf because she said the shoes were put away.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "009-N3"
+    },
+    "summary": "Send one reminder with the recorded deadline and consequence.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Send one reminder with the recorded deadline and consequence."
+   }
+  },
+  {
+   "event_id": "005",
+   "label": "Desk response",
+   "title": "Send one reminder with the recorded deadline and consequence",
+   "explanation": "The desk sends the recorded response. Do not treat a reminder or silence as consent, a booking or execution.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Send Sena one reminder in the Customer portal that the checklist must be confirmed before 17:00 UTC or the booking moves, and record the Furniture delivery team as owner of that deadline.",
+     "expected_response": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "recipient",
+      "request_id": "branch_request",
+      "expected": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_response",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "recipient",
+    "request_id": "branch_request",
+    "description": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "wait_with_deadline",
+      "action": "Send Sena one reminder in the Customer portal that the checklist must be confirmed before 17:00 UTC or the booking moves, and record the Furniture delivery team as owner of that deadline.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Confirm the checklist on Sena's behalf because she said the shoes were put away.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "wait_with_deadline",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. No access confirmation for DL-009 arrived by 17:00 UTC. The 2026-02-11 booking has moved to the next available two-person date, 2026-02-13, 08:00–12:00 UTC, still subject to a confirmed checklist. This is a rebooking, not a delivery.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Furniture delivery team reports: No access confirmation for DL-009 arrived by 17:00 UTC.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Furniture delivery team reports: The 2026-02-11 booking has moved to the next available two-person date, 2026-02-13, 08:00–12:00 UTC, still subject to a confirmed checklist.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Furniture delivery team reports: This is a rebooking, not a delivery.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Send Sena one reminder in the Customer portal that the checklist must be confirmed before 17:00 UTC or the booking moves, and record the Furniture delivery team as owner of that deadline.",
+     "expected_response": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking.",
+     "status": "superseded",
+     "response": "The record owner confirms the deadline outcome; no answer or consent from the silent party is inferred.",
+     "evidence_event_ids": [
+      "004",
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "No access confirmation for DL-009 arrived by 17:00 UTC. The 2026-02-11 booking has moved to the next available two-person date, 2026-02-13, 08:00–12:00 UTC, still subject to a confirmed checklist. This is a rebooking, not a delivery.",
+    "confirmed_by": "delivery_team",
+    "evidence_event_ids": [
+     "006"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Confirm the checklist on Sena's behalf because she said the shoes were put away."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "wait_with_deadline",
+      "action": "Send Sena one reminder in the Customer portal that the checklist must be confirmed before 17:00 UTC or the booking moves, and record the Furniture delivery team as owner of that deadline.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Confirm the checklist on Sena's behalf because she said the shoes were put away.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "wait_with_deadline",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

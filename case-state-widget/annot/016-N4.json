@@ -1,0 +1,644 @@
+{
+ "case_id": "016-N4",
+ "lang": "en",
+ "title": "016-N4 · Counter full after recipient accepted",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Zerin Pave. From the case card: the destination locker for DL-016 has no free compartment, and the carrier needs to offer a viable alternate, then confirm readiness after the recipient chooses.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get the carrier to offer an alternative, obtain the recipient's choice and confirmation that the parcel is ready at the new location.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Zerin Pave",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Choose an alternative collection option that works before the locker retry date.",
+   "from_start": true,
+   "source_names": [
+    "Zerin Pave, recipient"
+   ]
+  },
+  "locker_routing": {
+   "name": "Locker routing",
+   "organization": "Plover Arc Logistics",
+   "role": "carrier",
+   "responsibility": "Offer an available alternative to the full locker, obtain the recipient's choice and transfer DL-016 to the chosen location.",
+   "from_start": false,
+   "source_names": [
+    "Locker routing, Plover Arc Logistics"
+   ]
+  }
+ },
+ "goal": "Get the carrier to offer the recipient a viable alternative to the full locker, obtain the recipient's acceptance, and have the new location confirm readiness for collection.",
+ "limits": [
+  "Do not treat an accepted alternative alone as readiness for collection.",
+  "Do not say the parcel has been collected: collection remains open.",
+  "Do not choose for the customer or treat a choice as a confirmed booking."
+ ],
+ "intake": {
+  "summary": "DL-016 cannot go into the full destination locker; the recipient needs an alternative collection option.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The destination locker has no free compartment and no alternative has been chosen.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-016.",
+    "source": {
+     "type": "case_card",
+     "id": "016"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The destination locker has no free compartment.",
+    "source": {
+     "type": "case_card",
+     "id": "016"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The carrier needs to offer a viable alternate, then confirm readiness after the recipient chooses.",
+    "source": {
+     "type": "case_card",
+     "id": "016"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The recipient has accepted an alternative collection option."
+   },
+   {
+    "id": "c2",
+    "description": "The new location has confirmed the parcel is ready for collection."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/016/N4-STALE_STATE",
+  "branch_id": "016-N4",
+  "derived_from_case": "016",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "STALE_STATE",
+  "expected_decision": "ASK_CUSTOMER",
+  "workflow_sheet": "B",
+  "branch_label": "Counter full after recipient accepted",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "764d1d4237374bcac9882e507ac3de35f7d941069854d6a54e7d3590ce1cda0e",
+   "history.md": "3defdd853d1fbfb170e6f65d15b89e1d3a15bf20f44e295539e223d9a5327daa"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Routing email",
+   "title": "Locker full; routing offers two options",
+   "explanation": "The parcel stays in depot stock, and locker routing offers a staffed counter or a locker retry after two days. The recipient has to choose, so nothing is routed yet.",
+   "conversation_id": "routing",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "DL-016 cannot be placed in Copperfin Locker because all suitable compartments are occupied.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f4",
+     "text": "The parcel remains in depot stock.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "Locker routing can offer staffed Sedgeglass Counter or retry the locker after two days.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Get the recipient's choice between staffed Sedgeglass Counter and a locker retry after two days."
+   },
+   "blocker": "The locker is full and no alternative collection option has been chosen.",
+   "status": "context_received",
+   "next_step": {
+    "type": "decision",
+    "responsible_actor": "recipient",
+    "request_id": null,
+    "description": "Choose between staffed Sedgeglass Counter and a locker retry after two days."
+   },
+   "result": null,
+   "decision": {
+    "required": true,
+    "question": "How should DL-016 be collected instead of the full Copperfin Locker?",
+    "options": [
+     {
+      "id": "o1",
+      "label": "Staffed Sedgeglass Counter",
+      "conditions": "Offered by locker routing."
+     },
+     {
+      "id": "o2",
+      "label": "Retry Copperfin Locker after two days",
+      "conditions": "Offered by locker routing."
+     }
+    ],
+    "decision_maker": "recipient",
+    "selected_option": null,
+    "reason": null
+   },
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Zerin asks for an earlier alternative",
+   "explanation": "Zerin needs the parcel before the locker retry date and asks for the carrier's alternative. We ask locker routing to offer Sedgeglass Counter to Zerin and obtain the choice before anything is routed.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f6",
+     "text": "The recipient needs the parcel before the locker retry date.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f7",
+     "text": "The recipient asks to be sent the carrier's alternative collection option.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "information",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "locker_routing",
+     "purpose": "Send the recipient the carrier's alternative collection option.",
+     "expected_response": "The alternative collection option.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "decision",
+     "from_actor": "coordinator",
+     "to_actor": "locker_routing",
+     "responsible_actor": "locker_routing",
+     "purpose": "Offer Zerin the staffed Sedgeglass Counter option and obtain their choice.",
+     "expected_response": "Zerin's choice.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask locker routing to offer Zerin the staffed Sedgeglass Counter option and obtain their choice."
+   },
+   "blocker": "No alternative collection option has been chosen.",
+   "status": "escalated",
+   "next_step": {
+    "type": "decision",
+    "responsible_actor": "locker_routing",
+    "request_id": "r1",
+    "description": "Offer Zerin Sedgeglass Counter and obtain the choice."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "locker-retry-context",
+     "kind": "context",
+     "title": "What Zerin knew before the message",
+     "text": "Zerin refers to the locker retry date, so Zerin knows a locker retry is planned. How Zerin learned this is not recorded in the history.",
+     "before_message_id": "002",
+     "source_event_ids": [
+      "002"
+     ]
+    }
+   ]
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We ask routing to offer the counter",
+   "explanation": "We asked locker routing to offer the counter through the verified order thread and to get Zerin's choice before routing DL-016. Now we wait for the carrier to report the choice.",
+   "conversation_id": "routing",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "decision",
+     "from_actor": "coordinator",
+     "to_actor": "locker_routing",
+     "responsible_actor": "locker_routing",
+     "purpose": "Offer Zerin the available staffed Sedgeglass Counter option through the verified order thread and obtain their choice before routing DL-016.",
+     "expected_response": "Zerin's choice, obtained before DL-016 is routed.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "locker_routing",
+      "request_id": "r1",
+      "expected": "Zerin's choice of collection option"
+     }
+    ],
+    "next_action": "Once the choice is reported, check that the chosen location confirms readiness for collection."
+   },
+   "blocker": "No alternative collection option has been chosen.",
+   "status": "awaiting_decision",
+   "next_step": {
+    "type": "decision",
+    "responsible_actor": "locker_routing",
+    "request_id": "r1",
+    "description": "Wait for locker routing to report Zerin's choice."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "New escalation",
+   "title": "Counter full after recipient accepted",
+   "explanation": "Obtain the authorised party’s precise choice or missing detail. Do not choose for the customer or treat a choice as a confirmed booking.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Locker routing reports: Zerin accepted Sedgeglass Counter this morning in the verified thread.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Locker routing reports: Before transfer, the counter reported at 10:40 UTC that it is at capacity until 2026-02-19.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Locker routing reports: A Copperfin Locker compartment freed at 10:45 UTC; we can place DL-016 there today.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "decision",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Ask Zerin in the Customer portal whether to take the Copperfin Locker compartment today or wait for Sedgeglass Counter capacity on 2026-02-19, and route nothing until Zerin answers.",
+     "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask Zerin in the Customer portal whether to take the Copperfin Locker compartment today or wait for Sedgeglass Counter capacity on 2026-02-19, and route nothing until Zerin answers."
+   },
+   "blocker": "The new escalation requires a scoped response. Zerin accepted Sedgeglass Counter this morning in the verified thread. Before transfer, the counter reported at 10:40 UTC that it is at capacity until 2026-02-19. A Copperfin Locker compartment freed at 10:45 UTC; we can place DL-016 there today.",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Ask Zerin in the Customer portal whether to take the Copperfin Locker compartment today or wait for Sedgeglass Counter capacity on 2026-02-19, and route nothing until Zerin answers."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "004",
+     "source_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c1",
+    "c2"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "ask_customer",
+      "action": "Ask Zerin in the Customer portal whether to take the Copperfin Locker compartment today or wait for Sedgeglass Counter capacity on 2026-02-19, and route nothing until Zerin answers.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "place DL-016 in Copperfin Locker on the strength of Zerin's acceptance of Sedgeglass Counter; that consent was for a different location.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "016-N4"
+    },
+    "summary": "Obtain the authorised party’s precise choice or missing detail.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Obtain the authorised party’s precise choice or missing detail."
+   }
+  },
+  {
+   "event_id": "005",
+   "label": "Desk response",
+   "title": "Obtain the authorised party’s precise choice or missing detail",
+   "explanation": "The desk sends the recorded response. Do not choose for the customer or treat a choice as a confirmed booking.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "decision",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Ask Zerin in the Customer portal whether to take the Copperfin Locker compartment today or wait for Sedgeglass Counter capacity on 2026-02-19, and route nothing until Zerin answers.",
+     "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "recipient",
+      "request_id": "branch_request",
+      "expected": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_decision",
+   "next_step": {
+    "type": "decision",
+    "responsible_actor": "recipient",
+    "request_id": "branch_request",
+    "description": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "ask_customer",
+      "action": "Ask Zerin in the Customer portal whether to take the Copperfin Locker compartment today or wait for Sedgeglass Counter capacity on 2026-02-19, and route nothing until Zerin answers.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "place DL-016 in Copperfin Locker on the strength of Zerin's acceptance of Sedgeglass Counter; that consent was for a different location.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "ask_customer",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. Zerin chose Copperfin Locker in the verified order thread at 11:40 UTC. We placed DL-016 there; the locker's 15:20 UTC receipt scan confirms it is ready for collection. It has not been collected.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Locker routing reports: Zerin chose Copperfin Locker in the verified order thread at 11:40 UTC.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Locker routing reports: We placed DL-016 there; the locker's 15:20 UTC receipt scan confirms it is ready for collection.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Locker routing reports: It has not been collected.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "decision",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Ask Zerin in the Customer portal whether to take the Copperfin Locker compartment today or wait for Sedgeglass Counter capacity on 2026-02-19, and route nothing until Zerin answers.",
+     "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+     "status": "answered",
+     "response": "Zerin chose Copperfin Locker in the verified order thread at 11:40 UTC. We placed DL-016 there; the locker's 15:20 UTC receipt scan confirms it is ready for collection. It has not been collected.",
+     "evidence_event_ids": [
+      "004",
+      "005",
+      "006"
+     ],
+     "responded_by": "locker_routing"
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "Zerin chose Copperfin Locker in the verified order thread at 11:40 UTC. We placed DL-016 there; the locker's 15:20 UTC receipt scan confirms it is ready for collection. It has not been collected.",
+    "confirmed_by": "locker_routing",
+    "evidence_event_ids": [
+     "006"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not place DL-016 in Copperfin Locker on the strength of Zerin's acceptance of Sedgeglass Counter; that consent was for a different location."
+   },
+   "annotations_add": [
+    {
+     "id": "branch_followthrough_relay",
+     "kind": "gap",
+     "title": "Unrecorded intermediate action",
+     "text": "The follow-through is from a different party than the recorded desk response. An intermediate exchange or service-to-service relay is absent; only the final reporter’s stated outcome is confirmed.",
+     "before_message_id": "006",
+     "source_event_ids": [
+      "006"
+     ],
+     "implied_action": {
+      "from_actor": "coordinator",
+      "to_actor": "locker_routing",
+      "type": "action",
+      "purpose": "Pass the relevant verified instruction or request to the party reporting the follow-through."
+     }
+    },
+    {
+     "id": "branch_missing_authorised_reply",
+     "kind": "gap",
+     "title": "Unrecorded intermediate action",
+     "text": "The authorised party’s separate reply is not recorded here. The service’s follow-through is indirect evidence; no extra customer message has been added.",
+     "before_message_id": "006",
+     "source_event_ids": [
+      "006"
+     ],
+     "implied_action": {
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "type": "decision",
+      "purpose": "Supply the authorised choice or verification before the responsible service acts."
+     }
+    }
+   ],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "ask_customer",
+      "action": "Ask Zerin in the Customer portal whether to take the Copperfin Locker compartment today or wait for Sedgeglass Counter capacity on 2026-02-19, and route nothing until Zerin answers.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "place DL-016 in Copperfin Locker on the strength of Zerin's acceptance of Sedgeglass Counter; that consent was for a different location.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "ask_customer",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

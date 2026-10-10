@@ -1,0 +1,591 @@
+{
+ "case_id": "050-N2",
+ "lang": "en",
+ "title": "050-N2 · Billing scan contradicts route record",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Nella Voss, the customer. From the case card: the guaranteed-delivery service for DL-050 missed its deadline, and the carrier's guarantee covers only the surcharge, subject to billing approval.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "customer",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: submit the surcharge credit request and get billing's decision and the credit reference.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "customer": {
+   "name": "Nella Voss",
+   "organization": null,
+   "role": "customer",
+   "responsibility": "Ask for the guaranteed-delivery surcharge to be credited after the missed deadline.",
+   "from_start": true,
+   "source_names": [
+    "Nella Voss, customer"
+   ]
+  },
+  "guarantees": {
+   "name": "Service guarantees",
+   "organization": "Plover Arc Logistics",
+   "role": "carrier",
+   "responsibility": "Provide the booking's guarantee terms and the route record of the delay.",
+   "from_start": false,
+   "source_names": [
+    "Service guarantees, Plover Arc Logistics"
+   ]
+  },
+  "guarantee_billing": {
+   "name": "Guarantee billing",
+   "organization": "Plover Arc Logistics",
+   "role": "billing",
+   "responsibility": "Review the service-guarantee credit request and decide on the surcharge credit.",
+   "from_start": false,
+   "source_names": [
+    "Guarantee billing, Plover Arc Logistics"
+   ]
+  }
+ },
+ "goal": "Get the authorised billing team's review of a surcharge credit for DL-050 under the guarantee and, if approved, the credit reference.",
+ "limits": [
+  "Do not multiply the surcharge.",
+  "Do not promise compensation for losses other than the surcharge.",
+  "Do not present a posted credit as money received.",
+  "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+ ],
+ "intake": {
+  "summary": "DL-050's guaranteed-delivery service missed its deadline: request a credit of the surcharge, subject to billing approval.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The guaranteed deadline was missed; a surcharge credit needs billing approval.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-050.",
+    "source": {
+     "type": "case_card",
+     "id": "050"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The guaranteed-delivery service missed its deadline.",
+    "source": {
+     "type": "case_card",
+     "id": "050"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The carrier's guarantee covers only the surcharge, subject to billing approval.",
+    "source": {
+     "type": "case_card",
+     "id": "050"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The authorised billing team has approved the surcharge credit."
+   },
+   {
+    "id": "c2",
+    "description": "The billing team has given the credit reference."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/050/N2-CONFLICTING_RECORDS",
+  "branch_id": "050-N2",
+  "derived_from_case": "050",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "CONFLICTING_RECORDS",
+  "expected_decision": "RECONCILE_CONFLICT",
+  "workflow_sheet": "E",
+  "branch_label": "Billing scan contradicts route record",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "586e58af181cd6fd0aeb34918daa290497014c0ffacf19d04bfb665ae1b8dbac",
+   "history.md": "ab08fa5a3bfa12772844d2847b353686bd169d712fdbe5bc414e3484f8f4e5fb"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Terms email",
+   "title": "Guarantee terms and the delay record",
+   "explanation": "The booking terms allow a surcharge credit after billing review if a carrier-caused delay is confirmed, and the route record shows a carrier sorting delay with no exclusion. The credit still needs billing's approval.",
+   "conversation_id": "guarantees",
+   "facts_upsert": [
+    {
+     "id": "f4",
+     "text": "DL-050 was guaranteed by 2026-03-23 08:00 UTC; the surcharge is GBP 7.50.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "Under the booking terms, if a carrier-caused delay is confirmed, the surcharge may be credited after billing review.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f2",
+     "text": "The route record shows a carrier sorting delay; the actual recipient handover was at 2026-03-23 08:40 UTC.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f6",
+     "text": "No exclusion is recorded.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Prepare a service-guarantee credit request for the GBP 7.50 surcharge with the guaranteed and actual times."
+   },
+   "blocker": "The carrier sorting delay is recorded, but the surcharge credit needs billing review and approval.",
+   "status": "context_received",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": null,
+    "description": "Arrange billing review of the surcharge credit."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Nella asks to claim the GBP 7.50 surcharge",
+   "explanation": "Nella confirms the 08:40 arrival against the 08:00 guarantee and asks only for the surcharge under the booking terms. We submit a service-guarantee request to Plover Arc's guarantee billing with the confirmed times and the recorded delay.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f7",
+     "text": "The customer says the parcel arrived at 08:40, later than the guaranteed 08:00 deadline.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "customer",
+     "to_actor": "coordinator",
+     "responsible_actor": "guarantee_billing",
+     "purpose": "Submit a request for the GBP 7.50 service surcharge under the booking terms.",
+     "expected_response": "Billing's decision on the surcharge credit.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "permission",
+     "from_actor": "coordinator",
+     "to_actor": "guarantee_billing",
+     "responsible_actor": "guarantee_billing",
+     "purpose": "Review a service-guarantee credit of the GBP 7.50 surcharge for DL-050: guaranteed 08:00 UTC, actual handover 08:40, recorded carrier sorting delay.",
+     "expected_response": "Billing's approval decision and the credit reference.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Email Plover Arc guarantee billing a service-guarantee credit request for DL-050 with the guaranteed and actual times, the recorded sorting delay and the GBP 7.50 surcharge."
+   },
+   "blocker": "The surcharge credit request has not yet been submitted to billing.",
+   "status": "escalated",
+   "next_step": {
+    "type": "permission",
+    "responsible_actor": "guarantee_billing",
+    "request_id": "r1",
+    "description": "Ask guarantee billing to review the surcharge credit."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We submit the surcharge credit request",
+   "explanation": "We gave billing the guaranteed and actual times, the confirmed sorting delay and the GBP 7.50 surcharge, and stated that the customer seeks only the surcharge. Now we wait for billing's decision.",
+   "conversation_id": "billing",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "permission",
+     "from_actor": "coordinator",
+     "to_actor": "guarantee_billing",
+     "responsible_actor": "guarantee_billing",
+     "purpose": "Review a service-guarantee credit of the GBP 7.50 surcharge for DL-050: guaranteed 08:00 UTC, actual handover 08:40, recorded carrier sorting delay.",
+     "expected_response": "Billing's approval decision and the credit reference.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "guarantee_billing",
+      "request_id": "r1",
+      "expected": "Approval decision and credit reference"
+     }
+    ],
+    "next_action": "Once billing decides, record the decision and the credit reference."
+   },
+   "blocker": "Billing has not yet decided on the surcharge credit.",
+   "status": "awaiting_response",
+   "next_step": {
+    "type": "permission",
+    "responsible_actor": "guarantee_billing",
+    "request_id": "r1",
+    "description": "Wait for billing's decision on the surcharge credit."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "New escalation",
+   "title": "Billing scan contradicts route record",
+   "explanation": "Keep both records and request evidence from their owner. Do not erase either conflicting record or infer a finding before the owner supplies evidence.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Guarantee billing reports: Our handover scan for DL-050 shows 07:55 UTC on 2026-03-23, inside the guarantee.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Guarantee billing reports: On that basis the request is declined.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Guarantee billing reports: No credit will be posted.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "guarantee_billing",
+     "responsible_actor": "guarantee_billing",
+     "purpose": "Ask Guarantee billing by email to check its 07:55 UTC scan against the service guarantees route record of 08:40 UTC and say which record it relies on.",
+     "expected_response": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask Guarantee billing by email to check its 07:55 UTC scan against the service guarantees route record of 08:40 UTC and say which record it relies on."
+   },
+   "blocker": "The new escalation requires a scoped response. Our handover scan for DL-050 shows 07:55 UTC on 2026-03-23, inside the guarantee. On that basis the request is declined. No credit will be posted.",
+   "status": "verification_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Ask Guarantee billing by email to check its 07:55 UTC scan against the service guarantees route record of 08:40 UTC and say which record it relies on."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "004",
+     "source_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c1",
+    "c2"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "reconcile_conflict",
+      "action": "Ask Guarantee billing by email to check its 07:55 UTC scan against the service guarantees route record of 08:40 UTC and say which record it relies on.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Accept the decline and close, or tell Nella either time is wrong before billing answers.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "050-N2"
+    },
+    "summary": "Keep both records and request evidence from their owner.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Keep both records and request evidence from their owner."
+   }
+  },
+  {
+   "event_id": "005",
+   "label": "Desk response",
+   "title": "Keep both records and request evidence from their owner",
+   "explanation": "The desk sends the recorded response. Do not erase either conflicting record or infer a finding before the owner supplies evidence.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "guarantee_billing",
+     "responsible_actor": "guarantee_billing",
+     "purpose": "Ask Guarantee billing by email to check its 07:55 UTC scan against the service guarantees route record of 08:40 UTC and say which record it relies on.",
+     "expected_response": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "guarantee_billing",
+      "request_id": "branch_request",
+      "expected": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_verification",
+   "next_step": {
+    "type": "verification",
+    "responsible_actor": "guarantee_billing",
+    "request_id": "branch_request",
+    "description": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "reconcile_conflict",
+      "action": "Ask Guarantee billing by email to check its 07:55 UTC scan against the service guarantees route record of 08:40 UTC and say which record it relies on.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Accept the decline and close, or tell Nella either time is wrong before billing answers.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "reconcile_conflict",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. The 07:55 UTC scan was the arrival scan at the delivery depot, not the recipient handover. The route record's 08:40 UTC handover stands. The decline is withdrawn and credit GC-050 for GBP 7.50 is approved against the surcharge, posted to the booking account. This is not a cash transfer.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Guarantee billing reports: The 07:55 UTC scan was the arrival scan at the delivery depot, not the recipient handover.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Guarantee billing reports: The route record's 08:40 UTC handover stands.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Guarantee billing reports: The decline is withdrawn and credit GC-050 for GBP 7.50 is approved against the surcharge, posted to the booking account.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_4",
+     "text": "Guarantee billing reports: This is not a cash transfer.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "guarantee_billing",
+     "responsible_actor": "guarantee_billing",
+     "purpose": "Ask Guarantee billing by email to check its 07:55 UTC scan against the service guarantees route record of 08:40 UTC and say which record it relies on.",
+     "expected_response": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+     "status": "answered",
+     "response": "The 07:55 UTC scan was the arrival scan at the delivery depot, not the recipient handover. The route record's 08:40 UTC handover stands. The decline is withdrawn and credit GC-050 for GBP 7.50 is approved against the surcharge, posted to the booking account. This is not a cash transfer.",
+     "evidence_event_ids": [
+      "004",
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "The 07:55 UTC scan was the arrival scan at the delivery depot, not the recipient handover. The route record's 08:40 UTC handover stands. The decline is withdrawn and credit GC-050 for GBP 7.50 is approved against the surcharge, posted to the booking account. This is not a cash transfer.",
+    "confirmed_by": "guarantee_billing",
+    "evidence_event_ids": [
+     "006"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Accept the decline and close, or tell Nella either time is wrong before billing answers."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "reconcile_conflict",
+      "action": "Ask Guarantee billing by email to check its 07:55 UTC scan against the service guarantees route record of 08:40 UTC and say which record it relies on.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Accept the decline and close, or tell Nella either time is wrong before billing answers.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "reconcile_conflict",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

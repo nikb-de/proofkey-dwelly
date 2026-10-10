@@ -1,0 +1,632 @@
+{
+ "case_id": "015-N5",
+ "lang": "en",
+ "title": "015-N5 · Torn label blocks relabelling",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Kiva Rell. From the case card: routing acknowledges that DL-015's label was sorted to the wrong local depot, and only the receiving depot can confirm that the transfer is physically complete.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get DL-015 transferred to the correct depot and obtain that depot's receipt scan.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Kiva Rell",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Ask for the parcel to reach the correct local depot before delivery is arranged.",
+   "from_start": true,
+   "source_names": [
+    "Kiva Rell, recipient"
+   ]
+  },
+  "routing": {
+   "name": "Routing control",
+   "organization": "Plover Arc Logistics",
+   "role": "carrier",
+   "responsibility": "Correct the routing error and transfer DL-015 to the depot that serves the destination.",
+   "from_start": false,
+   "source_names": [
+    "Routing control, Plover Arc Logistics"
+   ]
+  },
+  "depot": {
+   "name": "East Copperfin depot",
+   "organization": "Plover Arc Logistics",
+   "role": "depot",
+   "responsibility": "Confirm the physical receipt of DL-015 with a receipt scan.",
+   "from_start": false,
+   "source_names": [
+    "East Copperfin depot, Plover Arc Logistics"
+   ]
+  },
+  "branch_service": {
+   "name": "Address desk",
+   "organization": "Plover Arc Logistics",
+   "role": "service",
+   "from_start": false,
+   "source_names": [
+    "Address desk, Plover Arc Logistics"
+   ],
+   "responsibility": "Report or handle the state within the scope stated in the source message; no wider authority is inferred."
+  }
+ },
+ "goal": "Get DL-015 moved to the correct local depot and obtain that depot's confirmation of physical receipt by scan.",
+ "limits": [
+  "Do not treat receipt at the correct depot as proof of last-mile delivery.",
+  "Do not claim downstream execution from a request, allocation or registration."
+ ],
+ "intake": {
+  "summary": "DL-015 was sorted to the wrong local depot and has to be transferred to the correct one.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "DL-015 is at the wrong local depot.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-015.",
+    "source": {
+     "type": "case_card",
+     "id": "015"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "Routing acknowledges the label was sorted to the wrong local depot.",
+    "source": {
+     "type": "case_card",
+     "id": "015"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "Only the receiving depot can confirm the transfer's physical completion.",
+    "source": {
+     "type": "case_card",
+     "id": "015"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The correct local depot has confirmed physical receipt of DL-015 by scan."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/015/N5-PHYSICAL_FAILURE",
+  "branch_id": "015-N5",
+  "derived_from_case": "015",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "PHYSICAL_FAILURE",
+  "expected_decision": "REQUEST_ACTION",
+  "workflow_sheet": "C",
+  "branch_label": "Torn label blocks relabelling",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "a8c2458049c630dc2754762ebadab853dbba1e03707ebc47c9c3d666921f2eb0",
+   "history.md": "68ae4323cff2e936a997e467189e8d459211695fb058c8f9416da2c1e2c1e14b"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Routing email",
+   "title": "Routing confirms the wrong-depot error",
+   "explanation": "Routing control names the wrong depot and the depot that serves the destination, and confirms the error. The parcel has to be transferred to East Copperfin, so routing control is the one to ask.",
+   "conversation_id": "routing",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "Routing control confirmed the routing error.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f4",
+     "text": "DL-015 is at North Sedgeglass depot.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "The destination is Merrow Quay, served by East Copperfin depot.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f6",
+     "text": "No delivery attempt is scheduled.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "routing",
+     "responsible_actor": "routing",
+     "purpose": "Transfer DL-015 from North Sedgeglass to East Copperfin depot.",
+     "expected_response": "The transfer, confirmed by East Copperfin's physical receipt.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "001"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask routing control to transfer DL-015 to East Copperfin depot."
+   },
+   "blocker": "DL-015 is at North Sedgeglass instead of East Copperfin depot.",
+   "status": "context_received",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "routing",
+    "request_id": "r1",
+    "description": "Transfer DL-015 to East Copperfin depot."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Kiva asks for the local depot first",
+   "explanation": "Kiva wants the parcel at the local depot before delivery is arranged, which matches what routing control confirmed. We ask routing control for the transfer and do not arrange delivery yet.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f7",
+     "text": "The recipient asks for the parcel to be brought to the local depot before delivery is arranged.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "routing",
+     "purpose": "Get the parcel to the local depot before arranging delivery.",
+     "expected_response": "The parcel at the local depot.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask routing control to transfer DL-015 from North Sedgeglass to East Copperfin."
+   },
+   "blocker": "DL-015 is at North Sedgeglass instead of East Copperfin depot.",
+   "status": "escalated",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "routing",
+    "request_id": "r1",
+    "description": "Transfer DL-015 to East Copperfin depot."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "tracker-context",
+     "kind": "context",
+     "title": "What Kiva saw before asking",
+     "text": "Kiva says the tracker shows a depot in the wrong area. When that tracker status appeared is not recorded in the history.",
+     "before_message_id": "002",
+     "source_event_ids": [
+      "002"
+     ]
+    }
+   ]
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We ask routing to transfer DL-015",
+   "explanation": "We asked for the transfer and for the destination receipt scan, because a planned linehaul entry does not show the parcel has arrived. Now we wait for that scan.",
+   "conversation_id": "routing",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "routing",
+     "responsible_actor": "routing",
+     "purpose": "Transfer DL-015 from North Sedgeglass to East Copperfin and send the destination receipt scan, not just a planned linehaul entry.",
+     "expected_response": "The destination receipt scan from East Copperfin.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "001",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "routing",
+      "request_id": "r1",
+      "expected": "Transfer to East Copperfin and the destination receipt scan"
+     }
+    ],
+    "next_action": "Once the receipt scan arrives, record DL-015 as received at East Copperfin."
+   },
+   "blocker": "The transfer to East Copperfin is not yet confirmed by a receipt scan.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "routing",
+    "request_id": "r1",
+    "description": "Wait for the transfer and the destination receipt scan."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "New escalation",
+   "title": "Torn label blocks relabelling",
+   "explanation": "Request the specific permitted action from its responsible owner. Do not claim downstream execution from a request, allocation or registration.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Routing control reports: North Sedgeglass found DL-015 for the transfer, but the address label is torn and the destination line is unreadable.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Routing control reports: It cannot be relabelled for East Copperfin until the Address desk confirms the destination from the order record.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Routing control reports: It has not moved.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "branch_service",
+     "responsible_actor": "branch_service",
+     "purpose": "Ask the Address desk by email to confirm DL-015's destination from the order record directly to Routing control so the parcel can be relabelled for East Copperfin.",
+     "expected_response": "The responsible owner confirms the requested scoped action or supplies the requested record; downstream execution is separate.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The responsible owner confirms the requested scoped action or supplies the requested record; downstream execution is separate."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask the Address desk by email to confirm DL-015's destination from the order record directly to Routing control so the parcel can be relabelled for East Copperfin."
+   },
+   "blocker": "The new escalation requires a scoped response. North Sedgeglass found DL-015 for the transfer, but the address label is torn and the destination line is unreadable. It cannot be relabelled for East Copperfin until the Address desk confirms the destination from the order record. It has not moved.",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Ask the Address desk by email to confirm DL-015's destination from the order record directly to Routing control so the parcel can be relabelled for East Copperfin."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "004",
+     "source_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c1"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "request_action",
+      "action": "Ask the Address desk by email to confirm DL-015's destination from the order record directly to Routing control so the parcel can be relabelled for East Copperfin.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "ask Kiva to type the address into the portal for relabelling, and pass Routing control an address taken from the case messages.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "015-N5"
+    },
+    "summary": "Request the specific permitted action from its responsible owner.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Request the specific permitted action from its responsible owner."
+   }
+  },
+  {
+   "event_id": "005",
+   "label": "Desk response",
+   "title": "Request the specific permitted action from its responsible owner",
+   "explanation": "The desk sends the recorded response. Do not claim downstream execution from a request, allocation or registration.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "branch_service",
+     "responsible_actor": "branch_service",
+     "purpose": "Ask the Address desk by email to confirm DL-015's destination from the order record directly to Routing control so the parcel can be relabelled for East Copperfin.",
+     "expected_response": "The responsible owner confirms the requested scoped action or supplies the requested record; downstream execution is separate.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "branch_service",
+      "request_id": "branch_request",
+      "expected": "The responsible owner confirms the requested scoped action or supplies the requested record; downstream execution is separate."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "branch_service",
+    "request_id": "branch_request",
+    "description": "The responsible owner confirms the requested scoped action or supplies the requested record; downstream execution is separate."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "request_action",
+      "action": "Ask the Address desk by email to confirm DL-015's destination from the order record directly to Routing control so the parcel can be relabelled for East Copperfin.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "ask Kiva to type the address into the portal for relabelling, and pass Routing control an address taken from the case messages.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "request_action",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. The Address desk confirmed DL-015's destination from the order record at 14:05 UTC. North Sedgeglass relabelled the parcel for East Copperfin at 14:30 UTC. It has not left North Sedgeglass. This is a relabel, not a transfer or an East Copperfin receipt.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Routing control reports: The Address desk confirmed DL-015's destination from the order record at 14:05 UTC.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Routing control reports: North Sedgeglass relabelled the parcel for East Copperfin at 14:30 UTC.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Routing control reports: It has not left North Sedgeglass.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_4",
+     "text": "Routing control reports: This is a relabel, not a transfer or an East Copperfin receipt.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "branch_service",
+     "responsible_actor": "branch_service",
+     "purpose": "Ask the Address desk by email to confirm DL-015's destination from the order record directly to Routing control so the parcel can be relabelled for East Copperfin.",
+     "expected_response": "The responsible owner confirms the requested scoped action or supplies the requested record; downstream execution is separate.",
+     "status": "completed",
+     "response": "The Address desk confirmed DL-015's destination from the order record at 14:05 UTC. North Sedgeglass relabelled the parcel for East Copperfin at 14:30 UTC. It has not left North Sedgeglass. This is a relabel, not a transfer or an East Copperfin receipt.",
+     "evidence_event_ids": [
+      "004",
+      "005",
+      "006"
+     ],
+     "responded_by": "routing"
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "The Address desk confirmed DL-015's destination from the order record at 14:05 UTC. North Sedgeglass relabelled the parcel for East Copperfin at 14:30 UTC. It has not left North Sedgeglass. This is a relabel, not a transfer or an East Copperfin receipt.",
+    "confirmed_by": "routing",
+    "evidence_event_ids": [
+     "006"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not ask Kiva to type the address into the portal for relabelling, and do not pass Routing control an address taken from the case messages."
+   },
+   "annotations_add": [
+    {
+     "id": "branch_followthrough_relay",
+     "kind": "gap",
+     "title": "Unrecorded intermediate action",
+     "text": "The follow-through is from a different party than the recorded desk response. An intermediate exchange or service-to-service relay is absent; only the final reporter’s stated outcome is confirmed.",
+     "before_message_id": "006",
+     "source_event_ids": [
+      "006"
+     ],
+     "implied_action": {
+      "from_actor": "coordinator",
+      "to_actor": "routing",
+      "type": "action",
+      "purpose": "Pass the relevant verified instruction or request to the party reporting the follow-through."
+     }
+    }
+   ],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "request_action",
+      "action": "Ask the Address desk by email to confirm DL-015's destination from the order record directly to Routing control so the parcel can be relabelled for East Copperfin.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "ask Kiva to type the address into the portal for relabelling, and pass Routing control an address taken from the case messages.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "request_action",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

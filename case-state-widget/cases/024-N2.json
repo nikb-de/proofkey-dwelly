@@ -1,0 +1,2331 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "024-N2 · Recipient demands refund now",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Sorin Vaal, the recipient. From the case card: the system displays DL-024 as delivered, but the verified recipient reports no receipt. Our task is to get an investigation registered, not to establish loss or fraud.",
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/024/N2-OUT_OF_POLICY_ASK",
+  "branch_id": "024-N2",
+  "derived_from_case": "024",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003",
+   "004"
+  ],
+  "diverges_after_event": "004",
+  "failure_mode": "OUT_OF_POLICY_ASK",
+  "expected_decision": "DECLINE_EXPLAIN",
+  "workflow_sheet": "A",
+  "branch_label": "Recipient demands refund now",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "6f9005c252abe6a17a715a59212db99ee4cfba02800c729062848f9907130d36",
+   "history.md": "ea25b506b436e0d88a98719dadbd7ab0efb6bede2dc170753375de59d1abfb00"
+  }
+ },
+ "initial_state": {
+  "case_id": "024-N2",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "recipient",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Get the carrier to register a delivery investigation for DL-024."
+   },
+   "recipient": {
+    "name": "Sorin Vaal",
+    "organization": null,
+    "role": "recipient",
+    "is_us": false,
+    "responsibility": "Report that the household has not received the parcel."
+   }
+  },
+  "goal": "Get the carrier to register a delivery investigation for DL-024, with a case reference and the time of the next update.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The carrier has registered a delivery investigation for DL-024.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The carrier has provided a case reference for the investigation.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c3",
+    "description": "The carrier has given the time of the next update.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The delivered status conflicts with the recipient's report, and no investigation is open.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-024.",
+    "source": {
+     "type": "case_card",
+     "id": "024"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The system displays DL-024 as delivered.",
+    "source": {
+     "type": "case_card",
+     "id": "024"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The verified recipient reports no receipt.",
+    "source": {
+     "type": "case_card",
+     "id": "024"
+    }
+   },
+   {
+    "id": "f4",
+    "text": "The task outcome is registration of an investigation, not a finding of loss or fraud.",
+    "source": {
+     "type": "case_card",
+     "id": "024"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Do not treat the delivered scan or the recipient's report as establishing fraud or confirmed loss.",
+   "Do not promise reimbursement.",
+   "Do not promise or perform the prohibited request."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Tracking email",
+    "title": "Tracking support reports the delivered scan",
+    "timestamp": "2026-02-25 09:00:00 UTC",
+    "actor_id": "tracking_support",
+    "message_id": "001"
+   },
+   "explanation": "Tracking support confirms the delivered scan but has checked only the shipment and account match, not the handover record or route stop. The scan alone does not settle where the parcel is, so the next move is a carrier investigation.",
+   "state_after": {
+    "case_id": "024-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Get the carrier to register a delivery investigation for DL-024."
+     },
+     "recipient": {
+      "name": "Sorin Vaal",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report that the household has not received the parcel."
+     },
+     "tracking_support": {
+      "name": "Tracking support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the tracking status of DL-024 and what has been verified so far."
+     }
+    },
+    "goal": "Get the carrier to register a delivery investigation for DL-024, with a case reference and the time of the next update.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Request a delivery investigation from the carrier; the scan alone does not settle the conflict."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The carrier has registered a delivery investigation for DL-024.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The carrier has provided a case reference for the investigation.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The carrier has given the time of the next update.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-25 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "024-N2"
+     },
+     "context_message_id": "001",
+     "summary": "DL-024 shows delivered, but the recipient has no parcel: get a carrier delivery investigation registered.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The delivered scan is unreviewed and conflicts with the recipient's report; no investigation is open.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-024.",
+      "source": {
+       "type": "case_card",
+       "id": "024"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-024 displays delivered at 08:10 UTC on 2026-02-25.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The verified recipient reports no receipt.",
+      "source": {
+       "type": "case_card",
+       "id": "024"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The task outcome is registration of an investigation, not a finding of loss or fraud.",
+      "source": {
+       "type": "case_card",
+       "id": "024"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Tracking support has not reviewed the handover record or the route stop.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Only the shipment and the recipient account match are verified.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {},
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": null,
+     "description": "Request a delivery investigation from the carrier."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "tracking": {
+      "participants": [
+       "coordinator",
+       "tracking_support"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "tracking",
+      "event_id": "001",
+      "timestamp": "2026-02-25 09:00:00 UTC",
+      "from_actor": "tracking_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-024 displays delivered at 08:10 UTC today. We have not reviewed the handover record or route stop. Only the shipment and recipient account match are verified."
+     }
+    ],
+    "limits": [
+     "Do not treat the delivered scan or the recipient's report as establishing fraud or confirmed loss.",
+     "Do not promise reimbursement.",
+     "Do not promise or perform the prohibited request."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client report",
+    "title": "Sorin reports the household has no parcel",
+    "timestamp": "2026-02-25 09:10:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "002"
+   },
+   "explanation": "Sorin's report conflicts with the scan, and neither side proves loss. The right move is to ask the carrier's delivery investigations team to open an investigation and review the handover and route records.",
+   "state_after": {
+    "case_id": "024-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Get the carrier to register a delivery investigation for DL-024."
+     },
+     "recipient": {
+      "name": "Sorin Vaal",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report that the household has not received the parcel."
+     },
+     "tracking_support": {
+      "name": "Tracking support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the tracking status of DL-024 and what has been verified so far."
+     },
+     "investigations": {
+      "name": "Delivery investigations",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Register the delivery investigation and review the handover and route records."
+     }
+    },
+    "goal": "Get the carrier to register a delivery investigation for DL-024, with a case reference and the time of the next update.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Email delivery investigations to open an investigation for DL-024 and review the handover and route records."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The carrier has registered a delivery investigation for DL-024.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The carrier has provided a case reference for the investigation.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The carrier has given the time of the next update.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-25 09:00:00 UTC",
+     "escalated_at": "2026-02-25 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "024-N2"
+     },
+     "context_message_id": "001",
+     "summary": "DL-024 shows delivered, but the recipient has no parcel: get a carrier delivery investigation registered.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The delivered scan conflicts with the recipient's report; no investigation is open.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-024.",
+      "source": {
+       "type": "case_card",
+       "id": "024"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-024 displays delivered at 08:10 UTC on 2026-02-25.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The verified recipient reports no receipt.",
+      "source": {
+       "type": "case_card",
+       "id": "024"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The task outcome is registration of an investigation, not a finding of loss or fraud.",
+      "source": {
+       "type": "case_card",
+       "id": "024"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Tracking support has not reviewed the handover record or the route stop.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Only the shipment and the recipient account match are verified.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient says no one in the household has the parcel.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The recipient sees delivered on the tracker.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "investigations",
+      "purpose": "Get the carrier to investigate where DL-024 went.",
+      "expected_response": "A carrier investigation into the parcel's whereabouts.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "investigations",
+      "responsible_actor": "investigations",
+      "purpose": "Open a delivery investigation for DL-024 and review the handover and route records, without assuming a loss decision.",
+      "expected_response": "Confirmation that the investigation is registered.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "investigations",
+     "request_id": "r1",
+     "description": "Ask delivery investigations to open an investigation for DL-024."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "tracker-context",
+      "kind": "context",
+      "title": "What Sorin saw before writing",
+      "text": "Sorin says the tracker shows delivered. When he saw this status is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "tracking": {
+      "participants": [
+       "coordinator",
+       "tracking_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "tracking",
+      "event_id": "001",
+      "timestamp": "2026-02-25 09:00:00 UTC",
+      "from_actor": "tracking_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-024 displays delivered at 08:10 UTC today. We have not reviewed the handover record or route stop. Only the shipment and recipient account match are verified."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-25 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "No one in my household has the parcel. I see delivered on the tracker. Please have the carrier investigate where it went."
+     }
+    ],
+    "limits": [
+     "Do not treat the delivered scan or the recipient's report as establishing fraud or confirmed loss.",
+     "Do not promise reimbursement.",
+     "Do not promise or perform the prohibited request."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our request",
+    "title": "We ask the carrier to open an investigation",
+    "timestamp": "2026-02-25 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We passed on the verified recipient's report and the scan and asked for a review of the handover and route records without assuming a loss decision. Now we wait for delivery investigations.",
+   "state_after": {
+    "case_id": "024-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Get the carrier to register a delivery investigation for DL-024."
+     },
+     "recipient": {
+      "name": "Sorin Vaal",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report that the household has not received the parcel."
+     },
+     "tracking_support": {
+      "name": "Tracking support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the tracking status of DL-024 and what has been verified so far."
+     },
+     "investigations": {
+      "name": "Delivery investigations",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Register the delivery investigation and review the handover and route records."
+     }
+    },
+    "goal": "Get the carrier to register a delivery investigation for DL-024, with a case reference and the time of the next update.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "investigations",
+       "request_id": "r1",
+       "expected": "Registration of the delivery investigation"
+      }
+     ],
+     "next_action": "Once delivery investigations replies, record the case reference and the next update time."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The carrier has registered a delivery investigation for DL-024.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The carrier has provided a case reference for the investigation.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The carrier has given the time of the next update.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-25 09:00:00 UTC",
+     "escalated_at": "2026-02-25 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "024-N2"
+     },
+     "context_message_id": "001",
+     "summary": "DL-024 shows delivered, but the recipient has no parcel: get a carrier delivery investigation registered.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The investigation is requested but not yet registered.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-024.",
+      "source": {
+       "type": "case_card",
+       "id": "024"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-024 displays delivered at 08:10 UTC on 2026-02-25.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The verified recipient reports no receipt.",
+      "source": {
+       "type": "case_card",
+       "id": "024"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The task outcome is registration of an investigation, not a finding of loss or fraud.",
+      "source": {
+       "type": "case_card",
+       "id": "024"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Tracking support has not reviewed the handover record or the route stop.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Only the shipment and the recipient account match are verified.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient says no one in the household has the parcel.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The recipient sees delivered on the tracker.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "investigations",
+      "purpose": "Get the carrier to investigate where DL-024 went.",
+      "expected_response": "A carrier investigation into the parcel's whereabouts.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "investigations",
+      "responsible_actor": "investigations",
+      "purpose": "Open a delivery investigation for DL-024 and review the handover and route records, without assuming a loss decision.",
+      "expected_response": "Confirmation that the investigation is registered.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_confirmation",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "investigations",
+     "request_id": "r1",
+     "description": "Wait for delivery investigations to register the investigation."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "tracker-context",
+      "kind": "context",
+      "title": "What Sorin saw before writing",
+      "text": "Sorin says the tracker shows delivered. When he saw this status is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "tracking": {
+      "participants": [
+       "coordinator",
+       "tracking_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "investigations": {
+      "participants": [
+       "coordinator",
+       "investigations"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "tracking",
+      "event_id": "001",
+      "timestamp": "2026-02-25 09:00:00 UTC",
+      "from_actor": "tracking_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-024 displays delivered at 08:10 UTC today. We have not reviewed the handover record or route stop. Only the shipment and recipient account match are verified."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-25 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "No one in my household has the parcel. I see delivered on the tracker. Please have the carrier investigate where it went."
+     },
+     {
+      "conversation_id": "investigations",
+      "event_id": "003",
+      "timestamp": "2026-02-25 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "investigations",
+      "channel": "Email",
+      "body": "Please open a delivery investigation for DL-024: verified recipient reports no receipt despite the 08:10 delivered scan. Review the handover and route records; do not assume a loss decision."
+     }
+    ],
+    "limits": [
+     "Do not treat the delivered scan or the recipient's report as establishing fraud or confirmed loss.",
+     "Do not promise reimbursement.",
+     "Do not promise or perform the prohibited request."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "Confirmation",
+    "title": "Carrier registers investigation INV-024",
+    "timestamp": "2026-02-25 09:50:00 UTC",
+    "actor_id": "investigations",
+    "message_id": "004"
+   },
+   "explanation": "Delivery investigations registered INV-024 and gave the next update time, so the coordination task is done. No finding or compensation decision exists yet.",
+   "state_after": {
+    "case_id": "024-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Get the carrier to register a delivery investigation for DL-024."
+     },
+     "recipient": {
+      "name": "Sorin Vaal",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report that the household has not received the parcel."
+     },
+     "tracking_support": {
+      "name": "Tracking support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the tracking status of DL-024 and what has been verified so far."
+     },
+     "investigations": {
+      "name": "Delivery investigations",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Register the delivery investigation and review the handover and route records."
+     }
+    },
+    "goal": "Get the carrier to register a delivery investigation for DL-024, with a case reference and the time of the next update.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Coordination task complete: the investigation is registered with a reference and a next update time. A finding of loss, fraud or reimbursement is not part of this case's success criteria."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The carrier has registered a delivery investigation for DL-024.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The carrier has provided a case reference for the investigation.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c3",
+      "description": "The carrier has given the time of the next update.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-25 09:00:00 UTC",
+     "escalated_at": "2026-02-25 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "024-N2"
+     },
+     "context_message_id": "001",
+     "summary": "DL-024 shows delivered, but the recipient has no parcel: get a carrier delivery investigation registered.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-024.",
+      "source": {
+       "type": "case_card",
+       "id": "024"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-024 displays delivered at 08:10 UTC on 2026-02-25.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The verified recipient reports no receipt.",
+      "source": {
+       "type": "case_card",
+       "id": "024"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The task outcome is registration of an investigation, not a finding of loss or fraud.",
+      "source": {
+       "type": "case_card",
+       "id": "024"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Tracking support has not reviewed the handover record or the route stop.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Only the shipment and the recipient account match are verified.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient says no one in the household has the parcel.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The recipient sees delivered on the tracker.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "Investigation INV-024 is registered against DL-024.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f10",
+      "text": "Delivery investigations will provide the next update by 2026-02-26, 16:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f11",
+      "text": "No finding or compensation decision has been made yet.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "investigations",
+      "purpose": "Get the carrier to investigate where DL-024 went.",
+      "expected_response": "A carrier investigation into the parcel's whereabouts.",
+      "status": "completed",
+      "response": "Investigation INV-024 registered; next update by 2026-02-26, 16:00 UTC.",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "investigations",
+      "responsible_actor": "investigations",
+      "purpose": "Open a delivery investigation for DL-024 and review the handover and route records, without assuming a loss decision.",
+      "expected_response": "Confirmation that the investigation is registered.",
+      "status": "completed",
+      "response": "INV-024 registered; next update by 2026-02-26, 16:00 UTC; no finding or compensation decision yet.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "Delivery investigation INV-024 registered against DL-024; next update by 2026-02-26, 16:00 UTC.",
+     "confirmed_by": "investigations",
+     "evidence_event_ids": [
+      "004"
+     ],
+     "remaining_work": "The investigation itself: no finding or compensation decision has been made. Neither the scan nor the recipient's report establishes fraud, confirmed loss or reimbursement."
+    },
+    "annotations": [
+     {
+      "id": "tracker-context",
+      "kind": "context",
+      "title": "What Sorin saw before writing",
+      "text": "Sorin says the tracker shows delivered. When he saw this status is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "tracking": {
+      "participants": [
+       "coordinator",
+       "tracking_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "investigations": {
+      "participants": [
+       "coordinator",
+       "investigations"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "tracking",
+      "event_id": "001",
+      "timestamp": "2026-02-25 09:00:00 UTC",
+      "from_actor": "tracking_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-024 displays delivered at 08:10 UTC today. We have not reviewed the handover record or route stop. Only the shipment and recipient account match are verified."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-25 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "No one in my household has the parcel. I see delivered on the tracker. Please have the carrier investigate where it went."
+     },
+     {
+      "conversation_id": "investigations",
+      "event_id": "003",
+      "timestamp": "2026-02-25 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "investigations",
+      "channel": "Email",
+      "body": "Please open a delivery investigation for DL-024: verified recipient reports no receipt despite the 08:10 delivered scan. Review the handover and route records; do not assume a loss decision."
+     },
+     {
+      "conversation_id": "investigations",
+      "event_id": "004",
+      "timestamp": "2026-02-25 09:50:00 UTC",
+      "from_actor": "investigations",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Investigation INV-024 is registered against DL-024. We will provide the next update by 2026-02-26, 16:00 UTC. No finding or compensation decision has yet been made."
+     }
+    ],
+    "limits": [
+     "Do not treat the delivered scan or the recipient's report as establishing fraud or confirmed loss.",
+     "Do not promise reimbursement.",
+     "Do not promise or perform the prohibited request."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "005",
+    "type": "message_received",
+    "label": "New escalation",
+    "title": "Recipient demands refund now",
+    "timestamp": "2026-02-25 10:15:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "005"
+   },
+   "explanation": "Explain the policy boundary and the permitted next step. Do not promise or perform the prohibited request.",
+   "state_after": {
+    "case_id": "024-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Get the carrier to register a delivery investigation for DL-024."
+     },
+     "recipient": {
+      "name": "Sorin Vaal",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report that the household has not received the parcel."
+     },
+     "tracking_support": {
+      "name": "Tracking support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the tracking status of DL-024 and what has been verified so far."
+     },
+     "investigations": {
+      "name": "Delivery investigations",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Register the delivery investigation and review the handover and route records."
+     }
+    },
+    "goal": "Explain the policy boundary and the permitted next step.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Reply to Sorin in the customer portal that INV-024 is registered with no finding or compensation decision, that the desk cannot issue or promise a refund, and that the carrier's next update is due by 2026-02-26 16:00 UTC."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The carrier has registered a delivery investigation for DL-024.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The carrier has provided a case reference for the investigation.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c3",
+      "description": "The carrier has given the time of the next update.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-25 09:00:00 UTC",
+     "escalated_at": "2026-02-25 10:15:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "024-N2"
+     },
+     "context_message_id": "001",
+     "summary": "Explain the policy boundary and the permitted next step.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The new escalation requires a scoped response. Is there any news? The parcel is clearly lost or stolen. I want a refund today, not an investigation that takes days.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-024.",
+      "source": {
+       "type": "case_card",
+       "id": "024"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-024 displays delivered at 08:10 UTC on 2026-02-25.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The verified recipient reports no receipt.",
+      "source": {
+       "type": "case_card",
+       "id": "024"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The task outcome is registration of an investigation, not a finding of loss or fraud.",
+      "source": {
+       "type": "case_card",
+       "id": "024"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Tracking support has not reviewed the handover record or the route stop.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Only the shipment and the recipient account match are verified.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient says no one in the household has the parcel.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The recipient sees delivered on the tracker.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "Investigation INV-024 is registered against DL-024.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f10",
+      "text": "Delivery investigations will provide the next update by 2026-02-26, 16:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f11",
+      "text": "No finding or compensation decision has been made yet.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Sorin Vaal reports: Is there any news?",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Sorin Vaal reports: The parcel is clearly lost or stolen.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Sorin Vaal reports: I want a refund today, not an investigation that takes days.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "investigations",
+      "purpose": "Get the carrier to investigate where DL-024 went.",
+      "expected_response": "A carrier investigation into the parcel's whereabouts.",
+      "status": "completed",
+      "response": "Investigation INV-024 registered; next update by 2026-02-26, 16:00 UTC.",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "investigations",
+      "responsible_actor": "investigations",
+      "purpose": "Open a delivery investigation for DL-024 and review the handover and route records, without assuming a loss decision.",
+      "expected_response": "Confirmation that the investigation is registered.",
+      "status": "completed",
+      "response": "INV-024 registered; next update by 2026-02-26, 16:00 UTC; no finding or compensation decision yet.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     },
+     "branch_request": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Reply to Sorin in the customer portal that INV-024 is registered with no finding or compensation decision, that the desk cannot issue or promise a refund, and that the carrier's next update is due by 2026-02-26 16:00 UTC.",
+      "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "005"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "decline_explain",
+       "action": "Reply to Sorin in the customer portal that INV-024 is registered with no finding or compensation decision, that the desk cannot issue or promise a refund, and that the carrier's next update is due by 2026-02-26 16:00 UTC.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "promise a refund, and call the parcel lost or stolen before the carrier's finding.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "action_required",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": "branch_request",
+     "description": "Reply to Sorin in the customer portal that INV-024 is registered with no finding or compensation decision, that the desk cannot issue or promise a refund, and that the carrier's next update is due by 2026-02-26 16:00 UTC."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "tracker-context",
+      "kind": "context",
+      "title": "What Sorin saw before writing",
+      "text": "Sorin says the tracker shows delivered. When he saw this status is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "tracking": {
+      "participants": [
+       "coordinator",
+       "tracking_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "investigations": {
+      "participants": [
+       "coordinator",
+       "investigations"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "tracking",
+      "event_id": "001",
+      "timestamp": "2026-02-25 09:00:00 UTC",
+      "from_actor": "tracking_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-024 displays delivered at 08:10 UTC today. We have not reviewed the handover record or route stop. Only the shipment and recipient account match are verified."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-25 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "No one in my household has the parcel. I see delivered on the tracker. Please have the carrier investigate where it went."
+     },
+     {
+      "conversation_id": "investigations",
+      "event_id": "003",
+      "timestamp": "2026-02-25 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "investigations",
+      "channel": "Email",
+      "body": "Please open a delivery investigation for DL-024: verified recipient reports no receipt despite the 08:10 delivered scan. Review the handover and route records; do not assume a loss decision."
+     },
+     {
+      "conversation_id": "investigations",
+      "event_id": "004",
+      "timestamp": "2026-02-25 09:50:00 UTC",
+      "from_actor": "investigations",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Investigation INV-024 is registered against DL-024. We will provide the next update by 2026-02-26, 16:00 UTC. No finding or compensation decision has yet been made."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "005",
+      "timestamp": "2026-02-25 10:15:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Is there any news? The parcel is clearly lost or stolen. I want a refund today, not an investigation that takes days."
+     }
+    ],
+    "limits": [
+     "Do not treat the delivered scan or the recipient's report as establishing fraud or confirmed loss.",
+     "Do not promise reimbursement.",
+     "Do not promise or perform the prohibited request."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "006",
+    "type": "message_sent",
+    "label": "Desk response",
+    "title": "Explain the policy boundary and the permitted next step",
+    "timestamp": "2026-02-25 10:30:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "006"
+   },
+   "explanation": "The desk sends the recorded response. Do not promise or perform the prohibited request.",
+   "state_after": {
+    "case_id": "024-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Get the carrier to register a delivery investigation for DL-024."
+     },
+     "recipient": {
+      "name": "Sorin Vaal",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report that the household has not received the parcel."
+     },
+     "tracking_support": {
+      "name": "Tracking support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the tracking status of DL-024 and what has been verified so far."
+     },
+     "investigations": {
+      "name": "Delivery investigations",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Register the delivery investigation and review the handover and route records."
+     }
+    },
+    "goal": "Explain the policy boundary and the permitted next step.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Record any incoming follow-through within its stated scope; do not initiate a prohibited change.",
+     "note": "The outgoing record communicates a boundary or notification. No unrecorded request or acknowledgement is assumed."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The carrier has registered a delivery investigation for DL-024.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The carrier has provided a case reference for the investigation.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c3",
+      "description": "The carrier has given the time of the next update.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-25 09:00:00 UTC",
+     "escalated_at": "2026-02-25 10:15:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "024-N2"
+     },
+     "context_message_id": "001",
+     "summary": "Explain the policy boundary and the permitted next step.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-024.",
+      "source": {
+       "type": "case_card",
+       "id": "024"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-024 displays delivered at 08:10 UTC on 2026-02-25.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The verified recipient reports no receipt.",
+      "source": {
+       "type": "case_card",
+       "id": "024"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The task outcome is registration of an investigation, not a finding of loss or fraud.",
+      "source": {
+       "type": "case_card",
+       "id": "024"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Tracking support has not reviewed the handover record or the route stop.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Only the shipment and the recipient account match are verified.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient says no one in the household has the parcel.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The recipient sees delivered on the tracker.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "Investigation INV-024 is registered against DL-024.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f10",
+      "text": "Delivery investigations will provide the next update by 2026-02-26, 16:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f11",
+      "text": "No finding or compensation decision has been made yet.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Sorin Vaal reports: Is there any news?",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Sorin Vaal reports: The parcel is clearly lost or stolen.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Sorin Vaal reports: I want a refund today, not an investigation that takes days.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "investigations",
+      "purpose": "Get the carrier to investigate where DL-024 went.",
+      "expected_response": "A carrier investigation into the parcel's whereabouts.",
+      "status": "completed",
+      "response": "Investigation INV-024 registered; next update by 2026-02-26, 16:00 UTC.",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "investigations",
+      "responsible_actor": "investigations",
+      "purpose": "Open a delivery investigation for DL-024 and review the handover and route records, without assuming a loss decision.",
+      "expected_response": "Confirmation that the investigation is registered.",
+      "status": "completed",
+      "response": "INV-024 registered; next update by 2026-02-26, 16:00 UTC; no finding or compensation decision yet.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     },
+     "branch_request": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Reply to Sorin in the customer portal that INV-024 is registered with no finding or compensation decision, that the desk cannot issue or promise a refund, and that the carrier's next update is due by 2026-02-26 16:00 UTC.",
+      "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+      "status": "answered",
+      "response": "Investigation INV-024 is registered with the carrier. No finding and no compensation decision has been made. The desk cannot issue or promise a refund. The carrier's next update is due by 2026-02-26, 16:00 UTC, and we will pass it on here.",
+      "evidence_event_ids": [
+       "005",
+       "006"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "decline_explain",
+       "action": "Reply to Sorin in the customer portal that INV-024 is registered with no finding or compensation decision, that the desk cannot issue or promise a refund, and that the carrier's next update is due by 2026-02-26 16:00 UTC.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "promise a refund, and call the parcel lost or stolen before the carrier's finding.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "decline_explain",
+     "reason": "The recorded outgoing message takes this permitted response."
+    },
+    "status": "in_progress",
+    "next_step": null,
+    "result": null,
+    "annotations": [
+     {
+      "id": "tracker-context",
+      "kind": "context",
+      "title": "What Sorin saw before writing",
+      "text": "Sorin says the tracker shows delivered. When he saw this status is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "tracking": {
+      "participants": [
+       "coordinator",
+       "tracking_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "investigations": {
+      "participants": [
+       "coordinator",
+       "investigations"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "tracking",
+      "event_id": "001",
+      "timestamp": "2026-02-25 09:00:00 UTC",
+      "from_actor": "tracking_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-024 displays delivered at 08:10 UTC today. We have not reviewed the handover record or route stop. Only the shipment and recipient account match are verified."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-25 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "No one in my household has the parcel. I see delivered on the tracker. Please have the carrier investigate where it went."
+     },
+     {
+      "conversation_id": "investigations",
+      "event_id": "003",
+      "timestamp": "2026-02-25 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "investigations",
+      "channel": "Email",
+      "body": "Please open a delivery investigation for DL-024: verified recipient reports no receipt despite the 08:10 delivered scan. Review the handover and route records; do not assume a loss decision."
+     },
+     {
+      "conversation_id": "investigations",
+      "event_id": "004",
+      "timestamp": "2026-02-25 09:50:00 UTC",
+      "from_actor": "investigations",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Investigation INV-024 is registered against DL-024. We will provide the next update by 2026-02-26, 16:00 UTC. No finding or compensation decision has yet been made."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "005",
+      "timestamp": "2026-02-25 10:15:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Is there any news? The parcel is clearly lost or stolen. I want a refund today, not an investigation that takes days."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "006",
+      "timestamp": "2026-02-25 10:30:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Customer portal",
+      "body": "Investigation INV-024 is registered with the carrier. No finding and no compensation decision has been made. The desk cannot issue or promise a refund. The carrier's next update is due by 2026-02-26, 16:00 UTC, and we will pass it on here."
+     }
+    ],
+    "limits": [
+     "Do not treat the delivered scan or the recipient's report as establishing fraud or confirmed loss.",
+     "Do not promise reimbursement.",
+     "Do not promise or perform the prohibited request."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "007",
+    "type": "message_received",
+    "label": "Scoped confirmation",
+    "title": "Follow-through confirms the branch outcome",
+    "timestamp": "2026-02-25 11:00:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "007"
+   },
+   "explanation": "Record what the responding party actually confirms. Understood. I will wait for the carrier's update by 2026-02-26, 16:00 UTC. I still do not have the parcel.",
+   "state_after": {
+    "case_id": "024-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Get the carrier to register a delivery investigation for DL-024."
+     },
+     "recipient": {
+      "name": "Sorin Vaal",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report that the household has not received the parcel."
+     },
+     "tracking_support": {
+      "name": "Tracking support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the tracking status of DL-024 and what has been verified so far."
+     },
+     "investigations": {
+      "name": "Delivery investigations",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Register the delivery investigation and review the handover and route records."
+     }
+    },
+    "goal": "Explain the policy boundary and the permitted next step.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The carrier has registered a delivery investigation for DL-024.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The carrier has provided a case reference for the investigation.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c3",
+      "description": "The carrier has given the time of the next update.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+      "status": "met",
+      "evidence_event_ids": [
+       "006",
+       "007"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-25 09:00:00 UTC",
+     "escalated_at": "2026-02-25 10:15:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "024-N2"
+     },
+     "context_message_id": "001",
+     "summary": "Explain the policy boundary and the permitted next step.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-024.",
+      "source": {
+       "type": "case_card",
+       "id": "024"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-024 displays delivered at 08:10 UTC on 2026-02-25.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The verified recipient reports no receipt.",
+      "source": {
+       "type": "case_card",
+       "id": "024"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The task outcome is registration of an investigation, not a finding of loss or fraud.",
+      "source": {
+       "type": "case_card",
+       "id": "024"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Tracking support has not reviewed the handover record or the route stop.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Only the shipment and the recipient account match are verified.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient says no one in the household has the parcel.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The recipient sees delivered on the tracker.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "Investigation INV-024 is registered against DL-024.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f10",
+      "text": "Delivery investigations will provide the next update by 2026-02-26, 16:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f11",
+      "text": "No finding or compensation decision has been made yet.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Sorin Vaal reports: Is there any news?",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Sorin Vaal reports: The parcel is clearly lost or stolen.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Sorin Vaal reports: I want a refund today, not an investigation that takes days.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_outcome_1",
+      "text": "Sorin Vaal reports: Understood.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     },
+     {
+      "id": "branch_outcome_2",
+      "text": "Sorin Vaal reports: I will wait for the carrier's update by 2026-02-26, 16:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     },
+     {
+      "id": "branch_outcome_3",
+      "text": "Sorin Vaal reports: I still do not have the parcel.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "investigations",
+      "purpose": "Get the carrier to investigate where DL-024 went.",
+      "expected_response": "A carrier investigation into the parcel's whereabouts.",
+      "status": "completed",
+      "response": "Investigation INV-024 registered; next update by 2026-02-26, 16:00 UTC.",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "investigations",
+      "responsible_actor": "investigations",
+      "purpose": "Open a delivery investigation for DL-024 and review the handover and route records, without assuming a loss decision.",
+      "expected_response": "Confirmation that the investigation is registered.",
+      "status": "completed",
+      "response": "INV-024 registered; next update by 2026-02-26, 16:00 UTC; no finding or compensation decision yet.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     },
+     "branch_request": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Reply to Sorin in the customer portal that INV-024 is registered with no finding or compensation decision, that the desk cannot issue or promise a refund, and that the carrier's next update is due by 2026-02-26 16:00 UTC.",
+      "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+      "status": "answered",
+      "response": "Understood. I will wait for the carrier's update by 2026-02-26, 16:00 UTC. I still do not have the parcel.",
+      "evidence_event_ids": [
+       "005",
+       "006",
+       "007"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "decline_explain",
+       "action": "Reply to Sorin in the customer portal that INV-024 is registered with no finding or compensation decision, that the desk cannot issue or promise a refund, and that the carrier's next update is due by 2026-02-26 16:00 UTC.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "promise a refund, and call the parcel lost or stolen before the carrier's finding.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "decline_explain",
+     "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "Understood. I will wait for the carrier's update by 2026-02-26, 16:00 UTC. I still do not have the parcel.",
+     "confirmed_by": "recipient",
+     "evidence_event_ids": [
+      "007"
+     ],
+     "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not promise a refund, and do not call the parcel lost or stolen before the carrier's finding."
+    },
+    "annotations": [
+     {
+      "id": "tracker-context",
+      "kind": "context",
+      "title": "What Sorin saw before writing",
+      "text": "Sorin says the tracker shows delivered. When he saw this status is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "tracking": {
+      "participants": [
+       "coordinator",
+       "tracking_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "investigations": {
+      "participants": [
+       "coordinator",
+       "investigations"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "tracking",
+      "event_id": "001",
+      "timestamp": "2026-02-25 09:00:00 UTC",
+      "from_actor": "tracking_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-024 displays delivered at 08:10 UTC today. We have not reviewed the handover record or route stop. Only the shipment and recipient account match are verified."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-25 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "No one in my household has the parcel. I see delivered on the tracker. Please have the carrier investigate where it went."
+     },
+     {
+      "conversation_id": "investigations",
+      "event_id": "003",
+      "timestamp": "2026-02-25 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "investigations",
+      "channel": "Email",
+      "body": "Please open a delivery investigation for DL-024: verified recipient reports no receipt despite the 08:10 delivered scan. Review the handover and route records; do not assume a loss decision."
+     },
+     {
+      "conversation_id": "investigations",
+      "event_id": "004",
+      "timestamp": "2026-02-25 09:50:00 UTC",
+      "from_actor": "investigations",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Investigation INV-024 is registered against DL-024. We will provide the next update by 2026-02-26, 16:00 UTC. No finding or compensation decision has yet been made."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "005",
+      "timestamp": "2026-02-25 10:15:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Is there any news? The parcel is clearly lost or stolen. I want a refund today, not an investigation that takes days."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "006",
+      "timestamp": "2026-02-25 10:30:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Customer portal",
+      "body": "Investigation INV-024 is registered with the carrier. No finding and no compensation decision has been made. The desk cannot issue or promise a refund. The carrier's next update is due by 2026-02-26, 16:00 UTC, and we will pass it on here."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "007",
+      "timestamp": "2026-02-25 11:00:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Understood. I will wait for the carrier's update by 2026-02-26, 16:00 UTC. I still do not have the parcel."
+     }
+    ],
+    "limits": [
+     "Do not treat the delivered scan or the recipient's report as establishing fraud or confirmed loss.",
+     "Do not promise reimbursement.",
+     "Do not promise or perform the prohibited request."
+    ]
+   }
+  }
+ ]
+}

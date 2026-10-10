@@ -1,0 +1,1938 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "019-N2 · Driver offers run during suspension",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Tessa Jorn. From the case card: an operator weather decision suspends the route for DL-019, and our task is to relay a verified update and review time, not to invent a replacement arrival estimate.",
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/019/N2-UNAUTHORISED_REPLY",
+  "branch_id": "019-N2",
+  "derived_from_case": "019",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "UNAUTHORISED_REPLY",
+  "expected_decision": "SEPARATE_AUTHORITY",
+  "workflow_sheet": "A",
+  "branch_label": "Driver offers run during suspension",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "14170ca543b8b9c7dbbf11527f9be3cef8b20d79f00f35315ff7e12731a6a85e",
+   "history.md": "6824478339312db7192c1ac6731935d6aadf8b22ed8acac6e47ec8fa9dac914b"
+  }
+ },
+ "initial_state": {
+  "case_id": "019-N2",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "recipient",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: get dispatch's approved update and relay it to the recipient without promising an arrival time."
+   },
+   "recipient": {
+    "name": "Tessa Jorn",
+    "organization": null,
+    "role": "recipient",
+    "is_us": false,
+    "responsibility": "Asks whether DL-019 is coming today and when to expect an update."
+   }
+  },
+  "goal": "Get dispatch's verified disruption update and review time for DL-019 and relay it to the recipient without an unapproved arrival estimate.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "Dispatch has provided an approved disruption update and the next review time.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The verified suspension notice and review time have been sent to the recipient.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c3",
+    "description": "The update to the recipient contains no arrival promise that dispatch has not approved.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The route is suspended by weather; no verified update is available to relay.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-019.",
+    "source": {
+     "type": "case_card",
+     "id": "019"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "An operator weather decision suspends the route.",
+    "source": {
+     "type": "case_card",
+     "id": "019"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Do not invent a replacement arrival estimate.",
+   "Do not present the review time as a route-restart time.",
+   "Do not present the review time as a guaranteed delivery time.",
+   "Do not act on unverified authority or disclose protected details to an unverified party."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Safety email",
+    "title": "Route MQ-19 suspended by severe weather",
+    "timestamp": "2026-02-20 09:00:00 UTC",
+    "actor_id": "route_safety",
+    "message_id": "001"
+   },
+   "explanation": "Route safety control reports the suspension and says dispatch will review conditions at 15:00 UTC; no delivery estimate is approved. Any customer update has to come from dispatch's approved wording.",
+   "state_after": {
+    "case_id": "019-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get dispatch's approved update and relay it to the recipient without promising an arrival time."
+     },
+     "recipient": {
+      "name": "Tessa Jorn",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Asks whether DL-019 is coming today and when to expect an update."
+     },
+     "route_safety": {
+      "name": "Route safety control",
+      "organization": "Plover Arc Logistics",
+      "role": "safety_desk",
+      "is_us": false,
+      "responsibility": "Reports the weather suspension of route MQ-19 and the review time."
+     },
+     "dispatch": {
+      "name": "Dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Provide the approved disruption update and the next review time for DL-019."
+     }
+    },
+    "goal": "Get dispatch's verified disruption update and review time for DL-019 and relay it to the recipient without an unapproved arrival estimate.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask dispatch for the approved disruption update and next review time for DL-019."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "Dispatch has provided an approved disruption update and the next review time.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The verified suspension notice and review time have been sent to the recipient.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The update to the recipient contains no arrival promise that dispatch has not approved.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-20 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "019-N2"
+     },
+     "context_message_id": "001",
+     "summary": "Weather has suspended the route for DL-019; relay a verified update and review time to the recipient.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "Route MQ-19 is suspended; there is no approved delivery estimate.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-019.",
+      "source": {
+       "type": "case_card",
+       "id": "019"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Route MQ-19 is suspended due to severe weather.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "DL-019 is secure in depot stock.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Dispatch will review conditions at 15:00 UTC today.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "There is no approved delivery estimate.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "responsible_actor": "dispatch",
+      "purpose": "Get the approved disruption wording and next review time for DL-019.",
+      "expected_response": "An approved customer update and the next review time.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "001"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": {
+     "type": "information",
+     "responsible_actor": "dispatch",
+     "request_id": "r1",
+     "description": "Provide the approved disruption update and next review time for DL-019."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "safety": {
+      "participants": [
+       "coordinator",
+       "route_safety"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "safety",
+      "event_id": "001",
+      "timestamp": "2026-02-20 09:00:00 UTC",
+      "from_actor": "route_safety",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Route MQ-19 is suspended due to severe weather. DL-019 is secure in depot stock. Dispatch will review conditions at 15:00 UTC today; there is no approved delivery estimate."
+     }
+    ],
+    "limits": [
+     "Do not invent a replacement arrival estimate.",
+     "Do not present the review time as a route-restart time.",
+     "Do not present the review time as a guaranteed delivery time.",
+     "Do not act on unverified authority or disclose protected details to an unverified party."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client question",
+    "title": "Tessa asks whether the parcel comes today",
+    "timestamp": "2026-02-20 09:10:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "002"
+   },
+   "explanation": "Tessa wants to know about delivery today and when an update will come. We answer only with a dispatch-approved update, so we ask dispatch first.",
+   "state_after": {
+    "case_id": "019-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get dispatch's approved update and relay it to the recipient without promising an arrival time."
+     },
+     "recipient": {
+      "name": "Tessa Jorn",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Asks whether DL-019 is coming today and when to expect an update."
+     },
+     "route_safety": {
+      "name": "Route safety control",
+      "organization": "Plover Arc Logistics",
+      "role": "safety_desk",
+      "is_us": false,
+      "responsibility": "Reports the weather suspension of route MQ-19 and the review time."
+     },
+     "dispatch": {
+      "name": "Dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Provide the approved disruption update and the next review time for DL-019."
+     }
+    },
+    "goal": "Get dispatch's verified disruption update and review time for DL-019 and relay it to the recipient without an unapproved arrival estimate.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask dispatch for the approved disruption update and next review time for DL-019."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "Dispatch has provided an approved disruption update and the next review time.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The verified suspension notice and review time have been sent to the recipient.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The update to the recipient contains no arrival promise that dispatch has not approved.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-20 09:00:00 UTC",
+     "escalated_at": "2026-02-20 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "019-N2"
+     },
+     "context_message_id": "001",
+     "summary": "Weather has suspended the route for DL-019; relay a verified update and review time to the recipient.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The recipient wants a status; no dispatch-approved update is available to relay yet.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-019.",
+      "source": {
+       "type": "case_card",
+       "id": "019"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Route MQ-19 is suspended due to severe weather.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "DL-019 is secure in depot stock.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Dispatch will review conditions at 15:00 UTC today.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "There is no approved delivery estimate.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient says they saw the weather alert.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "responsible_actor": "dispatch",
+      "purpose": "Get the approved disruption wording and next review time for DL-019.",
+      "expected_response": "An approved customer update and the next review time.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "001"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Tell the recipient whether the parcel is coming today and when to expect an update.",
+      "expected_response": "A verified delivery status and update time.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "information",
+     "responsible_actor": "dispatch",
+     "request_id": "r1",
+     "description": "Provide the approved disruption update and next review time for DL-019."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "weather-alert-context",
+      "kind": "context",
+      "title": "What Tessa knew before writing",
+      "text": "Tessa says they saw the weather alert. Where and when the alert was seen is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "safety": {
+      "participants": [
+       "coordinator",
+       "route_safety"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "safety",
+      "event_id": "001",
+      "timestamp": "2026-02-20 09:00:00 UTC",
+      "from_actor": "route_safety",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Route MQ-19 is suspended due to severe weather. DL-019 is secure in depot stock. Dispatch will review conditions at 15:00 UTC today; there is no approved delivery estimate."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-20 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I saw the weather alert. Can you tell me whether my parcel is coming today and when I should expect an update?"
+     }
+    ],
+    "limits": [
+     "Do not invent a replacement arrival estimate.",
+     "Do not present the review time as a route-restart time.",
+     "Do not present the review time as a guaranteed delivery time.",
+     "Do not act on unverified authority or disclose protected details to an unverified party."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our request",
+    "title": "We ask dispatch for approved wording",
+    "timestamp": "2026-02-20 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We asked for the approved disruption wording and review time and said we need a verified update, not an unapproved arrival estimate. Now we wait for dispatch.",
+   "state_after": {
+    "case_id": "019-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get dispatch's approved update and relay it to the recipient without promising an arrival time."
+     },
+     "recipient": {
+      "name": "Tessa Jorn",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Asks whether DL-019 is coming today and when to expect an update."
+     },
+     "route_safety": {
+      "name": "Route safety control",
+      "organization": "Plover Arc Logistics",
+      "role": "safety_desk",
+      "is_us": false,
+      "responsibility": "Reports the weather suspension of route MQ-19 and the review time."
+     },
+     "dispatch": {
+      "name": "Dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Provide the approved disruption update and the next review time for DL-019."
+     }
+    },
+    "goal": "Get dispatch's verified disruption update and review time for DL-019 and relay it to the recipient without an unapproved arrival estimate.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "dispatch",
+       "request_id": "r1",
+       "expected": "Approved disruption wording and next review time"
+      }
+     ],
+     "next_action": "Once dispatch replies, relay the approved update to Tessa."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "Dispatch has provided an approved disruption update and the next review time.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The verified suspension notice and review time have been sent to the recipient.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The update to the recipient contains no arrival promise that dispatch has not approved.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-20 09:00:00 UTC",
+     "escalated_at": "2026-02-20 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "019-N2"
+     },
+     "context_message_id": "001",
+     "summary": "Weather has suspended the route for DL-019; relay a verified update and review time to the recipient.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "No dispatch-approved update is available to relay yet.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-019.",
+      "source": {
+       "type": "case_card",
+       "id": "019"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Route MQ-19 is suspended due to severe weather.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "DL-019 is secure in depot stock.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Dispatch will review conditions at 15:00 UTC today.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "There is no approved delivery estimate.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient says they saw the weather alert.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "responsible_actor": "dispatch",
+      "purpose": "Get the approved disruption wording and next review time for DL-019.",
+      "expected_response": "An approved customer update and the next review time.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "001",
+       "003"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Tell the recipient whether the parcel is coming today and when to expect an update.",
+      "expected_response": "A verified delivery status and update time.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_response",
+    "next_step": {
+     "type": "information",
+     "responsible_actor": "dispatch",
+     "request_id": "r1",
+     "description": "Wait for dispatch's approved wording and review time."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "weather-alert-context",
+      "kind": "context",
+      "title": "What Tessa knew before writing",
+      "text": "Tessa says they saw the weather alert. Where and when the alert was seen is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "safety": {
+      "participants": [
+       "coordinator",
+       "route_safety"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "safety",
+      "event_id": "001",
+      "timestamp": "2026-02-20 09:00:00 UTC",
+      "from_actor": "route_safety",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Route MQ-19 is suspended due to severe weather. DL-019 is secure in depot stock. Dispatch will review conditions at 15:00 UTC today; there is no approved delivery estimate."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-20 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I saw the weather alert. Can you tell me whether my parcel is coming today and when I should expect an update?"
+     },
+     {
+      "conversation_id": "dispatch",
+      "event_id": "003",
+      "timestamp": "2026-02-20 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "channel": "Email",
+      "body": "Please provide the approved disruption wording and next review time for DL-019. I need a verified customer update, not an unapproved arrival estimate."
+     }
+    ],
+    "limits": [
+     "Do not invent a replacement arrival estimate.",
+     "Do not present the review time as a route-restart time.",
+     "Do not present the review time as a guaranteed delivery time.",
+     "Do not act on unverified authority or disclose protected details to an unverified party."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "New escalation",
+    "title": "Driver offers run during suspension",
+    "timestamp": "2026-02-20 09:50:00 UTC",
+    "actor_id": "branch_driver",
+    "message_id": "004"
+   },
+   "explanation": "Use the authorised party or verified channel to establish authority. Do not act on unverified authority or disclose protected details to an unverified party.",
+   "state_after": {
+    "case_id": "019-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get dispatch's approved update and relay it to the recipient without promising an arrival time."
+     },
+     "recipient": {
+      "name": "Tessa Jorn",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Asks whether DL-019 is coming today and when to expect an update."
+     },
+     "route_safety": {
+      "name": "Route safety control",
+      "organization": "Plover Arc Logistics",
+      "role": "safety_desk",
+      "is_us": false,
+      "responsibility": "Reports the weather suspension of route MQ-19 and the review time."
+     },
+     "dispatch": {
+      "name": "Dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Provide the approved disruption update and the next review time for DL-019."
+     },
+     "branch_driver": {
+      "name": "Route driver, route MQ-19, Plover Arc Logistics",
+      "organization": null,
+      "role": "driver",
+      "is_us": false,
+      "responsibility": "Report or handle the state within the scope stated in the source message; no wider authority is inferred."
+     }
+    },
+    "goal": "Use the authorised party or verified channel to establish authority.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Give the driver no instruction, leave the route decision with Dispatch and route safety control, and tell Tessa nothing until Dispatch's approved update arrives."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-20 09:00:00 UTC",
+     "escalated_at": "2026-02-20 09:50:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "019-N2"
+     },
+     "context_message_id": "001",
+     "summary": "Use the authorised party or verified channel to establish authority.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The new escalation requires a scoped response. I'm at the depot with the MQ-19 load. The main road looks passable now. I can take DL-019 out at 13:00 if the customer really needs it. Want me to go?",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-019.",
+      "source": {
+       "type": "case_card",
+       "id": "019"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Route MQ-19 is suspended due to severe weather.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "DL-019 is secure in depot stock.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Dispatch will review conditions at 15:00 UTC today.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "There is no approved delivery estimate.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient says they saw the weather alert.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Route driver, route MQ-19, Plover Arc Logistics reports: I'm at the depot with the MQ-19 load.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Route driver, route MQ-19, Plover Arc Logistics reports: The main road looks passable now.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Route driver, route MQ-19, Plover Arc Logistics reports: I can take DL-019 out at 13:00 if the customer really needs it.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_4",
+      "text": "Route driver, route MQ-19, Plover Arc Logistics reports: Want me to go?",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "responsible_actor": "dispatch",
+      "purpose": "Get the approved disruption wording and next review time for DL-019.",
+      "expected_response": "An approved customer update and the next review time.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "001",
+       "003"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Tell the recipient whether the parcel is coming today and when to expect an update.",
+      "expected_response": "A verified delivery status and update time.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "responsible_actor": "dispatch",
+      "purpose": "Give the driver no instruction, leave the route decision with Dispatch and route safety control, and tell Tessa nothing until Dispatch's approved update arrives.",
+      "expected_response": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "separate_authority",
+       "action": "Give the driver no instruction, leave the route decision with Dispatch and route safety control, and tell Tessa nothing until Dispatch's approved update arrives.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "tell the driver to go, and tell Tessa that DL-019 may arrive at 13:00; a driver's offer does not lift a route suspension.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "verification_required",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": "branch_request",
+     "description": "Give the driver no instruction, leave the route decision with Dispatch and route safety control, and tell Tessa nothing until Dispatch's approved update arrives."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "weather-alert-context",
+      "kind": "context",
+      "title": "What Tessa knew before writing",
+      "text": "Tessa says they saw the weather alert. Where and when the alert was seen is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "safety": {
+      "participants": [
+       "coordinator",
+       "route_safety"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "branch_driver"
+      ],
+      "channel": "Dispatch chat"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "safety",
+      "event_id": "001",
+      "timestamp": "2026-02-20 09:00:00 UTC",
+      "from_actor": "route_safety",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Route MQ-19 is suspended due to severe weather. DL-019 is secure in depot stock. Dispatch will review conditions at 15:00 UTC today; there is no approved delivery estimate."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-20 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I saw the weather alert. Can you tell me whether my parcel is coming today and when I should expect an update?"
+     },
+     {
+      "conversation_id": "dispatch",
+      "event_id": "003",
+      "timestamp": "2026-02-20 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "channel": "Email",
+      "body": "Please provide the approved disruption wording and next review time for DL-019. I need a verified customer update, not an unapproved arrival estimate."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "004",
+      "timestamp": "2026-02-20 09:50:00 UTC",
+      "from_actor": "branch_driver",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "I'm at the depot with the MQ-19 load. The main road looks passable now. I can take DL-019 out at 13:00 if the customer really needs it. Want me to go?"
+     }
+    ],
+    "limits": [
+     "Do not invent a replacement arrival estimate.",
+     "Do not present the review time as a route-restart time.",
+     "Do not present the review time as a guaranteed delivery time.",
+     "Do not act on unverified authority or disclose protected details to an unverified party."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "Dispatch has provided an approved disruption update and the next review time.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The verified suspension notice and review time have been sent to the recipient.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "The update to the recipient contains no arrival promise that dispatch has not approved.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "005",
+    "type": "message_sent",
+    "label": "Desk response",
+    "title": "Use the authorised party or verified channel to establish authority",
+    "timestamp": "2026-02-20 10:05:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "005"
+   },
+   "explanation": "The desk sends the recorded response. Do not act on unverified authority or disclose protected details to an unverified party.",
+   "state_after": {
+    "case_id": "019-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get dispatch's approved update and relay it to the recipient without promising an arrival time."
+     },
+     "recipient": {
+      "name": "Tessa Jorn",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Asks whether DL-019 is coming today and when to expect an update."
+     },
+     "route_safety": {
+      "name": "Route safety control",
+      "organization": "Plover Arc Logistics",
+      "role": "safety_desk",
+      "is_us": false,
+      "responsibility": "Reports the weather suspension of route MQ-19 and the review time."
+     },
+     "dispatch": {
+      "name": "Dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Provide the approved disruption update and the next review time for DL-019."
+     },
+     "branch_driver": {
+      "name": "Route driver, route MQ-19, Plover Arc Logistics",
+      "organization": null,
+      "role": "driver",
+      "is_us": false,
+      "responsibility": "Report or handle the state within the scope stated in the source message; no wider authority is inferred."
+     }
+    },
+    "goal": "Use the authorised party or verified channel to establish authority.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "dispatch",
+       "request_id": "branch_request",
+       "expected": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing."
+      }
+     ],
+     "next_action": "Record the reply or scoped confirmation before closing this branch."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-20 09:00:00 UTC",
+     "escalated_at": "2026-02-20 09:50:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "019-N2"
+     },
+     "context_message_id": "001",
+     "summary": "Use the authorised party or verified channel to establish authority.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The scoped reply or confirmation has not yet been recorded.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-019.",
+      "source": {
+       "type": "case_card",
+       "id": "019"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Route MQ-19 is suspended due to severe weather.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "DL-019 is secure in depot stock.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Dispatch will review conditions at 15:00 UTC today.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "There is no approved delivery estimate.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient says they saw the weather alert.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Route driver, route MQ-19, Plover Arc Logistics reports: I'm at the depot with the MQ-19 load.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Route driver, route MQ-19, Plover Arc Logistics reports: The main road looks passable now.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Route driver, route MQ-19, Plover Arc Logistics reports: I can take DL-019 out at 13:00 if the customer really needs it.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_4",
+      "text": "Route driver, route MQ-19, Plover Arc Logistics reports: Want me to go?",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "responsible_actor": "dispatch",
+      "purpose": "Get the approved disruption wording and next review time for DL-019.",
+      "expected_response": "An approved customer update and the next review time.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "001",
+       "003"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Tell the recipient whether the parcel is coming today and when to expect an update.",
+      "expected_response": "A verified delivery status and update time.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "responsible_actor": "dispatch",
+      "purpose": "Give the driver no instruction, leave the route decision with Dispatch and route safety control, and tell Tessa nothing until Dispatch's approved update arrives.",
+      "expected_response": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "004",
+       "005"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "separate_authority",
+       "action": "Give the driver no instruction, leave the route decision with Dispatch and route safety control, and tell Tessa nothing until Dispatch's approved update arrives.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "tell the driver to go, and tell Tessa that DL-019 may arrive at 13:00; a driver's offer does not lift a route suspension.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "separate_authority",
+     "reason": "The recorded outgoing message takes this permitted response."
+    },
+    "status": "awaiting_verification",
+    "next_step": {
+     "type": "verification",
+     "responsible_actor": "dispatch",
+     "request_id": "branch_request",
+     "description": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "weather-alert-context",
+      "kind": "context",
+      "title": "What Tessa knew before writing",
+      "text": "Tessa says they saw the weather alert. Where and when the alert was seen is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "safety": {
+      "participants": [
+       "coordinator",
+       "route_safety"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "branch_driver",
+       "dispatch"
+      ],
+      "channel": "Dispatch chat",
+      "other_channels": [
+       "Email"
+      ]
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "safety",
+      "event_id": "001",
+      "timestamp": "2026-02-20 09:00:00 UTC",
+      "from_actor": "route_safety",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Route MQ-19 is suspended due to severe weather. DL-019 is secure in depot stock. Dispatch will review conditions at 15:00 UTC today; there is no approved delivery estimate."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-20 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I saw the weather alert. Can you tell me whether my parcel is coming today and when I should expect an update?"
+     },
+     {
+      "conversation_id": "dispatch",
+      "event_id": "003",
+      "timestamp": "2026-02-20 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "channel": "Email",
+      "body": "Please provide the approved disruption wording and next review time for DL-019. I need a verified customer update, not an unapproved arrival estimate."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "004",
+      "timestamp": "2026-02-20 09:50:00 UTC",
+      "from_actor": "branch_driver",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "I'm at the depot with the MQ-19 load. The main road looks passable now. I can take DL-019 out at 13:00 if the customer really needs it. Want me to go?"
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-02-20 10:05:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "channel": "Email",
+      "body": "The MQ-19 route driver offered in Dispatch chat at 09:50 UTC to take DL-019 out at 13:00 UTC. We have given the driver no instruction and told Tessa nothing about it. The route decision stays with you and route safety control. Please send the approved update for DL-019 when it is ready."
+     }
+    ],
+    "limits": [
+     "Do not invent a replacement arrival estimate.",
+     "Do not present the review time as a route-restart time.",
+     "Do not present the review time as a guaranteed delivery time.",
+     "Do not act on unverified authority or disclose protected details to an unverified party."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "Dispatch has provided an approved disruption update and the next review time.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The verified suspension notice and review time have been sent to the recipient.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "The update to the recipient contains no arrival promise that dispatch has not approved.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "006",
+    "type": "message_received",
+    "label": "Scoped confirmation",
+    "title": "Follow-through confirms the branch outcome",
+    "timestamp": "2026-02-20 10:35:00 UTC",
+    "actor_id": "dispatch",
+    "message_id": "006"
+   },
+   "explanation": "Record what the responding party actually confirms. Route MQ-19 stays suspended and the driver has been told not to leave the depot. Approved update: DL-019 remains at the depot and conditions will be reviewed at 15:00 UTC today. We cannot promise delivery today. The driver's offer changes nothing.",
+   "state_after": {
+    "case_id": "019-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get dispatch's approved update and relay it to the recipient without promising an arrival time."
+     },
+     "recipient": {
+      "name": "Tessa Jorn",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Asks whether DL-019 is coming today and when to expect an update."
+     },
+     "route_safety": {
+      "name": "Route safety control",
+      "organization": "Plover Arc Logistics",
+      "role": "safety_desk",
+      "is_us": false,
+      "responsibility": "Reports the weather suspension of route MQ-19 and the review time."
+     },
+     "dispatch": {
+      "name": "Dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Provide the approved disruption update and the next review time for DL-019."
+     },
+     "branch_driver": {
+      "name": "Route driver, route MQ-19, Plover Arc Logistics",
+      "organization": null,
+      "role": "driver",
+      "is_us": false,
+      "responsibility": "Report or handle the state within the scope stated in the source message; no wider authority is inferred."
+     }
+    },
+    "goal": "Use the authorised party or verified channel to establish authority.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing.",
+      "status": "met",
+      "evidence_event_ids": [
+       "005",
+       "006"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-20 09:00:00 UTC",
+     "escalated_at": "2026-02-20 09:50:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "019-N2"
+     },
+     "context_message_id": "001",
+     "summary": "Use the authorised party or verified channel to establish authority.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-019.",
+      "source": {
+       "type": "case_card",
+       "id": "019"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Route MQ-19 is suspended due to severe weather.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "DL-019 is secure in depot stock.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Dispatch will review conditions at 15:00 UTC today.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "There is no approved delivery estimate.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient says they saw the weather alert.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Route driver, route MQ-19, Plover Arc Logistics reports: I'm at the depot with the MQ-19 load.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Route driver, route MQ-19, Plover Arc Logistics reports: The main road looks passable now.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Route driver, route MQ-19, Plover Arc Logistics reports: I can take DL-019 out at 13:00 if the customer really needs it.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_4",
+      "text": "Route driver, route MQ-19, Plover Arc Logistics reports: Want me to go?",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_outcome_1",
+      "text": "Dispatch reports: Route MQ-19 stays suspended and the driver has been told not to leave the depot.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_2",
+      "text": "Dispatch reports: Approved update: DL-019 remains at the depot and conditions will be reviewed at 15:00 UTC today.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_3",
+      "text": "Dispatch reports: We cannot promise delivery today.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_4",
+      "text": "Dispatch reports: The driver's offer changes nothing.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "responsible_actor": "dispatch",
+      "purpose": "Get the approved disruption wording and next review time for DL-019.",
+      "expected_response": "An approved customer update and the next review time.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "001",
+       "003"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Tell the recipient whether the parcel is coming today and when to expect an update.",
+      "expected_response": "A verified delivery status and update time.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "responsible_actor": "dispatch",
+      "purpose": "Give the driver no instruction, leave the route decision with Dispatch and route safety control, and tell Tessa nothing until Dispatch's approved update arrives.",
+      "expected_response": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing.",
+      "status": "answered",
+      "response": "Route MQ-19 stays suspended and the driver has been told not to leave the depot. Approved update: DL-019 remains at the depot and conditions will be reviewed at 15:00 UTC today. We cannot promise delivery today. The driver's offer changes nothing.",
+      "evidence_event_ids": [
+       "004",
+       "005",
+       "006"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "separate_authority",
+       "action": "Give the driver no instruction, leave the route decision with Dispatch and route safety control, and tell Tessa nothing until Dispatch's approved update arrives.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "tell the driver to go, and tell Tessa that DL-019 may arrive at 13:00; a driver's offer does not lift a route suspension.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "separate_authority",
+     "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "Route MQ-19 stays suspended and the driver has been told not to leave the depot. Approved update: DL-019 remains at the depot and conditions will be reviewed at 15:00 UTC today. We cannot promise delivery today. The driver's offer changes nothing.",
+     "confirmed_by": "dispatch",
+     "evidence_event_ids": [
+      "006"
+     ],
+     "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not tell the driver to go, and do not tell Tessa that DL-019 may arrive at 13:00; a driver's offer does not lift a route suspension."
+    },
+    "annotations": [
+     {
+      "id": "weather-alert-context",
+      "kind": "context",
+      "title": "What Tessa knew before writing",
+      "text": "Tessa says they saw the weather alert. Where and when the alert was seen is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "safety": {
+      "participants": [
+       "coordinator",
+       "route_safety"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "branch_driver",
+       "dispatch"
+      ],
+      "channel": "Dispatch chat",
+      "other_channels": [
+       "Email"
+      ]
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "safety",
+      "event_id": "001",
+      "timestamp": "2026-02-20 09:00:00 UTC",
+      "from_actor": "route_safety",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Route MQ-19 is suspended due to severe weather. DL-019 is secure in depot stock. Dispatch will review conditions at 15:00 UTC today; there is no approved delivery estimate."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-20 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I saw the weather alert. Can you tell me whether my parcel is coming today and when I should expect an update?"
+     },
+     {
+      "conversation_id": "dispatch",
+      "event_id": "003",
+      "timestamp": "2026-02-20 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "channel": "Email",
+      "body": "Please provide the approved disruption wording and next review time for DL-019. I need a verified customer update, not an unapproved arrival estimate."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "004",
+      "timestamp": "2026-02-20 09:50:00 UTC",
+      "from_actor": "branch_driver",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "I'm at the depot with the MQ-19 load. The main road looks passable now. I can take DL-019 out at 13:00 if the customer really needs it. Want me to go?"
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-02-20 10:05:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "channel": "Email",
+      "body": "The MQ-19 route driver offered in Dispatch chat at 09:50 UTC to take DL-019 out at 13:00 UTC. We have given the driver no instruction and told Tessa nothing about it. The route decision stays with you and route safety control. Please send the approved update for DL-019 when it is ready."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "006",
+      "timestamp": "2026-02-20 10:35:00 UTC",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Route MQ-19 stays suspended and the driver has been told not to leave the depot. Approved update: DL-019 remains at the depot and conditions will be reviewed at 15:00 UTC today. We cannot promise delivery today. The driver's offer changes nothing."
+     }
+    ],
+    "limits": [
+     "Do not invent a replacement arrival estimate.",
+     "Do not present the review time as a route-restart time.",
+     "Do not present the review time as a guaranteed delivery time.",
+     "Do not act on unverified authority or disclose protected details to an unverified party."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "Dispatch has provided an approved disruption update and the next review time.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The verified suspension notice and review time have been sent to the recipient.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "The update to the recipient contains no arrival promise that dispatch has not approved.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  }
+ ]
+}
