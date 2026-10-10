@@ -165,7 +165,7 @@
       "id": "030"
      },
      "context_message_id": "001",
-     "summary": "Obtain the missing handover record for DL-030 so the recipient can reconcile the delivery time.",
+     "summary": "Obtain the missing handover record for DL-030 for the verified recipient.",
      "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
     },
     "blocker": "The customer-facing handover record has not populated.",
@@ -316,7 +316,7 @@
       "id": "030"
      },
      "context_message_id": "001",
-     "summary": "Obtain the missing handover record for DL-030 so the recipient can reconcile the delivery time.",
+     "summary": "Obtain the missing handover record for DL-030 for the verified recipient.",
      "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
     },
     "blocker": "The handover record is not yet available to Iven.",
@@ -529,7 +529,7 @@
       "id": "030"
      },
      "context_message_id": "001",
-     "summary": "Obtain the missing handover record for DL-030 so the recipient can reconcile the delivery time.",
+     "summary": "Obtain the missing handover record for DL-030 for the verified recipient.",
      "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
     },
     "blocker": "Carrier support has not yet released the record.",
@@ -749,7 +749,7 @@
       "id": "030"
      },
      "context_message_id": "001",
-     "summary": "Obtain the missing handover record for DL-030 so the recipient can reconcile the delivery time.",
+     "summary": "Obtain the missing handover record for DL-030 for the verified recipient.",
      "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
     },
     "blocker": "Iven has not yet confirmed the recorded handover.",
@@ -821,6 +821,7 @@
       "expected_response": "The handover record for DL-030.",
       "status": "answered",
       "response": "Record POD-030 is visible in the customer thread.",
+      "responded_by": "carrier_support",
       "evidence_event_ids": [
        "002",
        "004"
@@ -875,11 +876,17 @@
      {
       "id": "missing-check-request",
       "kind": "gap",
-      "title": "Gap in the source history",
-      "text": "No message asking Iven to check POD-030 is recorded. The record is visible in the customer thread; once a request is sent, the agent should wait for Iven's confirmation.",
+      "title": "Next action · us → Iven",
+      "text": "POD-030 is visible in the customer thread. We now have to ask Iven to check it against the actual handover and confirm; after sending, the agent waits for Iven's confirmation. At this step no such message is recorded in the history, and the record by itself is not the recipient's confirmation.",
       "source_event_ids": [
        "004"
-      ]
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "recipient",
+       "type": "confirmation",
+       "purpose": "Check POD-030 against the actual handover and confirm it."
+      }
      }
     ],
     "conversations": {
@@ -1013,7 +1020,7 @@
       "id": "030"
      },
      "context_message_id": "001",
-     "summary": "Obtain the missing handover record for DL-030 so the recipient can reconcile the delivery time.",
+     "summary": "Obtain the missing handover record for DL-030 for the verified recipient.",
      "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
     },
     "blocker": null,
@@ -1093,6 +1100,7 @@
       "expected_response": "The handover record for DL-030.",
       "status": "answered",
       "response": "Record POD-030 is visible in the customer thread.",
+      "responded_by": "carrier_support",
       "evidence_event_ids": [
        "002",
        "004"
@@ -1151,11 +1159,18 @@
      {
       "id": "missing-check-request",
       "kind": "gap",
-      "title": "Gap in the source history",
-      "text": "No message asking Iven to check POD-030 is recorded. Iven confirmed in message 005 after the record became visible in the customer thread. No intermediate wait for Iven was observed.",
+      "title": "Between 004 and 005 · our request to Iven to check POD-030",
+      "text": "Record visible in the customer thread → our request to Iven → waiting on Iven → confirmation 005. The request is not recorded; 005 reads as a reply to it (\"I confirm I received it myself\"), but its time and wording are unknown.",
+      "before_message_id": "005",
       "source_event_ids": [
        "005"
-      ]
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "recipient",
+       "type": "confirmation",
+       "purpose": "Check POD-030 against the actual handover and confirm it."
+      }
      }
     ],
     "conversations": {

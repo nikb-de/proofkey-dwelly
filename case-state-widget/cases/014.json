@@ -19,7 +19,7 @@
     "organization": "Vellum Rack",
     "role": "recipient",
     "is_us": false,
-    "responsibility": "Give the next staffed receiving window and the receiving entrance for the retry."
+    "responsibility": "Give the next staffed receiving window for the retry."
    }
   },
   "goal": "Obtain the consignee's next staffed receiving window and get dispatch to confirm a new attempt for DL-014 within it.",
@@ -118,7 +118,7 @@
       "organization": "Vellum Rack",
       "role": "recipient",
       "is_us": false,
-      "responsibility": "Give the next staffed receiving window and the receiving entrance for the retry."
+      "responsibility": "Give the next staffed receiving window for the retry."
      },
      "dispatch": {
       "name": "Business dispatch",
@@ -287,7 +287,7 @@
       "organization": "Vellum Rack",
       "role": "recipient",
       "is_us": false,
-      "responsibility": "Give the next staffed receiving window and the receiving entrance for the retry."
+      "responsibility": "Give the next staffed receiving window for the retry."
      },
      "dispatch": {
       "name": "Business dispatch",
@@ -512,7 +512,7 @@
       "organization": "Vellum Rack",
       "role": "recipient",
       "is_us": false,
-      "responsibility": "Give the next staffed receiving window and the receiving entrance for the retry."
+      "responsibility": "Give the next staffed receiving window for the retry."
      },
      "dispatch": {
       "name": "Business dispatch",
@@ -754,7 +754,7 @@
       "organization": "Vellum Rack",
       "role": "recipient",
       "is_us": false,
-      "responsibility": "Give the next staffed receiving window and the receiving entrance for the retry."
+      "responsibility": "Give the next staffed receiving window for the retry."
      },
      "dispatch": {
       "name": "Business dispatch",
@@ -947,11 +947,17 @@
      {
       "id": "missing-relay-to-dispatch",
       "kind": "gap",
-      "title": "Gap in the source history",
-      "text": "Our message relaying the window to business dispatch is not recorded as a separate event. Once it is sent, the agent should wait for confirmation from dispatch.",
+      "title": "Next action · us → business dispatch",
+      "text": "Rellin gave a staffed window and door R2. We now have to relay them to business dispatch and request the booking; after sending, the agent waits for dispatch's confirmation. At this step the relay is not yet recorded in the history, and Rellin's window by itself does not book the attempt.",
       "source_event_ids": [
        "004"
-      ]
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "dispatch",
+       "type": "action",
+       "purpose": "Book the DL-014 retry in Rellin's staffed window, 2026-02-16, 10:00–13:00 UTC, at receiving door R2."
+      }
      }
     ],
     "conversations": {
@@ -1041,7 +1047,7 @@
       "organization": "Vellum Rack",
       "role": "recipient",
       "is_us": false,
-      "responsibility": "Give the next staffed receiving window and the receiving entrance for the retry."
+      "responsibility": "Give the next staffed receiving window for the retry."
      },
      "dispatch": {
       "name": "Business dispatch",
@@ -1239,7 +1245,7 @@
      "evidence_event_ids": [
       "005"
      ],
-     "remaining_work": "The next attempt has not happened yet; the booking does not confirm receipt."
+     "remaining_work": "The next attempt has not happened yet; the booking does not confirm receipt. The retry relies on Rellin's staffed receiving window, not on shop opening hours."
     },
     "annotations": [
      {
@@ -1255,11 +1261,18 @@
      {
       "id": "missing-relay-to-dispatch",
       "kind": "gap",
-      "title": "Gap in the source history",
-      "text": "Our message relaying the window to business dispatch is not recorded as a separate event. Message 005 refers to it (\"Your relayed window is booked\") and confirms it was carried out. No intermediate wait for dispatch was observed.",
+      "title": "Between 004 and 005 · our relay of the window to business dispatch",
+      "text": "Rellin's window → our booking request to business dispatch → waiting on dispatch → confirmation 005. Dispatch refers to our message in 005 (\"Your relayed window is booked\"), but the relay and the wait are not recorded separately: their exact time and wording are unknown.",
+      "before_message_id": "005",
       "source_event_ids": [
        "005"
-      ]
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "dispatch",
+       "type": "action",
+       "purpose": "Book the DL-014 retry in Rellin's staffed window, 2026-02-16, 10:00–13:00 UTC, at receiving door R2."
+      }
      }
     ],
     "conversations": {

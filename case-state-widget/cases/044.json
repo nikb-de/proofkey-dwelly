@@ -810,6 +810,7 @@
       "expected_response": "The location of DL-044-P4 and its remaining delivery.",
       "status": "completed",
       "response": "P4 was located on a separate transfer trailer; remaining delivery scheduled for 2026-03-18, 13:00–16:00 UTC.",
+      "responded_by": "trace_team",
       "evidence_event_ids": [
        "002",
        "004"
@@ -864,11 +865,17 @@
      {
       "id": "missing-consignee-update",
       "kind": "gap",
-      "title": "Gap in the source history",
-      "text": "No message passing the delivery window to Eron or asking for a reconciled count is recorded. Once it is sent, the agent should wait for delivery and Eron's confirmation.",
+      "title": "Next action · us → Eron",
+      "text": "The trace team located P4 and scheduled its delivery for 2026-03-18, 13:00–16:00 UTC; their message went only to us. We now have to pass the window to Eron and ask him to confirm receipt and sign a reconciled count; after that, the agent waits for the delivery and his confirmation. At this step the message is not yet recorded in the history, and a scheduled delivery is not a receipt.",
       "source_event_ids": [
        "004"
-      ]
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "consignee",
+       "type": "confirmation",
+       "purpose": "Pass Eron the scheduled P4 delivery window and ask him to confirm receipt and sign a reconciled count."
+      }
      }
     ],
     "conversations": {
@@ -1090,6 +1097,7 @@
       "expected_response": "The location of DL-044-P4 and its remaining delivery.",
       "status": "completed",
       "response": "P4 was located on a separate transfer trailer; remaining delivery scheduled for 2026-03-18, 13:00–16:00 UTC.",
+      "responded_by": "trace_team",
       "evidence_event_ids": [
        "002",
        "004"
@@ -1147,11 +1155,18 @@
      {
       "id": "missing-consignee-update",
       "kind": "gap",
-      "title": "Gap in the source history",
-      "text": "No message passing the delivery window to Eron or asking for a reconciled count is recorded. Message 005 confirms receipt and the signed revised count. No intermediate wait for Eron was observed.",
+      "title": "Between 004 and 005 · our update to Eron and the P4 delivery",
+      "text": "Two things happen off the record before 005: our update to Eron with the delivery window and the request for a reconciled count, and the carrier's delivery of P4, which 005 confirms (\"received at 14:20 UTC on 2026-03-18\", inside the scheduled window). Message 005 does not refer to our update, so it is not confirmed that we sent it; Eron had offered the 2026-03-18 afternoon in 002 and may have reconciled the count on his own after the delivery.",
       "source_event_ids": [
        "005"
-      ]
+      ],
+      "before_message_id": "005",
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "consignee",
+       "type": "confirmation",
+       "purpose": "Pass Eron the scheduled P4 delivery window and ask him to confirm receipt and sign a reconciled count."
+      }
      }
     ],
     "conversations": {

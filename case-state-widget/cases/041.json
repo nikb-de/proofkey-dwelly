@@ -674,7 +674,7 @@
     "actor_id": "receiving",
     "message_id": "004"
    },
-   "explanation": "The consignee reserved ARC-041 for 2026-03-15, 14:00–15:00 UTC at dock D3 and will staff receiving. The carrier has not accepted it yet, so the appointment still has to be matched with the carrier booking.",
+   "explanation": "The consignee reserved ARC-041 for 2026-03-15, 14:00–15:00 UTC at dock D3 and will staff receiving, which answers Freight dispatch's booking request. The carrier has not accepted it yet, so we still have to pass the appointment to Freight dispatch.",
    "state_after": {
     "case_id": "041",
     "our_actor_id": "coordinator",
@@ -803,10 +803,12 @@
       "responsible_actor": "receiving",
       "purpose": "Book with Ossa Rell and obtain the dock reference, time and receiving entrance for the driver.",
       "expected_response": "The dock reference, time and receiving entrance.",
-      "status": "received",
-      "response": null,
+      "status": "completed",
+      "response": "ARC-041 reserved for 2026-03-15, 14:00–15:00 UTC at dock D3.",
+      "responded_by": "receiving",
       "evidence_event_ids": [
-       "002"
+       "002",
+       "004"
       ]
      },
      "r1": {
@@ -858,11 +860,17 @@
      {
       "id": "missing-carrier-handoff",
       "kind": "gap",
-      "title": "Gap in the source history",
-      "text": "No message passing ARC-041 to Freight dispatch is recorded. Once it is sent, the agent should wait for the carrier's acceptance.",
+      "title": "Next action · us → Freight dispatch",
+      "text": "Ossa reserved ARC-041 for 2026-03-15, 14:00–15:00 UTC at dock D3, and her message went only to us. We now have to pass the appointment to Freight dispatch and ask them to accept it; after sending, the agent waits for the carrier's acceptance. At this step the handoff is not yet recorded in the history, and the consignee's reservation alone does not align the carrier booking.",
       "source_event_ids": [
        "004"
-      ]
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "freight_dispatch",
+       "type": "confirmation",
+       "purpose": "Pass ARC-041, 2026-03-15 14:00–15:00 UTC, dock D3, to Freight dispatch and get the carrier's acceptance of the same reference and time."
+      }
      }
     ],
     "conversations": {
@@ -1078,11 +1086,11 @@
       "purpose": "Book with Ossa Rell and obtain the dock reference, time and receiving entrance for the driver.",
       "expected_response": "The dock reference, time and receiving entrance.",
       "status": "completed",
-      "response": "ARC-041, 2026-03-15 14:00–15:00 UTC, dock D3; accepted by the carrier.",
+      "response": "ARC-041 reserved for 2026-03-15, 14:00–15:00 UTC at dock D3.",
+      "responded_by": "receiving",
       "evidence_event_ids": [
        "002",
-       "004",
-       "005"
+       "004"
       ]
      },
      "r1": {
@@ -1138,11 +1146,18 @@
      {
       "id": "missing-carrier-handoff",
       "kind": "gap",
-      "title": "Gap in the source history",
-      "text": "No message passing ARC-041 to Freight dispatch is recorded. Message 005 shows the carrier received and accepted it. No intermediate wait for the carrier was observed.",
+      "title": "Between 004 and 005 · our handoff of ARC-041 to Freight dispatch",
+      "text": "Consignee appointment → our handoff to the carrier → waiting on Freight dispatch → acceptance 005. Ossa's message 004 was addressed only to us, yet Freight dispatch quotes the exact appointment in 005 (\"We accept ARC-041, 2026-03-15 14:00–15:00 UTC, dock D3\"), so the details reached the carrier through us. The handoff and the wait are not recorded separately: their exact time and wording are unknown.",
       "source_event_ids": [
        "005"
-      ]
+      ],
+      "before_message_id": "005",
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "freight_dispatch",
+       "type": "confirmation",
+       "purpose": "Pass ARC-041, 2026-03-15 14:00–15:00 UTC, dock D3, to Freight dispatch and get the carrier's acceptance of the same reference and time."
+      }
      }
     ],
     "conversations": {

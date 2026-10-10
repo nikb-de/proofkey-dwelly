@@ -839,6 +839,7 @@
       "from_actor": "customer",
       "to_actor": "coordinator",
       "responsible_actor": "label_team",
+      "responded_by": "label_team",
       "purpose": "Obtain Kessa's return label.",
       "expected_response": "A printable return label.",
       "status": "completed",
@@ -897,11 +898,17 @@
      {
       "id": "missing-check-request",
       "kind": "gap",
-      "title": "Gap in the source history",
-      "text": "No message asking Kessa to check RL-031 is recorded. The label was sent to Kessa directly; once a request is sent, the agent should wait for Kessa's confirmation.",
+      "title": "Next action · us → Kessa",
+      "text": "The label team sent RL-031 to Kessa directly. Issuance alone does not show that the label opens, prints and matches the approved return, so we now have to ask Kessa to check it; after sending, the agent waits for Kessa's confirmation. At this step the request is not recorded in the history.",
       "source_event_ids": [
        "004"
-      ]
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "customer",
+       "type": "confirmation",
+       "purpose": "Check that RL-031 opens, prints and matches the approved return."
+      }
      }
     ],
     "conversations": {
@@ -1154,6 +1161,7 @@
       "from_actor": "customer",
       "to_actor": "coordinator",
       "responsible_actor": "label_team",
+      "responded_by": "label_team",
       "purpose": "Obtain Kessa's return label.",
       "expected_response": "A printable return label.",
       "status": "completed",
@@ -1216,11 +1224,19 @@
      {
       "id": "missing-check-request",
       "kind": "gap",
-      "title": "Gap in the source history",
-      "text": "No message asking Kessa to check RL-031 is recorded. Kessa confirmed in message 005 after receiving the label directly. No intermediate wait for Kessa was observed.",
+      "title": "Between 004 and 005 · our check request to Kessa",
+      "text": "Label issued → our request to check it → waiting on Kessa → confirmation 005. Kessa's reply covers exactly the checks the case needs (opens, prints, references match the approved return), which fits a request from us, but it does not refer to one: Kessa received the label directly and may have checked unprompted. The request and the wait are not recorded; their time and wording are unknown.",
+      "before_message_id": "005",
       "source_event_ids": [
+       "004",
        "005"
-      ]
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "customer",
+       "type": "confirmation",
+       "purpose": "Check that RL-031 opens, prints and matches the approved return."
+      }
      }
     ],
     "conversations": {

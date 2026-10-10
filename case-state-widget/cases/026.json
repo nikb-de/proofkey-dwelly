@@ -282,7 +282,7 @@
     "actor_id": "recipient",
     "message_id": "002"
    },
-   "explanation": "Neris wants the carrier to recover the parcel and deliver it to her verified address, and will not contact the other household herself. That matches the carrier-managed recovery, so we send the request to the recovery team.",
+   "explanation": "Neris wants the carrier to recover the parcel and deliver it to the verified address, and will not contact the other household personally. That matches the carrier-managed recovery, so we send the request to the recovery team.",
    "state_after": {
     "case_id": "026",
     "our_actor_id": "coordinator",
@@ -454,7 +454,7 @@
       "id": "other-household-context",
       "kind": "context",
       "title": "What Neris knew before her message",
-      "text": "Neris refers to the other household, so she knows the parcel went to another household. How she learned this is not recorded in the history.",
+      "text": "Neris refers to the other household, so Neris knows the parcel went to another household. How Neris learned this is not recorded in the history.",
       "before_message_id": "002",
       "source_event_ids": [
        "002"
@@ -692,7 +692,7 @@
       "id": "other-household-context",
       "kind": "context",
       "title": "What Neris knew before her message",
-      "text": "Neris refers to the other household, so she knows the parcel went to another household. How she learned this is not recorded in the history.",
+      "text": "Neris refers to the other household, so Neris knows the parcel went to another household. How Neris learned this is not recorded in the history.",
       "before_message_id": "002",
       "source_event_ids": [
        "002"
@@ -807,7 +807,7 @@
      "status": "ready",
      "waiting_for": [],
      "next_action": "Get Neris's confirmation that she received DL-026.",
-     "note": "No message from us to Neris asking her to confirm receipt is recorded. So in this snapshot the agent is still preparing that step; it is not given waiting status without evidence that the request was sent."
+     "note": "No message from us asking Neris to confirm receipt is recorded. So in this snapshot the agent is still preparing that step; it is not given waiting status without evidence that the request was sent."
     },
     "success_criteria": [
      {
@@ -936,6 +936,7 @@
       "expected_response": "The parcel delivered to the verified address.",
       "status": "completed",
       "response": "The carrier recovered DL-026 and handed it to Neris at the correct order address at 13:10 UTC on 2026-02-28.",
+      "responded_by": "recovery",
       "evidence_event_ids": [
        "002",
        "004"
@@ -976,7 +977,7 @@
       "id": "other-household-context",
       "kind": "context",
       "title": "What Neris knew before her message",
-      "text": "Neris refers to the other household, so she knows the parcel went to another household. How she learned this is not recorded in the history.",
+      "text": "Neris refers to the other household, so Neris knows the parcel went to another household. How Neris learned this is not recorded in the history.",
       "before_message_id": "002",
       "source_event_ids": [
        "002"
@@ -985,11 +986,17 @@
      {
       "id": "missing-receipt-request",
       "kind": "gap",
-      "title": "Gap in the source history",
-      "text": "No message from us to Neris asking her to confirm receipt is recorded. Once it is sent, the agent should wait for her confirmation.",
+      "title": "Next action · us → Neris",
+      "text": "The carrier recorded the corrected handover. We now have to ask Neris to confirm receipt of DL-026; after sending, the agent waits for Neris's confirmation. At this step no such message is recorded in the history, and the carrier's record by itself is not the recipient's confirmation.",
       "source_event_ids": [
        "004"
-      ]
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "recipient",
+       "type": "confirmation",
+       "purpose": "Confirm that DL-026 was received at the correct order address."
+      }
      }
     ],
     "conversations": {
@@ -1069,7 +1076,7 @@
     "actor_id": "recipient",
     "message_id": "005"
    },
-   "explanation": "Neris confirmed receipt at the time the carrier recorded and says the parcel marking matches her order. With the carrier's record and her confirmation, the coordination task is complete.",
+   "explanation": "Neris confirmed receipt at the time the carrier recorded and says the parcel marking matches the order. With the carrier's record and Neris's confirmation, the coordination task is complete.",
    "state_after": {
     "case_id": "026",
     "our_actor_id": "coordinator",
@@ -1256,6 +1263,7 @@
       "expected_response": "The parcel delivered to the verified address.",
       "status": "completed",
       "response": "The carrier recovered DL-026 and handed it to Neris at the correct order address at 13:10 UTC on 2026-02-28.",
+      "responded_by": "recovery",
       "evidence_event_ids": [
        "002",
        "004"
@@ -1300,7 +1308,7 @@
       "id": "other-household-context",
       "kind": "context",
       "title": "What Neris knew before her message",
-      "text": "Neris refers to the other household, so she knows the parcel went to another household. How she learned this is not recorded in the history.",
+      "text": "Neris refers to the other household, so Neris knows the parcel went to another household. How Neris learned this is not recorded in the history.",
       "before_message_id": "002",
       "source_event_ids": [
        "002"
@@ -1309,11 +1317,18 @@
      {
       "id": "missing-receipt-request",
       "kind": "gap",
-      "title": "Gap in the source history",
-      "text": "No message from us to Neris asking her to confirm receipt is recorded. Message 005 is her confirmation of receipt; whether it answers a request from us is not recorded. No intermediate wait for Neris was observed.",
+      "title": "Between 004 and 005 · our receipt-confirmation request to Neris",
+      "text": "Carrier's handover record → our request to Neris → waiting on Neris → confirmation 005. No message from us asking Neris to confirm receipt is recorded, and 005 does not refer to one: it may answer such a request or be Neris's own initiative after the handover. If the request was sent, its time and wording are unknown.",
+      "before_message_id": "005",
       "source_event_ids": [
        "005"
-      ]
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "recipient",
+       "type": "confirmation",
+       "purpose": "Confirm that DL-026 was received at the correct order address."
+      }
      }
     ],
     "conversations": {
