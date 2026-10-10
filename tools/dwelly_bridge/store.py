@@ -76,6 +76,24 @@ def _content_fingerprint(value, code):
     return hashlib.sha256(_canonical(comparable, code).encode()).hexdigest()
 
 
+def _decode_record(encoded):
+    def reject_constant(_value):
+        raise ShadowStoreError("shadow_storage_error")
+
+    def unique_object(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise ShadowStoreError("shadow_storage_error")
+            result[key] = value
+        return result
+
+    try:
+        return json.loads(encoded, parse_constant=reject_constant, object_pairs_hook=unique_object)
+    except (TypeError, ValueError, RecursionError):
+        raise ShadowStoreError("shadow_storage_error") from None
+
+
 class ShadowStore:
     """Store one immutable complete record per logical import identity.
 
@@ -188,13 +206,14 @@ class ShadowStore:
                 try:
                     if type(row[1]) is not str or len(row[1]) > _LIMIT + 128:
                         raise ShadowStoreError("shadow_storage_error")
-                    result = json.loads(row[1])
-                except (TypeError, ValueError):
+                    result = _decode_record(row[1])
+                except (TypeError, ValueError, RecursionError):
                     raise ShadowStoreError("shadow_storage_error") from None
                 if type(result) is not dict or result.get("import_id") != import_id:
                     raise ShadowStoreError("shadow_storage_error")
                 stored_content = result.copy()
                 del stored_content["import_id"]
+                _canonical(stored_content, "shadow_storage_error")
                 if _content_fingerprint(stored_content, "shadow_storage_error") != fingerprint:
                     raise ShadowStoreError("shadow_storage_error")
                 connection.rollback()

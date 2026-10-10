@@ -152,6 +152,36 @@ print(json.dumps(ShadowStore(data['root']).record(data['identity'], data['conten
             connection.execute("UPDATE records SET record = ?", (json.dumps(first),))
         self.assert_code("shadow_storage_error", lambda: store.record(self.identity, self.content))
 
+    def test_nonfinite_persisted_observation_is_rejected(self):
+        store = ShadowStore(self.root)
+        first = store.record(self.identity, self.content)
+        for invalid in (float("nan"), float("inf"), float("-inf")):
+            with self.subTest(invalid=invalid):
+                first["target"]["checked_at"] = invalid
+                with sqlite3.connect(store.database) as connection:
+                    connection.execute("UPDATE records SET record = ?", (json.dumps(first),))
+                self.assert_code("shadow_storage_error", lambda: store.record(self.identity, self.content))
+
+    def test_overdeep_persisted_observation_is_rejected(self):
+        store = ShadowStore(self.root)
+        first = store.record(self.identity, self.content)
+        for depth in (65, 1500, 10000):
+            with self.subTest(depth=depth):
+                serialized = json.dumps(first).replace(
+                    '"2026-10-10T12:00:00+00:00"', "[" * depth + "0" + "]" * depth)
+                with sqlite3.connect(store.database) as connection:
+                    connection.execute("UPDATE records SET record = ?", (serialized,))
+                self.assert_code("shadow_storage_error", lambda: store.record(self.identity, self.content))
+
+    def test_duplicate_persisted_observation_key_is_rejected(self):
+        store = ShadowStore(self.root)
+        first = store.record(self.identity, self.content)
+        serialized = json.dumps(first).replace(
+            '"checked_at":', '"checked_at": "duplicate", "checked_at":')
+        with sqlite3.connect(store.database) as connection:
+            connection.execute("UPDATE records SET record = ?", (serialized,))
+        self.assert_code("shadow_storage_error", lambda: store.record(self.identity, self.content))
+
     def test_private_directory_and_database_modes(self):
         ShadowStore(self.root).record(self.identity, self.content)
         self.assertEqual(self.root.stat().st_mode & 0o777, 0o700)
