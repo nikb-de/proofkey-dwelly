@@ -101,6 +101,8 @@ An existing compatible local Python image can be selected with `--build-arg PYTH
 
 ## Planned cloud path
 
+The optional [local shadow bridge](../tools/dwelly_bridge/README.md) can read completed service jobs into inert, private observations with no provider call or runtime execution.
+
 ```mermaid
 flowchart LR
     A[Authenticated Cloud Run API] --> B[External queue and budget store]
