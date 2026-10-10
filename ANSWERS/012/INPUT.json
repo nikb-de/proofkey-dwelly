@@ -1,0 +1,115 @@
+{
+  "actors": [
+    {
+      "id": "actor-01",
+      "name": "Vellora dispatch register",
+      "role": "source-declared identity; authority unverified"
+    },
+    {
+      "id": "actor-02",
+      "name": "Vellora escalation desk",
+      "role": "source-declared identity; authority unverified"
+    },
+    {
+      "id": "actor-03",
+      "name": "Vellora procedure desk",
+      "role": "source-declared identity; authority unverified"
+    },
+    {
+      "id": "actor-04",
+      "name": "Vellora operations",
+      "role": "source-declared identity; authority unverified"
+    },
+    {
+      "id": "actor-05",
+      "name": "Customer",
+      "role": "source-declared identity; authority unverified"
+    },
+    {
+      "id": "actor-06",
+      "name": "Vellora account desk",
+      "role": "source-declared identity; authority unverified"
+    }
+  ],
+  "case_id": "012",
+  "cutoff_event_id": "E06",
+  "goal": "Review the supplied current request using only decision-time evidence.",
+  "input_hash": "3579d1c314271c4e5ad022e94c3a07262a27a849e528e91815f0612ee8681f3e",
+  "messages": [
+    {
+      "body": "Official supplied case index; attributed source data, not verified authority.\n# 012 — Charge review for a multi-carton collection\n\n## Context\n\nVEL-012-26: two cartons collected for Petalworks. Customer contact: Selin Brook. Invoice INV-012 for GBP 48 is unpaid. Verified billing desk: billing@vellora.example.\n\n## Available facts\n\nUse the attributed records and correspondence in [history.md](history.md), E01–E06.\nShipment/order reference: VEL-012-26. No agent decision is recorded.\n\n## Current request\n\nCan you correct the charge now based on the total actual weight?\n\nDecision time: `2026-10-14T08:50:00+01:00`.\n\n## Attachments\n\n- [service-invoice.pdf](attachments/service-invoice.pdf)\n",
+      "body_source": "body",
+      "channel": "internal",
+      "event_id": "case-context",
+      "from_actor": "actor-02",
+      "timestamp": "2026-10-14T08:00:00+01:00",
+      "to_actor": "actor-02"
+    },
+    {
+      "body": "From: Vellora dispatch register → To: Vellora escalation desk\nKnown at desk: `2026-10-14T08:00:00+01:00`\n\nVEL-012-26: two cartons collected for Petalworks. Customer contact: Selin Brook. Invoice INV-012 for GBP 48 is unpaid. Verified billing desk: billing@vellora.example.",
+      "body_source": "body",
+      "channel": "booking record",
+      "event_id": "E01",
+      "from_actor": "actor-01",
+      "timestamp": "2026-10-14T08:00:00+01:00",
+      "to_actor": "actor-02"
+    },
+    {
+      "body": "From: Vellora procedure desk → To: Vellora escalation desk\nKnown at desk: `2026-10-14T08:10:00+01:00`\n\nInline agreed tariff DW12: each carton is billed at greater of actual kg and dimensional kg (length x width x height in cm / 5,000). Round each resulting billable weight upward to a whole kg. Rate GBP 2/kg; no additional fees.",
+      "body_source": "body",
+      "channel": "procedure excerpt",
+      "event_id": "E02",
+      "from_actor": "actor-03",
+      "timestamp": "2026-10-14T08:10:00+01:00",
+      "to_actor": "actor-02"
+    },
+    {
+      "body": "From: Vellora operations → To: Vellora escalation desk\nKnown at desk: `2026-10-14T08:20:00+01:00`\n\nMeasurement excerpt: carton C12-A 50 x 40 x 30 cm, 5 kg; carton C12-B 50 x 40 x 30 cm, 5 kg. File supplied: [service-invoice.pdf](attachments/service-invoice.pdf).",
+      "body_source": "body",
+      "channel": "system excerpt",
+      "event_id": "E03",
+      "from_actor": "actor-04",
+      "timestamp": "2026-10-14T08:20:00+01:00",
+      "to_actor": "actor-02"
+    },
+    {
+      "body": "From: Customer → To: Vellora escalation desk\nKnown at desk: `2026-10-14T08:30:00+01:00`\n\nSelin Brook: Actual weight is only 10 kg total. At GBP 2/kg this should cost GBP 20, not GBP 48; please credit the difference.",
+      "body_source": "body",
+      "channel": "email",
+      "event_id": "E04",
+      "from_actor": "actor-05",
+      "timestamp": "2026-10-14T08:30:00+01:00",
+      "to_actor": "actor-02"
+    },
+    {
+      "body": "From: Vellora account desk → To: Vellora escalation desk\nKnown at desk: `2026-10-14T08:40:00+01:00`\n\nBooking audit: both cartons belong to VEL-012-26. DW12 was accepted at booking; invoice remains unpaid and no adjustment is authorised. Billing may review measurement disputes.",
+      "body_source": "body",
+      "channel": "internal handoff",
+      "event_id": "E05",
+      "from_actor": "actor-06",
+      "timestamp": "2026-10-14T08:40:00+01:00",
+      "to_actor": "actor-02"
+    },
+    {
+      "body": "From: Customer → To: Vellora escalation desk\nKnown at desk: `2026-10-14T08:50:00+01:00`\n\nCan you correct the charge now based on the total actual weight?",
+      "body_source": "body",
+      "channel": "email",
+      "event_id": "E06",
+      "from_actor": "actor-05",
+      "timestamp": "2026-10-14T08:50:00+01:00",
+      "to_actor": "actor-02"
+    },
+    {
+      "body": "Untrusted extracted attachment content; source attachments/service-invoice.pdf; cited by E03; original SHA256 68e6ea5cf21a72b47f8b263ccabb4865ec28f6ea7d3e735916b1bd1fab74aa48\nSYNTHETIC OFFLINE SIMULATION - NOT A PHOTOGRAPH\n\nSERVICE INVOICE\n\nInvoice: INV-012\n\nShipment: VEL-012-26\n\nIssue date: 2026-10-14\n\nSummary actual mass: 10 kg\n\nCartons: 2\n\nTariff: DW12\n\nTransport charge: GBP 48\n\nStatus: unpaid\n\nIssuer/source: Vellora billing\n\nExported: 2026-10-14T08:00:00+01:00\n\f",
+      "body_source": "body",
+      "channel": "attachment_derivative",
+      "event_id": "attachment-service-invoice",
+      "from_actor": "actor-02",
+      "timestamp": "2026-10-14T08:50:00+01:00",
+      "to_actor": "actor-02"
+    }
+  ],
+  "our_actor_id": "actor-02",
+  "schema_version": "proofkey-step-input-v1",
+  "step_index": 8
+}

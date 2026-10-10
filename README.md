@@ -139,12 +139,13 @@ On 10 October 2026, the user confirmed that the organisers permitted publication
 - [Scripted-transport E2E evidence](docs/verification/case-model-e2e-2026-10-10/README.md) covers real local HTTP, PostgreSQL, workers and browser behavior while substituting the external model response.
 - [A separate live-provider rerun](docs/verification/platform-live-e2e-2026-10-10-rerun/README.md) records 15 provider attempts, 13 retained responses and 12 accepted candidates. It found state/action errors and incomplete responses. Accepted JSON is not proof of a correct business decision.
 - [The legacy 50-case development experiment](docs/model-release-verification.md) includes 142/150 scored judge outputs and eight Gemini errors. Uncalibrated judge scores and exposed cases cannot establish held-out accuracy.
+- [The current three-provider judge pilot](docs/verification/reality-calibration-2026-10-10/RESULTS.md) retained 108 valid judgments, including three abstentions. Repeated scores and critical flags sometimes changed; this is a reliability measurement, not human-calibrated acceptance or official-case accuracy.
 - Media validation and review controls exist; meaningful image/audio quality, evidence authenticity and general operational reliability are not established by those controls.
-- The official unseen Reality Test is not evidenced in [ANSWERS](ANSWERS/README.md). Do not replace missing or unsuccessful system outputs with human-written successes.
+- The [official Reality Test run](ANSWERS/README.md) retains all 30 Delivery & Logistics case results: 29 parsed candidates and one malformed-output failure. This is format coverage, not verified decision accuracy. The inference-only run does not demonstrate UI-to-carrier execution; no failed output was manually corrected.
 - Apache-2.0 applies to eligible original application code. The recorded organiser permission covers the provided Dwelly cases and derivatives; third-party code, services and other materials retain their own terms. [NOTICE.md](NOTICE.md) and [LICENSE-STATUS.md](LICENSE-STATUS.md) distinguish that permission from independently verified licensing.
 
 ## 8. What you'd build next
 
-Retain the final audited source/video hashes and third-party notices. Launch post links are recorded in [SUBMISSION.md](SUBMISSION.md). Run the actual unseen cases through the frozen submitted system and preserve every outcome, including failures and escalations.
+Retain the final audited source/video hashes and third-party notices. Launch post links are recorded in [SUBMISSION.md](SUBMISSION.md). Independently review the retained official decisions, including the failed output, without rewriting the submitted run.
 
 For product development, validate the state/action contract with independent cases and human reviewers; measure routing, groundedness and authority errors; then connect authenticated tenant identities and one real carrier adapter with explicit action authority and authoritative readback. Production hosting, durable media storage/retention, operational recovery and model-quality acceptance require separate verification.
