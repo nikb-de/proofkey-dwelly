@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://proofkey.local/datasets/v1/criteria.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "visibility", "input_id", "source", "acceptable_dispositions", "required_details", "required_evidence_ids", "forbidden_claims", "forbidden_actions", "missing_information", "authority_notes", "ambiguities", "human_control", "risk_level", "follow_up_trigger"],
+  "properties": {
+    "schema_version": {"const": "proofkey-eval-criteria-v1"},
+    "visibility": {"const": "evaluator_only"},
+    "input_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"},
+    "source": {"$ref": "https://proofkey.local/contracts/v1/local-case.schema.json#/$defs/source"},
+    "acceptable_dispositions": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["request_information", "hold", "propose_reschedule", "escalate", "no_action"]}},
+    "required_details": {"$ref": "#/$defs/strings"},
+    "required_evidence_ids": {"$ref": "#/$defs/strings"},
+    "forbidden_claims": {"$ref": "#/$defs/strings"},
+    "forbidden_actions": {"$ref": "#/$defs/strings"},
+    "missing_information": {"$ref": "#/$defs/strings"},
+    "authority_notes": {"type": "string"},
+    "ambiguities": {"$ref": "#/$defs/strings"},
+    "human_control": {"enum": ["proposal_only", "requires_approval", "no_action"]},
+    "risk_level": {"enum": ["low", "medium", "high"]},
+    "follow_up_trigger": {"type": ["string", "null"]}
+  },
+  "$defs": {"strings": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}}
+}

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://proofkey.local/datasets/v1/manifest.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "input_id", "family_id", "episode_id", "split", "origin", "as_of", "files", "sha256", "annotation_status", "tags", "exclusions"],
+  "properties": {
+    "schema_version": {"const": "proofkey-dataset-row-v1"},
+    "input_id": {"$ref": "#/$defs/id"},
+    "family_id": {"$ref": "#/$defs/id"},
+    "episode_id": {"$ref": "#/$defs/id"},
+    "split": {"enum": ["train", "development", "test"]},
+    "origin": {"enum": ["synthetic", "redacted_real"]},
+    "as_of": {"type": "string", "format": "date-time"},
+    "files": {"type": "object", "additionalProperties": false, "required": ["input", "label", "criteria", "episode"], "properties": {"input": {"$ref": "#/$defs/path"}, "label": {"$ref": "#/$defs/path"}, "criteria": {"$ref": "#/$defs/path"}, "episode": {"$ref": "#/$defs/path"}}},
+    "sha256": {"type": "object", "additionalProperties": false, "required": ["input", "label", "criteria", "episode"], "properties": {"input": {"$ref": "#/$defs/hash"}, "label": {"$ref": "#/$defs/hash"}, "criteria": {"$ref": "#/$defs/hash"}, "episode": {"$ref": "#/$defs/hash"}}},
+    "annotation_status": {"enum": ["assistant_authored_draft", "human_authored_draft", "human_reviewed", "rejected"]},
+    "tags": {"$ref": "#/$defs/strings"},
+    "exclusions": {"$ref": "#/$defs/strings"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"},
+    "path": {"type": "string", "minLength": 1},
+    "hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "strings": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+  }
+}

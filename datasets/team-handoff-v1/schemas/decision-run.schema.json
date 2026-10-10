@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://proofkey.local/contracts/v1/decision-run.schema.json",
+  "title": "decision-run",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "proofkey-decision-run-v1"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+    },
+    "input_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+    },
+    "source": {
+      "$ref": "https://proofkey.local/contracts/v1/local-case.schema.json#/$defs/source"
+    },
+    "status": {
+      "enum": [
+        "not_started",
+        "running",
+        "completed",
+        "failed",
+        "cancelled",
+        "interrupted"
+      ]
+    },
+    "requested_provider": {
+      "type": "string",
+      "minLength": 1
+    },
+    "requested_model": {
+      "type": "string",
+      "minLength": 1
+    },
+    "observed_provider": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "minLength": 1
+        }
+      ]
+    },
+    "observed_model": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "minLength": 1
+        }
+      ]
+    },
+    "receipt_id": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "minLength": 1
+        }
+      ]
+    },
+    "disposition": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "enum": [
+            "request_information",
+            "hold",
+            "propose_reschedule",
+            "escalate",
+            "no_action"
+          ]
+        }
+      ]
+    },
+    "review": {
+      "$ref": "https://proofkey.local/contracts/v1/local-case.schema.json#/$defs/review"
+    },
+    "provenance": {
+      "$ref": "https://proofkey.local/contracts/v1/local-case.schema.json#/$defs/provenance"
+    },
+    "operational_effects": {
+      "const": 0
+    }
+  },
+  "required": [
+    "schema_version",
+    "run_id",
+    "input_id",
+    "source",
+    "status",
+    "requested_provider",
+    "requested_model",
+    "observed_provider",
+    "observed_model",
+    "receipt_id",
+    "disposition",
+    "review",
+    "provenance",
+    "operational_effects"
+  ],
+  "additionalProperties": false
+}

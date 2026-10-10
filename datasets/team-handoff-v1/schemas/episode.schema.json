@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://proofkey.local/contracts/v1/episode.schema.json",
+  "title": "episode",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "proofkey-episode-v1"
+    },
+    "visibility": {
+      "const": "evaluator_only"
+    },
+    "episode_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+    },
+    "case_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+    },
+    "input_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "label_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+      },
+      "uniqueItems": true
+    },
+    "transition_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+      },
+      "uniqueItems": true
+    },
+    "review": {
+      "$ref": "https://proofkey.local/contracts/v1/local-case.schema.json#/$defs/review"
+    },
+    "provenance": {
+      "$ref": "https://proofkey.local/contracts/v1/local-case.schema.json#/$defs/provenance"
+    }
+  },
+  "required": [
+    "schema_version",
+    "visibility",
+    "episode_id",
+    "case_id",
+    "input_ids",
+    "label_ids",
+    "transition_ids",
+    "review",
+    "provenance"
+  ],
+  "additionalProperties": false
+}
