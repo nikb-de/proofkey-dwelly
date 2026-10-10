@@ -51,7 +51,7 @@ Then configure credentials and explicitly choose `run --live`; see [full command
 
 The example configuration selects `gpt-4.1-mini` for proposals and the OpenAI judge, `claude-sonnet-4-6` for the Anthropic judge, and `gemini-2.5-flash` for the Gemini judge. These are configurable example IDs, not a guarantee of account access or a claim about the best current model. Provider-reported identity is preserved separately from the request.
 
-Required environment variables: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`. Never commit key values. `preflight` checks presence only, not validity or balance. API transports use fixed HTTPS endpoints and do not retry or substitute models. The OpenAI producer/judge family relationship is disclosed in each experiment.
+Required environment variables for the example configuration: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY` and `ANTHROPIC_WORKSPACE_ID`. For an Anthropic key already scoped to one workspace, remove that seat's `workspace_id_env` field if an explicit workspace header is unnecessary; see [workspace setup](tools/dwelly_model/README.md). Never commit key values or the actual workspace ID. `preflight` checks presence only, not validity or balance. API transports use fixed HTTPS endpoints and do not retry or substitute models. The OpenAI producer/judge family relationship is disclosed in each experiment.
 
 The application reserves up to USD 25 per provider/model per experiment, including repeats and proposer/judge calls using the same model. This is a conservative local limit under configured prices, not an account-level provider billing cap.
 
@@ -65,10 +65,12 @@ Team-owned independent evaluation cases and real data remain pending. Follow [th
 
 The saved historical baseline had 50 valid drafts and 11/50 routing matches; this is **not semantic accuracy**. Its results stay in [pilot/](data/dwelly-public-cases/pilot). New model quality must be read from actual experiment receipts, not inferred from passing unit tests or a Docker build.
 
+The [current verification record](docs/model-release-verification.md) records 60 model tests and 58 intake tests passing, an offline Docker run over all 50 cases, and a two-case live smoke with eight received responses: two valid proposals and six valid judge outputs across OpenAI, Anthropic and Gemini. The smoke establishes request compatibility on those cases, with zero business effects; it does not establish calibrated judging or model quality.
+
 Eight rubric scores assess next action, routing, required details, grounding, authority/consent, fabrication, escalation and clarity. All are provisional model judgments. No human calibration, untouched holdout, semantic safety certification, meaningful vision/audio or operational execution is claimed. Missing/error/abstaining judge seats never become zero scores or successes. Read [release verification](docs/model-release-verification.md) for the actual available evidence.
 
 This private release does not resolve ownership or redistribution rights for upstream examples. [Licence status](LICENSE-STATUS.md) remains applicable; model service/output terms are separate. Standard-library code introduces no provider SDK dependency. The Docker base image has its own terms.
 
 ## 8. Next steps
 
-Provide API credentials in the runtime environment, run a two-case smoke, inspect provider identities/cost/error artifacts, then evaluate the complete 50-case development set. Collect the team's independent cases, inspect judge sensitivity and disagreements, and have a human review before asserting correctness. A bridge to the execution runtime, native adapters, demo video and unseen challenge submission remain separate work.
+The complete 50-case model experiment remains pending after the two-case smoke. Run it with the configured credentials and a fresh output directory, then inspect provider identities, reservations, errors and judge disagreements. Collect the team's independent evaluation cases and permitted real examples, inspect judge sensitivity, and obtain human review before asserting correctness. A bridge to the execution runtime, native adapters, demo video and unseen challenge submission remain separate work.
