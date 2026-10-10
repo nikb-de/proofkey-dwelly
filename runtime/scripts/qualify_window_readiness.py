@@ -21,7 +21,7 @@ INNER_MODULES = (
 FORBIDDEN_INNER_MODULES = frozenset({
     'test_window_readiness_evidence', 'test_factory_qualification',
     'test_observed_stop_v2_acceptance', 'test_synthetic_provisioning_acceptance'})
-CHILD_TIMEOUT_SECONDS = 300
+CHILD_TIMEOUT_SECONDS = 900  # Full 156-test source suite measured at 546 seconds; not a business budget.
 
 
 def run_inner(modules, report, output, *, expected_ids=None):

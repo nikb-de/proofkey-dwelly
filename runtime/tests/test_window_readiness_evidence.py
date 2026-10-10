@@ -20,7 +20,68 @@ def runner(name='qualify_factory'):
     return module
 
 
+def _launcher_timeout(name):
+    return (runner('qualify_window_readiness').CHILD_TIMEOUT_SECONDS + 30
+            if name == 'qualify_window_readiness' else 330)
+
+
 class WindowReadinessEvidenceTests(unittest.TestCase):
+    def test_j05_launcher_uses_measured_timeout_and_preserves_failure_output(self):
+        code = '''import json, runpy, subprocess, sys, types
+namespace = runpy.run_path(sys.argv[1], run_name="bounded_timeout_probe")
+main = namespace["main"]
+mode, output = sys.argv[2:]
+timeouts = []
+def run(command, **kwargs):
+    timeouts.append(kwargs["timeout"])
+    if mode == "timeout":
+        raise subprocess.TimeoutExpired(command, kwargs["timeout"], output=b"partial stdout", stderr=b"partial stderr")
+    return subprocess.CompletedProcess(command, 17, b"failed stdout", b"failed stderr")
+main.__globals__["subprocess"] = types.SimpleNamespace(run=run, TimeoutExpired=subprocess.TimeoutExpired)
+sys.argv = [sys.argv[1], "--output", output]
+result = main()
+print(json.dumps({"result": result, "timeouts": timeouts}))
+'''
+        for mode in ('timeout', 'failed'):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as directory:
+                output = Path(directory) / 'result'
+                result = subprocess.run([sys.executable, '-B', '-c', code,
+                    str(ROOT / 'runtime/scripts/qualify_window_readiness.py'), mode, str(output)],
+                    capture_output=True, text=True, timeout=10)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                observed = json.loads(result.stdout)
+                self.assertEqual(observed, {'result': 1, 'timeouts': [900]})
+                manifest = json.loads((output / 'manifest.json').read_bytes())
+                self.assertEqual(manifest['status'], 'invalid')
+                self.assertEqual(manifest['role'], 'launcher')
+                self.assertEqual(manifest['error'], 'child timeout after 900 seconds' if mode == 'timeout'
+                                 else 'child failed without a manifest')
+                self.assertEqual((output / 'child.stdout.log').read_bytes(),
+                                 b'partial stdout' if mode == 'timeout' else b'failed stdout')
+                self.assertEqual((output / 'child.stderr.log').read_bytes(),
+                                 b'partial stderr' if mode == 'timeout' else b'failed stderr')
+                self.assertEqual(manifest['tests'], {})
+                self.assertEqual(manifest['artifacts'], [])
+
+    def test_outer_j05_launch_timeout_retains_thirty_second_margin(self):
+        code = '''import importlib.util, json, pathlib, sys, types
+spec = importlib.util.spec_from_file_location("bounded_outer_probe", sys.argv[1])
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+timeouts = []
+def run(command, **kwargs):
+    timeouts.append(kwargs["timeout"])
+    return types.SimpleNamespace(returncode=0)
+module.subprocess = types.SimpleNamespace(run=run)
+module.WindowReadinessRunnerTests.launch(pathlib.Path(sys.argv[2]), pathlib.Path(sys.argv[3]))
+print(json.dumps({"timeouts": timeouts, "factory_timeout": module._launcher_timeout("qualify_factory")}))
+'''
+        with tempfile.TemporaryDirectory() as directory:
+            result = subprocess.run([sys.executable, '-B', '-c', code, str(Path(__file__)),
+                str(ROOT), str(Path(directory) / 'result')], capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout), {'timeouts': [930], 'factory_timeout': 330})
+
     def import_only_control(self, mutation=''):
         # Keep all fixed IDs, but use no-op bodies: this probes import accounting only.
         import ast
@@ -223,7 +284,7 @@ print(json.dumps({'events': events, 'result': result}))
                 output = Path(directory) / 'result'
                 result = subprocess.run([sys.executable, '-B', '-c', code,
                     str(ROOT / 'runtime/scripts' / (name + '.py')), str(output), *args],
-                    capture_output=True, text=True, timeout=330)
+                    capture_output=True, text=True, timeout=_launcher_timeout(name))
                 self.assertEqual(result.returncode, 0, result.stderr)
                 observed = json.loads(result.stdout)
                 self.assertEqual(len(observed['events']), 1)
@@ -360,7 +421,7 @@ class WindowReadinessRunnerTests(unittest.TestCase):
         result = subprocess.run([sys.executable, '-B', *extra,
             str(root / 'runtime/scripts/qualify_window_readiness.py'), '--output', str(output)],
             env={**os.environ, 'PYTHONDONTWRITEBYTECODE': '1', 'PYTHONNOUSERSITE': '1'},
-            capture_output=True, text=True, timeout=330)
+            capture_output=True, text=True, timeout=_launcher_timeout('qualify_window_readiness'))
         result.output = output
         return result
 
