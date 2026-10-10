@@ -26,7 +26,7 @@ class ShadowBindingTests(unittest.TestCase):
 
     def api(self):
         try:
-            return importlib.import_module("proofkey.shadow")
+            return importlib.import_module("tools.dwelly_bridge.runtime_binding")
         except ImportError:
             self.fail("Optional runtime shadow resolver is unavailable")
 

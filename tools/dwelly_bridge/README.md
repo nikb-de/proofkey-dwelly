@@ -20,7 +20,7 @@ The CLI always has no resolver and returns `status: "unmapped"`, `reason: "resol
 
 ## Trusted host composition
 
-The API is `import_shadow(service_root, job_id, case_id, shadow_root, *, resolver=None)` in `tools.dwelly_bridge.bridge`. A host that already owns an open `CaseStore` can create `proofkey.shadow.RuntimeShadowResolver` with frozen `RuntimeShadowTarget` registrations, a fixed `AuthContext`, a trusted `authorize(target, auth)` callback, and a timezone-aware clock. This optional path requires the runtime's existing dependencies; the CLI has no runtime dependency.
+The API is `import_shadow(service_root, job_id, case_id, shadow_root, *, resolver=None)` in `tools.dwelly_bridge.bridge`. A host that already owns an open `CaseStore` can create `tools.dwelly_bridge.runtime_binding.RuntimeShadowResolver` with frozen `RuntimeShadowTarget` registrations, a fixed `AuthContext`, a trusted `authorize(target, auth)` callback, and a timezone-aware clock. This optional path requires the runtime's existing dependencies; the CLI has no runtime dependency.
 
 The host must supply the exact source case/snapshot and complete expected runtime binding, checkpoint hash, profile/process/policy versions and allowed callers. It must derive those registrations and authentication from its own trusted context. A conversation label, recipient name, model output, score, or user-supplied mapping does not establish any of these identities. The callback must return literal `True` after the host's own scope check. The included synthetic fixture callback only exercises this contract; it is not production authentication.
 

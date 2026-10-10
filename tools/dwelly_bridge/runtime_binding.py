@@ -12,9 +12,9 @@ from typing import Annotated
 
 from pydantic import Field, StringConstraints, model_validator
 
-from .contracts import AuthContext, Hash, RequestBinding, WireModel
-from .identity import fingerprint, validate_json
-from .journal import CaseStore
+from proofkey.contracts import AuthContext, Hash, RequestBinding, WireModel
+from proofkey.identity import fingerprint, validate_json
+from proofkey.journal import CaseStore
 
 
 _SourceId = Annotated[str, StringConstraints(pattern=r"^[A-Za-z0-9][A-Za-z0-9._:-]{0,255}$")]

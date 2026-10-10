@@ -256,7 +256,7 @@ class BridgeTests(unittest.TestCase):
         from proofkey.gateway import ActionGateway
         from proofkey.identity import fingerprint
         from proofkey.journal import CaseStore
-        from proofkey.shadow import RuntimeShadowResolver, RuntimeShadowTarget
+        from tools.dwelly_bridge.runtime_binding import RuntimeShadowResolver, RuntimeShadowTarget
         from tools.dwelly_bridge.source import load_source
         from support import NOW, make_auth, make_binding, make_checkpoint, make_request
 
