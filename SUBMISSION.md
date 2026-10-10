@@ -31,9 +31,10 @@ User-supplied roster, not a claim of commit contribution or event registration. 
 ## Release evidence and remaining work
 
 - Runnable source, configuration, CLI/Docker and offline tests: included; see [verification](docs/model-release-verification.md).
-- Three-provider API smoke: two public development cases produced eight received responses, two valid proposals and six valid judge outputs with zero business effects; see [current verification](docs/model-release-verification.md). This verifies request compatibility, not calibrated judging or model quality. The full 50-case model experiment remains pending. Missing judges never become passing scores.
+- Full 50-case development experiment: completed with 50 structurally valid proposals, 200 API attempts, 142/150 scored judge outputs, eight Gemini errors, no abstentions and zero business effects; see [current verification](docs/model-release-verification.md). Internal assistant checks found semantic failures and a judge false positive. This is not calibrated judging, human acceptance or an accuracy result. Missing judges never become passing scores.
 - Standard Apache-2.0 licence: included for eligible original code only. Rights for all data, source-derived test excerpts, media and contributions remain a public-release gate; see [licence status](LICENSE-STATUS.md).
 - Public development examples: already seen, not official challenge results. Human-calibrated evaluation and the team's 10–20 independent eval cases plus 10–20 permitted real examples remain pending.
+- Next model work: explicit judge controls and calibration, followed by a bounded general prompt candidate; no prompt fix or improvement is claimed yet.
 - Demo video, source/video freeze, unseen-case answers, public launch posts, final metadata and actual submission remain pending.
 - Obtain explicit authorisation before making the repository public, publishing posts or submitting. The user authorised this private source update, not those external actions.
 
