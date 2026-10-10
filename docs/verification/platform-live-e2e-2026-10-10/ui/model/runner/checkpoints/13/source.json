@@ -1,0 +1,197 @@
+{
+  "case_id": "e2e-integration-case-002-n4-s7",
+  "source": {
+    "source_id": "case-002-n4",
+    "step_index": 7,
+    "family_id": "case-002",
+    "source_sha256": "c6c028af21fa456f8505ea22feece25525a95beaf5aca57e28074c14507eedf5",
+    "qualification": "author_labels_unvalidated",
+    "split": "development",
+    "kind": "synthetic_negative_branch",
+    "event_mapping": [
+      {
+        "source_event_id": "001",
+        "event_id": "001",
+        "source_channel": "Email",
+        "canonical_channel": "email",
+        "timestamp_fallback": false,
+        "body_source": "body"
+      },
+      {
+        "source_event_id": "002",
+        "event_id": "002",
+        "source_channel": "Customer portal",
+        "canonical_channel": "internal",
+        "timestamp_fallback": false,
+        "body_source": "body"
+      },
+      {
+        "source_event_id": "003",
+        "event_id": "003",
+        "source_channel": "Customer portal",
+        "canonical_channel": "internal",
+        "timestamp_fallback": false,
+        "body_source": "body"
+      },
+      {
+        "source_event_id": "004",
+        "event_id": "004",
+        "source_channel": "Customer portal",
+        "canonical_channel": "internal",
+        "timestamp_fallback": false,
+        "body_source": "body"
+      },
+      {
+        "source_event_id": "005",
+        "event_id": "005",
+        "source_channel": "Email",
+        "canonical_channel": "email",
+        "timestamp_fallback": false,
+        "body_source": "body"
+      },
+      {
+        "source_event_id": "006",
+        "event_id": "006",
+        "source_channel": "Email",
+        "canonical_channel": "email",
+        "timestamp_fallback": false,
+        "body_source": "body"
+      },
+      {
+        "source_event_id": "007",
+        "event_id": "007",
+        "source_channel": "Email",
+        "canonical_channel": "email",
+        "timestamp_fallback": false,
+        "body_source": "body"
+      }
+    ],
+    "synthetic_participants": [],
+    "transformation": "Visible source messages plus internal goal/actor context; unsupported channels become internal; missing timestamps use fixed fallback."
+  },
+  "declaration": {
+    "case_id": "e2e-integration-case-002-n4-s7",
+    "links": {
+      "order_id": "e2e-case-002-n4",
+      "customer_id": "recipient",
+      "operator_id": "coordinator"
+    },
+    "participants": [
+      "address_desk",
+      "coordinator",
+      "recipient",
+      "correction_form"
+    ],
+    "language": "en"
+  },
+  "events": [
+    {
+      "event_id": "source-context",
+      "occurred_at": "2026-02-03T09:00:00+00:00",
+      "channel": "internal",
+      "sender_id": "coordinator",
+      "recipient_ids": [],
+      "kind": "message",
+      "text": "{\"goal\": \"Уточнить неполный адрес и снять адресную блокировку DL-002.\", \"actors\": [{\"id\": \"address_desk\", \"name\": \"Address desk\", \"role\": \"executor\"}, {\"id\": \"coordinator\", \"name\": \"Iona Quill\", \"role\": \"coordinator\"}, {\"id\": \"recipient\", \"name\": \"Tarin Mave\", \"role\": \"recipient\"}, {\"id\": \"correction_form\", \"name\": \"Форма исправления адреса\", \"role\": \"system\"}]}",
+      "media": null
+    },
+    {
+      "event_id": "001",
+      "occurred_at": "2026-02-03T09:00:00+00:00",
+      "channel": "email",
+      "sender_id": "address_desk",
+      "recipient_ids": [
+        "coordinator"
+      ],
+      "kind": "message",
+      "text": "DL-002: 18 Copperfin Court, Merrow Quay. The building has multiple apartments; the order has no apartment number. Hold reason: incomplete address. The recipient’s order-linked portal session was verified by our account team.",
+      "media": null
+    },
+    {
+      "event_id": "002",
+      "occurred_at": "2026-02-03T09:10:00+00:00",
+      "channel": "internal",
+      "sender_id": "recipient",
+      "recipient_ids": [
+        "coordinator"
+      ],
+      "kind": "message",
+      "text": "The tracking page says address clarification required. The building is correct; what do you need from me?",
+      "media": null
+    },
+    {
+      "event_id": "003",
+      "occurred_at": "2026-02-03T09:25:00+00:00",
+      "channel": "internal",
+      "sender_id": "coordinator",
+      "recipient_ids": [
+        "recipient"
+      ],
+      "kind": "message",
+      "text": "Please confirm the apartment number at 18 Copperfin Court. We do not need entry codes or any other household details.",
+      "media": null
+    },
+    {
+      "event_id": "004",
+      "occurred_at": "2026-02-03T09:50:00+00:00",
+      "channel": "internal",
+      "sender_id": "recipient",
+      "recipient_ids": [
+        "coordinator"
+      ],
+      "kind": "message",
+      "text": "Apartment 4B. Please add that to DL-002; the street and building remain unchanged.",
+      "media": null
+    },
+    {
+      "event_id": "005",
+      "occurred_at": "2026-02-03T09:57:00+00:00",
+      "channel": "email",
+      "sender_id": "correction_form",
+      "recipient_ids": [
+        "coordinator"
+      ],
+      "kind": "message",
+      "text": "Automatic response. Your address correction for DL-002, Apartment 4B, submitted at 09:54, ended with 'Session expired'. The form may have saved before the session closed. No correction reference was issued.",
+      "media": null
+    },
+    {
+      "event_id": "006",
+      "occurred_at": "2026-02-03T10:12:00+00:00",
+      "channel": "email",
+      "sender_id": "coordinator",
+      "recipient_ids": [
+        "address_desk"
+      ],
+      "kind": "message",
+      "text": "Our address correction for DL-002, Apartment 4B, submitted at 09:54, ended with 'Session expired' and no reference was issued. What do DL-002's saved address and hold status show now? Please do not create a second change. We will not resubmit the correction until we know.",
+      "media": null
+    },
+    {
+      "event_id": "007",
+      "occurred_at": "2026-02-03T10:40:00+00:00",
+      "channel": "email",
+      "sender_id": "address_desk",
+      "recipient_ids": [
+        "coordinator"
+      ],
+      "kind": "message",
+      "text": "DL-002's saved address reads Apartment 4B, 18 Copperfin Court, Merrow Quay. Your 09:54 correction saved before the session closed, and there is one entry. The address hold is cleared. DL-002 has not left the depot.",
+      "media": null
+    }
+  ],
+  "expectation": {
+    "allowed_states": [
+      "completed"
+    ],
+    "allowed_actions": [
+      "none"
+    ],
+    "waiting_for": [],
+    "completion_allowed": true,
+    "action_targets": [
+      null
+    ],
+    "qualification": "author_labels_unvalidated"
+  }
+}

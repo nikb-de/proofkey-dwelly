@@ -10,7 +10,8 @@ import psycopg
 
 from tools.dwelly_service import postgres
 from tools.dwelly_service.cases import _bounded_json, _canonical, _identifier, _key
-from .domain import PlatformError, action_checks, check_snapshot, project, require
+from .domain import PlatformError, action_checks, check_snapshot, project, project_coordination, require
+from .coordination import CoordinationMixin
 
 
 def migrate(database_url, *, schema="public"):
@@ -22,17 +23,20 @@ def migrate(database_url, *, schema="public"):
             postgres._search_path(connection, schema)
             connection.execute("CREATE TABLE IF NOT EXISTS platform_schema_migrations (version INTEGER PRIMARY KEY)")
             versions = connection.execute("SELECT version FROM platform_schema_migrations ORDER BY version").fetchall()
-            require(not versions or versions == [(1,)], "platform_storage_error")
+            require(versions in ([], [(1,)], [(1,), (2,)]), "platform_storage_error")
             if not versions:
                 connection.execute((Path(__file__).parent / "migrations/001_platform.sql").read_text(encoding="utf-8"))
                 connection.execute("INSERT INTO platform_schema_migrations VALUES (1)")
+            if (2,) not in versions:
+                connection.execute((Path(__file__).parent / "migrations/002_coordination.sql").read_text(encoding="utf-8"))
+                connection.execute("INSERT INTO platform_schema_migrations VALUES (2)")
     except PlatformError:
         raise
     except postgres._DB_ERRORS:
         raise PlatformError("platform_storage_error") from None
 
 
-class PlatformStore(postgres.PostgresCaseStore):
+class PlatformStore(CoordinationMixin, postgres.PostgresCaseStore):
     def __init__(self, *args, operator_identity="local-operator", **kwargs):
         _identifier(operator_identity)
         self.operator_identity = operator_identity
@@ -42,9 +46,9 @@ class PlatformStore(postgres.PostgresCaseStore):
         super().check_ready()
         with self._transaction() as connection:
             versions = connection.execute("SELECT version FROM platform_schema_migrations ORDER BY version").fetchall()
-            require(len(versions) == 1 and versions[0][0] == 1, "platform_storage_error")
+            require([row[0] for row in versions] == [1, 2], "platform_storage_error")
             for table in ("platform_decisions", "platform_reviews", "platform_bookings", "platform_actions",
-                          "platform_assets", "platform_model_links", "platform_requests"):
+                          "platform_assets", "platform_model_links", "platform_requests", "platform_coordination"):
                 connection.execute("SELECT 1 FROM " + table + " LIMIT 0")
 
     @staticmethod
@@ -74,7 +78,8 @@ class PlatformStore(postgres.PostgresCaseStore):
             "SELECT asset_id,sha256,mime_type,size_bytes,filename FROM platform_assets WHERE case_id=? ORDER BY sequence", (case_id,)).fetchall()]
         links = [dict(row) for row in connection.execute(
             "SELECT job_id,revision,snapshot_hash FROM platform_model_links WHERE case_id=? ORDER BY sequence", (case_id,)).fetchall()]
-        return project(snapshot, decisions, reviews, actions, assets, links)
+        result = project(snapshot, decisions, reviews, actions, assets, links)
+        return project_coordination(result, self._coordination_detail(connection, case_id))
 
     def detail(self, case_id):
         _identifier(case_id)

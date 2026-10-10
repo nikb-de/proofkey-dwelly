@@ -1,0 +1,796 @@
+{
+  "source_id": "team-003",
+  "step_index": 4,
+  "input": {
+    "schema_version": "proofkey-step-input-v1",
+    "case_id": "team-003",
+    "step_index": 4,
+    "cutoff_event_id": "004",
+    "goal": "Arrange permitted access for the courier at the gated building through the recipient, without requesting permanent credentials, and get the driver's confirmation of access and handover.",
+    "our_actor_id": "coordinator",
+    "actors": [
+      {
+        "id": "coordinator",
+        "name": "Iona Quill",
+        "role": "coordinator"
+      },
+      {
+        "id": "dispatch",
+        "name": "Dispatch",
+        "role": "dispatch"
+      },
+      {
+        "id": "driver",
+        "name": "Fen Orlo",
+        "role": "driver"
+      },
+      {
+        "id": "recipient",
+        "name": "Elva Kesh",
+        "role": "recipient"
+      }
+    ],
+    "messages": [
+      {
+        "event_id": "001",
+        "from_actor": "driver",
+        "to_actor": "coordinator",
+        "body": "I am at 7 Sedgeglass Mews for DL-003. The pedestrian gate is shut and there are no public access instructions. I am waiting outside; I have not left the parcel.",
+        "body_source": "body",
+        "timestamp": "2026-02-04 09:00:00 UTC",
+        "channel": "Dispatch chat",
+        "conversation_id": "driver"
+      },
+      {
+        "event_id": "002",
+        "from_actor": "dispatch",
+        "to_actor": "coordinator",
+        "body": "Please contact recipient Elva Kesh on the verified order callback route. Do not request a reusable gate code. The driver can wait until 10:00 UTC.",
+        "body_source": "body",
+        "timestamp": "2026-02-04 09:10:00 UTC",
+        "channel": "Dispatch chat",
+        "conversation_id": "dispatch"
+      },
+      {
+        "event_id": "003",
+        "from_actor": "coordinator",
+        "to_actor": "recipient",
+        "body": "The driver is at the pedestrian gate with DL-003. Can you admit them now using the intercom, or come to the gate? Please do not share a permanent code.",
+        "body_source": "body",
+        "timestamp": "2026-02-04 09:25:00 UTC",
+        "channel": "Call transcript",
+        "conversation_id": "recipient"
+      },
+      {
+        "event_id": "004",
+        "from_actor": "recipient",
+        "to_actor": "coordinator",
+        "body": "I can see the courier on the intercom. I will release the gate and meet them in the lobby now.",
+        "body_source": "body",
+        "timestamp": "2026-02-04 09:35:00 UTC",
+        "channel": "Call transcript",
+        "conversation_id": "recipient"
+      }
+    ],
+    "author_limits": [
+      "Do not request or store permanent credentials.",
+      "Count the handover only on the driver's actual record."
+    ],
+    "input_hash": "af2292fc34533297116a5c91a5c255a4ac62d1da71ecede08d4774c347d3cc5e"
+  },
+  "reference": {
+    "schema_version": "proofkey-step-reference-v1",
+    "input_hash": "af2292fc34533297116a5c91a5c255a4ac62d1da71ecede08d4774c347d3cc5e",
+    "qualification": "author_labels_unvalidated",
+    "state": "ready",
+    "waiting_for": [],
+    "next_action": "Get the driver's confirmation that access was obtained and DL-003 was handed over.",
+    "source_agent_state": {
+      "status": "ready",
+      "waiting_for": [],
+      "next_action": "Get the driver's confirmation that access was obtained and DL-003 was handed over.",
+      "note": "No message from us to the driver or dispatch after the call is recorded. So in this snapshot the agent is not given waiting status: there is no evidence that a request to the driver was sent."
+    }
+  },
+  "source": {
+    "source_sha256": "bd832494d88e60b6823acda9700c7b741b3226919177e5077468d63b6781723e",
+    "source_commit": "c361245eaad4361f7b886adc56f05dd56d4807b3",
+    "family_id": "team-003",
+    "qualification": "author_labels_unvalidated"
+  },
+  "status": "succeeded",
+  "checks": [
+    {
+      "name": "terminal_readback_unchanged",
+      "status": "pass",
+      "expected": "same terminal job",
+      "actual": true
+    },
+    {
+      "name": "terminal_replay_unchanged",
+      "status": "pass",
+      "expected": "same terminal job; no new job",
+      "actual": true
+    },
+    {
+      "name": "bound_original_input",
+      "status": "pass",
+      "expected": "af2292fc34533297116a5c91a5c255a4ac62d1da71ecede08d4774c347d3cc5e",
+      "actual": "af2292fc34533297116a5c91a5c255a4ac62d1da71ecede08d4774c347d3cc5e"
+    },
+    {
+      "name": "reference_binding",
+      "status": "pass",
+      "expected": "original unvalidated author reference",
+      "actual": true
+    },
+    {
+      "name": "one_dispatch_zero_retries",
+      "status": "pass",
+      "expected": [
+        1,
+        0
+      ],
+      "actual": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "zero_operational_effects",
+      "status": "pass",
+      "expected": 0,
+      "actual": 0
+    },
+    {
+      "name": "visible_evidence",
+      "status": "pass",
+      "expected": [
+        "001",
+        "002",
+        "003",
+        "004"
+      ],
+      "actual": [
+        "001",
+        "003",
+        "004"
+      ]
+    },
+    {
+      "name": "physical_delivery_not_inferred",
+      "status": "pass",
+      "expected": "not_inferred",
+      "actual": "not_inferred"
+    }
+  ],
+  "submitted_job": {
+    "schema_version": "proofkey-model-job-v1",
+    "run_id": "620b78b9168743ce8bf0be6cb046c50a",
+    "status": "queued",
+    "case_id": "team-003",
+    "step_index": 4,
+    "input_hash": "af2292fc34533297116a5c91a5c255a4ac62d1da71ecede08d4774c347d3cc5e",
+    "mode": "model",
+    "model_profile_id": "anthropic-claude-sonnet-4-6",
+    "input": {
+      "actors": [
+        {
+          "id": "coordinator",
+          "name": "Iona Quill",
+          "role": "coordinator"
+        },
+        {
+          "id": "dispatch",
+          "name": "Dispatch",
+          "role": "dispatch"
+        },
+        {
+          "id": "driver",
+          "name": "Fen Orlo",
+          "role": "driver"
+        },
+        {
+          "id": "recipient",
+          "name": "Elva Kesh",
+          "role": "recipient"
+        }
+      ],
+      "author_limits": [
+        "Do not request or store permanent credentials.",
+        "Count the handover only on the driver's actual record."
+      ],
+      "case_id": "team-003",
+      "cutoff_event_id": "004",
+      "goal": "Arrange permitted access for the courier at the gated building through the recipient, without requesting permanent credentials, and get the driver's confirmation of access and handover.",
+      "input_hash": "af2292fc34533297116a5c91a5c255a4ac62d1da71ecede08d4774c347d3cc5e",
+      "messages": [
+        {
+          "body": "I am at 7 Sedgeglass Mews for DL-003. The pedestrian gate is shut and there are no public access instructions. I am waiting outside; I have not left the parcel.",
+          "body_source": "body",
+          "channel": "Dispatch chat",
+          "conversation_id": "driver",
+          "event_id": "001",
+          "from_actor": "driver",
+          "timestamp": "2026-02-04 09:00:00 UTC",
+          "to_actor": "coordinator"
+        },
+        {
+          "body": "Please contact recipient Elva Kesh on the verified order callback route. Do not request a reusable gate code. The driver can wait until 10:00 UTC.",
+          "body_source": "body",
+          "channel": "Dispatch chat",
+          "conversation_id": "dispatch",
+          "event_id": "002",
+          "from_actor": "dispatch",
+          "timestamp": "2026-02-04 09:10:00 UTC",
+          "to_actor": "coordinator"
+        },
+        {
+          "body": "The driver is at the pedestrian gate with DL-003. Can you admit them now using the intercom, or come to the gate? Please do not share a permanent code.",
+          "body_source": "body",
+          "channel": "Call transcript",
+          "conversation_id": "recipient",
+          "event_id": "003",
+          "from_actor": "coordinator",
+          "timestamp": "2026-02-04 09:25:00 UTC",
+          "to_actor": "recipient"
+        },
+        {
+          "body": "I can see the courier on the intercom. I will release the gate and meet them in the lobby now.",
+          "body_source": "body",
+          "channel": "Call transcript",
+          "conversation_id": "recipient",
+          "event_id": "004",
+          "from_actor": "recipient",
+          "timestamp": "2026-02-04 09:35:00 UTC",
+          "to_actor": "coordinator"
+        }
+      ],
+      "our_actor_id": "coordinator",
+      "schema_version": "proofkey-step-input-v1",
+      "step_index": 4
+    },
+    "reference": {
+      "input_hash": "af2292fc34533297116a5c91a5c255a4ac62d1da71ecede08d4774c347d3cc5e",
+      "next_action": "Get the driver's confirmation that access was obtained and DL-003 was handed over.",
+      "qualification": "author_labels_unvalidated",
+      "schema_version": "proofkey-step-reference-v1",
+      "source_agent_state": {
+        "next_action": "Get the driver's confirmation that access was obtained and DL-003 was handed over.",
+        "note": "No message from us to the driver or dispatch after the call is recorded. So in this snapshot the agent is not given waiting status: there is no evidence that a request to the driver was sent.",
+        "status": "ready",
+        "waiting_for": []
+      },
+      "state": "ready",
+      "waiting_for": []
+    },
+    "source": {
+      "family_id": "team-003",
+      "qualification": "author_labels_unvalidated",
+      "source_commit": "c361245eaad4361f7b886adc56f05dd56d4807b3",
+      "source_sha256": "bd832494d88e60b6823acda9700c7b741b3226919177e5077468d63b6781723e"
+    },
+    "candidate": null,
+    "evaluation": null,
+    "receipt": null,
+    "error": null,
+    "created_at": "2026-10-10T13:55:36.445336+00:00",
+    "started_at": null,
+    "finished_at": null,
+    "transaction": {
+      "idempotency_key": "rerun-team-1010:anthropic-claude-sonnet-4-6:team-003:4",
+      "attempt_id": "75a37930ae7447a6810eda999b17f719",
+      "dispatch_attempts": 0,
+      "automatic_retries": 0,
+      "operational_effects": 0,
+      "reserved_usd": 0.044094,
+      "budget_scope": "platform-e2e-20261010",
+      "prompt_hash": "2c0c502f2792ce5784d2887e56d6c128be51953b3083f837848fd270f90cd2f3",
+      "profile_hash": "d900166c556c711852ca5a8608bc466fe72f5ff0476e132e312294c45f60afd4"
+    }
+  },
+  "created": true,
+  "job": {
+    "schema_version": "proofkey-model-job-v1",
+    "run_id": "620b78b9168743ce8bf0be6cb046c50a",
+    "status": "succeeded",
+    "case_id": "team-003",
+    "step_index": 4,
+    "input_hash": "af2292fc34533297116a5c91a5c255a4ac62d1da71ecede08d4774c347d3cc5e",
+    "mode": "model",
+    "model_profile_id": "anthropic-claude-sonnet-4-6",
+    "input": {
+      "actors": [
+        {
+          "id": "coordinator",
+          "name": "Iona Quill",
+          "role": "coordinator"
+        },
+        {
+          "id": "dispatch",
+          "name": "Dispatch",
+          "role": "dispatch"
+        },
+        {
+          "id": "driver",
+          "name": "Fen Orlo",
+          "role": "driver"
+        },
+        {
+          "id": "recipient",
+          "name": "Elva Kesh",
+          "role": "recipient"
+        }
+      ],
+      "author_limits": [
+        "Do not request or store permanent credentials.",
+        "Count the handover only on the driver's actual record."
+      ],
+      "case_id": "team-003",
+      "cutoff_event_id": "004",
+      "goal": "Arrange permitted access for the courier at the gated building through the recipient, without requesting permanent credentials, and get the driver's confirmation of access and handover.",
+      "input_hash": "af2292fc34533297116a5c91a5c255a4ac62d1da71ecede08d4774c347d3cc5e",
+      "messages": [
+        {
+          "body": "I am at 7 Sedgeglass Mews for DL-003. The pedestrian gate is shut and there are no public access instructions. I am waiting outside; I have not left the parcel.",
+          "body_source": "body",
+          "channel": "Dispatch chat",
+          "conversation_id": "driver",
+          "event_id": "001",
+          "from_actor": "driver",
+          "timestamp": "2026-02-04 09:00:00 UTC",
+          "to_actor": "coordinator"
+        },
+        {
+          "body": "Please contact recipient Elva Kesh on the verified order callback route. Do not request a reusable gate code. The driver can wait until 10:00 UTC.",
+          "body_source": "body",
+          "channel": "Dispatch chat",
+          "conversation_id": "dispatch",
+          "event_id": "002",
+          "from_actor": "dispatch",
+          "timestamp": "2026-02-04 09:10:00 UTC",
+          "to_actor": "coordinator"
+        },
+        {
+          "body": "The driver is at the pedestrian gate with DL-003. Can you admit them now using the intercom, or come to the gate? Please do not share a permanent code.",
+          "body_source": "body",
+          "channel": "Call transcript",
+          "conversation_id": "recipient",
+          "event_id": "003",
+          "from_actor": "coordinator",
+          "timestamp": "2026-02-04 09:25:00 UTC",
+          "to_actor": "recipient"
+        },
+        {
+          "body": "I can see the courier on the intercom. I will release the gate and meet them in the lobby now.",
+          "body_source": "body",
+          "channel": "Call transcript",
+          "conversation_id": "recipient",
+          "event_id": "004",
+          "from_actor": "recipient",
+          "timestamp": "2026-02-04 09:35:00 UTC",
+          "to_actor": "coordinator"
+        }
+      ],
+      "our_actor_id": "coordinator",
+      "schema_version": "proofkey-step-input-v1",
+      "step_index": 4
+    },
+    "reference": {
+      "input_hash": "af2292fc34533297116a5c91a5c255a4ac62d1da71ecede08d4774c347d3cc5e",
+      "next_action": "Get the driver's confirmation that access was obtained and DL-003 was handed over.",
+      "qualification": "author_labels_unvalidated",
+      "schema_version": "proofkey-step-reference-v1",
+      "source_agent_state": {
+        "next_action": "Get the driver's confirmation that access was obtained and DL-003 was handed over.",
+        "note": "No message from us to the driver or dispatch after the call is recorded. So in this snapshot the agent is not given waiting status: there is no evidence that a request to the driver was sent.",
+        "status": "ready",
+        "waiting_for": []
+      },
+      "state": "ready",
+      "waiting_for": []
+    },
+    "source": {
+      "family_id": "team-003",
+      "qualification": "author_labels_unvalidated",
+      "source_commit": "c361245eaad4361f7b886adc56f05dd56d4807b3",
+      "source_sha256": "bd832494d88e60b6823acda9700c7b741b3226919177e5077468d63b6781723e"
+    },
+    "candidate": {
+      "evidence_event_ids": [
+        "001",
+        "003",
+        "004"
+      ],
+      "input_hash": "af2292fc34533297116a5c91a5c255a4ac62d1da71ecede08d4774c347d3cc5e",
+      "live_calls": 1,
+      "mode": "model",
+      "next_action": {
+        "description": "Ask Fen Orlo to confirm that the gate was released and that parcel DL-003 has been handed over to Elva Kesh, so the delivery record can be closed.",
+        "target_actor_id": "driver",
+        "type": "request_readback"
+      },
+      "operational_effects": 0,
+      "physical_delivery": "not_inferred",
+      "schema_version": "proofkey-step-candidate-v1",
+      "state": "acting",
+      "uncertainty": [
+        "Recipient stated intent to release the gate and meet the driver, but no confirmation from the driver that the gate actually opened or that handover occurred.",
+        "The outcome of the gate release is unknown from the driver's perspective; a readback is required before the goal can be marked complete.",
+        "Physical delivery completion cannot be inferred from the recipient's stated intent alone."
+      ],
+      "waiting_for": []
+    },
+    "evaluation": {
+      "accuracy_score": null,
+      "input_hash": "af2292fc34533297116a5c91a5c255a4ac62d1da71ecede08d4774c347d3cc5e",
+      "qualification": "mechanical_comparison_only",
+      "schema_version": "proofkey-step-comparison-v1",
+      "state_agreement": false,
+      "wait_target_agreement": true
+    },
+    "receipt": {
+      "latency_ms": 4568.037,
+      "model_profile_id": "anthropic-claude-sonnet-4-6",
+      "observed_model": "claude-sonnet-4-6",
+      "provider": "anthropic",
+      "request_id": "req_011CftftBH3hnUX9SC5DhfsX",
+      "requested_model": "claude-sonnet-4-6",
+      "usage": {
+        "input_tokens": 996,
+        "output_tokens": 218
+      }
+    },
+    "error": null,
+    "created_at": "2026-10-10T13:55:36.445336+00:00",
+    "started_at": "2026-10-10T13:55:36.726906+00:00",
+    "finished_at": "2026-10-10T13:55:41.336114+00:00",
+    "transaction": {
+      "idempotency_key": "rerun-team-1010:anthropic-claude-sonnet-4-6:team-003:4",
+      "attempt_id": "75a37930ae7447a6810eda999b17f719",
+      "dispatch_attempts": 1,
+      "automatic_retries": 0,
+      "operational_effects": 0,
+      "reserved_usd": 0.044094,
+      "budget_scope": "platform-e2e-20261010",
+      "prompt_hash": "2c0c502f2792ce5784d2887e56d6c128be51953b3083f837848fd270f90cd2f3",
+      "profile_hash": "d900166c556c711852ca5a8608bc466fe72f5ff0476e132e312294c45f60afd4"
+    }
+  },
+  "durable": {
+    "schema_version": "proofkey-model-job-v1",
+    "run_id": "620b78b9168743ce8bf0be6cb046c50a",
+    "status": "succeeded",
+    "case_id": "team-003",
+    "step_index": 4,
+    "input_hash": "af2292fc34533297116a5c91a5c255a4ac62d1da71ecede08d4774c347d3cc5e",
+    "mode": "model",
+    "model_profile_id": "anthropic-claude-sonnet-4-6",
+    "input": {
+      "actors": [
+        {
+          "id": "coordinator",
+          "name": "Iona Quill",
+          "role": "coordinator"
+        },
+        {
+          "id": "dispatch",
+          "name": "Dispatch",
+          "role": "dispatch"
+        },
+        {
+          "id": "driver",
+          "name": "Fen Orlo",
+          "role": "driver"
+        },
+        {
+          "id": "recipient",
+          "name": "Elva Kesh",
+          "role": "recipient"
+        }
+      ],
+      "author_limits": [
+        "Do not request or store permanent credentials.",
+        "Count the handover only on the driver's actual record."
+      ],
+      "case_id": "team-003",
+      "cutoff_event_id": "004",
+      "goal": "Arrange permitted access for the courier at the gated building through the recipient, without requesting permanent credentials, and get the driver's confirmation of access and handover.",
+      "input_hash": "af2292fc34533297116a5c91a5c255a4ac62d1da71ecede08d4774c347d3cc5e",
+      "messages": [
+        {
+          "body": "I am at 7 Sedgeglass Mews for DL-003. The pedestrian gate is shut and there are no public access instructions. I am waiting outside; I have not left the parcel.",
+          "body_source": "body",
+          "channel": "Dispatch chat",
+          "conversation_id": "driver",
+          "event_id": "001",
+          "from_actor": "driver",
+          "timestamp": "2026-02-04 09:00:00 UTC",
+          "to_actor": "coordinator"
+        },
+        {
+          "body": "Please contact recipient Elva Kesh on the verified order callback route. Do not request a reusable gate code. The driver can wait until 10:00 UTC.",
+          "body_source": "body",
+          "channel": "Dispatch chat",
+          "conversation_id": "dispatch",
+          "event_id": "002",
+          "from_actor": "dispatch",
+          "timestamp": "2026-02-04 09:10:00 UTC",
+          "to_actor": "coordinator"
+        },
+        {
+          "body": "The driver is at the pedestrian gate with DL-003. Can you admit them now using the intercom, or come to the gate? Please do not share a permanent code.",
+          "body_source": "body",
+          "channel": "Call transcript",
+          "conversation_id": "recipient",
+          "event_id": "003",
+          "from_actor": "coordinator",
+          "timestamp": "2026-02-04 09:25:00 UTC",
+          "to_actor": "recipient"
+        },
+        {
+          "body": "I can see the courier on the intercom. I will release the gate and meet them in the lobby now.",
+          "body_source": "body",
+          "channel": "Call transcript",
+          "conversation_id": "recipient",
+          "event_id": "004",
+          "from_actor": "recipient",
+          "timestamp": "2026-02-04 09:35:00 UTC",
+          "to_actor": "coordinator"
+        }
+      ],
+      "our_actor_id": "coordinator",
+      "schema_version": "proofkey-step-input-v1",
+      "step_index": 4
+    },
+    "reference": {
+      "input_hash": "af2292fc34533297116a5c91a5c255a4ac62d1da71ecede08d4774c347d3cc5e",
+      "next_action": "Get the driver's confirmation that access was obtained and DL-003 was handed over.",
+      "qualification": "author_labels_unvalidated",
+      "schema_version": "proofkey-step-reference-v1",
+      "source_agent_state": {
+        "next_action": "Get the driver's confirmation that access was obtained and DL-003 was handed over.",
+        "note": "No message from us to the driver or dispatch after the call is recorded. So in this snapshot the agent is not given waiting status: there is no evidence that a request to the driver was sent.",
+        "status": "ready",
+        "waiting_for": []
+      },
+      "state": "ready",
+      "waiting_for": []
+    },
+    "source": {
+      "family_id": "team-003",
+      "qualification": "author_labels_unvalidated",
+      "source_commit": "c361245eaad4361f7b886adc56f05dd56d4807b3",
+      "source_sha256": "bd832494d88e60b6823acda9700c7b741b3226919177e5077468d63b6781723e"
+    },
+    "candidate": {
+      "evidence_event_ids": [
+        "001",
+        "003",
+        "004"
+      ],
+      "input_hash": "af2292fc34533297116a5c91a5c255a4ac62d1da71ecede08d4774c347d3cc5e",
+      "live_calls": 1,
+      "mode": "model",
+      "next_action": {
+        "description": "Ask Fen Orlo to confirm that the gate was released and that parcel DL-003 has been handed over to Elva Kesh, so the delivery record can be closed.",
+        "target_actor_id": "driver",
+        "type": "request_readback"
+      },
+      "operational_effects": 0,
+      "physical_delivery": "not_inferred",
+      "schema_version": "proofkey-step-candidate-v1",
+      "state": "acting",
+      "uncertainty": [
+        "Recipient stated intent to release the gate and meet the driver, but no confirmation from the driver that the gate actually opened or that handover occurred.",
+        "The outcome of the gate release is unknown from the driver's perspective; a readback is required before the goal can be marked complete.",
+        "Physical delivery completion cannot be inferred from the recipient's stated intent alone."
+      ],
+      "waiting_for": []
+    },
+    "evaluation": {
+      "accuracy_score": null,
+      "input_hash": "af2292fc34533297116a5c91a5c255a4ac62d1da71ecede08d4774c347d3cc5e",
+      "qualification": "mechanical_comparison_only",
+      "schema_version": "proofkey-step-comparison-v1",
+      "state_agreement": false,
+      "wait_target_agreement": true
+    },
+    "receipt": {
+      "latency_ms": 4568.037,
+      "model_profile_id": "anthropic-claude-sonnet-4-6",
+      "observed_model": "claude-sonnet-4-6",
+      "provider": "anthropic",
+      "request_id": "req_011CftftBH3hnUX9SC5DhfsX",
+      "requested_model": "claude-sonnet-4-6",
+      "usage": {
+        "input_tokens": 996,
+        "output_tokens": 218
+      }
+    },
+    "error": null,
+    "created_at": "2026-10-10T13:55:36.445336+00:00",
+    "started_at": "2026-10-10T13:55:36.726906+00:00",
+    "finished_at": "2026-10-10T13:55:41.336114+00:00",
+    "transaction": {
+      "idempotency_key": "rerun-team-1010:anthropic-claude-sonnet-4-6:team-003:4",
+      "attempt_id": "75a37930ae7447a6810eda999b17f719",
+      "dispatch_attempts": 1,
+      "automatic_retries": 0,
+      "operational_effects": 0,
+      "reserved_usd": 0.044094,
+      "budget_scope": "platform-e2e-20261010",
+      "prompt_hash": "2c0c502f2792ce5784d2887e56d6c128be51953b3083f837848fd270f90cd2f3",
+      "profile_hash": "d900166c556c711852ca5a8608bc466fe72f5ff0476e132e312294c45f60afd4"
+    }
+  },
+  "replay": {
+    "schema_version": "proofkey-model-job-v1",
+    "run_id": "620b78b9168743ce8bf0be6cb046c50a",
+    "status": "succeeded",
+    "case_id": "team-003",
+    "step_index": 4,
+    "input_hash": "af2292fc34533297116a5c91a5c255a4ac62d1da71ecede08d4774c347d3cc5e",
+    "mode": "model",
+    "model_profile_id": "anthropic-claude-sonnet-4-6",
+    "input": {
+      "actors": [
+        {
+          "id": "coordinator",
+          "name": "Iona Quill",
+          "role": "coordinator"
+        },
+        {
+          "id": "dispatch",
+          "name": "Dispatch",
+          "role": "dispatch"
+        },
+        {
+          "id": "driver",
+          "name": "Fen Orlo",
+          "role": "driver"
+        },
+        {
+          "id": "recipient",
+          "name": "Elva Kesh",
+          "role": "recipient"
+        }
+      ],
+      "author_limits": [
+        "Do not request or store permanent credentials.",
+        "Count the handover only on the driver's actual record."
+      ],
+      "case_id": "team-003",
+      "cutoff_event_id": "004",
+      "goal": "Arrange permitted access for the courier at the gated building through the recipient, without requesting permanent credentials, and get the driver's confirmation of access and handover.",
+      "input_hash": "af2292fc34533297116a5c91a5c255a4ac62d1da71ecede08d4774c347d3cc5e",
+      "messages": [
+        {
+          "body": "I am at 7 Sedgeglass Mews for DL-003. The pedestrian gate is shut and there are no public access instructions. I am waiting outside; I have not left the parcel.",
+          "body_source": "body",
+          "channel": "Dispatch chat",
+          "conversation_id": "driver",
+          "event_id": "001",
+          "from_actor": "driver",
+          "timestamp": "2026-02-04 09:00:00 UTC",
+          "to_actor": "coordinator"
+        },
+        {
+          "body": "Please contact recipient Elva Kesh on the verified order callback route. Do not request a reusable gate code. The driver can wait until 10:00 UTC.",
+          "body_source": "body",
+          "channel": "Dispatch chat",
+          "conversation_id": "dispatch",
+          "event_id": "002",
+          "from_actor": "dispatch",
+          "timestamp": "2026-02-04 09:10:00 UTC",
+          "to_actor": "coordinator"
+        },
+        {
+          "body": "The driver is at the pedestrian gate with DL-003. Can you admit them now using the intercom, or come to the gate? Please do not share a permanent code.",
+          "body_source": "body",
+          "channel": "Call transcript",
+          "conversation_id": "recipient",
+          "event_id": "003",
+          "from_actor": "coordinator",
+          "timestamp": "2026-02-04 09:25:00 UTC",
+          "to_actor": "recipient"
+        },
+        {
+          "body": "I can see the courier on the intercom. I will release the gate and meet them in the lobby now.",
+          "body_source": "body",
+          "channel": "Call transcript",
+          "conversation_id": "recipient",
+          "event_id": "004",
+          "from_actor": "recipient",
+          "timestamp": "2026-02-04 09:35:00 UTC",
+          "to_actor": "coordinator"
+        }
+      ],
+      "our_actor_id": "coordinator",
+      "schema_version": "proofkey-step-input-v1",
+      "step_index": 4
+    },
+    "reference": {
+      "input_hash": "af2292fc34533297116a5c91a5c255a4ac62d1da71ecede08d4774c347d3cc5e",
+      "next_action": "Get the driver's confirmation that access was obtained and DL-003 was handed over.",
+      "qualification": "author_labels_unvalidated",
+      "schema_version": "proofkey-step-reference-v1",
+      "source_agent_state": {
+        "next_action": "Get the driver's confirmation that access was obtained and DL-003 was handed over.",
+        "note": "No message from us to the driver or dispatch after the call is recorded. So in this snapshot the agent is not given waiting status: there is no evidence that a request to the driver was sent.",
+        "status": "ready",
+        "waiting_for": []
+      },
+      "state": "ready",
+      "waiting_for": []
+    },
+    "source": {
+      "family_id": "team-003",
+      "qualification": "author_labels_unvalidated",
+      "source_commit": "c361245eaad4361f7b886adc56f05dd56d4807b3",
+      "source_sha256": "bd832494d88e60b6823acda9700c7b741b3226919177e5077468d63b6781723e"
+    },
+    "candidate": {
+      "evidence_event_ids": [
+        "001",
+        "003",
+        "004"
+      ],
+      "input_hash": "af2292fc34533297116a5c91a5c255a4ac62d1da71ecede08d4774c347d3cc5e",
+      "live_calls": 1,
+      "mode": "model",
+      "next_action": {
+        "description": "Ask Fen Orlo to confirm that the gate was released and that parcel DL-003 has been handed over to Elva Kesh, so the delivery record can be closed.",
+        "target_actor_id": "driver",
+        "type": "request_readback"
+      },
+      "operational_effects": 0,
+      "physical_delivery": "not_inferred",
+      "schema_version": "proofkey-step-candidate-v1",
+      "state": "acting",
+      "uncertainty": [
+        "Recipient stated intent to release the gate and meet the driver, but no confirmation from the driver that the gate actually opened or that handover occurred.",
+        "The outcome of the gate release is unknown from the driver's perspective; a readback is required before the goal can be marked complete.",
+        "Physical delivery completion cannot be inferred from the recipient's stated intent alone."
+      ],
+      "waiting_for": []
+    },
+    "evaluation": {
+      "accuracy_score": null,
+      "input_hash": "af2292fc34533297116a5c91a5c255a4ac62d1da71ecede08d4774c347d3cc5e",
+      "qualification": "mechanical_comparison_only",
+      "schema_version": "proofkey-step-comparison-v1",
+      "state_agreement": false,
+      "wait_target_agreement": true
+    },
+    "receipt": {
+      "latency_ms": 4568.037,
+      "model_profile_id": "anthropic-claude-sonnet-4-6",
+      "observed_model": "claude-sonnet-4-6",
+      "provider": "anthropic",
+      "request_id": "req_011CftftBH3hnUX9SC5DhfsX",
+      "requested_model": "claude-sonnet-4-6",
+      "usage": {
+        "input_tokens": 996,
+        "output_tokens": 218
+      }
+    },
+    "error": null,
+    "created_at": "2026-10-10T13:55:36.445336+00:00",
+    "started_at": "2026-10-10T13:55:36.726906+00:00",
+    "finished_at": "2026-10-10T13:55:41.336114+00:00",
+    "transaction": {
+      "idempotency_key": "rerun-team-1010:anthropic-claude-sonnet-4-6:team-003:4",
+      "attempt_id": "75a37930ae7447a6810eda999b17f719",
+      "dispatch_attempts": 1,
+      "automatic_retries": 0,
+      "operational_effects": 0,
+      "reserved_usd": 0.044094,
+      "budget_scope": "platform-e2e-20261010",
+      "prompt_hash": "2c0c502f2792ce5784d2887e56d6c128be51953b3083f837848fd270f90cd2f3",
+      "profile_hash": "d900166c556c711852ca5a8608bc466fe72f5ff0476e132e312294c45f60afd4"
+    }
+  },
+  "state_agreement": false,
+  "wait_target_agreement": true
+}

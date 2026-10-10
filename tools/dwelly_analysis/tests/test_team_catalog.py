@@ -29,7 +29,7 @@ class TeamCatalogTests(unittest.TestCase):
         self.assertEqual([row['id'] for row in rows][3:], expected)
         self.assertEqual(sum(row['steps'] + 1 for row in rows[3:]), 286)
         self.assertEqual(len({row['family_id'] for row in rows[3:]}), 50)
-        self.assertTrue(all(row['source_commit'] == 'c361245eaad4361f7b886adc56f05dd56d4807b3' for row in rows[3:]))
+        self.assertTrue(all(row['source_commit'] == 'c1c8539725a42162b452c8125e747afdf4b16580' for row in rows[3:]))
         self.assertEqual(len(catalog.load_catalog(group='legacy')), 3)
         for row in rows[3:]:
             document = catalog.get_document(row['id'])

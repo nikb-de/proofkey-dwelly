@@ -1,0 +1,118 @@
+{
+  "case_id": "e2e-integration-case-002-n4-s3",
+  "source": {
+    "source_id": "case-002-n4",
+    "step_index": 3,
+    "family_id": "case-002",
+    "source_sha256": "c6c028af21fa456f8505ea22feece25525a95beaf5aca57e28074c14507eedf5",
+    "qualification": "author_labels_unvalidated",
+    "split": "development",
+    "kind": "synthetic_negative_branch",
+    "event_mapping": [
+      {
+        "source_event_id": "001",
+        "event_id": "001",
+        "source_channel": "Email",
+        "canonical_channel": "email",
+        "timestamp_fallback": false,
+        "body_source": "body"
+      },
+      {
+        "source_event_id": "002",
+        "event_id": "002",
+        "source_channel": "Customer portal",
+        "canonical_channel": "internal",
+        "timestamp_fallback": false,
+        "body_source": "body"
+      },
+      {
+        "source_event_id": "003",
+        "event_id": "003",
+        "source_channel": "Customer portal",
+        "canonical_channel": "internal",
+        "timestamp_fallback": false,
+        "body_source": "body"
+      }
+    ],
+    "synthetic_participants": [],
+    "transformation": "Visible source messages plus internal goal/actor context; unsupported channels become internal; missing timestamps use fixed fallback."
+  },
+  "declaration": {
+    "case_id": "e2e-integration-case-002-n4-s3",
+    "links": {
+      "order_id": "e2e-case-002-n4",
+      "customer_id": "recipient",
+      "operator_id": "coordinator"
+    },
+    "participants": [
+      "address_desk",
+      "coordinator",
+      "recipient"
+    ],
+    "language": "en"
+  },
+  "events": [
+    {
+      "event_id": "source-context",
+      "occurred_at": "2026-02-03T09:00:00+00:00",
+      "channel": "internal",
+      "sender_id": "coordinator",
+      "recipient_ids": [],
+      "kind": "message",
+      "text": "{\"goal\": \"Уточнить неполный адрес и снять адресную блокировку DL-002.\", \"actors\": [{\"id\": \"address_desk\", \"name\": \"Address desk\", \"role\": \"executor\"}, {\"id\": \"coordinator\", \"name\": \"Iona Quill\", \"role\": \"coordinator\"}, {\"id\": \"recipient\", \"name\": \"Tarin Mave\", \"role\": \"recipient\"}]}",
+      "media": null
+    },
+    {
+      "event_id": "001",
+      "occurred_at": "2026-02-03T09:00:00+00:00",
+      "channel": "email",
+      "sender_id": "address_desk",
+      "recipient_ids": [
+        "coordinator"
+      ],
+      "kind": "message",
+      "text": "DL-002: 18 Copperfin Court, Merrow Quay. The building has multiple apartments; the order has no apartment number. Hold reason: incomplete address. The recipient’s order-linked portal session was verified by our account team.",
+      "media": null
+    },
+    {
+      "event_id": "002",
+      "occurred_at": "2026-02-03T09:10:00+00:00",
+      "channel": "internal",
+      "sender_id": "recipient",
+      "recipient_ids": [
+        "coordinator"
+      ],
+      "kind": "message",
+      "text": "The tracking page says address clarification required. The building is correct; what do you need from me?",
+      "media": null
+    },
+    {
+      "event_id": "003",
+      "occurred_at": "2026-02-03T09:25:00+00:00",
+      "channel": "internal",
+      "sender_id": "coordinator",
+      "recipient_ids": [
+        "recipient"
+      ],
+      "kind": "message",
+      "text": "Please confirm the apartment number at 18 Copperfin Court. We do not need entry codes or any other household details.",
+      "media": null
+    }
+  ],
+  "expectation": {
+    "allowed_states": [
+      "waiting"
+    ],
+    "allowed_actions": [
+      "wait"
+    ],
+    "waiting_for": [
+      "recipient"
+    ],
+    "completion_allowed": false,
+    "action_targets": [
+      "recipient"
+    ],
+    "qualification": "author_labels_unvalidated"
+  }
+}

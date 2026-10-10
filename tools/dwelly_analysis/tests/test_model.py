@@ -143,7 +143,7 @@ class ModelTests(unittest.TestCase):
             with patch.object(providers, "_open", return_value=Response(json.dumps(candidate()))) as boundary:
                 model.request(projected, self.profile, 1024, 5)
         payload = json.loads(boundary.call_args.args[0].data)
-        self.assertEqual(payload["input"], prompt)
+        self.assertEqual(payload["input"], "Return a JSON object.\n" + prompt)
         self.assertEqual(payload["instructions"], system)
         self.assertNotIn("SENTINEL", json.dumps(payload))
 

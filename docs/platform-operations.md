@@ -8,6 +8,14 @@ This is an integrated **local platform**, not a production deployment. The exist
 
 See the [verification record and UI screenshots](verification/platform-ui-2026-10-10/README.md) for tested paths, exact boundaries and remaining gaps.
 
+## Product screens
+
+- **Team** at `/`: searchable cases, operator queue, Summary / Requests / Sources, ownership and activity. Analysis remains a proposal; approval and sandbox execution are separate controls under Requests.
+- **Customer** at `/customer.html?case=<case-id>`: compact operator-assisted delivery options, reviewed preference and current status. It displays only a valid current recorded offer, with that offer's own evidence references; missing options require operator help, not manual customer evidence selection. It writes a proposal to the same case; it cannot approve, execute or cancel backend work. This is not an authenticated external customer portal.
+- **Preparation** at `/preparation.html`: current service capabilities, six adapter mappings, process/acknowledgement/readback settings, browser-local save/load and JSON export. Preflight is read-only; the draft is not activated in the runtime.
+
+The Team-to-Customer link preserves case identity. New evidence invalidates old decision status while retaining history. Stale customer offers require reselection; only an identical previously dispatched request is eligible for uncertain-response replay. See the [revised design and verification](verification/ui-design-parity-2026-10-10/README.md) and [live model results](verification/platform-live-e2e-2026-10-10-rerun/README.md).
+
 ## Run
 
 Use Python with `requirements-postgres.lock` and `requirements-platform.txt` installed. ASR validation also requires `ffprobe` on PATH. Supply the PostgreSQL DSN through the environment; never put it or provider keys into browser code or Git.

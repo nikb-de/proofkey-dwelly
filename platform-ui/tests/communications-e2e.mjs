@@ -22,8 +22,10 @@ try {
   page.on('request',request=>{if(request.method()==='POST')writes.push(new URL(request.url()).pathname);});
   await page.goto(ready.origin);await page.locator('#create-case-panel summary').click();
   await page.fill('#case-id',ready.case_id);await page.fill('#order-id','synthetic-order');
-  await page.locator('#create-case-form button').click();await page.locator('#case-title').filter({hasText:ready.case_id}).waitFor();
+  await page.locator('#create-case-form button').click();await page.locator(`#case-detail[data-case-id="${ready.case_id}"]`).waitFor();
+  await page.getByRole('tab',{name:/Sources/}).click();
   await page.fill('#evidence-text','Unfinished operator evidence — preserve this draft.');
+  await page.getByRole('tab',{name:/Requests/}).click();
   await page.fill('#review-note','Unfinished operator review — preserve this draft.');
   await page.locator('[data-view="communications"]').click();
   await page.locator('#communication-connectors').getByText('local-chat',{exact:true}).waitFor();
@@ -87,6 +89,7 @@ try {
   assert.equal(await page.inputValue('#review-note'),'Unfinished operator review — preserve this draft.');
   assert.equal(await page.evaluate(()=>Boolean(window.channelInjected)),false);
   assert.match(await page.locator('#evidence-list').innerText(),/<script>window.channelInjected=true<\/script>/);
+  await page.getByRole('tab',{name:/Sources/}).click();
   await page.locator('#case-communications > details > summary').click();
   assert.equal(await page.locator('#case-communications .communication-receipt').count(),5);
   assert.equal(await page.getByRole('button',{name:'Analyze image',exact:true}).isDisabled(),true);
@@ -95,7 +98,8 @@ try {
   assert.equal(finalCase.snapshot.revision,6);assert.equal(finalCase.model_jobs.length,0);assert.equal(finalCase.media_runs?.length || 0,0);
   assert.equal(finalCase.decisions.length,0);assert.equal(finalCase.actions.length,0);
   const writeCount=writes.length;
-  await page.reload();await page.locator('#case-title').filter({hasText:ready.case_id}).waitFor();
+  await page.reload();await page.locator(`#case-detail[data-case-id="${ready.case_id}"]`).waitFor();
+  await page.getByRole('tab',{name:/Sources/}).click();
   await page.locator('[data-view="communications"]').click();
   await page.locator('#communication-count').filter({hasText:'6'}).waitFor();
   assert.equal(writes.length,writeCount);

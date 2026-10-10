@@ -1,0 +1,775 @@
+{
+  "source_id": "team-001",
+  "step_index": 4,
+  "input": {
+    "schema_version": "proofkey-step-input-v1",
+    "case_id": "team-001",
+    "step_index": 4,
+    "cutoff_event_id": "004",
+    "goal": "Get the recipient's choice of a new slot and dispatch's confirmation that the DL-001 booking has been moved.",
+    "our_actor_id": "coordinator",
+    "actors": [
+      {
+        "id": "coordinator",
+        "name": "Iona Quill",
+        "role": "coordinator"
+      },
+      {
+        "id": "recipient",
+        "name": "Vessa Lorne",
+        "role": "recipient"
+      },
+      {
+        "id": "dispatch",
+        "name": "Dispatch",
+        "role": "dispatch"
+      }
+    ],
+    "messages": [
+      {
+        "event_id": "001",
+        "from_actor": "dispatch",
+        "to_actor": "coordinator",
+        "body": "DL-001 is booked for 2026-02-03, 09:00–12:00 UTC. Our rescheduling inventory currently has 2026-02-03 15:00–18:00 or 2026-02-04 10:00–13:00. There is no rescheduling charge.",
+        "body_source": "body",
+        "timestamp": "2026-02-02 09:00:00 UTC",
+        "channel": "Email",
+        "conversation_id": "dispatch"
+      },
+      {
+        "event_id": "002",
+        "from_actor": "recipient",
+        "to_actor": "coordinator",
+        "body": "I have a work meeting during the morning delivery. Could you help move my lamp delivery? Please use this order-linked message thread.",
+        "body_source": "body",
+        "timestamp": "2026-02-02 09:10:00 UTC",
+        "channel": "Customer portal",
+        "conversation_id": "client"
+      },
+      {
+        "event_id": "003",
+        "from_actor": "coordinator",
+        "to_actor": "recipient",
+        "body": "Dispatch has offered 2026-02-03 15:00–18:00 or 2026-02-04 10:00–13:00, both at no charge. Which should I ask them to book?",
+        "body_source": "body",
+        "timestamp": "2026-02-02 09:25:00 UTC",
+        "channel": "Customer portal",
+        "conversation_id": "client"
+      },
+      {
+        "event_id": "004",
+        "from_actor": "recipient",
+        "to_actor": "coordinator",
+        "body": "Please choose 2026-02-03 15:00–18:00. I will be home then.",
+        "body_source": "body",
+        "timestamp": "2026-02-02 09:50:00 UTC",
+        "channel": "Customer portal",
+        "conversation_id": "client"
+      }
+    ],
+    "author_limits": [
+      "Do not promise arrival at a precise minute.",
+      "Do not say the lamp has been delivered."
+    ],
+    "input_hash": "3ad4796eab42d8986779ed30edbece2fea020da6453dd21a9d5d069c23ca238c"
+  },
+  "reference": {
+    "schema_version": "proofkey-step-reference-v1",
+    "input_hash": "3ad4796eab42d8986779ed30edbece2fea020da6453dd21a9d5d069c23ca238c",
+    "qualification": "author_labels_unvalidated",
+    "state": "ready",
+    "waiting_for": [],
+    "next_action": "Send dispatch a booking request for 2026-02-03 15:00–18:00, then wait for confirmation.",
+    "source_agent_state": {
+      "status": "ready",
+      "waiting_for": [],
+      "next_action": "Send dispatch a booking request for 2026-02-03 15:00–18:00, then wait for confirmation.",
+      "note": "Sending the request to dispatch and the wait that follows are not recorded as separate events. So in this snapshot the agent is still preparing the handoff; it is not given waiting status without evidence that the request was sent."
+    }
+  },
+  "source": {
+    "source_sha256": "15b14b8832626888cfe3c4f71033aa00a90b0f4a2c97f80e160a169c2661b06b",
+    "source_commit": "c361245eaad4361f7b886adc56f05dd56d4807b3",
+    "family_id": "team-001",
+    "qualification": "author_labels_unvalidated"
+  },
+  "status": "succeeded",
+  "checks": [
+    {
+      "name": "terminal_readback_unchanged",
+      "status": "pass",
+      "expected": "same terminal job",
+      "actual": true
+    },
+    {
+      "name": "terminal_replay_unchanged",
+      "status": "pass",
+      "expected": "same terminal job; no new job",
+      "actual": true
+    },
+    {
+      "name": "bound_original_input",
+      "status": "pass",
+      "expected": "3ad4796eab42d8986779ed30edbece2fea020da6453dd21a9d5d069c23ca238c",
+      "actual": "3ad4796eab42d8986779ed30edbece2fea020da6453dd21a9d5d069c23ca238c"
+    },
+    {
+      "name": "reference_binding",
+      "status": "pass",
+      "expected": "original unvalidated author reference",
+      "actual": true
+    },
+    {
+      "name": "one_dispatch_zero_retries",
+      "status": "pass",
+      "expected": [
+        1,
+        0
+      ],
+      "actual": [
+        1,
+        0
+      ]
+    },
+    {
+      "name": "zero_operational_effects",
+      "status": "pass",
+      "expected": 0,
+      "actual": 0
+    },
+    {
+      "name": "visible_evidence",
+      "status": "pass",
+      "expected": [
+        "001",
+        "002",
+        "003",
+        "004"
+      ],
+      "actual": [
+        "001",
+        "002",
+        "003",
+        "004"
+      ]
+    },
+    {
+      "name": "physical_delivery_not_inferred",
+      "status": "pass",
+      "expected": "not_inferred",
+      "actual": "not_inferred"
+    }
+  ],
+  "submitted_job": {
+    "schema_version": "proofkey-model-job-v1",
+    "run_id": "18ffa4a9137a4fbbb6ac076e37dce36c",
+    "status": "queued",
+    "case_id": "team-001",
+    "step_index": 4,
+    "input_hash": "3ad4796eab42d8986779ed30edbece2fea020da6453dd21a9d5d069c23ca238c",
+    "mode": "model",
+    "model_profile_id": "anthropic-claude-sonnet-4-6",
+    "input": {
+      "actors": [
+        {
+          "id": "coordinator",
+          "name": "Iona Quill",
+          "role": "coordinator"
+        },
+        {
+          "id": "recipient",
+          "name": "Vessa Lorne",
+          "role": "recipient"
+        },
+        {
+          "id": "dispatch",
+          "name": "Dispatch",
+          "role": "dispatch"
+        }
+      ],
+      "author_limits": [
+        "Do not promise arrival at a precise minute.",
+        "Do not say the lamp has been delivered."
+      ],
+      "case_id": "team-001",
+      "cutoff_event_id": "004",
+      "goal": "Get the recipient's choice of a new slot and dispatch's confirmation that the DL-001 booking has been moved.",
+      "input_hash": "3ad4796eab42d8986779ed30edbece2fea020da6453dd21a9d5d069c23ca238c",
+      "messages": [
+        {
+          "body": "DL-001 is booked for 2026-02-03, 09:00–12:00 UTC. Our rescheduling inventory currently has 2026-02-03 15:00–18:00 or 2026-02-04 10:00–13:00. There is no rescheduling charge.",
+          "body_source": "body",
+          "channel": "Email",
+          "conversation_id": "dispatch",
+          "event_id": "001",
+          "from_actor": "dispatch",
+          "timestamp": "2026-02-02 09:00:00 UTC",
+          "to_actor": "coordinator"
+        },
+        {
+          "body": "I have a work meeting during the morning delivery. Could you help move my lamp delivery? Please use this order-linked message thread.",
+          "body_source": "body",
+          "channel": "Customer portal",
+          "conversation_id": "client",
+          "event_id": "002",
+          "from_actor": "recipient",
+          "timestamp": "2026-02-02 09:10:00 UTC",
+          "to_actor": "coordinator"
+        },
+        {
+          "body": "Dispatch has offered 2026-02-03 15:00–18:00 or 2026-02-04 10:00–13:00, both at no charge. Which should I ask them to book?",
+          "body_source": "body",
+          "channel": "Customer portal",
+          "conversation_id": "client",
+          "event_id": "003",
+          "from_actor": "coordinator",
+          "timestamp": "2026-02-02 09:25:00 UTC",
+          "to_actor": "recipient"
+        },
+        {
+          "body": "Please choose 2026-02-03 15:00–18:00. I will be home then.",
+          "body_source": "body",
+          "channel": "Customer portal",
+          "conversation_id": "client",
+          "event_id": "004",
+          "from_actor": "recipient",
+          "timestamp": "2026-02-02 09:50:00 UTC",
+          "to_actor": "coordinator"
+        }
+      ],
+      "our_actor_id": "coordinator",
+      "schema_version": "proofkey-step-input-v1",
+      "step_index": 4
+    },
+    "reference": {
+      "input_hash": "3ad4796eab42d8986779ed30edbece2fea020da6453dd21a9d5d069c23ca238c",
+      "next_action": "Send dispatch a booking request for 2026-02-03 15:00–18:00, then wait for confirmation.",
+      "qualification": "author_labels_unvalidated",
+      "schema_version": "proofkey-step-reference-v1",
+      "source_agent_state": {
+        "next_action": "Send dispatch a booking request for 2026-02-03 15:00–18:00, then wait for confirmation.",
+        "note": "Sending the request to dispatch and the wait that follows are not recorded as separate events. So in this snapshot the agent is still preparing the handoff; it is not given waiting status without evidence that the request was sent.",
+        "status": "ready",
+        "waiting_for": []
+      },
+      "state": "ready",
+      "waiting_for": []
+    },
+    "source": {
+      "family_id": "team-001",
+      "qualification": "author_labels_unvalidated",
+      "source_commit": "c361245eaad4361f7b886adc56f05dd56d4807b3",
+      "source_sha256": "15b14b8832626888cfe3c4f71033aa00a90b0f4a2c97f80e160a169c2661b06b"
+    },
+    "candidate": null,
+    "evaluation": null,
+    "receipt": null,
+    "error": null,
+    "created_at": "2026-10-10T13:55:30.658952+00:00",
+    "started_at": null,
+    "finished_at": null,
+    "transaction": {
+      "idempotency_key": "rerun-team-1010:anthropic-claude-sonnet-4-6:team-001:4",
+      "attempt_id": "34a96ab66e214c2f9feeeb739f89baad",
+      "dispatch_attempts": 0,
+      "automatic_retries": 0,
+      "operational_effects": 0,
+      "reserved_usd": 0.043479,
+      "budget_scope": "platform-e2e-20261010",
+      "prompt_hash": "da82ab5bcf6502a521a5e6f1afb949cb0149ec6ec0287dee3b764b0dcdb68e7e",
+      "profile_hash": "d900166c556c711852ca5a8608bc466fe72f5ff0476e132e312294c45f60afd4"
+    }
+  },
+  "created": true,
+  "job": {
+    "schema_version": "proofkey-model-job-v1",
+    "run_id": "18ffa4a9137a4fbbb6ac076e37dce36c",
+    "status": "succeeded",
+    "case_id": "team-001",
+    "step_index": 4,
+    "input_hash": "3ad4796eab42d8986779ed30edbece2fea020da6453dd21a9d5d069c23ca238c",
+    "mode": "model",
+    "model_profile_id": "anthropic-claude-sonnet-4-6",
+    "input": {
+      "actors": [
+        {
+          "id": "coordinator",
+          "name": "Iona Quill",
+          "role": "coordinator"
+        },
+        {
+          "id": "recipient",
+          "name": "Vessa Lorne",
+          "role": "recipient"
+        },
+        {
+          "id": "dispatch",
+          "name": "Dispatch",
+          "role": "dispatch"
+        }
+      ],
+      "author_limits": [
+        "Do not promise arrival at a precise minute.",
+        "Do not say the lamp has been delivered."
+      ],
+      "case_id": "team-001",
+      "cutoff_event_id": "004",
+      "goal": "Get the recipient's choice of a new slot and dispatch's confirmation that the DL-001 booking has been moved.",
+      "input_hash": "3ad4796eab42d8986779ed30edbece2fea020da6453dd21a9d5d069c23ca238c",
+      "messages": [
+        {
+          "body": "DL-001 is booked for 2026-02-03, 09:00–12:00 UTC. Our rescheduling inventory currently has 2026-02-03 15:00–18:00 or 2026-02-04 10:00–13:00. There is no rescheduling charge.",
+          "body_source": "body",
+          "channel": "Email",
+          "conversation_id": "dispatch",
+          "event_id": "001",
+          "from_actor": "dispatch",
+          "timestamp": "2026-02-02 09:00:00 UTC",
+          "to_actor": "coordinator"
+        },
+        {
+          "body": "I have a work meeting during the morning delivery. Could you help move my lamp delivery? Please use this order-linked message thread.",
+          "body_source": "body",
+          "channel": "Customer portal",
+          "conversation_id": "client",
+          "event_id": "002",
+          "from_actor": "recipient",
+          "timestamp": "2026-02-02 09:10:00 UTC",
+          "to_actor": "coordinator"
+        },
+        {
+          "body": "Dispatch has offered 2026-02-03 15:00–18:00 or 2026-02-04 10:00–13:00, both at no charge. Which should I ask them to book?",
+          "body_source": "body",
+          "channel": "Customer portal",
+          "conversation_id": "client",
+          "event_id": "003",
+          "from_actor": "coordinator",
+          "timestamp": "2026-02-02 09:25:00 UTC",
+          "to_actor": "recipient"
+        },
+        {
+          "body": "Please choose 2026-02-03 15:00–18:00. I will be home then.",
+          "body_source": "body",
+          "channel": "Customer portal",
+          "conversation_id": "client",
+          "event_id": "004",
+          "from_actor": "recipient",
+          "timestamp": "2026-02-02 09:50:00 UTC",
+          "to_actor": "coordinator"
+        }
+      ],
+      "our_actor_id": "coordinator",
+      "schema_version": "proofkey-step-input-v1",
+      "step_index": 4
+    },
+    "reference": {
+      "input_hash": "3ad4796eab42d8986779ed30edbece2fea020da6453dd21a9d5d069c23ca238c",
+      "next_action": "Send dispatch a booking request for 2026-02-03 15:00–18:00, then wait for confirmation.",
+      "qualification": "author_labels_unvalidated",
+      "schema_version": "proofkey-step-reference-v1",
+      "source_agent_state": {
+        "next_action": "Send dispatch a booking request for 2026-02-03 15:00–18:00, then wait for confirmation.",
+        "note": "Sending the request to dispatch and the wait that follows are not recorded as separate events. So in this snapshot the agent is still preparing the handoff; it is not given waiting status without evidence that the request was sent.",
+        "status": "ready",
+        "waiting_for": []
+      },
+      "state": "ready",
+      "waiting_for": []
+    },
+    "source": {
+      "family_id": "team-001",
+      "qualification": "author_labels_unvalidated",
+      "source_commit": "c361245eaad4361f7b886adc56f05dd56d4807b3",
+      "source_sha256": "15b14b8832626888cfe3c4f71033aa00a90b0f4a2c97f80e160a169c2661b06b"
+    },
+    "candidate": {
+      "evidence_event_ids": [
+        "001",
+        "002",
+        "003",
+        "004"
+      ],
+      "input_hash": "3ad4796eab42d8986779ed30edbece2fea020da6453dd21a9d5d069c23ca238c",
+      "live_calls": 1,
+      "mode": "model",
+      "next_action": {
+        "description": "Send a message to Dispatch on conversation thread 'dispatch' requesting that DL-001 be moved from 2026-02-03 09:00–12:00 UTC to 2026-02-03 15:00–18:00 UTC, per the recipient's confirmed choice, and ask for written confirmation that the booking has been updated.",
+        "target_actor_id": "dispatch",
+        "type": "propose_forwarding"
+      },
+      "operational_effects": 0,
+      "physical_delivery": "not_inferred",
+      "schema_version": "proofkey-step-candidate-v1",
+      "state": "acting",
+      "uncertainty": [
+        "Dispatch confirmation of the rebooking has not yet been received; the goal is not complete until that confirmation is visible.",
+        "The outcome of sending this forwarding request is not yet known; a readback from dispatch will be needed to verify the change was applied.",
+        "Recipient's identity and authority over the order have not been independently verified beyond their message on the customer portal."
+      ],
+      "waiting_for": []
+    },
+    "evaluation": {
+      "accuracy_score": null,
+      "input_hash": "3ad4796eab42d8986779ed30edbece2fea020da6453dd21a9d5d069c23ca238c",
+      "qualification": "mechanical_comparison_only",
+      "schema_version": "proofkey-step-comparison-v1",
+      "state_agreement": false,
+      "wait_target_agreement": true
+    },
+    "receipt": {
+      "latency_ms": 5463.361,
+      "model_profile_id": "anthropic-claude-sonnet-4-6",
+      "observed_model": "claude-sonnet-4-6",
+      "provider": "anthropic",
+      "request_id": "req_011Cftfsk4jxQuqRJo438i9R",
+      "requested_model": "claude-sonnet-4-6",
+      "usage": {
+        "input_tokens": 997,
+        "output_tokens": 259
+      }
+    },
+    "error": null,
+    "created_at": "2026-10-10T13:55:30.658952+00:00",
+    "started_at": "2026-10-10T13:55:30.851530+00:00",
+    "finished_at": "2026-10-10T13:55:36.337644+00:00",
+    "transaction": {
+      "idempotency_key": "rerun-team-1010:anthropic-claude-sonnet-4-6:team-001:4",
+      "attempt_id": "34a96ab66e214c2f9feeeb739f89baad",
+      "dispatch_attempts": 1,
+      "automatic_retries": 0,
+      "operational_effects": 0,
+      "reserved_usd": 0.043479,
+      "budget_scope": "platform-e2e-20261010",
+      "prompt_hash": "da82ab5bcf6502a521a5e6f1afb949cb0149ec6ec0287dee3b764b0dcdb68e7e",
+      "profile_hash": "d900166c556c711852ca5a8608bc466fe72f5ff0476e132e312294c45f60afd4"
+    }
+  },
+  "durable": {
+    "schema_version": "proofkey-model-job-v1",
+    "run_id": "18ffa4a9137a4fbbb6ac076e37dce36c",
+    "status": "succeeded",
+    "case_id": "team-001",
+    "step_index": 4,
+    "input_hash": "3ad4796eab42d8986779ed30edbece2fea020da6453dd21a9d5d069c23ca238c",
+    "mode": "model",
+    "model_profile_id": "anthropic-claude-sonnet-4-6",
+    "input": {
+      "actors": [
+        {
+          "id": "coordinator",
+          "name": "Iona Quill",
+          "role": "coordinator"
+        },
+        {
+          "id": "recipient",
+          "name": "Vessa Lorne",
+          "role": "recipient"
+        },
+        {
+          "id": "dispatch",
+          "name": "Dispatch",
+          "role": "dispatch"
+        }
+      ],
+      "author_limits": [
+        "Do not promise arrival at a precise minute.",
+        "Do not say the lamp has been delivered."
+      ],
+      "case_id": "team-001",
+      "cutoff_event_id": "004",
+      "goal": "Get the recipient's choice of a new slot and dispatch's confirmation that the DL-001 booking has been moved.",
+      "input_hash": "3ad4796eab42d8986779ed30edbece2fea020da6453dd21a9d5d069c23ca238c",
+      "messages": [
+        {
+          "body": "DL-001 is booked for 2026-02-03, 09:00–12:00 UTC. Our rescheduling inventory currently has 2026-02-03 15:00–18:00 or 2026-02-04 10:00–13:00. There is no rescheduling charge.",
+          "body_source": "body",
+          "channel": "Email",
+          "conversation_id": "dispatch",
+          "event_id": "001",
+          "from_actor": "dispatch",
+          "timestamp": "2026-02-02 09:00:00 UTC",
+          "to_actor": "coordinator"
+        },
+        {
+          "body": "I have a work meeting during the morning delivery. Could you help move my lamp delivery? Please use this order-linked message thread.",
+          "body_source": "body",
+          "channel": "Customer portal",
+          "conversation_id": "client",
+          "event_id": "002",
+          "from_actor": "recipient",
+          "timestamp": "2026-02-02 09:10:00 UTC",
+          "to_actor": "coordinator"
+        },
+        {
+          "body": "Dispatch has offered 2026-02-03 15:00–18:00 or 2026-02-04 10:00–13:00, both at no charge. Which should I ask them to book?",
+          "body_source": "body",
+          "channel": "Customer portal",
+          "conversation_id": "client",
+          "event_id": "003",
+          "from_actor": "coordinator",
+          "timestamp": "2026-02-02 09:25:00 UTC",
+          "to_actor": "recipient"
+        },
+        {
+          "body": "Please choose 2026-02-03 15:00–18:00. I will be home then.",
+          "body_source": "body",
+          "channel": "Customer portal",
+          "conversation_id": "client",
+          "event_id": "004",
+          "from_actor": "recipient",
+          "timestamp": "2026-02-02 09:50:00 UTC",
+          "to_actor": "coordinator"
+        }
+      ],
+      "our_actor_id": "coordinator",
+      "schema_version": "proofkey-step-input-v1",
+      "step_index": 4
+    },
+    "reference": {
+      "input_hash": "3ad4796eab42d8986779ed30edbece2fea020da6453dd21a9d5d069c23ca238c",
+      "next_action": "Send dispatch a booking request for 2026-02-03 15:00–18:00, then wait for confirmation.",
+      "qualification": "author_labels_unvalidated",
+      "schema_version": "proofkey-step-reference-v1",
+      "source_agent_state": {
+        "next_action": "Send dispatch a booking request for 2026-02-03 15:00–18:00, then wait for confirmation.",
+        "note": "Sending the request to dispatch and the wait that follows are not recorded as separate events. So in this snapshot the agent is still preparing the handoff; it is not given waiting status without evidence that the request was sent.",
+        "status": "ready",
+        "waiting_for": []
+      },
+      "state": "ready",
+      "waiting_for": []
+    },
+    "source": {
+      "family_id": "team-001",
+      "qualification": "author_labels_unvalidated",
+      "source_commit": "c361245eaad4361f7b886adc56f05dd56d4807b3",
+      "source_sha256": "15b14b8832626888cfe3c4f71033aa00a90b0f4a2c97f80e160a169c2661b06b"
+    },
+    "candidate": {
+      "evidence_event_ids": [
+        "001",
+        "002",
+        "003",
+        "004"
+      ],
+      "input_hash": "3ad4796eab42d8986779ed30edbece2fea020da6453dd21a9d5d069c23ca238c",
+      "live_calls": 1,
+      "mode": "model",
+      "next_action": {
+        "description": "Send a message to Dispatch on conversation thread 'dispatch' requesting that DL-001 be moved from 2026-02-03 09:00–12:00 UTC to 2026-02-03 15:00–18:00 UTC, per the recipient's confirmed choice, and ask for written confirmation that the booking has been updated.",
+        "target_actor_id": "dispatch",
+        "type": "propose_forwarding"
+      },
+      "operational_effects": 0,
+      "physical_delivery": "not_inferred",
+      "schema_version": "proofkey-step-candidate-v1",
+      "state": "acting",
+      "uncertainty": [
+        "Dispatch confirmation of the rebooking has not yet been received; the goal is not complete until that confirmation is visible.",
+        "The outcome of sending this forwarding request is not yet known; a readback from dispatch will be needed to verify the change was applied.",
+        "Recipient's identity and authority over the order have not been independently verified beyond their message on the customer portal."
+      ],
+      "waiting_for": []
+    },
+    "evaluation": {
+      "accuracy_score": null,
+      "input_hash": "3ad4796eab42d8986779ed30edbece2fea020da6453dd21a9d5d069c23ca238c",
+      "qualification": "mechanical_comparison_only",
+      "schema_version": "proofkey-step-comparison-v1",
+      "state_agreement": false,
+      "wait_target_agreement": true
+    },
+    "receipt": {
+      "latency_ms": 5463.361,
+      "model_profile_id": "anthropic-claude-sonnet-4-6",
+      "observed_model": "claude-sonnet-4-6",
+      "provider": "anthropic",
+      "request_id": "req_011Cftfsk4jxQuqRJo438i9R",
+      "requested_model": "claude-sonnet-4-6",
+      "usage": {
+        "input_tokens": 997,
+        "output_tokens": 259
+      }
+    },
+    "error": null,
+    "created_at": "2026-10-10T13:55:30.658952+00:00",
+    "started_at": "2026-10-10T13:55:30.851530+00:00",
+    "finished_at": "2026-10-10T13:55:36.337644+00:00",
+    "transaction": {
+      "idempotency_key": "rerun-team-1010:anthropic-claude-sonnet-4-6:team-001:4",
+      "attempt_id": "34a96ab66e214c2f9feeeb739f89baad",
+      "dispatch_attempts": 1,
+      "automatic_retries": 0,
+      "operational_effects": 0,
+      "reserved_usd": 0.043479,
+      "budget_scope": "platform-e2e-20261010",
+      "prompt_hash": "da82ab5bcf6502a521a5e6f1afb949cb0149ec6ec0287dee3b764b0dcdb68e7e",
+      "profile_hash": "d900166c556c711852ca5a8608bc466fe72f5ff0476e132e312294c45f60afd4"
+    }
+  },
+  "replay": {
+    "schema_version": "proofkey-model-job-v1",
+    "run_id": "18ffa4a9137a4fbbb6ac076e37dce36c",
+    "status": "succeeded",
+    "case_id": "team-001",
+    "step_index": 4,
+    "input_hash": "3ad4796eab42d8986779ed30edbece2fea020da6453dd21a9d5d069c23ca238c",
+    "mode": "model",
+    "model_profile_id": "anthropic-claude-sonnet-4-6",
+    "input": {
+      "actors": [
+        {
+          "id": "coordinator",
+          "name": "Iona Quill",
+          "role": "coordinator"
+        },
+        {
+          "id": "recipient",
+          "name": "Vessa Lorne",
+          "role": "recipient"
+        },
+        {
+          "id": "dispatch",
+          "name": "Dispatch",
+          "role": "dispatch"
+        }
+      ],
+      "author_limits": [
+        "Do not promise arrival at a precise minute.",
+        "Do not say the lamp has been delivered."
+      ],
+      "case_id": "team-001",
+      "cutoff_event_id": "004",
+      "goal": "Get the recipient's choice of a new slot and dispatch's confirmation that the DL-001 booking has been moved.",
+      "input_hash": "3ad4796eab42d8986779ed30edbece2fea020da6453dd21a9d5d069c23ca238c",
+      "messages": [
+        {
+          "body": "DL-001 is booked for 2026-02-03, 09:00–12:00 UTC. Our rescheduling inventory currently has 2026-02-03 15:00–18:00 or 2026-02-04 10:00–13:00. There is no rescheduling charge.",
+          "body_source": "body",
+          "channel": "Email",
+          "conversation_id": "dispatch",
+          "event_id": "001",
+          "from_actor": "dispatch",
+          "timestamp": "2026-02-02 09:00:00 UTC",
+          "to_actor": "coordinator"
+        },
+        {
+          "body": "I have a work meeting during the morning delivery. Could you help move my lamp delivery? Please use this order-linked message thread.",
+          "body_source": "body",
+          "channel": "Customer portal",
+          "conversation_id": "client",
+          "event_id": "002",
+          "from_actor": "recipient",
+          "timestamp": "2026-02-02 09:10:00 UTC",
+          "to_actor": "coordinator"
+        },
+        {
+          "body": "Dispatch has offered 2026-02-03 15:00–18:00 or 2026-02-04 10:00–13:00, both at no charge. Which should I ask them to book?",
+          "body_source": "body",
+          "channel": "Customer portal",
+          "conversation_id": "client",
+          "event_id": "003",
+          "from_actor": "coordinator",
+          "timestamp": "2026-02-02 09:25:00 UTC",
+          "to_actor": "recipient"
+        },
+        {
+          "body": "Please choose 2026-02-03 15:00–18:00. I will be home then.",
+          "body_source": "body",
+          "channel": "Customer portal",
+          "conversation_id": "client",
+          "event_id": "004",
+          "from_actor": "recipient",
+          "timestamp": "2026-02-02 09:50:00 UTC",
+          "to_actor": "coordinator"
+        }
+      ],
+      "our_actor_id": "coordinator",
+      "schema_version": "proofkey-step-input-v1",
+      "step_index": 4
+    },
+    "reference": {
+      "input_hash": "3ad4796eab42d8986779ed30edbece2fea020da6453dd21a9d5d069c23ca238c",
+      "next_action": "Send dispatch a booking request for 2026-02-03 15:00–18:00, then wait for confirmation.",
+      "qualification": "author_labels_unvalidated",
+      "schema_version": "proofkey-step-reference-v1",
+      "source_agent_state": {
+        "next_action": "Send dispatch a booking request for 2026-02-03 15:00–18:00, then wait for confirmation.",
+        "note": "Sending the request to dispatch and the wait that follows are not recorded as separate events. So in this snapshot the agent is still preparing the handoff; it is not given waiting status without evidence that the request was sent.",
+        "status": "ready",
+        "waiting_for": []
+      },
+      "state": "ready",
+      "waiting_for": []
+    },
+    "source": {
+      "family_id": "team-001",
+      "qualification": "author_labels_unvalidated",
+      "source_commit": "c361245eaad4361f7b886adc56f05dd56d4807b3",
+      "source_sha256": "15b14b8832626888cfe3c4f71033aa00a90b0f4a2c97f80e160a169c2661b06b"
+    },
+    "candidate": {
+      "evidence_event_ids": [
+        "001",
+        "002",
+        "003",
+        "004"
+      ],
+      "input_hash": "3ad4796eab42d8986779ed30edbece2fea020da6453dd21a9d5d069c23ca238c",
+      "live_calls": 1,
+      "mode": "model",
+      "next_action": {
+        "description": "Send a message to Dispatch on conversation thread 'dispatch' requesting that DL-001 be moved from 2026-02-03 09:00–12:00 UTC to 2026-02-03 15:00–18:00 UTC, per the recipient's confirmed choice, and ask for written confirmation that the booking has been updated.",
+        "target_actor_id": "dispatch",
+        "type": "propose_forwarding"
+      },
+      "operational_effects": 0,
+      "physical_delivery": "not_inferred",
+      "schema_version": "proofkey-step-candidate-v1",
+      "state": "acting",
+      "uncertainty": [
+        "Dispatch confirmation of the rebooking has not yet been received; the goal is not complete until that confirmation is visible.",
+        "The outcome of sending this forwarding request is not yet known; a readback from dispatch will be needed to verify the change was applied.",
+        "Recipient's identity and authority over the order have not been independently verified beyond their message on the customer portal."
+      ],
+      "waiting_for": []
+    },
+    "evaluation": {
+      "accuracy_score": null,
+      "input_hash": "3ad4796eab42d8986779ed30edbece2fea020da6453dd21a9d5d069c23ca238c",
+      "qualification": "mechanical_comparison_only",
+      "schema_version": "proofkey-step-comparison-v1",
+      "state_agreement": false,
+      "wait_target_agreement": true
+    },
+    "receipt": {
+      "latency_ms": 5463.361,
+      "model_profile_id": "anthropic-claude-sonnet-4-6",
+      "observed_model": "claude-sonnet-4-6",
+      "provider": "anthropic",
+      "request_id": "req_011Cftfsk4jxQuqRJo438i9R",
+      "requested_model": "claude-sonnet-4-6",
+      "usage": {
+        "input_tokens": 997,
+        "output_tokens": 259
+      }
+    },
+    "error": null,
+    "created_at": "2026-10-10T13:55:30.658952+00:00",
+    "started_at": "2026-10-10T13:55:30.851530+00:00",
+    "finished_at": "2026-10-10T13:55:36.337644+00:00",
+    "transaction": {
+      "idempotency_key": "rerun-team-1010:anthropic-claude-sonnet-4-6:team-001:4",
+      "attempt_id": "34a96ab66e214c2f9feeeb739f89baad",
+      "dispatch_attempts": 1,
+      "automatic_retries": 0,
+      "operational_effects": 0,
+      "reserved_usd": 0.043479,
+      "budget_scope": "platform-e2e-20261010",
+      "prompt_hash": "da82ab5bcf6502a521a5e6f1afb949cb0149ec6ec0287dee3b764b0dcdb68e7e",
+      "profile_hash": "d900166c556c711852ca5a8608bc466fe72f5ff0476e132e312294c45f60afd4"
+    }
+  },
+  "state_agreement": false,
+  "wait_target_agreement": true
+}

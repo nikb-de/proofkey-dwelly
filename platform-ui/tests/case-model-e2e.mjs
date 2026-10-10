@@ -62,7 +62,7 @@ try {
   page.on('pageerror', error => errors.push(error.message));
   page.on('request', request => { if (request.method() === 'POST' && request.url().includes('/model-runs')) posts.push(request.url()); });
   await page.goto(ready.origin + '/#case=' + plan.case_id);
-  await page.locator('#case-title').filter({hasText: plan.case_id}).waitFor();
+  await page.locator(`#case-detail[data-case-id="${plan.case_id}"]`).waitFor();
   await page.locator('.model-options > summary').click();
   await page.selectOption('#model-profile', 'simulated-case-fixture');
   const submitted = page.waitForResponse(response => response.request().method() === 'POST' && response.url().endsWith('/model-runs'));
@@ -80,15 +80,17 @@ try {
   assert.match(await card.locator('.model-binding').innerText(), /Current evidence/);
   checks.push('UI observes queued/running → waiting with actor and one dispatch; inspector stays open');
   await page.reload();
-  await page.locator('#case-title').filter({hasText: plan.case_id}).waitFor();
+  await page.locator(`#case-detail[data-case-id="${plan.case_id}"]`).waitFor();
   await page.locator('.model-options > summary').click();
   await card.locator('.model-coordination').filter({hasText: 'Coordination: Waiting'}).waitFor();
   assert.equal(posts.length, 1);
   checks.push('reload preserves job and never resubmits');
+  await page.getByRole('tab',{name:/Sources/}).click();
   await page.fill('#evidence-text', 'SYNTHETIC E2E PROBE: later evidence invalidates the previous analysis.');
   const appended = page.waitForResponse(response => response.request().method() === 'POST' && response.url().endsWith('/events'));
   await page.locator('#evidence-form button').click();
   assert.ok((await appended).ok());
+  await page.getByRole('tab',{name:/Summary/}).click();
   await card.locator('.model-binding').filter({hasText: /Stale/}).waitFor();
   assert.match(await card.locator('.model-coordination').innerText(), /Not available for the current evidence/);
   assert.equal(posts.length, 1);
@@ -99,7 +101,7 @@ try {
   // Exercise actual workspace selection; changing only a URL fragment does not
   // reload the document and is not the application's case-selection control.
   await page.locator(`#case-list [data-case-id="${unknown.case_id}"]`).click();
-  await page.locator('#case-title').filter({hasText: unknown.case_id}).waitFor();
+  await page.locator(`#case-detail[data-case-id="${unknown.case_id}"]`).waitFor();
   if (!await page.locator('.model-options').evaluate(element => element.open)) await page.locator('.model-options > summary').click();
   await page.selectOption('#model-profile', 'simulated-case-fixture');
   const unknownSubmitted = page.waitForResponse(response => response.request().method() === 'POST' && response.url().endsWith('/model-runs'));
@@ -109,7 +111,7 @@ try {
   await unknownCard.locator('.model-transport').filter({hasText: /Outcome unknown/}).waitFor();
   assert.match(await unknownCard.locator('.model-coordination').innerText(), /Not available/);
   assert.match(await unknownCard.locator('.model-counters').innerText(), /Automatic retries: 0/);
-  await page.reload(); await page.locator('#case-title').filter({hasText: unknown.case_id}).waitFor();
+  await page.reload(); await page.locator(`#case-detail[data-case-id="${unknown.case_id}"]`).waitFor();
   await page.locator('.model-options > summary').click();
   await unknownCard.locator('.model-transport').filter({hasText: /Outcome unknown/}).waitFor();
   assert.equal(posts.length, 2);
@@ -120,7 +122,7 @@ try {
   const mobile = await browser.newPage({viewport: {width: 390, height: 844}});
   mobile.on('pageerror', error => errors.push(error.message));
   await mobile.goto(ready.origin + '/#case=' + unknown.case_id);
-  await mobile.locator('#case-title').filter({hasText: unknown.case_id}).waitFor();
+  await mobile.locator(`#case-detail[data-case-id="${unknown.case_id}"]`).waitFor();
   await mobile.locator('.model-options > summary').click();
   await mobile.evaluate(() => document.fonts.ready);
   assert.equal(await mobile.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);

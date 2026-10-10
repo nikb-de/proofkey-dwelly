@@ -82,3 +82,27 @@ def project(snapshot, decisions, reviews, actions, assets, model_jobs):
     return {"schema_version": "proofkey-platform-case-v1", "case_id": snapshot["case_id"], "snapshot": snapshot,
             "states": states, "decisions": decisions, "reviews": reviews, "actions": actions,
             "assets": assets, "model_jobs": model_jobs, "external_effects": 0}
+
+
+def project_coordination(detail, coordination):
+    """Add source freshness without conflating booking with physical delivery."""
+    detail["coordination"] = coordination
+    states = detail["states"]
+    if coordination is None:
+        states.update(coordination="not_initialized", coordination_freshness="not_initialized")
+        return detail
+    snapshot = detail["snapshot"]
+    current = (coordination["revision"] == snapshot["revision"] and
+               coordination["snapshot_hash"] == snapshot["snapshot_hash"])
+    states.update(coordination=coordination["phase"], coordination_freshness="current" if current else "stale")
+    latest = detail["decisions"][-1] if detail["decisions"] else None
+    current_decision = (latest is not None and latest["revision"] == snapshot["revision"] and
+                        latest["snapshot_hash"] == snapshot["snapshot_hash"])
+    if not current_decision:
+        states["lifecycle"] = ({
+            "booked": "in_review", "cancellation_pending": "awaiting_information",
+            "awaiting_terms": "awaiting_information", "awaiting_consent": "awaiting_approval",
+            "ready_to_book": "ready", "booking_pending": "awaiting_information",
+            "booking_confirmed": "resolved", "escalated": "escalated",
+        }[coordination["phase"]] if current else "in_review")
+    return detail

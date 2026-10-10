@@ -151,13 +151,15 @@ class RunnerTests(unittest.TestCase):
         recorded_requests = [json.loads(path.read_text())
                              for path in (self.output / "requests").glob("*.json")]
         self.assertCountEqual(
-            [(item["system"], item["prompt"]) for item in recorded_requests if item["provider"] == "openai"],
+            [(item["system"], "Return a JSON object.\n" + item["prompt"])
+             for item in recorded_requests if item["provider"] == "openai"],
             [(payload["instructions"], payload["input"]) for payload, _ in observed if "input" in payload],
         )
         for payload, _ in observed[1:]:
             # Model selection is transport metadata; the actual judge content has no producer metadata.
             if "input" in payload:
-                prompt = payload["input"]
+                self.assertTrue(payload['input'].startswith('Return a JSON object.\n'))
+                prompt = payload["input"][len('Return a JSON object.\n'):]
             elif "messages" in payload:
                 prompt = payload["messages"][0]["content"]
             else:

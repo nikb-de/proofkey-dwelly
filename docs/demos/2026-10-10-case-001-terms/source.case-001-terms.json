@@ -1,0 +1,2014 @@
+{
+  "schema_version": "case-step-viewer/1.0",
+  "title": "001 — Recipient cannot attend, and the offered terms do not match",
+  "initial_explanation": "We are Iona Quill at Rivet Delivery Desk. A desk-lamp parcel is at the destination depot, booked for 2026-02-03, 09:00–12:00 UTC. The recipient cannot use that slot. Once she asks to move it, the current booking is cancelled before new terms are taken. Dispatch, not the desk, controls cancellation and booking.",
+  "initial_state": {
+    "case_id": "001-terms",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "vessa_lorne",
+    "actors": {
+      "coordinator": {
+        "name": "Iona Quill",
+        "organization": "Rivet Delivery Desk",
+        "role": "coordinator",
+        "responsibility": "Coordinate the case and record only confirmed results."
+      },
+      "vessa_lorne": {
+        "name": "Vessa Lorne",
+        "role": "recipient"
+      }
+    },
+    "goal": "Dispatch confirms the accepted delivery terms",
+    "agent_state": {
+      "status": "ready",
+      "waiting_for": [],
+      "next_action": "Read the next message."
+    },
+    "success_criteria": [
+      {
+        "id": "c1",
+        "description": "Dispatch confirms the accepted delivery terms",
+        "status": "pending",
+        "evidence_event_ids": []
+      }
+    ],
+    "limits": [
+      "Do not promise arrival at a precise minute or say the lamp has been delivered."
+    ],
+    "intake": {
+      "summary": "Recipient cannot attend the scheduled delivery window",
+      "created_at": "2026-02-02 09:00:00 UTC",
+      "escalated_at": "2026-02-02 09:10:00 UTC"
+    },
+    "facts": [
+      {
+        "id": "f_shipment",
+        "text": "Shipment DL-001.",
+        "source": {
+          "type": "case_card",
+          "id": "001-terms"
+        }
+      },
+      {
+        "id": "f_opened",
+        "text": "Opened 2026-02-02 09:00:00 UTC.",
+        "source": {
+          "type": "case_card",
+          "id": "001-terms"
+        }
+      },
+      {
+        "id": "f_context",
+        "text": "A desk-lamp parcel is at the destination depot, booked for 2026-02-03, 09:00–12:00 UTC. The recipient cannot use that slot. Dispatch, not the desk, controls cancellation and booking.",
+        "source": {
+          "type": "case_card",
+          "id": "001-terms"
+        }
+      }
+    ],
+    "messages": [],
+    "requests": {}
+  },
+  "steps": [
+    {
+      "handled_by": "human",
+      "event": {
+        "id": "001",
+        "type": "message_received",
+        "title": "Vessa Lorne replies",
+        "timestamp": "2026-02-02 09:10:00 UTC",
+        "actor_id": "vessa_lorne",
+        "message_id": "001"
+      },
+      "explanation": "This reply is recorded. It does not by itself close the case.",
+      "state_after": {
+        "case_id": "001-terms",
+        "our_actor_id": "coordinator",
+        "client_actor_id": "vessa_lorne",
+        "actors": {
+          "coordinator": {
+            "name": "Iona Quill",
+            "organization": "Rivet Delivery Desk",
+            "role": "coordinator",
+            "responsibility": "Coordinate the case and record only confirmed results."
+          },
+          "vessa_lorne": {
+            "name": "Vessa Lorne",
+            "role": "recipient"
+          }
+        },
+        "goal": "Dispatch confirms the accepted delivery terms",
+        "agent_state": {
+          "status": "ready",
+          "waiting_for": [],
+          "next_action": "Cancel the current booking with dispatch."
+        },
+        "success_criteria": [
+          {
+            "id": "c1",
+            "description": "Dispatch confirms the accepted delivery terms",
+            "status": "pending",
+            "evidence_event_ids": []
+          }
+        ],
+        "limits": [
+          "Do not promise arrival at a precise minute or say the lamp has been delivered."
+        ],
+        "intake": {
+          "summary": "Recipient cannot attend the scheduled delivery window",
+          "created_at": "2026-02-02 09:00:00 UTC",
+          "escalated_at": "2026-02-02 09:10:00 UTC"
+        },
+        "facts": [
+          {
+            "id": "f_shipment",
+            "text": "Shipment DL-001.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          },
+          {
+            "id": "f_opened",
+            "text": "Opened 2026-02-02 09:00:00 UTC.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          },
+          {
+            "id": "f_context",
+            "text": "A desk-lamp parcel is at the destination depot, booked for 2026-02-03, 09:00–12:00 UTC. The recipient cannot use that slot. Dispatch, not the desk, controls cancellation and booking.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          }
+        ],
+        "messages": [
+          {
+            "event_id": "001",
+            "from_actor": "vessa_lorne",
+            "to_actor": "coordinator",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 09:10:00 UTC",
+            "body": "I have a work meeting during the morning delivery. Could you help move my lamp delivery? Please use this order-linked message thread."
+          }
+        ],
+        "requests": {}
+      }
+    },
+    {
+      "handled_by": "agent",
+      "event": {
+        "id": "002",
+        "type": "message_sent",
+        "title": "We ask dispatch to cancel",
+        "timestamp": "2026-02-02 09:16:00 UTC",
+        "actor_id": "coordinator",
+        "message_id": "002"
+      },
+      "explanation": "The cancellation is with dispatch. Their reply is not in the thread yet.",
+      "state_after": {
+        "case_id": "001-terms",
+        "our_actor_id": "coordinator",
+        "client_actor_id": "vessa_lorne",
+        "actors": {
+          "coordinator": {
+            "name": "Iona Quill",
+            "organization": "Rivet Delivery Desk",
+            "role": "coordinator",
+            "responsibility": "Coordinate the case and record only confirmed results."
+          },
+          "vessa_lorne": {
+            "name": "Vessa Lorne",
+            "role": "recipient"
+          },
+          "dispatch": {
+            "name": "Dispatch",
+            "role": "team",
+            "organization": "Plover Arc Logistics"
+          }
+        },
+        "goal": "Dispatch confirms the accepted delivery terms",
+        "agent_state": {
+          "status": "waiting",
+          "waiting_for": [
+            {
+              "actor_id": "dispatch",
+              "request_id": "r1",
+              "expected": "A reply that settles the request."
+            }
+          ],
+          "next_action": "Read the reply before taking the next step."
+        },
+        "success_criteria": [
+          {
+            "id": "c1",
+            "description": "Dispatch confirms the accepted delivery terms",
+            "status": "pending",
+            "evidence_event_ids": []
+          }
+        ],
+        "limits": [
+          "Do not promise arrival at a precise minute or say the lamp has been delivered."
+        ],
+        "intake": {
+          "summary": "Recipient cannot attend the scheduled delivery window",
+          "created_at": "2026-02-02 09:00:00 UTC",
+          "escalated_at": "2026-02-02 09:10:00 UTC"
+        },
+        "facts": [
+          {
+            "id": "f_shipment",
+            "text": "Shipment DL-001.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          },
+          {
+            "id": "f_opened",
+            "text": "Opened 2026-02-02 09:00:00 UTC.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          },
+          {
+            "id": "f_context",
+            "text": "A desk-lamp parcel is at the destination depot, booked for 2026-02-03, 09:00–12:00 UTC. The recipient cannot use that slot. Dispatch, not the desk, controls cancellation and booking.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          }
+        ],
+        "messages": [
+          {
+            "event_id": "001",
+            "from_actor": "vessa_lorne",
+            "to_actor": "coordinator",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 09:10:00 UTC",
+            "body": "I have a work meeting during the morning delivery. Could you help move my lamp delivery? Please use this order-linked message thread."
+          },
+          {
+            "event_id": "002",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "channel": "Email",
+            "timestamp": "2026-02-02 09:16:00 UTC",
+            "body": "Please cancel the current booking for DL-001, 2026-02-03 09:00–12:00 UTC. The recipient cannot attend."
+          }
+        ],
+        "requests": {
+          "r1": {
+            "type": "action",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "responsible_actor": "dispatch",
+            "purpose": "Please cancel the current booking for DL-001, 2026-02-03 09:00–12:00 UTC. The recipient cannot attend.",
+            "expected_response": "A reply that settles the request.",
+            "status": "awaiting_response",
+            "evidence_event_ids": [
+              "002"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "handled_by": "human",
+      "event": {
+        "id": "003",
+        "type": "message_received",
+        "title": "Dispatch replies",
+        "timestamp": "2026-02-02 09:22:00 UTC",
+        "actor_id": "dispatch",
+        "message_id": "003"
+      },
+      "explanation": "This reply is recorded. It does not by itself close the case.",
+      "state_after": {
+        "case_id": "001-terms",
+        "our_actor_id": "coordinator",
+        "client_actor_id": "vessa_lorne",
+        "actors": {
+          "coordinator": {
+            "name": "Iona Quill",
+            "organization": "Rivet Delivery Desk",
+            "role": "coordinator",
+            "responsibility": "Coordinate the case and record only confirmed results."
+          },
+          "vessa_lorne": {
+            "name": "Vessa Lorne",
+            "role": "recipient"
+          },
+          "dispatch": {
+            "name": "Dispatch",
+            "role": "team",
+            "organization": "Plover Arc Logistics"
+          }
+        },
+        "goal": "Dispatch confirms the accepted delivery terms",
+        "agent_state": {
+          "status": "ready",
+          "waiting_for": [],
+          "next_action": "Ask the recipient for the new delivery terms."
+        },
+        "success_criteria": [
+          {
+            "id": "c1",
+            "description": "Dispatch confirms the accepted delivery terms",
+            "status": "pending",
+            "evidence_event_ids": []
+          }
+        ],
+        "limits": [
+          "Do not promise arrival at a precise minute or say the lamp has been delivered."
+        ],
+        "intake": {
+          "summary": "Recipient cannot attend the scheduled delivery window",
+          "created_at": "2026-02-02 09:00:00 UTC",
+          "escalated_at": "2026-02-02 09:10:00 UTC"
+        },
+        "facts": [
+          {
+            "id": "f_shipment",
+            "text": "Shipment DL-001.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          },
+          {
+            "id": "f_opened",
+            "text": "Opened 2026-02-02 09:00:00 UTC.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          },
+          {
+            "id": "f_context",
+            "text": "A desk-lamp parcel is at the destination depot, booked for 2026-02-03, 09:00–12:00 UTC. The recipient cannot use that slot. Dispatch, not the desk, controls cancellation and booking.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          }
+        ],
+        "messages": [
+          {
+            "event_id": "001",
+            "from_actor": "vessa_lorne",
+            "to_actor": "coordinator",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 09:10:00 UTC",
+            "body": "I have a work meeting during the morning delivery. Could you help move my lamp delivery? Please use this order-linked message thread."
+          },
+          {
+            "event_id": "002",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "channel": "Email",
+            "timestamp": "2026-02-02 09:16:00 UTC",
+            "body": "Please cancel the current booking for DL-001, 2026-02-03 09:00–12:00 UTC. The recipient cannot attend."
+          },
+          {
+            "event_id": "003",
+            "from_actor": "dispatch",
+            "to_actor": "coordinator",
+            "channel": "Email",
+            "timestamp": "2026-02-02 09:22:00 UTC",
+            "body": "DL-001, 2026-02-03 09:00–12:00 UTC, is cancelled. No slot is reserved."
+          }
+        ],
+        "requests": {
+          "r1": {
+            "type": "action",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "responsible_actor": "dispatch",
+            "purpose": "Please cancel the current booking for DL-001, 2026-02-03 09:00–12:00 UTC. The recipient cannot attend.",
+            "expected_response": "A reply that settles the request.",
+            "status": "answered",
+            "evidence_event_ids": [
+              "002",
+              "003"
+            ],
+            "response": "DL-001, 2026-02-03 09:00–12:00 UTC, is cancelled. No slot is reserved."
+          }
+        }
+      }
+    },
+    {
+      "handled_by": "agent",
+      "event": {
+        "id": "004",
+        "type": "message_sent",
+        "title": "We ask Vessa Lorne",
+        "timestamp": "2026-02-02 09:24:00 UTC",
+        "actor_id": "coordinator",
+        "message_id": "004"
+      },
+      "explanation": "The request is with Vessa Lorne. Their reply is not in the thread yet.",
+      "state_after": {
+        "case_id": "001-terms",
+        "our_actor_id": "coordinator",
+        "client_actor_id": "vessa_lorne",
+        "actors": {
+          "coordinator": {
+            "name": "Iona Quill",
+            "organization": "Rivet Delivery Desk",
+            "role": "coordinator",
+            "responsibility": "Coordinate the case and record only confirmed results."
+          },
+          "vessa_lorne": {
+            "name": "Vessa Lorne",
+            "role": "recipient"
+          },
+          "dispatch": {
+            "name": "Dispatch",
+            "role": "team",
+            "organization": "Plover Arc Logistics"
+          }
+        },
+        "goal": "Dispatch confirms the accepted delivery terms",
+        "agent_state": {
+          "status": "waiting",
+          "waiting_for": [
+            {
+              "actor_id": "vessa_lorne",
+              "request_id": "r2",
+              "expected": "A reply that settles the request."
+            }
+          ],
+          "next_action": "Read the reply before taking the next step."
+        },
+        "success_criteria": [
+          {
+            "id": "c1",
+            "description": "Dispatch confirms the accepted delivery terms",
+            "status": "pending",
+            "evidence_event_ids": []
+          }
+        ],
+        "limits": [
+          "Do not promise arrival at a precise minute or say the lamp has been delivered."
+        ],
+        "intake": {
+          "summary": "Recipient cannot attend the scheduled delivery window",
+          "created_at": "2026-02-02 09:00:00 UTC",
+          "escalated_at": "2026-02-02 09:10:00 UTC"
+        },
+        "facts": [
+          {
+            "id": "f_shipment",
+            "text": "Shipment DL-001.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          },
+          {
+            "id": "f_opened",
+            "text": "Opened 2026-02-02 09:00:00 UTC.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          },
+          {
+            "id": "f_context",
+            "text": "A desk-lamp parcel is at the destination depot, booked for 2026-02-03, 09:00–12:00 UTC. The recipient cannot use that slot. Dispatch, not the desk, controls cancellation and booking.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          }
+        ],
+        "messages": [
+          {
+            "event_id": "001",
+            "from_actor": "vessa_lorne",
+            "to_actor": "coordinator",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 09:10:00 UTC",
+            "body": "I have a work meeting during the morning delivery. Could you help move my lamp delivery? Please use this order-linked message thread."
+          },
+          {
+            "event_id": "002",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "channel": "Email",
+            "timestamp": "2026-02-02 09:16:00 UTC",
+            "body": "Please cancel the current booking for DL-001, 2026-02-03 09:00–12:00 UTC. The recipient cannot attend."
+          },
+          {
+            "event_id": "003",
+            "from_actor": "dispatch",
+            "to_actor": "coordinator",
+            "channel": "Email",
+            "timestamp": "2026-02-02 09:22:00 UTC",
+            "body": "DL-001, 2026-02-03 09:00–12:00 UTC, is cancelled. No slot is reserved."
+          },
+          {
+            "event_id": "004",
+            "from_actor": "coordinator",
+            "to_actor": "vessa_lorne",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 09:24:00 UTC",
+            "body": "The morning delivery is cancelled. What delivery terms should I ask dispatch for?"
+          }
+        ],
+        "requests": {
+          "r1": {
+            "type": "action",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "responsible_actor": "dispatch",
+            "purpose": "Please cancel the current booking for DL-001, 2026-02-03 09:00–12:00 UTC. The recipient cannot attend.",
+            "expected_response": "A reply that settles the request.",
+            "status": "answered",
+            "evidence_event_ids": [
+              "002",
+              "003"
+            ],
+            "response": "DL-001, 2026-02-03 09:00–12:00 UTC, is cancelled. No slot is reserved."
+          },
+          "r2": {
+            "type": "information",
+            "from_actor": "coordinator",
+            "to_actor": "vessa_lorne",
+            "responsible_actor": "vessa_lorne",
+            "purpose": "The morning delivery is cancelled. What delivery terms should I ask dispatch for?",
+            "expected_response": "A reply that settles the request.",
+            "status": "awaiting_response",
+            "evidence_event_ids": [
+              "004"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "handled_by": "human",
+      "event": {
+        "id": "005",
+        "type": "message_received",
+        "title": "Vessa Lorne replies",
+        "timestamp": "2026-02-02 09:41:00 UTC",
+        "actor_id": "vessa_lorne",
+        "message_id": "005"
+      },
+      "explanation": "This reply is recorded. It does not by itself close the case.",
+      "state_after": {
+        "case_id": "001-terms",
+        "our_actor_id": "coordinator",
+        "client_actor_id": "vessa_lorne",
+        "actors": {
+          "coordinator": {
+            "name": "Iona Quill",
+            "organization": "Rivet Delivery Desk",
+            "role": "coordinator",
+            "responsibility": "Coordinate the case and record only confirmed results."
+          },
+          "vessa_lorne": {
+            "name": "Vessa Lorne",
+            "role": "recipient"
+          },
+          "dispatch": {
+            "name": "Dispatch",
+            "role": "team",
+            "organization": "Plover Arc Logistics"
+          }
+        },
+        "goal": "Dispatch confirms the accepted delivery terms",
+        "agent_state": {
+          "status": "ready",
+          "waiting_for": [],
+          "next_action": "Ask dispatch which terms they can book."
+        },
+        "success_criteria": [
+          {
+            "id": "c1",
+            "description": "Dispatch confirms the accepted delivery terms",
+            "status": "pending",
+            "evidence_event_ids": []
+          }
+        ],
+        "limits": [
+          "Do not promise arrival at a precise minute or say the lamp has been delivered."
+        ],
+        "intake": {
+          "summary": "Recipient cannot attend the scheduled delivery window",
+          "created_at": "2026-02-02 09:00:00 UTC",
+          "escalated_at": "2026-02-02 09:10:00 UTC"
+        },
+        "facts": [
+          {
+            "id": "f_shipment",
+            "text": "Shipment DL-001.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          },
+          {
+            "id": "f_opened",
+            "text": "Opened 2026-02-02 09:00:00 UTC.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          },
+          {
+            "id": "f_context",
+            "text": "A desk-lamp parcel is at the destination depot, booked for 2026-02-03, 09:00–12:00 UTC. The recipient cannot use that slot. Dispatch, not the desk, controls cancellation and booking.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          }
+        ],
+        "messages": [
+          {
+            "event_id": "001",
+            "from_actor": "vessa_lorne",
+            "to_actor": "coordinator",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 09:10:00 UTC",
+            "body": "I have a work meeting during the morning delivery. Could you help move my lamp delivery? Please use this order-linked message thread."
+          },
+          {
+            "event_id": "002",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "channel": "Email",
+            "timestamp": "2026-02-02 09:16:00 UTC",
+            "body": "Please cancel the current booking for DL-001, 2026-02-03 09:00–12:00 UTC. The recipient cannot attend."
+          },
+          {
+            "event_id": "003",
+            "from_actor": "dispatch",
+            "to_actor": "coordinator",
+            "channel": "Email",
+            "timestamp": "2026-02-02 09:22:00 UTC",
+            "body": "DL-001, 2026-02-03 09:00–12:00 UTC, is cancelled. No slot is reserved."
+          },
+          {
+            "event_id": "004",
+            "from_actor": "coordinator",
+            "to_actor": "vessa_lorne",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 09:24:00 UTC",
+            "body": "The morning delivery is cancelled. What delivery terms should I ask dispatch for?"
+          },
+          {
+            "event_id": "005",
+            "from_actor": "vessa_lorne",
+            "to_actor": "coordinator",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 09:41:00 UTC",
+            "body": "Please book 2026-02-05, 18:00–20:00 UTC. If I am not home, the concierge can take the lamp."
+          }
+        ],
+        "requests": {
+          "r1": {
+            "type": "action",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "responsible_actor": "dispatch",
+            "purpose": "Please cancel the current booking for DL-001, 2026-02-03 09:00–12:00 UTC. The recipient cannot attend.",
+            "expected_response": "A reply that settles the request.",
+            "status": "answered",
+            "evidence_event_ids": [
+              "002",
+              "003"
+            ],
+            "response": "DL-001, 2026-02-03 09:00–12:00 UTC, is cancelled. No slot is reserved."
+          },
+          "r2": {
+            "type": "information",
+            "from_actor": "coordinator",
+            "to_actor": "vessa_lorne",
+            "responsible_actor": "vessa_lorne",
+            "purpose": "The morning delivery is cancelled. What delivery terms should I ask dispatch for?",
+            "expected_response": "A reply that settles the request.",
+            "status": "answered",
+            "evidence_event_ids": [
+              "004",
+              "005"
+            ],
+            "response": "Please book 2026-02-05, 18:00–20:00 UTC. If I am not home, the concierge can take the lamp."
+          }
+        }
+      }
+    },
+    {
+      "handled_by": "agent",
+      "event": {
+        "id": "006",
+        "type": "message_sent",
+        "title": "We ask dispatch",
+        "timestamp": "2026-02-02 09:44:00 UTC",
+        "actor_id": "coordinator",
+        "message_id": "006"
+      },
+      "explanation": "The request is with dispatch. Their reply is not in the thread yet.",
+      "state_after": {
+        "case_id": "001-terms",
+        "our_actor_id": "coordinator",
+        "client_actor_id": "vessa_lorne",
+        "actors": {
+          "coordinator": {
+            "name": "Iona Quill",
+            "organization": "Rivet Delivery Desk",
+            "role": "coordinator",
+            "responsibility": "Coordinate the case and record only confirmed results."
+          },
+          "vessa_lorne": {
+            "name": "Vessa Lorne",
+            "role": "recipient"
+          },
+          "dispatch": {
+            "name": "Dispatch",
+            "role": "team",
+            "organization": "Plover Arc Logistics"
+          }
+        },
+        "goal": "Dispatch confirms the accepted delivery terms",
+        "agent_state": {
+          "status": "waiting",
+          "waiting_for": [
+            {
+              "actor_id": "dispatch",
+              "request_id": "r3",
+              "expected": "A reply that settles the request."
+            }
+          ],
+          "next_action": "Read the reply before taking the next step."
+        },
+        "success_criteria": [
+          {
+            "id": "c1",
+            "description": "Dispatch confirms the accepted delivery terms",
+            "status": "pending",
+            "evidence_event_ids": []
+          }
+        ],
+        "limits": [
+          "Do not promise arrival at a precise minute or say the lamp has been delivered."
+        ],
+        "intake": {
+          "summary": "Recipient cannot attend the scheduled delivery window",
+          "created_at": "2026-02-02 09:00:00 UTC",
+          "escalated_at": "2026-02-02 09:10:00 UTC"
+        },
+        "facts": [
+          {
+            "id": "f_shipment",
+            "text": "Shipment DL-001.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          },
+          {
+            "id": "f_opened",
+            "text": "Opened 2026-02-02 09:00:00 UTC.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          },
+          {
+            "id": "f_context",
+            "text": "A desk-lamp parcel is at the destination depot, booked for 2026-02-03, 09:00–12:00 UTC. The recipient cannot use that slot. Dispatch, not the desk, controls cancellation and booking.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          }
+        ],
+        "messages": [
+          {
+            "event_id": "001",
+            "from_actor": "vessa_lorne",
+            "to_actor": "coordinator",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 09:10:00 UTC",
+            "body": "I have a work meeting during the morning delivery. Could you help move my lamp delivery? Please use this order-linked message thread."
+          },
+          {
+            "event_id": "002",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "channel": "Email",
+            "timestamp": "2026-02-02 09:16:00 UTC",
+            "body": "Please cancel the current booking for DL-001, 2026-02-03 09:00–12:00 UTC. The recipient cannot attend."
+          },
+          {
+            "event_id": "003",
+            "from_actor": "dispatch",
+            "to_actor": "coordinator",
+            "channel": "Email",
+            "timestamp": "2026-02-02 09:22:00 UTC",
+            "body": "DL-001, 2026-02-03 09:00–12:00 UTC, is cancelled. No slot is reserved."
+          },
+          {
+            "event_id": "004",
+            "from_actor": "coordinator",
+            "to_actor": "vessa_lorne",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 09:24:00 UTC",
+            "body": "The morning delivery is cancelled. What delivery terms should I ask dispatch for?"
+          },
+          {
+            "event_id": "005",
+            "from_actor": "vessa_lorne",
+            "to_actor": "coordinator",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 09:41:00 UTC",
+            "body": "Please book 2026-02-05, 18:00–20:00 UTC. If I am not home, the concierge can take the lamp."
+          },
+          {
+            "event_id": "006",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "channel": "Email",
+            "timestamp": "2026-02-02 09:44:00 UTC",
+            "body": "Vessa Lorne asks for 2026-02-05, 18:00–20:00 UTC, with concierge handover if she is out. Which terms can you book for DL-001?"
+          }
+        ],
+        "requests": {
+          "r1": {
+            "type": "action",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "responsible_actor": "dispatch",
+            "purpose": "Please cancel the current booking for DL-001, 2026-02-03 09:00–12:00 UTC. The recipient cannot attend.",
+            "expected_response": "A reply that settles the request.",
+            "status": "answered",
+            "evidence_event_ids": [
+              "002",
+              "003"
+            ],
+            "response": "DL-001, 2026-02-03 09:00–12:00 UTC, is cancelled. No slot is reserved."
+          },
+          "r2": {
+            "type": "information",
+            "from_actor": "coordinator",
+            "to_actor": "vessa_lorne",
+            "responsible_actor": "vessa_lorne",
+            "purpose": "The morning delivery is cancelled. What delivery terms should I ask dispatch for?",
+            "expected_response": "A reply that settles the request.",
+            "status": "answered",
+            "evidence_event_ids": [
+              "004",
+              "005"
+            ],
+            "response": "Please book 2026-02-05, 18:00–20:00 UTC. If I am not home, the concierge can take the lamp."
+          },
+          "r3": {
+            "type": "information",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "responsible_actor": "dispatch",
+            "purpose": "Vessa Lorne asks for 2026-02-05, 18:00–20:00 UTC, with concierge handover if she is out. Which terms can you book for DL-001?",
+            "expected_response": "A reply that settles the request.",
+            "status": "awaiting_response",
+            "evidence_event_ids": [
+              "006"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "handled_by": "human",
+      "event": {
+        "id": "007",
+        "type": "message_received",
+        "title": "Dispatch replies",
+        "timestamp": "2026-02-02 10:02:00 UTC",
+        "actor_id": "dispatch",
+        "message_id": "007"
+      },
+      "explanation": "This reply is recorded. It does not by itself close the case.",
+      "state_after": {
+        "case_id": "001-terms",
+        "our_actor_id": "coordinator",
+        "client_actor_id": "vessa_lorne",
+        "actors": {
+          "coordinator": {
+            "name": "Iona Quill",
+            "organization": "Rivet Delivery Desk",
+            "role": "coordinator",
+            "responsibility": "Coordinate the case and record only confirmed results."
+          },
+          "vessa_lorne": {
+            "name": "Vessa Lorne",
+            "role": "recipient"
+          },
+          "dispatch": {
+            "name": "Dispatch",
+            "role": "team",
+            "organization": "Plover Arc Logistics"
+          }
+        },
+        "goal": "Dispatch confirms the accepted delivery terms",
+        "agent_state": {
+          "status": "ready",
+          "waiting_for": [],
+          "next_action": "Take the bookable terms back to the recipient."
+        },
+        "success_criteria": [
+          {
+            "id": "c1",
+            "description": "Dispatch confirms the accepted delivery terms",
+            "status": "pending",
+            "evidence_event_ids": []
+          }
+        ],
+        "limits": [
+          "Do not promise arrival at a precise minute or say the lamp has been delivered."
+        ],
+        "intake": {
+          "summary": "Recipient cannot attend the scheduled delivery window",
+          "created_at": "2026-02-02 09:00:00 UTC",
+          "escalated_at": "2026-02-02 09:10:00 UTC"
+        },
+        "facts": [
+          {
+            "id": "f_shipment",
+            "text": "Shipment DL-001.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          },
+          {
+            "id": "f_opened",
+            "text": "Opened 2026-02-02 09:00:00 UTC.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          },
+          {
+            "id": "f_context",
+            "text": "A desk-lamp parcel is at the destination depot, booked for 2026-02-03, 09:00–12:00 UTC. The recipient cannot use that slot. Dispatch, not the desk, controls cancellation and booking.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          }
+        ],
+        "messages": [
+          {
+            "event_id": "001",
+            "from_actor": "vessa_lorne",
+            "to_actor": "coordinator",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 09:10:00 UTC",
+            "body": "I have a work meeting during the morning delivery. Could you help move my lamp delivery? Please use this order-linked message thread."
+          },
+          {
+            "event_id": "002",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "channel": "Email",
+            "timestamp": "2026-02-02 09:16:00 UTC",
+            "body": "Please cancel the current booking for DL-001, 2026-02-03 09:00–12:00 UTC. The recipient cannot attend."
+          },
+          {
+            "event_id": "003",
+            "from_actor": "dispatch",
+            "to_actor": "coordinator",
+            "channel": "Email",
+            "timestamp": "2026-02-02 09:22:00 UTC",
+            "body": "DL-001, 2026-02-03 09:00–12:00 UTC, is cancelled. No slot is reserved."
+          },
+          {
+            "event_id": "004",
+            "from_actor": "coordinator",
+            "to_actor": "vessa_lorne",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 09:24:00 UTC",
+            "body": "The morning delivery is cancelled. What delivery terms should I ask dispatch for?"
+          },
+          {
+            "event_id": "005",
+            "from_actor": "vessa_lorne",
+            "to_actor": "coordinator",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 09:41:00 UTC",
+            "body": "Please book 2026-02-05, 18:00–20:00 UTC. If I am not home, the concierge can take the lamp."
+          },
+          {
+            "event_id": "006",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "channel": "Email",
+            "timestamp": "2026-02-02 09:44:00 UTC",
+            "body": "Vessa Lorne asks for 2026-02-05, 18:00–20:00 UTC, with concierge handover if she is out. Which terms can you book for DL-001?"
+          },
+          {
+            "event_id": "007",
+            "from_actor": "dispatch",
+            "to_actor": "coordinator",
+            "channel": "Email",
+            "timestamp": "2026-02-02 10:02:00 UTC",
+            "body": "We cannot book 18:00–20:00 or a concierge handover. For DL-001 I can offer 2026-02-06, 10:00–13:00 UTC. The recipient must be present. There is no charge."
+          }
+        ],
+        "requests": {
+          "r1": {
+            "type": "action",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "responsible_actor": "dispatch",
+            "purpose": "Please cancel the current booking for DL-001, 2026-02-03 09:00–12:00 UTC. The recipient cannot attend.",
+            "expected_response": "A reply that settles the request.",
+            "status": "answered",
+            "evidence_event_ids": [
+              "002",
+              "003"
+            ],
+            "response": "DL-001, 2026-02-03 09:00–12:00 UTC, is cancelled. No slot is reserved."
+          },
+          "r2": {
+            "type": "information",
+            "from_actor": "coordinator",
+            "to_actor": "vessa_lorne",
+            "responsible_actor": "vessa_lorne",
+            "purpose": "The morning delivery is cancelled. What delivery terms should I ask dispatch for?",
+            "expected_response": "A reply that settles the request.",
+            "status": "answered",
+            "evidence_event_ids": [
+              "004",
+              "005"
+            ],
+            "response": "Please book 2026-02-05, 18:00–20:00 UTC. If I am not home, the concierge can take the lamp."
+          },
+          "r3": {
+            "type": "information",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "responsible_actor": "dispatch",
+            "purpose": "Vessa Lorne asks for 2026-02-05, 18:00–20:00 UTC, with concierge handover if she is out. Which terms can you book for DL-001?",
+            "expected_response": "A reply that settles the request.",
+            "status": "answered",
+            "evidence_event_ids": [
+              "006",
+              "007"
+            ],
+            "response": "We cannot book 18:00–20:00 or a concierge handover. For DL-001 I can offer 2026-02-06, 10:00–13:00 UTC. The recipient must be present. There is no charge."
+          }
+        }
+      }
+    },
+    {
+      "handled_by": "agent",
+      "event": {
+        "id": "008",
+        "type": "message_sent",
+        "title": "We ask Vessa Lorne",
+        "timestamp": "2026-02-02 10:06:00 UTC",
+        "actor_id": "coordinator",
+        "message_id": "008"
+      },
+      "explanation": "The request is with Vessa Lorne. Their reply is not in the thread yet.",
+      "state_after": {
+        "case_id": "001-terms",
+        "our_actor_id": "coordinator",
+        "client_actor_id": "vessa_lorne",
+        "actors": {
+          "coordinator": {
+            "name": "Iona Quill",
+            "organization": "Rivet Delivery Desk",
+            "role": "coordinator",
+            "responsibility": "Coordinate the case and record only confirmed results."
+          },
+          "vessa_lorne": {
+            "name": "Vessa Lorne",
+            "role": "recipient"
+          },
+          "dispatch": {
+            "name": "Dispatch",
+            "role": "team",
+            "organization": "Plover Arc Logistics"
+          }
+        },
+        "goal": "Dispatch confirms the accepted delivery terms",
+        "agent_state": {
+          "status": "waiting",
+          "waiting_for": [
+            {
+              "actor_id": "vessa_lorne",
+              "request_id": "r4",
+              "expected": "A reply that settles the request."
+            }
+          ],
+          "next_action": "Read the reply before taking the next step."
+        },
+        "success_criteria": [
+          {
+            "id": "c1",
+            "description": "Dispatch confirms the accepted delivery terms",
+            "status": "pending",
+            "evidence_event_ids": []
+          }
+        ],
+        "limits": [
+          "Do not promise arrival at a precise minute or say the lamp has been delivered."
+        ],
+        "intake": {
+          "summary": "Recipient cannot attend the scheduled delivery window",
+          "created_at": "2026-02-02 09:00:00 UTC",
+          "escalated_at": "2026-02-02 09:10:00 UTC"
+        },
+        "facts": [
+          {
+            "id": "f_shipment",
+            "text": "Shipment DL-001.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          },
+          {
+            "id": "f_opened",
+            "text": "Opened 2026-02-02 09:00:00 UTC.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          },
+          {
+            "id": "f_context",
+            "text": "A desk-lamp parcel is at the destination depot, booked for 2026-02-03, 09:00–12:00 UTC. The recipient cannot use that slot. Dispatch, not the desk, controls cancellation and booking.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          }
+        ],
+        "messages": [
+          {
+            "event_id": "001",
+            "from_actor": "vessa_lorne",
+            "to_actor": "coordinator",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 09:10:00 UTC",
+            "body": "I have a work meeting during the morning delivery. Could you help move my lamp delivery? Please use this order-linked message thread."
+          },
+          {
+            "event_id": "002",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "channel": "Email",
+            "timestamp": "2026-02-02 09:16:00 UTC",
+            "body": "Please cancel the current booking for DL-001, 2026-02-03 09:00–12:00 UTC. The recipient cannot attend."
+          },
+          {
+            "event_id": "003",
+            "from_actor": "dispatch",
+            "to_actor": "coordinator",
+            "channel": "Email",
+            "timestamp": "2026-02-02 09:22:00 UTC",
+            "body": "DL-001, 2026-02-03 09:00–12:00 UTC, is cancelled. No slot is reserved."
+          },
+          {
+            "event_id": "004",
+            "from_actor": "coordinator",
+            "to_actor": "vessa_lorne",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 09:24:00 UTC",
+            "body": "The morning delivery is cancelled. What delivery terms should I ask dispatch for?"
+          },
+          {
+            "event_id": "005",
+            "from_actor": "vessa_lorne",
+            "to_actor": "coordinator",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 09:41:00 UTC",
+            "body": "Please book 2026-02-05, 18:00–20:00 UTC. If I am not home, the concierge can take the lamp."
+          },
+          {
+            "event_id": "006",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "channel": "Email",
+            "timestamp": "2026-02-02 09:44:00 UTC",
+            "body": "Vessa Lorne asks for 2026-02-05, 18:00–20:00 UTC, with concierge handover if she is out. Which terms can you book for DL-001?"
+          },
+          {
+            "event_id": "007",
+            "from_actor": "dispatch",
+            "to_actor": "coordinator",
+            "channel": "Email",
+            "timestamp": "2026-02-02 10:02:00 UTC",
+            "body": "We cannot book 18:00–20:00 or a concierge handover. For DL-001 I can offer 2026-02-06, 10:00–13:00 UTC. The recipient must be present. There is no charge."
+          },
+          {
+            "event_id": "008",
+            "from_actor": "coordinator",
+            "to_actor": "vessa_lorne",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 10:06:00 UTC",
+            "body": "Dispatch cannot do 5 February, 18:00–20:00, or leave the lamp with the concierge. They can book 2026-02-06, 10:00–13:00 UTC, if you are home. There is no charge. Should I ask them to book that?"
+          }
+        ],
+        "requests": {
+          "r1": {
+            "type": "action",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "responsible_actor": "dispatch",
+            "purpose": "Please cancel the current booking for DL-001, 2026-02-03 09:00–12:00 UTC. The recipient cannot attend.",
+            "expected_response": "A reply that settles the request.",
+            "status": "answered",
+            "evidence_event_ids": [
+              "002",
+              "003"
+            ],
+            "response": "DL-001, 2026-02-03 09:00–12:00 UTC, is cancelled. No slot is reserved."
+          },
+          "r2": {
+            "type": "information",
+            "from_actor": "coordinator",
+            "to_actor": "vessa_lorne",
+            "responsible_actor": "vessa_lorne",
+            "purpose": "The morning delivery is cancelled. What delivery terms should I ask dispatch for?",
+            "expected_response": "A reply that settles the request.",
+            "status": "answered",
+            "evidence_event_ids": [
+              "004",
+              "005"
+            ],
+            "response": "Please book 2026-02-05, 18:00–20:00 UTC. If I am not home, the concierge can take the lamp."
+          },
+          "r3": {
+            "type": "information",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "responsible_actor": "dispatch",
+            "purpose": "Vessa Lorne asks for 2026-02-05, 18:00–20:00 UTC, with concierge handover if she is out. Which terms can you book for DL-001?",
+            "expected_response": "A reply that settles the request.",
+            "status": "answered",
+            "evidence_event_ids": [
+              "006",
+              "007"
+            ],
+            "response": "We cannot book 18:00–20:00 or a concierge handover. For DL-001 I can offer 2026-02-06, 10:00–13:00 UTC. The recipient must be present. There is no charge."
+          },
+          "r4": {
+            "type": "information",
+            "from_actor": "coordinator",
+            "to_actor": "vessa_lorne",
+            "responsible_actor": "vessa_lorne",
+            "purpose": "Dispatch cannot do 5 February, 18:00–20:00, or leave the lamp with the concierge. They can book 2026-02-06, 10:00–13:00 UTC, if you are home. There is no charge. Should I ask them to book that?",
+            "expected_response": "A reply that settles the request.",
+            "status": "awaiting_response",
+            "evidence_event_ids": [
+              "008"
+            ]
+          }
+        },
+        "decision": {
+          "required": true,
+          "question": "Dispatch cannot do 5 February, 18:00–20:00, or leave the lamp with the concierge. They can book 2026-02-06, 10:00–13:00 UTC, if you are home. There is no charge. Should I ask them to book that?",
+          "decision_maker": "vessa_lorne"
+        }
+      }
+    },
+    {
+      "handled_by": "human",
+      "event": {
+        "id": "009",
+        "type": "message_received",
+        "title": "Vessa Lorne replies",
+        "timestamp": "2026-02-02 10:18:00 UTC",
+        "actor_id": "vessa_lorne",
+        "message_id": "009"
+      },
+      "explanation": "This reply is recorded. It does not by itself close the case.",
+      "state_after": {
+        "case_id": "001-terms",
+        "our_actor_id": "coordinator",
+        "client_actor_id": "vessa_lorne",
+        "actors": {
+          "coordinator": {
+            "name": "Iona Quill",
+            "organization": "Rivet Delivery Desk",
+            "role": "coordinator",
+            "responsibility": "Coordinate the case and record only confirmed results."
+          },
+          "vessa_lorne": {
+            "name": "Vessa Lorne",
+            "role": "recipient"
+          },
+          "dispatch": {
+            "name": "Dispatch",
+            "role": "team",
+            "organization": "Plover Arc Logistics"
+          }
+        },
+        "goal": "Dispatch confirms the accepted delivery terms",
+        "agent_state": {
+          "status": "ready",
+          "waiting_for": [],
+          "next_action": "Ask dispatch to book the accepted terms."
+        },
+        "success_criteria": [
+          {
+            "id": "c1",
+            "description": "Dispatch confirms the accepted delivery terms",
+            "status": "pending",
+            "evidence_event_ids": []
+          }
+        ],
+        "limits": [
+          "Do not promise arrival at a precise minute or say the lamp has been delivered."
+        ],
+        "intake": {
+          "summary": "Recipient cannot attend the scheduled delivery window",
+          "created_at": "2026-02-02 09:00:00 UTC",
+          "escalated_at": "2026-02-02 09:10:00 UTC"
+        },
+        "facts": [
+          {
+            "id": "f_shipment",
+            "text": "Shipment DL-001.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          },
+          {
+            "id": "f_opened",
+            "text": "Opened 2026-02-02 09:00:00 UTC.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          },
+          {
+            "id": "f_context",
+            "text": "A desk-lamp parcel is at the destination depot, booked for 2026-02-03, 09:00–12:00 UTC. The recipient cannot use that slot. Dispatch, not the desk, controls cancellation and booking.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          }
+        ],
+        "messages": [
+          {
+            "event_id": "001",
+            "from_actor": "vessa_lorne",
+            "to_actor": "coordinator",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 09:10:00 UTC",
+            "body": "I have a work meeting during the morning delivery. Could you help move my lamp delivery? Please use this order-linked message thread."
+          },
+          {
+            "event_id": "002",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "channel": "Email",
+            "timestamp": "2026-02-02 09:16:00 UTC",
+            "body": "Please cancel the current booking for DL-001, 2026-02-03 09:00–12:00 UTC. The recipient cannot attend."
+          },
+          {
+            "event_id": "003",
+            "from_actor": "dispatch",
+            "to_actor": "coordinator",
+            "channel": "Email",
+            "timestamp": "2026-02-02 09:22:00 UTC",
+            "body": "DL-001, 2026-02-03 09:00–12:00 UTC, is cancelled. No slot is reserved."
+          },
+          {
+            "event_id": "004",
+            "from_actor": "coordinator",
+            "to_actor": "vessa_lorne",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 09:24:00 UTC",
+            "body": "The morning delivery is cancelled. What delivery terms should I ask dispatch for?"
+          },
+          {
+            "event_id": "005",
+            "from_actor": "vessa_lorne",
+            "to_actor": "coordinator",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 09:41:00 UTC",
+            "body": "Please book 2026-02-05, 18:00–20:00 UTC. If I am not home, the concierge can take the lamp."
+          },
+          {
+            "event_id": "006",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "channel": "Email",
+            "timestamp": "2026-02-02 09:44:00 UTC",
+            "body": "Vessa Lorne asks for 2026-02-05, 18:00–20:00 UTC, with concierge handover if she is out. Which terms can you book for DL-001?"
+          },
+          {
+            "event_id": "007",
+            "from_actor": "dispatch",
+            "to_actor": "coordinator",
+            "channel": "Email",
+            "timestamp": "2026-02-02 10:02:00 UTC",
+            "body": "We cannot book 18:00–20:00 or a concierge handover. For DL-001 I can offer 2026-02-06, 10:00–13:00 UTC. The recipient must be present. There is no charge."
+          },
+          {
+            "event_id": "008",
+            "from_actor": "coordinator",
+            "to_actor": "vessa_lorne",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 10:06:00 UTC",
+            "body": "Dispatch cannot do 5 February, 18:00–20:00, or leave the lamp with the concierge. They can book 2026-02-06, 10:00–13:00 UTC, if you are home. There is no charge. Should I ask them to book that?"
+          },
+          {
+            "event_id": "009",
+            "from_actor": "vessa_lorne",
+            "to_actor": "coordinator",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 10:18:00 UTC",
+            "body": "Yes. Book 2026-02-06, 10:00–13:00 UTC. I will be home."
+          }
+        ],
+        "requests": {
+          "r1": {
+            "type": "action",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "responsible_actor": "dispatch",
+            "purpose": "Please cancel the current booking for DL-001, 2026-02-03 09:00–12:00 UTC. The recipient cannot attend.",
+            "expected_response": "A reply that settles the request.",
+            "status": "answered",
+            "evidence_event_ids": [
+              "002",
+              "003"
+            ],
+            "response": "DL-001, 2026-02-03 09:00–12:00 UTC, is cancelled. No slot is reserved."
+          },
+          "r2": {
+            "type": "information",
+            "from_actor": "coordinator",
+            "to_actor": "vessa_lorne",
+            "responsible_actor": "vessa_lorne",
+            "purpose": "The morning delivery is cancelled. What delivery terms should I ask dispatch for?",
+            "expected_response": "A reply that settles the request.",
+            "status": "answered",
+            "evidence_event_ids": [
+              "004",
+              "005"
+            ],
+            "response": "Please book 2026-02-05, 18:00–20:00 UTC. If I am not home, the concierge can take the lamp."
+          },
+          "r3": {
+            "type": "information",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "responsible_actor": "dispatch",
+            "purpose": "Vessa Lorne asks for 2026-02-05, 18:00–20:00 UTC, with concierge handover if she is out. Which terms can you book for DL-001?",
+            "expected_response": "A reply that settles the request.",
+            "status": "answered",
+            "evidence_event_ids": [
+              "006",
+              "007"
+            ],
+            "response": "We cannot book 18:00–20:00 or a concierge handover. For DL-001 I can offer 2026-02-06, 10:00–13:00 UTC. The recipient must be present. There is no charge."
+          },
+          "r4": {
+            "type": "information",
+            "from_actor": "coordinator",
+            "to_actor": "vessa_lorne",
+            "responsible_actor": "vessa_lorne",
+            "purpose": "Dispatch cannot do 5 February, 18:00–20:00, or leave the lamp with the concierge. They can book 2026-02-06, 10:00–13:00 UTC, if you are home. There is no charge. Should I ask them to book that?",
+            "expected_response": "A reply that settles the request.",
+            "status": "answered",
+            "evidence_event_ids": [
+              "008",
+              "009"
+            ],
+            "response": "Yes. Book 2026-02-06, 10:00–13:00 UTC. I will be home."
+          }
+        },
+        "decision": {
+          "required": true,
+          "question": "Dispatch cannot do 5 February, 18:00–20:00, or leave the lamp with the concierge. They can book 2026-02-06, 10:00–13:00 UTC, if you are home. There is no charge. Should I ask them to book that?",
+          "decision_maker": "vessa_lorne",
+          "selected_option": "Yes. Book 2026-02-06, 10:00–13:00 UTC. I will be home."
+        }
+      }
+    },
+    {
+      "handled_by": "agent",
+      "event": {
+        "id": "010",
+        "type": "message_sent",
+        "title": "We ask dispatch to book",
+        "timestamp": "2026-02-02 10:20:00 UTC",
+        "actor_id": "coordinator",
+        "message_id": "010"
+      },
+      "explanation": "The booking is with dispatch. Their reply is not in the thread yet.",
+      "state_after": {
+        "case_id": "001-terms",
+        "our_actor_id": "coordinator",
+        "client_actor_id": "vessa_lorne",
+        "actors": {
+          "coordinator": {
+            "name": "Iona Quill",
+            "organization": "Rivet Delivery Desk",
+            "role": "coordinator",
+            "responsibility": "Coordinate the case and record only confirmed results."
+          },
+          "vessa_lorne": {
+            "name": "Vessa Lorne",
+            "role": "recipient"
+          },
+          "dispatch": {
+            "name": "Dispatch",
+            "role": "team",
+            "organization": "Plover Arc Logistics"
+          }
+        },
+        "goal": "Dispatch confirms the accepted delivery terms",
+        "agent_state": {
+          "status": "waiting",
+          "waiting_for": [
+            {
+              "actor_id": "dispatch",
+              "request_id": "r5",
+              "expected": "A reply that settles the request."
+            }
+          ],
+          "next_action": "Read the reply before taking the next step."
+        },
+        "success_criteria": [
+          {
+            "id": "c1",
+            "description": "Dispatch confirms the accepted delivery terms",
+            "status": "pending",
+            "evidence_event_ids": []
+          }
+        ],
+        "limits": [
+          "Do not promise arrival at a precise minute or say the lamp has been delivered."
+        ],
+        "intake": {
+          "summary": "Recipient cannot attend the scheduled delivery window",
+          "created_at": "2026-02-02 09:00:00 UTC",
+          "escalated_at": "2026-02-02 09:10:00 UTC"
+        },
+        "facts": [
+          {
+            "id": "f_shipment",
+            "text": "Shipment DL-001.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          },
+          {
+            "id": "f_opened",
+            "text": "Opened 2026-02-02 09:00:00 UTC.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          },
+          {
+            "id": "f_context",
+            "text": "A desk-lamp parcel is at the destination depot, booked for 2026-02-03, 09:00–12:00 UTC. The recipient cannot use that slot. Dispatch, not the desk, controls cancellation and booking.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          }
+        ],
+        "messages": [
+          {
+            "event_id": "001",
+            "from_actor": "vessa_lorne",
+            "to_actor": "coordinator",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 09:10:00 UTC",
+            "body": "I have a work meeting during the morning delivery. Could you help move my lamp delivery? Please use this order-linked message thread."
+          },
+          {
+            "event_id": "002",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "channel": "Email",
+            "timestamp": "2026-02-02 09:16:00 UTC",
+            "body": "Please cancel the current booking for DL-001, 2026-02-03 09:00–12:00 UTC. The recipient cannot attend."
+          },
+          {
+            "event_id": "003",
+            "from_actor": "dispatch",
+            "to_actor": "coordinator",
+            "channel": "Email",
+            "timestamp": "2026-02-02 09:22:00 UTC",
+            "body": "DL-001, 2026-02-03 09:00–12:00 UTC, is cancelled. No slot is reserved."
+          },
+          {
+            "event_id": "004",
+            "from_actor": "coordinator",
+            "to_actor": "vessa_lorne",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 09:24:00 UTC",
+            "body": "The morning delivery is cancelled. What delivery terms should I ask dispatch for?"
+          },
+          {
+            "event_id": "005",
+            "from_actor": "vessa_lorne",
+            "to_actor": "coordinator",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 09:41:00 UTC",
+            "body": "Please book 2026-02-05, 18:00–20:00 UTC. If I am not home, the concierge can take the lamp."
+          },
+          {
+            "event_id": "006",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "channel": "Email",
+            "timestamp": "2026-02-02 09:44:00 UTC",
+            "body": "Vessa Lorne asks for 2026-02-05, 18:00–20:00 UTC, with concierge handover if she is out. Which terms can you book for DL-001?"
+          },
+          {
+            "event_id": "007",
+            "from_actor": "dispatch",
+            "to_actor": "coordinator",
+            "channel": "Email",
+            "timestamp": "2026-02-02 10:02:00 UTC",
+            "body": "We cannot book 18:00–20:00 or a concierge handover. For DL-001 I can offer 2026-02-06, 10:00–13:00 UTC. The recipient must be present. There is no charge."
+          },
+          {
+            "event_id": "008",
+            "from_actor": "coordinator",
+            "to_actor": "vessa_lorne",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 10:06:00 UTC",
+            "body": "Dispatch cannot do 5 February, 18:00–20:00, or leave the lamp with the concierge. They can book 2026-02-06, 10:00–13:00 UTC, if you are home. There is no charge. Should I ask them to book that?"
+          },
+          {
+            "event_id": "009",
+            "from_actor": "vessa_lorne",
+            "to_actor": "coordinator",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 10:18:00 UTC",
+            "body": "Yes. Book 2026-02-06, 10:00–13:00 UTC. I will be home."
+          },
+          {
+            "event_id": "010",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "channel": "Email",
+            "timestamp": "2026-02-02 10:20:00 UTC",
+            "body": "Vessa Lorne accepts 2026-02-06, 10:00–13:00 UTC and will be present. Please book DL-001 for that window."
+          }
+        ],
+        "requests": {
+          "r1": {
+            "type": "action",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "responsible_actor": "dispatch",
+            "purpose": "Please cancel the current booking for DL-001, 2026-02-03 09:00–12:00 UTC. The recipient cannot attend.",
+            "expected_response": "A reply that settles the request.",
+            "status": "answered",
+            "evidence_event_ids": [
+              "002",
+              "003"
+            ],
+            "response": "DL-001, 2026-02-03 09:00–12:00 UTC, is cancelled. No slot is reserved."
+          },
+          "r2": {
+            "type": "information",
+            "from_actor": "coordinator",
+            "to_actor": "vessa_lorne",
+            "responsible_actor": "vessa_lorne",
+            "purpose": "The morning delivery is cancelled. What delivery terms should I ask dispatch for?",
+            "expected_response": "A reply that settles the request.",
+            "status": "answered",
+            "evidence_event_ids": [
+              "004",
+              "005"
+            ],
+            "response": "Please book 2026-02-05, 18:00–20:00 UTC. If I am not home, the concierge can take the lamp."
+          },
+          "r3": {
+            "type": "information",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "responsible_actor": "dispatch",
+            "purpose": "Vessa Lorne asks for 2026-02-05, 18:00–20:00 UTC, with concierge handover if she is out. Which terms can you book for DL-001?",
+            "expected_response": "A reply that settles the request.",
+            "status": "answered",
+            "evidence_event_ids": [
+              "006",
+              "007"
+            ],
+            "response": "We cannot book 18:00–20:00 or a concierge handover. For DL-001 I can offer 2026-02-06, 10:00–13:00 UTC. The recipient must be present. There is no charge."
+          },
+          "r4": {
+            "type": "information",
+            "from_actor": "coordinator",
+            "to_actor": "vessa_lorne",
+            "responsible_actor": "vessa_lorne",
+            "purpose": "Dispatch cannot do 5 February, 18:00–20:00, or leave the lamp with the concierge. They can book 2026-02-06, 10:00–13:00 UTC, if you are home. There is no charge. Should I ask them to book that?",
+            "expected_response": "A reply that settles the request.",
+            "status": "answered",
+            "evidence_event_ids": [
+              "008",
+              "009"
+            ],
+            "response": "Yes. Book 2026-02-06, 10:00–13:00 UTC. I will be home."
+          },
+          "r5": {
+            "type": "action",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "responsible_actor": "dispatch",
+            "purpose": "Vessa Lorne accepts 2026-02-06, 10:00–13:00 UTC and will be present. Please book DL-001 for that window.",
+            "expected_response": "A reply that settles the request.",
+            "status": "awaiting_response",
+            "evidence_event_ids": [
+              "010"
+            ]
+          }
+        },
+        "decision": {
+          "required": true,
+          "question": "Dispatch cannot do 5 February, 18:00–20:00, or leave the lamp with the concierge. They can book 2026-02-06, 10:00–13:00 UTC, if you are home. There is no charge. Should I ask them to book that?",
+          "decision_maker": "vessa_lorne",
+          "selected_option": "Yes. Book 2026-02-06, 10:00–13:00 UTC. I will be home."
+        }
+      }
+    },
+    {
+      "handled_by": "human",
+      "event": {
+        "id": "011",
+        "type": "message_received",
+        "title": "Dispatch replies",
+        "timestamp": "2026-02-02 10:31:00 UTC",
+        "actor_id": "dispatch",
+        "message_id": "011"
+      },
+      "explanation": "The confirmation in this message covers the case goal. Work outside that goal stays open.",
+      "state_after": {
+        "case_id": "001-terms",
+        "our_actor_id": "coordinator",
+        "client_actor_id": "vessa_lorne",
+        "actors": {
+          "coordinator": {
+            "name": "Iona Quill",
+            "organization": "Rivet Delivery Desk",
+            "role": "coordinator",
+            "responsibility": "Coordinate the case and record only confirmed results."
+          },
+          "vessa_lorne": {
+            "name": "Vessa Lorne",
+            "role": "recipient"
+          },
+          "dispatch": {
+            "name": "Dispatch",
+            "role": "team",
+            "organization": "Plover Arc Logistics"
+          }
+        },
+        "goal": "Dispatch confirms the accepted delivery terms",
+        "agent_state": {
+          "status": "completed",
+          "waiting_for": []
+        },
+        "success_criteria": [
+          {
+            "id": "c1",
+            "description": "Dispatch confirms the accepted delivery terms",
+            "status": "met",
+            "evidence_event_ids": [
+              "011"
+            ]
+          }
+        ],
+        "limits": [
+          "Do not promise arrival at a precise minute or say the lamp has been delivered."
+        ],
+        "intake": {
+          "summary": "Recipient cannot attend the scheduled delivery window",
+          "created_at": "2026-02-02 09:00:00 UTC",
+          "escalated_at": "2026-02-02 09:10:00 UTC"
+        },
+        "facts": [
+          {
+            "id": "f_shipment",
+            "text": "Shipment DL-001.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          },
+          {
+            "id": "f_opened",
+            "text": "Opened 2026-02-02 09:00:00 UTC.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          },
+          {
+            "id": "f_context",
+            "text": "A desk-lamp parcel is at the destination depot, booked for 2026-02-03, 09:00–12:00 UTC. The recipient cannot use that slot. Dispatch, not the desk, controls cancellation and booking.",
+            "source": {
+              "type": "case_card",
+              "id": "001-terms"
+            }
+          }
+        ],
+        "messages": [
+          {
+            "event_id": "001",
+            "from_actor": "vessa_lorne",
+            "to_actor": "coordinator",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 09:10:00 UTC",
+            "body": "I have a work meeting during the morning delivery. Could you help move my lamp delivery? Please use this order-linked message thread."
+          },
+          {
+            "event_id": "002",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "channel": "Email",
+            "timestamp": "2026-02-02 09:16:00 UTC",
+            "body": "Please cancel the current booking for DL-001, 2026-02-03 09:00–12:00 UTC. The recipient cannot attend."
+          },
+          {
+            "event_id": "003",
+            "from_actor": "dispatch",
+            "to_actor": "coordinator",
+            "channel": "Email",
+            "timestamp": "2026-02-02 09:22:00 UTC",
+            "body": "DL-001, 2026-02-03 09:00–12:00 UTC, is cancelled. No slot is reserved."
+          },
+          {
+            "event_id": "004",
+            "from_actor": "coordinator",
+            "to_actor": "vessa_lorne",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 09:24:00 UTC",
+            "body": "The morning delivery is cancelled. What delivery terms should I ask dispatch for?"
+          },
+          {
+            "event_id": "005",
+            "from_actor": "vessa_lorne",
+            "to_actor": "coordinator",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 09:41:00 UTC",
+            "body": "Please book 2026-02-05, 18:00–20:00 UTC. If I am not home, the concierge can take the lamp."
+          },
+          {
+            "event_id": "006",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "channel": "Email",
+            "timestamp": "2026-02-02 09:44:00 UTC",
+            "body": "Vessa Lorne asks for 2026-02-05, 18:00–20:00 UTC, with concierge handover if she is out. Which terms can you book for DL-001?"
+          },
+          {
+            "event_id": "007",
+            "from_actor": "dispatch",
+            "to_actor": "coordinator",
+            "channel": "Email",
+            "timestamp": "2026-02-02 10:02:00 UTC",
+            "body": "We cannot book 18:00–20:00 or a concierge handover. For DL-001 I can offer 2026-02-06, 10:00–13:00 UTC. The recipient must be present. There is no charge."
+          },
+          {
+            "event_id": "008",
+            "from_actor": "coordinator",
+            "to_actor": "vessa_lorne",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 10:06:00 UTC",
+            "body": "Dispatch cannot do 5 February, 18:00–20:00, or leave the lamp with the concierge. They can book 2026-02-06, 10:00–13:00 UTC, if you are home. There is no charge. Should I ask them to book that?"
+          },
+          {
+            "event_id": "009",
+            "from_actor": "vessa_lorne",
+            "to_actor": "coordinator",
+            "channel": "Customer portal",
+            "timestamp": "2026-02-02 10:18:00 UTC",
+            "body": "Yes. Book 2026-02-06, 10:00–13:00 UTC. I will be home."
+          },
+          {
+            "event_id": "010",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "channel": "Email",
+            "timestamp": "2026-02-02 10:20:00 UTC",
+            "body": "Vessa Lorne accepts 2026-02-06, 10:00–13:00 UTC and will be present. Please book DL-001 for that window."
+          },
+          {
+            "event_id": "011",
+            "from_actor": "dispatch",
+            "to_actor": "coordinator",
+            "channel": "Email",
+            "timestamp": "2026-02-02 10:31:00 UTC",
+            "body": "DL-001 is now reserved for 2026-02-06, 10:00–13:00 UTC. The recipient must be present. This is a booking confirmation, not a completed delivery."
+          }
+        ],
+        "requests": {
+          "r1": {
+            "type": "action",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "responsible_actor": "dispatch",
+            "purpose": "Please cancel the current booking for DL-001, 2026-02-03 09:00–12:00 UTC. The recipient cannot attend.",
+            "expected_response": "A reply that settles the request.",
+            "status": "answered",
+            "evidence_event_ids": [
+              "002",
+              "003"
+            ],
+            "response": "DL-001, 2026-02-03 09:00–12:00 UTC, is cancelled. No slot is reserved."
+          },
+          "r2": {
+            "type": "information",
+            "from_actor": "coordinator",
+            "to_actor": "vessa_lorne",
+            "responsible_actor": "vessa_lorne",
+            "purpose": "The morning delivery is cancelled. What delivery terms should I ask dispatch for?",
+            "expected_response": "A reply that settles the request.",
+            "status": "answered",
+            "evidence_event_ids": [
+              "004",
+              "005"
+            ],
+            "response": "Please book 2026-02-05, 18:00–20:00 UTC. If I am not home, the concierge can take the lamp."
+          },
+          "r3": {
+            "type": "information",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "responsible_actor": "dispatch",
+            "purpose": "Vessa Lorne asks for 2026-02-05, 18:00–20:00 UTC, with concierge handover if she is out. Which terms can you book for DL-001?",
+            "expected_response": "A reply that settles the request.",
+            "status": "answered",
+            "evidence_event_ids": [
+              "006",
+              "007"
+            ],
+            "response": "We cannot book 18:00–20:00 or a concierge handover. For DL-001 I can offer 2026-02-06, 10:00–13:00 UTC. The recipient must be present. There is no charge."
+          },
+          "r4": {
+            "type": "information",
+            "from_actor": "coordinator",
+            "to_actor": "vessa_lorne",
+            "responsible_actor": "vessa_lorne",
+            "purpose": "Dispatch cannot do 5 February, 18:00–20:00, or leave the lamp with the concierge. They can book 2026-02-06, 10:00–13:00 UTC, if you are home. There is no charge. Should I ask them to book that?",
+            "expected_response": "A reply that settles the request.",
+            "status": "answered",
+            "evidence_event_ids": [
+              "008",
+              "009"
+            ],
+            "response": "Yes. Book 2026-02-06, 10:00–13:00 UTC. I will be home."
+          },
+          "r5": {
+            "type": "action",
+            "from_actor": "coordinator",
+            "to_actor": "dispatch",
+            "responsible_actor": "dispatch",
+            "purpose": "Vessa Lorne accepts 2026-02-06, 10:00–13:00 UTC and will be present. Please book DL-001 for that window.",
+            "expected_response": "A reply that settles the request.",
+            "status": "answered",
+            "evidence_event_ids": [
+              "010",
+              "011"
+            ],
+            "response": "DL-001 is now reserved for 2026-02-06, 10:00–13:00 UTC. The recipient must be present. This is a booking confirmation, not a completed delivery."
+          }
+        },
+        "decision": {
+          "required": true,
+          "question": "Dispatch cannot do 5 February, 18:00–20:00, or leave the lamp with the concierge. They can book 2026-02-06, 10:00–13:00 UTC, if you are home. There is no charge. Should I ask them to book that?",
+          "decision_maker": "vessa_lorne",
+          "selected_option": "Yes. Book 2026-02-06, 10:00–13:00 UTC. I will be home."
+        },
+        "result": {
+          "summary": "Dispatch confirms the accepted delivery terms",
+          "confirmed_by": "dispatch",
+          "evidence_event_ids": [
+            "011"
+          ],
+          "remaining_work": "delivery itself remains pending."
+        }
+      }
+    }
+  ]
+}

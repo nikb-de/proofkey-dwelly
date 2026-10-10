@@ -1,12 +1,18 @@
 import { PlatformSession, CommunicationsSession, communicationEnvelope, createAPI, needsReview, reviewedMediaMessage, normalizeMediaRun, canReview, modelStatusView, ModelPoller } from './session.js';
+import { filterCases, caseCounters, caseSummary, caseRequests, createCaseRequest } from './product.js';
+import { createCoordinationPanel } from './coordination-panel.js';
 
 const $ = id => document.getElementById(id);
 const api = createAPI();
 const session = new PlatformSession(api, renderDetail);
+const coordinationPanel = createCoordinationPanel({root:document.getElementById('coordination-panel'),session,onMutation:loadCases});
 const communications = new CommunicationsSession(api, renderCommunications);
 let preparingImport = false;
 let cases = [], capabilities = null, activeView = 'cases', renderedCase = null, notice = '';
 let createAttempt = null;
+let activeTab='summary';
+$('summary-analysis').append($('analysis-card'));
+$('request-proposal').append($('proposal-card'));
 const mediaReviewed = new Set();
 const mediaDraftEvents = new Map();
 function createModelPoller() {
@@ -44,15 +50,25 @@ async function loadCases() {
 }
 function renderCases() {
   const selected=cases.filter(needsReview);
+  const counts=caseCounters(cases);
+  $('case-total').textContent=`${counts.total} case${counts.total===1?'':'s'} · current service records`;
+  $('metric-open').textContent=String(counts.open);$('metric-attention').textContent=String(counts.attention);$('metric-completed').textContent=String(counts.completed);
   $('queue-count').textContent=String(selected.length);
   $('case-list-title').textContent=activeView==='queue'?'Review queue':'Cases';
   const parent=$('case-list');parent.replaceChildren();
-  const visible=activeView==='queue'?selected:cases;
-  if(!visible.length)empty(parent,activeView==='queue'?'No cases awaiting review.':'No cases yet. Start with a new case.');
+  const pool=activeView==='queue'?selected:cases;
+  const visible=filterCases(pool,{query:$('case-search').value,filter:$('case-filter').value});
+  $('case-filter-count').textContent=`${visible.length} of ${pool.length} shown`;
+  if(!visible.length)empty(parent,pool.length?'No cases match these filters.':activeView==='queue'?'No cases awaiting review.':'No cases yet. Start with a new case.');
   for(const item of visible){
     const id=item.case_id || item.snapshot?.case_id;
     const b=button('',()=>selectCase(id),'case-item'+(session.selectedId===id?' selected':''));
-    b.dataset.caseId=id;b.append(node('strong',id),node('p',`Order ${item.snapshot?.links?.order_id || item.links?.order_id || '—'}`),node('span',human(item.states?.lifecycle || 'new'),'tag'));
+    const caseLinks=item.snapshot?.links || item.links || {};
+    const selectedDetail=session.detail?.case_id===id?session.detail:null;
+    const summary=selectedDetail?caseSummary(selectedDetail):null;
+    const next=summary?.nextStep || (needsReview(item)?'Review the current proposal':'Review source context');
+    b.dataset.caseId=id;b.title=`Case ${id}`;
+    b.append(node('strong',caseLinks.order_id || id),node('p',summary?.title || (needsReview(item)?'Operator review':'Task not assessed'),'case-task'),node('span',human(item.states?.lifecycle || 'new'),'tag'),node('p',caseLinks.customer_id || 'Customer not recorded','case-customer'),node('p',`Owner: ${caseLinks.operator_id || 'Not recorded'}`,'case-owner'),node('p',`Next: ${next}`,'case-next'),node('p',`Case ${id}`,'case-identity'));
     if(session.selectedId===id)b.setAttribute('aria-current','true');parent.append(b);
   }
 }
@@ -76,6 +92,46 @@ async function selectCase(id) {
   captureDrafts();await perform(()=>session.select(id));renderCases();
   if(session.detail)history.replaceState(null,'',`#case=${encodeURIComponent(session.selectedId)}`);
 }
+function activateTab(tab,{focus=false}={}) {
+  if(!['summary','requests','sources'].includes(tab))return;
+  activeTab=tab;
+  for(const control of document.querySelectorAll('[data-tab]')){
+    const selected=control.dataset.tab===tab;control.classList.toggle('active',selected);control.setAttribute('aria-selected',String(selected));control.tabIndex=selected?0:-1;
+  }
+  for(const key of ['summary','requests','sources'])$(`panel-${key}`).hidden=key!==tab;
+  if(focus)$(`tab-${tab}`).focus();
+}
+function renderProductDetail(detail) {
+  const summary=caseSummary(detail);
+  $('case-title').textContent=summary.title;
+  $('summary-next-step').textContent=detail.coordination?summary.nextStep:summary.sourceExcerpt || 'No original request has been recorded. Add source evidence to establish the task context.';
+  $('summary-owner').textContent=summary.owner;$('summary-order').textContent=summary.order;$('summary-customer').textContent=summary.customer;
+  $('control-next-step').textContent=summary.nextStep;$('control-communication').textContent=summary.externalCommunication;$('control-outcome').textContent=summary.physicalOutcome;
+  $('summary-state').textContent=human(detail.states?.lifecycle || 'new');
+  $('summary-proposal').hidden=Boolean(detail.coordination);
+  $('summary-source').hidden=!summary.sourceExcerpt;$('summary-source-text').textContent=summary.sourceExcerpt;
+  const current=caseRequests(detail).find(request=>request.current);
+  $('summary-proposal-status').textContent=current?current.status:'Not proposed';
+  const proposed=$('summary-proposal-detail');proposed.replaceChildren();
+  if(current){
+    proposed.append(node('strong',current.title),node('p',summary.nextStep));
+    if(current.slotStart && current.slotEnd)proposed.append(node('p',`${stamp(current.slotStart)} → ${stamp(current.slotEnd)}`));
+    proposed.append(node('p',`Proposal ${current.id} · revision ${current.revision}`,'hint'));
+  }else{
+    proposed.append(node('strong','No current proposal'),node('p',(detail.decisions || []).length?'Earlier proposals are historical. Assess the current evidence or prepare a fresh proposal.':'Assess the source evidence or prepare an operator proposal.'));
+  }
+  $('request-count').textContent=String(summary.requestCount);$('source-count').textContent=String(summary.eventCount);
+  const list=$('request-status-list');list.replaceChildren();
+  if(!summary.requestCount)empty(list,'No request has been proposed. Add source evidence or prepare an operator proposal below.');
+  for(const request of caseRequests(detail)){
+    const item=node('article',undefined,'request-status');
+    item.append(node('h4',request.title),node('span',request.status,'tag'),node('p',`${request.scope} · revision ${request.revision} · ${request.id}`,'hint'));
+    if(request.slotStart)item.append(node('p',`${stamp(request.slotStart)} → ${stamp(request.slotEnd)}`));
+    item.append(node('p',request.communication,'small muted'));
+    if(request.receiptId)item.append(node('p',`Saved receipt ${request.receiptId}. ${request.outcome}`,'small muted'));
+    list.append(item);
+  }
+}
 function updateFormVisibility() {
   const media=$('evidence-kind').value!=='message';$('file-label').hidden=!media;
   const retained=session.getDraft('evidence').file;$('retained-file').textContent=retained?`Selected source retained: ${retained.name}`:'';
@@ -87,14 +143,17 @@ function updateFormVisibility() {
 function renderDetail() {
   showMessages();renderCases();
   const detail=session.detail;
+  coordinationPanel.render();
+  $('customer-link').href=session.selectedId?`/customer.html?case=${encodeURIComponent(session.selectedId)}`:'/customer.html';
   $('case-detail').hidden=!detail;$('empty-state').hidden=Boolean(detail);
+  $('case-detail').dataset.caseId=detail?.case_id || '';
   if(!detail){modelPoller.watch({caseId:null,generation:session.generation,jobs:[]});return;}
   const snapshot=detail.snapshot;
   const changed=renderedCase!==detail.case_id;
-  if(changed){renderedCase=detail.case_id;restoreDrafts(detail);}
-  $('case-title').textContent=detail.case_id;
+  if(changed){renderedCase=detail.case_id;restoreDrafts(detail);activateTab('summary');}
   $('case-order').textContent=`Order ${snapshot.links.order_id}`;
-  $('case-meta').textContent=`Revision ${snapshot.revision} · ${snapshot.links.customer_id} · ${snapshot.events.length} evidence event${snapshot.events.length===1?'':'s'}`;
+  $('case-meta').textContent=`Case ${detail.case_id} · revision ${snapshot.revision} · ${snapshot.links.customer_id} · ${snapshot.events.length} evidence event${snapshot.events.length===1?'':'s'}`;
+  renderProductDetail(detail);
   const states=$('case-states');states.replaceChildren();
   for(const key of ['lifecycle','evidence','analysis','decision','action']){const d=node('div',undefined,'state');d.append(node('dt',human(key)),node('dd',human(detail.states[key])));states.append(d);}
   const sender=$('evidence-sender'),currentSender=changed?session.getDraft('evidence').sender:sender.value;sender.replaceChildren();
@@ -200,11 +259,21 @@ function renderDecisions(detail) {
 }
 function renderHistory(detail) {
   const parent=$('case-history');parent.replaceChildren();
-  const entries=[...detail.snapshot.events.map(e=>({time:e.occurred_at,title:`Evidence added · ${human(e.kind)}`,text:e.text || e.event_id})),...detail.decisions.map(d=>({time:d.created_at,title:`${human(d.kind)} proposal · ${human(d.action?.type)}`,text:`${d.decision_id} · revision ${d.revision}`})),...detail.reviews.map(r=>({time:r.created_at,title:`Proposal ${r.verdict==='approve'?'approved':'rejected'}`,text:r.note || r.decision_id})),...detail.actions.map(a=>({time:a.created_at,title:'Sandbox action verified',text:`${a.action_id || a.receipt_id || a.decision_id} · external effects: ${a.external_effects ?? 0}`}))];
+  const sourceEntry=event=>{
+    const entry={time:event.occurred_at,title:`Evidence added · ${human(event.kind)}`,text:event.text || event.event_id,eventId:event.event_id};
+    if(event.kind!=='message' || event.channel!=='internal' || event.sender_id!==detail.snapshot.links.operator_id)return entry;
+    let record;try{record=JSON.parse(event.text);}catch{return entry;}
+    if(!record || typeof record!=='object')return entry;
+    const audit=detail.coordination?.audit_history?.find(value=>event.event_id===`coord-${value.audit_id}`);
+    if(!audit || record.audit_id!==audit.audit_id || record.command!==audit.command || record.version!==audit.version || record.source_revision!==audit.source_revision || record.mode!=='local_sandbox' || record.external_effects!==0)return entry;
+    if(!['initialize','request_cancellation','confirm_cancellation','record_offer','record_consent','record_local_acceptance','request_booking','confirm_booking','escalate'].includes(record.command) || !['booked','cancellation_pending','awaiting_terms','awaiting_consent','ready_to_book','booking_pending','booking_confirmed','escalated'].includes(record.phase) || !Number.isInteger(record.version) || !Number.isInteger(record.source_revision))return entry;
+    return {...entry,sourceLink:true,title:`Coordination · ${human(record.command)}`,text:`Phase: ${human(record.phase)}. Workflow version ${record.version} · source revision ${record.source_revision}. Local operator record only; no carrier communication or physical delivery confirmed.`};
+  };
+  const entries=[...detail.snapshot.events.map(sourceEntry),...detail.decisions.map(d=>({time:d.created_at,title:`${human(d.kind)} proposal · ${human(d.action?.type)}`,text:`${d.decision_id} · revision ${d.revision}`})),...detail.reviews.map(r=>({time:r.created_at,title:`Proposal ${r.verdict==='approve'?'approved':'rejected'}`,text:r.note || r.decision_id})),...detail.actions.map(a=>({time:a.created_at,title:'Sandbox action verified',text:`${a.action_id || a.receipt_id || a.decision_id} · external effects: ${a.external_effects ?? 0}`}))];
   for(const run of detail.media_runs || [])entries.push({time:run.created_at || run.finished_at,title:`${run.mode==='asr'?'Audio transcription':'Image analysis'} · ${human(run.status)}`,text:`Asset ${run.asset_id} · run ${run.run_id} · human review required`});
   entries.sort((a,b)=>String(b.time||'').localeCompare(String(a.time||'')));
   if(!entries.length)empty(parent,'Case created. The first evidence event will appear here.');
-  for(const entry of entries){const item=node('article',undefined,'history-item');item.append(node('h4',entry.title),node('time',stamp(entry.time)),node('p',entry.text));parent.append(item);}
+  for(const entry of entries){const item=node('article',undefined,'history-item');item.append(node('h4',entry.title),node('time',stamp(entry.time)),node('p',entry.text));if(entry.eventId)item.dataset.eventId=entry.eventId;if(entry.sourceLink)item.append(button(`Source event ${entry.eventId}`,()=>{activateTab('sources');const source=[...document.querySelectorAll('#evidence-list [data-event-id]')].find(value=>value.dataset.eventId===entry.eventId);source?.scrollIntoView({block:'center'});},'text-button'));parent.append(item);}
 }
 function renderJobs(detail) {
   const parent=$('model-jobs'),openInspectors=new Set();
@@ -303,12 +372,24 @@ function renderCapabilities() {
   for(const [key,value] of Object.entries(capabilities?.media || {})){const item=node('article',undefined,'card');item.append(node('h3',human(key)),node('span',human(value.status || (value.enabled?'available':'not_configured')),'tag'),node('p',value.enabled?'Configured processing is available from source evidence.':'No configured provider. Source evidence remains unprocessed.'));parent.append(item);}
 }
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{
-  activeView=b.dataset.view;document.querySelectorAll('[data-view]').forEach(n=>n.classList.toggle('active',n===b));
-  $('integrations-view').hidden=activeView!=='integrations';$('communications-view').hidden=activeView!=='communications';$('cases-view').hidden=!['cases','queue'].includes(activeView);
-  $('page-title').textContent=activeView==='communications'?'Every message, traceable.':activeView==='integrations'?'Connected, with control.':activeView==='queue'?'Decisions that need you.':'A clear next step.';
+  activeView=b.dataset.view;document.querySelectorAll('[data-view]').forEach(n=>{n.classList.toggle('active',n===b);if(n===b)n.setAttribute('aria-current','page');else n.removeAttribute('aria-current');});
+  $('integrations-view').hidden=activeView!=='integrations';$('communications-view').hidden=activeView!=='communications';$('cases-workspace').hidden=!['cases','queue'].includes(activeView);
+  $('page-title').textContent=activeView==='communications'?'Every message, traceable.':activeView==='integrations'?'Connected, with control.':activeView==='queue'?'Decisions that need you.':'Every request has a next step';
+  $('workspace-crumb').textContent=activeView==='queue'?'Operator queue':human(activeView);
   renderCases();if(session.detail)renderJobs(session.detail);
   if(activeView==='communications')perform(()=>communications.load());
 }));
+for(const control of document.querySelectorAll('[data-tab]')){
+  control.addEventListener('click',()=>activateTab(control.dataset.tab));
+  control.addEventListener('keydown',event=>{
+    const tabs=['summary','requests','sources'],index=tabs.indexOf(activeTab);
+    const key=event.key;
+    if(!['ArrowRight','ArrowLeft','Home','End'].includes(key))return;
+    event.preventDefault();activateTab(key==='Home'?tabs[0]:key==='End'?tabs[2]:tabs[(index+(key==='ArrowRight'?1:2))%3],{focus:true});
+  });
+}
+document.querySelectorAll('[data-open-tab]').forEach(control=>control.addEventListener('click',()=>activateTab(control.dataset.openTab,{focus:true})));
+$('case-search').addEventListener('input',renderCases);$('case-filter').addEventListener('change',renderCases);
 $('refresh-communications').addEventListener('click',()=>perform(()=>communications.load()));
 for(const id of ['communication-format','communication-connector'])$(id).addEventListener('change',renderCommunications);
 $('communication-form').addEventListener('submit',event=>{event.preventDefault();perform(async()=>{
@@ -328,9 +409,7 @@ $('evidence-kind').addEventListener('change',updateFormVisibility);$('action-typ
 $('evidence-file').addEventListener('change',()=>{const draft=session.getDraft('evidence');session.setDraft('evidence',{...draft,file:$('evidence-file').files?.[0],asset:null});captureDrafts();updateFormVisibility();});
 $('model-profile').addEventListener('change',()=>{$('run-model').disabled=!$('model-profile').value || capabilities?.models?.enabled!==true;});
 $('create-case-form').addEventListener('submit',event=>{event.preventDefault();perform(async()=>{
-  const customer=$('customer-id').value.trim(),operator=$('operator-id').value.trim();
-  if(customer===operator)throw Error('Customer and operator IDs must be different.');
-  const body={case_id:$('case-id').value.trim(),links:{order_id:$('order-id').value.trim(),customer_id:customer,operator_id:operator},participants:[customer,operator],language:'en'};
+  const body=createCaseRequest({caseId:$('case-id').value,orderId:$('order-id').value,customerId:$('customer-id').value,operatorId:$('operator-id').value,dispatchId:$('dispatch-id').value});
   const signature=JSON.stringify(body);if(createAttempt?.signature!==signature)createAttempt={signature,key:uid('create')};
   const result=await api('/cases',{method:'POST',body,idempotencyKey:createAttempt.key});createAttempt=null;
   await loadCases();await selectCase(result.case?.case_id || body.case_id);$('create-case-panel').open=false;

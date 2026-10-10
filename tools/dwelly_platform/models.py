@@ -114,3 +114,13 @@ class ModelBridge:
         job = self._runtime().get(job_id)
         self._bound_snapshot(job)
         return job
+
+    def get_for_coordination(self, job_id):
+        """Fetch advisory data for validation in the caller's case transaction.
+
+        Coordination validates the entire frozen input and candidate against
+        its locked snapshot. A second case-store read here would borrow another
+        connection and could starve a single-connection or busy case pool.
+        This method neither dispatches a model nor grants execution authority.
+        """
+        return self._runtime().get(job_id)

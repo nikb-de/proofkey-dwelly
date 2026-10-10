@@ -70,7 +70,7 @@ test('browser communications imports explicitly, preserves drafts and renders un
   try {
     const page=await browser.newPage(),writes=[],errors=[];let communicationsReads=0;
     page.setDefaultTimeout(4000);page.on('pageerror',error=>errors.push(error.message));
-    const files=new Map(await Promise.all(['index.html','app.js','session.js'].map(async name=>[name,await readFile(new URL('../'+name,import.meta.url),'utf8')])));
+    const files=new Map(await Promise.all(['index.html','app.js','session.js','product.js','style.css','coordination.js','coordination-panel.js','coordination.css'].map(async name=>[name,await readFile(new URL('../'+name,import.meta.url),'utf8')])));
     const receipt={receipt_id:'receipt-1',connector_id:'local-chat',channel:'chat',delivery_id:'<script>window.injected=true</script>',conversation_id:'thread-1',status:'accepted',case_id:'first',event_ids:['event-1'],revision:1,source:'operator_import',raw_sha256:'a'.repeat(64),provenance:{normalizer_version:'test-normalizer'}};
     const value={connectors:[{id:'local-chat',channel:'chat',configured:true,route_count:1,contact_count:2,provider_connected:false}],receipts:[receipt],provider_connections:false};
     await page.route('**/*',async route=>{
@@ -88,7 +88,8 @@ test('browser communications imports explicitly, preserves drafts and renders un
       return route.fulfill({json:body});
     });
     await page.goto('http://127.0.0.1:8099/#case=first');
-    await page.locator('#case-title').filter({hasText:'first'}).waitFor();
+    await page.locator('#case-detail[data-case-id="first"]').waitFor();
+    await page.getByRole('tab',{name:/Sources/}).click();
     await page.fill('#evidence-text','Keep my evidence draft');
     assert.equal(communicationsReads,0);
     await page.locator('[data-view="communications"]').click();
@@ -125,7 +126,7 @@ test('browser accepted import refreshes the case despite inbox failure and ignor
   try {
     const page=await browser.newPage(),errors=[];let writes=0,caseReads=0,listReads=0,mode='normal',oldRoute;
     page.setDefaultTimeout(4000);page.on('pageerror',error=>errors.push(error.message));
-    const files=new Map(await Promise.all(['index.html','app.js','session.js'].map(async name=>[name,await readFile(new URL('../'+name,import.meta.url),'utf8')])));
+    const files=new Map(await Promise.all(['index.html','app.js','session.js','product.js','style.css','coordination.js','coordination-panel.js','coordination.css'].map(async name=>[name,await readFile(new URL('../'+name,import.meta.url),'utf8')])));
     const receipt={receipt_id:'receipt-accepted',connector_id:'local-chat',channel:'chat',delivery_id:'delivery-1',status:'accepted',case_id:'first',event_ids:['event-1'],revision:1,source:'operator_import'};
     const inbox={connectors:[{id:'local-chat',channel:'chat',configured:true,route_count:1,contact_count:2,provider_connected:false}],receipts:[],provider_connections:false};
     await page.route('**/*',async route=>{
@@ -144,8 +145,9 @@ test('browser accepted import refreshes the case despite inbox failure and ignor
       } else throw Error('Unexpected URL '+url.pathname);
       return route.fulfill({json:body});
     });
-    await page.goto('http://127.0.0.1:8099/#case=first');await page.locator('#case-title').filter({hasText:'first'}).waitFor();
-    await page.fill('#evidence-text','Unfinished evidence draft');await page.fill('#review-note','Unfinished review draft');
+    await page.goto('http://127.0.0.1:8099/#case=first');await page.locator('#case-detail[data-case-id="first"]').waitFor();
+    await page.getByRole('tab',{name:/Sources/}).click();await page.fill('#evidence-text','Unfinished evidence draft');
+    await page.getByRole('tab',{name:/Requests/}).click();await page.fill('#review-note','Unfinished review draft');
     await page.locator('[data-view="communications"]').click();await page.selectOption('#communication-connector','local-chat');
     await page.fill('#communication-json',JSON.stringify(envelope));await page.locator('#communication-import').click();
     await page.locator('#error-message').waitFor({state:'visible'});
@@ -155,7 +157,7 @@ test('browser accepted import refreshes the case despite inbox failure and ignor
     assert.match(await page.locator('#communication-outcome').innerText(),/Accepted.*receipt-accepted/);
     assert.equal(await page.inputValue('#communication-json'),JSON.stringify(envelope));
     await page.locator('[data-view="cases"]').click();
-    assert.match(await page.locator('#case-meta').innerText(),/Revision 1/);
+    assert.match(await page.locator('#case-meta').innerText(),/revision 1/i);
     assert.match(await page.locator('#evidence-list').innerText(),/Accepted source evidence/);
     assert.equal(await page.inputValue('#evidence-text'),'Unfinished evidence draft');assert.equal(await page.inputValue('#review-note'),'Unfinished review draft');
     mode='hold-old';const requested=page.waitForRequest(request=>request.url().endsWith('/communications'));
