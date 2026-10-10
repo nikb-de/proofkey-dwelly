@@ -87,4 +87,4 @@ All three collections need source-family grouping and reviewed labels before tra
 
 ## 10. Case state visualization
 
-[Case State Widget](case-state-widget/README.md) is a standalone JSON-driven replay viewer: step controls, agent actions and waiting states, state diffs, a unified message timeline and evidence-backed completion criteria. It includes the source-derived public case 002, a loadable minimal example, a data-format guide and dependency-free tests. It does not call the model or send messages; integration with the model harness requires a separate adapter.
+[Case State Widget](case-state-widget/README.md) is a standalone JSON-driven replay viewer: step controls, agent actions and waiting states, state diffs, a unified message timeline and evidence-backed completion criteria. It includes the source-derived public case 002, a loadable minimal example, a data-format guide and dependency-free tests. Its optional server stores immutable JSON versions and exposes a case selector; see [server setup](case-state-widget/SERVER.md). It does not call the model or send messages; integration with the model harness requires a separate adapter.
