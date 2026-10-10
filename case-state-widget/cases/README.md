@@ -21,6 +21,8 @@ The catalog refreshes when the page opens, on "Refresh list", and periodically w
 
 50 public cases (001–050) and all 275 negative branches listed in `data/negative-branches-001-050/index.csv`. Every file is built from a compact annotation by the pipeline and validated against `viewer.js`, `schema.json`, patch replay and a future-leak check before publishing. The negative branches retain the reviewed parent states before divergence and add their authored escalation, desk response and follow-through.
 
+Three independent training context cases bring the catalog to 328 files: `001-A1-NOISE`, `012-N2-A1-MISSING`, and `002-N4-A1-LONG`. Each adds one complication to its parent and ends at an open decision cutoff. Their narrative sources, separate model inputs and supervision are in [training-context-cases](../../data/training-context-cases/README.md).
+
 Branch completion covers the alternative coordination task. For example, an operator's registration is not its decision, and a customer's selection is not a booking. Unmet parent criteria at the scope change are archived in `prior_success_criteria` with their original status and retirement event; they are never marked met to force branch closure. The final source message states what is confirmed and what remains.
 
 Rebuild and check from the repository root:

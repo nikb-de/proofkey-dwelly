@@ -7,6 +7,7 @@ ROOT = Path(__file__).resolve().parents[2]
 PUBLIC = Path(os.environ.get('PROOFKEY_PUBLIC', str(ROOT / 'data' / 'dwelly-public-cases' / 'raw' / 'Delivery & Logistics')))
 REPO = Path(os.environ.get('PROOFKEY_REPO', str(ROOT)))
 NEG = REPO / 'data' / 'negative-branches-001-050'
+CONTEXT = REPO / 'data' / 'training-context-cases'
 ATLAS = Path(os.environ.get('PROOFKEY_ATLAS', str(ROOT / 'outputs' / 'ontology-explorer' / 'dist' / 'data.json')))
 
 EVENT_RE = re.compile(r'<a id="event-(\d+)"></a>\s*\n## (.+?) — event \1\n(.*?)(?=\n<a id="event-|\Z)', re.S)
@@ -34,6 +35,11 @@ def parse_details(text):
 
 
 def folder_for(ref):
+    if re.fullmatch(r'\d{3}(?:-N\d)?-A1-(?:NOISE|MISSING|LONG)', ref):
+        folder = CONTEXT / 'sources' / ref
+        if not (folder / 'history.md').is_file():
+            raise FileNotFoundError(f'context case {ref} not found')
+        return folder, 'training_context'
     if re.fullmatch(r'\d{3}', ref):
         return PUBLIC / ref, 'public'
     if re.fullmatch(r'\d{3}-N\d', ref):

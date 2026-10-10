@@ -1,0 +1,565 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "001-A1-NOISE · Delivery window change with conversational noise",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Vessa Lorne. From the case card: the desk-lamp parcel DL-001 is at the destination depot, the original delivery slot does not work for the recipient, and only dispatch can change the booking.",
+ "provenance": {
+  "kind": "team_synthetic_training_context",
+  "parent_case_id": "001",
+  "family_id": "001",
+  "augmentation": "noise",
+  "additional_complications": 1,
+  "label_status": "draft_for_review",
+  "parent_cutoff_event_id": "002",
+  "source_event_mapping": {
+   "001": "001",
+   "002": "002"
+  },
+  "source_case_sha256": "15b14b8832626888cfe3c4f71033aa00a90b0f4a2c97f80e160a169c2661b06b"
+ },
+ "initial_state": {
+  "case_id": "001-A1-NOISE",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "recipient",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: get the recipient's slot choice and dispatch's booking confirmation."
+   },
+   "recipient": {
+    "name": "Vessa Lorne",
+    "organization": null,
+    "role": "recipient",
+    "is_us": false,
+    "responsibility": "Choose a new delivery slot from the ones dispatch offers."
+   }
+  },
+  "goal": "Get the recipient's choice of a new slot and dispatch's confirmation that the DL-001 booking has been moved.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The recipient has chosen a new slot from the options dispatch confirmed.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "Dispatch has confirmed the booking for the chosen slot.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c3",
+    "description": "Dispatch has confirmed that the original slot is removed.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The recipient cannot take delivery in the original slot; no new slot has been chosen.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-001.",
+    "source": {
+     "type": "case_card",
+     "id": "001-A1-NOISE"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The desk-lamp parcel is at the destination depot.",
+    "source": {
+     "type": "case_card",
+     "id": "001-A1-NOISE"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The recipient cannot take delivery in the original slot.",
+    "source": {
+     "type": "case_card",
+     "id": "001-A1-NOISE"
+    }
+   },
+   {
+    "id": "f4",
+    "text": "Dispatch, not the desk, controls booking changes.",
+    "source": {
+     "type": "case_card",
+     "id": "001-A1-NOISE"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": []
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Dispatch email",
+    "title": "Dispatch offers two no-charge slots",
+    "timestamp": "2026-02-02 09:00:00 UTC",
+    "actor_id": "dispatch",
+    "message_id": "001"
+   },
+   "explanation": "Dispatch gave the current booking and two no-charge slots for rescheduling. The recipient chooses the slot and dispatch books it, so the next step is a question to the recipient.",
+   "state_after": {
+    "case_id": "001-A1-NOISE",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the recipient's slot choice and dispatch's booking confirmation."
+     },
+     "recipient": {
+      "name": "Vessa Lorne",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Choose a new delivery slot from the ones dispatch offers."
+     },
+     "dispatch": {
+      "name": "Dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Offer available slots and change the booking to the recipient's choice."
+     }
+    },
+    "goal": "Get the recipient's choice of a new slot and dispatch's confirmation that the DL-001 booking has been moved.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask the recipient to choose one of the two slots."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has chosen a new slot from the options dispatch confirmed.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "Dispatch has confirmed the booking for the chosen slot.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "Dispatch has confirmed that the original slot is removed.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-02 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "001-A1-NOISE"
+     },
+     "context_message_id": "001",
+     "summary": "Reschedule DL-001: the recipient cannot take delivery in the original slot.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The recipient cannot take delivery in the booked slot; no new slot has been chosen.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-001.",
+      "source": {
+       "type": "case_card",
+       "id": "001-A1-NOISE"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The desk-lamp parcel is at the destination depot.",
+      "source": {
+       "type": "case_card",
+       "id": "001-A1-NOISE"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The recipient cannot take delivery in the original slot.",
+      "source": {
+       "type": "case_card",
+       "id": "001-A1-NOISE"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Dispatch, not the desk, controls booking changes.",
+      "source": {
+       "type": "case_card",
+       "id": "001-A1-NOISE"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "DL-001 is booked for 2026-02-03, 09:00–12:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Dispatch's rescheduling inventory currently has 2026-02-03 15:00–18:00 and 2026-02-04 10:00–13:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "There is no rescheduling charge.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "decision",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Choose one of the two slots offered by dispatch.",
+      "expected_response": "The chosen delivery slot.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "001"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which slot should be booked instead of the original?",
+     "options": [
+      {
+       "id": "o1",
+       "label": "2026-02-03 15:00–18:00 UTC",
+       "conditions": "No rescheduling charge."
+      },
+      {
+       "id": "o2",
+       "label": "2026-02-04 10:00–13:00 UTC",
+       "conditions": "No rescheduling charge."
+      }
+     ],
+     "decision_maker": "recipient",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": {
+     "type": "decision",
+     "responsible_actor": "recipient",
+     "request_id": "r1",
+     "description": "Choose one of the two no-charge slots."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "dispatch",
+      "event_id": "001",
+      "timestamp": "2026-02-02 09:00:00 UTC",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-001 is booked for 2026-02-03, 09:00–12:00 UTC. Our rescheduling inventory currently has 2026-02-03 15:00–18:00 or 2026-02-04 10:00–13:00. There is no rescheduling charge."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client request",
+    "title": "Vessa asks to move the morning delivery",
+    "timestamp": "2026-02-02 09:10:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "002"
+   },
+   "explanation": "Vessa confirmed the morning slot does not work for her and asked us to reply in the order thread. We already have dispatch's options, so we can offer them right away.",
+   "state_after": {
+    "case_id": "001-A1-NOISE",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the recipient's slot choice and dispatch's booking confirmation."
+     },
+     "recipient": {
+      "name": "Vessa Lorne",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Choose a new delivery slot from the ones dispatch offers."
+     },
+     "dispatch": {
+      "name": "Dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Offer available slots and change the booking to the recipient's choice."
+     }
+    },
+    "goal": "Get the recipient's choice of a new slot and dispatch's confirmation that the DL-001 booking has been moved.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Reply to Vessa in the order thread: name dispatch's two slots and ask which one to book."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has chosen a new slot from the options dispatch confirmed.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "Dispatch has confirmed the booking for the chosen slot.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "Dispatch has confirmed that the original slot is removed.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-02 09:00:00 UTC",
+     "escalated_at": "2026-02-02 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "001-A1-NOISE"
+     },
+     "context_message_id": "001",
+     "summary": "Reschedule DL-001: the recipient cannot take delivery in the original slot.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The morning slot does not work for the recipient; no new slot has been chosen.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-001.",
+      "source": {
+       "type": "case_card",
+       "id": "001-A1-NOISE"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The desk-lamp parcel is at the destination depot.",
+      "source": {
+       "type": "case_card",
+       "id": "001-A1-NOISE"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The recipient has a work meeting during the morning delivery.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Dispatch, not the desk, controls booking changes.",
+      "source": {
+       "type": "case_card",
+       "id": "001-A1-NOISE"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "DL-001 is booked for 2026-02-03, 09:00–12:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Dispatch's rescheduling inventory currently has 2026-02-03 15:00–18:00 and 2026-02-04 10:00–13:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "There is no rescheduling charge.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The recipient asks us to reply in the order-linked message thread.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "decision",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Choose one of the two slots offered by dispatch.",
+      "expected_response": "The chosen delivery slot.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "001"
+      ]
+     },
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "dispatch",
+      "purpose": "Move the lamp delivery out of the morning slot.",
+      "expected_response": "A new delivery booking.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which slot should be booked instead of the original?",
+     "options": [
+      {
+       "id": "o1",
+       "label": "2026-02-03 15:00–18:00 UTC",
+       "conditions": "No rescheduling charge."
+      },
+      {
+       "id": "o2",
+       "label": "2026-02-04 10:00–13:00 UTC",
+       "conditions": "No rescheduling charge."
+      }
+     ],
+     "decision_maker": "recipient",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "decision",
+     "responsible_actor": "recipient",
+     "request_id": "r1",
+     "description": "Choose one of the two no-charge slots."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "morning-slot-context",
+      "kind": "context",
+      "title": "What Vessa knew before her message",
+      "text": "Vessa refers to the morning delivery, so she knows the delivery is scheduled for the morning. How she learned this is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "dispatch",
+      "event_id": "001",
+      "timestamp": "2026-02-02 09:00:00 UTC",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-001 is booked for 2026-02-03, 09:00–12:00 UTC. Our rescheduling inventory currently has 2026-02-03 15:00–18:00 or 2026-02-04 10:00–13:00. There is no rescheduling charge."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-02 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "hi, sorry typing on phone — got a work meeting during the morning delivery 😬 can u help move my lamp delivery? pls use this order-linked message thread. My inbox is a mess today, sorry for the ramble!"
+     }
+    ]
+   }
+  }
+ ]
+}

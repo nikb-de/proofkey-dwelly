@@ -15,6 +15,9 @@ const SRC = process.env.PROOFKEY_PUBLIC || path.join(ROOT, 'data', 'dwelly-publi
 const REPO = process.env.PROOFKEY_REPO || path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const NEG = path.join(REPO, 'data', 'negative-branches-001-050');
 function folderFor(cid) {
+  if (/^\d{3}(?:-N\d)?-A1-(?:NOISE|MISSING|LONG)$/.test(cid)) {
+    return path.join(REPO, 'data', 'training-context-cases', 'sources', cid);
+  }
   if (/^\d{3}$/.test(cid)) return path.join(SRC, cid);
   if (/^\d{3}-N\d$/.test(cid)) {
     for (const row of fs.readFileSync(path.join(NEG, 'index.csv'), 'utf8').split('\n')) {
