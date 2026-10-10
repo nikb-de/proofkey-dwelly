@@ -3,12 +3,11 @@ import {catalogPage} from './catalog.js';
 const viewer=document.querySelector('case-state-viewer');
 const status=document.getElementById('load-status'),error=document.getElementById('load-error'),editor=document.getElementById('json-input');
 const picker=document.getElementById('case-picker'),libraryStatus=document.getElementById('library-status'),retry=document.getElementById('retry-save');
-let activeName='',activeId='',available=false,access='team',busy=false,source='server',baseRevision=null,proposalId=crypto.randomUUID(),catalog=[],githubRequested=false;
-const prPanel=document.getElementById('pr-panel'),prResult=document.getElementById('pr-result');
+let activeName='',activeId='',available=false,access='team',busy=false,source='server',catalog=[],githubRequested=false;
 let token=sessionStorage.getItem('case-library-token')??'';
-function localLoad(data,name){viewer.load(data);activeName=name;activeId='';baseRevision=null;proposalId=crypto.randomUUID();prResult.replaceChildren();status.textContent=`Загружен ${name} · шагов: ${data.steps.length}`;error.textContent='';editor.value=JSON.stringify(data,null,2);document.getElementById('download').disabled=false;retry.hidden=true;currentLabel()}
+function localLoad(data,name){viewer.load(data);activeName=name;activeId='';status.textContent=`Загружен ${name} · шагов: ${data.steps.length}`;error.textContent='';editor.value=JSON.stringify(data,null,2);document.getElementById('download').disabled=false;retry.hidden=true;currentLabel()}
 function failure(err){error.textContent=String(err.message).replace(/[.]+$/,'')+'.';document.getElementById('catalog-error').textContent=error.textContent}
-function setBusy(value){busy=value;for(const id of ['file','apply-json','case-picker','refresh-cases','retry-save','connect-library','propose-pr','create-pr'])document.getElementById(id).disabled=value}
+function setBusy(value){busy=value;for(const id of ['file','apply-json','case-picker','refresh-cases','retry-save','connect-library','sync-github'])document.getElementById(id).disabled=value;document.getElementById('sync-github').textContent=value?'Обновление…':'Обновить из GitHub'}
 async function api(route,options={}){
  const response=await fetch('/api'+route,{...options,headers:{...(token?{Authorization:'Bearer '+token}:{}),...(options.body?{'Content-Type':'application/json'}:{}),...options.headers},cache:'no-store'});
  let body;try{body=await response.json()}catch{throw new Error('Сервер архива недоступен')}
@@ -49,20 +48,34 @@ async function refresh(force=false){
  document.getElementById('library-count').textContent=cases.length;
  libraryStatus.textContent=source==='github'?'GitHub · main':'Общая библиотека';renderCatalog();return cases;
 }
-async function openSaved(id){const entry=await api('/cases/'+encodeURIComponent(id));localLoad(entry.data,entry.filename);activeId=entry.id;baseRevision=entry.revision??null;document.getElementById('pr-case-id').value=activeId;catalog=catalog.map(c=>c.id===entry.id?{...c,...entry,data:undefined}:c);currentLabel();renderCatalog();status.textContent=source==='github'?`GitHub · ${entry.path} · ${entry.revision.slice(0,7)}`:`Сохранён на сервере · шагов: ${entry.data.steps.length}`;history.replaceState(null,'','#saved='+activeId)}
+async function openSaved(id){const entry=await api('/cases/'+encodeURIComponent(id));localLoad(entry.data,entry.filename);activeId=entry.id;catalog=catalog.map(c=>c.id===entry.id?{...c,...entry,data:undefined}:c);currentLabel();renderCatalog();status.textContent=source==='github'?`GitHub · ${entry.path} · ${entry.revision.slice(0,7)}`:`Сохранён на сервере · шагов: ${entry.data.steps.length}`;history.replaceState(null,'','#saved='+activeId)}
 async function persist(){
- if(githubRequested){status.textContent='Локальный черновик · предложите изменения через PR';retry.hidden=true;return}
+ if(githubRequested){status.textContent='Локальный JSON · можно скачать файл';retry.hidden=true;return}
  if(!available){status.textContent='Только в этой вкладке · серверное сохранение недоступно';return}
  try{const {entry}=await api('/cases',{method:'POST',body:JSON.stringify({filename:activeName,data:viewer.data})});activeId=entry.id;status.textContent=`Сохранён на сервере · шагов: ${entry.step_count}`;retry.hidden=true;history.replaceState(null,'','#saved='+activeId);try{await refresh()}catch(e){failure(new Error('Кейс сохранён, но список не обновился: '+e.message))}}
  catch(e){status.textContent='Не сохранён на сервере · JSON остаётся во вкладке';retry.hidden=false;throw e}
 }
-async function importText(text,name,editing=false){const data=JSON.parse(text),priorId=activeId,priorRevision=baseRevision;localLoad(data,name);if(source==='github'){activeId=editing?priorId:'';baseRevision=editing?priorRevision:null;const suggested=editing&&priorId?priorId:String(data.initial_state.case_id??name.replace(/\.json$/i,'')).replace(/[^a-zA-Z0-9_-]/g,'-').slice(0,100);document.getElementById('pr-case-id').value=suggested;prPanel.open=false;}currentLabel();history.replaceState(null,'',location.pathname+location.search);await persist()}
+async function importText(text,name){localLoad(JSON.parse(text),name);currentLabel();history.replaceState(null,'',location.pathname+location.search);await persist()}
+async function syncGithub(){
+ const id=activeId,step=viewer.stepIndex;
+ const config=await api('/config');source=config.source??'server';githubRequested=Boolean(config.github_requested);available=true;
+ if(githubRequested&&source!=='github')throw new Error(config.notice||'GitHub пока недоступен. Попробуйте ещё раз.');
+ const cases=await refresh(true);
+ if(id&&cases.some(c=>c.id===id)){
+  await openSaved(id);viewer.goToStep(Math.min(step,viewer.data.steps.length));
+  libraryStatus.textContent=`Обновлено · ${cases.length} JSON · открытый кейс актуален`;
+ }else{
+  libraryStatus.textContent=`Список обновлён · ${cases.length} JSON`;
+  if(id){activeId='';currentLabel();history.replaceState(null,'',location.pathname+location.search);status.textContent='Файл удалён из GitHub · показана ранее загруженная копия'}
+ }
+ document.getElementById('source-link').hidden=source!=='github';document.getElementById('save-hint').textContent='Новые кейсы и изменения загружаются из GitHub';
+}
 async function run(action){if(busy)return;setBusy(true);error.textContent='';document.getElementById('catalog-error').textContent='';try{await action()}catch(e){failure(e)}finally{setBusy(false)}}
 document.getElementById('file').addEventListener('change',e=>{const file=e.target.files?.[0];if(!file)return;run(async()=>{try{if(file.size>5*1024*1024)throw new Error('Файл больше 5 МБ');await importText(await file.text(),file.name)}finally{e.target.value=''}})});
 document.getElementById('apply-json').addEventListener('click',()=>run(()=>importText(editor.value,activeName||'case-edited.json',true)));
 retry.addEventListener('click',()=>run(persist));
 
-document.getElementById('refresh-cases').addEventListener('click',()=>run(()=>refresh(true)));
+for(const id of ['sync-github','refresh-cases'])document.getElementById(id).addEventListener('click',()=>run(syncGithub));
 document.getElementById('connect-library').addEventListener('click',()=>run(async()=>{
  token=document.getElementById('library-key').value.trim();
  const cases=await refresh();sessionStorage.setItem('case-library-token',token);document.getElementById('library-key').value='';document.getElementById('library-auth').hidden=true;
@@ -70,20 +83,13 @@ document.getElementById('connect-library').addEventListener('click',()=>run(asyn
  if(retry.hidden===false){await persist()}else if(requested||cases.length)await openSaved(requested??cases[0].id);
 }));
 document.getElementById('download').addEventListener('click',()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(viewer.data,null,2)+'\n'],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=activeName.endsWith('.json')?activeName:'case.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
-document.getElementById('propose-pr').addEventListener('click',()=>{prPanel.open=true});
-document.getElementById('create-pr').addEventListener('click',()=>run(async()=>{
- const id=document.getElementById('pr-case-id').value.trim(),writeToken=document.getElementById('pr-token').value.trim();
- if(!writeToken)throw new Error('Введите ваш GitHub-токен для создания PR');
- const result=await api('/github/pull-requests',{method:'POST',headers:{'X-GitHub-Token':writeToken},body:JSON.stringify({id,data:viewer.data,base_revision:id===activeId?baseRevision:null,request_id:proposalId})});
- document.getElementById('pr-token').value='';const link=document.createElement('a');link.href=result.url;link.target='_blank';link.rel='noopener';link.textContent=`Открыть PR #${result.number}`;prResult.replaceChildren('Черновик PR создан. ',link);status.textContent='Изменения предложены · в библиотеке появятся после слияния PR';
-}));
 await run(async()=>{
  const response=await fetch(new URL('./case-002.json',import.meta.url),{cache:'no-store'});if(!response.ok)throw new Error(`HTTP ${response.status}`);localLoad(await response.json(),'case-002.json');
- try{const config=await api('/config');available=true;access=config.access;source=config.source??'server';githubRequested=Boolean(config.github_requested);if(config.notice)failure(new Error(config.notice));document.getElementById('propose-pr').hidden=source!=='github';document.getElementById('source-link').hidden=source!=='github';document.getElementById('pr-panel').hidden=source!=='github';document.getElementById('library').hidden=false;document.getElementById('save-hint').textContent=githubRequested?(source==='github'?'Кейсы из main · изменения через PR':'GitHub ожидает подключения · новые JSON остаются черновиками'):access==='public'?'Загруженные JSON сохраняются в общей библиотеке':'Загруженные JSON сохраняются в архиве команды';
+ try{const config=await api('/config');available=true;access=config.access;source=config.source??'server';githubRequested=Boolean(config.github_requested);if(config.notice)failure(new Error(config.notice));document.getElementById('source-link').hidden=source!=='github';document.getElementById('library').hidden=false;document.getElementById('save-hint').textContent=githubRequested?(source==='github'?'Новые кейсы и изменения загружаются из GitHub':'GitHub ожидает подключения · новые JSON остаются черновиками'):access==='public'?'Загруженные JSON сохраняются в общей библиотеке':'Загруженные JSON сохраняются в архиве команды';
   if(access==='team'&&!token){document.getElementById('library-auth').hidden=false;libraryStatus.textContent='Введите ключ команды';return}
   const cases=await refresh();const requested=location.hash.match(/^#saved=([a-zA-Z0-9][a-zA-Z0-9_-]{0,99})$/)?.[1];const selected=(cases.some(c=>c.id===requested)?requested:null)??cases.find(c=>['case-002.json','002.json'].includes(c.filename))?.id??cases[0]?.id;if(selected)await openSaved(selected);if(config.notice)failure(new Error(config.notice));
  }catch(e){if(available){document.getElementById('library-auth').hidden=access!=='team';failure(e)}else document.getElementById('save-hint').textContent='Локальный режим · серверный архив не подключён'}
 });
 
 setInterval(()=>{if(source==='github'&&available&&!busy&&!document.hidden)refresh().catch(()=>{libraryStatus.textContent='GitHub временно недоступен · показан прежний список'})},60000);
-setInterval(async()=>{if(githubRequested&&source!=='github'&&!busy&&!document.hidden){try{const config=await api('/config');if(config.source==='github'){source='github';document.getElementById('propose-pr').hidden=false;document.getElementById('source-link').hidden=false;document.getElementById('pr-panel').hidden=false;document.getElementById('save-hint').textContent='Кейсы из main · изменения через PR';error.textContent='';await refresh(true);status.textContent='GitHub подключён · выберите кейс'}}catch{}}},60000);
+setInterval(async()=>{if(githubRequested&&source!=='github'&&!busy&&!document.hidden){try{const config=await api('/config');if(config.source==='github'){source='github';document.getElementById('source-link').hidden=false;document.getElementById('save-hint').textContent='Новые кейсы и изменения загружаются из GitHub';error.textContent='';await refresh(true);status.textContent='GitHub подключён · выберите кейс'}}catch{}}},60000);
