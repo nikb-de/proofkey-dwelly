@@ -1,0 +1,1334 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "014 · Receiving desk closed on arrival",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Rellin Vos, receiving coordinator at Vellum Rack. From the case card: the driver with DL-014 arrived after the consignee's receiving hours, and the next attempt needs a staffed receiving window, not a general opening time.",
+ "initial_state": {
+  "case_id": "014",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "recipient",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: get the next staffed receiving window from the consignee and dispatch's booking of a new attempt in it."
+   },
+   "recipient": {
+    "name": "Rellin Vos",
+    "organization": "Vellum Rack",
+    "role": "recipient",
+    "is_us": false,
+    "responsibility": "Give the next staffed receiving window and the receiving entrance for the retry."
+   }
+  },
+  "goal": "Obtain the consignee's next staffed receiving window and get dispatch to confirm a new attempt for DL-014 within it.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The receiving coordinator has given the next staffed receiving window.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "Dispatch has confirmed a new attempt within the agreed receiving hours.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The driver arrived after receiving hours; no staffed receiving window is known for the next attempt.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-014.",
+    "source": {
+     "type": "case_card",
+     "id": "014"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The driver arrived after the consignee's receiving hours.",
+    "source": {
+     "type": "case_card",
+     "id": "014"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The next attempt needs a staffed receiving window, not a general opening time.",
+    "source": {
+     "type": "case_card",
+     "id": "014"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Do not treat shop opening hours as staffed receiving hours: they are different facts."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Dispatch email",
+    "title": "Dispatch needs a staffed receiving window",
+    "timestamp": "2026-02-15 09:00:00 UTC",
+    "actor_id": "dispatch",
+    "message_id": "001"
+   },
+   "explanation": "The driver reached the business after its receiving desk had closed and kept the parcel. Dispatch cannot retry without a staffed window, and only the receiving coordinator knows it, so we need to ask Rellin.",
+   "state_after": {
+    "case_id": "014",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the next staffed receiving window from the consignee and dispatch's booking of a new attempt in it."
+     },
+     "recipient": {
+      "name": "Rellin Vos",
+      "organization": "Vellum Rack",
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Give the next staffed receiving window and the receiving entrance for the retry."
+     },
+     "dispatch": {
+      "name": "Business dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Book the retry of DL-014 within the staffed receiving window relayed by the desk."
+     }
+    },
+    "goal": "Obtain the consignee's next staffed receiving window and get dispatch to confirm a new attempt for DL-014 within it.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask the receiving coordinator for the next staffed receiving window."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The receiving coordinator has given the next staffed receiving window.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "Dispatch has confirmed a new attempt within the agreed receiving hours.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-15 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "014"
+     },
+     "context_message_id": "001",
+     "summary": "Rebook DL-014 into a staffed receiving window after the driver arrived outside the consignee's receiving hours.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "No staffed receiving window is known for the retry.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-014.",
+      "source": {
+       "type": "case_card",
+       "id": "014"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-014 reached Vellum Rack Supplies after its receiving desk closed on the previous route day.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The next attempt needs a staffed receiving window, not a general opening time.",
+      "source": {
+       "type": "case_card",
+       "id": "014"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The driver retained the parcel.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Business dispatch needs a staffed receiving window to retry.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Get the next staffed receiving window for DL-014.",
+      "expected_response": "A staffed receiving window.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "001"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": {
+     "type": "information",
+     "responsible_actor": "recipient",
+     "request_id": "r1",
+     "description": "Give the next staffed receiving window."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "dispatch",
+      "event_id": "001",
+      "timestamp": "2026-02-15 09:00:00 UTC",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-014 reached Vellum Rack Supplies after its receiving desk closed on the previous route day. The driver retained the parcel. We need a staffed receiving window to retry."
+     }
+    ],
+    "limits": [
+     "Do not treat shop opening hours as staffed receiving hours: they are different facts."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client request",
+    "title": "Rellin asks to be consulted before rebooking",
+    "timestamp": "2026-02-15 09:10:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "002"
+   },
+   "explanation": "Rellin separates the shop's opening hours from the receiving desk's hours and asks us to check before any booking. So we ask Rellin for the staffed window first and book nothing yet.",
+   "state_after": {
+    "case_id": "014",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the next staffed receiving window from the consignee and dispatch's booking of a new attempt in it."
+     },
+     "recipient": {
+      "name": "Rellin Vos",
+      "organization": "Vellum Rack",
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Give the next staffed receiving window and the receiving entrance for the retry."
+     },
+     "dispatch": {
+      "name": "Business dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Book the retry of DL-014 within the staffed receiving window relayed by the desk."
+     }
+    },
+    "goal": "Obtain the consignee's next staffed receiving window and get dispatch to confirm a new attempt for DL-014 within it.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask Rellin for the next staffed receiving window before anything is booked."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The receiving coordinator has given the next staffed receiving window.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "Dispatch has confirmed a new attempt within the agreed receiving hours.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-15 09:00:00 UTC",
+     "escalated_at": "2026-02-15 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "014"
+     },
+     "context_message_id": "001",
+     "summary": "Rebook DL-014 into a staffed receiving window after the driver arrived outside the consignee's receiving hours.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The next staffed receiving window is unknown.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-014.",
+      "source": {
+       "type": "case_card",
+       "id": "014"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-014 reached Vellum Rack Supplies after its receiving desk closed on the previous route day.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The next attempt needs a staffed receiving window, not a general opening time.",
+      "source": {
+       "type": "case_card",
+       "id": "014"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The driver retained the parcel.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Business dispatch needs a staffed receiving window to retry.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The shop may be open late, but the receiving desk is not.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Rellin asks the desk to check with them before booking another delivery.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Get the next staffed receiving window for DL-014.",
+      "expected_response": "A staffed receiving window.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "001"
+      ]
+     },
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Check with Rellin before booking another delivery.",
+      "expected_response": "The desk consults Rellin before any booking.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "information",
+     "responsible_actor": "recipient",
+     "request_id": "r1",
+     "description": "Give the next staffed receiving window."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "missed-delivery-context",
+      "kind": "context",
+      "title": "What Rellin knew before the message",
+      "text": "Rellin refers to booking another delivery, so Rellin knows the earlier delivery did not go through. How Rellin learned this is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Business portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "dispatch",
+      "event_id": "001",
+      "timestamp": "2026-02-15 09:00:00 UTC",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-014 reached Vellum Rack Supplies after its receiving desk closed on the previous route day. The driver retained the parcel. We need a staffed receiving window to retry."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-15 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Business portal",
+      "body": "Our shop may be open late, but the receiving desk is not. Please check with me before booking another delivery."
+     }
+    ],
+    "limits": [
+     "Do not treat shop opening hours as staffed receiving hours: they are different facts."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our question",
+    "title": "We ask for the window and entrance",
+    "timestamp": "2026-02-15 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We asked for the staffed window and the correct receiving entrance, the two details dispatch needs to book the attempt. Now we wait for Rellin's reply.",
+   "state_after": {
+    "case_id": "014",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the next staffed receiving window from the consignee and dispatch's booking of a new attempt in it."
+     },
+     "recipient": {
+      "name": "Rellin Vos",
+      "organization": "Vellum Rack",
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Give the next staffed receiving window and the receiving entrance for the retry."
+     },
+     "dispatch": {
+      "name": "Business dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Book the retry of DL-014 within the staffed receiving window relayed by the desk."
+     }
+    },
+    "goal": "Obtain the consignee's next staffed receiving window and get dispatch to confirm a new attempt for DL-014 within it.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "recipient",
+       "request_id": "r1",
+       "expected": "Next staffed receiving window and receiving entrance"
+      }
+     ],
+     "next_action": "Once answered, relay the window and entrance to business dispatch for booking."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The receiving coordinator has given the next staffed receiving window.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "Dispatch has confirmed a new attempt within the agreed receiving hours.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-15 09:00:00 UTC",
+     "escalated_at": "2026-02-15 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "014"
+     },
+     "context_message_id": "001",
+     "summary": "Rebook DL-014 into a staffed receiving window after the driver arrived outside the consignee's receiving hours.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The next staffed receiving window is unknown.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-014.",
+      "source": {
+       "type": "case_card",
+       "id": "014"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-014 reached Vellum Rack Supplies after its receiving desk closed on the previous route day.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The next attempt needs a staffed receiving window, not a general opening time.",
+      "source": {
+       "type": "case_card",
+       "id": "014"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The driver retained the parcel.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Business dispatch needs a staffed receiving window to retry.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The shop may be open late, but the receiving desk is not.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Rellin asks the desk to check with them before booking another delivery.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Get the next staffed receiving window for DL-014 and the correct receiving entrance, so dispatch can book the attempt.",
+      "expected_response": "The staffed receiving window and the receiving entrance.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "001",
+       "003"
+      ]
+     },
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Check with Rellin before booking another delivery.",
+      "expected_response": "The desk consults Rellin before any booking.",
+      "status": "completed",
+      "response": "The desk asked Rellin for the next staffed receiving window before any booking.",
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_response",
+    "next_step": {
+     "type": "information",
+     "responsible_actor": "recipient",
+     "request_id": "r1",
+     "description": "Wait for the staffed window and receiving entrance from Rellin."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "missed-delivery-context",
+      "kind": "context",
+      "title": "What Rellin knew before the message",
+      "text": "Rellin refers to booking another delivery, so Rellin knows the earlier delivery did not go through. How Rellin learned this is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Business portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "dispatch",
+      "event_id": "001",
+      "timestamp": "2026-02-15 09:00:00 UTC",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-014 reached Vellum Rack Supplies after its receiving desk closed on the previous route day. The driver retained the parcel. We need a staffed receiving window to retry."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-15 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Business portal",
+      "body": "Our shop may be open late, but the receiving desk is not. Please check with me before booking another delivery."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "003",
+      "timestamp": "2026-02-15 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Business portal",
+      "body": "What is the next staffed receiving window for DL-014? Please include the correct receiving entrance so dispatch can book the attempt."
+     }
+    ],
+    "limits": [
+     "Do not treat shop opening hours as staffed receiving hours: they are different facts."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "Client reply",
+    "title": "Rellin gives a staffed window at door R2",
+    "timestamp": "2026-02-15 09:50:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "004"
+   },
+   "explanation": "We now have a window with a receiving clerk present and the door to use. A window agreed with the consignee is not yet a booking: dispatch has to book it.",
+   "state_after": {
+    "case_id": "014",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the next staffed receiving window from the consignee and dispatch's booking of a new attempt in it."
+     },
+     "recipient": {
+      "name": "Rellin Vos",
+      "organization": "Vellum Rack",
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Give the next staffed receiving window and the receiving entrance for the retry."
+     },
+     "dispatch": {
+      "name": "Business dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Book the retry of DL-014 within the staffed receiving window relayed by the desk."
+     }
+    },
+    "goal": "Obtain the consignee's next staffed receiving window and get dispatch to confirm a new attempt for DL-014 within it.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Relay the window and door R2 to business dispatch, then wait for the booking confirmation.",
+     "note": "Relaying the window to dispatch and the wait that follows are not recorded as separate events. So in this snapshot the agent is still preparing the handoff; it is not given waiting status without evidence that the request was sent."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The receiving coordinator has given the next staffed receiving window.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "Dispatch has confirmed a new attempt within the agreed receiving hours.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-15 09:00:00 UTC",
+     "escalated_at": "2026-02-15 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "014"
+     },
+     "context_message_id": "001",
+     "summary": "Rebook DL-014 into a staffed receiving window after the driver arrived outside the consignee's receiving hours.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "Window agreed with the receiving coordinator; dispatch has not yet booked it.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-014.",
+      "source": {
+       "type": "case_card",
+       "id": "014"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-014 reached Vellum Rack Supplies after its receiving desk closed on the previous route day.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The next attempt needs a staffed receiving window, not a general opening time.",
+      "source": {
+       "type": "case_card",
+       "id": "014"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The driver retained the parcel.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Business dispatch needs a staffed receiving window to retry.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The shop may be open late, but the receiving desk is not.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Rellin asks the desk to check with them before booking another delivery.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "Rellin gives 2026-02-16, 10:00–13:00 UTC, at receiving door R2.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "Rellin will have a receiving clerk at door R2 throughout that window.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Get the next staffed receiving window for DL-014 and the correct receiving entrance, so dispatch can book the attempt.",
+      "expected_response": "The staffed receiving window and the receiving entrance.",
+      "status": "answered",
+      "response": "2026-02-16, 10:00–13:00 UTC, receiving door R2; a receiving clerk will be there throughout.",
+      "evidence_event_ids": [
+       "001",
+       "003",
+       "004"
+      ]
+     },
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Check with Rellin before booking another delivery.",
+      "expected_response": "The desk consults Rellin before any booking.",
+      "status": "completed",
+      "response": "The desk asked Rellin for the next staffed receiving window before any booking.",
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "r2": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "responsible_actor": "dispatch",
+      "purpose": "Book the DL-014 retry for 2026-02-16, 10:00–13:00 UTC, at receiving door R2.",
+      "expected_response": "Confirmation of the booking.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_confirmation",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "dispatch",
+     "request_id": "r2",
+     "description": "Relay Rellin's window and door R2 to business dispatch and get the booking confirmed."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "missed-delivery-context",
+      "kind": "context",
+      "title": "What Rellin knew before the message",
+      "text": "Rellin refers to booking another delivery, so Rellin knows the earlier delivery did not go through. How Rellin learned this is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "missing-relay-to-dispatch",
+      "kind": "gap",
+      "title": "Gap in the source history",
+      "text": "Our message relaying the window to business dispatch is not recorded as a separate event. Once it is sent, the agent should wait for confirmation from dispatch.",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Business portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "dispatch",
+      "event_id": "001",
+      "timestamp": "2026-02-15 09:00:00 UTC",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-014 reached Vellum Rack Supplies after its receiving desk closed on the previous route day. The driver retained the parcel. We need a staffed receiving window to retry."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-15 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Business portal",
+      "body": "Our shop may be open late, but the receiving desk is not. Please check with me before booking another delivery."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "003",
+      "timestamp": "2026-02-15 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Business portal",
+      "body": "What is the next staffed receiving window for DL-014? Please include the correct receiving entrance so dispatch can book the attempt."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "004",
+      "timestamp": "2026-02-15 09:50:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Business portal",
+      "body": "Use 2026-02-16, 10:00–13:00 UTC, at receiving door R2. I will have a receiving clerk there throughout that window."
+     }
+    ],
+    "limits": [
+     "Do not treat shop opening hours as staffed receiving hours: they are different facts."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "005",
+    "type": "message_received",
+    "label": "Confirmation",
+    "title": "Dispatch books the retry at door R2",
+    "timestamp": "2026-02-15 10:05:00 UTC",
+    "actor_id": "dispatch",
+    "message_id": "005"
+   },
+   "explanation": "Dispatch booked the relayed window at door R2, so the coordination task can be closed. Dispatch itself says this confirms the next attempt, not receipt.",
+   "state_after": {
+    "case_id": "014",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the next staffed receiving window from the consignee and dispatch's booking of a new attempt in it."
+     },
+     "recipient": {
+      "name": "Rellin Vos",
+      "organization": "Vellum Rack",
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Give the next staffed receiving window and the receiving entrance for the retry."
+     },
+     "dispatch": {
+      "name": "Business dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Book the retry of DL-014 within the staffed receiving window relayed by the desk."
+     }
+    },
+    "goal": "Obtain the consignee's next staffed receiving window and get dispatch to confirm a new attempt for DL-014 within it.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Coordination task complete: dispatch confirmed the next attempt within the staffed receiving window. Receipt is not part of this case's success criteria."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The receiving coordinator has given the next staffed receiving window.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "Dispatch has confirmed a new attempt within the agreed receiving hours.",
+      "status": "met",
+      "evidence_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-15 09:00:00 UTC",
+     "escalated_at": "2026-02-15 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "014"
+     },
+     "context_message_id": "001",
+     "summary": "Rebook DL-014 into a staffed receiving window after the driver arrived outside the consignee's receiving hours.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-014.",
+      "source": {
+       "type": "case_card",
+       "id": "014"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-014 reached Vellum Rack Supplies after its receiving desk closed on the previous route day.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The next attempt needs a staffed receiving window, not a general opening time.",
+      "source": {
+       "type": "case_card",
+       "id": "014"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The driver retained the parcel.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Business dispatch needs a staffed receiving window to retry.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The shop may be open late, but the receiving desk is not.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Rellin asks the desk to check with them before booking another delivery.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "Rellin gives 2026-02-16, 10:00–13:00 UTC, at receiving door R2.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "Rellin will have a receiving clerk at door R2 throughout that window.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f10",
+      "text": "Business dispatch booked DL-014 for 2026-02-16, 10:00–13:00 UTC, at receiving door R2.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "f11",
+      "text": "Dispatch noted that this confirms the next attempt, not receipt.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Get the next staffed receiving window for DL-014 and the correct receiving entrance, so dispatch can book the attempt.",
+      "expected_response": "The staffed receiving window and the receiving entrance.",
+      "status": "answered",
+      "response": "2026-02-16, 10:00–13:00 UTC, receiving door R2; a receiving clerk will be there throughout.",
+      "evidence_event_ids": [
+       "001",
+       "003",
+       "004"
+      ]
+     },
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Check with Rellin before booking another delivery.",
+      "expected_response": "The desk consults Rellin before any booking.",
+      "status": "completed",
+      "response": "The desk asked Rellin for the next staffed receiving window before any booking.",
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "r2": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "responsible_actor": "dispatch",
+      "purpose": "Book the DL-014 retry for 2026-02-16, 10:00–13:00 UTC, at receiving door R2.",
+      "expected_response": "Confirmation of the booking.",
+      "status": "completed",
+      "response": "Booked: DL-014, 2026-02-16, 10:00–13:00 UTC, receiving door R2.",
+      "evidence_event_ids": [
+       "004",
+       "005"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "DL-014 next attempt booked for 2026-02-16, 10:00–13:00 UTC, at receiving door R2, within the staffed window Rellin gave.",
+     "confirmed_by": "dispatch",
+     "evidence_event_ids": [
+      "005"
+     ],
+     "remaining_work": "The next attempt has not happened yet; the booking does not confirm receipt."
+    },
+    "annotations": [
+     {
+      "id": "missed-delivery-context",
+      "kind": "context",
+      "title": "What Rellin knew before the message",
+      "text": "Rellin refers to booking another delivery, so Rellin knows the earlier delivery did not go through. How Rellin learned this is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "missing-relay-to-dispatch",
+      "kind": "gap",
+      "title": "Gap in the source history",
+      "text": "Our message relaying the window to business dispatch is not recorded as a separate event. Message 005 refers to it (\"Your relayed window is booked\") and confirms it was carried out. No intermediate wait for dispatch was observed.",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Business portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "dispatch",
+      "event_id": "001",
+      "timestamp": "2026-02-15 09:00:00 UTC",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-014 reached Vellum Rack Supplies after its receiving desk closed on the previous route day. The driver retained the parcel. We need a staffed receiving window to retry."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-15 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Business portal",
+      "body": "Our shop may be open late, but the receiving desk is not. Please check with me before booking another delivery."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "003",
+      "timestamp": "2026-02-15 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Business portal",
+      "body": "What is the next staffed receiving window for DL-014? Please include the correct receiving entrance so dispatch can book the attempt."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "004",
+      "timestamp": "2026-02-15 09:50:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Business portal",
+      "body": "Use 2026-02-16, 10:00–13:00 UTC, at receiving door R2. I will have a receiving clerk there throughout that window."
+     },
+     {
+      "conversation_id": "dispatch",
+      "event_id": "005",
+      "timestamp": "2026-02-15 10:05:00 UTC",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Your relayed window is booked: DL-014, 2026-02-16, 10:00–13:00 UTC, receiving door R2. This confirms the next attempt, not receipt."
+     }
+    ],
+    "limits": [
+     "Do not treat shop opening hours as staffed receiving hours: they are different facts."
+    ]
+   }
+  }
+ ]
+}

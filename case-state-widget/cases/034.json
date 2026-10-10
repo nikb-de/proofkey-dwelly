@@ -1,0 +1,937 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "034 · Return stuck at the carrier depot",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Elrin Kove. From the case card: return RT-034 is in carrier transit with no merchant receipt, and the trace should end in a warehouse confirmation, not an inferred refund.",
+ "initial_state": {
+  "case_id": "034",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "customer",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: get RT-034 traced through to confirmed physical receipt by the merchant."
+   },
+   "customer": {
+    "name": "Elrin Kove",
+    "organization": null,
+    "role": "customer",
+    "is_us": false,
+    "responsibility": "Ask for RT-034 to be traced to the merchant and for the time the merchant actually has it."
+   }
+  },
+  "goal": "Get RT-034 traced to the merchant and obtain the merchant warehouse's confirmation of physical receipt.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The merchant warehouse has confirmed physical receipt of the return, not just a carrier scan.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The time of the merchant's physical receipt is confirmed.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The return is still in carrier transit; there is no merchant receipt.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns return RT-034.",
+    "source": {
+     "type": "case_card",
+     "id": "034"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The return is in carrier transit.",
+    "source": {
+     "type": "case_card",
+     "id": "034"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "There is no merchant receipt for the return.",
+    "source": {
+     "type": "case_card",
+     "id": "034"
+    }
+   },
+   {
+    "id": "f4",
+    "text": "Tracing should end in a warehouse confirmation rather than an inferred refund.",
+    "source": {
+     "type": "case_card",
+     "id": "034"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Do not treat merchant physical receipt as acceptance of the return's condition.",
+   "Do not present merchant physical receipt as refund approval or payment."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Depot email",
+    "title": "Depot reports the last scan of RT-034",
+    "timestamp": "2026-03-07 09:00:00 UTC",
+    "actor_id": "depot",
+    "message_id": "001"
+   },
+   "explanation": "The carrier still holds the return and there is no merchant receiving scan. The return has to be traced on to the merchant warehouse.",
+   "state_after": {
+    "case_id": "034",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get RT-034 traced through to confirmed physical receipt by the merchant."
+     },
+     "customer": {
+      "name": "Elrin Kove",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Ask for RT-034 to be traced to the merchant and for the time the merchant actually has it."
+     },
+     "depot": {
+      "name": "Returns depot",
+      "organization": "Plover Arc Logistics",
+      "role": "depot",
+      "is_us": false,
+      "responsibility": "Report the last RT-034 scan and that the carrier still holds the return."
+     }
+    },
+    "goal": "Get RT-034 traced to the merchant and obtain the merchant warehouse's confirmation of physical receipt.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Get RT-034 traced from the depot to the merchant warehouse."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The merchant warehouse has confirmed physical receipt of the return, not just a carrier scan.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The time of the merchant's physical receipt is confirmed.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-07 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "034"
+     },
+     "context_message_id": "001",
+     "summary": "Trace return RT-034 from the carrier depot to the merchant and confirm when the merchant physically has it.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The return is still with the carrier at the depot; there is no merchant receiving scan.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns return RT-034.",
+      "source": {
+       "type": "case_card",
+       "id": "034"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "RT-034 last scan: return depot, 2026-03-07 07:40 UTC; the carrier still holds the return.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "No merchant receiving scan is visible.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Tracing should end in a warehouse confirmation rather than an inferred refund.",
+      "source": {
+       "type": "case_card",
+       "id": "034"
+      }
+     }
+    ],
+    "requests": {},
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": null,
+     "description": "Arrange a trace of RT-034 to the merchant warehouse."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "depot": {
+      "participants": [
+       "coordinator",
+       "depot"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "depot",
+      "event_id": "001",
+      "timestamp": "2026-03-07 09:00:00 UTC",
+      "from_actor": "depot",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "RT-034 last scan: return depot, 2026-03-07 07:40 UTC. No merchant receiving scan is visible. The carrier still holds the return."
+     }
+    ],
+    "limits": [
+     "Do not treat merchant physical receipt as acceptance of the return's condition.",
+     "Do not present merchant physical receipt as refund approval or payment."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client request",
+    "title": "Elrin asks to trace the return to the merchant",
+    "timestamp": "2026-03-07 09:10:00 UTC",
+    "actor_id": "customer",
+    "message_id": "002"
+   },
+   "explanation": "The customer needs to know when the merchant actually has the return, so a depot scan or an inferred refund is not an answer. The next step is a trace request to the carrier's returns trace team.",
+   "state_after": {
+    "case_id": "034",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get RT-034 traced through to confirmed physical receipt by the merchant."
+     },
+     "customer": {
+      "name": "Elrin Kove",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Ask for RT-034 to be traced to the merchant and for the time the merchant actually has it."
+     },
+     "depot": {
+      "name": "Returns depot",
+      "organization": "Plover Arc Logistics",
+      "role": "depot",
+      "is_us": false,
+      "responsibility": "Report the last RT-034 scan and that the carrier still holds the return."
+     },
+     "trace_team": {
+      "name": "Returns trace team",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Trace RT-034 through to merchant receipt and ask merchant receiving to confirm physical acceptance."
+     }
+    },
+    "goal": "Get RT-034 traced to the merchant and obtain the merchant warehouse's confirmation of physical receipt.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask the returns trace team to trace RT-034 to the merchant."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The merchant warehouse has confirmed physical receipt of the return, not just a carrier scan.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The time of the merchant's physical receipt is confirmed.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-07 09:00:00 UTC",
+     "escalated_at": "2026-03-07 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "034"
+     },
+     "context_message_id": "001",
+     "summary": "Trace return RT-034 from the carrier depot to the merchant and confirm when the merchant physically has it.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The return is still with the carrier; merchant receipt is not confirmed.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns return RT-034.",
+      "source": {
+       "type": "case_card",
+       "id": "034"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "RT-034 last scan: return depot, 2026-03-07 07:40 UTC; the carrier still holds the return.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "No merchant receiving scan is visible.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Tracing should end in a warehouse confirmation rather than an inferred refund.",
+      "source": {
+       "type": "case_card",
+       "id": "034"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "trace_team",
+      "purpose": "Trace the return to the merchant and establish when the merchant actually has it.",
+      "expected_response": "When the merchant physically has the return.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "trace_team",
+      "responsible_actor": "trace_team",
+      "purpose": "Trace RT-034 through to merchant receipt and get merchant receiving to confirm physical acceptance.",
+      "expected_response": "Merchant receiving's confirmation of physical acceptance.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "trace_team",
+     "request_id": "r1",
+     "description": "Trace RT-034 to the merchant and get physical acceptance confirmed."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "depot": {
+      "participants": [
+       "coordinator",
+       "depot"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "depot",
+      "event_id": "001",
+      "timestamp": "2026-03-07 09:00:00 UTC",
+      "from_actor": "depot",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "RT-034 last scan: return depot, 2026-03-07 07:40 UTC. No merchant receiving scan is visible. The carrier still holds the return."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-07 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "My return has been sitting at the depot. Could you trace it to the merchant? I need to know when they actually have it."
+     }
+    ],
+    "limits": [
+     "Do not treat merchant physical receipt as acceptance of the return's condition.",
+     "Do not present merchant physical receipt as refund approval or payment."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our request",
+    "title": "We ask for a trace to merchant receipt",
+    "timestamp": "2026-03-07 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We asked for the trace to end in merchant receiving's confirmation of physical acceptance, because a departure scan does not prove the merchant has the return. Now we wait for the result.",
+   "state_after": {
+    "case_id": "034",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get RT-034 traced through to confirmed physical receipt by the merchant."
+     },
+     "customer": {
+      "name": "Elrin Kove",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Ask for RT-034 to be traced to the merchant and for the time the merchant actually has it."
+     },
+     "depot": {
+      "name": "Returns depot",
+      "organization": "Plover Arc Logistics",
+      "role": "depot",
+      "is_us": false,
+      "responsibility": "Report the last RT-034 scan and that the carrier still holds the return."
+     },
+     "trace_team": {
+      "name": "Returns trace team",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Trace RT-034 through to merchant receipt and ask merchant receiving to confirm physical acceptance."
+     }
+    },
+    "goal": "Get RT-034 traced to the merchant and obtain the merchant warehouse's confirmation of physical receipt.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "trace_team",
+       "request_id": "r1",
+       "expected": "Merchant receiving's confirmation of physical acceptance"
+      }
+     ],
+     "next_action": "Once physical receipt is confirmed, check it against the customer's question of when the merchant has the return."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The merchant warehouse has confirmed physical receipt of the return, not just a carrier scan.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The time of the merchant's physical receipt is confirmed.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-07 09:00:00 UTC",
+     "escalated_at": "2026-03-07 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "034"
+     },
+     "context_message_id": "001",
+     "summary": "Trace return RT-034 from the carrier depot to the merchant and confirm when the merchant physically has it.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "Merchant receipt is not confirmed.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns return RT-034.",
+      "source": {
+       "type": "case_card",
+       "id": "034"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "RT-034 last scan: return depot, 2026-03-07 07:40 UTC; the carrier still holds the return.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "No merchant receiving scan is visible.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Tracing should end in a warehouse confirmation rather than an inferred refund.",
+      "source": {
+       "type": "case_card",
+       "id": "034"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "trace_team",
+      "purpose": "Trace the return to the merchant and establish when the merchant actually has it.",
+      "expected_response": "When the merchant physically has the return.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "trace_team",
+      "responsible_actor": "trace_team",
+      "purpose": "Trace RT-034 through to merchant receipt and get merchant receiving to confirm physical acceptance rather than use a departure scan as proof.",
+      "expected_response": "Merchant receiving's confirmation of physical acceptance.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_confirmation",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "trace_team",
+     "request_id": "r1",
+     "description": "Wait for the trace result and merchant receiving's confirmation."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "depot": {
+      "participants": [
+       "coordinator",
+       "depot"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     },
+     "trace": {
+      "participants": [
+       "coordinator",
+       "trace_team"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "depot",
+      "event_id": "001",
+      "timestamp": "2026-03-07 09:00:00 UTC",
+      "from_actor": "depot",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "RT-034 last scan: return depot, 2026-03-07 07:40 UTC. No merchant receiving scan is visible. The carrier still holds the return."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-07 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "My return has been sitting at the depot. Could you trace it to the merchant? I need to know when they actually have it."
+     },
+     {
+      "conversation_id": "trace",
+      "event_id": "003",
+      "timestamp": "2026-03-07 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "trace_team",
+      "channel": "Email",
+      "body": "Please trace RT-034 through to merchant receipt. Ask the merchant receiving team to confirm physical acceptance rather than use a departure scan as proof."
+     }
+    ],
+    "limits": [
+     "Do not treat merchant physical receipt as acceptance of the return's condition.",
+     "Do not present merchant physical receipt as refund approval or payment."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "Confirmation",
+    "title": "Merchant warehouse confirms physical receipt",
+    "timestamp": "2026-03-08 13:00:00 UTC",
+    "actor_id": "warehouse",
+    "message_id": "004"
+   },
+   "explanation": "Warehouse receiving confirmed physical receipt and its time, so the trace task is closed. Inspection and the refund decision are separate and still pending.",
+   "state_after": {
+    "case_id": "034",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get RT-034 traced through to confirmed physical receipt by the merchant."
+     },
+     "customer": {
+      "name": "Elrin Kove",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Ask for RT-034 to be traced to the merchant and for the time the merchant actually has it."
+     },
+     "depot": {
+      "name": "Returns depot",
+      "organization": "Plover Arc Logistics",
+      "role": "depot",
+      "is_us": false,
+      "responsibility": "Report the last RT-034 scan and that the carrier still holds the return."
+     },
+     "trace_team": {
+      "name": "Returns trace team",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Trace RT-034 through to merchant receipt and ask merchant receiving to confirm physical acceptance."
+     },
+     "warehouse": {
+      "name": "Warehouse receiving",
+      "organization": "Tallowmere Goods",
+      "role": "warehouse",
+      "is_us": false,
+      "responsibility": "Confirm physical receipt of RT-034 at the merchant's returns bay."
+     }
+    },
+    "goal": "Get RT-034 traced to the merchant and obtain the merchant warehouse's confirmation of physical receipt.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Coordination task complete: the merchant warehouse confirmed physical receipt and its time. Inspection, condition acceptance and refund are outside this case's success criteria."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The merchant warehouse has confirmed physical receipt of the return, not just a carrier scan.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The time of the merchant's physical receipt is confirmed.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-07 09:00:00 UTC",
+     "escalated_at": "2026-03-07 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "034"
+     },
+     "context_message_id": "001",
+     "summary": "Trace return RT-034 from the carrier depot to the merchant and confirm when the merchant physically has it.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns return RT-034.",
+      "source": {
+       "type": "case_card",
+       "id": "034"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "RT-034 was physically received at the merchant's returns bay at 12:50 UTC on 2026-03-08.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Warehouse receiving, Tallowmere Goods confirmed receipt; inline receipt WH-034 records one return carton for TG-034.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Tracing should end in a warehouse confirmation rather than an inferred refund.",
+      "source": {
+       "type": "case_card",
+       "id": "034"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Inspection and refund decisions are still pending.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "trace_team",
+      "purpose": "Trace the return to the merchant and establish when the merchant actually has it.",
+      "expected_response": "When the merchant physically has the return.",
+      "status": "completed",
+      "response": "Physically received at the merchant's returns bay at 12:50 UTC on 2026-03-08.",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "trace_team",
+      "responsible_actor": "trace_team",
+      "responded_by": "warehouse",
+      "purpose": "Trace RT-034 through to merchant receipt and get merchant receiving to confirm physical acceptance rather than use a departure scan as proof.",
+      "expected_response": "Merchant receiving's confirmation of physical acceptance.",
+      "status": "completed",
+      "response": "Physically received at the returns bay at 12:50 UTC on 2026-03-08; inline receipt WH-034 records one return carton for TG-034.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "Warehouse receiving, Tallowmere Goods confirmed physical receipt of RT-034 at 12:50 UTC on 2026-03-08; inline receipt WH-034 records one return carton for TG-034.",
+     "confirmed_by": "warehouse",
+     "evidence_event_ids": [
+      "004"
+     ],
+     "remaining_work": "Inspection and refund decisions are still pending. Physical receipt does not establish accepted condition, refund approval or payment."
+    },
+    "annotations": [
+     {
+      "id": "trace-not-recorded",
+      "kind": "gap",
+      "title": "Gap in the source history",
+      "text": "How the trace team traced RT-034 and how merchant receiving was asked to confirm are not recorded as separate events. The confirmation in message 004 comes directly from Warehouse receiving, Tallowmere Goods.",
+      "source_event_ids": [
+       "003",
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "depot": {
+      "participants": [
+       "coordinator",
+       "depot"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     },
+     "trace": {
+      "participants": [
+       "coordinator",
+       "trace_team"
+      ],
+      "channel": "Email"
+     },
+     "warehouse": {
+      "participants": [
+       "coordinator",
+       "warehouse"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "depot",
+      "event_id": "001",
+      "timestamp": "2026-03-07 09:00:00 UTC",
+      "from_actor": "depot",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "RT-034 last scan: return depot, 2026-03-07 07:40 UTC. No merchant receiving scan is visible. The carrier still holds the return."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-07 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "My return has been sitting at the depot. Could you trace it to the merchant? I need to know when they actually have it."
+     },
+     {
+      "conversation_id": "trace",
+      "event_id": "003",
+      "timestamp": "2026-03-07 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "trace_team",
+      "channel": "Email",
+      "body": "Please trace RT-034 through to merchant receipt. Ask the merchant receiving team to confirm physical acceptance rather than use a departure scan as proof."
+     },
+     {
+      "conversation_id": "warehouse",
+      "event_id": "004",
+      "timestamp": "2026-03-08 13:00:00 UTC",
+      "from_actor": "warehouse",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "RT-034 physically received at our returns bay at 12:50 UTC on 2026-03-08. Inline receipt WH-034 records one return carton for TG-034. Inspection and refund decisions are still pending."
+     }
+    ],
+    "limits": [
+     "Do not treat merchant physical receipt as acceptance of the return's condition.",
+     "Do not present merchant physical receipt as refund approval or payment."
+    ]
+   }
+  }
+ ]
+}

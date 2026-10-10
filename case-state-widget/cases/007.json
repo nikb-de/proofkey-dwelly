@@ -1,0 +1,1245 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "007 · Pickup deadline extension",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Ciro Fale. From the case card: DL-007 is already at a pickup counter, the pickup deadline is too short for the recipient, and the operator allows a short extension that only it may approve.",
+ "initial_state": {
+  "case_id": "007",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "recipient",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: request the permitted extension from the pickup-point operator and tell the recipient the confirmed deadline."
+   },
+   "recipient": {
+    "name": "Ciro Fale",
+    "organization": null,
+    "role": "recipient",
+    "is_us": false,
+    "responsibility": "Say until when the parcel needs to be kept, and collect it by the deadline."
+   }
+  },
+  "goal": "Get the pickup-point operator to approve an extension of the DL-007 collection deadline within its policy and notify the recipient of the confirmed deadline.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The recipient has stated until when the parcel should be kept.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The operator has approved the extension and confirmed the new collection deadline.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c3",
+    "description": "The recipient has been notified of the confirmed deadline.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The pickup deadline is too short for the recipient; no extension is approved.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-007.",
+    "source": {
+     "type": "case_card",
+     "id": "007"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The parcel is already at a pickup counter.",
+    "source": {
+     "type": "case_card",
+     "id": "007"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The operator allows a short extension; only the operator may approve it.",
+    "source": {
+     "type": "case_card",
+     "id": "007"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Do not treat the extension as proof that the customer collected the parcel."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Counter email",
+    "title": "Counter states the hold and extension rule",
+    "timestamp": "2026-02-08 09:00:00 UTC",
+    "actor_id": "pickup_point",
+    "message_id": "001"
+   },
+   "explanation": "The counter gives the current deadline and the rule: one two-day extension, requested before expiry, if capacity permits, and there is capacity now. We take in the recipient's request before asking for the extension.",
+   "state_after": {
+    "case_id": "007",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: request the permitted extension from the pickup-point operator and tell the recipient the confirmed deadline."
+     },
+     "recipient": {
+      "name": "Ciro Fale",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Say until when the parcel needs to be kept, and collect it by the deadline."
+     },
+     "pickup_point": {
+      "name": "Sedgeglass Counter supervisor",
+      "organization": "Sedgeglass Counter",
+      "role": "pickup_point",
+      "is_us": false,
+      "responsibility": "Approve the permitted extension and update the collection deadline."
+     }
+    },
+    "goal": "Get the pickup-point operator to approve an extension of the DL-007 collection deadline within its policy and notify the recipient of the confirmed deadline.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Take in the recipient's request before asking the counter for an extension."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has stated until when the parcel should be kept.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The operator has approved the extension and confirmed the new collection deadline.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The recipient has been notified of the confirmed deadline.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-08 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "007"
+     },
+     "context_message_id": "001",
+     "summary": "Extend the pickup deadline for DL-007: the current deadline is too short for the recipient.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The current deadline is 2026-02-09, 18:00 UTC; no extension is approved.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-007.",
+      "source": {
+       "type": "case_card",
+       "id": "007"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The parcel is already at a pickup counter.",
+      "source": {
+       "type": "case_card",
+       "id": "007"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Local policy allows a single two-day extension if requested before expiry and stock capacity permits.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-007 is held until 2026-02-09, 18:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The counter currently has capacity.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {},
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": null,
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "pickup_point": {
+      "participants": [
+       "coordinator",
+       "pickup_point"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "pickup_point",
+      "event_id": "001",
+      "timestamp": "2026-02-08 09:00:00 UTC",
+      "from_actor": "pickup_point",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-007 is held until 2026-02-09, 18:00 UTC. Our local policy allows a single two-day extension if requested before expiry and stock capacity permits. We currently have capacity."
+     }
+    ],
+    "limits": [
+     "Do not treat the extension as proof that the customer collected the parcel."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client request",
+    "title": "Ciro asks to keep DL-007 longer",
+    "timestamp": "2026-02-08 09:10:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "002"
+   },
+   "explanation": "Ciro needs the parcel kept until 2026-02-11 and does not want it returned. That fits the one two-day extension the counter allows, so we ask the operator to approve it before the current deadline expires.",
+   "state_after": {
+    "case_id": "007",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: request the permitted extension from the pickup-point operator and tell the recipient the confirmed deadline."
+     },
+     "recipient": {
+      "name": "Ciro Fale",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Say until when the parcel needs to be kept, and collect it by the deadline."
+     },
+     "pickup_point": {
+      "name": "Sedgeglass Counter supervisor",
+      "organization": "Sedgeglass Counter",
+      "role": "pickup_point",
+      "is_us": false,
+      "responsibility": "Approve the permitted extension and update the collection deadline."
+     }
+    },
+    "goal": "Get the pickup-point operator to approve an extension of the DL-007 collection deadline within its policy and notify the recipient of the confirmed deadline.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask the counter operator to approve the permitted two-day extension of DL-007 to 2026-02-11."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has stated until when the parcel should be kept.",
+      "status": "met",
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The operator has approved the extension and confirmed the new collection deadline.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The recipient has been notified of the confirmed deadline.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-08 09:00:00 UTC",
+     "escalated_at": "2026-02-08 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "007"
+     },
+     "context_message_id": "001",
+     "summary": "Extend the pickup deadline for DL-007: the current deadline is too short for the recipient.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The extension is not yet approved; the current deadline is 2026-02-09, 18:00 UTC.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-007.",
+      "source": {
+       "type": "case_card",
+       "id": "007"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The parcel is already at a pickup counter.",
+      "source": {
+       "type": "case_card",
+       "id": "007"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Local policy allows a single two-day extension if requested before expiry and stock capacity permits.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-007 is held until 2026-02-09, 18:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The counter currently has capacity.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Ciro's work trip ends on 2026-02-10.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Ciro asks to keep DL-007 until 2026-02-11 and does not want it returned.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "pickup_point",
+      "purpose": "Keep DL-007 until 2026-02-11 instead of returning it.",
+      "expected_response": "A collection deadline extended to 2026-02-11.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "pickup_point",
+      "responsible_actor": "pickup_point",
+      "purpose": "Approve the permitted two-day extension of DL-007 to 2026-02-11.",
+      "expected_response": "Approval and the new collection deadline.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "permission",
+     "responsible_actor": "pickup_point",
+     "request_id": "r1",
+     "description": "Approve the two-day extension of DL-007 to 2026-02-11."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "pickup_point": {
+      "participants": [
+       "coordinator",
+       "pickup_point"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "pickup_point",
+      "event_id": "001",
+      "timestamp": "2026-02-08 09:00:00 UTC",
+      "from_actor": "pickup_point",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-007 is held until 2026-02-09, 18:00 UTC. Our local policy allows a single two-day extension if requested before expiry and stock capacity permits. We currently have capacity."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-08 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "My work trip ends on 2026-02-10. Could you keep DL-007 for me until 2026-02-11? I do not want it returned."
+     }
+    ],
+    "limits": [
+     "Do not treat the extension as proof that the customer collected the parcel."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our request",
+    "title": "We ask the counter for the extension",
+    "timestamp": "2026-02-08 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We asked for the permitted extension to 2026-02-11, 18:00 UTC, and for word once the return timer is updated. Approval is the operator's alone, so now we wait.",
+   "state_after": {
+    "case_id": "007",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: request the permitted extension from the pickup-point operator and tell the recipient the confirmed deadline."
+     },
+     "recipient": {
+      "name": "Ciro Fale",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Say until when the parcel needs to be kept, and collect it by the deadline."
+     },
+     "pickup_point": {
+      "name": "Sedgeglass Counter supervisor",
+      "organization": "Sedgeglass Counter",
+      "role": "pickup_point",
+      "is_us": false,
+      "responsibility": "Approve the permitted extension and update the collection deadline."
+     }
+    },
+    "goal": "Get the pickup-point operator to approve an extension of the DL-007 collection deadline within its policy and notify the recipient of the confirmed deadline.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "pickup_point",
+       "request_id": "r1",
+       "expected": "Approval of the extension and the updated return timer"
+      }
+     ],
+     "next_action": "Once the counter confirms, notify Ciro of the new deadline."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has stated until when the parcel should be kept.",
+      "status": "met",
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The operator has approved the extension and confirmed the new collection deadline.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The recipient has been notified of the confirmed deadline.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-08 09:00:00 UTC",
+     "escalated_at": "2026-02-08 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "007"
+     },
+     "context_message_id": "001",
+     "summary": "Extend the pickup deadline for DL-007: the current deadline is too short for the recipient.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The extension is not yet approved.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-007.",
+      "source": {
+       "type": "case_card",
+       "id": "007"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The parcel is already at a pickup counter.",
+      "source": {
+       "type": "case_card",
+       "id": "007"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Local policy allows a single two-day extension if requested before expiry and stock capacity permits.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-007 is held until 2026-02-09, 18:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The counter currently has capacity.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Ciro's work trip ends on 2026-02-10.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Ciro asks to keep DL-007 until 2026-02-11 and does not want it returned.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "pickup_point",
+      "purpose": "Keep DL-007 until 2026-02-11 instead of returning it.",
+      "expected_response": "A collection deadline extended to 2026-02-11.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "pickup_point",
+      "responsible_actor": "pickup_point",
+      "purpose": "Approve the permitted two-day extension of DL-007 to 2026-02-11, 18:00 UTC, and confirm once the return timer is updated.",
+      "expected_response": "Approval and confirmation that the return timer is updated.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_response",
+    "next_step": {
+     "type": "permission",
+     "responsible_actor": "pickup_point",
+     "request_id": "r1",
+     "description": "Wait for the operator to approve the extension and update the return timer."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "pickup_point": {
+      "participants": [
+       "coordinator",
+       "pickup_point"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "pickup_point",
+      "event_id": "001",
+      "timestamp": "2026-02-08 09:00:00 UTC",
+      "from_actor": "pickup_point",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-007 is held until 2026-02-09, 18:00 UTC. Our local policy allows a single two-day extension if requested before expiry and stock capacity permits. We currently have capacity."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-08 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "My work trip ends on 2026-02-10. Could you keep DL-007 for me until 2026-02-11? I do not want it returned."
+     },
+     {
+      "conversation_id": "pickup_point",
+      "event_id": "003",
+      "timestamp": "2026-02-08 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "pickup_point",
+      "channel": "Email",
+      "body": "Please approve the permitted two-day extension of DL-007 to 2026-02-11, 18:00 UTC, at Ciro’s request. Let us know once the return timer has been updated."
+     }
+    ],
+    "limits": [
+     "Do not treat the extension as proof that the customer collected the parcel."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "Counter approves",
+    "title": "Counter accepts the extension",
+    "timestamp": "2026-02-08 09:50:00 UTC",
+    "actor_id": "pickup_point",
+    "message_id": "004"
+   },
+   "explanation": "The operator approved the extension and moved the return timer to the new date. Ciro does not know yet, so our next step is to notify Ciro.",
+   "state_after": {
+    "case_id": "007",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: request the permitted extension from the pickup-point operator and tell the recipient the confirmed deadline."
+     },
+     "recipient": {
+      "name": "Ciro Fale",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Say until when the parcel needs to be kept, and collect it by the deadline."
+     },
+     "pickup_point": {
+      "name": "Sedgeglass Counter supervisor",
+      "organization": "Sedgeglass Counter",
+      "role": "pickup_point",
+      "is_us": false,
+      "responsibility": "Approve the permitted extension and update the collection deadline."
+     }
+    },
+    "goal": "Get the pickup-point operator to approve an extension of the DL-007 collection deadline within its policy and notify the recipient of the confirmed deadline.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Notify Ciro of the confirmed deadline: 2026-02-11 at 18:00 UTC."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has stated until when the parcel should be kept.",
+      "status": "met",
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The operator has approved the extension and confirmed the new collection deadline.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c3",
+      "description": "The recipient has been notified of the confirmed deadline.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-08 09:00:00 UTC",
+     "escalated_at": "2026-02-08 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "007"
+     },
+     "context_message_id": "001",
+     "summary": "Extend the pickup deadline for DL-007: the current deadline is too short for the recipient.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "Ciro has not yet been notified of the new deadline.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-007.",
+      "source": {
+       "type": "case_card",
+       "id": "007"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The parcel is already at a pickup counter.",
+      "source": {
+       "type": "case_card",
+       "id": "007"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Local policy allows a single two-day extension if requested before expiry and stock capacity permits.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The collection deadline is now 2026-02-11, 18:00 UTC, and the return timer uses that date.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The counter currently has capacity.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Ciro's work trip ends on 2026-02-10.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Ciro asks to keep DL-007 until 2026-02-11 and does not want it returned.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "This is the one permitted extension.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "pickup_point",
+      "purpose": "Keep DL-007 until 2026-02-11 instead of returning it.",
+      "expected_response": "A collection deadline extended to 2026-02-11.",
+      "status": "completed",
+      "response": "Collection deadline extended to 2026-02-11, 18:00 UTC; the return timer uses that date.",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "pickup_point",
+      "responsible_actor": "pickup_point",
+      "purpose": "Approve the permitted two-day extension of DL-007 to 2026-02-11, 18:00 UTC, and confirm once the return timer is updated.",
+      "expected_response": "Approval and confirmation that the return timer is updated.",
+      "status": "answered",
+      "response": "Extension accepted; the collection deadline is 2026-02-11, 18:00 UTC and the return timer uses that date.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "action_required",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": null,
+     "description": "Notify Ciro of the new collection deadline."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "pickup_point": {
+      "participants": [
+       "coordinator",
+       "pickup_point"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "pickup_point",
+      "event_id": "001",
+      "timestamp": "2026-02-08 09:00:00 UTC",
+      "from_actor": "pickup_point",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-007 is held until 2026-02-09, 18:00 UTC. Our local policy allows a single two-day extension if requested before expiry and stock capacity permits. We currently have capacity."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-08 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "My work trip ends on 2026-02-10. Could you keep DL-007 for me until 2026-02-11? I do not want it returned."
+     },
+     {
+      "conversation_id": "pickup_point",
+      "event_id": "003",
+      "timestamp": "2026-02-08 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "pickup_point",
+      "channel": "Email",
+      "body": "Please approve the permitted two-day extension of DL-007 to 2026-02-11, 18:00 UTC, at Ciro’s request. Let us know once the return timer has been updated."
+     },
+     {
+      "conversation_id": "pickup_point",
+      "event_id": "004",
+      "timestamp": "2026-02-08 09:50:00 UTC",
+      "from_actor": "pickup_point",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Extension accepted. The collection deadline is now 2026-02-11, 18:00 UTC and the return timer uses that date. This is the one permitted extension."
+     }
+    ],
+    "limits": [
+     "Do not treat the extension as proof that the customer collected the parcel."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "005",
+    "type": "message_sent",
+    "label": "Our notice",
+    "title": "We notify Ciro of the new deadline",
+    "timestamp": "2026-02-08 10:05:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "005"
+   },
+   "explanation": "Ciro now has the deadline confirmed by the counter, so the coordination task can be closed. The parcel is still awaiting collection.",
+   "state_after": {
+    "case_id": "007",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: request the permitted extension from the pickup-point operator and tell the recipient the confirmed deadline."
+     },
+     "recipient": {
+      "name": "Ciro Fale",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Say until when the parcel needs to be kept, and collect it by the deadline."
+     },
+     "pickup_point": {
+      "name": "Sedgeglass Counter supervisor",
+      "organization": "Sedgeglass Counter",
+      "role": "pickup_point",
+      "is_us": false,
+      "responsibility": "Approve the permitted extension and update the collection deadline."
+     }
+    },
+    "goal": "Get the pickup-point operator to approve an extension of the DL-007 collection deadline within its policy and notify the recipient of the confirmed deadline.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Coordination task complete: the operator confirmed the new deadline and Ciro was notified. Collection is not part of this case's success criteria."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has stated until when the parcel should be kept.",
+      "status": "met",
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The operator has approved the extension and confirmed the new collection deadline.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c3",
+      "description": "The recipient has been notified of the confirmed deadline.",
+      "status": "met",
+      "evidence_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-08 09:00:00 UTC",
+     "escalated_at": "2026-02-08 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "007"
+     },
+     "context_message_id": "001",
+     "summary": "Extend the pickup deadline for DL-007: the current deadline is too short for the recipient.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-007.",
+      "source": {
+       "type": "case_card",
+       "id": "007"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The parcel is already at a pickup counter.",
+      "source": {
+       "type": "case_card",
+       "id": "007"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Local policy allows a single two-day extension if requested before expiry and stock capacity permits.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The collection deadline is now 2026-02-11, 18:00 UTC, and the return timer uses that date.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The counter currently has capacity.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Ciro's work trip ends on 2026-02-10.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Ciro asks to keep DL-007 until 2026-02-11 and does not want it returned.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "This is the one permitted extension.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "We told Ciro the counter confirmed the new deadline, 2026-02-11 at 18:00 UTC, and that the parcel is still awaiting collection.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "pickup_point",
+      "purpose": "Keep DL-007 until 2026-02-11 instead of returning it.",
+      "expected_response": "A collection deadline extended to 2026-02-11.",
+      "status": "completed",
+      "response": "Collection deadline extended to 2026-02-11, 18:00 UTC; the return timer uses that date.",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "pickup_point",
+      "responsible_actor": "pickup_point",
+      "purpose": "Approve the permitted two-day extension of DL-007 to 2026-02-11, 18:00 UTC, and confirm once the return timer is updated.",
+      "expected_response": "Approval and confirmation that the return timer is updated.",
+      "status": "answered",
+      "response": "Extension accepted; the collection deadline is 2026-02-11, 18:00 UTC and the return timer uses that date.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "Sedgeglass Counter extended the DL-007 collection deadline to 2026-02-11, 18:00 UTC, with the return timer on that date; Ciro has been notified.",
+     "confirmed_by": "pickup_point",
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ],
+     "remaining_work": "Ciro has not collected the parcel yet; the extension does not prove collection. This was the one permitted extension."
+    },
+    "annotations": [],
+    "conversations": {
+     "pickup_point": {
+      "participants": [
+       "coordinator",
+       "pickup_point"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "pickup_point",
+      "event_id": "001",
+      "timestamp": "2026-02-08 09:00:00 UTC",
+      "from_actor": "pickup_point",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-007 is held until 2026-02-09, 18:00 UTC. Our local policy allows a single two-day extension if requested before expiry and stock capacity permits. We currently have capacity."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-08 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "My work trip ends on 2026-02-10. Could you keep DL-007 for me until 2026-02-11? I do not want it returned."
+     },
+     {
+      "conversation_id": "pickup_point",
+      "event_id": "003",
+      "timestamp": "2026-02-08 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "pickup_point",
+      "channel": "Email",
+      "body": "Please approve the permitted two-day extension of DL-007 to 2026-02-11, 18:00 UTC, at Ciro’s request. Let us know once the return timer has been updated."
+     },
+     {
+      "conversation_id": "pickup_point",
+      "event_id": "004",
+      "timestamp": "2026-02-08 09:50:00 UTC",
+      "from_actor": "pickup_point",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Extension accepted. The collection deadline is now 2026-02-11, 18:00 UTC and the return timer uses that date. This is the one permitted extension."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "005",
+      "timestamp": "2026-02-08 10:05:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Customer portal",
+      "body": "The counter has confirmed your new deadline: 2026-02-11 at 18:00 UTC. Your parcel is still awaiting collection."
+     }
+    ],
+    "limits": [
+     "Do not treat the extension as proof that the customer collected the parcel."
+    ]
+   }
+  }
+ ]
+}

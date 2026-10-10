@@ -1,0 +1,993 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "004 · Call before arrival",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Oren Sile. From the case card: the route for DL-004 is booked and the driver has not yet departed; the customer needs time to move from a nearby studio to the delivery door.",
+ "initial_state": {
+  "case_id": "004",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "recipient",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: pass the recipient's callback request to dispatch and get confirmation that it is recorded."
+   },
+   "recipient": {
+    "name": "Oren Sile",
+    "organization": null,
+    "role": "recipient",
+    "is_us": false,
+    "responsibility": "Say how and when the driver should call before arrival."
+   }
+  },
+  "goal": "Get dispatch to record the recipient's request for a call shortly before arrival on DL-004 and confirm that it is recorded.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The recipient has stated which contact the driver should call.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "Dispatch has confirmed that the call request is recorded on the DL-004 route.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c3",
+    "description": "Dispatch has confirmed that the request is visible to the assigned driver.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The customer needs time to reach the delivery door; no advance call is arranged.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-004.",
+    "source": {
+     "type": "case_card",
+     "id": "004"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The route is booked; the driver has not yet departed.",
+    "source": {
+     "type": "case_card",
+     "id": "004"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The customer needs time to move from a nearby studio to the delivery door.",
+    "source": {
+     "type": "case_card",
+     "id": "004"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Do not treat the recorded instruction as proof that the driver called.",
+   "Do not treat the recorded instruction as proof of arrival."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Dispatch email",
+    "title": "Dispatch can add a call request",
+    "timestamp": "2026-02-05 09:00:00 UTC",
+    "actor_id": "dispatch",
+    "message_id": "001"
+   },
+   "explanation": "Dispatch can add a call request on the verified number already in the order record, but cannot guarantee an exact advance interval. We take in the recipient's request before asking dispatch to record anything.",
+   "state_after": {
+    "case_id": "004",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: pass the recipient's callback request to dispatch and get confirmation that it is recorded."
+     },
+     "recipient": {
+      "name": "Oren Sile",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Say how and when the driver should call before arrival."
+     },
+     "dispatch": {
+      "name": "Dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Record the call request on the route and confirm it."
+     }
+    },
+    "goal": "Get dispatch to record the recipient's request for a call shortly before arrival on DL-004 and confirm that it is recorded.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Take in the recipient's request before asking dispatch to record a call."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has stated which contact the driver should call.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "Dispatch has confirmed that the call request is recorded on the DL-004 route.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "Dispatch has confirmed that the request is visible to the assigned driver.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-05 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "004"
+     },
+     "context_message_id": "001",
+     "summary": "Add a call shortly before arrival to DL-004 so the recipient can walk over from a nearby studio.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The customer needs time to reach the delivery door; no advance call is recorded on the route.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-004.",
+      "source": {
+       "type": "case_card",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The route is booked; the driver has not yet departed.",
+      "source": {
+       "type": "case_card",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The customer needs time to move from a nearby studio to the delivery door.",
+      "source": {
+       "type": "case_card",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-004 is on the 2026-02-06 afternoon route.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Dispatch can add a call request using the verified number already in the order record.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Dispatch cannot guarantee an exact advance interval before arrival.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {},
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": null,
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "dispatch",
+      "event_id": "001",
+      "timestamp": "2026-02-05 09:00:00 UTC",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-004 is on the 2026-02-06 afternoon route. For this route we can add a call request using the verified number already in the order record; we cannot guarantee an exact advance interval."
+     }
+    ],
+    "limits": [
+     "Do not treat the recorded instruction as proof that the driver called.",
+     "Do not treat the recorded instruction as proof of arrival."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client request",
+    "title": "Oren asks for a call before arrival",
+    "timestamp": "2026-02-05 09:10:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "002"
+   },
+   "explanation": "Oren asks for a call on the saved order contact, which matches what dispatch can add. No contact change is needed, so we can pass the request straight to dispatch.",
+   "state_after": {
+    "case_id": "004",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: pass the recipient's callback request to dispatch and get confirmation that it is recorded."
+     },
+     "recipient": {
+      "name": "Oren Sile",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Say how and when the driver should call before arrival."
+     },
+     "dispatch": {
+      "name": "Dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Record the call request on the route and confirm it."
+     }
+    },
+    "goal": "Get dispatch to record the recipient's request for a call shortly before arrival on DL-004 and confirm that it is recorded.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask dispatch to record Oren's request on DL-004: call the verified saved order contact shortly before arrival."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has stated which contact the driver should call.",
+      "status": "met",
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "Dispatch has confirmed that the call request is recorded on the DL-004 route.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "Dispatch has confirmed that the request is visible to the assigned driver.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-05 09:00:00 UTC",
+     "escalated_at": "2026-02-05 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "004"
+     },
+     "context_message_id": "001",
+     "summary": "Add a call shortly before arrival to DL-004 so the recipient can walk over from a nearby studio.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The call request is not yet recorded on the route.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-004.",
+      "source": {
+       "type": "case_card",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The route is booked; the driver has not yet departed.",
+      "source": {
+       "type": "case_card",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Oren works in the studio next door and needs a few minutes to walk over.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-004 is on the 2026-02-06 afternoon route.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Dispatch can add a call request using the verified number already in the order record.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Dispatch cannot guarantee an exact advance interval before arrival.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Oren asks the driver to call shortly before arriving, using the saved order contact.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "dispatch",
+      "purpose": "Arrange for the driver to call the saved order contact shortly before arrival.",
+      "expected_response": "A call request recorded on the route.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "responsible_actor": "dispatch",
+      "purpose": "Record Oren's request on DL-004: call the verified saved order contact shortly before arrival.",
+      "expected_response": "Confirmation that the call request is recorded.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "dispatch",
+     "request_id": "r1",
+     "description": "Record the call request on the DL-004 route."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "dispatch",
+      "event_id": "001",
+      "timestamp": "2026-02-05 09:00:00 UTC",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-004 is on the 2026-02-06 afternoon route. For this route we can add a call request using the verified number already in the order record; we cannot guarantee an exact advance interval."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-05 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Could the driver call shortly before reaching me? I work in the studio next door and need a few minutes to walk over. Use my saved order contact."
+     }
+    ],
+    "limits": [
+     "Do not treat the recorded instruction as proof that the driver called.",
+     "Do not treat the recorded instruction as proof of arrival."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our request",
+    "title": "We ask dispatch to record the call",
+    "timestamp": "2026-02-05 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We asked for a call on the verified saved contact if route conditions allow, and stated that no contact change is requested. Now we wait for dispatch to confirm the record.",
+   "state_after": {
+    "case_id": "004",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: pass the recipient's callback request to dispatch and get confirmation that it is recorded."
+     },
+     "recipient": {
+      "name": "Oren Sile",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Say how and when the driver should call before arrival."
+     },
+     "dispatch": {
+      "name": "Dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Record the call request on the route and confirm it."
+     }
+    },
+    "goal": "Get dispatch to record the recipient's request for a call shortly before arrival on DL-004 and confirm that it is recorded.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "dispatch",
+       "request_id": "r1",
+       "expected": "Confirmation that the call request is recorded on DL-004"
+      }
+     ],
+     "next_action": "Once dispatch confirms, close the coordination task without treating it as a call or an arrival."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has stated which contact the driver should call.",
+      "status": "met",
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "Dispatch has confirmed that the call request is recorded on the DL-004 route.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "Dispatch has confirmed that the request is visible to the assigned driver.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-05 09:00:00 UTC",
+     "escalated_at": "2026-02-05 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "004"
+     },
+     "context_message_id": "001",
+     "summary": "Add a call shortly before arrival to DL-004 so the recipient can walk over from a nearby studio.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The call request is not yet confirmed as recorded.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-004.",
+      "source": {
+       "type": "case_card",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The route is booked; the driver has not yet departed.",
+      "source": {
+       "type": "case_card",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Oren works in the studio next door and needs a few minutes to walk over.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-004 is on the 2026-02-06 afternoon route.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Dispatch can add a call request using the verified number already in the order record.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Dispatch cannot guarantee an exact advance interval before arrival.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Oren asks the driver to call shortly before arriving, using the saved order contact.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "dispatch",
+      "purpose": "Arrange for the driver to call the saved order contact shortly before arrival.",
+      "expected_response": "A call request recorded on the route.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "responsible_actor": "dispatch",
+      "purpose": "Record Oren's request on DL-004: call the verified saved order contact shortly before arrival, if route conditions allow; no contact change.",
+      "expected_response": "Confirmation that the call request is recorded.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_confirmation",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "dispatch",
+     "request_id": "r1",
+     "description": "Wait for dispatch to confirm the call request is recorded."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Email",
+      "other_channels": [
+       "Dispatch chat"
+      ]
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "dispatch",
+      "event_id": "001",
+      "timestamp": "2026-02-05 09:00:00 UTC",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-004 is on the 2026-02-06 afternoon route. For this route we can add a call request using the verified number already in the order record; we cannot guarantee an exact advance interval."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-05 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Could the driver call shortly before reaching me? I work in the studio next door and need a few minutes to walk over. Use my saved order contact."
+     },
+     {
+      "conversation_id": "dispatch",
+      "event_id": "003",
+      "timestamp": "2026-02-05 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "channel": "Dispatch chat",
+      "body": "Please record Oren’s request on DL-004: call the verified saved order contact shortly before arrival, if route conditions allow. No contact change is requested."
+     }
+    ],
+    "limits": [
+     "Do not treat the recorded instruction as proof that the driver called.",
+     "Do not treat the recorded instruction as proof of arrival."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "Confirmation",
+    "title": "Dispatch saves the callback request",
+    "timestamp": "2026-02-05 09:50:00 UTC",
+    "actor_id": "dispatch",
+    "message_id": "004"
+   },
+   "explanation": "Dispatch confirmed the request is on the route card and visible to the driver, so the coordination task can be closed. No call or arrival has happened yet.",
+   "state_after": {
+    "case_id": "004",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: pass the recipient's callback request to dispatch and get confirmation that it is recorded."
+     },
+     "recipient": {
+      "name": "Oren Sile",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Say how and when the driver should call before arrival."
+     },
+     "dispatch": {
+      "name": "Dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Record the call request on the route and confirm it."
+     }
+    },
+    "goal": "Get dispatch to record the recipient's request for a call shortly before arrival on DL-004 and confirm that it is recorded.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Coordination task complete: dispatch confirmed the callback request is recorded and visible to the driver. The call and the arrival are not part of this case's success criteria."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has stated which contact the driver should call.",
+      "status": "met",
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "Dispatch has confirmed that the call request is recorded on the DL-004 route.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c3",
+      "description": "Dispatch has confirmed that the request is visible to the assigned driver.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-05 09:00:00 UTC",
+     "escalated_at": "2026-02-05 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "004"
+     },
+     "context_message_id": "001",
+     "summary": "Add a call shortly before arrival to DL-004 so the recipient can walk over from a nearby studio.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-004.",
+      "source": {
+       "type": "case_card",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The route is booked; the driver has not yet departed.",
+      "source": {
+       "type": "case_card",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Oren works in the studio next door and needs a few minutes to walk over.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The DL-004 route is still scheduled for 2026-02-06; no arrival or call has occurred yet.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Dispatch can add a call request using the verified number already in the order record.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Dispatch cannot guarantee an exact advance interval before arrival.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Oren asks the driver to call shortly before arriving, using the saved order contact.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The callback request is saved on the DL-004 route card and visible to the assigned driver.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "dispatch",
+      "purpose": "Arrange for the driver to call the saved order contact shortly before arrival.",
+      "expected_response": "A call request recorded on the route.",
+      "status": "completed",
+      "response": "The callback request is saved on the DL-004 route card; no call has occurred yet.",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "responsible_actor": "dispatch",
+      "purpose": "Record Oren's request on DL-004: call the verified saved order contact shortly before arrival, if route conditions allow; no contact change.",
+      "expected_response": "Confirmation that the call request is recorded.",
+      "status": "completed",
+      "response": "Saved on the DL-004 route card and visible to the assigned driver.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "Dispatch saved Oren's callback request on the DL-004 route card; it is visible to the assigned driver.",
+     "confirmed_by": "dispatch",
+     "evidence_event_ids": [
+      "004"
+     ],
+     "remaining_work": "The route is still scheduled for 2026-02-06; neither the call nor the arrival has happened, and the recorded instruction is not proof of either. No exact advance interval is guaranteed."
+    },
+    "annotations": [],
+    "conversations": {
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Email",
+      "other_channels": [
+       "Dispatch chat"
+      ]
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "dispatch",
+      "event_id": "001",
+      "timestamp": "2026-02-05 09:00:00 UTC",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-004 is on the 2026-02-06 afternoon route. For this route we can add a call request using the verified number already in the order record; we cannot guarantee an exact advance interval."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-05 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Could the driver call shortly before reaching me? I work in the studio next door and need a few minutes to walk over. Use my saved order contact."
+     },
+     {
+      "conversation_id": "dispatch",
+      "event_id": "003",
+      "timestamp": "2026-02-05 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "channel": "Dispatch chat",
+      "body": "Please record Oren’s request on DL-004: call the verified saved order contact shortly before arrival, if route conditions allow. No contact change is requested."
+     },
+     {
+      "conversation_id": "dispatch",
+      "event_id": "004",
+      "timestamp": "2026-02-05 09:50:00 UTC",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "The callback request is saved on the DL-004 route card and visible to the assigned driver. The route is still scheduled for 2026-02-06; no arrival or call has occurred yet."
+     }
+    ],
+    "limits": [
+     "Do not treat the recorded instruction as proof that the driver called.",
+     "Do not treat the recorded instruction as proof of arrival."
+    ]
+   }
+  }
+ ]
+}
