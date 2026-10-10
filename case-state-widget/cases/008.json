@@ -130,7 +130,7 @@
      "scheduling": {
       "name": "Scheduling",
       "organization": "Plover Arc Logistics",
-      "role": "dispatch",
+      "role": "scheduling",
       "is_us": false,
       "responsibility": "Quote live timed-slot capacity and the upgrade charge, and change the booking only after the recipient accepts."
      }
@@ -279,7 +279,7 @@
      "scheduling": {
       "name": "Scheduling",
       "organization": "Plover Arc Logistics",
-      "role": "dispatch",
+      "role": "scheduling",
       "is_us": false,
       "responsibility": "Quote live timed-slot capacity and the upgrade charge, and change the booking only after the recipient accepts."
      }
@@ -503,7 +503,7 @@
      "scheduling": {
       "name": "Scheduling",
       "organization": "Plover Arc Logistics",
-      "role": "dispatch",
+      "role": "scheduling",
       "is_us": false,
       "responsibility": "Quote live timed-slot capacity and the upgrade charge, and change the booking only after the recipient accepts."
      }
@@ -743,7 +743,7 @@
      "scheduling": {
       "name": "Scheduling",
       "organization": "Plover Arc Logistics",
-      "role": "dispatch",
+      "role": "scheduling",
       "is_us": false,
       "responsibility": "Quote live timed-slot capacity and the upgrade charge, and change the booking only after the recipient accepts."
      }
@@ -1053,7 +1053,7 @@
      "scheduling": {
       "name": "Scheduling",
       "organization": "Plover Arc Logistics",
-      "role": "dispatch",
+      "role": "scheduling",
       "is_us": false,
       "responsibility": "Quote live timed-slot capacity and the upgrade charge, and change the booking only after the recipient accepts."
      }
@@ -1282,11 +1282,19 @@
      {
       "id": "booking-thread-gap",
       "kind": "gap",
-      "title": "Gap in the source history",
-      "text": "Nemi's acceptance in the booking thread (09:46 UTC) and scheduling's rebooking (09:48 UTC) are not recorded as separate events. We know them only from scheduling's report in message 005.",
+      "title": "Before 005 · Nemi's acceptance in the booking thread",
+      "text": "Offer 004 → Nemi accepts in scheduling's booking thread (09:46 UTC) → scheduling rebooks (09:48 UTC) → report 005. Nemi's reply and the rebooking are not recorded as separate events; we know them only from scheduling's report in 005. Nothing was needed from us in between: the offer went to Nemi directly, and request 003 told scheduling not to change the booking until she accepts.",
+      "before_message_id": "005",
       "source_event_ids": [
+       "004",
        "005"
-      ]
+      ],
+      "implied_action": {
+       "from_actor": "recipient",
+       "to_actor": "scheduling",
+       "type": "decision",
+       "purpose": "Accept the 2026-02-10, 12:00–14:00 UTC slot and the GBP 6.00 charge in the verified booking thread."
+      }
      }
     ],
     "conversations": {

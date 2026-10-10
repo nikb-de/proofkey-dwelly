@@ -885,6 +885,7 @@
       "from_actor": "customer",
       "to_actor": "coordinator",
       "responsible_actor": "returns_team",
+      "responded_by": "returns_team",
       "purpose": "Arrange the QR return option and say which counter accepts it.",
       "expected_response": "A QR token and the accepting counter.",
       "status": "completed",
@@ -943,11 +944,17 @@
      {
       "id": "missing-check-request",
       "kind": "gap",
-      "title": "Gap in the source history",
-      "text": "No message asking Oska to confirm receipt of the QR code is recorded. The token was sent to Oska directly; once a request is sent, the agent should wait for Oska's confirmation.",
+      "title": "Next action · us → Oska",
+      "text": "The returns team sent token DL032R to Oska directly. Issuance alone does not show that Oska has the QR code, so we now have to ask Oska to confirm receipt; after sending, the agent waits for Oska's confirmation. At this step the request is not recorded in the history.",
       "source_event_ids": [
        "004"
-      ]
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "customer",
+       "type": "confirmation",
+       "purpose": "Confirm receiving the QR code for RT-032."
+      }
      }
     ],
     "conversations": {
@@ -1204,7 +1211,15 @@
      },
      {
       "id": "f11",
-      "text": "Oska will take it to Copperfin Returns Counter during 10:00–18:00 and has not dropped off the parcel yet.",
+      "text": "Oska will take the QR code to Copperfin Returns Counter during 10:00–18:00.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "f12",
+      "text": "Oska has not dropped off the parcel yet.",
       "source": {
        "type": "message",
        "id": "005"
@@ -1217,6 +1232,7 @@
       "from_actor": "customer",
       "to_actor": "coordinator",
       "responsible_actor": "returns_team",
+      "responded_by": "returns_team",
       "purpose": "Arrange the QR return option and say which counter accepts it.",
       "expected_response": "A QR token and the accepting counter.",
       "status": "completed",
@@ -1279,11 +1295,19 @@
      {
       "id": "missing-check-request",
       "kind": "gap",
-      "title": "Gap in the source history",
-      "text": "No message asking Oska to confirm receipt of the QR code is recorded. Oska confirmed in message 005 after receiving the token directly. No intermediate wait for Oska was observed.",
+      "title": "Between 004 and 005 · our receipt check with Oska",
+      "text": "Token issued → our request to confirm receipt → waiting on Oska → confirmation 005. Oska's reply confirms exactly what the case needs (the QR image, the fallback token and the counter hours), which fits a request from us, but it does not refer to one: Oska received the token directly and may have replied unprompted. The request and the wait are not recorded; their time and wording are unknown.",
+      "before_message_id": "005",
       "source_event_ids": [
+       "004",
        "005"
-      ]
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "customer",
+       "type": "confirmation",
+       "purpose": "Confirm receiving the QR code for RT-032."
+      }
      }
     ],
     "conversations": {

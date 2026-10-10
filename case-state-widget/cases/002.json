@@ -903,12 +903,12 @@
       ]
      },
      "r3": {
-      "type": "confirmation",
+      "type": "action",
       "from_actor": "coordinator",
       "to_actor": "address_desk",
       "responsible_actor": "address_desk",
-      "purpose": "Get confirmation that the correction is applied and the hold is cleared.",
-      "expected_response": "Confirmation from the address desk.",
+      "purpose": "Add Apartment 4B to DL-002, keeping the street and building, and clear the address hold.",
+      "expected_response": "Confirmation that the correction is applied and the hold is cleared.",
       "status": "planned",
       "response": null,
       "evidence_event_ids": [
@@ -926,10 +926,10 @@
     },
     "status": "awaiting_confirmation",
     "next_step": {
-     "type": "confirmation",
+     "type": "action",
      "responsible_actor": "address_desk",
      "request_id": "r3",
-     "description": "Get Apartment 4B added and obtain confirmation of the corrected address and the cleared hold."
+     "description": "Send the correction to the address desk and get confirmation that Apartment 4B is added and the hold is cleared."
     },
     "result": null,
     "annotations": [
@@ -946,11 +946,17 @@
      {
       "id": "missing-service-request",
       "kind": "gap",
-      "title": "Gap in the source history",
-      "text": "No separate outgoing email with the correction to the address desk is recorded. Once it is sent, the agent should wait for confirmation from the address desk.",
+      "title": "Next action · us → address desk",
+      "text": "Tarin gave Apartment 4B. We now have to send the correction to the address desk and ask it to clear the hold; after sending, the agent waits for the address desk's confirmation. At this step the sending is not yet recorded in the history, and the recipient's answer by itself does not change the shipment address.",
       "source_event_ids": [
        "004"
-      ]
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "address_desk",
+       "type": "action",
+       "purpose": "Add Apartment 4B to DL-002, keeping the street and building, and clear the address hold."
+      }
      }
     ],
     "conversations": {
@@ -1201,19 +1207,20 @@
       "expected_response": "The corrected shipment address.",
       "status": "completed",
       "response": "Apartment 4B added; address hold cleared.",
+      "responded_by": "address_desk",
       "evidence_event_ids": [
        "004",
        "005"
       ]
      },
      "r3": {
-      "type": "confirmation",
+      "type": "action",
       "from_actor": "coordinator",
       "to_actor": "address_desk",
       "responsible_actor": "address_desk",
-      "purpose": "Get confirmation that the correction is applied and the hold is cleared.",
-      "expected_response": "Confirmation from the address desk.",
-      "status": "answered",
+      "purpose": "Add Apartment 4B to DL-002, keeping the street and building, and clear the address hold.",
+      "expected_response": "Confirmation that the correction is applied and the hold is cleared.",
+      "status": "completed",
       "response": "Correction applied; hold cleared; parcel at the depot.",
       "evidence_event_ids": [
        "004",
@@ -1253,11 +1260,18 @@
      {
       "id": "missing-service-request",
       "kind": "gap",
-      "title": "Gap in the source history",
-      "text": "No separate outgoing email with the correction to the address desk is recorded. Message 005 confirms the request was carried out. No intermediate wait for the address desk was observed.",
+      "title": "Between 004 and 005 · our correction request to the address desk",
+      "text": "Recipient's apartment number → our correction request → waiting on the address desk → confirmation 005. The address desk refers to our request in 005 (\"Your correction request was applied\"), but the request and the wait are not recorded separately: their exact time and wording are unknown.",
+      "before_message_id": "005",
       "source_event_ids": [
        "005"
-      ]
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "address_desk",
+       "type": "action",
+       "purpose": "Add Apartment 4B to DL-002, keeping the street and building, and clear the address hold."
+      }
      }
     ],
     "conversations": {

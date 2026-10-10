@@ -130,9 +130,9 @@
      "reconciliation": {
       "name": "Order reconciliation",
       "organization": "Tallowmere Goods",
-      "role": "sender",
+      "role": "merchant",
       "is_us": false,
-      "responsibility": "Reconcile the delivered, recovered and retained units of TG-039 and any charge."
+      "responsibility": "Reconcile the order quantities for TG-039 and any duplicate charge."
      }
     },
     "goal": "Get the merchant's authorisation and carrier collection for the duplicate unit, and its confirmation that the order quantities are reconciled.",
@@ -287,14 +287,14 @@
      "reconciliation": {
       "name": "Order reconciliation",
       "organization": "Tallowmere Goods",
-      "role": "sender",
+      "role": "merchant",
       "is_us": false,
-      "responsibility": "Reconcile the delivered, recovered and retained units of TG-039 and any charge."
+      "responsibility": "Reconcile the order quantities for TG-039 and any duplicate charge."
      },
      "duplicate_returns": {
       "name": "Duplicate returns",
       "organization": "Tallowmere Goods",
-      "role": "sender",
+      "role": "returns_desk",
       "is_us": false,
       "responsibility": "Choose and authorise the duplicate return and arrange its carrier collection."
      }
@@ -518,14 +518,14 @@
      "reconciliation": {
       "name": "Order reconciliation",
       "organization": "Tallowmere Goods",
-      "role": "sender",
+      "role": "merchant",
       "is_us": false,
-      "responsibility": "Reconcile the delivered, recovered and retained units of TG-039 and any charge."
+      "responsibility": "Reconcile the order quantities for TG-039 and any duplicate charge."
      },
      "duplicate_returns": {
       "name": "Duplicate returns",
       "organization": "Tallowmere Goods",
-      "role": "sender",
+      "role": "returns_desk",
       "is_us": false,
       "responsibility": "Choose and authorise the duplicate return and arrange its carrier collection."
      }
@@ -538,9 +538,14 @@
        "actor_id": "duplicate_returns",
        "request_id": "r1",
        "expected": "Return authorisation and collection booking for DL-039-O"
+      },
+      {
+       "actor_id": "duplicate_returns",
+       "request_id": "r2",
+       "expected": "Reconciled quantity for TG-039 after pickup"
       }
      ],
-     "next_action": "Once authorised, wait for the pickup and the reconciled quantity."
+     "next_action": "Once authorised, pass the return details to Dessa, then wait for the pickup and the reconciled quantity."
     },
     "success_criteria": [
      {
@@ -762,7 +767,7 @@
     "actor_id": "duplicate_returns",
     "message_id": "004"
    },
-   "explanation": "The merchant chose the sealed original: return DR-039 for DL-039-O is authorised at no charge with collection on 2026-03-13, 10:00–12:00 UTC, and DL-039-R stays with Dessa. Collection has not happened yet, so we wait for the reconciled quantity after pickup.",
+   "explanation": "The merchant chose the sealed original: return DR-039 for DL-039-O is authorised at no charge with collection on 2026-03-13, 10:00–12:00 UTC, and DL-039-R stays with Dessa. Dessa asked us how to return the duplicate, so our next move is to pass her these details; the reconciled quantity can only come after pickup.",
    "state_after": {
     "case_id": "039",
     "our_actor_id": "coordinator",
@@ -785,29 +790,24 @@
      "reconciliation": {
       "name": "Order reconciliation",
       "organization": "Tallowmere Goods",
-      "role": "sender",
+      "role": "merchant",
       "is_us": false,
-      "responsibility": "Reconcile the delivered, recovered and retained units of TG-039 and any charge."
+      "responsibility": "Reconcile the order quantities for TG-039 and any duplicate charge."
      },
      "duplicate_returns": {
       "name": "Duplicate returns",
       "organization": "Tallowmere Goods",
-      "role": "sender",
+      "role": "returns_desk",
       "is_us": false,
       "responsibility": "Choose and authorise the duplicate return and arrange its carrier collection."
      }
     },
     "goal": "Get the merchant's authorisation and carrier collection for the duplicate unit, and its confirmation that the order quantities are reconciled.",
     "agent_state": {
-     "status": "waiting",
-     "waiting_for": [
-      {
-       "actor_id": "duplicate_returns",
-       "request_id": "r2",
-       "expected": "Reconciled quantity for TG-039 after pickup"
-      }
-     ],
-     "next_action": "Once the duplicate is collected, record the reconciled quantity."
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Tell Dessa that return DR-039 is authorised for the sealed original DL-039-O at no charge, with collection on 2026-03-13, 10:00–12:00 UTC, and that she keeps DL-039-R. Then wait for the merchant's confirmation of the pickup and the reconciled quantity.",
+     "note": "The reply to Dessa is not yet recorded in the history, so the agent is not shown waiting on it. Our request for the reconciled quantity (r2) stays open with the merchant; it can only be answered after the pickup."
     },
     "success_criteria": [
      {
@@ -842,7 +842,7 @@
      "summary": "Arrange an authorised return of the duplicate unit: the delayed original and the replacement for TG-039 have both reached the customer.",
      "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
     },
-    "blocker": "The duplicate has not been collected yet; the order quantity is not reconciled.",
+    "blocker": "Dessa does not have the authorised return details yet; the duplicate has not been collected and the order quantity is not reconciled.",
     "facts": [
      {
       "id": "f1",
@@ -925,11 +925,10 @@
       "responsible_actor": "duplicate_returns",
       "purpose": "Tell Dessa how to return the duplicate floor light.",
       "expected_response": "Authorised return instructions for the duplicate.",
-      "status": "answered",
-      "response": "Duplicate return DR-039 authorised for DL-039-O at no charge; collection 2026-03-13, 10:00–12:00 UTC; keep DL-039-R.",
+      "status": "received",
+      "response": null,
       "evidence_event_ids": [
-       "002",
-       "004"
+       "002"
       ]
      },
      "r1": {
@@ -980,23 +979,30 @@
      "selected_option": "o1",
      "reason": "Duplicate return DR-039 is authorised for DL-039-O; Dessa keeps DL-039-R."
     },
-    "status": "awaiting_confirmation",
+    "status": "action_required",
     "next_step": {
-     "type": "confirmation",
-     "responsible_actor": "duplicate_returns",
-     "request_id": "r2",
-     "description": "Wait for confirmation of the pickup and the reconciled quantity."
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": null,
+     "description": "Pass Dessa the authorised return details and the collection window."
     },
     "result": null,
     "annotations": [
      {
       "id": "missing-customer-reply",
       "kind": "gap",
-      "title": "Gap in the source history",
-      "text": "No reply to Dessa with the authorised return details (DR-039 and the collection window) is recorded in the history.",
+      "title": "Next action · us → Dessa",
+      "text": "Return DR-039 is authorised with collection on 2026-03-13, 10:00–12:00 UTC. Dessa asked us how to return the duplicate, so we now have to pass her these details; then the sealed original can be ready for the carrier in that window. At this step the reply is not yet recorded in the history.",
       "source_event_ids": [
+       "002",
        "004"
-      ]
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "customer",
+       "type": "action",
+       "purpose": "Give Dessa the authorised return DR-039 for the sealed original DL-039-O and the collection window, 2026-03-13 10:00–12:00 UTC; she keeps DL-039-R."
+      }
      }
     ],
     "conversations": {
@@ -1099,14 +1105,14 @@
      "reconciliation": {
       "name": "Order reconciliation",
       "organization": "Tallowmere Goods",
-      "role": "sender",
+      "role": "merchant",
       "is_us": false,
-      "responsibility": "Reconcile the delivered, recovered and retained units of TG-039 and any charge."
+      "responsibility": "Reconcile the order quantities for TG-039 and any duplicate charge."
      },
      "duplicate_returns": {
       "name": "Duplicate returns",
       "organization": "Tallowmere Goods",
-      "role": "sender",
+      "role": "returns_desk",
       "is_us": false,
       "responsibility": "Choose and authorise the duplicate return and arrange its carrier collection."
      }
@@ -1252,13 +1258,15 @@
       "from_actor": "customer",
       "to_actor": "coordinator",
       "responsible_actor": "duplicate_returns",
+      "responded_by": "duplicate_returns",
       "purpose": "Tell Dessa how to return the duplicate floor light.",
       "expected_response": "Authorised return instructions for the duplicate.",
       "status": "answered",
-      "response": "Duplicate return DR-039 authorised for DL-039-O at no charge; collection 2026-03-13, 10:00–12:00 UTC; keep DL-039-R.",
+      "response": "Duplicate return DR-039 authorised for DL-039-O at no charge; collection 2026-03-13, 10:00–12:00 UTC; keep DL-039-R. The original was collected under COL-039.",
       "evidence_event_ids": [
        "002",
-       "004"
+       "004",
+       "005"
       ]
      },
      "r1": {
@@ -1326,11 +1334,19 @@
      {
       "id": "missing-customer-reply",
       "kind": "gap",
-      "title": "Gap in the source history",
-      "text": "No reply to Dessa with the authorised return details is recorded in the history. Message 005 confirms the original was collected at 10:35 UTC on 2026-03-13, within the authorised window.",
+      "title": "Between 004 and 005 · our reply to Dessa",
+      "text": "Authorisation 004 → our reply to Dessa with DR-039 and the collection window → carrier collection → confirmation 005. Message 005 says the original was collected at 10:35 UTC on 2026-03-13, inside the authorised 10:00–12:00 window, which indirectly shows the return details reached Dessa. Our reply itself is not recorded: its time and wording are unknown.",
+      "before_message_id": "005",
       "source_event_ids": [
+       "004",
        "005"
-      ]
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "customer",
+       "type": "action",
+       "purpose": "Give Dessa the authorised return DR-039 for the sealed original DL-039-O and the collection window, 2026-03-13 10:00–12:00 UTC; she keeps DL-039-R."
+      }
      }
     ],
     "conversations": {
