@@ -1,0 +1,17 @@
+# Browser-local case intake
+
+Open `intake.html` directly in a current desktop Chromium browser. The separate Team and Customer pages remain the original six-case simulator. Intake uses no network requests, credentials, backend service or model. A browser which disallows IndexedDB for local files displays an explicit storage error; no success is claimed.
+
+Cases use the closed declaration and event fields in `tools/dwelly_service/cases.py`: creation is revision 0, each committed event advances the revision once. Local titles and attachment filenames stay outside those payloads. Export contains a declaration, ordered append payloads with zero-based expected revisions, and a separately labelled local attachment manifest. It is not a CaseStore snapshot or server-issued asset record. File bytes are not included in the JSON export.
+
+The distinct IndexedDB database `right-ontime-local-intake-v1`, version 1, holds case records and actual immutable Blob attachments. A case/event/attachment batch commits atomically. Case IDs, event IDs, and duplicate file hashes are rejected; stale revisions fail rather than overwrite history. There is no delete or edit of committed history. Staged selections can be removed before submission. Browser data clearing can remove all local cases and bytes; this is not a durable backup or shared CRM.
+
+Limits: 256 cases, 128 events per case, 4096 characters per text field, 16 KiB per backend-compatible payload, PNG/JPEG up to 10 MiB, audio MPEG/WAV/MP4/WebM up to 25 MiB, and 100 MiB of total attachment bytes plus bounded case metadata. Browser quota may be lower. MIME signatures and actual image/audio decoding must succeed, then SHA-256 identifies the bytes. MP4/WebM audio availability depends on browser codecs; unsupported audio stays rejected. Preview is not extraction or transcription. No file is sent anywhere, no analysis runs, authority is unverified, and no operational action occurs.
+
+`globalThis.ProofKeyIntakeModel` exposes the pure validators. On successful storage initialization, `window.ProofKeyIntake` exposes these plus `prepareFile` and `store` (`create`, `append`, `get`, `list`, `asset`). Scripts are encapsulated classic scripts so opening local files does not require disabling browser security. Store methods validate again at the persistence boundary.
+
+Run unit tests with `node --test tools/intake-model.test.mjs`. Run browser checks with `node tools/check-intake.mjs`; set `PLAYWRIGHT_PACKAGE_JSON` to an installed Playwright package file and optionally `CHROMIUM_EXECUTABLE_PATH` to a Chromium executable. Browser tests use a fresh isolated browser context and block HTTP(S). The original three suites write their screenshots/receipts under `evidence`, so run them only in a copied prototype directory to preserve historical evidence.
+
+Run `node tools/check-intake-storage.mjs` for transactional failure, duplicate/stale input, quota, staged selection, audio and export checks. `node tools/capture-intake.mjs` regenerates desktop and 360px sample-photo screenshots under `outputs/right-ontime-intake-2026-10-10`; override `INTAKE_SCREENSHOT_DIR` for a different output directory. Capture uses fresh browser contexts and locally generated sample bytes.
+
+Additional participant IDs are optional, comma-separated and validated against the same ID rules. Each evidence submission has an explicit timezone-aware ISO occurrence timestamp; it defaults to now but can record an earlier source message. Source timestamps never reorder committed history.
