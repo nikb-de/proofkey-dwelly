@@ -6,6 +6,8 @@ Start with [model quickstart](tools/dwelly_model/README.md), [local asynchronous
 
 For parallel UI, backend and E2E/evals work, use the [team contract v1](contracts/v1/README.md) and [state/storage architecture](docs/architecture/team-contract-v1.md). The [Right onTime design](design/right-ontime/prototype/index.html) now has a separate [local case and file intake workbench](design/right-ontime/prototype/intake.html); browser-local storage is not server upload or automatic analysis.
 
+The team's step-by-step data now has a separate [case-state analysis workbench](docs/analysis-workbench.md): source timeline, evidence-only step projection, offline state baseline, unreviewed author reference and export. Run `python3 -m tools.dwelly_analysis serve --port 8093` and open `http://127.0.0.1:8093`. This local development surface makes no paid model calls and is not connected to the Cloud SQL outbox. Its [analysis contract](contracts/analysis-v1/README.md) is separate from frozen intake v1 and the legacy model runner.
+
 The shared-backend path has a separate [PostgreSQL case API and Docker setup](deploy/postgres/README.md): immutable v1 cases, atomic analysis intents and fenced leases. A **private case-storage pilot is deployed on Cloud Run + Cloud SQL** in `genaide/europe-west2`; see the [live verification and limits](docs/verification/cloud-case-pilot-2026-10-10.md) and [current architecture graphic](docs/architecture/proofkey-readiness-2026-10-10.png). The browser, model worker and operational runtime are not connected to it. See [what changes for training/evals](docs/architecture/postgres-case-backend.md); the legacy SQLite benchmark remains local-only.
 
 ## 1. What we built
