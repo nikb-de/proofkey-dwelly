@@ -1,0 +1,1850 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "010-N2 · Hold request transfer timed out",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Daro Lusk. From the case card: DL-010 is at a depot and has not entered the delivery route, and dispatch permits a three-day hold for this service.",
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/010/N2-CHANNEL_FAILURE",
+  "branch_id": "010-N2",
+  "derived_from_case": "010",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "CHANNEL_FAILURE",
+  "expected_decision": "VERIFY_FIRST",
+  "workflow_sheet": "R",
+  "branch_label": "Hold request transfer timed out",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "a903ab9429dc2c12db8dd4d0cfd947ab50d2f50e002b688876f88cfae8273cfd",
+   "history.md": "4e5230dc226a67cb6e36ee888c7bd9cc0fa1b9f179881398687f3d0ed3820ae6"
+  }
+ },
+ "initial_state": {
+  "case_id": "010-N2",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "recipient",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: request the hold with the recipient's release date and get dispatch's confirmation."
+   },
+   "recipient": {
+    "name": "Daro Lusk",
+    "organization": null,
+    "role": "recipient",
+    "is_us": false,
+    "responsibility": "Give the date the parcel should be released from the hold."
+   }
+  },
+  "goal": "Get dispatch's confirmation of a hold on DL-010 and of the planned release date the recipient asked for.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The recipient has given the date the parcel should be released.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "Dispatch has confirmed the hold on DL-010.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c3",
+    "description": "Dispatch has confirmed the planned release date.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The recipient will be away for a short time; no hold or release date has been set.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-010.",
+    "source": {
+     "type": "case_card",
+     "id": "010"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The shipment is at a depot and has not entered the delivery route.",
+    "source": {
+     "type": "case_card",
+     "id": "010"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "Dispatch permits a three-day hold for this service.",
+    "source": {
+     "type": "case_card",
+     "id": "010"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Do not treat the planned release date as a delivery date.",
+   "Do not claim physical receipt of the parcel.",
+   "Do not repeat the action or claim success before checking the saved state."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Dispatch email",
+    "title": "Dispatch states the hold rules",
+    "timestamp": "2026-02-11 09:00:00 UTC",
+    "actor_id": "dispatch",
+    "message_id": "001"
+   },
+   "explanation": "Dispatch confirmed the parcel is in depot stock and that a hold of up to three calendar days needs a confirmed release date. Nobody has asked for a hold yet, so we take in the recipient's request first.",
+   "state_after": {
+    "case_id": "010-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: request the hold with the recipient's release date and get dispatch's confirmation."
+     },
+     "recipient": {
+      "name": "Daro Lusk",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Give the date the parcel should be released from the hold."
+     },
+     "dispatch": {
+      "name": "Dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Apply the eligible hold in the depot and schedule the release to routing."
+     }
+    },
+    "goal": "Get dispatch's confirmation of a hold on DL-010 and of the planned release date the recipient asked for.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Take in the recipient's request; any hold needs a confirmed release date."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has given the date the parcel should be released.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "Dispatch has confirmed the hold on DL-010.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "Dispatch has confirmed the planned release date.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-11 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "010-N2"
+     },
+     "context_message_id": "001",
+     "summary": "DL-010: the recipient wants the delivery held during a short absence; the shipment is still at the depot.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "No hold has been requested and no release date has been confirmed.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-010.",
+      "source": {
+       "type": "case_card",
+       "id": "010"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-010 is in depot stock.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "This service allows a hold of up to three calendar days before routing.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "A hold requires a confirmed release date.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {},
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": null,
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "dispatch",
+      "event_id": "001",
+      "timestamp": "2026-02-11 09:00:00 UTC",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-010 is in depot stock. This service allows a hold up to three calendar days before routing. A confirmed release date is required."
+     }
+    ],
+    "limits": [
+     "Do not treat the planned release date as a delivery date.",
+     "Do not claim physical receipt of the parcel.",
+     "Do not repeat the action or claim success before checking the saved state."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client request",
+    "title": "Daro asks to hold until his return",
+    "timestamp": "2026-02-11 09:10:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "002"
+   },
+   "explanation": "Daro gave the release date that dispatch requires. Only dispatch applies a hold, so the next step is a hold request to dispatch with release on 2026-02-14.",
+   "state_after": {
+    "case_id": "010-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: request the hold with the recipient's release date and get dispatch's confirmation."
+     },
+     "recipient": {
+      "name": "Daro Lusk",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Give the date the parcel should be released from the hold."
+     },
+     "dispatch": {
+      "name": "Dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Apply the eligible hold in the depot and schedule the release to routing."
+     }
+    },
+    "goal": "Get dispatch's confirmation of a hold on DL-010 and of the planned release date the recipient asked for.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask dispatch to apply the three-day hold to DL-010 with release on 2026-02-14 and to confirm the stock and routing status."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has given the date the parcel should be released.",
+      "status": "met",
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "Dispatch has confirmed the hold on DL-010.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "Dispatch has confirmed the planned release date.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-11 09:00:00 UTC",
+     "escalated_at": "2026-02-11 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "010-N2"
+     },
+     "context_message_id": "001",
+     "summary": "DL-010: the recipient wants the delivery held during a short absence; the shipment is still at the depot.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "Release date known; no hold has been applied.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-010.",
+      "source": {
+       "type": "case_card",
+       "id": "010"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-010 is in depot stock.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "This service allows a hold of up to three calendar days before routing.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "A hold requires a confirmed release date.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The recipient is away and returns on 2026-02-14.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient asks to hold the parcel and release it on 2026-02-14, not earlier.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "dispatch",
+      "purpose": "Hold the parcel and release it on 2026-02-14, not earlier.",
+      "expected_response": "A hold with release on 2026-02-14.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "responsible_actor": "dispatch",
+      "purpose": "Apply the three-day hold to DL-010 with release on 2026-02-14, and confirm the stock and routing status.",
+      "expected_response": "Confirmation of the hold, the release date, and the stock and routing status.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "dispatch",
+     "request_id": "r1",
+     "description": "Apply the hold to DL-010 with release on 2026-02-14."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "dispatch",
+      "event_id": "001",
+      "timestamp": "2026-02-11 09:00:00 UTC",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-010 is in depot stock. This service allows a hold up to three calendar days before routing. A confirmed release date is required."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-11 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I am away and return on 2026-02-14. Please hold the parcel and release it on 2026-02-14, not earlier."
+     }
+    ],
+    "limits": [
+     "Do not treat the planned release date as a delivery date.",
+     "Do not claim physical receipt of the parcel.",
+     "Do not repeat the action or claim success before checking the saved state."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our request",
+    "title": "We ask dispatch to apply the hold",
+    "timestamp": "2026-02-11 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We passed Daro's release date to dispatch and asked for the stock and routing status. Now we wait for dispatch to confirm the hold.",
+   "state_after": {
+    "case_id": "010-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: request the hold with the recipient's release date and get dispatch's confirmation."
+     },
+     "recipient": {
+      "name": "Daro Lusk",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Give the date the parcel should be released from the hold."
+     },
+     "dispatch": {
+      "name": "Dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Apply the eligible hold in the depot and schedule the release to routing."
+     }
+    },
+    "goal": "Get dispatch's confirmation of a hold on DL-010 and of the planned release date the recipient asked for.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "dispatch",
+       "request_id": "r1",
+       "expected": "Hold confirmation with the release date and the stock and routing status"
+      }
+     ],
+     "next_action": "Once dispatch answers, check the hold and release date against Daro's request."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has given the date the parcel should be released.",
+      "status": "met",
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "Dispatch has confirmed the hold on DL-010.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "Dispatch has confirmed the planned release date.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-11 09:00:00 UTC",
+     "escalated_at": "2026-02-11 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "010-N2"
+     },
+     "context_message_id": "001",
+     "summary": "DL-010: the recipient wants the delivery held during a short absence; the shipment is still at the depot.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "Dispatch has not yet confirmed the hold.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-010.",
+      "source": {
+       "type": "case_card",
+       "id": "010"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-010 is in depot stock.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "This service allows a hold of up to three calendar days before routing.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "A hold requires a confirmed release date.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The recipient is away and returns on 2026-02-14.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient asks to hold the parcel and release it on 2026-02-14, not earlier.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "dispatch",
+      "purpose": "Hold the parcel and release it on 2026-02-14, not earlier.",
+      "expected_response": "A hold with release on 2026-02-14.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "responsible_actor": "dispatch",
+      "purpose": "Apply the eligible three-day hold to DL-010 with release on 2026-02-14, as requested in Daro's verified order thread, and confirm the stock and routing status.",
+      "expected_response": "Confirmation of the hold, the release date, and the stock and routing status.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_confirmation",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "dispatch",
+     "request_id": "r1",
+     "description": "Wait for dispatch to confirm the hold and the release date."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "dispatch",
+      "event_id": "001",
+      "timestamp": "2026-02-11 09:00:00 UTC",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-010 is in depot stock. This service allows a hold up to three calendar days before routing. A confirmed release date is required."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-11 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I am away and return on 2026-02-14. Please hold the parcel and release it on 2026-02-14, not earlier."
+     },
+     {
+      "conversation_id": "dispatch",
+      "event_id": "003",
+      "timestamp": "2026-02-11 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "channel": "Email",
+      "body": "Please apply the eligible three-day hold to DL-010, with release on 2026-02-14 as requested in Daro’s verified order thread. Confirm the stock and routing status."
+     }
+    ],
+    "limits": [
+     "Do not treat the planned release date as a delivery date.",
+     "Do not claim physical receipt of the parcel.",
+     "Do not repeat the action or claim success before checking the saved state."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "New escalation",
+    "title": "Hold request transfer timed out",
+    "timestamp": "2026-02-11 09:27:00 UTC",
+    "actor_id": "branch_system",
+    "message_id": "004"
+   },
+   "explanation": "Establish the saved outcome before repeating an uncertain action. Do not repeat the action or claim success before checking the saved state.",
+   "state_after": {
+    "case_id": "010-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: request the hold with the recipient's release date and get dispatch's confirmation."
+     },
+     "recipient": {
+      "name": "Daro Lusk",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Give the date the parcel should be released from the hold."
+     },
+     "dispatch": {
+      "name": "Dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Apply the eligible hold in the depot and schedule the release to routing."
+     },
+     "branch_system": {
+      "name": "Dispatch auto-acknowledgement",
+      "organization": "Plover Arc Logistics",
+      "role": "system",
+      "is_us": false,
+      "responsibility": "Report or handle the state within the scope stated in the source message; no wider authority is inferred."
+     }
+    },
+    "goal": "Establish the saved outcome before repeating an uncertain action.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask Dispatch in Dispatch chat what DL-010's saved stock status and release date show now, and state that no second hold request will be sent until that is known."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has given the date the parcel should be released.",
+      "status": "met",
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-11 09:00:00 UTC",
+     "escalated_at": "2026-02-11 09:27:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "010-N2"
+     },
+     "context_message_id": "001",
+     "summary": "Establish the saved outcome before repeating an uncertain action.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The new escalation requires a scoped response. Automatic acknowledgement. Your email about DL-010 was received at 09:25. Its transfer to the depot hold queue failed with a timeout at 09:26. The stock record may or may not show a hold. No reference has been issued.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-010.",
+      "source": {
+       "type": "case_card",
+       "id": "010"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-010 is in depot stock.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "This service allows a hold of up to three calendar days before routing.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "A hold requires a confirmed release date.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The recipient is away and returns on 2026-02-14.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient asks to hold the parcel and release it on 2026-02-14, not earlier.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Dispatch auto-acknowledgement reports: Automatic acknowledgement.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Dispatch auto-acknowledgement reports: Your email about DL-010 was received at 09:25.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Dispatch auto-acknowledgement reports: Its transfer to the depot hold queue failed with a timeout at 09:26.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_4",
+      "text": "Dispatch auto-acknowledgement reports: The stock record may or may not show a hold.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_5",
+      "text": "Dispatch auto-acknowledgement reports: No reference has been issued.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "dispatch",
+      "purpose": "Hold the parcel and release it on 2026-02-14, not earlier.",
+      "expected_response": "A hold with release on 2026-02-14.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "responsible_actor": "dispatch",
+      "purpose": "Apply the eligible three-day hold to DL-010 with release on 2026-02-14, as requested in Daro's verified order thread, and confirm the stock and routing status.",
+      "expected_response": "Confirmation of the hold, the release date, and the stock and routing status.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "responsible_actor": "dispatch",
+      "purpose": "Ask Dispatch in Dispatch chat what DL-010's saved stock status and release date show now, and state that no second hold request will be sent until that is known.",
+      "expected_response": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     "branch_attempt": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "responsible_actor": "dispatch",
+      "purpose": "Record the submission or operation reported as uncertain in this message, separately from downstream execution.",
+      "expected_response": "The record owner states whether this submission or operation saved.",
+      "status": "outcome_unknown",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "verify_first",
+       "action": "Ask Dispatch in Dispatch chat what DL-010's saved stock status and release date show now, and state that no second hold request will be sent until that is known.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Send the hold request again, or tell Daro the parcel is held.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "verification_required",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": "branch_request",
+     "description": "Ask Dispatch in Dispatch chat what DL-010's saved stock status and release date show now, and state that no second hold request will be sent until that is known."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "branch_system"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "dispatch",
+      "event_id": "001",
+      "timestamp": "2026-02-11 09:00:00 UTC",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-010 is in depot stock. This service allows a hold up to three calendar days before routing. A confirmed release date is required."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-11 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I am away and return on 2026-02-14. Please hold the parcel and release it on 2026-02-14, not earlier."
+     },
+     {
+      "conversation_id": "dispatch",
+      "event_id": "003",
+      "timestamp": "2026-02-11 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "channel": "Email",
+      "body": "Please apply the eligible three-day hold to DL-010, with release on 2026-02-14 as requested in Daro’s verified order thread. Confirm the stock and routing status."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "004",
+      "timestamp": "2026-02-11 09:27:00 UTC",
+      "from_actor": "branch_system",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Automatic acknowledgement. Your email about DL-010 was received at 09:25. Its transfer to the depot hold queue failed with a timeout at 09:26. The stock record may or may not show a hold. No reference has been issued."
+     }
+    ],
+    "limits": [
+     "Do not treat the planned release date as a delivery date.",
+     "Do not claim physical receipt of the parcel.",
+     "Do not repeat the action or claim success before checking the saved state."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c2",
+      "description": "Dispatch has confirmed the hold on DL-010.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "Dispatch has confirmed the planned release date.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "005",
+    "type": "message_sent",
+    "label": "Desk response",
+    "title": "Establish the saved outcome before repeating an uncertain action",
+    "timestamp": "2026-02-11 09:42:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "005"
+   },
+   "explanation": "The desk sends the recorded response. Do not repeat the action or claim success before checking the saved state.",
+   "state_after": {
+    "case_id": "010-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: request the hold with the recipient's release date and get dispatch's confirmation."
+     },
+     "recipient": {
+      "name": "Daro Lusk",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Give the date the parcel should be released from the hold."
+     },
+     "dispatch": {
+      "name": "Dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Apply the eligible hold in the depot and schedule the release to routing."
+     },
+     "branch_system": {
+      "name": "Dispatch auto-acknowledgement",
+      "organization": "Plover Arc Logistics",
+      "role": "system",
+      "is_us": false,
+      "responsibility": "Report or handle the state within the scope stated in the source message; no wider authority is inferred."
+     }
+    },
+    "goal": "Establish the saved outcome before repeating an uncertain action.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "dispatch",
+       "request_id": "branch_request",
+       "expected": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed."
+      }
+     ],
+     "next_action": "Record the reply or scoped confirmation before closing this branch."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has given the date the parcel should be released.",
+      "status": "met",
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-11 09:00:00 UTC",
+     "escalated_at": "2026-02-11 09:27:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "010-N2"
+     },
+     "context_message_id": "001",
+     "summary": "Establish the saved outcome before repeating an uncertain action.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The scoped reply or confirmation has not yet been recorded.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-010.",
+      "source": {
+       "type": "case_card",
+       "id": "010"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-010 is in depot stock.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "This service allows a hold of up to three calendar days before routing.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "A hold requires a confirmed release date.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The recipient is away and returns on 2026-02-14.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient asks to hold the parcel and release it on 2026-02-14, not earlier.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Dispatch auto-acknowledgement reports: Automatic acknowledgement.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Dispatch auto-acknowledgement reports: Your email about DL-010 was received at 09:25.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Dispatch auto-acknowledgement reports: Its transfer to the depot hold queue failed with a timeout at 09:26.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_4",
+      "text": "Dispatch auto-acknowledgement reports: The stock record may or may not show a hold.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_5",
+      "text": "Dispatch auto-acknowledgement reports: No reference has been issued.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "dispatch",
+      "purpose": "Hold the parcel and release it on 2026-02-14, not earlier.",
+      "expected_response": "A hold with release on 2026-02-14.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "responsible_actor": "dispatch",
+      "purpose": "Apply the eligible three-day hold to DL-010 with release on 2026-02-14, as requested in Daro's verified order thread, and confirm the stock and routing status.",
+      "expected_response": "Confirmation of the hold, the release date, and the stock and routing status.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "responsible_actor": "dispatch",
+      "purpose": "Ask Dispatch in Dispatch chat what DL-010's saved stock status and release date show now, and state that no second hold request will be sent until that is known.",
+      "expected_response": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "004",
+       "005"
+      ]
+     },
+     "branch_attempt": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "responsible_actor": "dispatch",
+      "purpose": "Record the submission or operation reported as uncertain in this message, separately from downstream execution.",
+      "expected_response": "The record owner states whether this submission or operation saved.",
+      "status": "outcome_unknown",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "verify_first",
+       "action": "Ask Dispatch in Dispatch chat what DL-010's saved stock status and release date show now, and state that no second hold request will be sent until that is known.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Send the hold request again, or tell Daro the parcel is held.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "verify_first",
+     "reason": "The recorded outgoing message takes this permitted response."
+    },
+    "status": "awaiting_verification",
+    "next_step": {
+     "type": "verification",
+     "responsible_actor": "dispatch",
+     "request_id": "branch_request",
+     "description": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "branch_system",
+       "dispatch"
+      ],
+      "channel": "Email",
+      "other_channels": [
+       "Dispatch chat"
+      ]
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "dispatch",
+      "event_id": "001",
+      "timestamp": "2026-02-11 09:00:00 UTC",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-010 is in depot stock. This service allows a hold up to three calendar days before routing. A confirmed release date is required."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-11 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I am away and return on 2026-02-14. Please hold the parcel and release it on 2026-02-14, not earlier."
+     },
+     {
+      "conversation_id": "dispatch",
+      "event_id": "003",
+      "timestamp": "2026-02-11 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "channel": "Email",
+      "body": "Please apply the eligible three-day hold to DL-010, with release on 2026-02-14 as requested in Daro’s verified order thread. Confirm the stock and routing status."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "004",
+      "timestamp": "2026-02-11 09:27:00 UTC",
+      "from_actor": "branch_system",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Automatic acknowledgement. Your email about DL-010 was received at 09:25. Its transfer to the depot hold queue failed with a timeout at 09:26. The stock record may or may not show a hold. No reference has been issued."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-02-11 09:42:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "channel": "Dispatch chat",
+      "body": "Our 09:25 email asking for a hold on DL-010 reached you, but its transfer to the depot hold queue timed out and no reference was issued. What do DL-010's saved stock status and release date show now? Please do not create a second change. We will not resend the hold request until we know."
+     }
+    ],
+    "limits": [
+     "Do not treat the planned release date as a delivery date.",
+     "Do not claim physical receipt of the parcel.",
+     "Do not repeat the action or claim success before checking the saved state."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c2",
+      "description": "Dispatch has confirmed the hold on DL-010.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "Dispatch has confirmed the planned release date.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "006",
+    "type": "message_received",
+    "label": "Scoped confirmation",
+    "title": "Follow-through confirms the branch outcome",
+    "timestamp": "2026-02-11 10:05:00 UTC",
+    "actor_id": "dispatch",
+    "message_id": "006"
+   },
+   "explanation": "Record what the responding party actually confirms. DL-010's stock record shows HOLD through 2026-02-13, with release to routing on 2026-02-14, saved at 09:31 after the queue retried. There is one hold entry. That is a release date, not a delivery date.",
+   "state_after": {
+    "case_id": "010-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: request the hold with the recipient's release date and get dispatch's confirmation."
+     },
+     "recipient": {
+      "name": "Daro Lusk",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Give the date the parcel should be released from the hold."
+     },
+     "dispatch": {
+      "name": "Dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Apply the eligible hold in the depot and schedule the release to routing."
+     },
+     "branch_system": {
+      "name": "Dispatch auto-acknowledgement",
+      "organization": "Plover Arc Logistics",
+      "role": "system",
+      "is_us": false,
+      "responsibility": "Report or handle the state within the scope stated in the source message; no wider authority is inferred."
+     }
+    },
+    "goal": "Establish the saved outcome before repeating an uncertain action.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has given the date the parcel should be released.",
+      "status": "met",
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+      "status": "met",
+      "evidence_event_ids": [
+       "005",
+       "006"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-11 09:00:00 UTC",
+     "escalated_at": "2026-02-11 09:27:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "010-N2"
+     },
+     "context_message_id": "001",
+     "summary": "Establish the saved outcome before repeating an uncertain action.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-010.",
+      "source": {
+       "type": "case_card",
+       "id": "010"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-010 is in depot stock.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "This service allows a hold of up to three calendar days before routing.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "A hold requires a confirmed release date.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The recipient is away and returns on 2026-02-14.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient asks to hold the parcel and release it on 2026-02-14, not earlier.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Dispatch auto-acknowledgement reports: Automatic acknowledgement.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Dispatch auto-acknowledgement reports: Your email about DL-010 was received at 09:25.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Dispatch auto-acknowledgement reports: Its transfer to the depot hold queue failed with a timeout at 09:26.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_4",
+      "text": "Dispatch auto-acknowledgement reports: The stock record may or may not show a hold.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_5",
+      "text": "Dispatch auto-acknowledgement reports: No reference has been issued.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_outcome_1",
+      "text": "Dispatch reports: DL-010's stock record shows HOLD through 2026-02-13, with release to routing on 2026-02-14, saved at 09:31 after the queue retried.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_2",
+      "text": "Dispatch reports: There is one hold entry.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_3",
+      "text": "Dispatch reports: That is a release date, not a delivery date.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "dispatch",
+      "purpose": "Hold the parcel and release it on 2026-02-14, not earlier.",
+      "expected_response": "A hold with release on 2026-02-14.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "responsible_actor": "dispatch",
+      "purpose": "Apply the eligible three-day hold to DL-010 with release on 2026-02-14, as requested in Daro's verified order thread, and confirm the stock and routing status.",
+      "expected_response": "Confirmation of the hold, the release date, and the stock and routing status.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "responsible_actor": "dispatch",
+      "purpose": "Ask Dispatch in Dispatch chat what DL-010's saved stock status and release date show now, and state that no second hold request will be sent until that is known.",
+      "expected_response": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+      "status": "answered",
+      "response": "DL-010's stock record shows HOLD through 2026-02-13, with release to routing on 2026-02-14, saved at 09:31 after the queue retried. There is one hold entry. That is a release date, not a delivery date.",
+      "evidence_event_ids": [
+       "004",
+       "005",
+       "006"
+      ]
+     },
+     "branch_attempt": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "responsible_actor": "dispatch",
+      "purpose": "Record the submission or operation reported as uncertain in this message, separately from downstream execution.",
+      "expected_response": "The record owner states whether this submission or operation saved.",
+      "status": "answered",
+      "response": "DL-010's stock record shows HOLD through 2026-02-13, with release to routing on 2026-02-14, saved at 09:31 after the queue retried. There is one hold entry. That is a release date, not a delivery date.",
+      "evidence_event_ids": [
+       "004",
+       "006"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "verify_first",
+       "action": "Ask Dispatch in Dispatch chat what DL-010's saved stock status and release date show now, and state that no second hold request will be sent until that is known.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Send the hold request again, or tell Daro the parcel is held.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "verify_first",
+     "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "DL-010's stock record shows HOLD through 2026-02-13, with release to routing on 2026-02-14, saved at 09:31 after the queue retried. There is one hold entry. That is a release date, not a delivery date.",
+     "confirmed_by": "dispatch",
+     "evidence_event_ids": [
+      "006"
+     ],
+     "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Send the hold request again, or tell Daro the parcel is held."
+    },
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "branch_system",
+       "dispatch"
+      ],
+      "channel": "Email",
+      "other_channels": [
+       "Dispatch chat"
+      ]
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "dispatch",
+      "event_id": "001",
+      "timestamp": "2026-02-11 09:00:00 UTC",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-010 is in depot stock. This service allows a hold up to three calendar days before routing. A confirmed release date is required."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-11 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I am away and return on 2026-02-14. Please hold the parcel and release it on 2026-02-14, not earlier."
+     },
+     {
+      "conversation_id": "dispatch",
+      "event_id": "003",
+      "timestamp": "2026-02-11 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "channel": "Email",
+      "body": "Please apply the eligible three-day hold to DL-010, with release on 2026-02-14 as requested in Daro’s verified order thread. Confirm the stock and routing status."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "004",
+      "timestamp": "2026-02-11 09:27:00 UTC",
+      "from_actor": "branch_system",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Automatic acknowledgement. Your email about DL-010 was received at 09:25. Its transfer to the depot hold queue failed with a timeout at 09:26. The stock record may or may not show a hold. No reference has been issued."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-02-11 09:42:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "channel": "Dispatch chat",
+      "body": "Our 09:25 email asking for a hold on DL-010 reached you, but its transfer to the depot hold queue timed out and no reference was issued. What do DL-010's saved stock status and release date show now? Please do not create a second change. We will not resend the hold request until we know."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "006",
+      "timestamp": "2026-02-11 10:05:00 UTC",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "DL-010's stock record shows HOLD through 2026-02-13, with release to routing on 2026-02-14, saved at 09:31 after the queue retried. There is one hold entry. That is a release date, not a delivery date."
+     }
+    ],
+    "limits": [
+     "Do not treat the planned release date as a delivery date.",
+     "Do not claim physical receipt of the parcel.",
+     "Do not repeat the action or claim success before checking the saved state."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c2",
+      "description": "Dispatch has confirmed the hold on DL-010.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "Dispatch has confirmed the planned release date.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  }
+ ]
+}

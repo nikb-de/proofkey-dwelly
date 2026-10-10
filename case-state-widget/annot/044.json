@@ -1,0 +1,453 @@
+{
+ "case_id": "044",
+ "lang": "en",
+ "title": "044 · Missing pallet in a business consignment",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Eron Leth, receiving coordinator at Kestrel Loom. From the case card: consignment KL-044 of four pallets arrived with only three; the carrier must trace the individually identified missing pallet and the consignee must reconcile receipt.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "consignee",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get the missing pallet traced and delivered, and the consignee's confirmation of receipt and a reconciled count.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "consignee": {
+   "name": "Eron Leth",
+   "organization": "Kestrel Loom",
+   "role": "recipient",
+   "responsibility": "Record the missing pallet, confirm its receipt and sign the reconciled count.",
+   "from_start": true,
+   "source_names": [
+    "Eron Leth, Kestrel Loom receiving coordinator"
+   ]
+  },
+  "trace_team": {
+   "name": "Freight trace team",
+   "organization": "Plover Arc Logistics",
+   "role": "carrier",
+   "responsibility": "Trace the missing pallet by its identifier and arrange its remaining delivery.",
+   "from_start": false,
+   "source_names": [
+    "Freight trace team, Plover Arc Logistics"
+   ]
+  }
+ },
+ "goal": "Get the missing pallet traced by its identifier and delivered, and obtain the consignee's confirmation of receipt and a signed reconciled count for KL-044.",
+ "limits": [
+  "Do not treat the reconciled pallet receipt as a contents inspection.",
+  "Do not treat the reconciled pallet receipt as contractual payment acceptance."
+ ],
+ "intake": {
+  "summary": "Trace the missing fourth pallet of consignment KL-044 and reconcile the receipt.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "One pallet of the four-pallet consignment has not arrived.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns consignment KL-044.",
+    "source": {
+     "type": "case_card",
+     "id": "044"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "A four-pallet consignment arrived with only three pallets.",
+    "source": {
+     "type": "case_card",
+     "id": "044"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The carrier must trace the individually identified missing pallet, and the consignee must reconcile receipt.",
+    "source": {
+     "type": "case_card",
+     "id": "044"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The carrier has located the missing pallet and scheduled its remaining delivery."
+   },
+   {
+    "id": "c2",
+    "description": "The consignee has confirmed receipt of the missing pallet."
+   },
+   {
+    "id": "c3",
+    "description": "The consignee has signed the reconciled count."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "annotations": []
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Receiving count",
+   "title": "Eron reports a signed count of three",
+   "explanation": "The signed count names the missing pallet: P4. The carrier has to trace that pallet by its own identifier.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f4",
+     "text": "Receiving count KL-044, signed in the consignee's business portal: DL-044-P1, P2 and P3 accepted; P4 absent.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f2",
+     "text": "Four pallets were expected and three were received.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Get the carrier to trace the missing pallet P4 by its identifier."
+   },
+   "blocker": "Pallet P4 is absent from the signed receiving count.",
+   "status": "context_received",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": null,
+    "description": "Get the missing pallet P4 traced by its identifier."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Eron asks to trace DL-044-P4 separately",
+   "explanation": "Eron asks for a separate trace of DL-044-P4 and gives a receiving window for it. The next step is a trace request to the carrier's freight trace team.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f5",
+     "text": "The consignee can receive the missing pallet on 2026-03-18 afternoon at the same receiving bay.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "consignee",
+     "to_actor": "coordinator",
+     "responsible_actor": "trace_team",
+     "purpose": "Trace DL-044-P4 separately.",
+     "expected_response": "The location of DL-044-P4 and its remaining delivery.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "trace_team",
+     "responsible_actor": "trace_team",
+     "purpose": "Trace DL-044-P4 by its identifier and arrange its remaining delivery to the KL-044 receiving bay.",
+     "expected_response": "The location of DL-044-P4 and a scheduled remaining delivery.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask the freight trace team to trace DL-044-P4 and arrange its remaining delivery to the KL-044 receiving bay."
+   },
+   "blocker": "DL-044-P4 has not been located.",
+   "status": "escalated",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "trace_team",
+    "request_id": "r1",
+    "description": "Trace DL-044-P4 and arrange its remaining delivery."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "Trace request",
+   "title": "We ask the trace team to find P4",
+   "explanation": "We asked the carrier to trace DL-044-P4 and deliver it to the verified receiving bay, and stated that the signed count is three of four so the trace is not closed on P1–P3 alone. Now we wait for the trace team.",
+   "conversation_id": "trace",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "trace_team",
+     "responsible_actor": "trace_team",
+     "purpose": "Trace DL-044-P4 and arrange its remaining delivery to the verified KL-044 receiving bay; do not close using P1–P3 alone.",
+     "expected_response": "The location of DL-044-P4 and a scheduled remaining delivery.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "trace_team",
+      "request_id": "r1",
+      "expected": "Location of DL-044-P4 and its scheduled remaining delivery"
+     }
+    ],
+    "next_action": "Once P4 is located and scheduled, pass the delivery window to Eron."
+   },
+   "blocker": "DL-044-P4 has not been located.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "trace_team",
+    "request_id": "r1",
+    "description": "Wait for the trace team to locate DL-044-P4 and schedule its delivery."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "Trace result",
+   "title": "Trace team locates P4 and schedules delivery",
+   "explanation": "P4 is located and its remaining delivery is scheduled for 2026-03-18, the date Eron offered. A scheduled delivery is not a receipt, so we still need Eron's confirmation and a reconciled count.",
+   "conversation_id": "trace",
+   "facts_upsert": [
+    {
+     "id": "f6",
+     "text": "P4 was held on a separate transfer trailer; the carrier located it.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "f7",
+     "text": "The remaining delivery of P4 is scheduled for 2026-03-18, 13:00–16:00 UTC.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "consignee",
+     "to_actor": "coordinator",
+     "responsible_actor": "trace_team",
+     "purpose": "Trace DL-044-P4 separately.",
+     "expected_response": "The location of DL-044-P4 and its remaining delivery.",
+     "status": "completed",
+     "response": "P4 was located on a separate transfer trailer; remaining delivery scheduled for 2026-03-18, 13:00–16:00 UTC.",
+     "responded_by": "trace_team",
+     "evidence_event_ids": [
+      "002",
+      "004"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "trace_team",
+     "responsible_actor": "trace_team",
+     "purpose": "Trace DL-044-P4 and arrange its remaining delivery to the verified KL-044 receiving bay; do not close using P1–P3 alone.",
+     "expected_response": "The location of DL-044-P4 and a scheduled remaining delivery.",
+     "status": "completed",
+     "response": "P4 located on a separate transfer trailer; remaining delivery scheduled for 2026-03-18, 13:00–16:00 UTC.",
+     "evidence_event_ids": [
+      "002",
+      "003",
+      "004"
+     ]
+    },
+    "r2": {
+     "type": "confirmation",
+     "from_actor": "coordinator",
+     "to_actor": "consignee",
+     "responsible_actor": "consignee",
+     "purpose": "Confirm receipt of P4 and sign the reconciled count for KL-044.",
+     "expected_response": "Confirmation of receipt and a signed reconciled count.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c1",
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Tell Eron the 2026-03-18, 13:00–16:00 UTC delivery window and ask him to confirm receipt of P4 and sign a reconciled count.",
+    "note": "A message to Eron with the delivery window and the request for a reconciled count is not recorded as a separate event. So in this snapshot the agent is still preparing it; it is not given waiting status without evidence that the message was sent."
+   },
+   "blocker": "P4 is scheduled but not yet received; the count is still three of four.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "confirmation",
+    "responsible_actor": "consignee",
+    "request_id": "r2",
+    "description": "Eron confirms receipt of P4 and signs the reconciled count."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "missing-consignee-update",
+     "kind": "gap",
+     "title": "Next action · us → Eron",
+     "text": "The trace team located P4 and scheduled its delivery for 2026-03-18, 13:00–16:00 UTC; their message went only to us. We now have to pass the window to Eron and ask him to confirm receipt and sign a reconciled count; after that, the agent waits for the delivery and his confirmation. At this step the message is not yet recorded in the history, and a scheduled delivery is not a receipt.",
+     "source_event_ids": [
+      "004"
+     ],
+     "implied_action": {
+      "from_actor": "coordinator",
+      "to_actor": "consignee",
+      "type": "confirmation",
+      "purpose": "Pass Eron the scheduled P4 delivery window and ask him to confirm receipt and sign a reconciled count."
+     }
+    }
+   ]
+  },
+  {
+   "event_id": "005",
+   "label": "Client confirmation",
+   "title": "Eron signs a four-of-four count",
+   "explanation": "Eron confirmed receipt of DL-044-P4 and signed revised count KL-044-R with all four pallets, so the coordination task can be closed.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f8",
+     "text": "DL-044-P4 was received at 14:20 UTC on 2026-03-18.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "f2",
+     "text": "The consignee signed revised count KL-044-R: P1, P2, P3 and P4, four of four accepted.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r2": {
+     "type": "confirmation",
+     "from_actor": "coordinator",
+     "to_actor": "consignee",
+     "responsible_actor": "consignee",
+     "purpose": "Confirm receipt of P4 and sign the reconciled count for KL-044.",
+     "expected_response": "Confirmation of receipt and a signed reconciled count.",
+     "status": "answered",
+     "response": "DL-044-P4 received at 14:20 UTC on 2026-03-18; revised count KL-044-R signed, four of four accepted.",
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c2",
+     "evidence_event_ids": [
+      "005"
+     ]
+    },
+    {
+     "id": "c3",
+     "evidence_event_ids": [
+      "005"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Coordination task complete: Eron confirmed receipt of P4 and signed revised count KL-044-R, four of four. Contents inspection and payment acceptance are not part of this case's success criteria."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "DL-044-P4 was traced and delivered; Eron signed revised count KL-044-R, four of four pallets accepted.",
+    "confirmed_by": "consignee",
+    "evidence_event_ids": [
+     "005"
+    ],
+    "remaining_work": "The reconciled pallet receipt is not a contents inspection or contractual payment acceptance."
+   },
+   "annotations_add": [
+    {
+     "id": "missing-consignee-update",
+     "kind": "gap",
+     "title": "Between 004 and 005 · our update to Eron and the P4 delivery",
+     "text": "Two things happen off the record before 005: our update to Eron with the delivery window and the request for a reconciled count, and the carrier's delivery of P4, which 005 confirms (\"received at 14:20 UTC on 2026-03-18\", inside the scheduled window). Message 005 does not refer to our update, so it is not confirmed that we sent it; Eron had offered the 2026-03-18 afternoon in 002 and may have reconciled the count on his own after the delivery.",
+     "source_event_ids": [
+      "005"
+     ],
+     "before_message_id": "005",
+     "implied_action": {
+      "from_actor": "coordinator",
+      "to_actor": "consignee",
+      "type": "confirmation",
+      "purpose": "Pass Eron the scheduled P4 delivery window and ask him to confirm receipt and sign a reconciled count."
+     }
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,635 @@
+{
+ "case_id": "001-N1",
+ "lang": "en",
+ "title": "001-N1 · Recipient leaves the slot choice open",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Vessa Lorne. From the case card: the desk-lamp parcel DL-001 is at the destination depot, the original delivery slot does not work for the recipient, and only dispatch can change the booking.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get the recipient's slot choice and dispatch's booking confirmation.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Vessa Lorne",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Choose a new delivery slot from the ones dispatch offers.",
+   "from_start": true,
+   "source_names": [
+    "Vessa Lorne, recipient"
+   ]
+  },
+  "dispatch": {
+   "name": "Dispatch",
+   "organization": "Plover Arc Logistics",
+   "role": "dispatch",
+   "responsibility": "Offer available slots and change the booking to the recipient's choice.",
+   "from_start": false,
+   "source_names": [
+    "Dispatch, Plover Arc Logistics"
+   ]
+  }
+ },
+ "goal": "Get the recipient's choice of a new slot and dispatch's confirmation that the DL-001 booking has been moved.",
+ "limits": [
+  "Do not promise arrival at a precise minute.",
+  "Do not say the lamp has been delivered.",
+  "Do not choose for the customer or treat a choice as a confirmed booking."
+ ],
+ "intake": {
+  "summary": "Reschedule DL-001: the recipient cannot take delivery in the original slot.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The recipient cannot take delivery in the original slot; no new slot has been chosen.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-001.",
+    "source": {
+     "type": "case_card",
+     "id": "001"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The desk-lamp parcel is at the destination depot.",
+    "source": {
+     "type": "case_card",
+     "id": "001"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The recipient cannot take delivery in the original slot.",
+    "source": {
+     "type": "case_card",
+     "id": "001"
+    }
+   },
+   {
+    "id": "f4",
+    "text": "Dispatch, not the desk, controls booking changes.",
+    "source": {
+     "type": "case_card",
+     "id": "001"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The recipient has chosen a new slot from the options dispatch confirmed."
+   },
+   {
+    "id": "c2",
+    "description": "Dispatch has confirmed the booking for the chosen slot."
+   },
+   {
+    "id": "c3",
+    "description": "Dispatch has confirmed that the original slot is removed."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/001/N1-AMBIGUOUS_REPLY",
+  "branch_id": "001-N1",
+  "derived_from_case": "001",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "AMBIGUOUS_REPLY",
+  "expected_decision": "ASK_CUSTOMER",
+  "workflow_sheet": "B",
+  "branch_label": "Recipient leaves the slot choice open",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "f8d5e0fad8275b89730084ad46b9f3481784a1c58834ff9da1faed231c7a9861",
+   "history.md": "88973aa4b44ac1cf67600bd95849e70a400e873b9de7b537810868488633cc43"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Dispatch email",
+   "title": "Dispatch offers two no-charge slots",
+   "explanation": "Dispatch gave the current booking and two no-charge slots for rescheduling. The recipient chooses the slot and dispatch books it, so the next step is a question to the recipient.",
+   "conversation_id": "dispatch",
+   "facts_upsert": [
+    {
+     "id": "f5",
+     "text": "DL-001 is booked for 2026-02-03, 09:00–12:00 UTC.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f6",
+     "text": "Dispatch's rescheduling inventory currently has 2026-02-03 15:00–18:00 and 2026-02-04 10:00–13:00 UTC.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f7",
+     "text": "There is no rescheduling charge.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r1": {
+     "type": "decision",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Choose one of the two slots offered by dispatch.",
+     "expected_response": "The chosen delivery slot.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "001"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask the recipient to choose one of the two slots."
+   },
+   "blocker": "The recipient cannot take delivery in the booked slot; no new slot has been chosen.",
+   "status": "context_received",
+   "next_step": {
+    "type": "decision",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Choose one of the two no-charge slots."
+   },
+   "result": null,
+   "decision": {
+    "required": true,
+    "question": "Which slot should be booked instead of the original?",
+    "options": [
+     {
+      "id": "o1",
+      "label": "2026-02-03 15:00–18:00 UTC",
+      "conditions": "No rescheduling charge."
+     },
+     {
+      "id": "o2",
+      "label": "2026-02-04 10:00–13:00 UTC",
+      "conditions": "No rescheduling charge."
+     }
+    ],
+    "decision_maker": "recipient",
+    "selected_option": null,
+    "reason": null
+   },
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Vessa asks to move the morning delivery",
+   "explanation": "Vessa confirmed the morning slot does not work for her and asked us to reply in the order thread. We already have dispatch's options, so we can offer them right away.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f3",
+     "text": "The recipient has a work meeting during the morning delivery.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f8",
+     "text": "The recipient asks us to reply in the order-linked message thread.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "dispatch",
+     "purpose": "Move the lamp delivery out of the morning slot.",
+     "expected_response": "A new delivery booking.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Reply to Vessa in the order thread: name dispatch's two slots and ask which one to book."
+   },
+   "blocker": "The morning slot does not work for the recipient; no new slot has been chosen.",
+   "status": "escalated",
+   "next_step": {
+    "type": "decision",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Choose one of the two no-charge slots."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "morning-slot-context",
+     "kind": "context",
+     "title": "What Vessa knew before her message",
+     "text": "Vessa refers to the morning delivery, so she knows the delivery is scheduled for the morning. How she learned this is not recorded in the history.",
+     "before_message_id": "002",
+     "source_event_ids": [
+      "002"
+     ]
+    }
+   ]
+  },
+  {
+   "event_id": "003",
+   "label": "Our question",
+   "title": "We ask Vessa to choose a slot",
+   "explanation": "We named only the slots dispatch confirmed and promised no booking before she chooses. Now we wait for Vessa's reply.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "decision",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Choose one of the two slots offered by dispatch.",
+     "expected_response": "The chosen delivery slot.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "001",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "recipient",
+      "request_id": "r1",
+      "expected": "Choice of one of the two slots"
+     }
+    ],
+    "next_action": "Once she chooses, send dispatch a booking request for the chosen slot."
+   },
+   "blocker": "No new slot has been chosen.",
+   "status": "awaiting_decision",
+   "next_step": {
+    "type": "decision",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Wait for Vessa to choose a slot."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "dispatch-options-source",
+     "kind": "context",
+     "title": "Where the slots come from · message 001",
+     "text": "Dispatch sent both no-charge slots in message 001 (09:00), before the client wrote. Here we pass on those ready options; the history has no separate request to dispatch between 002 and 003.",
+     "before_message_id": "003",
+     "source_event_ids": [
+      "001"
+     ]
+    }
+   ]
+  },
+  {
+   "event_id": "004",
+   "label": "New escalation",
+   "title": "Recipient leaves the slot choice open",
+   "explanation": "Obtain the authorised party’s precise choice or missing detail. Do not choose for the customer or treat a choice as a confirmed booking.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Vessa Lorne reports: Anything but the morning is fine.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Vessa Lorne reports: The afternoon one could work, or the next day if that suits the driver better.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Vessa Lorne reports: Just pick whichever is easier for them and let me know.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "decision",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Ask Vessa in the order-linked Customer portal thread to name one slot: 2026-02-03 15:00–18:00 or 2026-02-04 10:00–13:00.",
+     "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask Vessa in the order-linked Customer portal thread to name one slot: 2026-02-03 15:00–18:00 or 2026-02-04 10:00–13:00."
+   },
+   "blocker": "The new escalation requires a scoped response. Anything but the morning is fine. The afternoon one could work, or the next day if that suits the driver better. Just pick whichever is easier for them and let me know.",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Ask Vessa in the order-linked Customer portal thread to name one slot: 2026-02-03 15:00–18:00 or 2026-02-04 10:00–13:00."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "004",
+     "source_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c1",
+    "c2",
+    "c3"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "ask_customer",
+      "action": "Ask Vessa in the order-linked Customer portal thread to name one slot: 2026-02-03 15:00–18:00 or 2026-02-04 10:00–13:00.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Pick a slot for her because she said whichever is easier, or send Dispatch a booking request without her named choice.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "001-N1"
+    },
+    "summary": "Obtain the authorised party’s precise choice or missing detail.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Obtain the authorised party’s precise choice or missing detail."
+   }
+  },
+  {
+   "event_id": "005",
+   "label": "Desk response",
+   "title": "Obtain the authorised party’s precise choice or missing detail",
+   "explanation": "The desk sends the recorded response. Do not choose for the customer or treat a choice as a confirmed booking.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "decision",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Ask Vessa in the order-linked Customer portal thread to name one slot: 2026-02-03 15:00–18:00 or 2026-02-04 10:00–13:00.",
+     "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "recipient",
+      "request_id": "branch_request",
+      "expected": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_decision",
+   "next_step": {
+    "type": "decision",
+    "responsible_actor": "recipient",
+    "request_id": "branch_request",
+    "description": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "ask_customer",
+      "action": "Ask Vessa in the order-linked Customer portal thread to name one slot: 2026-02-03 15:00–18:00 or 2026-02-04 10:00–13:00.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Pick a slot for her because she said whichever is easier, or send Dispatch a booking request without her named choice.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "ask_customer",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. Please book 2026-02-04 10:00–13:00 for DL-001. I will be at home for the whole of that morning. I understand this is my choice only and not yet a booking.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Vessa Lorne reports: Please book 2026-02-04 10:00–13:00 for DL-001.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Vessa Lorne reports: I will be at home for the whole of that morning.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Vessa Lorne reports: I understand this is my choice only and not yet a booking.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "decision",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Ask Vessa in the order-linked Customer portal thread to name one slot: 2026-02-03 15:00–18:00 or 2026-02-04 10:00–13:00.",
+     "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+     "status": "answered",
+     "response": "Please book 2026-02-04 10:00–13:00 for DL-001. I will be at home for the whole of that morning. I understand this is my choice only and not yet a booking.",
+     "evidence_event_ids": [
+      "004",
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "Please book 2026-02-04 10:00–13:00 for DL-001. I will be at home for the whole of that morning. I understand this is my choice only and not yet a booking.",
+    "confirmed_by": "recipient",
+    "evidence_event_ids": [
+     "006"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Pick a slot for her because she said whichever is easier, or send Dispatch a booking request without her named choice."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "ask_customer",
+      "action": "Ask Vessa in the order-linked Customer portal thread to name one slot: 2026-02-03 15:00–18:00 or 2026-02-04 10:00–13:00.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Pick a slot for her because she said whichever is easier, or send Dispatch a booking request without her named choice.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "ask_customer",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

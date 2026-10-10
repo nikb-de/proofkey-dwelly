@@ -1,0 +1,616 @@
+{
+ "case_id": "004-N2",
+ "lang": "en",
+ "title": "004-N2 · Callback request lost in channel rebuild",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Oren Sile. From the case card: the route for DL-004 is booked and the driver has not yet departed; the customer needs time to move from a nearby studio to the delivery door.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: pass the recipient's callback request to dispatch and get confirmation that it is recorded.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Oren Sile",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Say how and when the driver should call before arrival.",
+   "from_start": true,
+   "source_names": [
+    "Oren Sile, recipient"
+   ]
+  },
+  "dispatch": {
+   "name": "Dispatch",
+   "organization": "Plover Arc Logistics",
+   "role": "dispatch",
+   "responsibility": "Record the call request on the route and confirm it.",
+   "from_start": false,
+   "source_names": [
+    "Dispatch, Plover Arc Logistics"
+   ]
+  },
+  "branch_system": {
+   "name": "Dispatch chat system",
+   "organization": "Plover Arc Logistics",
+   "role": "system",
+   "from_start": false,
+   "source_names": [
+    "Dispatch chat system, Plover Arc Logistics"
+   ],
+   "responsibility": "Report or handle the state within the scope stated in the source message; no wider authority is inferred."
+  }
+ },
+ "goal": "Get dispatch to record the recipient's request for a call shortly before arrival on DL-004 and confirm that it is recorded.",
+ "limits": [
+  "Do not treat the recorded instruction as proof that the driver called.",
+  "Do not treat the recorded instruction as proof of arrival.",
+  "Do not repeat the action or claim success before checking the saved state."
+ ],
+ "intake": {
+  "summary": "Add a call shortly before arrival to DL-004 so the recipient can walk over from a nearby studio.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The customer needs time to reach the delivery door; no advance call is arranged.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-004.",
+    "source": {
+     "type": "case_card",
+     "id": "004"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The route is booked; the driver has not yet departed.",
+    "source": {
+     "type": "case_card",
+     "id": "004"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The customer needs time to move from a nearby studio to the delivery door.",
+    "source": {
+     "type": "case_card",
+     "id": "004"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The recipient has stated which contact the driver should call."
+   },
+   {
+    "id": "c2",
+    "description": "Dispatch has confirmed that the call request is recorded on the DL-004 route."
+   },
+   {
+    "id": "c3",
+    "description": "Dispatch has confirmed that the request is visible to the assigned driver."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": null,
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/004/N2-CHANNEL_FAILURE",
+  "branch_id": "004-N2",
+  "derived_from_case": "004",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "CHANNEL_FAILURE",
+  "expected_decision": "VERIFY_FIRST",
+  "workflow_sheet": "R",
+  "branch_label": "Callback request lost in channel rebuild",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "68dcb7692853dbcbe7e1f5b386e3ade24b94f04f93175ce0199a7e1154376412",
+   "history.md": "e65d261791248ac02ae1bfc9bbe8c54d3faf32b6ee755ad064a0667ddf7c00d2"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Dispatch email",
+   "title": "Dispatch can add a call request",
+   "explanation": "Dispatch can add a call request on the verified number already in the order record, but cannot guarantee an exact advance interval. We take in the recipient's request before asking dispatch to record anything.",
+   "conversation_id": "dispatch",
+   "facts_upsert": [
+    {
+     "id": "f4",
+     "text": "DL-004 is on the 2026-02-06 afternoon route.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "Dispatch can add a call request using the verified number already in the order record.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f6",
+     "text": "Dispatch cannot guarantee an exact advance interval before arrival.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Take in the recipient's request before asking dispatch to record a call."
+   },
+   "blocker": "The customer needs time to reach the delivery door; no advance call is recorded on the route.",
+   "status": "context_received",
+   "next_step": null,
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Oren asks for a call before arrival",
+   "explanation": "Oren asks for a call on the saved order contact, which matches what dispatch can add. No contact change is needed, so we can pass the request straight to dispatch.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f3",
+     "text": "Oren works in the studio next door and needs a few minutes to walk over.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f7",
+     "text": "Oren asks the driver to call shortly before arriving, using the saved order contact.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "dispatch",
+     "purpose": "Arrange for the driver to call the saved order contact shortly before arrival.",
+     "expected_response": "A call request recorded on the route.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "dispatch",
+     "responsible_actor": "dispatch",
+     "purpose": "Record Oren's request on DL-004: call the verified saved order contact shortly before arrival.",
+     "expected_response": "Confirmation that the call request is recorded.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c1",
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask dispatch to record Oren's request on DL-004: call the verified saved order contact shortly before arrival."
+   },
+   "blocker": "The call request is not yet recorded on the route.",
+   "status": "escalated",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "dispatch",
+    "request_id": "r1",
+    "description": "Record the call request on the DL-004 route."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We ask dispatch to record the call",
+   "explanation": "We asked for a call on the verified saved contact if route conditions allow, and stated that no contact change is requested. Now we wait for dispatch to confirm the record.",
+   "conversation_id": "dispatch",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "dispatch",
+     "responsible_actor": "dispatch",
+     "purpose": "Record Oren's request on DL-004: call the verified saved order contact shortly before arrival, if route conditions allow; no contact change.",
+     "expected_response": "Confirmation that the call request is recorded.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "dispatch",
+      "request_id": "r1",
+      "expected": "Confirmation that the call request is recorded on DL-004"
+     }
+    ],
+    "next_action": "Once dispatch confirms, close the coordination task without treating it as a call or an arrival."
+   },
+   "blocker": "The call request is not yet confirmed as recorded.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "dispatch",
+    "request_id": "r1",
+    "description": "Wait for dispatch to confirm the call request is recorded."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "New escalation",
+   "title": "Callback request lost in channel rebuild",
+   "explanation": "Establish the saved outcome before repeating an uncertain action. Do not repeat the action or claim success before checking the saved state.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Dispatch chat system reports: Message from Iona Quill, Rivet Delivery Desk, to Dispatch: send status unknown.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Dispatch chat system reports: The 2026-02-06 afternoon route channel was being rebuilt at 09:25, and messages from that minute may not have reached the route card queue.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Dispatch chat system reports: No read receipt is recorded.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "dispatch",
+     "responsible_actor": "dispatch",
+     "purpose": "Email Dispatch asking whether the DL-004 route card already shows a call request to the verified saved number, and state that no second request will be sent until that is known.",
+     "expected_response": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    },
+    "branch_attempt": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "dispatch",
+     "responsible_actor": "dispatch",
+     "purpose": "Record the submission or operation reported as uncertain in this message, separately from downstream execution.",
+     "expected_response": "The record owner states whether this submission or operation saved.",
+     "status": "outcome_unknown",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Email Dispatch asking whether the DL-004 route card already shows a call request to the verified saved number, and state that no second request will be sent until that is known."
+   },
+   "blocker": "The new escalation requires a scoped response. Message from Iona Quill, Rivet Delivery Desk, to Dispatch: send status unknown. The 2026-02-06 afternoon route channel was being rebuilt at 09:25, and messages from that minute may not have reached the route card queue. No read receipt is recorded.",
+   "status": "verification_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Email Dispatch asking whether the DL-004 route card already shows a call request to the verified saved number, and state that no second request will be sent until that is known."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "004",
+     "source_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c2",
+    "c3"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "verify_first",
+      "action": "Email Dispatch asking whether the DL-004 route card already shows a call request to the verified saved number, and state that no second request will be sent until that is known.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Repost the call request in Dispatch chat, or tell Oren it has been recorded.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "004-N2"
+    },
+    "summary": "Establish the saved outcome before repeating an uncertain action.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Establish the saved outcome before repeating an uncertain action."
+   }
+  },
+  {
+   "event_id": "005",
+   "label": "Desk response",
+   "title": "Establish the saved outcome before repeating an uncertain action",
+   "explanation": "The desk sends the recorded response. Do not repeat the action or claim success before checking the saved state.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "dispatch",
+     "responsible_actor": "dispatch",
+     "purpose": "Email Dispatch asking whether the DL-004 route card already shows a call request to the verified saved number, and state that no second request will be sent until that is known.",
+     "expected_response": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "dispatch",
+      "request_id": "branch_request",
+      "expected": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_verification",
+   "next_step": {
+    "type": "verification",
+    "responsible_actor": "dispatch",
+    "request_id": "branch_request",
+    "description": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "verify_first",
+      "action": "Email Dispatch asking whether the DL-004 route card already shows a call request to the verified saved number, and state that no second request will be sent until that is known.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Repost the call request in Dispatch chat, or tell Oren it has been recorded.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "verify_first",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. The DL-004 route card shows one call request to the verified saved order contact, saved at 09:27. There is no duplicate. The route is still scheduled for 2026-02-06; no call or arrival has occurred.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Dispatch reports: The DL-004 route card shows one call request to the verified saved order contact, saved at 09:27.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Dispatch reports: There is no duplicate.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Dispatch reports: The route is still scheduled for 2026-02-06; no call or arrival has occurred.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "dispatch",
+     "responsible_actor": "dispatch",
+     "purpose": "Email Dispatch asking whether the DL-004 route card already shows a call request to the verified saved number, and state that no second request will be sent until that is known.",
+     "expected_response": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+     "status": "answered",
+     "response": "The DL-004 route card shows one call request to the verified saved order contact, saved at 09:27. There is no duplicate. The route is still scheduled for 2026-02-06; no call or arrival has occurred.",
+     "evidence_event_ids": [
+      "004",
+      "005",
+      "006"
+     ]
+    },
+    "branch_attempt": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "dispatch",
+     "responsible_actor": "dispatch",
+     "purpose": "Record the submission or operation reported as uncertain in this message, separately from downstream execution.",
+     "expected_response": "The record owner states whether this submission or operation saved.",
+     "status": "answered",
+     "response": "The DL-004 route card shows one call request to the verified saved order contact, saved at 09:27. There is no duplicate. The route is still scheduled for 2026-02-06; no call or arrival has occurred.",
+     "evidence_event_ids": [
+      "004",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "The DL-004 route card shows one call request to the verified saved order contact, saved at 09:27. There is no duplicate. The route is still scheduled for 2026-02-06; no call or arrival has occurred.",
+    "confirmed_by": "dispatch",
+    "evidence_event_ids": [
+     "006"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Repost the call request in Dispatch chat, or tell Oren it has been recorded."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "verify_first",
+      "action": "Email Dispatch asking whether the DL-004 route card already shows a call request to the verified saved number, and state that no second request will be sent until that is known.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Repost the call request in Dispatch chat, or tell Oren it has been recorded.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "verify_first",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

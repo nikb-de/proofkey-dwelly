@@ -1,0 +1,484 @@
+{
+ "case_id": "026",
+ "lang": "en",
+ "title": "026 · Misdelivered parcel recovery",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Neris Fawn, the intended recipient. From the case card: carrier review has located the misdelivered parcel DL-026, and recovery should be managed by the carrier without exposing the other household's details.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Get the carrier to recover and correctly redeliver DL-026 and obtain confirmation of the corrected handover and receipt.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Neris Fawn",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Ask for carrier recovery and redelivery, and confirm receipt.",
+   "from_start": true,
+   "source_names": [
+    "Neris Fawn, intended recipient"
+   ]
+  },
+  "investigations": {
+   "name": "Delivery investigations",
+   "organization": "Plover Arc Logistics",
+   "role": "carrier",
+   "responsibility": "Review the misdelivery and locate DL-026.",
+   "from_start": false,
+   "source_names": [
+    "Delivery investigations, Plover Arc Logistics"
+   ]
+  },
+  "recovery": {
+   "name": "Recovery team",
+   "organization": "Plover Arc Logistics",
+   "role": "carrier",
+   "responsibility": "Recover DL-026 from the wrong stop, redeliver it to the verified order address and record the corrected handover; holds the third-party contact details.",
+   "from_start": false,
+   "source_names": [
+    "Recovery team, Plover Arc Logistics"
+   ]
+  }
+ },
+ "goal": "Get the carrier to recover DL-026 and redeliver it to the intended recipient, with the carrier's record of the corrected handover and the recipient's confirmation of receipt, without exposing the other household's details.",
+ "limits": [
+  "Do not reveal the wrong-address resident's name, address or contact details.",
+  "Make no claim about the quality of the contents."
+ ],
+ "intake": {
+  "summary": "DL-026 was handed over at the wrong address: get the carrier to recover it and redeliver it to the intended recipient.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The parcel is at the wrong address and has not been recovered.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-026.",
+    "source": {
+     "type": "case_card",
+     "id": "026"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "Carrier review has located the misdelivered parcel.",
+    "source": {
+     "type": "case_card",
+     "id": "026"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "Recovery should be managed by the carrier without exposing the other household's details.",
+    "source": {
+     "type": "case_card",
+     "id": "026"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The carrier has recovered the parcel from the wrong stop."
+   },
+   {
+    "id": "c2",
+    "description": "The carrier has recorded the corrected handover to the intended recipient."
+   },
+   {
+    "id": "c3",
+    "description": "The intended recipient has confirmed receipt."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "annotations": []
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Carrier email",
+   "title": "Carrier locates DL-026 at the wrong stop",
+   "explanation": "The carrier found the sealed parcel at the wrong stop, and only its recovery team holds the other household's contact details. Recovery therefore goes through the carrier's recovery team.",
+   "conversation_id": "investigations",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "DL-026 was handed over at the wrong stop; the carrier contacted that address using carrier records and located the sealed parcel.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f4",
+     "text": "Third-party contact details are restricted to the carrier's recovery team.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "recovery",
+     "responsible_actor": "recovery",
+     "purpose": "Recover DL-026 from the wrong stop and redeliver it to the intended recipient, keeping the other household's details within the recovery team.",
+     "expected_response": "Confirmation of the corrected handover.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "001"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask the recovery team to recover the parcel and redeliver it to the intended recipient."
+   },
+   "blocker": "The parcel is at the wrong stop and has not been recovered.",
+   "status": "context_received",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "recovery",
+    "request_id": "r1",
+    "description": "Ask the recovery team to recover and redeliver DL-026."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Neris asks for carrier recovery and redelivery",
+   "explanation": "Neris wants the carrier to recover the parcel and deliver it to the verified address, and will not contact the other household personally. That matches the carrier-managed recovery, so we send the request to the recovery team.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f5",
+     "text": "The recipient asks the carrier to recover the parcel and deliver it to the recipient's verified address.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f6",
+     "text": "The recipient does not want to contact the other household.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "recovery",
+     "purpose": "Have the carrier recover the parcel and deliver it to the recipient's verified address.",
+     "expected_response": "The parcel delivered to the verified address.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Email the recovery team to arrange recovery and redelivery to Neris's verified order address and to confirm the corrected handover."
+   },
+   "blocker": "The parcel is at the wrong stop and has not been recovered.",
+   "status": "escalated",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "recovery",
+    "request_id": "r1",
+    "description": "Ask the recovery team to recover and redeliver DL-026."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "other-household-context",
+     "kind": "context",
+     "title": "What Neris knew before her message",
+     "text": "Neris refers to the other household, so Neris knows the parcel went to another household. How Neris learned this is not recorded in the history.",
+     "before_message_id": "002",
+     "source_event_ids": [
+      "002"
+     ]
+    }
+   ]
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We ask the recovery team to redeliver",
+   "explanation": "We asked for carrier recovery and redelivery to the verified order address, kept the other household's details with the recovery team and asked for confirmation of the corrected handover. Now we wait for the recovery team.",
+   "conversation_id": "recovery",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "recovery",
+     "responsible_actor": "recovery",
+     "purpose": "Recover DL-026 and redeliver it to Neris's verified order address, keeping the other household's details within the recovery team.",
+     "expected_response": "Confirmation of the corrected handover.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "001",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "recovery",
+      "request_id": "r1",
+      "expected": "Recovery, redelivery and confirmation of the corrected handover"
+     }
+    ],
+    "next_action": "Once the recovery team confirms the handover, get the recipient's confirmation of receipt."
+   },
+   "blocker": "The parcel has not been recovered or redelivered.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "recovery",
+    "request_id": "r1",
+    "description": "Wait for the recovery team to recover and redeliver DL-026."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "Carrier confirmation",
+   "title": "Recovery team confirms the corrected handover",
+   "explanation": "The carrier recovered the parcel, handed it to Neris at the correct address and corrected the stop record. Receipt still needs Neris's own confirmation.",
+   "conversation_id": "recovery",
+   "facts_upsert": [
+    {
+     "id": "f7",
+     "text": "The carrier's driver recovered DL-026 and handed it to Neris at the correct order address at 13:10 UTC on 2026-02-28.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "f8",
+     "text": "The incorrect stop record is corrected; recovery and redelivery scans are present.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "recovery",
+     "purpose": "Have the carrier recover the parcel and deliver it to the recipient's verified address.",
+     "expected_response": "The parcel delivered to the verified address.",
+     "status": "completed",
+     "response": "The carrier recovered DL-026 and handed it to Neris at the correct order address at 13:10 UTC on 2026-02-28.",
+     "responded_by": "recovery",
+     "evidence_event_ids": [
+      "002",
+      "004"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "recovery",
+     "responsible_actor": "recovery",
+     "purpose": "Recover DL-026 and redeliver it to Neris's verified order address, keeping the other household's details within the recovery team.",
+     "expected_response": "Confirmation of the corrected handover.",
+     "status": "completed",
+     "response": "Recovered and handed to Neris at the correct order address at 13:10 UTC on 2026-02-28; stop record corrected; recovery and redelivery scans present.",
+     "evidence_event_ids": [
+      "001",
+      "003",
+      "004"
+     ]
+    },
+    "r2": {
+     "type": "confirmation",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Confirm receipt of DL-026.",
+     "expected_response": "The recipient's confirmation of receipt.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c1",
+     "evidence_event_ids": [
+      "004"
+     ]
+    },
+    {
+     "id": "c2",
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Get Neris's confirmation that she received DL-026.",
+    "note": "No message from us asking Neris to confirm receipt is recorded. So in this snapshot the agent is still preparing that step; it is not given waiting status without evidence that the request was sent."
+   },
+   "blocker": "The carrier has confirmed the handover; the recipient has not yet confirmed receipt.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "confirmation",
+    "responsible_actor": "recipient",
+    "request_id": "r2",
+    "description": "Get the recipient's confirmation of receipt."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "missing-receipt-request",
+     "kind": "gap",
+     "title": "Next action · us → Neris",
+     "text": "The carrier recorded the corrected handover. We now have to ask Neris to confirm receipt of DL-026; after sending, the agent waits for Neris's confirmation. At this step no such message is recorded in the history, and the carrier's record by itself is not the recipient's confirmation.",
+     "source_event_ids": [
+      "004"
+     ],
+     "implied_action": {
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "type": "confirmation",
+      "purpose": "Confirm that DL-026 was received at the correct order address."
+     }
+    }
+   ]
+  },
+  {
+   "event_id": "005",
+   "label": "Client confirmation",
+   "title": "Neris confirms she received DL-026",
+   "explanation": "Neris confirmed receipt at the time the carrier recorded and says the parcel marking matches the order. With the carrier's record and Neris's confirmation, the coordination task is complete.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f9",
+     "text": "The recipient received DL-026 at 13:10 UTC on 2026-02-28.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "f10",
+     "text": "The recipient says the parcel marking matches the order.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r2": {
+     "type": "confirmation",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Confirm receipt of DL-026.",
+     "expected_response": "The recipient's confirmation of receipt.",
+     "status": "answered",
+     "response": "Received DL-026 at 13:10 UTC; the parcel marking matches the order.",
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c3",
+     "evidence_event_ids": [
+      "005"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Coordination task complete: the carrier recorded the corrected handover and the intended recipient confirmed receipt. The quality of the contents is not part of this case's success criteria."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "DL-026 recovered from the wrong stop and handed to Neris at the correct order address at 13:10 UTC on 2026-02-28; the stop record is corrected and Neris confirmed receipt.",
+    "confirmed_by": "recipient",
+    "evidence_event_ids": [
+     "004",
+     "005"
+    ],
+    "remaining_work": "Nothing remains for the desk's task. No claim is made about the quality of the contents."
+   },
+   "annotations_add": [
+    {
+     "id": "missing-receipt-request",
+     "kind": "gap",
+     "title": "Between 004 and 005 · our receipt-confirmation request to Neris",
+     "text": "Carrier's handover record → our request to Neris → waiting on Neris → confirmation 005. No message from us asking Neris to confirm receipt is recorded, and 005 does not refer to one: it may answer such a request or be Neris's own initiative after the handover. If the request was sent, its time and wording are unknown.",
+     "before_message_id": "005",
+     "source_event_ids": [
+      "005"
+     ],
+     "implied_action": {
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "type": "confirmation",
+      "purpose": "Confirm that DL-026 was received at the correct order address."
+     }
+    }
+   ]
+  }
+ ]
+}

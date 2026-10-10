@@ -1,0 +1,577 @@
+{
+ "case_id": "046-N1",
+ "lang": "en",
+ "title": "046-N1 · Current register names a different signatory",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is the Celand Arc Imports account administrator. From the case card: the customs broker for DL-046 has not been appointed, and the consignee's authorised director must complete the broker's stated mandate process before the broker can act.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "account_admin",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get the registered authorised signatory to accept the broker mandate and the broker's confirmation of the appointment.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "account_admin": {
+   "name": "Account administrator",
+   "organization": "Celand Arc Imports",
+   "role": "account_team",
+   "responsibility": "Provide the account register record of who may sign the broker appointment.",
+   "from_start": true,
+   "source_names": [
+    "Celand Arc Imports account administrator"
+   ]
+  },
+  "broker": {
+   "name": "Ossmere Trade Desk",
+   "organization": "Ossmere Trade Desk",
+   "role": "broker",
+   "responsibility": "Set the mandate procedure and confirm acceptance of the appointment against the registered signatory.",
+   "from_start": false,
+   "source_names": [
+    "Ossmere Trade Desk, customs broker"
+   ]
+  },
+  "director": {
+   "name": "Mara Vesk",
+   "organization": "Celand Arc",
+   "role": "recipient",
+   "responsibility": "Accept the shipment-specific broker mandate in the verified business portal as the registered authorised signatory.",
+   "from_start": false,
+   "source_names": [
+    "Mara Vesk, Celand Arc authorised director"
+   ]
+  },
+  "branch_system": {
+   "name": "Account register, business portal",
+   "organization": null,
+   "role": "system",
+   "from_start": false,
+   "source_names": [
+    "Account register, business portal"
+   ],
+   "responsibility": "Report or handle the state within the scope stated in the source message; no wider authority is inferred."
+  }
+ },
+ "goal": "Get the consignee's registered authorised signatory to accept the broker mandate for DL-046 and the broker's confirmation that the appointment is accepted, while shipment clearance remains pending.",
+ "limits": [
+  "Do not treat a director title alone as authority.",
+  "Do not treat the appointment as established without the independent account register and verified acceptance.",
+  "Do not choose for the customer or treat a choice as a confirmed booking."
+ ],
+ "intake": {
+  "summary": "Get the customs broker appointed for DL-046 through the consignee's authorised signatory.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The broker has not been appointed and cannot act.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-046.",
+    "source": {
+     "type": "case_card",
+     "id": "046"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The broker has not been appointed.",
+    "source": {
+     "type": "case_card",
+     "id": "046"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The consignee's authorised director must complete the broker's stated mandate process before the broker can act.",
+    "source": {
+     "type": "case_card",
+     "id": "046"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The authorised director has reported accepting the mandate in the verified business portal."
+   },
+   {
+    "id": "c2",
+    "description": "The broker has confirmed acceptance of the mandate against the registered signatory."
+   },
+   {
+    "id": "c3",
+    "description": "The broker has confirmed that the appointment is complete."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/046/N1-SNAPSHOT_CONFLICT",
+  "branch_id": "046-N1",
+  "derived_from_case": "046",
+  "retained_public_events": [
+   "001",
+   "002"
+  ],
+  "diverges_after_event": "002",
+  "failure_mode": "SNAPSHOT_CONFLICT",
+  "expected_decision": "ASK_CUSTOMER",
+  "workflow_sheet": "A",
+  "branch_label": "Current register names a different signatory",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "25cfaa3a7c56195419f2c74087662fc2ea119026e30dd55f3793bb09eb15497c",
+   "history.md": "41702df2bef1a2a8e50b1ec0a07b89380009e6a0d56da89d54369754a13f7dc6"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Broker email",
+   "title": "Broker explains the mandate procedure",
+   "explanation": "The broker cannot act until the registered authorised signatory accepts the mandate in the verified business portal. We still need to know who that signatory is.",
+   "conversation_id": "broker",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "DL-046 is waiting for a consignee mandate.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f4",
+     "text": "The broker's procedure requires the registered authorised signatory to accept the shipment-specific mandate in the verified business portal.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "No passport or banking credentials are required in this exercise.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Identify the consignee's registered authorised signatory and get them to accept the mandate."
+   },
+   "blocker": "DL-046 is waiting for a consignee mandate; the registered authorised signatory is not yet identified.",
+   "status": "context_received",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": null,
+    "description": "Get the registered authorised signatory to accept the shipment-specific mandate."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Administrator names Mara Vesk as signatory",
+   "explanation": "The account register, not a title alone, shows that Mara Vesk may sign the broker appointment, and the operator account cannot. The next step is to ask Mara through her verified business portal.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f6",
+     "text": "Account register excerpt: Mara Vesk, director, is the authorised signatory for broker appointment on DL-046.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f7",
+     "text": "Mara Vesk's verified business-portal channel is active.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f8",
+     "text": "The consignee's operator account cannot sign the mandate.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "account_admin",
+     "to_actor": "coordinator",
+     "responsible_actor": "coordinator",
+     "purpose": "Ask Mara Vesk to complete the mandate.",
+     "expected_response": "A mandate request sent to Mara Vesk.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "director",
+     "responsible_actor": "director",
+     "purpose": "Complete the broker's shipment-specific mandate for DL-046 through the verified business portal.",
+     "expected_response": "Acceptance of the mandate in the verified portal.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask Mara Vesk through her verified business portal to complete the broker's mandate for DL-046."
+   },
+   "blocker": "The mandate has not been accepted by the registered authorised signatory.",
+   "status": "escalated",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "director",
+    "request_id": "r1",
+    "description": "Mara Vesk completes the shipment-specific mandate in the verified portal."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "mandate-context",
+     "kind": "context",
+     "title": "What the administrator knew before the message",
+     "text": "The administrator refers to the mandate for DL-046, so they know a broker mandate is pending. How they learned this is not recorded in the history.",
+     "before_message_id": "002",
+     "source_event_ids": [
+      "002"
+     ]
+    }
+   ]
+  },
+  {
+   "event_id": "003",
+   "label": "New escalation",
+   "title": "Current register names a different signatory",
+   "explanation": "Obtain the authorised party’s precise choice or missing detail. Do not choose for the customer or treat a choice as a confirmed booking.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Account register, business portal reports: Register record for Celand Arc Imports, version of 2026-03-19 08:30 UTC.",
+     "source": {
+      "type": "message",
+      "id": "003"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Account register, business portal reports: Authorised signatory for broker appointment: Osric Lunn, director.",
+     "source": {
+      "type": "message",
+      "id": "003"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Account register, business portal reports: Mara Vesk: director; signing authority for broker appointment removed on 2026-03-18.",
+     "source": {
+      "type": "message",
+      "id": "003"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "account_admin",
+     "responsible_actor": "account_admin",
+     "purpose": "Ask the Celand Arc account administrator in the business portal one question: which register version their excerpt came from, given the 08:30 UTC record names Osric Lunn, and send no mandate request meanwhile.",
+     "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "003"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask the Celand Arc account administrator in the business portal one question: which register version their excerpt came from, given the 08:30 UTC record names Osric Lunn, and send no mandate request meanwhile."
+   },
+   "blocker": "The new escalation requires a scoped response. Register record for Celand Arc Imports, version of 2026-03-19 08:30 UTC. Authorised signatory for broker appointment: Osric Lunn, director. Mara Vesk: director; signing authority for broker appointment removed on 2026-03-18.",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Ask the Celand Arc account administrator in the business portal one question: which register version their excerpt came from, given the 08:30 UTC record names Osric Lunn, and send no mandate request meanwhile."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "003",
+     "source_event_ids": [
+      "003"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c1",
+    "c2",
+    "c3"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "ask_customer",
+      "action": "Ask the Celand Arc account administrator in the business portal one question: which register version their excerpt came from, given the 08:30 UTC record names Osric Lunn, and send no mandate request meanwhile.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Send the mandate request to Mara Vesk on the strength of the administrator's excerpt when the current register removes her signing authority.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "046-N1"
+    },
+    "summary": "Obtain the authorised party’s precise choice or missing detail.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Obtain the authorised party’s precise choice or missing detail."
+   }
+  },
+  {
+   "event_id": "004",
+   "label": "Desk response",
+   "title": "Obtain the authorised party’s precise choice or missing detail",
+   "explanation": "The desk sends the recorded response. Do not choose for the customer or treat a choice as a confirmed booking.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "account_admin",
+     "responsible_actor": "account_admin",
+     "purpose": "Ask the Celand Arc account administrator in the business portal one question: which register version their excerpt came from, given the 08:30 UTC record names Osric Lunn, and send no mandate request meanwhile.",
+     "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "003",
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "account_admin",
+      "request_id": "branch_request",
+      "expected": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_response",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "account_admin",
+    "request_id": "branch_request",
+    "description": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "ask_customer",
+      "action": "Ask the Celand Arc account administrator in the business portal one question: which register version their excerpt came from, given the 08:30 UTC record names Osric Lunn, and send no mandate request meanwhile.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Send the mandate request to Mara Vesk on the strength of the administrator's excerpt when the current register removes her signing authority.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "ask_customer",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "005",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. Our excerpt was taken before the change on 2026-03-18. The current authorised signatory for broker appointment on DL-046 is Osric Lunn, director, as the register record shows. Please send the mandate request to him. This settles who signs; Ossmere is not yet appointed.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Account administrator reports: Our excerpt was taken before the change on 2026-03-18.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Account administrator reports: The current authorised signatory for broker appointment on DL-046 is Osric Lunn, director, as the register record shows.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Account administrator reports: Please send the mandate request to him.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_outcome_4",
+     "text": "Account administrator reports: This settles who signs; Ossmere is not yet appointed.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "account_admin",
+     "responsible_actor": "account_admin",
+     "purpose": "Ask the Celand Arc account administrator in the business portal one question: which register version their excerpt came from, given the 08:30 UTC record names Osric Lunn, and send no mandate request meanwhile.",
+     "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+     "status": "answered",
+     "response": "Our excerpt was taken before the change on 2026-03-18. The current authorised signatory for broker appointment on DL-046 is Osric Lunn, director, as the register record shows. Please send the mandate request to him. This settles who signs; Ossmere is not yet appointed.",
+     "evidence_event_ids": [
+      "003",
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "Our excerpt was taken before the change on 2026-03-18. The current authorised signatory for broker appointment on DL-046 is Osric Lunn, director, as the register record shows. Please send the mandate request to him. This settles who signs; Ossmere is not yet appointed.",
+    "confirmed_by": "account_admin",
+    "evidence_event_ids": [
+     "005"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Send the mandate request to Mara Vesk on the strength of the administrator's excerpt when the current register removes her signing authority."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "ask_customer",
+      "action": "Ask the Celand Arc account administrator in the business portal one question: which register version their excerpt came from, given the 08:30 UTC record names Osric Lunn, and send no mandate request meanwhile.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Send the mandate request to Mara Vesk on the strength of the administrator's excerpt when the current register removes her signing authority.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "ask_customer",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

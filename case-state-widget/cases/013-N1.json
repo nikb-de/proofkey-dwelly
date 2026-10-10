@@ -1,0 +1,1950 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "013-N1 · Handset and route sheet disagree",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Yara Elt. From the case card: a failed-attempt scan on DL-013 is disputed, and the carrier must review its record without assuming the customer or driver is dishonest.",
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/013/N1-CONFLICTING_RECORDS",
+  "branch_id": "013-N1",
+  "derived_from_case": "013",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "CONFLICTING_RECORDS",
+  "expected_decision": "RECONCILE_CONFLICT",
+  "workflow_sheet": "E",
+  "branch_label": "Handset and route sheet disagree",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "c584109c06b080b2cc1dce52856b5f2b32a6eac4ce0b29b0d840eda59ad3cc4d",
+   "history.md": "3e764dc498a9e1375f8387ee5611a76ea5dca637b0ee235ac8b242fc8d50b495"
+  }
+ },
+ "initial_state": {
+  "case_id": "013-N1",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "recipient",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: get the carrier's review of the disputed attempt record and a confirmed replacement attempt, without inferring fault."
+   },
+   "recipient": {
+    "name": "Yara Elt",
+    "organization": null,
+    "role": "recipient",
+    "is_us": false,
+    "responsibility": "Dispute the recorded failed attempt and give the time available for another visit."
+   }
+  },
+  "goal": "Get dispatch's review result on the disputed failed-attempt record for DL-013 and its confirmation of a replacement attempt, without assuming anyone is dishonest.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "Dispatch has reported the result of its review of the failed-attempt record.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "Dispatch has confirmed a replacement delivery attempt.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "A failed-attempt scan is disputed and the carrier has not yet reviewed its record.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-013.",
+    "source": {
+     "type": "case_card",
+     "id": "013"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "A failed-attempt scan is disputed.",
+    "source": {
+     "type": "case_card",
+     "id": "013"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The carrier must review its record without assuming the customer or driver is dishonest.",
+    "source": {
+     "type": "case_card",
+     "id": "013"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Do not treat the review finding as proof of fraud.",
+   "Do not treat the replacement attempt as done: it remains pending, and successful delivery is not assumed.",
+   "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Tracking email",
+    "title": "Tracking support reports an unreviewed failed attempt",
+    "timestamp": "2026-02-14 09:00:00 UTC",
+    "actor_id": "tracking_support",
+    "message_id": "001"
+   },
+   "explanation": "Tracking support confirms only that a failed-attempt scan exists; nobody has reviewed the route record yet, so there is no conclusion to pass on. The record has to be reviewed before anyone says what happened.",
+   "state_after": {
+    "case_id": "013-N1",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the carrier's review of the disputed attempt record and a confirmed replacement attempt, without inferring fault."
+     },
+     "recipient": {
+      "name": "Yara Elt",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Dispute the recorded failed attempt and give the time available for another visit."
+     },
+     "tracking_support": {
+      "name": "Tracking support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the failed-attempt scan on DL-013 and whether its route record has been reviewed."
+     }
+    },
+    "goal": "Get dispatch's review result on the disputed failed-attempt record for DL-013 and its confirmation of a replacement attempt, without assuming anyone is dishonest.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Take in the recipient's dispute, then ask the carrier to review the failed-attempt record."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "Dispatch has reported the result of its review of the failed-attempt record.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "Dispatch has confirmed a replacement delivery attempt.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-14 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "013-N1"
+     },
+     "context_message_id": "001",
+     "summary": "The recipient disputes a recorded failed delivery attempt on DL-013.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The failed-attempt scan is disputed and its route record has not been reviewed.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-013.",
+      "source": {
+       "type": "case_card",
+       "id": "013"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "A failed-attempt scan is disputed.",
+      "source": {
+       "type": "case_card",
+       "id": "013"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The carrier must review its record without assuming the customer or driver is dishonest.",
+      "source": {
+       "type": "case_card",
+       "id": "013"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-013 has a failed-attempt scan at 08:40 UTC today.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The route record has not yet been reviewed; no conclusion about the attempt is available.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {},
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": null,
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "tracking": {
+      "participants": [
+       "coordinator",
+       "tracking_support"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "tracking",
+      "event_id": "001",
+      "timestamp": "2026-02-14 09:00:00 UTC",
+      "from_actor": "tracking_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-013 has a failed-attempt scan at 08:40 UTC today. The route record has not yet been reviewed; no conclusion about the attempt is available."
+     }
+    ],
+    "limits": [
+     "Do not treat the review finding as proof of fraud.",
+     "Do not treat the replacement attempt as done: it remains pending, and successful delivery is not assumed.",
+     "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client dispute",
+    "title": "Yara disputes the attempt and asks for a visit",
+    "timestamp": "2026-02-14 09:10:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "002"
+   },
+   "explanation": "Yara says they were at home and asks for a review and another visit on the morning of 2026-02-15. Yara's account is not a review finding, so we ask the dispatch review team to check the record and book the repeat attempt.",
+   "state_after": {
+    "case_id": "013-N1",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the carrier's review of the disputed attempt record and a confirmed replacement attempt, without inferring fault."
+     },
+     "recipient": {
+      "name": "Yara Elt",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Dispute the recorded failed attempt and give the time available for another visit."
+     },
+     "tracking_support": {
+      "name": "Tracking support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the failed-attempt scan on DL-013 and whether its route record has been reviewed."
+     },
+     "dispatch_review": {
+      "name": "Dispatch review team",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Review the failed-attempt record against the delivery stop, report the finding and book a repeat attempt."
+     }
+    },
+    "goal": "Get dispatch's review result on the disputed failed-attempt record for DL-013 and its confirmation of a replacement attempt, without assuming anyone is dishonest.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask the dispatch review team to review the failed-attempt record and arrange a repeat attempt on 2026-02-15 morning."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "Dispatch has reported the result of its review of the failed-attempt record.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "Dispatch has confirmed a replacement delivery attempt.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-14 09:00:00 UTC",
+     "escalated_at": "2026-02-14 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "013-N1"
+     },
+     "context_message_id": "001",
+     "summary": "The recipient disputes a recorded failed delivery attempt on DL-013.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The failed-attempt record has not been reviewed and no repeat attempt is booked.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-013.",
+      "source": {
+       "type": "case_card",
+       "id": "013"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "A failed-attempt scan is disputed.",
+      "source": {
+       "type": "case_card",
+       "id": "013"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The carrier must review its record without assuming the customer or driver is dishonest.",
+      "source": {
+       "type": "case_card",
+       "id": "013"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-013 has a failed-attempt scan at 08:40 UTC today.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The route record has not yet been reviewed; no conclusion about the attempt is available.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient says they were at home and did not hear the intercom.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient is available on 2026-02-15 morning.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "dispatch_review",
+      "purpose": "Review the missed attempt and arrange another visit.",
+      "expected_response": "The review result and a booked repeat visit.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch_review",
+      "responsible_actor": "dispatch_review",
+      "purpose": "Review the DL-013 failed-attempt record and report the finding without inferring fault.",
+      "expected_response": "The review finding.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r2": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch_review",
+      "responsible_actor": "dispatch_review",
+      "purpose": "Arrange a repeat attempt on 2026-02-15 morning, when the recipient is available.",
+      "expected_response": "Confirmation of the booked repeat attempt.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "verification",
+     "responsible_actor": "dispatch_review",
+     "request_id": "r1",
+     "description": "Review the failed-attempt record and report the finding."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "missed-attempt-context",
+      "kind": "context",
+      "title": "What Yara knew before the message",
+      "text": "Yara refers to the missed attempt, so Yara knows a failed attempt was recorded on DL-013. How Yara learned this is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "tracking": {
+      "participants": [
+       "coordinator",
+       "tracking_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "tracking",
+      "event_id": "001",
+      "timestamp": "2026-02-14 09:00:00 UTC",
+      "from_actor": "tracking_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-013 has a failed-attempt scan at 08:40 UTC today. The route record has not yet been reviewed; no conclusion about the attempt is available."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-14 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I was at home and did not hear the intercom. Please review the missed attempt and arrange another visit. I am available on 2026-02-15 morning."
+     }
+    ],
+    "limits": [
+     "Do not treat the review finding as proof of fraud.",
+     "Do not treat the replacement attempt as done: it remains pending, and successful delivery is not assumed.",
+     "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our request",
+    "title": "We ask dispatch to review and rebook",
+    "timestamp": "2026-02-14 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We asked for the record to be checked against the delivery stop and for a finding rather than a guess about fault, plus a repeat attempt on the morning Yara gave. Now we wait for the dispatch review team.",
+   "state_after": {
+    "case_id": "013-N1",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the carrier's review of the disputed attempt record and a confirmed replacement attempt, without inferring fault."
+     },
+     "recipient": {
+      "name": "Yara Elt",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Dispute the recorded failed attempt and give the time available for another visit."
+     },
+     "tracking_support": {
+      "name": "Tracking support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the failed-attempt scan on DL-013 and whether its route record has been reviewed."
+     },
+     "dispatch_review": {
+      "name": "Dispatch review team",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Review the failed-attempt record against the delivery stop, report the finding and book a repeat attempt."
+     }
+    },
+    "goal": "Get dispatch's review result on the disputed failed-attempt record for DL-013 and its confirmation of a replacement attempt, without assuming anyone is dishonest.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "dispatch_review",
+       "request_id": "r1",
+       "expected": "Review finding on the failed-attempt record"
+      },
+      {
+       "actor_id": "dispatch_review",
+       "request_id": "r2",
+       "expected": "Booked repeat attempt on 2026-02-15 morning"
+      }
+     ],
+     "next_action": "Once dispatch replies, record the review finding and the repeat-attempt booking."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "Dispatch has reported the result of its review of the failed-attempt record.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "Dispatch has confirmed a replacement delivery attempt.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-14 09:00:00 UTC",
+     "escalated_at": "2026-02-14 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "013-N1"
+     },
+     "context_message_id": "001",
+     "summary": "The recipient disputes a recorded failed delivery attempt on DL-013.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The review finding and the repeat-attempt booking are pending.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-013.",
+      "source": {
+       "type": "case_card",
+       "id": "013"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "A failed-attempt scan is disputed.",
+      "source": {
+       "type": "case_card",
+       "id": "013"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The carrier must review its record without assuming the customer or driver is dishonest.",
+      "source": {
+       "type": "case_card",
+       "id": "013"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-013 has a failed-attempt scan at 08:40 UTC today.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The route record has not yet been reviewed; no conclusion about the attempt is available.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient says they were at home and did not hear the intercom.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient is available on 2026-02-15 morning.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "dispatch_review",
+      "purpose": "Review the missed attempt and arrange another visit.",
+      "expected_response": "The review result and a booked repeat visit.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch_review",
+      "responsible_actor": "dispatch_review",
+      "purpose": "Review DL-013's failed-attempt record against the delivery stop and report the review finding rather than infer fault.",
+      "expected_response": "The review finding.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "r2": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch_review",
+      "responsible_actor": "dispatch_review",
+      "purpose": "Arrange an available repeat attempt on 2026-02-15 morning.",
+      "expected_response": "Confirmation of the booked repeat attempt.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_verification",
+    "next_step": {
+     "type": "verification",
+     "responsible_actor": "dispatch_review",
+     "request_id": "r1",
+     "description": "Wait for the review finding and the repeat-attempt booking."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "missed-attempt-context",
+      "kind": "context",
+      "title": "What Yara knew before the message",
+      "text": "Yara refers to the missed attempt, so Yara knows a failed attempt was recorded on DL-013. How Yara learned this is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "tracking": {
+      "participants": [
+       "coordinator",
+       "tracking_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch_review"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "tracking",
+      "event_id": "001",
+      "timestamp": "2026-02-14 09:00:00 UTC",
+      "from_actor": "tracking_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-013 has a failed-attempt scan at 08:40 UTC today. The route record has not yet been reviewed; no conclusion about the attempt is available."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-14 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I was at home and did not hear the intercom. Please review the missed attempt and arrange another visit. I am available on 2026-02-15 morning."
+     },
+     {
+      "conversation_id": "dispatch",
+      "event_id": "003",
+      "timestamp": "2026-02-14 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch_review",
+      "channel": "Email",
+      "body": "Review DL-013’s failed-attempt record against the delivery stop, and arrange an available repeat attempt on 2026-02-15 morning. Please report the review finding rather than infer fault."
+     }
+    ],
+    "limits": [
+     "Do not treat the review finding as proof of fraud.",
+     "Do not treat the replacement attempt as done: it remains pending, and successful delivery is not assumed.",
+     "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "New escalation",
+    "title": "Handset and route sheet disagree",
+    "timestamp": "2026-02-14 09:45:00 UTC",
+    "actor_id": "dispatch_review",
+    "message_id": "004"
+   },
+   "explanation": "Keep both records and request evidence from their owner. Do not erase either conflicting record or infer a finding before the owner supplies evidence.",
+   "state_after": {
+    "case_id": "013-N1",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the carrier's review of the disputed attempt record and a confirmed replacement attempt, without inferring fault."
+     },
+     "recipient": {
+      "name": "Yara Elt",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Dispute the recorded failed attempt and give the time available for another visit."
+     },
+     "tracking_support": {
+      "name": "Tracking support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the failed-attempt scan on DL-013 and whether its route record has been reviewed."
+     },
+     "dispatch_review": {
+      "name": "Dispatch review team",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Review the failed-attempt record against the delivery stop, report the finding and book a repeat attempt."
+     }
+    },
+    "goal": "Keep both records and request evidence from their owner.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Keep both entries and ask the Dispatch review team by email for the handset location record and the driver's statement for the 08:40 attempt, with the 2026-02-15 morning attempt booked as a separate step."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-14 09:00:00 UTC",
+     "escalated_at": "2026-02-14 09:45:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "013-N1"
+     },
+     "context_message_id": "001",
+     "summary": "Keep both records and request evidence from their owner.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The new escalation requires a scoped response. First check: the handset logs the 08:40 UTC attempt with reason 'Recipient absent'. The route sheet for the same stop records 'No access, gate locked'. The two reasons do not agree. No repeat attempt is booked yet.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-013.",
+      "source": {
+       "type": "case_card",
+       "id": "013"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "A failed-attempt scan is disputed.",
+      "source": {
+       "type": "case_card",
+       "id": "013"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The carrier must review its record without assuming the customer or driver is dishonest.",
+      "source": {
+       "type": "case_card",
+       "id": "013"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-013 has a failed-attempt scan at 08:40 UTC today.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The route record has not yet been reviewed; no conclusion about the attempt is available.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient says they were at home and did not hear the intercom.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient is available on 2026-02-15 morning.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Dispatch review team reports: First check: the handset logs the 08:40 UTC attempt with reason 'Recipient absent'.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Dispatch review team reports: The route sheet for the same stop records 'No access, gate locked'.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Dispatch review team reports: The two reasons do not agree.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_4",
+      "text": "Dispatch review team reports: No repeat attempt is booked yet.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "dispatch_review",
+      "purpose": "Review the missed attempt and arrange another visit.",
+      "expected_response": "The review result and a booked repeat visit.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch_review",
+      "responsible_actor": "dispatch_review",
+      "purpose": "Review DL-013's failed-attempt record against the delivery stop and report the review finding rather than infer fault.",
+      "expected_response": "The review finding.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "r2": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch_review",
+      "responsible_actor": "dispatch_review",
+      "purpose": "Arrange an available repeat attempt on 2026-02-15 morning.",
+      "expected_response": "Confirmation of the booked repeat attempt.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch_review",
+      "responsible_actor": "dispatch_review",
+      "purpose": "Keep both entries and ask the Dispatch review team by email for the handset location record and the driver's statement for the 08:40 attempt, with the 2026-02-15 morning attempt booked as a separate step.",
+      "expected_response": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "reconcile_conflict",
+       "action": "Keep both entries and ask the Dispatch review team by email for the handset location record and the driver's statement for the 08:40 attempt, with the 2026-02-15 morning attempt booked as a separate step.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "pick one reason and tell Yara that the gate was locked or that nobody was home; neither entry is a review finding.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "verification_required",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": "branch_request",
+     "description": "Keep both entries and ask the Dispatch review team by email for the handset location record and the driver's statement for the 08:40 attempt, with the 2026-02-15 morning attempt booked as a separate step."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "missed-attempt-context",
+      "kind": "context",
+      "title": "What Yara knew before the message",
+      "text": "Yara refers to the missed attempt, so Yara knows a failed attempt was recorded on DL-013. How Yara learned this is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "tracking": {
+      "participants": [
+       "coordinator",
+       "tracking_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch_review"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "dispatch_review"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "tracking",
+      "event_id": "001",
+      "timestamp": "2026-02-14 09:00:00 UTC",
+      "from_actor": "tracking_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-013 has a failed-attempt scan at 08:40 UTC today. The route record has not yet been reviewed; no conclusion about the attempt is available."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-14 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I was at home and did not hear the intercom. Please review the missed attempt and arrange another visit. I am available on 2026-02-15 morning."
+     },
+     {
+      "conversation_id": "dispatch",
+      "event_id": "003",
+      "timestamp": "2026-02-14 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch_review",
+      "channel": "Email",
+      "body": "Review DL-013’s failed-attempt record against the delivery stop, and arrange an available repeat attempt on 2026-02-15 morning. Please report the review finding rather than infer fault."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "004",
+      "timestamp": "2026-02-14 09:45:00 UTC",
+      "from_actor": "dispatch_review",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "First check: the handset logs the 08:40 UTC attempt with reason 'Recipient absent'. The route sheet for the same stop records 'No access, gate locked'. The two reasons do not agree. No repeat attempt is booked yet."
+     }
+    ],
+    "limits": [
+     "Do not treat the review finding as proof of fraud.",
+     "Do not treat the replacement attempt as done: it remains pending, and successful delivery is not assumed.",
+     "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "Dispatch has reported the result of its review of the failed-attempt record.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "Dispatch has confirmed a replacement delivery attempt.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "005",
+    "type": "message_sent",
+    "label": "Desk response",
+    "title": "Keep both records and request evidence from their owner",
+    "timestamp": "2026-02-14 10:00:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "005"
+   },
+   "explanation": "The desk sends the recorded response. Do not erase either conflicting record or infer a finding before the owner supplies evidence.",
+   "state_after": {
+    "case_id": "013-N1",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the carrier's review of the disputed attempt record and a confirmed replacement attempt, without inferring fault."
+     },
+     "recipient": {
+      "name": "Yara Elt",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Dispute the recorded failed attempt and give the time available for another visit."
+     },
+     "tracking_support": {
+      "name": "Tracking support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the failed-attempt scan on DL-013 and whether its route record has been reviewed."
+     },
+     "dispatch_review": {
+      "name": "Dispatch review team",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Review the failed-attempt record against the delivery stop, report the finding and book a repeat attempt."
+     }
+    },
+    "goal": "Keep both records and request evidence from their owner.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "dispatch_review",
+       "request_id": "branch_request",
+       "expected": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit."
+      }
+     ],
+     "next_action": "Record the reply or scoped confirmation before closing this branch."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-14 09:00:00 UTC",
+     "escalated_at": "2026-02-14 09:45:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "013-N1"
+     },
+     "context_message_id": "001",
+     "summary": "Keep both records and request evidence from their owner.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The scoped reply or confirmation has not yet been recorded.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-013.",
+      "source": {
+       "type": "case_card",
+       "id": "013"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "A failed-attempt scan is disputed.",
+      "source": {
+       "type": "case_card",
+       "id": "013"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The carrier must review its record without assuming the customer or driver is dishonest.",
+      "source": {
+       "type": "case_card",
+       "id": "013"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-013 has a failed-attempt scan at 08:40 UTC today.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The route record has not yet been reviewed; no conclusion about the attempt is available.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient says they were at home and did not hear the intercom.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient is available on 2026-02-15 morning.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Dispatch review team reports: First check: the handset logs the 08:40 UTC attempt with reason 'Recipient absent'.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Dispatch review team reports: The route sheet for the same stop records 'No access, gate locked'.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Dispatch review team reports: The two reasons do not agree.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_4",
+      "text": "Dispatch review team reports: No repeat attempt is booked yet.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "dispatch_review",
+      "purpose": "Review the missed attempt and arrange another visit.",
+      "expected_response": "The review result and a booked repeat visit.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch_review",
+      "responsible_actor": "dispatch_review",
+      "purpose": "Review DL-013's failed-attempt record against the delivery stop and report the review finding rather than infer fault.",
+      "expected_response": "The review finding.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "r2": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch_review",
+      "responsible_actor": "dispatch_review",
+      "purpose": "Arrange an available repeat attempt on 2026-02-15 morning.",
+      "expected_response": "Confirmation of the booked repeat attempt.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch_review",
+      "responsible_actor": "dispatch_review",
+      "purpose": "Keep both entries and ask the Dispatch review team by email for the handset location record and the driver's statement for the 08:40 attempt, with the 2026-02-15 morning attempt booked as a separate step.",
+      "expected_response": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "004",
+       "005"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "reconcile_conflict",
+       "action": "Keep both entries and ask the Dispatch review team by email for the handset location record and the driver's statement for the 08:40 attempt, with the 2026-02-15 morning attempt booked as a separate step.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "pick one reason and tell Yara that the gate was locked or that nobody was home; neither entry is a review finding.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "reconcile_conflict",
+     "reason": "The recorded outgoing message takes this permitted response."
+    },
+    "status": "awaiting_verification",
+    "next_step": {
+     "type": "verification",
+     "responsible_actor": "dispatch_review",
+     "request_id": "branch_request",
+     "description": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "missed-attempt-context",
+      "kind": "context",
+      "title": "What Yara knew before the message",
+      "text": "Yara refers to the missed attempt, so Yara knows a failed attempt was recorded on DL-013. How Yara learned this is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "tracking": {
+      "participants": [
+       "coordinator",
+       "tracking_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch_review"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "dispatch_review"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "tracking",
+      "event_id": "001",
+      "timestamp": "2026-02-14 09:00:00 UTC",
+      "from_actor": "tracking_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-013 has a failed-attempt scan at 08:40 UTC today. The route record has not yet been reviewed; no conclusion about the attempt is available."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-14 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I was at home and did not hear the intercom. Please review the missed attempt and arrange another visit. I am available on 2026-02-15 morning."
+     },
+     {
+      "conversation_id": "dispatch",
+      "event_id": "003",
+      "timestamp": "2026-02-14 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch_review",
+      "channel": "Email",
+      "body": "Review DL-013’s failed-attempt record against the delivery stop, and arrange an available repeat attempt on 2026-02-15 morning. Please report the review finding rather than infer fault."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "004",
+      "timestamp": "2026-02-14 09:45:00 UTC",
+      "from_actor": "dispatch_review",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "First check: the handset logs the 08:40 UTC attempt with reason 'Recipient absent'. The route sheet for the same stop records 'No access, gate locked'. The two reasons do not agree. No repeat attempt is booked yet."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-02-14 10:00:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch_review",
+      "channel": "Email",
+      "body": "For DL-013 the handset gives 'Recipient absent' at 08:40 UTC and the route sheet gives 'No access, gate locked'. We are keeping both entries. Please send the handset location record and the driver's statement for that attempt, and report a finding from them. The 2026-02-15 morning repeat attempt is a separate request."
+     }
+    ],
+    "limits": [
+     "Do not treat the review finding as proof of fraud.",
+     "Do not treat the replacement attempt as done: it remains pending, and successful delivery is not assumed.",
+     "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "Dispatch has reported the result of its review of the failed-attempt record.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "Dispatch has confirmed a replacement delivery attempt.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "006",
+    "type": "message_received",
+    "label": "Scoped confirmation",
+    "title": "Follow-through confirms the branch outcome",
+    "timestamp": "2026-02-14 11:00:00 UTC",
+    "actor_id": "dispatch_review",
+    "message_id": "006"
+   },
+   "explanation": "Record what the responding party actually confirms. Review finding for DL-013: the handset location record places the 08:40 UTC attempt at the building's side gate, and the driver's statement says the gate was locked. The reason now reads 'No access'. The repeat attempt is not yet booked. This finding does not establish fault or a handover.",
+   "state_after": {
+    "case_id": "013-N1",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the carrier's review of the disputed attempt record and a confirmed replacement attempt, without inferring fault."
+     },
+     "recipient": {
+      "name": "Yara Elt",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Dispute the recorded failed attempt and give the time available for another visit."
+     },
+     "tracking_support": {
+      "name": "Tracking support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the failed-attempt scan on DL-013 and whether its route record has been reviewed."
+     },
+     "dispatch_review": {
+      "name": "Dispatch review team",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Review the failed-attempt record against the delivery stop, report the finding and book a repeat attempt."
+     }
+    },
+    "goal": "Keep both records and request evidence from their owner.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+      "status": "met",
+      "evidence_event_ids": [
+       "005",
+       "006"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-14 09:00:00 UTC",
+     "escalated_at": "2026-02-14 09:45:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "013-N1"
+     },
+     "context_message_id": "001",
+     "summary": "Keep both records and request evidence from their owner.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-013.",
+      "source": {
+       "type": "case_card",
+       "id": "013"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "A failed-attempt scan is disputed.",
+      "source": {
+       "type": "case_card",
+       "id": "013"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The carrier must review its record without assuming the customer or driver is dishonest.",
+      "source": {
+       "type": "case_card",
+       "id": "013"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-013 has a failed-attempt scan at 08:40 UTC today.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The route record has not yet been reviewed; no conclusion about the attempt is available.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient says they were at home and did not hear the intercom.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient is available on 2026-02-15 morning.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Dispatch review team reports: First check: the handset logs the 08:40 UTC attempt with reason 'Recipient absent'.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Dispatch review team reports: The route sheet for the same stop records 'No access, gate locked'.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Dispatch review team reports: The two reasons do not agree.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_4",
+      "text": "Dispatch review team reports: No repeat attempt is booked yet.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_outcome_1",
+      "text": "Dispatch review team reports: Review finding for DL-013: the handset location record places the 08:40 UTC attempt at the building's side gate, and the driver's statement says the gate was locked.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_2",
+      "text": "Dispatch review team reports: The reason now reads 'No access'.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_3",
+      "text": "Dispatch review team reports: The repeat attempt is not yet booked.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_4",
+      "text": "Dispatch review team reports: This finding does not establish fault or a handover.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "dispatch_review",
+      "purpose": "Review the missed attempt and arrange another visit.",
+      "expected_response": "The review result and a booked repeat visit.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch_review",
+      "responsible_actor": "dispatch_review",
+      "purpose": "Review DL-013's failed-attempt record against the delivery stop and report the review finding rather than infer fault.",
+      "expected_response": "The review finding.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "r2": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch_review",
+      "responsible_actor": "dispatch_review",
+      "purpose": "Arrange an available repeat attempt on 2026-02-15 morning.",
+      "expected_response": "Confirmation of the booked repeat attempt.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch_review",
+      "responsible_actor": "dispatch_review",
+      "purpose": "Keep both entries and ask the Dispatch review team by email for the handset location record and the driver's statement for the 08:40 attempt, with the 2026-02-15 morning attempt booked as a separate step.",
+      "expected_response": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+      "status": "answered",
+      "response": "Review finding for DL-013: the handset location record places the 08:40 UTC attempt at the building's side gate, and the driver's statement says the gate was locked. The reason now reads 'No access'. The repeat attempt is not yet booked. This finding does not establish fault or a handover.",
+      "evidence_event_ids": [
+       "004",
+       "005",
+       "006"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "reconcile_conflict",
+       "action": "Keep both entries and ask the Dispatch review team by email for the handset location record and the driver's statement for the 08:40 attempt, with the 2026-02-15 morning attempt booked as a separate step.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "pick one reason and tell Yara that the gate was locked or that nobody was home; neither entry is a review finding.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "reconcile_conflict",
+     "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "Review finding for DL-013: the handset location record places the 08:40 UTC attempt at the building's side gate, and the driver's statement says the gate was locked. The reason now reads 'No access'. The repeat attempt is not yet booked. This finding does not establish fault or a handover.",
+     "confirmed_by": "dispatch_review",
+     "evidence_event_ids": [
+      "006"
+     ],
+     "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not pick one reason and tell Yara that the gate was locked or that nobody was home; neither entry is a review finding."
+    },
+    "annotations": [
+     {
+      "id": "missed-attempt-context",
+      "kind": "context",
+      "title": "What Yara knew before the message",
+      "text": "Yara refers to the missed attempt, so Yara knows a failed attempt was recorded on DL-013. How Yara learned this is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "tracking": {
+      "participants": [
+       "coordinator",
+       "tracking_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch_review"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "dispatch_review"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "tracking",
+      "event_id": "001",
+      "timestamp": "2026-02-14 09:00:00 UTC",
+      "from_actor": "tracking_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-013 has a failed-attempt scan at 08:40 UTC today. The route record has not yet been reviewed; no conclusion about the attempt is available."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-14 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I was at home and did not hear the intercom. Please review the missed attempt and arrange another visit. I am available on 2026-02-15 morning."
+     },
+     {
+      "conversation_id": "dispatch",
+      "event_id": "003",
+      "timestamp": "2026-02-14 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch_review",
+      "channel": "Email",
+      "body": "Review DL-013’s failed-attempt record against the delivery stop, and arrange an available repeat attempt on 2026-02-15 morning. Please report the review finding rather than infer fault."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "004",
+      "timestamp": "2026-02-14 09:45:00 UTC",
+      "from_actor": "dispatch_review",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "First check: the handset logs the 08:40 UTC attempt with reason 'Recipient absent'. The route sheet for the same stop records 'No access, gate locked'. The two reasons do not agree. No repeat attempt is booked yet."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-02-14 10:00:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch_review",
+      "channel": "Email",
+      "body": "For DL-013 the handset gives 'Recipient absent' at 08:40 UTC and the route sheet gives 'No access, gate locked'. We are keeping both entries. Please send the handset location record and the driver's statement for that attempt, and report a finding from them. The 2026-02-15 morning repeat attempt is a separate request."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "006",
+      "timestamp": "2026-02-14 11:00:00 UTC",
+      "from_actor": "dispatch_review",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Review finding for DL-013: the handset location record places the 08:40 UTC attempt at the building's side gate, and the driver's statement says the gate was locked. The reason now reads 'No access'. The repeat attempt is not yet booked. This finding does not establish fault or a handover."
+     }
+    ],
+    "limits": [
+     "Do not treat the review finding as proof of fraud.",
+     "Do not treat the replacement attempt as done: it remains pending, and successful delivery is not assumed.",
+     "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "Dispatch has reported the result of its review of the failed-attempt record.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "Dispatch has confirmed a replacement delivery attempt.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  }
+ ]
+}

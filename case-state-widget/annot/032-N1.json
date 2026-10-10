@@ -1,0 +1,618 @@
+{
+ "case_id": "032-N1",
+ "lang": "en",
+ "title": "032-N1 · Token service errors during issue",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is the customer, Oska Vey. From the case card: the approved return for DL-032 offers a printer-free QR token at a specified staffed counter; the token is inert and usable only within the fictional exercise.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "customer",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get the printer-free QR token issued with a confirmed drop-off counter, and the customer's confirmation of receipt.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "customer": {
+   "name": "Oska Vey",
+   "organization": null,
+   "role": "customer",
+   "responsibility": "Ask for the printer-free QR option and the accepting counter, and confirm receiving the token.",
+   "from_start": true,
+   "source_names": [
+    "Oska Vey, customer"
+   ]
+  },
+  "returns_support": {
+   "name": "Returns support",
+   "organization": "Tallowmere Goods",
+   "role": "merchant",
+   "responsibility": "Confirm the approved return RT-032 and the printer-free QR option.",
+   "from_start": false,
+   "source_names": [
+    "Returns support, Tallowmere Goods"
+   ]
+  },
+  "returns_team": {
+   "name": "Printer-free returns team",
+   "organization": "Tallowmere Goods",
+   "role": "returns_desk",
+   "responsibility": "Issue the QR token for RT-032 and confirm the supported counter and its hours.",
+   "from_start": false,
+   "source_names": [
+    "Printer-free returns team, Tallowmere Goods"
+   ]
+  }
+ },
+ "goal": "Get the customer a valid printer-free QR return token and a confirmed supported drop-off counter.",
+ "limits": [
+  "Do not treat token receipt as drop-off or refund.",
+  "Do not present the QR payload as a live return authorisation; it is inert.",
+  "Do not repeat the action or claim success before checking the saved state."
+ ],
+ "intake": {
+  "summary": "Arrange the printer-free QR return for DL-032 and name the counter that accepts it.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The customer cannot print a return label.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-032.",
+    "source": {
+     "type": "case_card",
+     "id": "032"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The approved return offers a printer-free QR token at a specified staffed counter.",
+    "source": {
+     "type": "case_card",
+     "id": "032"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The token is inert and usable only within the fictional exercise.",
+    "source": {
+     "type": "case_card",
+     "id": "032"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The merchant has issued a QR token valid for the approved return."
+   },
+   {
+    "id": "c2",
+    "description": "The merchant has confirmed a supported drop-off counter and its hours."
+   },
+   {
+    "id": "c3",
+    "description": "The customer has confirmed receiving the QR code."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/032/N1-CHANNEL_FAILURE",
+  "branch_id": "032-N1",
+  "derived_from_case": "032",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "CHANNEL_FAILURE",
+  "expected_decision": "VERIFY_FIRST",
+  "workflow_sheet": "R",
+  "branch_label": "Token service errors during issue",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "1357b33b87a4541f3824c4ad346d44f09b6ace8b22145fdebb60ed8f2e297897",
+   "history.md": "915d4ea71d7e368e98d014628c53872fe740550dc37da2733605221561f459f1"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Merchant email",
+   "title": "Returns support confirms the QR option",
+   "explanation": "RT-032 is approved and can be returned without a printer by presenting a QR token at Copperfin Returns Counter. The token has to be issued by returns.",
+   "conversation_id": "returns_support",
+   "facts_upsert": [
+    {
+     "id": "f4",
+     "text": "Return RT-032 for TG-032, original shipment DL-032, is approved.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f2",
+     "text": "The return service supports printer-free QR presentation at Copperfin Returns Counter, 10:00–18:00 UTC; no customer printer is required.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "The token must be issued by returns.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Take in the customer's request about the return."
+   },
+   "blocker": "The customer cannot print a return label; the QR token has to be issued by returns.",
+   "status": "context_received",
+   "next_step": null,
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Oska asks for the QR option and counter",
+   "explanation": "Oska has no printer and asks us to arrange the QR return and name the counter. The token must come from the returns team, so we ask them to issue it and confirm a supported counter and its hours.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f6",
+     "text": "Oska does not own a printer.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "customer",
+     "to_actor": "coordinator",
+     "responsible_actor": "returns_team",
+     "purpose": "Arrange the QR return option and say which counter accepts it.",
+     "expected_response": "A QR token and the accepting counter.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "returns_team",
+     "responsible_actor": "returns_team",
+     "purpose": "Issue the printer-free QR token for approved RT-032 and confirm a supported drop-off counter and its hours.",
+     "expected_response": "The QR token and the confirmed counter with its hours.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask the printer-free returns team to issue the QR token for RT-032 and confirm a supported counter and its hours."
+   },
+   "blocker": "Oska has no printer, and no QR token has been issued.",
+   "status": "escalated",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "returns_team",
+    "request_id": "r1",
+    "description": "Issue the QR token for RT-032 and confirm a supported counter."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We request the QR token and counter",
+   "explanation": "We asked the printer-free returns team for the token and for a confirmed counter with its hours. Now we wait for them.",
+   "conversation_id": "returns_team",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "returns_team",
+     "responsible_actor": "returns_team",
+     "purpose": "Issue the printer-free QR token for approved RT-032 and confirm a supported drop-off counter and its hours.",
+     "expected_response": "The QR token and the confirmed counter with its hours.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "returns_team",
+      "request_id": "r1",
+      "expected": "QR token for RT-032 and the confirmed counter with hours"
+     }
+    ],
+    "next_action": "Once the token is issued, have Oska confirm receiving it."
+   },
+   "blocker": "The returns team has not yet issued the token or confirmed the counter.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "returns_team",
+    "request_id": "r1",
+    "description": "Wait for the token and the counter confirmation."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "New escalation",
+   "title": "Token service errors during issue",
+   "explanation": "Establish the saved outcome before repeating an uncertain action. Do not repeat the action or claim success before checking the saved state.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Printer-free returns team reports: System notice.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Printer-free returns team reports: Token issue for RT-032 stopped at 09:32 with error QR-503.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Printer-free returns team reports: The notice cannot show whether a token was saved against the return.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_4",
+     "text": "Printer-free returns team reports: No token or counter details are attached.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "returns_team",
+     "responsible_actor": "returns_team",
+     "purpose": "Email the Printer-free returns team and ask what the RT-032 record now shows for a saved token, stating that no second token request will be sent until that is known.",
+     "expected_response": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    },
+    "branch_attempt": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "returns_team",
+     "responsible_actor": "returns_team",
+     "purpose": "Record the submission or operation reported as uncertain in this message, separately from downstream execution.",
+     "expected_response": "The record owner states whether this submission or operation saved.",
+     "status": "outcome_unknown",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Email the Printer-free returns team and ask what the RT-032 record now shows for a saved token, stating that no second token request will be sent until that is known."
+   },
+   "blocker": "The new escalation requires a scoped response. System notice. Token issue for RT-032 stopped at 09:32 with error QR-503. The notice cannot show whether a token was saved against the return. No token or counter details are attached.",
+   "status": "verification_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Email the Printer-free returns team and ask what the RT-032 record now shows for a saved token, stating that no second token request will be sent until that is known."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "004",
+     "source_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c1",
+    "c2",
+    "c3"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "verify_first",
+      "action": "Email the Printer-free returns team and ask what the RT-032 record now shows for a saved token, stating that no second token request will be sent until that is known.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "resend the request or tell Oska a token is on its way; two live tokens for one return become a reconciliation problem at the counter.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "032-N1"
+    },
+    "summary": "Establish the saved outcome before repeating an uncertain action.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Establish the saved outcome before repeating an uncertain action."
+   }
+  },
+  {
+   "event_id": "005",
+   "label": "Desk response",
+   "title": "Establish the saved outcome before repeating an uncertain action",
+   "explanation": "The desk sends the recorded response. Do not repeat the action or claim success before checking the saved state.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "returns_team",
+     "responsible_actor": "returns_team",
+     "purpose": "Email the Printer-free returns team and ask what the RT-032 record now shows for a saved token, stating that no second token request will be sent until that is known.",
+     "expected_response": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "returns_team",
+      "request_id": "branch_request",
+      "expected": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_verification",
+   "next_step": {
+    "type": "verification",
+    "responsible_actor": "returns_team",
+    "request_id": "branch_request",
+    "description": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "verify_first",
+      "action": "Email the Printer-free returns team and ask what the RT-032 record now shows for a saved token, stating that no second token request will be sent until that is known.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "resend the request or tell Oska a token is on its way; two live tokens for one return become a reconciliation problem at the counter.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "verify_first",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. We checked RT-032. No token was saved before the QR-503 error. We have issued one token, DL032R, for RT-032 and sent it to the customer; Copperfin Returns Counter accepts it 10:00–18:00 UTC. A token in hand is not a drop-off, and refund is not affected.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Printer-free returns team reports: We checked RT-032.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Printer-free returns team reports: No token was saved before the QR-503 error.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Printer-free returns team reports: We have issued one token, DL032R, for RT-032 and sent it to the customer; Copperfin Returns Counter accepts it 10:00–18:00 UTC.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_4",
+     "text": "Printer-free returns team reports: A token in hand is not a drop-off, and refund is not affected.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "returns_team",
+     "responsible_actor": "returns_team",
+     "purpose": "Email the Printer-free returns team and ask what the RT-032 record now shows for a saved token, stating that no second token request will be sent until that is known.",
+     "expected_response": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+     "status": "answered",
+     "response": "We checked RT-032. No token was saved before the QR-503 error. We have issued one token, DL032R, for RT-032 and sent it to the customer; Copperfin Returns Counter accepts it 10:00–18:00 UTC. A token in hand is not a drop-off, and refund is not affected.",
+     "evidence_event_ids": [
+      "004",
+      "005",
+      "006"
+     ]
+    },
+    "branch_attempt": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "returns_team",
+     "responsible_actor": "returns_team",
+     "purpose": "Record the submission or operation reported as uncertain in this message, separately from downstream execution.",
+     "expected_response": "The record owner states whether this submission or operation saved.",
+     "status": "answered",
+     "response": "We checked RT-032. No token was saved before the QR-503 error. We have issued one token, DL032R, for RT-032 and sent it to the customer; Copperfin Returns Counter accepts it 10:00–18:00 UTC. A token in hand is not a drop-off, and refund is not affected.",
+     "evidence_event_ids": [
+      "004",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "We checked RT-032. No token was saved before the QR-503 error. We have issued one token, DL032R, for RT-032 and sent it to the customer; Copperfin Returns Counter accepts it 10:00–18:00 UTC. A token in hand is not a drop-off, and refund is not affected.",
+    "confirmed_by": "returns_team",
+    "evidence_event_ids": [
+     "006"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not resend the request or tell Oska a token is on its way; two live tokens for one return become a reconciliation problem at the counter."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "verify_first",
+      "action": "Email the Printer-free returns team and ask what the RT-032 record now shows for a saved token, stating that no second token request will be sent until that is known.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "resend the request or tell Oska a token is on its way; two live tokens for one return become a reconciliation problem at the counter.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "verify_first",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ],
+ "source_attachments": []
+}

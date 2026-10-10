@@ -1,0 +1,1820 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "021-N3 · Customer demands refund promise before upload",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Lessa Vire. From the case card: a carton for DL-021 has a dented corner, and the merchant requires two customer image views before it can assess the packaging damage; the request does not determine compensation.",
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/021/N3-OUT_OF_POLICY_ASK",
+  "branch_id": "021-N3",
+  "derived_from_case": "021",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "OUT_OF_POLICY_ASK",
+  "expected_decision": "DECLINE_EXPLAIN",
+  "workflow_sheet": "A",
+  "branch_label": "Customer demands refund promise before upload",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "906376d9d065dd313500bed2322ed8230b1c0d267d955fdd2faf873b7995669f",
+   "history.md": "53a9c3f0a8c915e3b98f003577395d8ae02fb8cf04765369487dbebe1059e990"
+  }
+ },
+ "initial_state": {
+  "case_id": "021-N3",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "recipient",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: get the views the merchant specified from the recipient and the merchant's confirmation that they are sufficient."
+   },
+   "recipient": {
+    "name": "Lessa Vire",
+    "organization": null,
+    "role": "recipient",
+    "is_us": false,
+    "responsibility": "Report the dented carton and submit the requested image views."
+   }
+  },
+  "goal": "Get the two image views the merchant requires from the recipient and the merchant's confirmation that the evidence is sufficient for its packaging-damage assessment.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The recipient has submitted the two image views the merchant specified.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The merchant has confirmed receipt of both views.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c3",
+    "description": "The merchant has confirmed that the evidence is sufficient for its assessment.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The merchant cannot assess the packaging damage without two customer image views.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-021.",
+    "source": {
+     "type": "case_card",
+     "id": "021"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "A carton has a dented corner.",
+    "source": {
+     "type": "case_card",
+     "id": "021"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The merchant requires two customer image views before it can assess the packaging damage.",
+    "source": {
+     "type": "case_card",
+     "id": "021"
+    }
+   },
+   {
+    "id": "f4",
+    "text": "The image request does not determine compensation.",
+    "source": {
+     "type": "case_card",
+     "id": "021"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Do not present the submitted image views as real photographs or as proof of actual physical damage.",
+   "Do not say that receipt of the views establishes the contents condition.",
+   "Do not promise or decide compensation; the evidence request does not determine it.",
+   "Do not promise or perform the prohibited request."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Merchant email",
+    "title": "Damage intake specifies the two views",
+    "timestamp": "2026-02-22 09:00:00 UTC",
+    "actor_id": "damage_intake",
+    "message_id": "001"
+   },
+   "explanation": "The merchant named the two views, the upload channel and a safety limit on unpacking. Now we know exactly what to ask the recipient for.",
+   "state_after": {
+    "case_id": "021-N3",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the views the merchant specified from the recipient and the merchant's confirmation that they are sufficient."
+     },
+     "recipient": {
+      "name": "Lessa Vire",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report the dented carton and submit the requested image views."
+     },
+     "damage_intake": {
+      "name": "Damage intake",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Specify the image views needed and confirm whether the evidence is sufficient for the packaging-damage assessment."
+     }
+    },
+    "goal": "Get the two image views the merchant requires from the recipient and the merchant's confirmation that the evidence is sufficient for its packaging-damage assessment.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask the recipient for the two views through the order-linked upload channel, without asking for unsafe unpacking."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has submitted the two image views the merchant specified.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The merchant has confirmed receipt of both views.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The merchant has confirmed that the evidence is sufficient for its assessment.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-22 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "021-N3"
+     },
+     "context_message_id": "001",
+     "summary": "DL-021 carton has a dented corner; collect the two image views the merchant needs for its packaging-damage assessment.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The merchant does not yet have the two required views.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-021.",
+      "source": {
+       "type": "case_card",
+       "id": "021"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "A carton has a dented corner.",
+      "source": {
+       "type": "case_card",
+       "id": "021"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "For TG-021 / DL-021 the merchant needs a full carton view with the shipment marking visible and a closer view of the dented corner.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The image request does not determine compensation.",
+      "source": {
+       "type": "case_card",
+       "id": "021"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The views must be sent through the order-linked upload channel.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The customer must not be asked to unpack an item they consider unsafe.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Upload a full carton view with the DL-021 marking visible and a close view of the dented corner through the order-linked upload channel.",
+      "expected_response": "The two image views.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "001"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": {
+     "type": "information",
+     "responsible_actor": "recipient",
+     "request_id": "r1",
+     "description": "Upload the full carton view and the dented-corner view through the order-linked upload channel."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "merchant": {
+      "participants": [
+       "coordinator",
+       "damage_intake"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "merchant",
+      "event_id": "001",
+      "timestamp": "2026-02-22 09:00:00 UTC",
+      "from_actor": "damage_intake",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "For TG-021 / DL-021 we need a full carton view with the shipment marking visible and a closer view of the dented corner. Use the order-linked upload channel. Do not ask the customer to unpack an item they consider unsafe."
+     }
+    ],
+    "limits": [
+     "Do not present the submitted image views as real photographs or as proof of actual physical damage.",
+     "Do not say that receipt of the views establishes the contents condition.",
+     "Do not promise or decide compensation; the evidence request does not determine it.",
+     "Do not promise or perform the prohibited request."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client question",
+    "title": "Lessa asks which views are needed",
+    "timestamp": "2026-02-22 09:10:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "002"
+   },
+   "explanation": "Lessa reports the dented corner, has not opened the carton and asks what to send. We already have the merchant's list, so we can answer precisely.",
+   "state_after": {
+    "case_id": "021-N3",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the views the merchant specified from the recipient and the merchant's confirmation that they are sufficient."
+     },
+     "recipient": {
+      "name": "Lessa Vire",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report the dented carton and submit the requested image views."
+     },
+     "damage_intake": {
+      "name": "Damage intake",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Specify the image views needed and confirm whether the evidence is sufficient for the packaging-damage assessment."
+     }
+    },
+    "goal": "Get the two image views the merchant requires from the recipient and the merchant's confirmation that the evidence is sufficient for its packaging-damage assessment.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Reply to Lessa with the two views and the order-linked upload channel; do not ask for unpacking if it is unsafe."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has submitted the two image views the merchant specified.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The merchant has confirmed receipt of both views.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The merchant has confirmed that the evidence is sufficient for its assessment.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-22 09:00:00 UTC",
+     "escalated_at": "2026-02-22 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "021-N3"
+     },
+     "context_message_id": "001",
+     "summary": "DL-021 carton has a dented corner; collect the two image views the merchant needs for its packaging-damage assessment.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The merchant does not yet have the two required views.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-021.",
+      "source": {
+       "type": "case_card",
+       "id": "021"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The outside corner of the recipient's carton is dented.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "For TG-021 / DL-021 the merchant needs a full carton view with the shipment marking visible and a closer view of the dented corner.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The image request does not determine compensation.",
+      "source": {
+       "type": "case_card",
+       "id": "021"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The views must be sent through the order-linked upload channel.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The customer must not be asked to unpack an item they consider unsafe.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient has not opened the carton.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Upload a full carton view with the DL-021 marking visible and a close view of the dented corner through the order-linked upload channel.",
+      "expected_response": "The two image views.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "001"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Tell the recipient which views the merchant needs for the damage assessment.",
+      "expected_response": "The list of required views.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "information",
+     "responsible_actor": "recipient",
+     "request_id": "r1",
+     "description": "Upload the full carton view and the dented-corner view through the order-linked upload channel."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "assessment-context",
+      "kind": "context",
+      "title": "What Lessa knew before writing",
+      "text": "Lessa asks which views \"your merchant\" needs for the damage assessment, so Lessa already knows the merchant will assess the damage. How this was learned is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "merchant": {
+      "participants": [
+       "coordinator",
+       "damage_intake"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "merchant",
+      "event_id": "001",
+      "timestamp": "2026-02-22 09:00:00 UTC",
+      "from_actor": "damage_intake",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "For TG-021 / DL-021 we need a full carton view with the shipment marking visible and a closer view of the dented corner. Use the order-linked upload channel. Do not ask the customer to unpack an item they consider unsafe."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-22 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The outside corner of my carton is dented. I have not opened it. Tell me which views your merchant needs for the damage assessment."
+     }
+    ],
+    "limits": [
+     "Do not present the submitted image views as real photographs or as proof of actual physical damage.",
+     "Do not say that receipt of the views establishes the contents condition.",
+     "Do not promise or decide compensation; the evidence request does not determine it.",
+     "Do not promise or perform the prohibited request."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our request",
+    "title": "We ask Lessa for the two views",
+    "timestamp": "2026-02-22 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We named exactly the merchant's two views and channel, ruled out unsafe unpacking and promised no remedy. Now we wait for the upload.",
+   "state_after": {
+    "case_id": "021-N3",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the views the merchant specified from the recipient and the merchant's confirmation that they are sufficient."
+     },
+     "recipient": {
+      "name": "Lessa Vire",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report the dented carton and submit the requested image views."
+     },
+     "damage_intake": {
+      "name": "Damage intake",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Specify the image views needed and confirm whether the evidence is sufficient for the packaging-damage assessment."
+     }
+    },
+    "goal": "Get the two image views the merchant requires from the recipient and the merchant's confirmation that the evidence is sufficient for its packaging-damage assessment.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "recipient",
+       "request_id": "r1",
+       "expected": "Full carton view and dented-corner view"
+      }
+     ],
+     "next_action": "Once the views are uploaded, get the merchant's confirmation that they are sufficient."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has submitted the two image views the merchant specified.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The merchant has confirmed receipt of both views.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The merchant has confirmed that the evidence is sufficient for its assessment.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-22 09:00:00 UTC",
+     "escalated_at": "2026-02-22 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "021-N3"
+     },
+     "context_message_id": "001",
+     "summary": "DL-021 carton has a dented corner; collect the two image views the merchant needs for its packaging-damage assessment.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The recipient has not yet uploaded the two views.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-021.",
+      "source": {
+       "type": "case_card",
+       "id": "021"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The outside corner of the recipient's carton is dented.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "For TG-021 / DL-021 the merchant needs a full carton view with the shipment marking visible and a closer view of the dented corner.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The image request does not determine compensation.",
+      "source": {
+       "type": "case_card",
+       "id": "021"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The views must be sent through the order-linked upload channel.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The customer must not be asked to unpack an item they consider unsafe.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient has not opened the carton.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Upload a full carton view with the DL-021 marking visible and a close view of the dented corner through the order-linked upload channel.",
+      "expected_response": "The two image views.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "001",
+       "003"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Tell the recipient which views the merchant needs for the damage assessment.",
+      "expected_response": "The list of required views.",
+      "status": "answered",
+      "response": "A full carton view with the DL-021 marking and a close view of the dented corner, through the order-linked upload channel.",
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_response",
+    "next_step": {
+     "type": "information",
+     "responsible_actor": "recipient",
+     "request_id": "r1",
+     "description": "Wait for the two views from Lessa."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "assessment-context",
+      "kind": "context",
+      "title": "What Lessa knew before writing",
+      "text": "Lessa asks which views \"your merchant\" needs for the damage assessment, so Lessa already knows the merchant will assess the damage. How this was learned is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "merchant": {
+      "participants": [
+       "coordinator",
+       "damage_intake"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "merchant",
+      "event_id": "001",
+      "timestamp": "2026-02-22 09:00:00 UTC",
+      "from_actor": "damage_intake",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "For TG-021 / DL-021 we need a full carton view with the shipment marking visible and a closer view of the dented corner. Use the order-linked upload channel. Do not ask the customer to unpack an item they consider unsafe."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-22 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The outside corner of my carton is dented. I have not opened it. Tell me which views your merchant needs for the damage assessment."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "003",
+      "timestamp": "2026-02-22 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Customer portal",
+      "body": "Please upload the full carton with DL-021 marking and a close view of the dented corner through the order-linked upload channel. Do not unpack it if unsafe. The merchant will assess the evidence before deciding a remedy."
+     }
+    ],
+    "limits": [
+     "Do not present the submitted image views as real photographs or as proof of actual physical damage.",
+     "Do not say that receipt of the views establishes the contents condition.",
+     "Do not promise or decide compensation; the evidence request does not determine it.",
+     "Do not promise or perform the prohibited request."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "New escalation",
+    "title": "Customer demands refund promise before upload",
+    "timestamp": "2026-02-22 09:38:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "004"
+   },
+   "explanation": "Explain the policy boundary and the permitted next step. Do not promise or perform the prohibited request.",
+   "state_after": {
+    "case_id": "021-N3",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the views the merchant specified from the recipient and the merchant's confirmation that they are sufficient."
+     },
+     "recipient": {
+      "name": "Lessa Vire",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report the dented carton and submit the requested image views."
+     },
+     "damage_intake": {
+      "name": "Damage intake",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Specify the image views needed and confirm whether the evidence is sufficient for the packaging-damage assessment."
+     }
+    },
+    "goal": "Explain the policy boundary and the permitted next step.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Reply to Lessa in the customer portal that the merchant decides any remedy only after assessing the two views, that the desk cannot confirm a refund, and that the order-linked upload remains the next step."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-22 09:00:00 UTC",
+     "escalated_at": "2026-02-22 09:38:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "021-N3"
+     },
+     "context_message_id": "001",
+     "summary": "Explain the policy boundary and the permitted next step.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The new escalation requires a scoped response. I will upload the photos, but first confirm that the merchant will refund me in full for the dent. I do not want to spend time on photos and then be told no.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-021.",
+      "source": {
+       "type": "case_card",
+       "id": "021"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The outside corner of the recipient's carton is dented.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "For TG-021 / DL-021 the merchant needs a full carton view with the shipment marking visible and a closer view of the dented corner.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The image request does not determine compensation.",
+      "source": {
+       "type": "case_card",
+       "id": "021"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The views must be sent through the order-linked upload channel.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The customer must not be asked to unpack an item they consider unsafe.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient has not opened the carton.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Lessa Vire reports: I will upload the photos, but first confirm that the merchant will refund me in full for the dent.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Lessa Vire reports: I do not want to spend time on photos and then be told no.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Upload a full carton view with the DL-021 marking visible and a close view of the dented corner through the order-linked upload channel.",
+      "expected_response": "The two image views.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "001",
+       "003"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Tell the recipient which views the merchant needs for the damage assessment.",
+      "expected_response": "The list of required views.",
+      "status": "answered",
+      "response": "A full carton view with the DL-021 marking and a close view of the dented corner, through the order-linked upload channel.",
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Reply to Lessa in the customer portal that the merchant decides any remedy only after assessing the two views, that the desk cannot confirm a refund, and that the order-linked upload remains the next step.",
+      "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "decline_explain",
+       "action": "Reply to Lessa in the customer portal that the merchant decides any remedy only after assessing the two views, that the desk cannot confirm a refund, and that the order-linked upload remains the next step.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "promise a refund or any compensation, and suggest that the dent alone shows the contents are damaged.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "action_required",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": "branch_request",
+     "description": "Reply to Lessa in the customer portal that the merchant decides any remedy only after assessing the two views, that the desk cannot confirm a refund, and that the order-linked upload remains the next step."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "assessment-context",
+      "kind": "context",
+      "title": "What Lessa knew before writing",
+      "text": "Lessa asks which views \"your merchant\" needs for the damage assessment, so Lessa already knows the merchant will assess the damage. How this was learned is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "merchant": {
+      "participants": [
+       "coordinator",
+       "damage_intake"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "merchant",
+      "event_id": "001",
+      "timestamp": "2026-02-22 09:00:00 UTC",
+      "from_actor": "damage_intake",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "For TG-021 / DL-021 we need a full carton view with the shipment marking visible and a closer view of the dented corner. Use the order-linked upload channel. Do not ask the customer to unpack an item they consider unsafe."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-22 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The outside corner of my carton is dented. I have not opened it. Tell me which views your merchant needs for the damage assessment."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "003",
+      "timestamp": "2026-02-22 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Customer portal",
+      "body": "Please upload the full carton with DL-021 marking and a close view of the dented corner through the order-linked upload channel. Do not unpack it if unsafe. The merchant will assess the evidence before deciding a remedy."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "004",
+      "timestamp": "2026-02-22 09:38:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I will upload the photos, but first confirm that the merchant will refund me in full for the dent. I do not want to spend time on photos and then be told no."
+     }
+    ],
+    "limits": [
+     "Do not present the submitted image views as real photographs or as proof of actual physical damage.",
+     "Do not say that receipt of the views establishes the contents condition.",
+     "Do not promise or decide compensation; the evidence request does not determine it.",
+     "Do not promise or perform the prohibited request."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has submitted the two image views the merchant specified.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The merchant has confirmed receipt of both views.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "The merchant has confirmed that the evidence is sufficient for its assessment.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "005",
+    "type": "message_sent",
+    "label": "Desk response",
+    "title": "Explain the policy boundary and the permitted next step",
+    "timestamp": "2026-02-22 09:53:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "005"
+   },
+   "explanation": "The desk sends the recorded response. Do not promise or perform the prohibited request.",
+   "state_after": {
+    "case_id": "021-N3",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the views the merchant specified from the recipient and the merchant's confirmation that they are sufficient."
+     },
+     "recipient": {
+      "name": "Lessa Vire",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report the dented carton and submit the requested image views."
+     },
+     "damage_intake": {
+      "name": "Damage intake",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Specify the image views needed and confirm whether the evidence is sufficient for the packaging-damage assessment."
+     }
+    },
+    "goal": "Explain the policy boundary and the permitted next step.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Record any incoming follow-through within its stated scope; do not initiate a prohibited change.",
+     "note": "The outgoing record communicates a boundary or notification. No unrecorded request or acknowledgement is assumed."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-22 09:00:00 UTC",
+     "escalated_at": "2026-02-22 09:38:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "021-N3"
+     },
+     "context_message_id": "001",
+     "summary": "Explain the policy boundary and the permitted next step.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-021.",
+      "source": {
+       "type": "case_card",
+       "id": "021"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The outside corner of the recipient's carton is dented.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "For TG-021 / DL-021 the merchant needs a full carton view with the shipment marking visible and a closer view of the dented corner.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The image request does not determine compensation.",
+      "source": {
+       "type": "case_card",
+       "id": "021"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The views must be sent through the order-linked upload channel.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The customer must not be asked to unpack an item they consider unsafe.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient has not opened the carton.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Lessa Vire reports: I will upload the photos, but first confirm that the merchant will refund me in full for the dent.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Lessa Vire reports: I do not want to spend time on photos and then be told no.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Upload a full carton view with the DL-021 marking visible and a close view of the dented corner through the order-linked upload channel.",
+      "expected_response": "The two image views.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "001",
+       "003"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Tell the recipient which views the merchant needs for the damage assessment.",
+      "expected_response": "The list of required views.",
+      "status": "answered",
+      "response": "A full carton view with the DL-021 marking and a close view of the dented corner, through the order-linked upload channel.",
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Reply to Lessa in the customer portal that the merchant decides any remedy only after assessing the two views, that the desk cannot confirm a refund, and that the order-linked upload remains the next step.",
+      "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+      "status": "answered",
+      "response": "We cannot confirm a refund. Tallowmere Goods assesses the two views before it decides any remedy, and the desk cannot promise one. The next step is unchanged: please upload the full carton with the DL-021 marking and a close view of the dented corner through the order-linked upload channel. Do not unpack it if unsafe.",
+      "evidence_event_ids": [
+       "004",
+       "005"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "decline_explain",
+       "action": "Reply to Lessa in the customer portal that the merchant decides any remedy only after assessing the two views, that the desk cannot confirm a refund, and that the order-linked upload remains the next step.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "promise a refund or any compensation, and suggest that the dent alone shows the contents are damaged.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "decline_explain",
+     "reason": "The recorded outgoing message takes this permitted response."
+    },
+    "status": "in_progress",
+    "next_step": null,
+    "result": null,
+    "annotations": [
+     {
+      "id": "assessment-context",
+      "kind": "context",
+      "title": "What Lessa knew before writing",
+      "text": "Lessa asks which views \"your merchant\" needs for the damage assessment, so Lessa already knows the merchant will assess the damage. How this was learned is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "merchant": {
+      "participants": [
+       "coordinator",
+       "damage_intake"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "merchant",
+      "event_id": "001",
+      "timestamp": "2026-02-22 09:00:00 UTC",
+      "from_actor": "damage_intake",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "For TG-021 / DL-021 we need a full carton view with the shipment marking visible and a closer view of the dented corner. Use the order-linked upload channel. Do not ask the customer to unpack an item they consider unsafe."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-22 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The outside corner of my carton is dented. I have not opened it. Tell me which views your merchant needs for the damage assessment."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "003",
+      "timestamp": "2026-02-22 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Customer portal",
+      "body": "Please upload the full carton with DL-021 marking and a close view of the dented corner through the order-linked upload channel. Do not unpack it if unsafe. The merchant will assess the evidence before deciding a remedy."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "004",
+      "timestamp": "2026-02-22 09:38:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I will upload the photos, but first confirm that the merchant will refund me in full for the dent. I do not want to spend time on photos and then be told no."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "005",
+      "timestamp": "2026-02-22 09:53:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Customer portal",
+      "body": "We cannot confirm a refund. Tallowmere Goods assesses the two views before it decides any remedy, and the desk cannot promise one. The next step is unchanged: please upload the full carton with the DL-021 marking and a close view of the dented corner through the order-linked upload channel. Do not unpack it if unsafe."
+     }
+    ],
+    "limits": [
+     "Do not present the submitted image views as real photographs or as proof of actual physical damage.",
+     "Do not say that receipt of the views establishes the contents condition.",
+     "Do not promise or decide compensation; the evidence request does not determine it.",
+     "Do not promise or perform the prohibited request."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has submitted the two image views the merchant specified.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The merchant has confirmed receipt of both views.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "The merchant has confirmed that the evidence is sufficient for its assessment.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "006",
+    "type": "message_received",
+    "label": "Scoped confirmation",
+    "title": "Follow-through confirms the branch outcome",
+    "timestamp": "2026-02-22 10:10:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "006"
+   },
+   "explanation": "Record what the responding party actually confirms. Understood. I have uploaded both views through the order-linked upload channel: the full carton with the DL-021 marking and the close view of the dented corner. I accept that the merchant has decided nothing yet.",
+   "state_after": {
+    "case_id": "021-N3",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the views the merchant specified from the recipient and the merchant's confirmation that they are sufficient."
+     },
+     "recipient": {
+      "name": "Lessa Vire",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report the dented carton and submit the requested image views."
+     },
+     "damage_intake": {
+      "name": "Damage intake",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Specify the image views needed and confirm whether the evidence is sufficient for the packaging-damage assessment."
+     }
+    },
+    "goal": "Explain the policy boundary and the permitted next step.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+      "status": "met",
+      "evidence_event_ids": [
+       "005",
+       "006"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-22 09:00:00 UTC",
+     "escalated_at": "2026-02-22 09:38:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "021-N3"
+     },
+     "context_message_id": "001",
+     "summary": "Explain the policy boundary and the permitted next step.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-021.",
+      "source": {
+       "type": "case_card",
+       "id": "021"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The outside corner of the recipient's carton is dented.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "For TG-021 / DL-021 the merchant needs a full carton view with the shipment marking visible and a closer view of the dented corner.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The image request does not determine compensation.",
+      "source": {
+       "type": "case_card",
+       "id": "021"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The views must be sent through the order-linked upload channel.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The customer must not be asked to unpack an item they consider unsafe.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient has not opened the carton.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Lessa Vire reports: I will upload the photos, but first confirm that the merchant will refund me in full for the dent.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Lessa Vire reports: I do not want to spend time on photos and then be told no.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_outcome_1",
+      "text": "Lessa Vire reports: Understood.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_2",
+      "text": "Lessa Vire reports: I have uploaded both views through the order-linked upload channel: the full carton with the DL-021 marking and the close view of the dented corner.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_3",
+      "text": "Lessa Vire reports: I accept that the merchant has decided nothing yet.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Upload a full carton view with the DL-021 marking visible and a close view of the dented corner through the order-linked upload channel.",
+      "expected_response": "The two image views.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "001",
+       "003"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Tell the recipient which views the merchant needs for the damage assessment.",
+      "expected_response": "The list of required views.",
+      "status": "answered",
+      "response": "A full carton view with the DL-021 marking and a close view of the dented corner, through the order-linked upload channel.",
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Reply to Lessa in the customer portal that the merchant decides any remedy only after assessing the two views, that the desk cannot confirm a refund, and that the order-linked upload remains the next step.",
+      "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+      "status": "answered",
+      "response": "Understood. I have uploaded both views through the order-linked upload channel: the full carton with the DL-021 marking and the close view of the dented corner. I accept that the merchant has decided nothing yet.",
+      "evidence_event_ids": [
+       "004",
+       "005",
+       "006"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "decline_explain",
+       "action": "Reply to Lessa in the customer portal that the merchant decides any remedy only after assessing the two views, that the desk cannot confirm a refund, and that the order-linked upload remains the next step.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "promise a refund or any compensation, and suggest that the dent alone shows the contents are damaged.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "decline_explain",
+     "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "Understood. I have uploaded both views through the order-linked upload channel: the full carton with the DL-021 marking and the close view of the dented corner. I accept that the merchant has decided nothing yet.",
+     "confirmed_by": "recipient",
+     "evidence_event_ids": [
+      "006"
+     ],
+     "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not promise a refund or any compensation, and do not suggest that the dent alone shows the contents are damaged."
+    },
+    "annotations": [
+     {
+      "id": "assessment-context",
+      "kind": "context",
+      "title": "What Lessa knew before writing",
+      "text": "Lessa asks which views \"your merchant\" needs for the damage assessment, so Lessa already knows the merchant will assess the damage. How this was learned is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "merchant": {
+      "participants": [
+       "coordinator",
+       "damage_intake"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "merchant",
+      "event_id": "001",
+      "timestamp": "2026-02-22 09:00:00 UTC",
+      "from_actor": "damage_intake",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "For TG-021 / DL-021 we need a full carton view with the shipment marking visible and a closer view of the dented corner. Use the order-linked upload channel. Do not ask the customer to unpack an item they consider unsafe."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-22 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The outside corner of my carton is dented. I have not opened it. Tell me which views your merchant needs for the damage assessment."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "003",
+      "timestamp": "2026-02-22 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Customer portal",
+      "body": "Please upload the full carton with DL-021 marking and a close view of the dented corner through the order-linked upload channel. Do not unpack it if unsafe. The merchant will assess the evidence before deciding a remedy."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "004",
+      "timestamp": "2026-02-22 09:38:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I will upload the photos, but first confirm that the merchant will refund me in full for the dent. I do not want to spend time on photos and then be told no."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "005",
+      "timestamp": "2026-02-22 09:53:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Customer portal",
+      "body": "We cannot confirm a refund. Tallowmere Goods assesses the two views before it decides any remedy, and the desk cannot promise one. The next step is unchanged: please upload the full carton with the DL-021 marking and a close view of the dented corner through the order-linked upload channel. Do not unpack it if unsafe."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "006",
+      "timestamp": "2026-02-22 10:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Understood. I have uploaded both views through the order-linked upload channel: the full carton with the DL-021 marking and the close view of the dented corner. I accept that the merchant has decided nothing yet."
+     }
+    ],
+    "limits": [
+     "Do not present the submitted image views as real photographs or as proof of actual physical damage.",
+     "Do not say that receipt of the views establishes the contents condition.",
+     "Do not promise or decide compensation; the evidence request does not determine it.",
+     "Do not promise or perform the prohibited request."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has submitted the two image views the merchant specified.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The merchant has confirmed receipt of both views.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "The merchant has confirmed that the evidence is sufficient for its assessment.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  }
+ ]
+}

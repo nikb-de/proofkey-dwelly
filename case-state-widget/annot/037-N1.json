@@ -1,0 +1,686 @@
+{
+ "case_id": "037-N1",
+ "lang": "en",
+ "title": "037-N1 · Entrance works change the access record",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Lorin Esh. From the case card: return RT-037 is merchant-approved but too heavy for a parcel courier, and the authorised specialist team must match the declared access and crew requirements.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "customer",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get the authorised specialist crew and a collection slot confirmed for the declared access, without giving the customer handling instructions.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "customer": {
+   "name": "Lorin Esh",
+   "organization": null,
+   "role": "customer",
+   "responsibility": "Confirm the access record and the day they can be home for the collection.",
+   "from_start": true,
+   "source_names": [
+    "Lorin Esh, customer"
+   ]
+  },
+  "specialist_returns": {
+   "name": "Specialist returns",
+   "organization": "Tallowmere Goods",
+   "role": "merchant",
+   "responsibility": "State the approved collection terms for RT-037: the two-person specialist crew and the access record.",
+   "from_start": false,
+   "source_names": [
+    "Specialist returns, Tallowmere Goods"
+   ]
+  },
+  "scheduler": {
+   "name": "Specialist returns scheduler",
+   "organization": "Tallowmere Goods",
+   "role": "scheduling",
+   "responsibility": "Book the authorised two-person in-home crew and a collection slot for the declared access.",
+   "from_start": false,
+   "source_names": [
+    "Specialist returns scheduler, Tallowmere Goods"
+   ]
+  }
+ },
+ "goal": "Get the merchant's authorised specialist team to confirm the appropriate crew and an in-home collection slot for RT-037.",
+ "limits": [
+  "Do not instruct the customer to lift, dismantle or drag the item.",
+  "Do not treat the booking as proof of safe collection.",
+  "Do not act on obsolete options or carry consent over to a new offer."
+ ],
+ "intake": {
+  "summary": "Arrange in-home collection of the heavy return RT-037 by the authorised specialist crew.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The return is too heavy for a parcel courier; no specialist collection is booked.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns return RT-037.",
+    "source": {
+     "type": "case_card",
+     "id": "037"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The return is merchant-approved and too heavy for a parcel courier.",
+    "source": {
+     "type": "case_card",
+     "id": "037"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The authorised specialist team must match the declared access and crew requirements.",
+    "source": {
+     "type": "case_card",
+     "id": "037"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The authorised specialist team has confirmed the appropriate crew for the item and the declared access."
+   },
+   {
+    "id": "c2",
+    "description": "The authorised specialist team has confirmed the collection slot."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": null,
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/037/N1-STALE_STATE",
+  "branch_id": "037-N1",
+  "derived_from_case": "037",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003",
+   "004"
+  ],
+  "diverges_after_event": "004",
+  "failure_mode": "STALE_STATE",
+  "expected_decision": "GET_OPTIONS",
+  "workflow_sheet": "B",
+  "branch_label": "Entrance works change the access record",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "d16897af573a2fa031a76a6749fe004f5b304e19c0738fc0bdb534dd04354e66",
+   "history.md": "3e4fc4c2d3bd04defbd23935e0c2005f4df7332f8261d3bd327c37b75b8aa699"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Merchant email",
+   "title": "Specialist returns sets the collection terms",
+   "explanation": "The approved return needs the merchant's two-person crew, and the access record is on file. A booking still needs a date when the customer can be home.",
+   "conversation_id": "returns",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "The approved return includes in-home collection by the merchant's two-person specialist crew; ordinary parcel collection is not suitable.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f4",
+     "text": "RT-037 covers a 54 kg cabinet.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "Access record: ground floor, level entrance, 110 cm clear doorway.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Find out when the customer can be home for the in-home collection."
+   },
+   "blocker": "No specialist collection is booked; the customer's availability is not known.",
+   "status": "context_received",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": null,
+    "description": "Find out the day the customer can be home for the in-home collection."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Lorin confirms access and the home date",
+   "explanation": "The customer confirmed the access record, gave the date and said they cannot move the cabinet. We have what the specialist scheduler needs, so the next step is a booking request.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f6",
+     "text": "The customer says the access record is still correct.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f7",
+     "text": "The customer can be home on 2026-03-11.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f8",
+     "text": "The customer cannot move the cabinet themselves.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "customer",
+     "to_actor": "coordinator",
+     "responsible_actor": "scheduler",
+     "purpose": "Arrange the in-home collection.",
+     "expected_response": "A confirmed in-home collection booking.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "scheduler",
+     "responsible_actor": "scheduler",
+     "purpose": "Book RT-037 with the authorised two-person in-home crew for 2026-03-11 with the confirmed access details.",
+     "expected_response": "Booking confirmation with crew and slot.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask the specialist returns scheduler to book the two-person in-home crew for 2026-03-11 with the confirmed access."
+   },
+   "blocker": "No specialist collection is booked.",
+   "status": "escalated",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "scheduler",
+    "request_id": "r1",
+    "description": "Book the two-person in-home crew for 2026-03-11."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We book the two-person in-home crew",
+   "explanation": "We passed the date and the confirmed access, and asked the scheduler not to have the customer move the cabinet. Now we wait for the booking confirmation.",
+   "conversation_id": "scheduler",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "scheduler",
+     "responsible_actor": "scheduler",
+     "purpose": "Book RT-037 with the authorised two-person in-home crew for 2026-03-11; the customer confirms ground-floor level access and 110 cm doorway and is not to be asked to move the cabinet.",
+     "expected_response": "Booking confirmation with crew and slot.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "scheduler",
+      "request_id": "r1",
+      "expected": "Booking confirmation with crew and slot"
+     }
+    ],
+    "next_action": "Once confirmed, check the crew and slot against the declared access and the customer's date."
+   },
+   "blocker": "The specialist booking is not yet confirmed.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "scheduler",
+    "request_id": "r1",
+    "description": "Wait for the scheduler to confirm the crew and the collection slot."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "Confirmation",
+   "title": "Scheduler confirms booking SP-037",
+   "explanation": "The scheduler assigned a two-person crew for the declared access and confirmed a slot on the customer's date, so the coordination task is closed. The collection itself is still pending.",
+   "conversation_id": "scheduler",
+   "facts_upsert": [
+    {
+     "id": "f9",
+     "text": "Specialist booking SP-037 is confirmed for 2026-03-11, 13:00–16:00 UTC.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "f10",
+     "text": "A two-person crew is assigned for the 54 kg cabinet with the declared access.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "f11",
+     "text": "The crew will assess the site on arrival; collection is pending.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "customer",
+     "to_actor": "coordinator",
+     "responsible_actor": "scheduler",
+     "responded_by": "scheduler",
+     "purpose": "Arrange the in-home collection.",
+     "expected_response": "A confirmed in-home collection booking.",
+     "status": "completed",
+     "response": "Specialist booking SP-037 confirmed for 2026-03-11, 13:00–16:00 UTC.",
+     "evidence_event_ids": [
+      "002",
+      "004"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "scheduler",
+     "responsible_actor": "scheduler",
+     "purpose": "Book RT-037 with the authorised two-person in-home crew for 2026-03-11; the customer confirms ground-floor level access and 110 cm doorway and is not to be asked to move the cabinet.",
+     "expected_response": "Booking confirmation with crew and slot.",
+     "status": "completed",
+     "response": "Booking SP-037 for 2026-03-11, 13:00–16:00 UTC; two-person crew assigned for the 54 kg cabinet with the declared access.",
+     "evidence_event_ids": [
+      "002",
+      "003",
+      "004"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c1",
+     "evidence_event_ids": [
+      "004"
+     ]
+    },
+    {
+     "id": "c2",
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Coordination task complete: the scheduler confirmed the two-person crew and slot SP-037. The collection itself is outside this case's success criteria."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "Specialist booking SP-037 is confirmed for 2026-03-11, 13:00–16:00 UTC, with a two-person crew assigned for the 54 kg cabinet and the declared access.",
+    "confirmed_by": "scheduler",
+    "evidence_event_ids": [
+     "004"
+    ],
+    "remaining_work": "Collection is pending; the crew will assess the site on arrival. The booking does not prove safe collection."
+   },
+   "annotations_add": []
+  },
+  {
+   "event_id": "005",
+   "label": "New escalation",
+   "title": "Entrance works change the access record",
+   "explanation": "Obtain current permitted options from the responsible service. Do not act on obsolete options or carry consent over to a new offer.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Lorin Esh reports: Building works started at my entrance this afternoon.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Lorin Esh reports: There is now a temporary ramp with a step at the end and a site gate about 80 cm wide in front of my door.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Lorin Esh reports: The works run until next week.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "scheduler",
+     "responsible_actor": "scheduler",
+     "purpose": "Email the Specialist returns scheduler with Lorin's new access, a step and an 80 cm gate in place of the level entrance, and ask whether SP-037 still stands or which crew and slots now fit, booking nothing new until Lorin agrees.",
+     "expected_response": "The responsible party states the current options or confirms the permitted terms; acceptance and execution remain separate.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The responsible party states the current options or confirms the permitted terms; acceptance and execution remain separate."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Email the Specialist returns scheduler with Lorin's new access, a step and an 80 cm gate in place of the level entrance, and ask whether SP-037 still stands or which crew and slots now fit, booking nothing new until Lorin agrees."
+   },
+   "blocker": "The new escalation requires a scoped response. Building works started at my entrance this afternoon. There is now a temporary ramp with a step at the end and a site gate about 80 cm wide in front of my door. The works run until next week.",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Email the Specialist returns scheduler with Lorin's new access, a step and an 80 cm gate in place of the level entrance, and ask whether SP-037 still stands or which crew and slots now fit, booking nothing new until Lorin agrees."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "005",
+     "source_event_ids": [
+      "005"
+     ]
+    }
+   ],
+   "criteria_retire": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "get_options",
+      "action": "Email the Specialist returns scheduler with Lorin's new access, a step and an 80 cm gate in place of the level entrance, and ask whether SP-037 still stands or which crew and slots now fit, booking nothing new until Lorin agrees.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "let SP-037 run on the old access record, and suggest Lorin move the cabinet to the gate.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "037-N1"
+    },
+    "summary": "Obtain current permitted options from the responsible service.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Obtain current permitted options from the responsible service."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Desk response",
+   "title": "Obtain current permitted options from the responsible service",
+   "explanation": "The desk sends the recorded response. Do not act on obsolete options or carry consent over to a new offer.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "scheduler",
+     "responsible_actor": "scheduler",
+     "purpose": "Email the Specialist returns scheduler with Lorin's new access, a step and an 80 cm gate in place of the level entrance, and ask whether SP-037 still stands or which crew and slots now fit, booking nothing new until Lorin agrees.",
+     "expected_response": "The responsible party states the current options or confirms the permitted terms; acceptance and execution remain separate.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "scheduler",
+      "request_id": "branch_request",
+      "expected": "The responsible party states the current options or confirms the permitted terms; acceptance and execution remain separate."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_response",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "scheduler",
+    "request_id": "branch_request",
+    "description": "The responsible party states the current options or confirms the permitted terms; acceptance and execution remain separate."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "get_options",
+      "action": "Email the Specialist returns scheduler with Lorin's new access, a step and an 80 cm gate in place of the level entrance, and ask whether SP-037 still stands or which crew and slots now fit, booking nothing new until Lorin agrees.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "let SP-037 run on the old access record, and suggest Lorin move the cabinet to the gate.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "get_options",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "007",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. SP-037 cannot run through an 80 cm gate with a step, so it is on hold. After the works, the two-person crew can attend on 2026-03-18 or 2026-03-19, 09:00–12:00 UTC. Nothing new is booked until the customer chooses, and a booking does not prove safe collection.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Specialist returns scheduler reports: SP-037 cannot run through an 80 cm gate with a step, so it is on hold.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Specialist returns scheduler reports: After the works, the two-person crew can attend on 2026-03-18 or 2026-03-19, 09:00–12:00 UTC.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Specialist returns scheduler reports: Nothing new is booked until the customer chooses, and a booking does not prove safe collection.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "scheduler",
+     "responsible_actor": "scheduler",
+     "purpose": "Email the Specialist returns scheduler with Lorin's new access, a step and an 80 cm gate in place of the level entrance, and ask whether SP-037 still stands or which crew and slots now fit, booking nothing new until Lorin agrees.",
+     "expected_response": "The responsible party states the current options or confirms the permitted terms; acceptance and execution remain separate.",
+     "status": "answered",
+     "response": "SP-037 cannot run through an 80 cm gate with a step, so it is on hold. After the works, the two-person crew can attend on 2026-03-18 or 2026-03-19, 09:00–12:00 UTC. Nothing new is booked until the customer chooses, and a booking does not prove safe collection.",
+     "evidence_event_ids": [
+      "005",
+      "006",
+      "007"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "006",
+      "007"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "SP-037 cannot run through an 80 cm gate with a step, so it is on hold. After the works, the two-person crew can attend on 2026-03-18 or 2026-03-19, 09:00–12:00 UTC. Nothing new is booked until the customer chooses, and a booking does not prove safe collection.",
+    "confirmed_by": "scheduler",
+    "evidence_event_ids": [
+     "007"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not let SP-037 run on the old access record, and do not suggest Lorin move the cabinet to the gate."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "get_options",
+      "action": "Email the Specialist returns scheduler with Lorin's new access, a step and an 80 cm gate in place of the level entrance, and ask whether SP-037 still stands or which crew and slots now fit, booking nothing new until Lorin agrees.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "let SP-037 run on the old access record, and suggest Lorin move the cabinet to the gate.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "get_options",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

@@ -1,0 +1,214 @@
+{
+ "case_id": "040",
+ "lang": "en",
+ "title": "040 · Stopping dispatch of a cancelled order",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Order control at Tallowmere Goods. From the case card: the merchant has authorised cancellation of DL-040 while the packed item is still in its warehouse, and warehouse stop confirmation is required before dispatch can be called cancelled.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "order_control",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: pass the authorised cancellation to the warehouse and get confirmation that dispatch is physically stopped.",
+   "from_start": true,
+   "source_names": ["Iona Quill, Rivet Delivery Desk"]
+  },
+  "order_control": {
+   "name": "Order control",
+   "organization": "Tallowmere Goods",
+   "role": "merchant",
+   "responsibility": "Provide the cancellation authority and ask for the warehouse dispatch stop.",
+   "from_start": true,
+   "source_names": ["Order control, Tallowmere Goods"]
+  },
+  "warehouse": {
+   "name": "Warehouse dispatch",
+   "organization": "Tallowmere Goods",
+   "role": "warehouse",
+   "responsibility": "Physically remove DL-040 from outbound dispatch and report the resulting shipment status.",
+   "from_start": false,
+   "source_names": ["Warehouse dispatch, Tallowmere Goods"]
+  }
+ },
+ "goal": "Get the warehouse's confirmation that DL-040 has been physically removed from outbound dispatch under the authorised cancellation.",
+ "limits": [
+  "Do not treat the dispatch stop as refund approval or payment.",
+  "Do not treat the dispatch stop as completed customer communication."
+ ],
+ "intake": {
+  "summary": "Stop warehouse dispatch of DL-040: the merchant has authorised cancellation, but the packed item is still in the warehouse.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The cancellation is authorised, but the warehouse has not confirmed that dispatch is stopped.",
+  "facts": [
+   {"id": "f1", "text": "The case concerns shipment DL-040.", "source": {"type": "case_card", "id": "040"}},
+   {"id": "f2", "text": "The merchant has authorised cancellation while the packed item is still in its warehouse.", "source": {"type": "case_card", "id": "040"}},
+   {"id": "f3", "text": "Warehouse stop confirmation is required before dispatch can be called cancelled.", "source": {"type": "case_card", "id": "040"}}
+  ],
+  "success_criteria": [
+   {"id": "c1", "description": "The warehouse has confirmed that DL-040 was physically removed from outbound dispatch."},
+   {"id": "c2", "description": "The warehouse has confirmed the dispatch stop in the shipment status."}
+  ],
+  "agent_state": {"status": "ready", "waiting_for": [], "next_action": "Take in incoming information on the case."},
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "annotations": []
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Merchant email",
+   "title": "Cancellation authorised; parcel still in cage O7",
+   "explanation": "Cancellation CAN-040 is authorised, and DL-040 is packed in outbound cage O7 with no carrier handover scan, so it has not left the warehouse. Refund processing is a separate task and is not part of this case.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {"id": "f2", "text": "Cancellation CAN-040 is authorised for TG-040, at 08:45 UTC.", "source": {"type": "message", "id": "001"}},
+    {"id": "f4", "text": "DL-040 is packed in outbound cage O7 and has no carrier handover scan.", "source": {"type": "message", "id": "001"}},
+    {"id": "f5", "text": "Refund processing is a separate task.", "source": {"type": "message", "id": "001"}}
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {"status": "ready", "waiting_for": [], "next_action": "Take in Order control's request on DL-040."},
+   "blocker": "DL-040 is still in outbound cage O7; the warehouse has not confirmed a dispatch stop.",
+   "status": "context_received",
+   "next_step": null,
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Order control asks to stop DL-040",
+   "explanation": "Order control wants the warehouse to stop DL-040 before the next outbound sweep, and the physical stop is not confirmed. We hold the cancellation authority from message 001, so we can instruct warehouse dispatch directly.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {"id": "f3", "text": "The physical dispatch stop is not confirmed.", "source": {"type": "message", "id": "002"}},
+    {"id": "f6", "text": "The stop is needed before the next outbound sweep.", "source": {"type": "message", "id": "002"}}
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "order_control",
+     "to_actor": "coordinator",
+     "responsible_actor": "warehouse",
+     "purpose": "Get the warehouse to stop DL-040 before the next outbound sweep.",
+     "expected_response": "Confirmation of the physical dispatch stop.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": ["002"]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "warehouse",
+     "responsible_actor": "warehouse",
+     "purpose": "Apply CAN-040 and physically stop DL-040 in cage O7.",
+     "expected_response": "Confirmation of physical removal from outbound dispatch and the resulting shipment status.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": ["002"]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {"status": "ready", "waiting_for": [], "next_action": "Send warehouse dispatch CAN-040 and ask them to stop DL-040 in cage O7."},
+   "blocker": "The physical dispatch stop is not confirmed, and the next outbound sweep is coming.",
+   "status": "escalated",
+   "next_step": {"type": "action", "responsible_actor": "warehouse", "request_id": "r1", "description": "Stop DL-040 in cage O7 under CAN-040."},
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "Our instruction",
+   "title": "We send CAN-040 to warehouse dispatch",
+   "explanation": "We asked the warehouse to apply CAN-040, stop DL-040 in cage O7 now, and confirm physical removal from outbound dispatch and the resulting shipment status. Now we wait for their confirmation.",
+   "conversation_id": "warehouse",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "warehouse",
+     "responsible_actor": "warehouse",
+     "purpose": "Apply CAN-040 and physically stop DL-040 in cage O7.",
+     "expected_response": "Confirmation of physical removal from outbound dispatch and the resulting shipment status.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": ["002", "003"]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [{"actor_id": "warehouse", "request_id": "r1", "expected": "Confirmation of physical removal of DL-040 and its shipment status"}],
+    "next_action": "Once confirmed, record the dispatch stop and the shipment status."
+   },
+   "blocker": "The warehouse has not yet confirmed the physical dispatch stop.",
+   "status": "awaiting_confirmation",
+   "next_step": {"type": "action", "responsible_actor": "warehouse", "request_id": "r1", "description": "Wait for the warehouse to confirm physical removal and the shipment status."},
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "Confirmation",
+   "title": "Warehouse removes DL-040 from outbound dispatch",
+   "explanation": "The warehouse moved DL-040 from cage O7 into cancellation stock at 09:45 UTC; the status is dispatch stopped and no carrier handover occurred. Both criteria are met; the refund is not handled by this team and remains a separate task.",
+   "conversation_id": "warehouse",
+   "facts_upsert": [
+    {"id": "f4", "text": "At 09:45 UTC DL-040 was removed from outbound cage O7 into cancellation stock.", "source": {"type": "message", "id": "004"}},
+    {"id": "f3", "text": "Shipment status is dispatch stopped; no carrier handover occurred.", "source": {"type": "message", "id": "004"}},
+    {"id": "f7", "text": "Refund action is not performed by the warehouse dispatch team.", "source": {"type": "message", "id": "004"}}
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "order_control",
+     "to_actor": "coordinator",
+     "responsible_actor": "warehouse",
+     "responded_by": "warehouse",
+     "purpose": "Get the warehouse to stop DL-040 before the next outbound sweep.",
+     "expected_response": "Confirmation of the physical dispatch stop.",
+     "status": "completed",
+     "response": "DL-040 removed from outbound cage O7 into cancellation stock at 09:45 UTC; status dispatch stopped.",
+     "evidence_event_ids": ["002", "004"]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "warehouse",
+     "responsible_actor": "warehouse",
+     "purpose": "Apply CAN-040 and physically stop DL-040 in cage O7.",
+     "expected_response": "Confirmation of physical removal from outbound dispatch and the resulting shipment status.",
+     "status": "completed",
+     "response": "Removed from cage O7 into cancellation stock at 09:45 UTC; status dispatch stopped; no carrier handover occurred.",
+     "evidence_event_ids": ["002", "003", "004"]
+    }
+   },
+   "criteria_met": [
+    {"id": "c1", "evidence_event_ids": ["004"]},
+    {"id": "c2", "evidence_event_ids": ["004"]}
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Coordination task complete: the warehouse confirmed the physical dispatch stop of DL-040. Refund processing and customer communication are not part of this case's success criteria."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "The warehouse removed DL-040 from outbound cage O7 into cancellation stock at 09:45 UTC; shipment status is dispatch stopped, with no carrier handover.",
+    "confirmed_by": "warehouse",
+    "evidence_event_ids": ["004"],
+    "remaining_work": "Refund processing remains a separate task; the dispatch stop is not a refund approval, payment or completed customer communication."
+   },
+   "annotations_add": []
+  }
+ ]
+}

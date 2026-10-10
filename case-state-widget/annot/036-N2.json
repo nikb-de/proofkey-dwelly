@@ -1,0 +1,623 @@
+{
+ "case_id": "036-N2",
+ "lang": "en",
+ "title": "036-N2 · Booking save times out, manifest unknown",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Fesk Rowan, shipping coordinator at Orris Fold Studio. From the case card: the business shipper needs collection capacity for four labelled cartons, and collection planning controls vehicle allocation and manifest acceptance.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "sender",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get capacity for all four cartons, a collection booking and one manifest confirmed by the collection planner.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "sender": {
+   "name": "Fesk Rowan",
+   "organization": "Orris Fold Studio",
+   "role": "sender",
+   "responsibility": "Provide the carton details and require that all four cartons are collected together.",
+   "from_start": true,
+   "source_names": [
+    "Fesk Rowan, Orris Fold Studio shipping coordinator"
+   ]
+  },
+  "planner": {
+   "name": "Collection planner",
+   "organization": "Plover Arc Logistics",
+   "role": "dispatch",
+   "responsibility": "Allocate vehicle capacity, book the collection and accept the manifest for all four cartons.",
+   "from_start": false,
+   "source_names": [
+    "Collection planner, Plover Arc Logistics"
+   ]
+  }
+ },
+ "goal": "Get the collection planner to confirm a collection booking with capacity for all four OF-036 cartons together and accept them on one manifest.",
+ "limits": [
+  "Do not treat the capacity reservation as proof of collection.",
+  "Do not treat the accepted manifest as proof of collection.",
+  "Do not repeat the action or claim success before checking the saved state."
+ ],
+ "intake": {
+  "summary": "Confirm that one collection vehicle can take all four labelled OF-036 cartons together.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "No collection capacity is confirmed for the four cartons.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns OF-036.",
+    "source": {
+     "type": "case_card",
+     "id": "036"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The business shipper needs capacity for four labelled cartons.",
+    "source": {
+     "type": "case_card",
+     "id": "036"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "Collection planning controls vehicle allocation and manifest acceptance.",
+    "source": {
+     "type": "case_card",
+     "id": "036"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The collection planner has confirmed capacity for all four cartons together."
+   },
+   {
+    "id": "c2",
+    "description": "The collection planner has confirmed the collection booking."
+   },
+   {
+    "id": "c3",
+    "description": "The collection planner has accepted all four cartons on one manifest."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": null,
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/036/N2-CHANNEL_FAILURE",
+  "branch_id": "036-N2",
+  "derived_from_case": "036",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "CHANNEL_FAILURE",
+  "expected_decision": "VERIFY_FIRST",
+  "workflow_sheet": "R",
+  "branch_label": "Booking save times out, manifest unknown",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "c3a6b2a055790dafee696e3b699237d328f853d6f5b955e3d26dcc093abe3ad6",
+   "history.md": "626652b21646e3bdc3f140859f39b0df6b0cb8240967cf613f58345dd05b7f7b"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Packing list",
+   "title": "Sender shares packing list OF-036",
+   "explanation": "We now have the carton count, sizes, weights, labels and the ready time. That is what collection planning needs to allocate a vehicle.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f4",
+     "text": "Inline packing list OF-036: 4 labelled cartons, each 40 × 30 × 25 cm and 5 kg, total 20 kg.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "Carton labels: DL-036-A through DL-036-D.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f6",
+     "text": "The cartons are ready at dispatch door S1 from 10:00 UTC on 2026-03-10.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Get collection planning to confirm capacity for the four cartons."
+   },
+   "blocker": "No collection capacity is confirmed for the four cartons.",
+   "status": "context_received",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": null,
+    "description": "Request collection capacity for the four cartons from collection planning."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Fesk asks for one vehicle for all four",
+   "explanation": "The sender will not release a partial consignment, so capacity has to cover all four cartons at once. Only the collection planner can confirm that, so the next step is a request to the planner.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f7",
+     "text": "The sender cannot release a partial consignment.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "confirmation",
+     "from_actor": "sender",
+     "to_actor": "coordinator",
+     "responsible_actor": "planner",
+     "purpose": "Confirm a collection vehicle can take all four cartons together.",
+     "expected_response": "Confirmation that all four cartons fit on one collection.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "planner",
+     "responsible_actor": "planner",
+     "purpose": "Confirm capacity for all four cartons together and book their collection.",
+     "expected_response": "Collection booking with capacity for all four cartons.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask the collection planner to confirm capacity for the four cartons with their sizes and weights."
+   },
+   "blocker": "No collection capacity is confirmed; a partial collection is not acceptable to the sender.",
+   "status": "escalated",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "planner",
+    "request_id": "r1",
+    "description": "Confirm capacity for all four cartons and book the collection."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We request capacity and one manifest",
+   "explanation": "We gave the planner the carton count, sizes, weights, time and door, and asked for cartons A–D on one manifest. Now we wait for the planner's confirmation.",
+   "conversation_id": "planner",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "planner",
+     "responsible_actor": "planner",
+     "purpose": "Confirm capacity for all four OF-036 cartons (each 40 × 30 × 25 cm, 5 kg; total 20 kg) and book collection on 2026-03-10 from 10:00 UTC at dispatch door S1.",
+     "expected_response": "Collection booking with capacity for all four cartons.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    },
+    "r2": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "planner",
+     "responsible_actor": "planner",
+     "purpose": "Accept cartons A–D as one manifest.",
+     "expected_response": "Accepted manifest listing all four cartons.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "planner",
+      "request_id": "r1",
+      "expected": "Collection booking with capacity for all four cartons"
+     },
+     {
+      "actor_id": "planner",
+      "request_id": "r2",
+      "expected": "Accepted manifest for cartons A–D"
+     }
+    ],
+    "next_action": "Once the planner replies, check that capacity, booking and manifest cover all four cartons."
+   },
+   "blocker": "Capacity, booking and manifest are not yet confirmed.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "planner",
+    "request_id": "r1",
+    "description": "Wait for the planner to confirm capacity, the booking and the single manifest."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "New escalation",
+   "title": "Booking save times out, manifest unknown",
+   "explanation": "Establish the saved outcome before repeating an uncertain action. Do not repeat the action or claim success before checking the saved state.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Collection planner reports: System notice.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Collection planner reports: Saving the OF-036 booking failed at 09:35 with a timeout.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Collection planner reports: No booking or manifest number was returned.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_4",
+     "text": "Collection planner reports: The collection plan may hold a partial entry.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "planner",
+     "responsible_actor": "planner",
+     "purpose": "Email the Collection planner and ask what the collection plan shows for OF-036, including any booking and which cartons sit on any manifest, stating that no second booking will be requested until that is known.",
+     "expected_response": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    },
+    "branch_attempt": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "planner",
+     "responsible_actor": "planner",
+     "purpose": "Record the submission or operation reported as uncertain in this message, separately from downstream execution.",
+     "expected_response": "The record owner states whether this submission or operation saved.",
+     "status": "outcome_unknown",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Email the Collection planner and ask what the collection plan shows for OF-036, including any booking and which cartons sit on any manifest, stating that no second booking will be requested until that is known."
+   },
+   "blocker": "The new escalation requires a scoped response. System notice. Saving the OF-036 booking failed at 09:35 with a timeout. No booking or manifest number was returned. The collection plan may hold a partial entry.",
+   "status": "verification_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Email the Collection planner and ask what the collection plan shows for OF-036, including any booking and which cartons sit on any manifest, stating that no second booking will be requested until that is known."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "004",
+     "source_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c1",
+    "c2",
+    "c3"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "verify_first",
+      "action": "Email the Collection planner and ask what the collection plan shows for OF-036, including any booking and which cartons sit on any manifest, stating that no second booking will be requested until that is known.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "resend the booking request; a second entry can produce two vehicles or a manifest that splits A to D.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "036-N2"
+    },
+    "summary": "Establish the saved outcome before repeating an uncertain action.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Establish the saved outcome before repeating an uncertain action."
+   }
+  },
+  {
+   "event_id": "005",
+   "label": "Desk response",
+   "title": "Establish the saved outcome before repeating an uncertain action",
+   "explanation": "The desk sends the recorded response. Do not repeat the action or claim success before checking the saved state.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "planner",
+     "responsible_actor": "planner",
+     "purpose": "Email the Collection planner and ask what the collection plan shows for OF-036, including any booking and which cartons sit on any manifest, stating that no second booking will be requested until that is known.",
+     "expected_response": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "planner",
+      "request_id": "branch_request",
+      "expected": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_verification",
+   "next_step": {
+    "type": "verification",
+    "responsible_actor": "planner",
+    "request_id": "branch_request",
+    "description": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "verify_first",
+      "action": "Email the Collection planner and ask what the collection plan shows for OF-036, including any booking and which cartons sit on any manifest, stating that no second booking will be requested until that is known.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "resend the booking request; a second entry can produce two vehicles or a manifest that splits A to D.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "verify_first",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. The plan held a partial entry for OF-036 with cartons A and B only; it is removed. One booking is now saved: COL-036, 2026-03-10, 10:00–12:00 UTC, all four cartons on manifest MN-036, 20 kg. Pickup has not occurred.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Collection planner reports: The plan held a partial entry for OF-036 with cartons A and B only; it is removed.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Collection planner reports: One booking is now saved: COL-036, 2026-03-10, 10:00–12:00 UTC, all four cartons on manifest MN-036, 20 kg.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Collection planner reports: Pickup has not occurred.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "planner",
+     "responsible_actor": "planner",
+     "purpose": "Email the Collection planner and ask what the collection plan shows for OF-036, including any booking and which cartons sit on any manifest, stating that no second booking will be requested until that is known.",
+     "expected_response": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+     "status": "answered",
+     "response": "The plan held a partial entry for OF-036 with cartons A and B only; it is removed. One booking is now saved: COL-036, 2026-03-10, 10:00–12:00 UTC, all four cartons on manifest MN-036, 20 kg. Pickup has not occurred.",
+     "evidence_event_ids": [
+      "004",
+      "005",
+      "006"
+     ]
+    },
+    "branch_attempt": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "planner",
+     "responsible_actor": "planner",
+     "purpose": "Record the submission or operation reported as uncertain in this message, separately from downstream execution.",
+     "expected_response": "The record owner states whether this submission or operation saved.",
+     "status": "answered",
+     "response": "The plan held a partial entry for OF-036 with cartons A and B only; it is removed. One booking is now saved: COL-036, 2026-03-10, 10:00–12:00 UTC, all four cartons on manifest MN-036, 20 kg. Pickup has not occurred.",
+     "evidence_event_ids": [
+      "004",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "The plan held a partial entry for OF-036 with cartons A and B only; it is removed. One booking is now saved: COL-036, 2026-03-10, 10:00–12:00 UTC, all four cartons on manifest MN-036, 20 kg. Pickup has not occurred.",
+    "confirmed_by": "planner",
+    "evidence_event_ids": [
+     "006"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not resend the booking request; a second entry can produce two vehicles or a manifest that splits A to D."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "verify_first",
+      "action": "Email the Collection planner and ask what the collection plan shows for OF-036, including any booking and which cartons sit on any manifest, stating that no second booking will be requested until that is known.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "resend the booking request; a second entry can produce two vehicles or a manifest that splits A to D.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "verify_first",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

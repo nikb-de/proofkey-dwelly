@@ -1,0 +1,584 @@
+{
+ "case_id": "021-N1",
+ "lang": "en",
+ "title": "021-N1 · Recipient is not the order holder",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Lessa Vire. From the case card: a carton for DL-021 has a dented corner, and the merchant requires two customer image views before it can assess the packaging damage; the request does not determine compensation.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get the views the merchant specified from the recipient and the merchant's confirmation that they are sufficient.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Lessa Vire",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Report the dented carton and submit the requested image views.",
+   "from_start": true,
+   "source_names": [
+    "Lessa Vire, recipient"
+   ]
+  },
+  "damage_intake": {
+   "name": "Damage intake",
+   "organization": "Tallowmere Goods",
+   "role": "merchant",
+   "responsibility": "Specify the image views needed and confirm whether the evidence is sufficient for the packaging-damage assessment.",
+   "from_start": false,
+   "source_names": [
+    "Damage intake, Tallowmere Goods"
+   ]
+  }
+ },
+ "goal": "Get the two image views the merchant requires from the recipient and the merchant's confirmation that the evidence is sufficient for its packaging-damage assessment.",
+ "limits": [
+  "Do not present the submitted image views as real photographs or as proof of actual physical damage.",
+  "Do not say that receipt of the views establishes the contents condition.",
+  "Do not promise or decide compensation; the evidence request does not determine it.",
+  "Do not act on unverified authority or disclose protected details to an unverified party."
+ ],
+ "intake": {
+  "summary": "DL-021 carton has a dented corner; collect the two image views the merchant needs for its packaging-damage assessment.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The merchant cannot assess the packaging damage without two customer image views.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-021.",
+    "source": {
+     "type": "case_card",
+     "id": "021"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "A carton has a dented corner.",
+    "source": {
+     "type": "case_card",
+     "id": "021"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The merchant requires two customer image views before it can assess the packaging damage.",
+    "source": {
+     "type": "case_card",
+     "id": "021"
+    }
+   },
+   {
+    "id": "f4",
+    "text": "The image request does not determine compensation.",
+    "source": {
+     "type": "case_card",
+     "id": "021"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The recipient has submitted the two image views the merchant specified."
+   },
+   {
+    "id": "c2",
+    "description": "The merchant has confirmed receipt of both views."
+   },
+   {
+    "id": "c3",
+    "description": "The merchant has confirmed that the evidence is sufficient for its assessment."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/021/N1-SNAPSHOT_CONFLICT",
+  "branch_id": "021-N1",
+  "derived_from_case": "021",
+  "retained_public_events": [
+   "001",
+   "002"
+  ],
+  "diverges_after_event": "002",
+  "failure_mode": "SNAPSHOT_CONFLICT",
+  "expected_decision": "SEPARATE_AUTHORITY",
+  "workflow_sheet": "A",
+  "branch_label": "Recipient is not the order holder",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "7873a221b74612ae23953f6c64947fe35bdaf7e6b8391da03eaf47653d8099dd",
+   "history.md": "9687580423f923f7507cdc017813273a0fe9ca4dd26188b6c2751259ee7e1dcb"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Merchant email",
+   "title": "Damage intake specifies the two views",
+   "explanation": "The merchant named the two views, the upload channel and a safety limit on unpacking. Now we know exactly what to ask the recipient for.",
+   "conversation_id": "merchant",
+   "facts_upsert": [
+    {
+     "id": "f3",
+     "text": "For TG-021 / DL-021 the merchant needs a full carton view with the shipment marking visible and a closer view of the dented corner.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "The views must be sent through the order-linked upload channel.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f6",
+     "text": "The customer must not be asked to unpack an item they consider unsafe.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Upload a full carton view with the DL-021 marking visible and a close view of the dented corner through the order-linked upload channel.",
+     "expected_response": "The two image views.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "001"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask the recipient for the two views through the order-linked upload channel, without asking for unsafe unpacking."
+   },
+   "blocker": "The merchant does not yet have the two required views.",
+   "status": "context_received",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Upload the full carton view and the dented-corner view through the order-linked upload channel."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client question",
+   "title": "Lessa asks which views are needed",
+   "explanation": "Lessa reports the dented corner, has not opened the carton and asks what to send. We already have the merchant's list, so we can answer precisely.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "The outside corner of the recipient's carton is dented.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f7",
+     "text": "The recipient has not opened the carton.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "information",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "coordinator",
+     "purpose": "Tell the recipient which views the merchant needs for the damage assessment.",
+     "expected_response": "The list of required views.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Reply to Lessa with the two views and the order-linked upload channel; do not ask for unpacking if it is unsafe."
+   },
+   "blocker": "The merchant does not yet have the two required views.",
+   "status": "escalated",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Upload the full carton view and the dented-corner view through the order-linked upload channel."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "assessment-context",
+     "kind": "context",
+     "title": "What Lessa knew before writing",
+     "text": "Lessa asks which views \"your merchant\" needs for the damage assessment, so Lessa already knows the merchant will assess the damage. How this was learned is not recorded in the history.",
+     "before_message_id": "002",
+     "source_event_ids": [
+      "002"
+     ]
+    }
+   ]
+  },
+  {
+   "event_id": "003",
+   "label": "New escalation",
+   "title": "Recipient is not the order holder",
+   "explanation": "Use the authorised party or verified channel to establish authority. Do not act on unverified authority or disclose protected details to an unverified party.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Lessa Vire reports: One more detail.",
+     "source": {
+      "type": "message",
+      "id": "003"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Lessa Vire reports: The order was placed by my sister under her own account.",
+     "source": {
+      "type": "message",
+      "id": "003"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Lessa Vire reports: I only received the carton at my address.",
+     "source": {
+      "type": "message",
+      "id": "003"
+     }
+    },
+    {
+     "id": "branch_report_4",
+     "text": "Lessa Vire reports: I cannot open her order page, so I do not know how to reach the upload channel.",
+     "source": {
+      "type": "message",
+      "id": "003"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "damage_intake",
+     "responsible_actor": "damage_intake",
+     "purpose": "Email Damage intake, Tallowmere Goods, to ask whether the recipient may submit the two views for TG-021 or whether the order holder must upload them, and send Lessa no order details meanwhile.",
+     "expected_response": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "003"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Email Damage intake, Tallowmere Goods, to ask whether the recipient may submit the two views for TG-021 or whether the order holder must upload them, and send Lessa no order details meanwhile."
+   },
+   "blocker": "The new escalation requires a scoped response. One more detail. The order was placed by my sister under her own account. I only received the carton at my address. I cannot open her order page, so I do not know how to reach the upload channel.",
+   "status": "verification_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Email Damage intake, Tallowmere Goods, to ask whether the recipient may submit the two views for TG-021 or whether the order holder must upload them, and send Lessa no order details meanwhile."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "003",
+     "source_event_ids": [
+      "003"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c1",
+    "c2",
+    "c3"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "separate_authority",
+      "action": "Email Damage intake, Tallowmere Goods, to ask whether the recipient may submit the two views for TG-021 or whether the order holder must upload them, and send Lessa no order details meanwhile.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "invent a workaround upload route for Lessa or contact the order holder on Lessa's word without the merchant's instruction.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "021-N1"
+    },
+    "summary": "Use the authorised party or verified channel to establish authority.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Use the authorised party or verified channel to establish authority."
+   }
+  },
+  {
+   "event_id": "004",
+   "label": "Desk response",
+   "title": "Use the authorised party or verified channel to establish authority",
+   "explanation": "The desk sends the recorded response. Do not act on unverified authority or disclose protected details to an unverified party.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "damage_intake",
+     "responsible_actor": "damage_intake",
+     "purpose": "Email Damage intake, Tallowmere Goods, to ask whether the recipient may submit the two views for TG-021 or whether the order holder must upload them, and send Lessa no order details meanwhile.",
+     "expected_response": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "003",
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "damage_intake",
+      "request_id": "branch_request",
+      "expected": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_verification",
+   "next_step": {
+    "type": "verification",
+    "responsible_actor": "damage_intake",
+    "request_id": "branch_request",
+    "description": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "separate_authority",
+      "action": "Email Damage intake, Tallowmere Goods, to ask whether the recipient may submit the two views for TG-021 or whether the order holder must upload them, and send Lessa no order details meanwhile.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "invent a workaround upload route for Lessa or contact the order holder on Lessa's word without the merchant's instruction.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "separate_authority",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "005",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. For TG-021 / DL-021, only the order holder may submit the two views, through the order-linked upload channel on their account. We will contact the order holder from our own records. Do not send the recipient any order details. This settles who submits evidence and how. The packaging-damage assessment is not open and no remedy is decided.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Damage intake reports: For TG-021 / DL-021, only the order holder may submit the two views, through the order-linked upload channel on their account.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Damage intake reports: We will contact the order holder from our own records.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Damage intake reports: Do not send the recipient any order details.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_outcome_4",
+     "text": "Damage intake reports: This settles who submits evidence and how.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_outcome_5",
+     "text": "Damage intake reports: The packaging-damage assessment is not open and no remedy is decided.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "damage_intake",
+     "responsible_actor": "damage_intake",
+     "purpose": "Email Damage intake, Tallowmere Goods, to ask whether the recipient may submit the two views for TG-021 or whether the order holder must upload them, and send Lessa no order details meanwhile.",
+     "expected_response": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing.",
+     "status": "answered",
+     "response": "For TG-021 / DL-021, only the order holder may submit the two views, through the order-linked upload channel on their account. We will contact the order holder from our own records. Do not send the recipient any order details. This settles who submits evidence and how. The packaging-damage assessment is not open and no remedy is decided.",
+     "evidence_event_ids": [
+      "003",
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "For TG-021 / DL-021, only the order holder may submit the two views, through the order-linked upload channel on their account. We will contact the order holder from our own records. Do not send the recipient any order details. This settles who submits evidence and how. The packaging-damage assessment is not open and no remedy is decided.",
+    "confirmed_by": "damage_intake",
+    "evidence_event_ids": [
+     "005"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not invent a workaround upload route for Lessa or contact the order holder on Lessa's word without the merchant's instruction."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "separate_authority",
+      "action": "Email Damage intake, Tallowmere Goods, to ask whether the recipient may submit the two views for TG-021 or whether the order holder must upload them, and send Lessa no order details meanwhile.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "invent a workaround upload route for Lessa or contact the order holder on Lessa's word without the merchant's instruction.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "separate_authority",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ],
+ "source_attachments": []
+}

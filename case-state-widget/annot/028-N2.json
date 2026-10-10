@@ -1,0 +1,585 @@
+{
+ "case_id": "028-N2",
+ "lang": "en",
+ "title": "028-N2 · Morning slots full, two offered",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Riva Solt. From the case card: the correctly addressed DL-028 carton contains the wrong catalogue item, and the merchant has accepted the item report and controls exchange approval.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get the merchant's exchange approval and a collection booking for the wrong item.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Riva Solt",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Say how the wrong item should be resolved and when collection can happen.",
+   "from_start": true,
+   "source_names": [
+    "Riva Solt, recipient"
+   ]
+  },
+  "order_support": {
+   "name": "Order support",
+   "organization": "Tallowmere Goods",
+   "role": "merchant",
+   "responsibility": "Verify the item mismatch on record TG-028 and point to the team that holds exchange authority.",
+   "from_start": false,
+   "source_names": [
+    "Order support, Tallowmere Goods"
+   ]
+  },
+  "returns_desk": {
+   "name": "Returns authorisations",
+   "organization": "Tallowmere Goods",
+   "role": "returns_desk",
+   "responsibility": "Approve the exchange and book collection of the wrong item.",
+   "from_start": false,
+   "source_names": [
+    "Returns authorisations, Tallowmere Goods"
+   ]
+  }
+ },
+ "goal": "Get the merchant's approval of the item exchange and a collection booking for the wrong item.",
+ "limits": [
+  "Do not treat exchange approval or a collection booking as a completed return.",
+  "Do not say the replacement has been delivered.",
+  "Do not choose for the customer or treat a choice as a confirmed booking."
+ ],
+ "intake": {
+  "summary": "Arrange an exchange for the wrong item received in DL-028.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The carton contains the wrong item; no exchange has been approved.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-028.",
+    "source": {
+     "type": "case_card",
+     "id": "028"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The carton is correctly addressed but contains the wrong catalogue item.",
+    "source": {
+     "type": "case_card",
+     "id": "028"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The merchant has accepted the item report and controls exchange approval.",
+    "source": {
+     "type": "case_card",
+     "id": "028"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The merchant has confirmed approval of the exchange."
+   },
+   {
+    "id": "c2",
+    "description": "The merchant has confirmed a collection booking for the wrong item."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/028/N2-STALE_STATE",
+  "branch_id": "028-N2",
+  "derived_from_case": "028",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "STALE_STATE",
+  "expected_decision": "ASK_CUSTOMER",
+  "workflow_sheet": "B",
+  "branch_label": "Morning slots full, two offered",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "c32c7d6abab0d965bc6a8f8b4b1f08a592e22f6ff644d940fbfda0a6b264de3a",
+   "history.md": "e529a1e9c2f7e7820b4ab5da0325df2f2df79bd08e418c7297a4d8b426f2c695"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Merchant email",
+   "title": "Merchant confirms the item mismatch",
+   "explanation": "Order support verified that a red kitchen caddy arrived instead of the ordered blue desk organiser, at the correct address. Only the returns team can approve an exchange, and we do not yet know what the recipient wants.",
+   "conversation_id": "order_support",
+   "facts_upsert": [
+    {
+     "id": "f4",
+     "text": "Item-check record TG-028: the ordered item is a blue desk organiser, SKU BO-4.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "The received item, reported and verified, is a red kitchen caddy, SKU RC-2.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f6",
+     "text": "The address and DL-028 match the order.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f3",
+     "text": "Exchange authority is with the merchant's returns team.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Take in the recipient's request on how to resolve the wrong item."
+   },
+   "blocker": "The recipient received the wrong item; no exchange has been approved.",
+   "status": "context_received",
+   "next_step": null,
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Riva asks for an exchange",
+   "explanation": "Riva wants the ordered blue desk organiser and asks us to arrange an exchange, with availability on 2026-03-02 morning. Only the returns team can approve the exchange, so the next step is an authorisation request to them.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f7",
+     "text": "Riva wants the ordered blue desk organiser and asks us to arrange an exchange for the wrong item.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f8",
+     "text": "Riva can be home on 2026-03-02 morning.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "returns_desk",
+     "purpose": "Arrange an exchange of the wrong item for the ordered blue desk organiser.",
+     "expected_response": "An arranged exchange.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "permission",
+     "from_actor": "coordinator",
+     "to_actor": "returns_desk",
+     "responsible_actor": "returns_desk",
+     "purpose": "Authorise exchange TG-028 using the accepted SKU mismatch record.",
+     "expected_response": "Exchange approval.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask the returns team to authorise exchange TG-028 and pass on Riva's availability on 2026-03-02 morning."
+   },
+   "blocker": "The exchange is not approved; only the merchant's returns team can approve it.",
+   "status": "escalated",
+   "next_step": {
+    "type": "permission",
+    "responsible_actor": "returns_desk",
+    "request_id": "r1",
+    "description": "Authorise exchange TG-028."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We ask returns to authorise the exchange",
+   "explanation": "We asked the returns team to authorise exchange TG-028 on the accepted SKU mismatch record and passed on that Riva can attend collection on 2026-03-02 morning. Now we wait for their decision.",
+   "conversation_id": "returns",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "permission",
+     "from_actor": "coordinator",
+     "to_actor": "returns_desk",
+     "responsible_actor": "returns_desk",
+     "purpose": "Authorise exchange TG-028 using the accepted SKU mismatch record.",
+     "expected_response": "Exchange approval and collection arrangements for Riva's availability on 2026-03-02 morning.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "returns_desk",
+      "request_id": "r1",
+      "expected": "Exchange approval and collection arrangements"
+     }
+    ],
+    "next_action": "Once the returns team answers, record the approval and the collection booking."
+   },
+   "blocker": "The returns team has not yet approved the exchange.",
+   "status": "awaiting_response",
+   "next_step": {
+    "type": "permission",
+    "responsible_actor": "returns_desk",
+    "request_id": "r1",
+    "description": "Wait for the returns team's decision on the exchange."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "New escalation",
+   "title": "Morning slots full, two offered",
+   "explanation": "Obtain the authorised party’s precise choice or missing detail. Do not choose for the customer or treat a choice as a confirmed booking.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Returns authorisations reports: We can approve the exchange for TG-028.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Returns authorisations reports: Collection slots on 2026-03-02 morning are now full.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Returns authorisations reports: Available slots are 2026-03-02 13:00 to 17:00 UTC or 2026-03-03 09:00 to 12:00 UTC.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_4",
+     "text": "Returns authorisations reports: Please confirm which the customer wants.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "decision",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Ask Riva in the customer portal one question: does she choose the 2026-03-02 afternoon slot or the 2026-03-03 morning slot for the collection of the red caddy.",
+     "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask Riva in the customer portal one question: does she choose the 2026-03-02 afternoon slot or the 2026-03-03 morning slot for the collection of the red caddy."
+   },
+   "blocker": "The new escalation requires a scoped response. We can approve the exchange for TG-028. Collection slots on 2026-03-02 morning are now full. Available slots are 2026-03-02 13:00 to 17:00 UTC or 2026-03-03 09:00 to 12:00 UTC. Please confirm which the customer wants.",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Ask Riva in the customer portal one question: does she choose the 2026-03-02 afternoon slot or the 2026-03-03 morning slot for the collection of the red caddy."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "004",
+     "source_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c1",
+    "c2"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "ask_customer",
+      "action": "Ask Riva in the customer portal one question: does she choose the 2026-03-02 afternoon slot or the 2026-03-03 morning slot for the collection of the red caddy.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "pick the 2026-03-02 afternoon slot for her because she named that date, and tell her a morning collection is booked.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "028-N2"
+    },
+    "summary": "Obtain the authorised party’s precise choice or missing detail.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Obtain the authorised party’s precise choice or missing detail."
+   }
+  },
+  {
+   "event_id": "005",
+   "label": "Desk response",
+   "title": "Obtain the authorised party’s precise choice or missing detail",
+   "explanation": "The desk sends the recorded response. Do not choose for the customer or treat a choice as a confirmed booking.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "decision",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Ask Riva in the customer portal one question: does she choose the 2026-03-02 afternoon slot or the 2026-03-03 morning slot for the collection of the red caddy.",
+     "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "recipient",
+      "request_id": "branch_request",
+      "expected": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_decision",
+   "next_step": {
+    "type": "decision",
+    "responsible_actor": "recipient",
+    "request_id": "branch_request",
+    "description": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "ask_customer",
+      "action": "Ask Riva in the customer portal one question: does she choose the 2026-03-02 afternoon slot or the 2026-03-03 morning slot for the collection of the red caddy.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "pick the 2026-03-02 afternoon slot for her because she named that date, and tell her a morning collection is booked.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "ask_customer",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. I choose 2026-03-03, 09:00 to 12:00 UTC. I understand nothing is booked until the returns team confirms the slot.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Riva Solt reports: I choose 2026-03-03, 09:00 to 12:00 UTC.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Riva Solt reports: I understand nothing is booked until the returns team confirms the slot.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "decision",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Ask Riva in the customer portal one question: does she choose the 2026-03-02 afternoon slot or the 2026-03-03 morning slot for the collection of the red caddy.",
+     "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+     "status": "answered",
+     "response": "I choose 2026-03-03, 09:00 to 12:00 UTC. I understand nothing is booked until the returns team confirms the slot.",
+     "evidence_event_ids": [
+      "004",
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "I choose 2026-03-03, 09:00 to 12:00 UTC. I understand nothing is booked until the returns team confirms the slot.",
+    "confirmed_by": "recipient",
+    "evidence_event_ids": [
+     "006"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not pick the 2026-03-02 afternoon slot for her because she named that date, and do not tell her a morning collection is booked."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "ask_customer",
+      "action": "Ask Riva in the customer portal one question: does she choose the 2026-03-02 afternoon slot or the 2026-03-03 morning slot for the collection of the red caddy.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "pick the 2026-03-02 afternoon slot for her because she named that date, and tell her a morning collection is booked.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "ask_customer",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

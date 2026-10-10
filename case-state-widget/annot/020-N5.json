@@ -1,0 +1,729 @@
+{
+ "case_id": "020-N5",
+ "lang": "en",
+ "title": "020-N5 · Recipient stops the remaining delivery",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Eris Kael. From the case card: order TG-020 consists of three separately tracked parcels; two are received, and the third must be traced by its own identifier.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get the missing parcel traced and delivered, and the recipient's confirmation that all three parcels are received.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Eris Kael",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Report the missing carton and confirm receipt of all three cartons of TG-020.",
+   "from_start": true,
+   "source_names": [
+    "Eris Kael, recipient"
+   ]
+  },
+  "parcel_support": {
+   "name": "Parcel support",
+   "organization": "Plover Arc Logistics",
+   "role": "carrier",
+   "responsibility": "Report the separate scans of the three TG-020 parcels.",
+   "from_start": false,
+   "source_names": [
+    "Parcel support, Plover Arc Logistics"
+   ]
+  },
+  "trace_team": {
+   "name": "Parcel trace team",
+   "organization": "Plover Arc Logistics",
+   "role": "carrier",
+   "responsibility": "Trace DL-020-C and arrange its remaining delivery.",
+   "from_start": false,
+   "source_names": [
+    "Parcel trace team, Plover Arc Logistics"
+   ]
+  }
+ },
+ "goal": "Get the third parcel of TG-020 traced by its own identifier and delivered, and get the recipient's confirmation that all three parcels are received.",
+ "limits": [
+  "Close only on the three-parcel count; do not confirm product quality.",
+  "Do not confirm installation.",
+  "Do not start further actions or assume that a stop undoes an executed action."
+ ],
+ "intake": {
+  "summary": "Order TG-020: two of three separately tracked parcels are received; trace the third by its own identifier.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The third parcel of the order has not been received.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns order TG-020.",
+    "source": {
+     "type": "case_card",
+     "id": "020"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The order consists of three separately tracked parcels.",
+    "source": {
+     "type": "case_card",
+     "id": "020"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "Two parcels are received; the third must be traced by its own identifier.",
+    "source": {
+     "type": "case_card",
+     "id": "020"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The carrier has located the third parcel by its own identifier."
+   },
+   {
+    "id": "c2",
+    "description": "The recipient has confirmed receipt of the remaining parcel."
+   },
+   {
+    "id": "c3",
+    "description": "The recipient's count of received parcels matches the order: all three."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/020/N5-CUSTOMER_CANCELS",
+  "branch_id": "020-N5",
+  "derived_from_case": "020",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003",
+   "004"
+  ],
+  "diverges_after_event": "004",
+  "failure_mode": "CUSTOMER_CANCELS",
+  "expected_decision": "RECORD_STOP",
+  "workflow_sheet": "F",
+  "branch_label": "Recipient stops the remaining delivery",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "92e8d7610f5af63548b2e953d87e07c2ea0be2be0148566e9ed8b6f58575aa0d",
+   "history.md": "36e40ed4cbbd4f6138384c23d21d43d909a93325c8c5a5bad155944ecd267848"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Carrier email",
+   "title": "Parcel C has only a depot scan",
+   "explanation": "Parcel support lists the three parcels: A and B have delivery scans, C only an inbound depot scan. The order is complete only with all three, so C has to be traced by its own ID.",
+   "conversation_id": "support",
+   "facts_upsert": [
+    {
+     "id": "f4",
+     "text": "Order TG-020 has parcels DL-020-A, DL-020-B and DL-020-C.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f3",
+     "text": "DL-020-A and DL-020-B have delivery scans; DL-020-C has an inbound depot scan only.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "All three parcels are required to complete the order.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Get DL-020-C traced by its own tracking ID; the A and B scans do not complete the order."
+   },
+   "blocker": "DL-020-C has an inbound depot scan only.",
+   "status": "context_received",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": null,
+    "description": "Get DL-020-C traced by its own tracking ID."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Eris reports carton DL-020-C missing",
+   "explanation": "Eris confirms two cartons and names the missing one, matching the depot-only scan on C. We ask the carrier's trace team to locate DL-020-C specifically and arrange its delivery.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f6",
+     "text": "The recipient received two of the three cartons for TG-020; the missing carton is DL-020-C.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f7",
+     "text": "The recipient says they are available tomorrow.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "trace_team",
+     "purpose": "Locate the missing carton DL-020-C.",
+     "expected_response": "DL-020-C located and delivered.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "trace_team",
+     "responsible_actor": "trace_team",
+     "purpose": "Trace DL-020-C specifically by its own tracking ID.",
+     "expected_response": "Where DL-020-C is.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r2": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "trace_team",
+     "responsible_actor": "trace_team",
+     "purpose": "Arrange the remaining delivery of DL-020-C.",
+     "expected_response": "DL-020-C delivered to the recipient.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask the trace team to trace DL-020-C specifically and arrange its remaining delivery."
+   },
+   "blocker": "DL-020-C is missing; it has an inbound depot scan only.",
+   "status": "escalated",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "trace_team",
+    "request_id": "r1",
+    "description": "Trace DL-020-C by its own tracking ID."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We ask the trace team to find DL-020-C",
+   "explanation": "We asked for DL-020-C specifically and warned against closing TG-020 on the A and B scans alone. Now we wait for the trace result.",
+   "conversation_id": "trace",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "trace_team",
+     "responsible_actor": "trace_team",
+     "purpose": "Trace DL-020-C specifically by its own tracking ID.",
+     "expected_response": "Where DL-020-C is.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    },
+    "r2": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "trace_team",
+     "responsible_actor": "trace_team",
+     "purpose": "Arrange the remaining delivery of DL-020-C.",
+     "expected_response": "DL-020-C delivered to the recipient.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "trace_team",
+      "request_id": "r1",
+      "expected": "Location of DL-020-C"
+     },
+     {
+      "actor_id": "trace_team",
+      "request_id": "r2",
+      "expected": "Arrangement of DL-020-C's remaining delivery"
+     }
+    ],
+    "next_action": "Once the trace team replies, follow DL-020-C to delivery."
+   },
+   "blocker": "DL-020-C has not been located.",
+   "status": "awaiting_response",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "trace_team",
+    "request_id": "r1",
+    "description": "Wait for the trace result on DL-020-C."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "Trace result",
+   "title": "DL-020-C found in the oversize rack",
+   "explanation": "The trace team found C and put it on the 2026-02-22 route. Being on a route is not a delivery, so we wait for the handover scan the team promised and for the recipient's receipt.",
+   "conversation_id": "trace",
+   "facts_upsert": [
+    {
+     "id": "f8",
+     "text": "DL-020-C was in the oversize rack.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "f9",
+     "text": "DL-020-C is now on the 2026-02-22 route.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "f10",
+     "text": "The trace team will report the route handover scan for DL-020-C separately.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "trace_team",
+     "responsible_actor": "trace_team",
+     "purpose": "Trace DL-020-C specifically by its own tracking ID.",
+     "expected_response": "Where DL-020-C is.",
+     "status": "answered",
+     "response": "DL-020-C was in the oversize rack.",
+     "evidence_event_ids": [
+      "002",
+      "003",
+      "004"
+     ]
+    },
+    "r2": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "trace_team",
+     "responsible_actor": "trace_team",
+     "purpose": "Arrange the remaining delivery of DL-020-C.",
+     "expected_response": "DL-020-C delivered to the recipient.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003",
+      "004"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c1",
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "trace_team",
+      "request_id": "r2",
+      "expected": "Route handover scan for DL-020-C, reported separately"
+     }
+    ],
+    "next_action": "Once DL-020-C is delivered, get the recipient's confirmation that all three cartons are received."
+   },
+   "blocker": "DL-020-C is on the 2026-02-22 route but has not been delivered.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "trace_team",
+    "request_id": "r2",
+    "description": "Deliver DL-020-C on the 2026-02-22 route and report the route handover scan."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "005",
+   "label": "New escalation",
+   "title": "Recipient stops the remaining delivery",
+   "explanation": "Record the stop and establish what was already executed. Do not start further actions or assume that a stop undoes an executed action.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Eris Kael reports: Please stop the delivery of DL-020-C.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Eris Kael reports: I have asked the seller to cancel TG-020, and I plan to send A and B back.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "trace_team",
+     "responsible_actor": "trace_team",
+     "purpose": "Record the stop with the Parcel trace team by email, forbid any new action on DL-020-C, and ask what had already been executed, including its allocation to the 2026-02-22 route.",
+     "expected_response": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Record the stop with the Parcel trace team by email, forbid any new action on DL-020-C, and ask what had already been executed, including its allocation to the 2026-02-22 route."
+   },
+   "blocker": "The new escalation requires a scoped response. Please stop the delivery of DL-020-C. I have asked the seller to cancel TG-020, and I plan to send A and B back.",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Record the stop with the Parcel trace team by email, forbid any new action on DL-020-C, and ask what had already been executed, including its allocation to the 2026-02-22 route."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "005",
+     "source_event_ids": [
+      "005"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c2",
+    "c3"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "record_stop",
+      "action": "Record the stop with the Parcel trace team by email, forbid any new action on DL-020-C, and ask what had already been executed, including its allocation to the 2026-02-22 route.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "arrange a collection of A and B or promise a refund; the return and refund belong to the seller and the Returns desk.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "020-N5"
+    },
+    "summary": "Record the stop and establish what was already executed.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Record the stop and establish what was already executed."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Desk response",
+   "title": "Record the stop and establish what was already executed",
+   "explanation": "The desk sends the recorded response. Do not start further actions or assume that a stop undoes an executed action.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "trace_team",
+     "responsible_actor": "trace_team",
+     "purpose": "Record the stop with the Parcel trace team by email, forbid any new action on DL-020-C, and ask what had already been executed, including its allocation to the 2026-02-22 route.",
+     "expected_response": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "trace_team",
+      "request_id": "branch_request",
+      "expected": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "trace_team",
+    "request_id": "branch_request",
+    "description": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "record_stop",
+      "action": "Record the stop with the Parcel trace team by email, forbid any new action on DL-020-C, and ask what had already been executed, including its allocation to the 2026-02-22 route.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "arrange a collection of A and B or promise a refund; the return and refund belong to the seller and the Returns desk.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "record_stop",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "007",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. Stop recorded for DL-020-C at 11:30 UTC. Before it, the carton had been allocated to the 2026-02-22 route. It is now held in depot stock and will not be delivered while the stop stands. A and B remain delivered. No return or refund is established.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Parcel trace team reports: Stop recorded for DL-020-C at 11:30 UTC.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Parcel trace team reports: Before it, the carton had been allocated to the 2026-02-22 route.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Parcel trace team reports: It is now held in depot stock and will not be delivered while the stop stands.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_4",
+     "text": "Parcel trace team reports: A and B remain delivered.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_5",
+     "text": "Parcel trace team reports: No return or refund is established.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "trace_team",
+     "responsible_actor": "trace_team",
+     "purpose": "Record the stop with the Parcel trace team by email, forbid any new action on DL-020-C, and ask what had already been executed, including its allocation to the 2026-02-22 route.",
+     "expected_response": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone.",
+     "status": "completed",
+     "response": "Stop recorded for DL-020-C at 11:30 UTC. Before it, the carton had been allocated to the 2026-02-22 route. It is now held in depot stock and will not be delivered while the stop stands. A and B remain delivered. No return or refund is established.",
+     "evidence_event_ids": [
+      "005",
+      "006",
+      "007"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "006",
+      "007"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "Stop recorded for DL-020-C at 11:30 UTC. Before it, the carton had been allocated to the 2026-02-22 route. It is now held in depot stock and will not be delivered while the stop stands. A and B remain delivered. No return or refund is established.",
+    "confirmed_by": "trace_team",
+    "evidence_event_ids": [
+     "007"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not arrange a collection of A and B or promise a refund; the return and refund belong to the seller and the Returns desk."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "record_stop",
+      "action": "Record the stop with the Parcel trace team by email, forbid any new action on DL-020-C, and ask what had already been executed, including its allocation to the 2026-02-22 route.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "arrange a collection of A and B or promise a refund; the return and refund belong to the seller and the Returns desk.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "record_stop",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

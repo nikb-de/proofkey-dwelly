@@ -1,0 +1,1845 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "017-N3 · Corrected reference send status unknown",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Vela Morn. From the case card: a notification for DL-017 points to a malformed path, and support must provide the correct shipment reference without asking the customer to follow an unknown link.",
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/017/N3-CHANNEL_FAILURE",
+  "branch_id": "017-N3",
+  "derived_from_case": "017",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "CHANNEL_FAILURE",
+  "expected_decision": "VERIFY_FIRST",
+  "workflow_sheet": "R",
+  "branch_label": "Corrected reference send status unknown",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "b320112e1d8e91b14e5fc76769e538a4cdffeb4c358e0842b3b65c78dc4d1b5e",
+   "history.md": "b457d0b1c4fcfc292ed74af475db22c601006ccf5f86ad1c01c2d19aa18a3f4f"
+  }
+ },
+ "initial_state": {
+  "case_id": "017-N3",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "recipient",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: get carrier support to give the recipient the correct reference through the verified channel and get the recipient's confirmation of access."
+   },
+   "recipient": {
+    "name": "Vela Morn",
+    "organization": null,
+    "role": "recipient",
+    "is_us": false,
+    "responsibility": "Report the broken link and confirm access to the correct shipment in the order portal."
+   }
+  },
+  "goal": "Get the recipient the correct shipment reference without asking them to follow an unknown link, and have the recipient confirm access to the correct tracking page.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "Support has given the recipient the correct shipment reference without asking them to follow an unknown link.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The recipient has confirmed access to the correct shipment tracking page.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The notification points to a malformed path; the recipient has no working way to the shipment record.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-017.",
+    "source": {
+     "type": "case_card",
+     "id": "017"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "A notification points to a malformed path.",
+    "source": {
+     "type": "case_card",
+     "id": "017"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "Support must provide the correct shipment reference without asking the customer to follow an unknown link.",
+    "source": {
+     "type": "case_card",
+     "id": "017"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Do not treat tracking access as delivery.",
+   "Do not provide a live URL or credentials.",
+   "Do not repeat the action or claim success before checking the saved state."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Support email",
+    "title": "Support finds a truncated notification path",
+    "timestamp": "2026-02-18 09:00:00 UTC",
+    "actor_id": "notification_support",
+    "message_id": "001"
+   },
+   "explanation": "The link broke because the template truncated the path, while the shipment reference itself is intact. Support holds the reference and the account-linked notification, so support is the one to give the recipient the correct reference.",
+   "state_after": {
+    "case_id": "017-N3",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get carrier support to give the recipient the correct reference through the verified channel and get the recipient's confirmation of access."
+     },
+     "recipient": {
+      "name": "Vela Morn",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report the broken link and confirm access to the correct shipment in the order portal."
+     },
+     "notification_support": {
+      "name": "Notification support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Give the recipient the correct DL-017 reference and portal navigation through the verified order thread."
+     }
+    },
+    "goal": "Get the recipient the correct shipment reference without asking them to follow an unknown link, and have the recipient confirm access to the correct tracking page.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask notification support to give the recipient the correct shipment reference."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "Support has given the recipient the correct shipment reference without asking them to follow an unknown link.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The recipient has confirmed access to the correct shipment tracking page.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-18 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "017-N3"
+     },
+     "context_message_id": "001",
+     "summary": "The tracking link in the DL-017 notification does not work; the recipient needs the correct way to find the shipment.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The notification's tracking link is truncated; the recipient has no working way to the shipment record.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-017.",
+      "source": {
+       "type": "case_card",
+       "id": "017"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The DL-017 notification path was truncated by the carrier's template.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Support must provide the correct shipment reference without asking the customer to follow an unknown link.",
+      "source": {
+       "type": "case_card",
+       "id": "017"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The account-linked notification belongs to this recipient.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The shipment reference is intact in the carrier's order record.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "notification_support",
+      "responsible_actor": "notification_support",
+      "purpose": "Give the recipient the correct DL-017 shipment reference.",
+      "expected_response": "The correct reference sent to the recipient.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "001"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "notification_support",
+     "request_id": "r1",
+     "description": "Give the recipient the correct DL-017 reference."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "support": {
+      "participants": [
+       "coordinator",
+       "notification_support"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "support",
+      "event_id": "001",
+      "timestamp": "2026-02-18 09:00:00 UTC",
+      "from_actor": "notification_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-017 notification path was truncated by our template. The account-linked notification belongs to this recipient; the shipment reference itself is intact in our order record."
+     }
+    ],
+    "limits": [
+     "Do not treat tracking access as delivery.",
+     "Do not provide a live URL or credentials.",
+     "Do not repeat the action or claim success before checking the saved state."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client request",
+    "title": "Vela asks how to find the parcel",
+    "timestamp": "2026-02-18 09:10:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "002"
+   },
+   "explanation": "Vela cannot open the link and asks for the correct way to find the parcel in the order portal. We ask notification support to send the reference and portal navigation through the verified channel, not another link.",
+   "state_after": {
+    "case_id": "017-N3",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get carrier support to give the recipient the correct reference through the verified channel and get the recipient's confirmation of access."
+     },
+     "recipient": {
+      "name": "Vela Morn",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report the broken link and confirm access to the correct shipment in the order portal."
+     },
+     "notification_support": {
+      "name": "Notification support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Give the recipient the correct DL-017 reference and portal navigation through the verified order thread."
+     }
+    },
+    "goal": "Get the recipient the correct shipment reference without asking them to follow an unknown link, and have the recipient confirm access to the correct tracking page.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask notification support to send Vela the correct tracking reference and portal navigation through the verified customer channel."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "Support has given the recipient the correct shipment reference without asking them to follow an unknown link.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The recipient has confirmed access to the correct shipment tracking page.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-18 09:00:00 UTC",
+     "escalated_at": "2026-02-18 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "017-N3"
+     },
+     "context_message_id": "001",
+     "summary": "The tracking link in the DL-017 notification does not work; the recipient needs the correct way to find the shipment.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The recipient cannot open the tracking link and has no other way to the shipment yet.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-017.",
+      "source": {
+       "type": "case_card",
+       "id": "017"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The DL-017 notification path was truncated by the carrier's template.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Support must provide the correct shipment reference without asking the customer to follow an unknown link.",
+      "source": {
+       "type": "case_card",
+       "id": "017"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The account-linked notification belongs to this recipient.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The shipment reference is intact in the carrier's order record.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient reports that the tracking link in the notification does not open.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient asks for the correct way to find the parcel in the order portal.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "notification_support",
+      "responsible_actor": "notification_support",
+      "purpose": "Give the recipient the correct DL-017 shipment reference.",
+      "expected_response": "The correct reference sent to the recipient.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "001"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "notification_support",
+      "purpose": "Give the correct way to find the parcel in the order portal.",
+      "expected_response": "How to find the parcel in the order portal.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "notification_support",
+     "request_id": "r1",
+     "description": "Give the recipient the correct DL-017 reference and portal navigation."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "notification-context",
+      "kind": "context",
+      "title": "What Vela had before the message",
+      "text": "Vela refers to a tracking link in a notification. The notification itself is not recorded in the history; message 001 says the account-linked notification belongs to this recipient.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "001",
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "support": {
+      "participants": [
+       "coordinator",
+       "notification_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "support",
+      "event_id": "001",
+      "timestamp": "2026-02-18 09:00:00 UTC",
+      "from_actor": "notification_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-017 notification path was truncated by our template. The account-linked notification belongs to this recipient; the shipment reference itself is intact in our order record."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-18 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The tracking link in my notification does not open. Please give me the correct way to find this parcel in the order portal."
+     }
+    ],
+    "limits": [
+     "Do not treat tracking access as delivery.",
+     "Do not provide a live URL or credentials.",
+     "Do not repeat the action or claim success before checking the saved state."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our request",
+    "title": "We ask support for reference and navigation",
+    "timestamp": "2026-02-18 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We asked support to use the verified order thread and ruled out payment requests and requests for credentials. Now we wait for support to send Vela the reference.",
+   "state_after": {
+    "case_id": "017-N3",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get carrier support to give the recipient the correct reference through the verified channel and get the recipient's confirmation of access."
+     },
+     "recipient": {
+      "name": "Vela Morn",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report the broken link and confirm access to the correct shipment in the order portal."
+     },
+     "notification_support": {
+      "name": "Notification support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Give the recipient the correct DL-017 reference and portal navigation through the verified order thread."
+     }
+    },
+    "goal": "Get the recipient the correct shipment reference without asking them to follow an unknown link, and have the recipient confirm access to the correct tracking page.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "notification_support",
+       "request_id": "r1",
+       "expected": "Reference and portal navigation sent to Vela"
+      }
+     ],
+     "next_action": "Once support has sent it, make sure Vela can reach the correct shipment page."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "Support has given the recipient the correct shipment reference without asking them to follow an unknown link.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The recipient has confirmed access to the correct shipment tracking page.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-18 09:00:00 UTC",
+     "escalated_at": "2026-02-18 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "017-N3"
+     },
+     "context_message_id": "001",
+     "summary": "The tracking link in the DL-017 notification does not work; the recipient needs the correct way to find the shipment.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The recipient has not yet received the correct reference.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-017.",
+      "source": {
+       "type": "case_card",
+       "id": "017"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The DL-017 notification path was truncated by the carrier's template.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Support must provide the correct shipment reference without asking the customer to follow an unknown link.",
+      "source": {
+       "type": "case_card",
+       "id": "017"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The account-linked notification belongs to this recipient.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The shipment reference is intact in the carrier's order record.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient reports that the tracking link in the notification does not open.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient asks for the correct way to find the parcel in the order portal.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "notification_support",
+      "responsible_actor": "notification_support",
+      "purpose": "Send Vela the correct DL-017 tracking reference and portal navigation through the verified order thread, without a payment request or a request for credentials.",
+      "expected_response": "The reference and portal navigation sent to Vela.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "001",
+       "003"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "notification_support",
+      "purpose": "Give the correct way to find the parcel in the order portal.",
+      "expected_response": "How to find the parcel in the order portal.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_confirmation",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "notification_support",
+     "request_id": "r1",
+     "description": "Wait for support to send Vela the reference and portal navigation."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "notification-context",
+      "kind": "context",
+      "title": "What Vela had before the message",
+      "text": "Vela refers to a tracking link in a notification. The notification itself is not recorded in the history; message 001 says the account-linked notification belongs to this recipient.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "001",
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "support": {
+      "participants": [
+       "coordinator",
+       "notification_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "support",
+      "event_id": "001",
+      "timestamp": "2026-02-18 09:00:00 UTC",
+      "from_actor": "notification_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-017 notification path was truncated by our template. The account-linked notification belongs to this recipient; the shipment reference itself is intact in our order record."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-18 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The tracking link in my notification does not open. Please give me the correct way to find this parcel in the order portal."
+     },
+     {
+      "conversation_id": "support",
+      "event_id": "003",
+      "timestamp": "2026-02-18 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "notification_support",
+      "channel": "Email",
+      "body": "Please send Vela the correct DL-017 tracking reference and portal navigation through the verified order thread. Do not send a payment request or ask for credentials."
+     }
+    ],
+    "limits": [
+     "Do not treat tracking access as delivery.",
+     "Do not provide a live URL or credentials.",
+     "Do not repeat the action or claim success before checking the saved state."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "New escalation",
+    "title": "Corrected reference send status unknown",
+    "timestamp": "2026-02-18 09:45:00 UTC",
+    "actor_id": "notification_support",
+    "message_id": "004"
+   },
+   "explanation": "Establish the saved outcome before repeating an uncertain action. Do not repeat the action or claim success before checking the saved state.",
+   "state_after": {
+    "case_id": "017-N3",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get carrier support to give the recipient the correct reference through the verified channel and get the recipient's confirmation of access."
+     },
+     "recipient": {
+      "name": "Vela Morn",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report the broken link and confirm access to the correct shipment in the order portal."
+     },
+     "notification_support": {
+      "name": "Notification support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Give the recipient the correct DL-017 reference and portal navigation through the verified order thread."
+     }
+    },
+    "goal": "Establish the saved outcome before repeating an uncertain action.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask Notification support by email to check the saved message log of Vela's verified order thread for the 09:38 send before any resend."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-18 09:00:00 UTC",
+     "escalated_at": "2026-02-18 09:45:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "017-N3"
+     },
+     "context_message_id": "001",
+     "summary": "Establish the saved outcome before repeating an uncertain action.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The new escalation requires a scoped response. We sent the corrected DL-017 reference to Vela's verified order thread at 09:38 UTC. The template service timed out and the send status shows 'unknown'. We cannot confirm whether the message reached the thread.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-017.",
+      "source": {
+       "type": "case_card",
+       "id": "017"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The DL-017 notification path was truncated by the carrier's template.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Support must provide the correct shipment reference without asking the customer to follow an unknown link.",
+      "source": {
+       "type": "case_card",
+       "id": "017"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The account-linked notification belongs to this recipient.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The shipment reference is intact in the carrier's order record.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient reports that the tracking link in the notification does not open.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient asks for the correct way to find the parcel in the order portal.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Notification support reports: We sent the corrected DL-017 reference to Vela's verified order thread at 09:38 UTC.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Notification support reports: The template service timed out and the send status shows 'unknown'.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Notification support reports: We cannot confirm whether the message reached the thread.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "notification_support",
+      "responsible_actor": "notification_support",
+      "purpose": "Send Vela the correct DL-017 tracking reference and portal navigation through the verified order thread, without a payment request or a request for credentials.",
+      "expected_response": "The reference and portal navigation sent to Vela.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "001",
+       "003"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "notification_support",
+      "purpose": "Give the correct way to find the parcel in the order portal.",
+      "expected_response": "How to find the parcel in the order portal.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "notification_support",
+      "responsible_actor": "notification_support",
+      "purpose": "Ask Notification support by email to check the saved message log of Vela's verified order thread for the 09:38 send before any resend.",
+      "expected_response": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     "branch_attempt": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "notification_support",
+      "responsible_actor": "notification_support",
+      "purpose": "Record the submission or operation reported as uncertain in this message, separately from downstream execution.",
+      "expected_response": "The record owner states whether this submission or operation saved.",
+      "status": "outcome_unknown",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "verify_first",
+       "action": "Ask Notification support by email to check the saved message log of Vela's verified order thread for the 09:38 send before any resend.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "ask for an immediate resend, which could put a second, possibly truncated message in the thread, and send the reference to Vela by another channel.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "verification_required",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": "branch_request",
+     "description": "Ask Notification support by email to check the saved message log of Vela's verified order thread for the 09:38 send before any resend."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "notification-context",
+      "kind": "context",
+      "title": "What Vela had before the message",
+      "text": "Vela refers to a tracking link in a notification. The notification itself is not recorded in the history; message 001 says the account-linked notification belongs to this recipient.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "001",
+       "002"
+      ]
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "support": {
+      "participants": [
+       "coordinator",
+       "notification_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "notification_support"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "support",
+      "event_id": "001",
+      "timestamp": "2026-02-18 09:00:00 UTC",
+      "from_actor": "notification_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-017 notification path was truncated by our template. The account-linked notification belongs to this recipient; the shipment reference itself is intact in our order record."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-18 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The tracking link in my notification does not open. Please give me the correct way to find this parcel in the order portal."
+     },
+     {
+      "conversation_id": "support",
+      "event_id": "003",
+      "timestamp": "2026-02-18 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "notification_support",
+      "channel": "Email",
+      "body": "Please send Vela the correct DL-017 tracking reference and portal navigation through the verified order thread. Do not send a payment request or ask for credentials."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "004",
+      "timestamp": "2026-02-18 09:45:00 UTC",
+      "from_actor": "notification_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "We sent the corrected DL-017 reference to Vela's verified order thread at 09:38 UTC. The template service timed out and the send status shows 'unknown'. We cannot confirm whether the message reached the thread."
+     }
+    ],
+    "limits": [
+     "Do not treat tracking access as delivery.",
+     "Do not provide a live URL or credentials.",
+     "Do not repeat the action or claim success before checking the saved state."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "Support has given the recipient the correct shipment reference without asking them to follow an unknown link.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The recipient has confirmed access to the correct shipment tracking page.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "005",
+    "type": "message_sent",
+    "label": "Desk response",
+    "title": "Establish the saved outcome before repeating an uncertain action",
+    "timestamp": "2026-02-18 10:00:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "005"
+   },
+   "explanation": "The desk sends the recorded response. Do not repeat the action or claim success before checking the saved state.",
+   "state_after": {
+    "case_id": "017-N3",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get carrier support to give the recipient the correct reference through the verified channel and get the recipient's confirmation of access."
+     },
+     "recipient": {
+      "name": "Vela Morn",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report the broken link and confirm access to the correct shipment in the order portal."
+     },
+     "notification_support": {
+      "name": "Notification support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Give the recipient the correct DL-017 reference and portal navigation through the verified order thread."
+     }
+    },
+    "goal": "Establish the saved outcome before repeating an uncertain action.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "notification_support",
+       "request_id": "branch_request",
+       "expected": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed."
+      }
+     ],
+     "next_action": "Record the reply or scoped confirmation before closing this branch."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-18 09:00:00 UTC",
+     "escalated_at": "2026-02-18 09:45:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "017-N3"
+     },
+     "context_message_id": "001",
+     "summary": "Establish the saved outcome before repeating an uncertain action.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The scoped reply or confirmation has not yet been recorded.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-017.",
+      "source": {
+       "type": "case_card",
+       "id": "017"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The DL-017 notification path was truncated by the carrier's template.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Support must provide the correct shipment reference without asking the customer to follow an unknown link.",
+      "source": {
+       "type": "case_card",
+       "id": "017"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The account-linked notification belongs to this recipient.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The shipment reference is intact in the carrier's order record.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient reports that the tracking link in the notification does not open.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient asks for the correct way to find the parcel in the order portal.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Notification support reports: We sent the corrected DL-017 reference to Vela's verified order thread at 09:38 UTC.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Notification support reports: The template service timed out and the send status shows 'unknown'.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Notification support reports: We cannot confirm whether the message reached the thread.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "notification_support",
+      "responsible_actor": "notification_support",
+      "purpose": "Send Vela the correct DL-017 tracking reference and portal navigation through the verified order thread, without a payment request or a request for credentials.",
+      "expected_response": "The reference and portal navigation sent to Vela.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "001",
+       "003"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "notification_support",
+      "purpose": "Give the correct way to find the parcel in the order portal.",
+      "expected_response": "How to find the parcel in the order portal.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "notification_support",
+      "responsible_actor": "notification_support",
+      "purpose": "Ask Notification support by email to check the saved message log of Vela's verified order thread for the 09:38 send before any resend.",
+      "expected_response": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "004",
+       "005"
+      ]
+     },
+     "branch_attempt": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "notification_support",
+      "responsible_actor": "notification_support",
+      "purpose": "Record the submission or operation reported as uncertain in this message, separately from downstream execution.",
+      "expected_response": "The record owner states whether this submission or operation saved.",
+      "status": "outcome_unknown",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "verify_first",
+       "action": "Ask Notification support by email to check the saved message log of Vela's verified order thread for the 09:38 send before any resend.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "ask for an immediate resend, which could put a second, possibly truncated message in the thread, and send the reference to Vela by another channel.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "verify_first",
+     "reason": "The recorded outgoing message takes this permitted response."
+    },
+    "status": "awaiting_verification",
+    "next_step": {
+     "type": "verification",
+     "responsible_actor": "notification_support",
+     "request_id": "branch_request",
+     "description": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "notification-context",
+      "kind": "context",
+      "title": "What Vela had before the message",
+      "text": "Vela refers to a tracking link in a notification. The notification itself is not recorded in the history; message 001 says the account-linked notification belongs to this recipient.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "001",
+       "002"
+      ]
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "support": {
+      "participants": [
+       "coordinator",
+       "notification_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "notification_support"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "support",
+      "event_id": "001",
+      "timestamp": "2026-02-18 09:00:00 UTC",
+      "from_actor": "notification_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-017 notification path was truncated by our template. The account-linked notification belongs to this recipient; the shipment reference itself is intact in our order record."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-18 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The tracking link in my notification does not open. Please give me the correct way to find this parcel in the order portal."
+     },
+     {
+      "conversation_id": "support",
+      "event_id": "003",
+      "timestamp": "2026-02-18 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "notification_support",
+      "channel": "Email",
+      "body": "Please send Vela the correct DL-017 tracking reference and portal navigation through the verified order thread. Do not send a payment request or ask for credentials."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "004",
+      "timestamp": "2026-02-18 09:45:00 UTC",
+      "from_actor": "notification_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "We sent the corrected DL-017 reference to Vela's verified order thread at 09:38 UTC. The template service timed out and the send status shows 'unknown'. We cannot confirm whether the message reached the thread."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-02-18 10:00:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "notification_support",
+      "channel": "Email",
+      "body": "Please check the saved message log of Vela's verified order thread for the 09:38 UTC send of the DL-017 reference before any resend. If one complete message is there, send nothing more. If none is there, resend once. Please do not create a second message otherwise."
+     }
+    ],
+    "limits": [
+     "Do not treat tracking access as delivery.",
+     "Do not provide a live URL or credentials.",
+     "Do not repeat the action or claim success before checking the saved state."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "Support has given the recipient the correct shipment reference without asking them to follow an unknown link.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The recipient has confirmed access to the correct shipment tracking page.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "006",
+    "type": "message_received",
+    "label": "Scoped confirmation",
+    "title": "Follow-through confirms the branch outcome",
+    "timestamp": "2026-02-18 10:30:00 UTC",
+    "actor_id": "notification_support",
+    "message_id": "006"
+   },
+   "explanation": "Record what the responding party actually confirms. The message log for Vela's verified order thread shows the 09:38 UTC message delivered once, with the full DL-017 reference and portal steps. We have not resent it. This proves the reference was sent, not that the parcel is delivered.",
+   "state_after": {
+    "case_id": "017-N3",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get carrier support to give the recipient the correct reference through the verified channel and get the recipient's confirmation of access."
+     },
+     "recipient": {
+      "name": "Vela Morn",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report the broken link and confirm access to the correct shipment in the order portal."
+     },
+     "notification_support": {
+      "name": "Notification support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Give the recipient the correct DL-017 reference and portal navigation through the verified order thread."
+     }
+    },
+    "goal": "Establish the saved outcome before repeating an uncertain action.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+      "status": "met",
+      "evidence_event_ids": [
+       "005",
+       "006"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-18 09:00:00 UTC",
+     "escalated_at": "2026-02-18 09:45:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "017-N3"
+     },
+     "context_message_id": "001",
+     "summary": "Establish the saved outcome before repeating an uncertain action.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-017.",
+      "source": {
+       "type": "case_card",
+       "id": "017"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The DL-017 notification path was truncated by the carrier's template.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Support must provide the correct shipment reference without asking the customer to follow an unknown link.",
+      "source": {
+       "type": "case_card",
+       "id": "017"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The account-linked notification belongs to this recipient.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The shipment reference is intact in the carrier's order record.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient reports that the tracking link in the notification does not open.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient asks for the correct way to find the parcel in the order portal.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Notification support reports: We sent the corrected DL-017 reference to Vela's verified order thread at 09:38 UTC.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Notification support reports: The template service timed out and the send status shows 'unknown'.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Notification support reports: We cannot confirm whether the message reached the thread.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_outcome_1",
+      "text": "Notification support reports: The message log for Vela's verified order thread shows the 09:38 UTC message delivered once, with the full DL-017 reference and portal steps.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_2",
+      "text": "Notification support reports: We have not resent it.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_3",
+      "text": "Notification support reports: This proves the reference was sent, not that the parcel is delivered.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "notification_support",
+      "responsible_actor": "notification_support",
+      "purpose": "Send Vela the correct DL-017 tracking reference and portal navigation through the verified order thread, without a payment request or a request for credentials.",
+      "expected_response": "The reference and portal navigation sent to Vela.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "001",
+       "003"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "notification_support",
+      "purpose": "Give the correct way to find the parcel in the order portal.",
+      "expected_response": "How to find the parcel in the order portal.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "notification_support",
+      "responsible_actor": "notification_support",
+      "purpose": "Ask Notification support by email to check the saved message log of Vela's verified order thread for the 09:38 send before any resend.",
+      "expected_response": "The record owner confirms the saved outcome of the first attempt, including whether another action is needed.",
+      "status": "answered",
+      "response": "The message log for Vela's verified order thread shows the 09:38 UTC message delivered once, with the full DL-017 reference and portal steps. We have not resent it. This proves the reference was sent, not that the parcel is delivered.",
+      "evidence_event_ids": [
+       "004",
+       "005",
+       "006"
+      ]
+     },
+     "branch_attempt": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "notification_support",
+      "responsible_actor": "notification_support",
+      "purpose": "Record the submission or operation reported as uncertain in this message, separately from downstream execution.",
+      "expected_response": "The record owner states whether this submission or operation saved.",
+      "status": "answered",
+      "response": "The message log for Vela's verified order thread shows the 09:38 UTC message delivered once, with the full DL-017 reference and portal steps. We have not resent it. This proves the reference was sent, not that the parcel is delivered.",
+      "evidence_event_ids": [
+       "004",
+       "006"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "verify_first",
+       "action": "Ask Notification support by email to check the saved message log of Vela's verified order thread for the 09:38 send before any resend.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "ask for an immediate resend, which could put a second, possibly truncated message in the thread, and send the reference to Vela by another channel.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "verify_first",
+     "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "The message log for Vela's verified order thread shows the 09:38 UTC message delivered once, with the full DL-017 reference and portal steps. We have not resent it. This proves the reference was sent, not that the parcel is delivered.",
+     "confirmed_by": "notification_support",
+     "evidence_event_ids": [
+      "006"
+     ],
+     "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not ask for an immediate resend, which could put a second, possibly truncated message in the thread, and do not send the reference to Vela by another channel."
+    },
+    "annotations": [
+     {
+      "id": "notification-context",
+      "kind": "context",
+      "title": "What Vela had before the message",
+      "text": "Vela refers to a tracking link in a notification. The notification itself is not recorded in the history; message 001 says the account-linked notification belongs to this recipient.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "001",
+       "002"
+      ]
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "support": {
+      "participants": [
+       "coordinator",
+       "notification_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "notification_support"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "support",
+      "event_id": "001",
+      "timestamp": "2026-02-18 09:00:00 UTC",
+      "from_actor": "notification_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-017 notification path was truncated by our template. The account-linked notification belongs to this recipient; the shipment reference itself is intact in our order record."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-18 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The tracking link in my notification does not open. Please give me the correct way to find this parcel in the order portal."
+     },
+     {
+      "conversation_id": "support",
+      "event_id": "003",
+      "timestamp": "2026-02-18 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "notification_support",
+      "channel": "Email",
+      "body": "Please send Vela the correct DL-017 tracking reference and portal navigation through the verified order thread. Do not send a payment request or ask for credentials."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "004",
+      "timestamp": "2026-02-18 09:45:00 UTC",
+      "from_actor": "notification_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "We sent the corrected DL-017 reference to Vela's verified order thread at 09:38 UTC. The template service timed out and the send status shows 'unknown'. We cannot confirm whether the message reached the thread."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-02-18 10:00:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "notification_support",
+      "channel": "Email",
+      "body": "Please check the saved message log of Vela's verified order thread for the 09:38 UTC send of the DL-017 reference before any resend. If one complete message is there, send nothing more. If none is there, resend once. Please do not create a second message otherwise."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "006",
+      "timestamp": "2026-02-18 10:30:00 UTC",
+      "from_actor": "notification_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "The message log for Vela's verified order thread shows the 09:38 UTC message delivered once, with the full DL-017 reference and portal steps. We have not resent it. This proves the reference was sent, not that the parcel is delivered."
+     }
+    ],
+    "limits": [
+     "Do not treat tracking access as delivery.",
+     "Do not provide a live URL or credentials.",
+     "Do not repeat the action or claim success before checking the saved state."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "Support has given the recipient the correct shipment reference without asking them to follow an unknown link.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The recipient has confirmed access to the correct shipment tracking page.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  }
+ ]
+}

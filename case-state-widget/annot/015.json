@@ -1,0 +1,392 @@
+{
+ "case_id": "015",
+ "lang": "en",
+ "title": "015 · Parcel at the wrong local depot",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Kiva Rell. From the case card: routing acknowledges that DL-015's label was sorted to the wrong local depot, and only the receiving depot can confirm that the transfer is physically complete.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get DL-015 transferred to the correct depot and obtain that depot's receipt scan.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Kiva Rell",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Ask for the parcel to reach the correct local depot before delivery is arranged.",
+   "from_start": true,
+   "source_names": [
+    "Kiva Rell, recipient"
+   ]
+  },
+  "routing": {
+   "name": "Routing control",
+   "organization": "Plover Arc Logistics",
+   "role": "carrier",
+   "responsibility": "Correct the routing error and transfer DL-015 to the depot that serves the destination.",
+   "from_start": false,
+   "source_names": [
+    "Routing control, Plover Arc Logistics"
+   ]
+  },
+  "depot": {
+   "name": "East Copperfin depot",
+   "organization": "Plover Arc Logistics",
+   "role": "depot",
+   "responsibility": "Confirm the physical receipt of DL-015 with a receipt scan.",
+   "from_start": false,
+   "source_names": [
+    "East Copperfin depot, Plover Arc Logistics"
+   ]
+  }
+ },
+ "goal": "Get DL-015 moved to the correct local depot and obtain that depot's confirmation of physical receipt by scan.",
+ "limits": [
+  "Do not treat receipt at the correct depot as proof of last-mile delivery."
+ ],
+ "intake": {
+  "summary": "DL-015 was sorted to the wrong local depot and has to be transferred to the correct one.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "DL-015 is at the wrong local depot.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-015.",
+    "source": {
+     "type": "case_card",
+     "id": "015"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "Routing acknowledges the label was sorted to the wrong local depot.",
+    "source": {
+     "type": "case_card",
+     "id": "015"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "Only the receiving depot can confirm the transfer's physical completion.",
+    "source": {
+     "type": "case_card",
+     "id": "015"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The correct local depot has confirmed physical receipt of DL-015 by scan."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "annotations": []
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Routing email",
+   "title": "Routing confirms the wrong-depot error",
+   "explanation": "Routing control names the wrong depot and the depot that serves the destination, and confirms the error. The parcel has to be transferred to East Copperfin, so routing control is the one to ask.",
+   "conversation_id": "routing",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "Routing control confirmed the routing error.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f4",
+     "text": "DL-015 is at North Sedgeglass depot.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "The destination is Merrow Quay, served by East Copperfin depot.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f6",
+     "text": "No delivery attempt is scheduled.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "routing",
+     "responsible_actor": "routing",
+     "purpose": "Transfer DL-015 from North Sedgeglass to East Copperfin depot.",
+     "expected_response": "The transfer, confirmed by East Copperfin's physical receipt.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "001"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask routing control to transfer DL-015 to East Copperfin depot."
+   },
+   "blocker": "DL-015 is at North Sedgeglass instead of East Copperfin depot.",
+   "status": "context_received",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "routing",
+    "request_id": "r1",
+    "description": "Transfer DL-015 to East Copperfin depot."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Kiva asks for the local depot first",
+   "explanation": "Kiva wants the parcel at the local depot before delivery is arranged, which matches what routing control confirmed. We ask routing control for the transfer and do not arrange delivery yet.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f7",
+     "text": "The recipient asks for the parcel to be brought to the local depot before delivery is arranged.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "routing",
+     "purpose": "Get the parcel to the local depot before arranging delivery.",
+     "expected_response": "The parcel at the local depot.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask routing control to transfer DL-015 from North Sedgeglass to East Copperfin."
+   },
+   "blocker": "DL-015 is at North Sedgeglass instead of East Copperfin depot.",
+   "status": "escalated",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "routing",
+    "request_id": "r1",
+    "description": "Transfer DL-015 to East Copperfin depot."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "tracker-context",
+     "kind": "context",
+     "title": "What Kiva saw before asking",
+     "text": "Kiva says the tracker shows a depot in the wrong area. When that tracker status appeared is not recorded in the history.",
+     "before_message_id": "002",
+     "source_event_ids": [
+      "002"
+     ]
+    }
+   ]
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We ask routing to transfer DL-015",
+   "explanation": "We asked for the transfer and for the destination receipt scan, because a planned linehaul entry does not show the parcel has arrived. Now we wait for that scan.",
+   "conversation_id": "routing",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "routing",
+     "responsible_actor": "routing",
+     "purpose": "Transfer DL-015 from North Sedgeglass to East Copperfin and send the destination receipt scan, not just a planned linehaul entry.",
+     "expected_response": "The destination receipt scan from East Copperfin.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "001",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "routing",
+      "request_id": "r1",
+      "expected": "Transfer to East Copperfin and the destination receipt scan"
+     }
+    ],
+    "next_action": "Once the receipt scan arrives, record DL-015 as received at East Copperfin."
+   },
+   "blocker": "The transfer to East Copperfin is not yet confirmed by a receipt scan.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "routing",
+    "request_id": "r1",
+    "description": "Wait for the transfer and the destination receipt scan."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "Depot scan",
+   "title": "East Copperfin confirms receipt by scan",
+   "explanation": "The confirmation came from the receiving depot itself, with a physical receipt scan, which is what the task required. The parcel now awaits route allocation; delivery is not part of this task.",
+   "conversation_id": "depot",
+   "facts_upsert": [
+    {
+     "id": "f4",
+     "text": "DL-015 was physically received and scanned at East Copperfin depot at 13:40 UTC on 2026-02-17.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "f8",
+     "text": "DL-015 is in inbound cage E-04, awaiting route allocation.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "routing",
+     "purpose": "Get the parcel to the local depot before arranging delivery.",
+     "expected_response": "The parcel at the local depot.",
+     "status": "completed",
+     "response": "DL-015 was received at East Copperfin depot and awaits route allocation.",
+     "responded_by": "depot",
+     "evidence_event_ids": [
+      "002",
+      "004"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "routing",
+     "responsible_actor": "routing",
+     "purpose": "Transfer DL-015 from North Sedgeglass to East Copperfin and send the destination receipt scan, not just a planned linehaul entry.",
+     "expected_response": "The destination receipt scan from East Copperfin.",
+     "status": "completed",
+     "response": "Physically received and scanned at East Copperfin at 13:40 UTC on 2026-02-17; in inbound cage E-04.",
+     "responded_by": "depot",
+     "evidence_event_ids": [
+      "001",
+      "003",
+      "004"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c1",
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Coordination task complete: the correct depot confirmed physical receipt by scan. Delivery is not part of this case's success criteria."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "DL-015 was physically received and scanned at East Copperfin depot at 13:40 UTC on 2026-02-17 and is in inbound cage E-04.",
+    "confirmed_by": "depot",
+    "evidence_event_ids": [
+     "004"
+    ],
+    "remaining_work": "Route allocation and last-mile delivery; receipt at the correct depot does not prove delivery."
+   },
+   "annotations_add": [
+    {
+     "id": "missing-routing-reply",
+     "kind": "gap",
+     "title": "Between 003 and 004 · the transfer by routing control",
+     "text": "Our request to routing control (003) → transfer from North Sedgeglass → receipt scan at East Copperfin (004). East Copperfin's message shows the transfer was carried out (\"physically received and scanned here\"), but routing control's own reply, the linehaul movement and how the request for the receipt scan reached East Copperfin are not recorded.",
+     "before_message_id": "004",
+     "source_event_ids": [
+      "003",
+      "004"
+     ],
+     "implied_action": {
+      "from_actor": "routing",
+      "to_actor": "depot",
+      "type": "action",
+      "purpose": "Transfer DL-015 from North Sedgeglass to East Copperfin depot."
+     }
+    }
+   ]
+  }
+ ]
+}

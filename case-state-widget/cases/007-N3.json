@@ -1,0 +1,1811 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "007-N3 · Counter assistant leaves a shelf note",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Ciro Fale. From the case card: DL-007 is already at a pickup counter, the pickup deadline is too short for the recipient, and the operator allows a short extension that only it may approve.",
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/007/N3-UNAUTHORISED_REPLY",
+  "branch_id": "007-N3",
+  "derived_from_case": "007",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "UNAUTHORISED_REPLY",
+  "expected_decision": "SEPARATE_AUTHORITY",
+  "workflow_sheet": "A",
+  "branch_label": "Counter assistant leaves a shelf note",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "9b99a9081f93334ee6ceaed02c0dcd83a73021f28013278436ce5f7af7dcabd3",
+   "history.md": "ea219c88b8a1a9c3ccbf436724d21ad3352d0776018119b7a9f8e3ec38cdb026"
+  }
+ },
+ "initial_state": {
+  "case_id": "007-N3",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "recipient",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: request the permitted extension from the pickup-point operator and tell the recipient the confirmed deadline."
+   },
+   "recipient": {
+    "name": "Ciro Fale",
+    "organization": null,
+    "role": "recipient",
+    "is_us": false,
+    "responsibility": "Say until when the parcel needs to be kept, and collect it by the deadline."
+   }
+  },
+  "goal": "Get the pickup-point operator to approve an extension of the DL-007 collection deadline within its policy and notify the recipient of the confirmed deadline.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The recipient has stated until when the parcel should be kept.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The operator has approved the extension and confirmed the new collection deadline.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c3",
+    "description": "The recipient has been notified of the confirmed deadline.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The pickup deadline is too short for the recipient; no extension is approved.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-007.",
+    "source": {
+     "type": "case_card",
+     "id": "007"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The parcel is already at a pickup counter.",
+    "source": {
+     "type": "case_card",
+     "id": "007"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The operator allows a short extension; only the operator may approve it.",
+    "source": {
+     "type": "case_card",
+     "id": "007"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Do not treat the extension as proof that the customer collected the parcel.",
+   "Do not act on unverified authority or disclose protected details to an unverified party."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Counter email",
+    "title": "Counter states the hold and extension rule",
+    "timestamp": "2026-02-08 09:00:00 UTC",
+    "actor_id": "pickup_point",
+    "message_id": "001"
+   },
+   "explanation": "The counter gives the current deadline and the rule: one two-day extension, requested before expiry, if capacity permits, and there is capacity now. We take in the recipient's request before asking for the extension.",
+   "state_after": {
+    "case_id": "007-N3",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: request the permitted extension from the pickup-point operator and tell the recipient the confirmed deadline."
+     },
+     "recipient": {
+      "name": "Ciro Fale",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Say until when the parcel needs to be kept, and collect it by the deadline."
+     },
+     "pickup_point": {
+      "name": "Sedgeglass Counter supervisor",
+      "organization": "Sedgeglass Counter",
+      "role": "pickup_point",
+      "is_us": false,
+      "responsibility": "Approve the permitted extension and update the collection deadline."
+     }
+    },
+    "goal": "Get the pickup-point operator to approve an extension of the DL-007 collection deadline within its policy and notify the recipient of the confirmed deadline.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Take in the recipient's request before asking the counter for an extension."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has stated until when the parcel should be kept.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The operator has approved the extension and confirmed the new collection deadline.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The recipient has been notified of the confirmed deadline.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-08 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "007-N3"
+     },
+     "context_message_id": "001",
+     "summary": "Extend the pickup deadline for DL-007: the current deadline is too short for the recipient.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The current deadline is 2026-02-09, 18:00 UTC; no extension is approved.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-007.",
+      "source": {
+       "type": "case_card",
+       "id": "007"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The parcel is already at a pickup counter.",
+      "source": {
+       "type": "case_card",
+       "id": "007"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Local policy allows a single two-day extension if requested before expiry and stock capacity permits.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-007 is held until 2026-02-09, 18:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The counter currently has capacity.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {},
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": null,
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "pickup_point": {
+      "participants": [
+       "coordinator",
+       "pickup_point"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "pickup_point",
+      "event_id": "001",
+      "timestamp": "2026-02-08 09:00:00 UTC",
+      "from_actor": "pickup_point",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-007 is held until 2026-02-09, 18:00 UTC. Our local policy allows a single two-day extension if requested before expiry and stock capacity permits. We currently have capacity."
+     }
+    ],
+    "limits": [
+     "Do not treat the extension as proof that the customer collected the parcel.",
+     "Do not act on unverified authority or disclose protected details to an unverified party."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client request",
+    "title": "Ciro asks to keep DL-007 longer",
+    "timestamp": "2026-02-08 09:10:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "002"
+   },
+   "explanation": "Ciro needs the parcel kept until 2026-02-11 and does not want it returned. That fits the one two-day extension the counter allows, so we ask the operator to approve it before the current deadline expires.",
+   "state_after": {
+    "case_id": "007-N3",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: request the permitted extension from the pickup-point operator and tell the recipient the confirmed deadline."
+     },
+     "recipient": {
+      "name": "Ciro Fale",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Say until when the parcel needs to be kept, and collect it by the deadline."
+     },
+     "pickup_point": {
+      "name": "Sedgeglass Counter supervisor",
+      "organization": "Sedgeglass Counter",
+      "role": "pickup_point",
+      "is_us": false,
+      "responsibility": "Approve the permitted extension and update the collection deadline."
+     }
+    },
+    "goal": "Get the pickup-point operator to approve an extension of the DL-007 collection deadline within its policy and notify the recipient of the confirmed deadline.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask the counter operator to approve the permitted two-day extension of DL-007 to 2026-02-11."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has stated until when the parcel should be kept.",
+      "status": "met",
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The operator has approved the extension and confirmed the new collection deadline.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The recipient has been notified of the confirmed deadline.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-08 09:00:00 UTC",
+     "escalated_at": "2026-02-08 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "007-N3"
+     },
+     "context_message_id": "001",
+     "summary": "Extend the pickup deadline for DL-007: the current deadline is too short for the recipient.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The extension is not yet approved; the current deadline is 2026-02-09, 18:00 UTC.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-007.",
+      "source": {
+       "type": "case_card",
+       "id": "007"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The parcel is already at a pickup counter.",
+      "source": {
+       "type": "case_card",
+       "id": "007"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Local policy allows a single two-day extension if requested before expiry and stock capacity permits.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-007 is held until 2026-02-09, 18:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The counter currently has capacity.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Ciro's work trip ends on 2026-02-10.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Ciro asks to keep DL-007 until 2026-02-11 and does not want it returned.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "pickup_point",
+      "purpose": "Keep DL-007 until 2026-02-11 instead of returning it.",
+      "expected_response": "A collection deadline extended to 2026-02-11.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "pickup_point",
+      "responsible_actor": "pickup_point",
+      "purpose": "Approve the permitted two-day extension of DL-007 to 2026-02-11.",
+      "expected_response": "Approval and the new collection deadline.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "permission",
+     "responsible_actor": "pickup_point",
+     "request_id": "r1",
+     "description": "Approve the two-day extension of DL-007 to 2026-02-11."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "pickup_point": {
+      "participants": [
+       "coordinator",
+       "pickup_point"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "pickup_point",
+      "event_id": "001",
+      "timestamp": "2026-02-08 09:00:00 UTC",
+      "from_actor": "pickup_point",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-007 is held until 2026-02-09, 18:00 UTC. Our local policy allows a single two-day extension if requested before expiry and stock capacity permits. We currently have capacity."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-08 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "My work trip ends on 2026-02-10. Could you keep DL-007 for me until 2026-02-11? I do not want it returned."
+     }
+    ],
+    "limits": [
+     "Do not treat the extension as proof that the customer collected the parcel.",
+     "Do not act on unverified authority or disclose protected details to an unverified party."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our request",
+    "title": "We ask the counter for the extension",
+    "timestamp": "2026-02-08 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We asked for the permitted extension to 2026-02-11, 18:00 UTC, and for word once the return timer is updated. Approval is the operator's alone, so now we wait.",
+   "state_after": {
+    "case_id": "007-N3",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: request the permitted extension from the pickup-point operator and tell the recipient the confirmed deadline."
+     },
+     "recipient": {
+      "name": "Ciro Fale",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Say until when the parcel needs to be kept, and collect it by the deadline."
+     },
+     "pickup_point": {
+      "name": "Sedgeglass Counter supervisor",
+      "organization": "Sedgeglass Counter",
+      "role": "pickup_point",
+      "is_us": false,
+      "responsibility": "Approve the permitted extension and update the collection deadline."
+     }
+    },
+    "goal": "Get the pickup-point operator to approve an extension of the DL-007 collection deadline within its policy and notify the recipient of the confirmed deadline.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "pickup_point",
+       "request_id": "r1",
+       "expected": "Approval of the extension and the updated return timer"
+      }
+     ],
+     "next_action": "Once the counter confirms, notify Ciro of the new deadline."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has stated until when the parcel should be kept.",
+      "status": "met",
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The operator has approved the extension and confirmed the new collection deadline.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The recipient has been notified of the confirmed deadline.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-08 09:00:00 UTC",
+     "escalated_at": "2026-02-08 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "007-N3"
+     },
+     "context_message_id": "001",
+     "summary": "Extend the pickup deadline for DL-007: the current deadline is too short for the recipient.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The extension is not yet approved.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-007.",
+      "source": {
+       "type": "case_card",
+       "id": "007"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The parcel is already at a pickup counter.",
+      "source": {
+       "type": "case_card",
+       "id": "007"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Local policy allows a single two-day extension if requested before expiry and stock capacity permits.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-007 is held until 2026-02-09, 18:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The counter currently has capacity.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Ciro's work trip ends on 2026-02-10.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Ciro asks to keep DL-007 until 2026-02-11 and does not want it returned.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "pickup_point",
+      "purpose": "Keep DL-007 until 2026-02-11 instead of returning it.",
+      "expected_response": "A collection deadline extended to 2026-02-11.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "pickup_point",
+      "responsible_actor": "pickup_point",
+      "purpose": "Approve the permitted two-day extension of DL-007 to 2026-02-11, 18:00 UTC, and confirm once the return timer is updated.",
+      "expected_response": "Approval and confirmation that the return timer is updated.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_response",
+    "next_step": {
+     "type": "permission",
+     "responsible_actor": "pickup_point",
+     "request_id": "r1",
+     "description": "Wait for the operator to approve the extension and update the return timer."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "pickup_point": {
+      "participants": [
+       "coordinator",
+       "pickup_point"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "pickup_point",
+      "event_id": "001",
+      "timestamp": "2026-02-08 09:00:00 UTC",
+      "from_actor": "pickup_point",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-007 is held until 2026-02-09, 18:00 UTC. Our local policy allows a single two-day extension if requested before expiry and stock capacity permits. We currently have capacity."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-08 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "My work trip ends on 2026-02-10. Could you keep DL-007 for me until 2026-02-11? I do not want it returned."
+     },
+     {
+      "conversation_id": "pickup_point",
+      "event_id": "003",
+      "timestamp": "2026-02-08 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "pickup_point",
+      "channel": "Email",
+      "body": "Please approve the permitted two-day extension of DL-007 to 2026-02-11, 18:00 UTC, at Ciro’s request. Let us know once the return timer has been updated."
+     }
+    ],
+    "limits": [
+     "Do not treat the extension as proof that the customer collected the parcel.",
+     "Do not act on unverified authority or disclose protected details to an unverified party."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "New escalation",
+    "title": "Counter assistant leaves a shelf note",
+    "timestamp": "2026-02-08 10:15:00 UTC",
+    "actor_id": "branch_service",
+    "message_id": "004"
+   },
+   "explanation": "Use the authorised party or verified channel to establish authority. Do not act on unverified authority or disclose protected details to an unverified party.",
+   "state_after": {
+    "case_id": "007-N3",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: request the permitted extension from the pickup-point operator and tell the recipient the confirmed deadline."
+     },
+     "recipient": {
+      "name": "Ciro Fale",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Say until when the parcel needs to be kept, and collect it by the deadline."
+     },
+     "pickup_point": {
+      "name": "Sedgeglass Counter supervisor",
+      "organization": "Sedgeglass Counter",
+      "role": "pickup_point",
+      "is_us": false,
+      "responsibility": "Approve the permitted extension and update the collection deadline."
+     },
+     "branch_service": {
+      "name": "Counter assistant, Sedgeglass Counter",
+      "organization": null,
+      "role": "service",
+      "is_us": false,
+      "responsibility": "Report or handle the state within the scope stated in the source message; no wider authority is inferred."
+     }
+    },
+    "goal": "Use the authorised party or verified channel to establish authority.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask the Sedgeglass Counter supervisor by Email for the extension decision and timer update before 2026-02-09, 18:00 UTC, treating the shelf note as no approval."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has stated until when the parcel should be kept.",
+      "status": "met",
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-08 09:00:00 UTC",
+     "escalated_at": "2026-02-08 10:15:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "007-N3"
+     },
+     "context_message_id": "001",
+     "summary": "Use the authorised party or verified channel to establish authority.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The new escalation requires a scoped response. The supervisor is in a stock audit until tomorrow morning and is not reading email. I cannot change the return timer, but I have put a note on DL-007's shelf saying keep until 2026-02-11. That should be fine.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-007.",
+      "source": {
+       "type": "case_card",
+       "id": "007"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The parcel is already at a pickup counter.",
+      "source": {
+       "type": "case_card",
+       "id": "007"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Local policy allows a single two-day extension if requested before expiry and stock capacity permits.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-007 is held until 2026-02-09, 18:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The counter currently has capacity.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Ciro's work trip ends on 2026-02-10.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Ciro asks to keep DL-007 until 2026-02-11 and does not want it returned.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Counter assistant, Sedgeglass Counter reports: The supervisor is in a stock audit until tomorrow morning and is not reading email.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Counter assistant, Sedgeglass Counter reports: I cannot change the return timer, but I have put a note on DL-007's shelf saying keep until 2026-02-11.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Counter assistant, Sedgeglass Counter reports: That should be fine.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "pickup_point",
+      "purpose": "Keep DL-007 until 2026-02-11 instead of returning it.",
+      "expected_response": "A collection deadline extended to 2026-02-11.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "pickup_point",
+      "responsible_actor": "pickup_point",
+      "purpose": "Approve the permitted two-day extension of DL-007 to 2026-02-11, 18:00 UTC, and confirm once the return timer is updated.",
+      "expected_response": "Approval and confirmation that the return timer is updated.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "pickup_point",
+      "responsible_actor": "pickup_point",
+      "purpose": "Ask the Sedgeglass Counter supervisor by Email for the extension decision and timer update before 2026-02-09, 18:00 UTC, treating the shelf note as no approval.",
+      "expected_response": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "separate_authority",
+       "action": "Ask the Sedgeglass Counter supervisor by Email for the extension decision and timer update before 2026-02-09, 18:00 UTC, treating the shelf note as no approval.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Tell Ciro his deadline is now 2026-02-11 on the strength of the assistant's shelf note.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "verification_required",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": "branch_request",
+     "description": "Ask the Sedgeglass Counter supervisor by Email for the extension decision and timer update before 2026-02-09, 18:00 UTC, treating the shelf note as no approval."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "pickup_point": {
+      "participants": [
+       "coordinator",
+       "pickup_point"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "branch_service"
+      ],
+      "channel": "Pickup-point portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "pickup_point",
+      "event_id": "001",
+      "timestamp": "2026-02-08 09:00:00 UTC",
+      "from_actor": "pickup_point",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-007 is held until 2026-02-09, 18:00 UTC. Our local policy allows a single two-day extension if requested before expiry and stock capacity permits. We currently have capacity."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-08 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "My work trip ends on 2026-02-10. Could you keep DL-007 for me until 2026-02-11? I do not want it returned."
+     },
+     {
+      "conversation_id": "pickup_point",
+      "event_id": "003",
+      "timestamp": "2026-02-08 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "pickup_point",
+      "channel": "Email",
+      "body": "Please approve the permitted two-day extension of DL-007 to 2026-02-11, 18:00 UTC, at Ciro’s request. Let us know once the return timer has been updated."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "004",
+      "timestamp": "2026-02-08 10:15:00 UTC",
+      "from_actor": "branch_service",
+      "to_actor": "coordinator",
+      "channel": "Pickup-point portal",
+      "body": "The supervisor is in a stock audit until tomorrow morning and is not reading email. I cannot change the return timer, but I have put a note on DL-007's shelf saying keep until 2026-02-11. That should be fine."
+     }
+    ],
+    "limits": [
+     "Do not treat the extension as proof that the customer collected the parcel.",
+     "Do not act on unverified authority or disclose protected details to an unverified party."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c2",
+      "description": "The operator has approved the extension and confirmed the new collection deadline.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "The recipient has been notified of the confirmed deadline.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "005",
+    "type": "message_sent",
+    "label": "Desk response",
+    "title": "Use the authorised party or verified channel to establish authority",
+    "timestamp": "2026-02-08 10:30:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "005"
+   },
+   "explanation": "The desk sends the recorded response. Do not act on unverified authority or disclose protected details to an unverified party.",
+   "state_after": {
+    "case_id": "007-N3",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: request the permitted extension from the pickup-point operator and tell the recipient the confirmed deadline."
+     },
+     "recipient": {
+      "name": "Ciro Fale",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Say until when the parcel needs to be kept, and collect it by the deadline."
+     },
+     "pickup_point": {
+      "name": "Sedgeglass Counter supervisor",
+      "organization": "Sedgeglass Counter",
+      "role": "pickup_point",
+      "is_us": false,
+      "responsibility": "Approve the permitted extension and update the collection deadline."
+     },
+     "branch_service": {
+      "name": "Counter assistant, Sedgeglass Counter",
+      "organization": null,
+      "role": "service",
+      "is_us": false,
+      "responsibility": "Report or handle the state within the scope stated in the source message; no wider authority is inferred."
+     }
+    },
+    "goal": "Use the authorised party or verified channel to establish authority.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "pickup_point",
+       "request_id": "branch_request",
+       "expected": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing."
+      }
+     ],
+     "next_action": "Record the reply or scoped confirmation before closing this branch."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has stated until when the parcel should be kept.",
+      "status": "met",
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-08 09:00:00 UTC",
+     "escalated_at": "2026-02-08 10:15:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "007-N3"
+     },
+     "context_message_id": "001",
+     "summary": "Use the authorised party or verified channel to establish authority.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The scoped reply or confirmation has not yet been recorded.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-007.",
+      "source": {
+       "type": "case_card",
+       "id": "007"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The parcel is already at a pickup counter.",
+      "source": {
+       "type": "case_card",
+       "id": "007"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Local policy allows a single two-day extension if requested before expiry and stock capacity permits.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-007 is held until 2026-02-09, 18:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The counter currently has capacity.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Ciro's work trip ends on 2026-02-10.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Ciro asks to keep DL-007 until 2026-02-11 and does not want it returned.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Counter assistant, Sedgeglass Counter reports: The supervisor is in a stock audit until tomorrow morning and is not reading email.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Counter assistant, Sedgeglass Counter reports: I cannot change the return timer, but I have put a note on DL-007's shelf saying keep until 2026-02-11.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Counter assistant, Sedgeglass Counter reports: That should be fine.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "pickup_point",
+      "purpose": "Keep DL-007 until 2026-02-11 instead of returning it.",
+      "expected_response": "A collection deadline extended to 2026-02-11.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "pickup_point",
+      "responsible_actor": "pickup_point",
+      "purpose": "Approve the permitted two-day extension of DL-007 to 2026-02-11, 18:00 UTC, and confirm once the return timer is updated.",
+      "expected_response": "Approval and confirmation that the return timer is updated.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "pickup_point",
+      "responsible_actor": "pickup_point",
+      "purpose": "Ask the Sedgeglass Counter supervisor by Email for the extension decision and timer update before 2026-02-09, 18:00 UTC, treating the shelf note as no approval.",
+      "expected_response": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "004",
+       "005"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "separate_authority",
+       "action": "Ask the Sedgeglass Counter supervisor by Email for the extension decision and timer update before 2026-02-09, 18:00 UTC, treating the shelf note as no approval.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Tell Ciro his deadline is now 2026-02-11 on the strength of the assistant's shelf note.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "separate_authority",
+     "reason": "The recorded outgoing message takes this permitted response."
+    },
+    "status": "awaiting_verification",
+    "next_step": {
+     "type": "verification",
+     "responsible_actor": "pickup_point",
+     "request_id": "branch_request",
+     "description": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "pickup_point": {
+      "participants": [
+       "coordinator",
+       "pickup_point"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "branch_service",
+       "pickup_point"
+      ],
+      "channel": "Pickup-point portal",
+      "other_channels": [
+       "Email"
+      ]
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "pickup_point",
+      "event_id": "001",
+      "timestamp": "2026-02-08 09:00:00 UTC",
+      "from_actor": "pickup_point",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-007 is held until 2026-02-09, 18:00 UTC. Our local policy allows a single two-day extension if requested before expiry and stock capacity permits. We currently have capacity."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-08 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "My work trip ends on 2026-02-10. Could you keep DL-007 for me until 2026-02-11? I do not want it returned."
+     },
+     {
+      "conversation_id": "pickup_point",
+      "event_id": "003",
+      "timestamp": "2026-02-08 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "pickup_point",
+      "channel": "Email",
+      "body": "Please approve the permitted two-day extension of DL-007 to 2026-02-11, 18:00 UTC, at Ciro’s request. Let us know once the return timer has been updated."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "004",
+      "timestamp": "2026-02-08 10:15:00 UTC",
+      "from_actor": "branch_service",
+      "to_actor": "coordinator",
+      "channel": "Pickup-point portal",
+      "body": "The supervisor is in a stock audit until tomorrow morning and is not reading email. I cannot change the return timer, but I have put a note on DL-007's shelf saying keep until 2026-02-11. That should be fine."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-02-08 10:30:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "pickup_point",
+      "channel": "Email",
+      "body": "Your counter assistant tells us you are in a stock audit and has put a shelf note on DL-007 saying keep until 2026-02-11. We do not treat the note as approval. Please send your decision on the permitted extension to 2026-02-11, 18:00 UTC, and the timer update, before 2026-02-09, 18:00 UTC."
+     }
+    ],
+    "limits": [
+     "Do not treat the extension as proof that the customer collected the parcel.",
+     "Do not act on unverified authority or disclose protected details to an unverified party."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c2",
+      "description": "The operator has approved the extension and confirmed the new collection deadline.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "The recipient has been notified of the confirmed deadline.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "006",
+    "type": "message_received",
+    "label": "Scoped confirmation",
+    "title": "Follow-through confirms the branch outcome",
+    "timestamp": "2026-02-09 08:40:00 UTC",
+    "actor_id": "pickup_point",
+    "message_id": "006"
+   },
+   "explanation": "Record what the responding party actually confirms. Extension accepted. DL-007's return timer now uses 2026-02-11, 18:00 UTC. The shelf note did not change the timer. This is the one permitted extension, and the parcel is still awaiting collection.",
+   "state_after": {
+    "case_id": "007-N3",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: request the permitted extension from the pickup-point operator and tell the recipient the confirmed deadline."
+     },
+     "recipient": {
+      "name": "Ciro Fale",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Say until when the parcel needs to be kept, and collect it by the deadline."
+     },
+     "pickup_point": {
+      "name": "Sedgeglass Counter supervisor",
+      "organization": "Sedgeglass Counter",
+      "role": "pickup_point",
+      "is_us": false,
+      "responsibility": "Approve the permitted extension and update the collection deadline."
+     },
+     "branch_service": {
+      "name": "Counter assistant, Sedgeglass Counter",
+      "organization": null,
+      "role": "service",
+      "is_us": false,
+      "responsibility": "Report or handle the state within the scope stated in the source message; no wider authority is inferred."
+     }
+    },
+    "goal": "Use the authorised party or verified channel to establish authority.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has stated until when the parcel should be kept.",
+      "status": "met",
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing.",
+      "status": "met",
+      "evidence_event_ids": [
+       "005",
+       "006"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-08 09:00:00 UTC",
+     "escalated_at": "2026-02-08 10:15:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "007-N3"
+     },
+     "context_message_id": "001",
+     "summary": "Use the authorised party or verified channel to establish authority.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-007.",
+      "source": {
+       "type": "case_card",
+       "id": "007"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The parcel is already at a pickup counter.",
+      "source": {
+       "type": "case_card",
+       "id": "007"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Local policy allows a single two-day extension if requested before expiry and stock capacity permits.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-007 is held until 2026-02-09, 18:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The counter currently has capacity.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Ciro's work trip ends on 2026-02-10.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Ciro asks to keep DL-007 until 2026-02-11 and does not want it returned.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Counter assistant, Sedgeglass Counter reports: The supervisor is in a stock audit until tomorrow morning and is not reading email.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Counter assistant, Sedgeglass Counter reports: I cannot change the return timer, but I have put a note on DL-007's shelf saying keep until 2026-02-11.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Counter assistant, Sedgeglass Counter reports: That should be fine.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_outcome_1",
+      "text": "Sedgeglass Counter supervisor reports: Extension accepted.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_2",
+      "text": "Sedgeglass Counter supervisor reports: DL-007's return timer now uses 2026-02-11, 18:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_3",
+      "text": "Sedgeglass Counter supervisor reports: The shelf note did not change the timer.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_4",
+      "text": "Sedgeglass Counter supervisor reports: This is the one permitted extension, and the parcel is still awaiting collection.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "pickup_point",
+      "purpose": "Keep DL-007 until 2026-02-11 instead of returning it.",
+      "expected_response": "A collection deadline extended to 2026-02-11.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "pickup_point",
+      "responsible_actor": "pickup_point",
+      "purpose": "Approve the permitted two-day extension of DL-007 to 2026-02-11, 18:00 UTC, and confirm once the return timer is updated.",
+      "expected_response": "Approval and confirmation that the return timer is updated.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "pickup_point",
+      "responsible_actor": "pickup_point",
+      "purpose": "Ask the Sedgeglass Counter supervisor by Email for the extension decision and timer update before 2026-02-09, 18:00 UTC, treating the shelf note as no approval.",
+      "expected_response": "The authorised party clarifies the instruction or authority, or the unauthorised service confirms it has acted on nothing.",
+      "status": "answered",
+      "response": "Extension accepted. DL-007's return timer now uses 2026-02-11, 18:00 UTC. The shelf note did not change the timer. This is the one permitted extension, and the parcel is still awaiting collection.",
+      "evidence_event_ids": [
+       "004",
+       "005",
+       "006"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "separate_authority",
+       "action": "Ask the Sedgeglass Counter supervisor by Email for the extension decision and timer update before 2026-02-09, 18:00 UTC, treating the shelf note as no approval.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Tell Ciro his deadline is now 2026-02-11 on the strength of the assistant's shelf note.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "separate_authority",
+     "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "Extension accepted. DL-007's return timer now uses 2026-02-11, 18:00 UTC. The shelf note did not change the timer. This is the one permitted extension, and the parcel is still awaiting collection.",
+     "confirmed_by": "pickup_point",
+     "evidence_event_ids": [
+      "006"
+     ],
+     "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Tell Ciro his deadline is now 2026-02-11 on the strength of the assistant's shelf note."
+    },
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "pickup_point": {
+      "participants": [
+       "coordinator",
+       "pickup_point"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "branch_service",
+       "pickup_point"
+      ],
+      "channel": "Pickup-point portal",
+      "other_channels": [
+       "Email"
+      ]
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "pickup_point",
+      "event_id": "001",
+      "timestamp": "2026-02-08 09:00:00 UTC",
+      "from_actor": "pickup_point",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-007 is held until 2026-02-09, 18:00 UTC. Our local policy allows a single two-day extension if requested before expiry and stock capacity permits. We currently have capacity."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-08 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "My work trip ends on 2026-02-10. Could you keep DL-007 for me until 2026-02-11? I do not want it returned."
+     },
+     {
+      "conversation_id": "pickup_point",
+      "event_id": "003",
+      "timestamp": "2026-02-08 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "pickup_point",
+      "channel": "Email",
+      "body": "Please approve the permitted two-day extension of DL-007 to 2026-02-11, 18:00 UTC, at Ciro’s request. Let us know once the return timer has been updated."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "004",
+      "timestamp": "2026-02-08 10:15:00 UTC",
+      "from_actor": "branch_service",
+      "to_actor": "coordinator",
+      "channel": "Pickup-point portal",
+      "body": "The supervisor is in a stock audit until tomorrow morning and is not reading email. I cannot change the return timer, but I have put a note on DL-007's shelf saying keep until 2026-02-11. That should be fine."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-02-08 10:30:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "pickup_point",
+      "channel": "Email",
+      "body": "Your counter assistant tells us you are in a stock audit and has put a shelf note on DL-007 saying keep until 2026-02-11. We do not treat the note as approval. Please send your decision on the permitted extension to 2026-02-11, 18:00 UTC, and the timer update, before 2026-02-09, 18:00 UTC."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "006",
+      "timestamp": "2026-02-09 08:40:00 UTC",
+      "from_actor": "pickup_point",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Extension accepted. DL-007's return timer now uses 2026-02-11, 18:00 UTC. The shelf note did not change the timer. This is the one permitted extension, and the parcel is still awaiting collection."
+     }
+    ],
+    "limits": [
+     "Do not treat the extension as proof that the customer collected the parcel.",
+     "Do not act on unverified authority or disclose protected details to an unverified party."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c2",
+      "description": "The operator has approved the extension and confirmed the new collection deadline.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "The recipient has been notified of the confirmed deadline.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  }
+ ]
+}

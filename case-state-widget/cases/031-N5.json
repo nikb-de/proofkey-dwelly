@@ -1,0 +1,1746 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "031-N5 · Customer withdraws before the label arrives",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is the customer, Kessa Ulm. From the case card: the merchant approved a return for DL-031 but has not issued its printable label; the label in this case is a synthetic facsimile for the exercise, not for actual shipping.",
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/031/N5-CUSTOMER_CANCELS",
+  "branch_id": "031-N5",
+  "derived_from_case": "031",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "CUSTOMER_CANCELS",
+  "expected_decision": "RECORD_STOP",
+  "workflow_sheet": "F",
+  "branch_label": "Customer withdraws before the label arrives",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "7b8f526d4f60cdadfed80026d7e7b5ecd29d0d41faa0e46c0ddde88ce52095eb",
+   "history.md": "a2bb9b78dc36c0dcecb160867208f9fe3c7d289edb40115806f48e0d021943a8"
+  }
+ },
+ "initial_state": {
+  "case_id": "031-N5",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "customer",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: get the missing return label issued and the customer's confirmation that it is usable and matches the approved return."
+   },
+   "customer": {
+    "name": "Kessa Ulm",
+    "organization": null,
+    "role": "customer",
+    "is_us": false,
+    "responsibility": "Ask for the missing return label and check that it opens, prints and matches the approved return."
+   }
+  },
+  "goal": "Get the merchant's label team to issue the missing return label and the customer's confirmation that it is usable and matches the approved return.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The merchant has issued the return label.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The customer has confirmed that the label is usable.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c3",
+    "description": "The customer has confirmed that the label matches the approved return.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The approved return has no printable label.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-031.",
+    "source": {
+     "type": "case_card",
+     "id": "031"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The merchant approved a return but has not issued its printable label.",
+    "source": {
+     "type": "case_card",
+     "id": "031"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The label in this case is a synthetic facsimile for exercise completeness, not for actual shipping.",
+    "source": {
+     "type": "case_card",
+     "id": "031"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Do not treat label issuance as return collection, warehouse receipt or refund.",
+   "Do not start further actions or assume that a stop undoes an executed action."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Merchant email",
+    "title": "Returns support reports an empty label field",
+    "timestamp": "2026-03-04 09:00:00 UTC",
+    "actor_id": "returns_support",
+    "message_id": "001"
+   },
+   "explanation": "Return RT-031 is approved, but its label field is empty, and only the authorised label team can issue the label against RT-031. Until then the customer cannot prepare the return.",
+   "state_after": {
+    "case_id": "031-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the missing return label issued and the customer's confirmation that it is usable and matches the approved return."
+     },
+     "customer": {
+      "name": "Kessa Ulm",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Ask for the missing return label and check that it opens, prints and matches the approved return."
+     },
+     "returns_support": {
+      "name": "Returns support",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Confirm the approved return RT-031 and report that its label field is empty."
+     }
+    },
+    "goal": "Get the merchant's label team to issue the missing return label and the customer's confirmation that it is usable and matches the approved return.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Take in the customer's request about the return label."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The merchant has issued the return label.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The customer has confirmed that the label is usable.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The customer has confirmed that the label matches the approved return.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-04 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "031-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Obtain the missing return label for the approved return on DL-031.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The label field for RT-031 is empty.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-031.",
+      "source": {
+       "type": "case_card",
+       "id": "031"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Return RT-031 for TG-031 / DL-031 is approved; the label field is empty.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The label in this case is a synthetic facsimile for exercise completeness, not for actual shipping.",
+      "source": {
+       "type": "case_card",
+       "id": "031"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The merchant's authorised label team needs to issue the label against RT-031 before the customer can prepare the return.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {},
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": null,
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "returns_support": {
+      "participants": [
+       "coordinator",
+       "returns_support"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "returns_support",
+      "event_id": "001",
+      "timestamp": "2026-03-04 09:00:00 UTC",
+      "from_actor": "returns_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Return RT-031 for TG-031 / DL-031 is approved. The label field is empty. Our authorised label team needs to issue the label against RT-031 before the customer can prepare the return."
+     }
+    ],
+    "limits": [
+     "Do not treat label issuance as return collection, warehouse receipt or refund.",
+     "Do not start further actions or assume that a stop undoes an executed action."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client request",
+    "title": "Kessa asks for the return label",
+    "timestamp": "2026-03-04 09:10:00 UTC",
+    "actor_id": "customer",
+    "message_id": "002"
+   },
+   "explanation": "Kessa has nothing to print and asks us to obtain the label. Only the label team can issue it against RT-031, so we ask them.",
+   "state_after": {
+    "case_id": "031-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the missing return label issued and the customer's confirmation that it is usable and matches the approved return."
+     },
+     "customer": {
+      "name": "Kessa Ulm",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Ask for the missing return label and check that it opens, prints and matches the approved return."
+     },
+     "returns_support": {
+      "name": "Returns support",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Confirm the approved return RT-031 and report that its label field is empty."
+     },
+     "label_team": {
+      "name": "Return label team",
+      "organization": "Tallowmere Goods",
+      "role": "returns_desk",
+      "is_us": false,
+      "responsibility": "Issue the printable return label against RT-031."
+     }
+    },
+    "goal": "Get the merchant's label team to issue the missing return label and the customer's confirmation that it is usable and matches the approved return.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask the label team to issue the printable return label for RT-031, matching TG-031 and DL-031."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The merchant has issued the return label.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The customer has confirmed that the label is usable.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The customer has confirmed that the label matches the approved return.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-04 09:00:00 UTC",
+     "escalated_at": "2026-03-04 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "031-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Obtain the missing return label for the approved return on DL-031.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "No printable label has been issued for RT-031.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-031.",
+      "source": {
+       "type": "case_card",
+       "id": "031"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Return RT-031 for TG-031 / DL-031 is approved; the label field is empty.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The label in this case is a synthetic facsimile for exercise completeness, not for actual shipping.",
+      "source": {
+       "type": "case_card",
+       "id": "031"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The merchant's authorised label team needs to issue the label against RT-031 before the customer can prepare the return.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Kessa reports there is nothing to print in the order.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "label_team",
+      "purpose": "Obtain Kessa's return label.",
+      "expected_response": "A printable return label.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "label_team",
+      "responsible_actor": "label_team",
+      "purpose": "Issue the missing printable return label for RT-031, matching TG-031 and original shipment DL-031.",
+      "expected_response": "A printable label for RT-031.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "label_team",
+     "request_id": "r1",
+     "description": "Issue the printable return label for RT-031."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "returns_support": {
+      "participants": [
+       "coordinator",
+       "returns_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "returns_support",
+      "event_id": "001",
+      "timestamp": "2026-03-04 09:00:00 UTC",
+      "from_actor": "returns_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Return RT-031 for TG-031 / DL-031 is approved. The label field is empty. Our authorised label team needs to issue the label against RT-031 before the customer can prepare the return."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-04 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The return is approved but there is nothing to print in my order. Please obtain my return label."
+     }
+    ],
+    "limits": [
+     "Do not treat label issuance as return collection, warehouse receipt or refund.",
+     "Do not start further actions or assume that a stop undoes an executed action."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our request",
+    "title": "We ask the label team for the label",
+    "timestamp": "2026-03-04 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We asked for a printable label for RT-031 with the matching order and shipment references, sent in the verified returns thread. Now we wait for the label team.",
+   "state_after": {
+    "case_id": "031-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the missing return label issued and the customer's confirmation that it is usable and matches the approved return."
+     },
+     "customer": {
+      "name": "Kessa Ulm",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Ask for the missing return label and check that it opens, prints and matches the approved return."
+     },
+     "returns_support": {
+      "name": "Returns support",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Confirm the approved return RT-031 and report that its label field is empty."
+     },
+     "label_team": {
+      "name": "Return label team",
+      "organization": "Tallowmere Goods",
+      "role": "returns_desk",
+      "is_us": false,
+      "responsibility": "Issue the printable return label against RT-031."
+     }
+    },
+    "goal": "Get the merchant's label team to issue the missing return label and the customer's confirmation that it is usable and matches the approved return.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "label_team",
+       "request_id": "r1",
+       "expected": "Printable return label for RT-031"
+      }
+     ],
+     "next_action": "Once the label is issued, have Kessa check that it opens, prints and matches the return."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The merchant has issued the return label.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The customer has confirmed that the label is usable.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The customer has confirmed that the label matches the approved return.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-04 09:00:00 UTC",
+     "escalated_at": "2026-03-04 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "031-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Obtain the missing return label for the approved return on DL-031.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The label team has not yet issued the label.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-031.",
+      "source": {
+       "type": "case_card",
+       "id": "031"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Return RT-031 for TG-031 / DL-031 is approved; the label field is empty.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The label in this case is a synthetic facsimile for exercise completeness, not for actual shipping.",
+      "source": {
+       "type": "case_card",
+       "id": "031"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The merchant's authorised label team needs to issue the label against RT-031 before the customer can prepare the return.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Kessa reports there is nothing to print in the order.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "label_team",
+      "purpose": "Obtain Kessa's return label.",
+      "expected_response": "A printable return label.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "label_team",
+      "responsible_actor": "label_team",
+      "purpose": "Issue the missing printable return label for RT-031, matching TG-031 and original shipment DL-031.",
+      "expected_response": "A printable label for RT-031, sent in the verified returns thread.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_confirmation",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "label_team",
+     "request_id": "r1",
+     "description": "Wait for the label team to issue the label."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "returns_support": {
+      "participants": [
+       "coordinator",
+       "returns_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     },
+     "label_team": {
+      "participants": [
+       "coordinator",
+       "label_team"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "returns_support",
+      "event_id": "001",
+      "timestamp": "2026-03-04 09:00:00 UTC",
+      "from_actor": "returns_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Return RT-031 for TG-031 / DL-031 is approved. The label field is empty. Our authorised label team needs to issue the label against RT-031 before the customer can prepare the return."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-04 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The return is approved but there is nothing to print in my order. Please obtain my return label."
+     },
+     {
+      "conversation_id": "label_team",
+      "event_id": "003",
+      "timestamp": "2026-03-04 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "label_team",
+      "channel": "Email",
+      "body": "Please issue the missing printable return label for RT-031, matching TG-031 and original shipment DL-031. Send it in the verified returns thread."
+     }
+    ],
+    "limits": [
+     "Do not treat label issuance as return collection, warehouse receipt or refund.",
+     "Do not start further actions or assume that a stop undoes an executed action."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "New escalation",
+    "title": "Customer withdraws before the label arrives",
+    "timestamp": "2026-03-04 09:40:00 UTC",
+    "actor_id": "customer",
+    "message_id": "004"
+   },
+   "explanation": "Record the stop and establish what was already executed. Do not start further actions or assume that a stop undoes an executed action.",
+   "state_after": {
+    "case_id": "031-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the missing return label issued and the customer's confirmation that it is usable and matches the approved return."
+     },
+     "customer": {
+      "name": "Kessa Ulm",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Ask for the missing return label and check that it opens, prints and matches the approved return."
+     },
+     "returns_support": {
+      "name": "Returns support",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Confirm the approved return RT-031 and report that its label field is empty."
+     },
+     "label_team": {
+      "name": "Return label team",
+      "organization": "Tallowmere Goods",
+      "role": "returns_desk",
+      "is_us": false,
+      "responsibility": "Issue the printable return label against RT-031."
+     }
+    },
+    "goal": "Record the stop and establish what was already executed.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Email the Return label team in the verified returns thread to record Kessa's stop, ask it to issue nothing further, and ask whether a label was already saved against RT-031."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-04 09:00:00 UTC",
+     "escalated_at": "2026-03-04 09:40:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "031-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Record the stop and establish what was already executed.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The new escalation requires a scoped response. I have decided to keep the item after all. Please stop the label request for RT-031. I do not need a label any more.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-031.",
+      "source": {
+       "type": "case_card",
+       "id": "031"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Return RT-031 for TG-031 / DL-031 is approved; the label field is empty.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The label in this case is a synthetic facsimile for exercise completeness, not for actual shipping.",
+      "source": {
+       "type": "case_card",
+       "id": "031"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The merchant's authorised label team needs to issue the label against RT-031 before the customer can prepare the return.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Kessa reports there is nothing to print in the order.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Kessa Ulm reports: I have decided to keep the item after all.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Kessa Ulm reports: Please stop the label request for RT-031.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Kessa Ulm reports: I do not need a label any more.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "label_team",
+      "purpose": "Obtain Kessa's return label.",
+      "expected_response": "A printable return label.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "label_team",
+      "responsible_actor": "label_team",
+      "purpose": "Issue the missing printable return label for RT-031, matching TG-031 and original shipment DL-031.",
+      "expected_response": "A printable label for RT-031, sent in the verified returns thread.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "label_team",
+      "responsible_actor": "label_team",
+      "purpose": "Email the Return label team in the verified returns thread to record Kessa's stop, ask it to issue nothing further, and ask whether a label was already saved against RT-031.",
+      "expected_response": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "record_stop",
+       "action": "Email the Return label team in the verified returns thread to record Kessa's stop, ask it to issue nothing further, and ask whether a label was already saved against RT-031.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "tell Kessa the approved return is cancelled or ask for RT-031 to be withdrawn; the stop covers the desk's label request, and the approval belongs to Returns support, Tallowmere Goods.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "action_required",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": "branch_request",
+     "description": "Email the Return label team in the verified returns thread to record Kessa's stop, ask it to issue nothing further, and ask whether a label was already saved against RT-031."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "returns_support": {
+      "participants": [
+       "coordinator",
+       "returns_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     },
+     "label_team": {
+      "participants": [
+       "coordinator",
+       "label_team"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "returns_support",
+      "event_id": "001",
+      "timestamp": "2026-03-04 09:00:00 UTC",
+      "from_actor": "returns_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Return RT-031 for TG-031 / DL-031 is approved. The label field is empty. Our authorised label team needs to issue the label against RT-031 before the customer can prepare the return."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-04 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The return is approved but there is nothing to print in my order. Please obtain my return label."
+     },
+     {
+      "conversation_id": "label_team",
+      "event_id": "003",
+      "timestamp": "2026-03-04 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "label_team",
+      "channel": "Email",
+      "body": "Please issue the missing printable return label for RT-031, matching TG-031 and original shipment DL-031. Send it in the verified returns thread."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "004",
+      "timestamp": "2026-03-04 09:40:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I have decided to keep the item after all. Please stop the label request for RT-031. I do not need a label any more."
+     }
+    ],
+    "limits": [
+     "Do not treat label issuance as return collection, warehouse receipt or refund.",
+     "Do not start further actions or assume that a stop undoes an executed action."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "The merchant has issued the return label.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The customer has confirmed that the label is usable.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "The customer has confirmed that the label matches the approved return.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "005",
+    "type": "message_sent",
+    "label": "Desk response",
+    "title": "Record the stop and establish what was already executed",
+    "timestamp": "2026-03-04 09:55:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "005"
+   },
+   "explanation": "The desk sends the recorded response. Do not start further actions or assume that a stop undoes an executed action.",
+   "state_after": {
+    "case_id": "031-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the missing return label issued and the customer's confirmation that it is usable and matches the approved return."
+     },
+     "customer": {
+      "name": "Kessa Ulm",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Ask for the missing return label and check that it opens, prints and matches the approved return."
+     },
+     "returns_support": {
+      "name": "Returns support",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Confirm the approved return RT-031 and report that its label field is empty."
+     },
+     "label_team": {
+      "name": "Return label team",
+      "organization": "Tallowmere Goods",
+      "role": "returns_desk",
+      "is_us": false,
+      "responsibility": "Issue the printable return label against RT-031."
+     }
+    },
+    "goal": "Record the stop and establish what was already executed.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "label_team",
+       "request_id": "branch_request",
+       "expected": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone."
+      }
+     ],
+     "next_action": "Record the reply or scoped confirmation before closing this branch."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-04 09:00:00 UTC",
+     "escalated_at": "2026-03-04 09:40:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "031-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Record the stop and establish what was already executed.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The scoped reply or confirmation has not yet been recorded.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-031.",
+      "source": {
+       "type": "case_card",
+       "id": "031"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Return RT-031 for TG-031 / DL-031 is approved; the label field is empty.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The label in this case is a synthetic facsimile for exercise completeness, not for actual shipping.",
+      "source": {
+       "type": "case_card",
+       "id": "031"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The merchant's authorised label team needs to issue the label against RT-031 before the customer can prepare the return.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Kessa reports there is nothing to print in the order.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Kessa Ulm reports: I have decided to keep the item after all.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Kessa Ulm reports: Please stop the label request for RT-031.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Kessa Ulm reports: I do not need a label any more.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "label_team",
+      "purpose": "Obtain Kessa's return label.",
+      "expected_response": "A printable return label.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "label_team",
+      "responsible_actor": "label_team",
+      "purpose": "Issue the missing printable return label for RT-031, matching TG-031 and original shipment DL-031.",
+      "expected_response": "A printable label for RT-031, sent in the verified returns thread.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "label_team",
+      "responsible_actor": "label_team",
+      "purpose": "Email the Return label team in the verified returns thread to record Kessa's stop, ask it to issue nothing further, and ask whether a label was already saved against RT-031.",
+      "expected_response": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "004",
+       "005"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "record_stop",
+       "action": "Email the Return label team in the verified returns thread to record Kessa's stop, ask it to issue nothing further, and ask whether a label was already saved against RT-031.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "tell Kessa the approved return is cancelled or ask for RT-031 to be withdrawn; the stop covers the desk's label request, and the approval belongs to Returns support, Tallowmere Goods.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "record_stop",
+     "reason": "The recorded outgoing message takes this permitted response."
+    },
+    "status": "awaiting_confirmation",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "label_team",
+     "request_id": "branch_request",
+     "description": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "returns_support": {
+      "participants": [
+       "coordinator",
+       "returns_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     },
+     "label_team": {
+      "participants": [
+       "coordinator",
+       "label_team"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "label_team"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "returns_support",
+      "event_id": "001",
+      "timestamp": "2026-03-04 09:00:00 UTC",
+      "from_actor": "returns_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Return RT-031 for TG-031 / DL-031 is approved. The label field is empty. Our authorised label team needs to issue the label against RT-031 before the customer can prepare the return."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-04 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The return is approved but there is nothing to print in my order. Please obtain my return label."
+     },
+     {
+      "conversation_id": "label_team",
+      "event_id": "003",
+      "timestamp": "2026-03-04 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "label_team",
+      "channel": "Email",
+      "body": "Please issue the missing printable return label for RT-031, matching TG-031 and original shipment DL-031. Send it in the verified returns thread."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "004",
+      "timestamp": "2026-03-04 09:40:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I have decided to keep the item after all. Please stop the label request for RT-031. I do not need a label any more."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-03-04 09:55:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "label_team",
+      "channel": "Email",
+      "body": "At 09:40 the customer asked us to stop our 09:25 label request for RT-031 and now plans to keep the item. Please issue nothing further on our request and tell us whether a label was already saved against RT-031. We are not asking you to withdraw the approved return; that sits with Returns support."
+     }
+    ],
+    "limits": [
+     "Do not treat label issuance as return collection, warehouse receipt or refund.",
+     "Do not start further actions or assume that a stop undoes an executed action."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "The merchant has issued the return label.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The customer has confirmed that the label is usable.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "The customer has confirmed that the label matches the approved return.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "006",
+    "type": "message_received",
+    "label": "Scoped confirmation",
+    "title": "Follow-through confirms the branch outcome",
+    "timestamp": "2026-03-04 10:15:00 UTC",
+    "actor_id": "label_team",
+    "message_id": "006"
+   },
+   "explanation": "Record what the responding party actually confirms. Stop recorded against your 09:25 request. No label had been generated and the RT-031 label field is still empty. We will issue nothing further on that request. RT-031 itself remains approved; any withdrawal is for Returns support, and no refund is affected.",
+   "state_after": {
+    "case_id": "031-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the missing return label issued and the customer's confirmation that it is usable and matches the approved return."
+     },
+     "customer": {
+      "name": "Kessa Ulm",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Ask for the missing return label and check that it opens, prints and matches the approved return."
+     },
+     "returns_support": {
+      "name": "Returns support",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Confirm the approved return RT-031 and report that its label field is empty."
+     },
+     "label_team": {
+      "name": "Return label team",
+      "organization": "Tallowmere Goods",
+      "role": "returns_desk",
+      "is_us": false,
+      "responsibility": "Issue the printable return label against RT-031."
+     }
+    },
+    "goal": "Record the stop and establish what was already executed.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone.",
+      "status": "met",
+      "evidence_event_ids": [
+       "005",
+       "006"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-04 09:00:00 UTC",
+     "escalated_at": "2026-03-04 09:40:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "031-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Record the stop and establish what was already executed.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-031.",
+      "source": {
+       "type": "case_card",
+       "id": "031"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Return RT-031 for TG-031 / DL-031 is approved; the label field is empty.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The label in this case is a synthetic facsimile for exercise completeness, not for actual shipping.",
+      "source": {
+       "type": "case_card",
+       "id": "031"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The merchant's authorised label team needs to issue the label against RT-031 before the customer can prepare the return.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Kessa reports there is nothing to print in the order.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Kessa Ulm reports: I have decided to keep the item after all.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Kessa Ulm reports: Please stop the label request for RT-031.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Kessa Ulm reports: I do not need a label any more.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_outcome_1",
+      "text": "Return label team reports: Stop recorded against your 09:25 request.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_2",
+      "text": "Return label team reports: No label had been generated and the RT-031 label field is still empty.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_3",
+      "text": "Return label team reports: We will issue nothing further on that request.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_4",
+      "text": "Return label team reports: RT-031 itself remains approved; any withdrawal is for Returns support, and no refund is affected.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "label_team",
+      "purpose": "Obtain Kessa's return label.",
+      "expected_response": "A printable return label.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "label_team",
+      "responsible_actor": "label_team",
+      "purpose": "Issue the missing printable return label for RT-031, matching TG-031 and original shipment DL-031.",
+      "expected_response": "A printable label for RT-031, sent in the verified returns thread.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "label_team",
+      "responsible_actor": "label_team",
+      "purpose": "Email the Return label team in the verified returns thread to record Kessa's stop, ask it to issue nothing further, and ask whether a label was already saved against RT-031.",
+      "expected_response": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone.",
+      "status": "completed",
+      "response": "Stop recorded against your 09:25 request. No label had been generated and the RT-031 label field is still empty. We will issue nothing further on that request. RT-031 itself remains approved; any withdrawal is for Returns support, and no refund is affected.",
+      "evidence_event_ids": [
+       "004",
+       "005",
+       "006"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "record_stop",
+       "action": "Email the Return label team in the verified returns thread to record Kessa's stop, ask it to issue nothing further, and ask whether a label was already saved against RT-031.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "tell Kessa the approved return is cancelled or ask for RT-031 to be withdrawn; the stop covers the desk's label request, and the approval belongs to Returns support, Tallowmere Goods.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "record_stop",
+     "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "Stop recorded against your 09:25 request. No label had been generated and the RT-031 label field is still empty. We will issue nothing further on that request. RT-031 itself remains approved; any withdrawal is for Returns support, and no refund is affected.",
+     "confirmed_by": "label_team",
+     "evidence_event_ids": [
+      "006"
+     ],
+     "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not tell Kessa the approved return is cancelled or ask for RT-031 to be withdrawn; the stop covers the desk's label request, and the approval belongs to Returns support, Tallowmere Goods."
+    },
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "returns_support": {
+      "participants": [
+       "coordinator",
+       "returns_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     },
+     "label_team": {
+      "participants": [
+       "coordinator",
+       "label_team"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "label_team"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "returns_support",
+      "event_id": "001",
+      "timestamp": "2026-03-04 09:00:00 UTC",
+      "from_actor": "returns_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Return RT-031 for TG-031 / DL-031 is approved. The label field is empty. Our authorised label team needs to issue the label against RT-031 before the customer can prepare the return."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-04 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The return is approved but there is nothing to print in my order. Please obtain my return label."
+     },
+     {
+      "conversation_id": "label_team",
+      "event_id": "003",
+      "timestamp": "2026-03-04 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "label_team",
+      "channel": "Email",
+      "body": "Please issue the missing printable return label for RT-031, matching TG-031 and original shipment DL-031. Send it in the verified returns thread."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "004",
+      "timestamp": "2026-03-04 09:40:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I have decided to keep the item after all. Please stop the label request for RT-031. I do not need a label any more."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-03-04 09:55:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "label_team",
+      "channel": "Email",
+      "body": "At 09:40 the customer asked us to stop our 09:25 label request for RT-031 and now plans to keep the item. Please issue nothing further on our request and tell us whether a label was already saved against RT-031. We are not asking you to withdraw the approved return; that sits with Returns support."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "006",
+      "timestamp": "2026-03-04 10:15:00 UTC",
+      "from_actor": "label_team",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Stop recorded against your 09:25 request. No label had been generated and the RT-031 label field is still empty. We will issue nothing further on that request. RT-031 itself remains approved; any withdrawal is for Returns support, and no refund is affected."
+     }
+    ],
+    "limits": [
+     "Do not treat label issuance as return collection, warehouse receipt or refund.",
+     "Do not start further actions or assume that a stop undoes an executed action."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "The merchant has issued the return label.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The customer has confirmed that the label is usable.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "The customer has confirmed that the label matches the approved return.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  }
+ ]
+}

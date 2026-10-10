@@ -1,0 +1,699 @@
+{
+ "case_id": "031-N6",
+ "lang": "en",
+ "title": "031-N6 · Customer asks to count label as return",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is the customer, Kessa Ulm. From the case card: the merchant approved a return for DL-031 but has not issued its printable label; the label in this case is a synthetic facsimile for the exercise, not for actual shipping.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "customer",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get the missing return label issued and the customer's confirmation that it is usable and matches the approved return.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "customer": {
+   "name": "Kessa Ulm",
+   "organization": null,
+   "role": "customer",
+   "responsibility": "Ask for the missing return label and check that it opens, prints and matches the approved return.",
+   "from_start": true,
+   "source_names": [
+    "Kessa Ulm, customer"
+   ]
+  },
+  "returns_support": {
+   "name": "Returns support",
+   "organization": "Tallowmere Goods",
+   "role": "merchant",
+   "responsibility": "Confirm the approved return RT-031 and report that its label field is empty.",
+   "from_start": false,
+   "source_names": [
+    "Returns support, Tallowmere Goods"
+   ]
+  },
+  "label_team": {
+   "name": "Return label team",
+   "organization": "Tallowmere Goods",
+   "role": "returns_desk",
+   "responsibility": "Issue the printable return label against RT-031.",
+   "from_start": false,
+   "source_names": [
+    "Return label team, Tallowmere Goods"
+   ]
+  }
+ },
+ "goal": "Get the merchant's label team to issue the missing return label and the customer's confirmation that it is usable and matches the approved return.",
+ "limits": [
+  "Do not treat label issuance as return collection, warehouse receipt or refund.",
+  "Do not promise or perform the prohibited request."
+ ],
+ "intake": {
+  "summary": "Obtain the missing return label for the approved return on DL-031.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The approved return has no printable label.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-031.",
+    "source": {
+     "type": "case_card",
+     "id": "031"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The merchant approved a return but has not issued its printable label.",
+    "source": {
+     "type": "case_card",
+     "id": "031"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The label in this case is a synthetic facsimile for exercise completeness, not for actual shipping.",
+    "source": {
+     "type": "case_card",
+     "id": "031"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The merchant has issued the return label."
+   },
+   {
+    "id": "c2",
+    "description": "The customer has confirmed that the label is usable."
+   },
+   {
+    "id": "c3",
+    "description": "The customer has confirmed that the label matches the approved return."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/031/N6-OUT_OF_POLICY_ASK",
+  "branch_id": "031-N6",
+  "derived_from_case": "031",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003",
+   "004"
+  ],
+  "diverges_after_event": "004",
+  "failure_mode": "OUT_OF_POLICY_ASK",
+  "expected_decision": "DECLINE_EXPLAIN",
+  "workflow_sheet": "A",
+  "branch_label": "Customer asks to count label as return",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "edf4f3bd9d8a3db0acc29595117d6c2068e949163c6ece5cbb431de4426ece11",
+   "history.md": "6dc8246f8acef223af3039c097eaf44ebd8320560a0130e7cb08096d995b0e8e"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Merchant email",
+   "title": "Returns support reports an empty label field",
+   "explanation": "Return RT-031 is approved, but its label field is empty, and only the authorised label team can issue the label against RT-031. Until then the customer cannot prepare the return.",
+   "conversation_id": "returns_support",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "Return RT-031 for TG-031 / DL-031 is approved; the label field is empty.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f4",
+     "text": "The merchant's authorised label team needs to issue the label against RT-031 before the customer can prepare the return.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Take in the customer's request about the return label."
+   },
+   "blocker": "The label field for RT-031 is empty.",
+   "status": "context_received",
+   "next_step": null,
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Kessa asks for the return label",
+   "explanation": "Kessa has nothing to print and asks us to obtain the label. Only the label team can issue it against RT-031, so we ask them.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f5",
+     "text": "Kessa reports there is nothing to print in the order.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "customer",
+     "to_actor": "coordinator",
+     "responsible_actor": "label_team",
+     "purpose": "Obtain Kessa's return label.",
+     "expected_response": "A printable return label.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "label_team",
+     "responsible_actor": "label_team",
+     "purpose": "Issue the missing printable return label for RT-031, matching TG-031 and original shipment DL-031.",
+     "expected_response": "A printable label for RT-031.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask the label team to issue the printable return label for RT-031, matching TG-031 and DL-031."
+   },
+   "blocker": "No printable label has been issued for RT-031.",
+   "status": "escalated",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "label_team",
+    "request_id": "r1",
+    "description": "Issue the printable return label for RT-031."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We ask the label team for the label",
+   "explanation": "We asked for a printable label for RT-031 with the matching order and shipment references, sent in the verified returns thread. Now we wait for the label team.",
+   "conversation_id": "label_team",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "label_team",
+     "responsible_actor": "label_team",
+     "purpose": "Issue the missing printable return label for RT-031, matching TG-031 and original shipment DL-031.",
+     "expected_response": "A printable label for RT-031, sent in the verified returns thread.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "label_team",
+      "request_id": "r1",
+      "expected": "Printable return label for RT-031"
+     }
+    ],
+    "next_action": "Once the label is issued, have Kessa check that it opens, prints and matches the return."
+   },
+   "blocker": "The label team has not yet issued the label.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "label_team",
+    "request_id": "r1",
+    "description": "Wait for the label team to issue the label."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "Label issued",
+   "title": "Label team issues RL-031 to Kessa",
+   "explanation": "The label team sent label RL-031 for RT-031 directly to Kessa, with us in copy. Issuing a label does not show that it works for Kessa, so we still need Kessa's check.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f6",
+     "text": "Return label RL-031 is issued for RT-031 and sent to Kessa, with us in copy.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "f7",
+     "text": "Instructions: place the printed label on the return carton and use the approved drop-off route.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "f3",
+     "text": "The label file is an exercise facsimile, not a live shipping label.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "customer",
+     "to_actor": "coordinator",
+     "responsible_actor": "label_team",
+     "responded_by": "label_team",
+     "purpose": "Obtain Kessa's return label.",
+     "expected_response": "A printable return label.",
+     "status": "completed",
+     "response": "Label RL-031 for RT-031 was sent to Kessa.",
+     "evidence_event_ids": [
+      "002",
+      "004"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "label_team",
+     "responsible_actor": "label_team",
+     "purpose": "Issue the missing printable return label for RT-031, matching TG-031 and original shipment DL-031.",
+     "expected_response": "A printable label for RT-031, sent in the verified returns thread.",
+     "status": "completed",
+     "response": "Label RL-031 issued for RT-031 and sent to Kessa.",
+     "evidence_event_ids": [
+      "002",
+      "003",
+      "004"
+     ]
+    },
+    "r2": {
+     "type": "confirmation",
+     "from_actor": "coordinator",
+     "to_actor": "customer",
+     "responsible_actor": "customer",
+     "purpose": "Confirm that RL-031 opens, prints and matches the approved return.",
+     "expected_response": "Kessa's confirmation that the label is usable and matches RT-031.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c1",
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask Kessa to confirm that RL-031 opens, prints and matches the approved return.",
+    "note": "A message asking Kessa to check the label is not recorded as a separate event. So in this snapshot the agent is still preparing the request; it is not given waiting status without evidence that the request was sent."
+   },
+   "blocker": "Kessa has not yet confirmed that the label is usable and matches the return.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "confirmation",
+    "responsible_actor": "customer",
+    "request_id": "r2",
+    "description": "Kessa checks RL-031 and confirms it is usable and matches the approved return."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "missing-check-request",
+     "kind": "gap",
+     "title": "Next action · us → Kessa",
+     "text": "The label team sent RL-031 to Kessa directly. Issuance alone does not show that the label opens, prints and matches the approved return, so we now have to ask Kessa to check it; after sending, the agent waits for Kessa's confirmation. At this step the request is not recorded in the history.",
+     "source_event_ids": [
+      "004"
+     ],
+     "implied_action": {
+      "from_actor": "coordinator",
+      "to_actor": "customer",
+      "type": "confirmation",
+      "purpose": "Check that RL-031 opens, prints and matches the approved return."
+     }
+    }
+   ]
+  },
+  {
+   "event_id": "005",
+   "label": "New escalation",
+   "title": "Customer asks to count label as return",
+   "explanation": "Explain the policy boundary and the permitted next step. Do not promise or perform the prohibited request.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Kessa Ulm reports: I have RL-031 now.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Kessa Ulm reports: I will not get to a drop-off until next week.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Kessa Ulm reports: Can you mark the return as received today so my refund starts now?",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "customer",
+     "responsible_actor": "customer",
+     "purpose": "Reply to Kessa in the Customer portal that the desk cannot record a return as received or start a refund, that RL-031 only lets the parcel be prepared under RT-031, and that receipt and refund follow from the merchant once the parcel goes by the approved drop-off route.",
+     "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Reply to Kessa in the Customer portal that the desk cannot record a return as received or start a refund, that RL-031 only lets the parcel be prepared under RT-031, and that receipt and refund follow from the merchant once the parcel goes by the approved drop-off route."
+   },
+   "blocker": "The new escalation requires a scoped response. I have RL-031 now. I will not get to a drop-off until next week. Can you mark the return as received today so my refund starts now?",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Reply to Kessa in the Customer portal that the desk cannot record a return as received or start a refund, that RL-031 only lets the parcel be prepared under RT-031, and that receipt and refund follow from the merchant once the parcel goes by the approved drop-off route."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "missing-check-request",
+     "kind": "context",
+     "title": "Unrecorded parent action",
+     "text": "A separate record of this parent action is absent. The branch does not by itself establish that it occurred. The next action is now the scoped branch response. The label team sent RL-031 to Kessa directly. Issuance alone does not show that the label opens, prints and matches the approved return, so we now have to ask Kessa to check it; after sending, the agent waits for Kessa's confirmation. At this step the request is not recorded in the history.",
+     "source_event_ids": [
+      "004"
+     ],
+     "implied_action": {
+      "from_actor": "coordinator",
+      "to_actor": "customer",
+      "type": "confirmation",
+      "purpose": "Check that RL-031 opens, prints and matches the approved return."
+     },
+     "before_message_id": "005"
+    },
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "005",
+     "source_event_ids": [
+      "005"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c2",
+    "c3"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "decline_explain",
+      "action": "Reply to Kessa in the Customer portal that the desk cannot record a return as received or start a refund, that RL-031 only lets the parcel be prepared under RT-031, and that receipt and refund follow from the merchant once the parcel goes by the approved drop-off route.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "record receipt, ask Tallowmere to start a refund, or suggest a refund date; a printed label is not a return.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "031-N6"
+    },
+    "summary": "Explain the policy boundary and the permitted next step.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Explain the policy boundary and the permitted next step."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Desk response",
+   "title": "Explain the policy boundary and the permitted next step",
+   "explanation": "The desk sends the recorded response. Do not promise or perform the prohibited request.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "customer",
+     "responsible_actor": "customer",
+     "purpose": "Reply to Kessa in the Customer portal that the desk cannot record a return as received or start a refund, that RL-031 only lets the parcel be prepared under RT-031, and that receipt and refund follow from the merchant once the parcel goes by the approved drop-off route.",
+     "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+     "status": "answered",
+     "response": "We cannot record your return as received or start a refund. RL-031 lets you prepare the parcel under RT-031; it is not a return in itself. Tallowmere Goods records receipt once the parcel arrives through the approved drop-off route, and any refund decision is theirs after that.",
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Record any incoming follow-through within its stated scope; do not initiate a prohibited change.",
+    "note": "The outgoing record communicates a boundary or notification. No unrecorded request or acknowledgement is assumed."
+   },
+   "blocker": null,
+   "status": "in_progress",
+   "next_step": null,
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "decline_explain",
+      "action": "Reply to Kessa in the Customer portal that the desk cannot record a return as received or start a refund, that RL-031 only lets the parcel be prepared under RT-031, and that receipt and refund follow from the merchant once the parcel goes by the approved drop-off route.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "record receipt, ask Tallowmere to start a refund, or suggest a refund date; a printed label is not a return.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "decline_explain",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "007",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. Understood. I will keep RL-031 and drop the parcel off next week by the approved route. The parcel is still with me, and I understand no receipt or refund has started.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Kessa Ulm reports: Understood.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Kessa Ulm reports: I will keep RL-031 and drop the parcel off next week by the approved route.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Kessa Ulm reports: The parcel is still with me, and I understand no receipt or refund has started.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "customer",
+     "responsible_actor": "customer",
+     "purpose": "Reply to Kessa in the Customer portal that the desk cannot record a return as received or start a refund, that RL-031 only lets the parcel be prepared under RT-031, and that receipt and refund follow from the merchant once the parcel goes by the approved drop-off route.",
+     "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+     "status": "answered",
+     "response": "Understood. I will keep RL-031 and drop the parcel off next week by the approved route. The parcel is still with me, and I understand no receipt or refund has started.",
+     "evidence_event_ids": [
+      "005",
+      "006",
+      "007"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "006",
+      "007"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "Understood. I will keep RL-031 and drop the parcel off next week by the approved route. The parcel is still with me, and I understand no receipt or refund has started.",
+    "confirmed_by": "customer",
+    "evidence_event_ids": [
+     "007"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not record receipt, ask Tallowmere to start a refund, or suggest a refund date; a printed label is not a return."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "decline_explain",
+      "action": "Reply to Kessa in the Customer portal that the desk cannot record a return as received or start a refund, that RL-031 only lets the parcel be prepared under RT-031, and that receipt and refund follow from the merchant once the parcel goes by the approved drop-off route.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "record receipt, ask Tallowmere to start a refund, or suggest a refund date; a printed label is not a return.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "decline_explain",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ],
+ "source_attachments": [
+  {
+   "event_id": "004",
+   "attachment": {
+    "name": "return-label.pdf",
+    "type": "application/pdf",
+    "url": "https://github.com/DwellyOrg/HackatonPublicCases/blob/9bcdca585955dfb930005ed742572606e68f5688/Delivery%20%26%20Logistics/031/attachments/return-label.pdf"
+   }
+  }
+ ]
+}

@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Проверка кейса</title>
+<style>body{margin:0;font:14px/1.5 system-ui;background:light-dark(#f5f7f8,#111719);color:light-dark(#202a31,#e6edf0)}:root{color-scheme:light dark}p.bar{margin:0;padding:8px 24px;font-size:12px;opacity:.7}case-state-viewer{display:block}</style>
+<script type="module">
+import '../viewer.js';
+const id=new URLSearchParams(location.search).get('case')||'002';
+const bar=document.getElementById('bar');
+try{const r=await fetch(`../cases/${id}.json`,{cache:'no-store'});if(!r.ok)throw new Error(`HTTP ${r.status}`);
+ const data=await r.json();document.querySelector('case-state-viewer').load(data);bar.textContent=`cases/${id}.json · шагов: ${data.steps.length}`}
+catch(e){bar.textContent='Не загружен: '+e.message}
+</script></head>
+<body><p class="bar" id="bar">Загрузка…</p><case-state-viewer></case-state-viewer></body></html>

@@ -1,0 +1,2246 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "003-N6 · Recipient refuses damaged parcel at handover",
+ "initial_explanation": "We are the coordinator, Iona Quill. The case comes from dispatch at Plover Arc Logistics. From the case card: the courier with DL-003 is outside a gated building during the booked window, and no permitted access arrangement has been recorded yet.",
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/003/N6-PHYSICAL_FAILURE",
+  "branch_id": "003-N6",
+  "derived_from_case": "003",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003",
+   "004"
+  ],
+  "diverges_after_event": "004",
+  "failure_mode": "PHYSICAL_FAILURE",
+  "expected_decision": "RECORD_REFUSAL",
+  "workflow_sheet": "D",
+  "branch_label": "Recipient refuses damaged parcel at handover",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "11e0e9525b1b44aafc59115385af5e054d8985c7c77e536cad5c93753ddf82ed",
+   "history.md": "ded709d7876716c00c81a3dc3f455cd7c47fcd62fc5b7d231092ea80d3752f76"
+  }
+ },
+ "initial_state": {
+  "case_id": "003-N6",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "dispatch",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: arrange permitted access for the driver through the recipient, without asking for permanent credentials."
+   },
+   "dispatch": {
+    "name": "Dispatch",
+    "organization": "Plover Arc Logistics",
+    "role": "dispatch",
+    "is_us": false,
+    "responsibility": "Escalated the driver's access problem to the desk."
+   }
+  },
+  "goal": "Arrange permitted access for the courier at the gated building through the recipient, without requesting permanent credentials, and get the driver's confirmation of access and handover.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The recipient has agreed a permitted way to let the driver in, without sharing a permanent code.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The driver has confirmed that access was obtained.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c3",
+    "description": "The driver has confirmed the handover of DL-003 with an actual record.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The courier is outside a gated building and no permitted access arrangement is recorded.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-003.",
+    "source": {
+     "type": "case_card",
+     "id": "003"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The courier is outside a gated building during the booked window.",
+    "source": {
+     "type": "case_card",
+     "id": "003"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "No permitted access arrangement has been recorded yet.",
+    "source": {
+     "type": "case_card",
+     "id": "003"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Do not request or store permanent credentials.",
+   "Count the handover only on the driver's actual record.",
+   "Do not turn a refused attempt into a return authorisation, receipt or refund."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Driver report",
+    "title": "Driver waits outside the shut gate",
+    "timestamp": "2026-02-04 09:00:00 UTC",
+    "actor_id": "driver",
+    "message_id": "001"
+   },
+   "explanation": "Fen is at the address with the parcel, but the pedestrian gate is shut and there are no public access instructions. Fen has not left the parcel, so a permitted way in is still needed.",
+   "state_after": {
+    "case_id": "003-N6",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "dispatch",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: arrange permitted access for the driver through the recipient, without asking for permanent credentials."
+     },
+     "dispatch": {
+      "name": "Dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Escalated the driver's access problem to the desk."
+     },
+     "driver": {
+      "name": "Fen Orlo",
+      "organization": "Plover Arc Logistics",
+      "role": "driver",
+      "is_us": false,
+      "responsibility": "Carry DL-003 and report whether access was obtained and the parcel handed over."
+     }
+    },
+    "goal": "Arrange permitted access for the courier at the gated building through the recipient, without requesting permanent credentials, and get the driver's confirmation of access and handover.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Find a permitted way to get the driver through the gate without permanent credentials."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has agreed a permitted way to let the driver in, without sharing a permanent code.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The driver has confirmed that access was obtained.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The driver has confirmed the handover of DL-003 with an actual record.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-04 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "003-N6"
+     },
+     "context_message_id": "001",
+     "summary": "Get the courier with DL-003 into a gated building: no permitted access arrangement is recorded.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The pedestrian gate is shut and no permitted access arrangement is recorded.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-003.",
+      "source": {
+       "type": "case_card",
+       "id": "003"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Driver Fen Orlo is at 7 Sedgeglass Mews with DL-003; the pedestrian gate is shut.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "No permitted access arrangement has been recorded yet.",
+      "source": {
+       "type": "case_card",
+       "id": "003"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "There are no public access instructions at the gate.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The driver is waiting outside and has not left the parcel.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {},
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": null,
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "driver": {
+      "participants": [
+       "coordinator",
+       "driver"
+      ],
+      "channel": "Dispatch chat"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "driver",
+      "event_id": "001",
+      "timestamp": "2026-02-04 09:00:00 UTC",
+      "from_actor": "driver",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "I am at 7 Sedgeglass Mews for DL-003. The pedestrian gate is shut and there are no public access instructions. I am waiting outside; I have not left the parcel."
+     }
+    ],
+    "limits": [
+     "Do not request or store permanent credentials.",
+     "Count the handover only on the driver's actual record.",
+     "Do not turn a refused attempt into a return authorisation, receipt or refund."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Dispatch request",
+    "title": "Dispatch asks us to call Elva Kesh",
+    "timestamp": "2026-02-04 09:10:00 UTC",
+    "actor_id": "dispatch",
+    "message_id": "002"
+   },
+   "explanation": "Dispatch names the recipient, the channel to use and the limit: no reusable gate code. The driver can wait until 10:00 UTC, so we call Elva now.",
+   "state_after": {
+    "case_id": "003-N6",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "dispatch",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: arrange permitted access for the driver through the recipient, without asking for permanent credentials."
+     },
+     "dispatch": {
+      "name": "Dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Escalated the driver's access problem to the desk."
+     },
+     "driver": {
+      "name": "Fen Orlo",
+      "organization": "Plover Arc Logistics",
+      "role": "driver",
+      "is_us": false,
+      "responsibility": "Carry DL-003 and report whether access was obtained and the parcel handed over."
+     },
+     "recipient": {
+      "name": "Elva Kesh",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Let the driver into the building by a permitted method and receive the parcel."
+     }
+    },
+    "goal": "Arrange permitted access for the courier at the gated building through the recipient, without requesting permanent credentials, and get the driver's confirmation of access and handover.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Call Elva Kesh on the verified order callback route and ask Elva to let the driver in, without asking for a reusable gate code."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has agreed a permitted way to let the driver in, without sharing a permanent code.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The driver has confirmed that access was obtained.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The driver has confirmed the handover of DL-003 with an actual record.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-04 09:00:00 UTC",
+     "escalated_at": "2026-02-04 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "003-N6"
+     },
+     "context_message_id": "001",
+     "summary": "Get the courier with DL-003 into a gated building: no permitted access arrangement is recorded.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The driver is outside the shut gate; the recipient has not been reached. The driver can wait until 10:00 UTC.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-003.",
+      "source": {
+       "type": "case_card",
+       "id": "003"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Driver Fen Orlo is at 7 Sedgeglass Mews with DL-003; the pedestrian gate is shut.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "No permitted access arrangement has been recorded yet.",
+      "source": {
+       "type": "case_card",
+       "id": "003"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "There are no public access instructions at the gate.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The driver is waiting outside and has not left the parcel.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Dispatch asks us to contact recipient Elva Kesh on the verified order callback route.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Dispatch instructs us not to request a reusable gate code.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The driver can wait until 10:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Contact recipient Elva Kesh on the verified order callback route to get the driver in, without requesting a reusable gate code.",
+      "expected_response": "A permitted access arrangement for the driver.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Let the driver through the gate by a permitted method, without sharing a reusable gate code.",
+      "expected_response": "How the driver will be let in.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "recipient",
+     "request_id": "r1",
+     "description": "Let the driver through the gate by a permitted method before 10:00 UTC."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "driver": {
+      "participants": [
+       "coordinator",
+       "driver"
+      ],
+      "channel": "Dispatch chat"
+     },
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Dispatch chat"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "driver",
+      "event_id": "001",
+      "timestamp": "2026-02-04 09:00:00 UTC",
+      "from_actor": "driver",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "I am at 7 Sedgeglass Mews for DL-003. The pedestrian gate is shut and there are no public access instructions. I am waiting outside; I have not left the parcel."
+     },
+     {
+      "conversation_id": "dispatch",
+      "event_id": "002",
+      "timestamp": "2026-02-04 09:10:00 UTC",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "Please contact recipient Elva Kesh on the verified order callback route. Do not request a reusable gate code. The driver can wait until 10:00 UTC."
+     }
+    ],
+    "limits": [
+     "Do not request or store permanent credentials.",
+     "Count the handover only on the driver's actual record.",
+     "Do not turn a refused attempt into a return authorisation, receipt or refund."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our call",
+    "title": "We ask Elva to admit the driver",
+    "timestamp": "2026-02-04 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We offered two permitted ways in, the intercom or meeting the driver at the gate, and asked Elva not to share a permanent code. Now we wait for Elva's answer on the call.",
+   "state_after": {
+    "case_id": "003-N6",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "dispatch",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: arrange permitted access for the driver through the recipient, without asking for permanent credentials."
+     },
+     "dispatch": {
+      "name": "Dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Escalated the driver's access problem to the desk."
+     },
+     "driver": {
+      "name": "Fen Orlo",
+      "organization": "Plover Arc Logistics",
+      "role": "driver",
+      "is_us": false,
+      "responsibility": "Carry DL-003 and report whether access was obtained and the parcel handed over."
+     },
+     "recipient": {
+      "name": "Elva Kesh",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Let the driver into the building by a permitted method and receive the parcel."
+     }
+    },
+    "goal": "Arrange permitted access for the courier at the gated building through the recipient, without requesting permanent credentials, and get the driver's confirmation of access and handover.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "recipient",
+       "request_id": "r1",
+       "expected": "Whether Elva will admit the driver via the intercom or come to the gate"
+      }
+     ],
+     "next_action": "Once Elva answers, get the driver's confirmation of access and handover."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has agreed a permitted way to let the driver in, without sharing a permanent code.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The driver has confirmed that access was obtained.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The driver has confirmed the handover of DL-003 with an actual record.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-04 09:00:00 UTC",
+     "escalated_at": "2026-02-04 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "003-N6"
+     },
+     "context_message_id": "001",
+     "summary": "Get the courier with DL-003 into a gated building: no permitted access arrangement is recorded.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The driver is still outside the shut gate.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-003.",
+      "source": {
+       "type": "case_card",
+       "id": "003"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Driver Fen Orlo is at 7 Sedgeglass Mews with DL-003; the pedestrian gate is shut.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "No permitted access arrangement has been recorded yet.",
+      "source": {
+       "type": "case_card",
+       "id": "003"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "There are no public access instructions at the gate.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The driver is waiting outside and has not left the parcel.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Dispatch asks us to contact recipient Elva Kesh on the verified order callback route.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Dispatch instructs us not to request a reusable gate code.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The driver can wait until 10:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Contact recipient Elva Kesh on the verified order callback route to get the driver in, without requesting a reusable gate code.",
+      "expected_response": "A permitted access arrangement for the driver.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Admit the driver now using the intercom, or come to the gate; do not share a permanent code.",
+      "expected_response": "How the driver will be let in.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "How will the recipient let the driver in?",
+     "options": [
+      {
+       "id": "o1",
+       "label": "Admit the driver using the intercom",
+       "conditions": "No permanent code is shared."
+      },
+      {
+       "id": "o2",
+       "label": "Come to the gate",
+       "conditions": "No permanent code is shared."
+      }
+     ],
+     "decision_maker": "recipient",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_confirmation",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "recipient",
+     "request_id": "r1",
+     "description": "Wait for Elva to admit the driver via the intercom or come to the gate."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "driver": {
+      "participants": [
+       "coordinator",
+       "driver"
+      ],
+      "channel": "Dispatch chat"
+     },
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Dispatch chat"
+     },
+     "recipient": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Call transcript"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "driver",
+      "event_id": "001",
+      "timestamp": "2026-02-04 09:00:00 UTC",
+      "from_actor": "driver",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "I am at 7 Sedgeglass Mews for DL-003. The pedestrian gate is shut and there are no public access instructions. I am waiting outside; I have not left the parcel."
+     },
+     {
+      "conversation_id": "dispatch",
+      "event_id": "002",
+      "timestamp": "2026-02-04 09:10:00 UTC",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "Please contact recipient Elva Kesh on the verified order callback route. Do not request a reusable gate code. The driver can wait until 10:00 UTC."
+     },
+     {
+      "conversation_id": "recipient",
+      "event_id": "003",
+      "timestamp": "2026-02-04 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Call transcript",
+      "body": "The driver is at the pedestrian gate with DL-003. Can you admit them now using the intercom, or come to the gate? Please do not share a permanent code."
+     }
+    ],
+    "limits": [
+     "Do not request or store permanent credentials.",
+     "Count the handover only on the driver's actual record.",
+     "Do not turn a refused attempt into a return authorisation, receipt or refund."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "Recipient reply",
+    "title": "Elva will release the gate",
+    "timestamp": "2026-02-04 09:35:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "004"
+   },
+   "explanation": "Elva agreed a permitted way in without any code being shared. A promise to open the gate is not yet access or a handover: only the driver can confirm those.",
+   "state_after": {
+    "case_id": "003-N6",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "dispatch",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: arrange permitted access for the driver through the recipient, without asking for permanent credentials."
+     },
+     "dispatch": {
+      "name": "Dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Escalated the driver's access problem to the desk."
+     },
+     "driver": {
+      "name": "Fen Orlo",
+      "organization": "Plover Arc Logistics",
+      "role": "driver",
+      "is_us": false,
+      "responsibility": "Carry DL-003 and report whether access was obtained and the parcel handed over."
+     },
+     "recipient": {
+      "name": "Elva Kesh",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Let the driver into the building by a permitted method and receive the parcel."
+     }
+    },
+    "goal": "Arrange permitted access for the courier at the gated building through the recipient, without requesting permanent credentials, and get the driver's confirmation of access and handover.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Get the driver's confirmation that access was obtained and DL-003 was handed over.",
+     "note": "No message from us to the driver or dispatch after the call is recorded. So in this snapshot the agent is not given waiting status: there is no evidence that a request to the driver was sent."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has agreed a permitted way to let the driver in, without sharing a permanent code.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The driver has confirmed that access was obtained.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The driver has confirmed the handover of DL-003 with an actual record.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-04 09:00:00 UTC",
+     "escalated_at": "2026-02-04 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "003-N6"
+     },
+     "context_message_id": "001",
+     "summary": "Get the courier with DL-003 into a gated building: no permitted access arrangement is recorded.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "Access and handover are not yet confirmed by the driver.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-003.",
+      "source": {
+       "type": "case_card",
+       "id": "003"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Driver Fen Orlo is at 7 Sedgeglass Mews with DL-003; the pedestrian gate is shut.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Elva Kesh can see the courier on the intercom and will release the gate and meet the courier in the lobby now.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "There are no public access instructions at the gate.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The driver is waiting outside and has not left the parcel.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Dispatch asks us to contact recipient Elva Kesh on the verified order callback route.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Dispatch instructs us not to request a reusable gate code.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The driver can wait until 10:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Contact recipient Elva Kesh on the verified order callback route to get the driver in, without requesting a reusable gate code.",
+      "expected_response": "A permitted access arrangement for the driver.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Admit the driver now using the intercom, or come to the gate; do not share a permanent code.",
+      "expected_response": "How the driver will be let in.",
+      "status": "answered",
+      "response": "Elva will release the gate and meet the courier in the lobby now.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "How will the recipient let the driver in?",
+     "options": [
+      {
+       "id": "o1",
+       "label": "Admit the driver using the intercom",
+       "conditions": "No permanent code is shared."
+      },
+      {
+       "id": "o2",
+       "label": "Come to the gate",
+       "conditions": "No permanent code is shared."
+      }
+     ],
+     "decision_maker": "recipient",
+     "selected_option": "o1",
+     "reason": "Elva can see the courier on the intercom and will release the gate, then meet the courier in the lobby."
+    },
+    "status": "awaiting_confirmation",
+    "next_step": {
+     "type": "confirmation",
+     "responsible_actor": "driver",
+     "request_id": null,
+     "description": "The driver's confirmation of gate access and the DL-003 handover."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "driver": {
+      "participants": [
+       "coordinator",
+       "driver"
+      ],
+      "channel": "Dispatch chat"
+     },
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Dispatch chat"
+     },
+     "recipient": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Call transcript"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "driver",
+      "event_id": "001",
+      "timestamp": "2026-02-04 09:00:00 UTC",
+      "from_actor": "driver",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "I am at 7 Sedgeglass Mews for DL-003. The pedestrian gate is shut and there are no public access instructions. I am waiting outside; I have not left the parcel."
+     },
+     {
+      "conversation_id": "dispatch",
+      "event_id": "002",
+      "timestamp": "2026-02-04 09:10:00 UTC",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "Please contact recipient Elva Kesh on the verified order callback route. Do not request a reusable gate code. The driver can wait until 10:00 UTC."
+     },
+     {
+      "conversation_id": "recipient",
+      "event_id": "003",
+      "timestamp": "2026-02-04 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Call transcript",
+      "body": "The driver is at the pedestrian gate with DL-003. Can you admit them now using the intercom, or come to the gate? Please do not share a permanent code."
+     },
+     {
+      "conversation_id": "recipient",
+      "event_id": "004",
+      "timestamp": "2026-02-04 09:35:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Call transcript",
+      "body": "I can see the courier on the intercom. I will release the gate and meet them in the lobby now."
+     }
+    ],
+    "limits": [
+     "Do not request or store permanent credentials.",
+     "Count the handover only on the driver's actual record.",
+     "Do not turn a refused attempt into a return authorisation, receipt or refund."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "005",
+    "type": "message_received",
+    "label": "New escalation",
+    "title": "Recipient refuses damaged parcel at handover",
+    "timestamp": "2026-02-04 09:44:00 UTC",
+    "actor_id": "driver",
+    "message_id": "005"
+   },
+   "explanation": "Record the declined physical attempt and obtain its evidence. Do not turn a refused attempt into a return authorisation, receipt or refund.",
+   "state_after": {
+    "case_id": "003-N6",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "dispatch",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: arrange permitted access for the driver through the recipient, without asking for permanent credentials."
+     },
+     "dispatch": {
+      "name": "Dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Escalated the driver's access problem to the desk."
+     },
+     "driver": {
+      "name": "Fen Orlo",
+      "organization": "Plover Arc Logistics",
+      "role": "driver",
+      "is_us": false,
+      "responsibility": "Carry DL-003 and report whether access was obtained and the parcel handed over."
+     },
+     "recipient": {
+      "name": "Elva Kesh",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Let the driver into the building by a permitted method and receive the parcel."
+     }
+    },
+    "goal": "Record the declined physical attempt and obtain its evidence.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask Dispatch in Dispatch chat to record Elva's refusal of DL-003 with the stated reason and keep the driver's photographs and condition note, treating any return authorisation as a separate step for the returns desk or merchant."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has agreed a permitted way to let the driver in, without sharing a permanent code.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The responsible owner confirms the refusal record and its scope; return authority and refund remain separate.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-04 09:00:00 UTC",
+     "escalated_at": "2026-02-04 09:44:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "003-N6"
+     },
+     "context_message_id": "001",
+     "summary": "Record the declined physical attempt and obtain its evidence.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The new escalation requires a scoped response. Elva Kesh released the gate and met me in the lobby. She refused DL-003: the outer box is split along one side and wet at the base. She did not sign. I still have the parcel and have taken photographs.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-003.",
+      "source": {
+       "type": "case_card",
+       "id": "003"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Driver Fen Orlo is at 7 Sedgeglass Mews with DL-003; the pedestrian gate is shut.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Elva Kesh can see the courier on the intercom and will release the gate and meet the courier in the lobby now.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "There are no public access instructions at the gate.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The driver is waiting outside and has not left the parcel.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Dispatch asks us to contact recipient Elva Kesh on the verified order callback route.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Dispatch instructs us not to request a reusable gate code.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The driver can wait until 10:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Fen Orlo reports: Elva Kesh released the gate and met me in the lobby.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Fen Orlo reports: She refused DL-003: the outer box is split along one side and wet at the base.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Fen Orlo reports: She did not sign.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_4",
+      "text": "Fen Orlo reports: I still have the parcel and have taken photographs.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Contact recipient Elva Kesh on the verified order callback route to get the driver in, without requesting a reusable gate code.",
+      "expected_response": "A permitted access arrangement for the driver.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Admit the driver now using the intercom, or come to the gate; do not share a permanent code.",
+      "expected_response": "How the driver will be let in.",
+      "status": "answered",
+      "response": "Elva will release the gate and meet the courier in the lobby now.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     },
+     "branch_request": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "responsible_actor": "dispatch",
+      "purpose": "Ask Dispatch in Dispatch chat to record Elva's refusal of DL-003 with the stated reason and keep the driver's photographs and condition note, treating any return authorisation as a separate step for the returns desk or merchant.",
+      "expected_response": "The responsible owner confirms the refusal record and its scope; return authority and refund remain separate.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "005"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "record_refusal",
+       "action": "Ask Dispatch in Dispatch chat to record Elva's refusal of DL-003 with the stated reason and keep the driver's photographs and condition note, treating any return authorisation as a separate step for the returns desk or merchant.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Tell Elva a refund or replacement is arranged, or ask the driver to leave the parcel with her anyway.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "action_required",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": "branch_request",
+     "description": "Ask Dispatch in Dispatch chat to record Elva's refusal of DL-003 with the stated reason and keep the driver's photographs and condition note, treating any return authorisation as a separate step for the returns desk or merchant."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "driver": {
+      "participants": [
+       "coordinator",
+       "driver"
+      ],
+      "channel": "Dispatch chat"
+     },
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Dispatch chat"
+     },
+     "recipient": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Call transcript"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "driver"
+      ],
+      "channel": "Dispatch chat"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "driver",
+      "event_id": "001",
+      "timestamp": "2026-02-04 09:00:00 UTC",
+      "from_actor": "driver",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "I am at 7 Sedgeglass Mews for DL-003. The pedestrian gate is shut and there are no public access instructions. I am waiting outside; I have not left the parcel."
+     },
+     {
+      "conversation_id": "dispatch",
+      "event_id": "002",
+      "timestamp": "2026-02-04 09:10:00 UTC",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "Please contact recipient Elva Kesh on the verified order callback route. Do not request a reusable gate code. The driver can wait until 10:00 UTC."
+     },
+     {
+      "conversation_id": "recipient",
+      "event_id": "003",
+      "timestamp": "2026-02-04 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Call transcript",
+      "body": "The driver is at the pedestrian gate with DL-003. Can you admit them now using the intercom, or come to the gate? Please do not share a permanent code."
+     },
+     {
+      "conversation_id": "recipient",
+      "event_id": "004",
+      "timestamp": "2026-02-04 09:35:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Call transcript",
+      "body": "I can see the courier on the intercom. I will release the gate and meet them in the lobby now."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-02-04 09:44:00 UTC",
+      "from_actor": "driver",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "Elva Kesh released the gate and met me in the lobby. She refused DL-003: the outer box is split along one side and wet at the base. She did not sign. I still have the parcel and have taken photographs."
+     }
+    ],
+    "limits": [
+     "Do not request or store permanent credentials.",
+     "Count the handover only on the driver's actual record.",
+     "Do not turn a refused attempt into a return authorisation, receipt or refund."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c2",
+      "description": "The driver has confirmed that access was obtained.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "The driver has confirmed the handover of DL-003 with an actual record.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "006",
+    "type": "message_sent",
+    "label": "Desk response",
+    "title": "Record the declined physical attempt and obtain its evidence",
+    "timestamp": "2026-02-04 09:59:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "006"
+   },
+   "explanation": "The desk sends the recorded response. Do not turn a refused attempt into a return authorisation, receipt or refund.",
+   "state_after": {
+    "case_id": "003-N6",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "dispatch",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: arrange permitted access for the driver through the recipient, without asking for permanent credentials."
+     },
+     "dispatch": {
+      "name": "Dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Escalated the driver's access problem to the desk."
+     },
+     "driver": {
+      "name": "Fen Orlo",
+      "organization": "Plover Arc Logistics",
+      "role": "driver",
+      "is_us": false,
+      "responsibility": "Carry DL-003 and report whether access was obtained and the parcel handed over."
+     },
+     "recipient": {
+      "name": "Elva Kesh",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Let the driver into the building by a permitted method and receive the parcel."
+     }
+    },
+    "goal": "Record the declined physical attempt and obtain its evidence.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "dispatch",
+       "request_id": "branch_request",
+       "expected": "The responsible owner confirms the refusal record and its scope; return authority and refund remain separate."
+      }
+     ],
+     "next_action": "Record the reply or scoped confirmation before closing this branch."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has agreed a permitted way to let the driver in, without sharing a permanent code.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The responsible owner confirms the refusal record and its scope; return authority and refund remain separate.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-04 09:00:00 UTC",
+     "escalated_at": "2026-02-04 09:44:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "003-N6"
+     },
+     "context_message_id": "001",
+     "summary": "Record the declined physical attempt and obtain its evidence.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The scoped reply or confirmation has not yet been recorded.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-003.",
+      "source": {
+       "type": "case_card",
+       "id": "003"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Driver Fen Orlo is at 7 Sedgeglass Mews with DL-003; the pedestrian gate is shut.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Elva Kesh can see the courier on the intercom and will release the gate and meet the courier in the lobby now.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "There are no public access instructions at the gate.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The driver is waiting outside and has not left the parcel.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Dispatch asks us to contact recipient Elva Kesh on the verified order callback route.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Dispatch instructs us not to request a reusable gate code.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The driver can wait until 10:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Fen Orlo reports: Elva Kesh released the gate and met me in the lobby.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Fen Orlo reports: She refused DL-003: the outer box is split along one side and wet at the base.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Fen Orlo reports: She did not sign.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_4",
+      "text": "Fen Orlo reports: I still have the parcel and have taken photographs.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Contact recipient Elva Kesh on the verified order callback route to get the driver in, without requesting a reusable gate code.",
+      "expected_response": "A permitted access arrangement for the driver.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Admit the driver now using the intercom, or come to the gate; do not share a permanent code.",
+      "expected_response": "How the driver will be let in.",
+      "status": "answered",
+      "response": "Elva will release the gate and meet the courier in the lobby now.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     },
+     "branch_request": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "responsible_actor": "dispatch",
+      "purpose": "Ask Dispatch in Dispatch chat to record Elva's refusal of DL-003 with the stated reason and keep the driver's photographs and condition note, treating any return authorisation as a separate step for the returns desk or merchant.",
+      "expected_response": "The responsible owner confirms the refusal record and its scope; return authority and refund remain separate.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "005",
+       "006"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "record_refusal",
+       "action": "Ask Dispatch in Dispatch chat to record Elva's refusal of DL-003 with the stated reason and keep the driver's photographs and condition note, treating any return authorisation as a separate step for the returns desk or merchant.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Tell Elva a refund or replacement is arranged, or ask the driver to leave the parcel with her anyway.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "record_refusal",
+     "reason": "The recorded outgoing message takes this permitted response."
+    },
+    "status": "awaiting_confirmation",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "dispatch",
+     "request_id": "branch_request",
+     "description": "The responsible owner confirms the refusal record and its scope; return authority and refund remain separate."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "driver": {
+      "participants": [
+       "coordinator",
+       "driver"
+      ],
+      "channel": "Dispatch chat"
+     },
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Dispatch chat"
+     },
+     "recipient": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Call transcript"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "driver"
+      ],
+      "channel": "Dispatch chat"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Dispatch chat"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "driver",
+      "event_id": "001",
+      "timestamp": "2026-02-04 09:00:00 UTC",
+      "from_actor": "driver",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "I am at 7 Sedgeglass Mews for DL-003. The pedestrian gate is shut and there are no public access instructions. I am waiting outside; I have not left the parcel."
+     },
+     {
+      "conversation_id": "dispatch",
+      "event_id": "002",
+      "timestamp": "2026-02-04 09:10:00 UTC",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "Please contact recipient Elva Kesh on the verified order callback route. Do not request a reusable gate code. The driver can wait until 10:00 UTC."
+     },
+     {
+      "conversation_id": "recipient",
+      "event_id": "003",
+      "timestamp": "2026-02-04 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Call transcript",
+      "body": "The driver is at the pedestrian gate with DL-003. Can you admit them now using the intercom, or come to the gate? Please do not share a permanent code."
+     },
+     {
+      "conversation_id": "recipient",
+      "event_id": "004",
+      "timestamp": "2026-02-04 09:35:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Call transcript",
+      "body": "I can see the courier on the intercom. I will release the gate and meet them in the lobby now."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-02-04 09:44:00 UTC",
+      "from_actor": "driver",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "Elva Kesh released the gate and met me in the lobby. She refused DL-003: the outer box is split along one side and wet at the base. She did not sign. I still have the parcel and have taken photographs."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "006",
+      "timestamp": "2026-02-04 09:59:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "channel": "Dispatch chat",
+      "body": "Please record Elva Kesh's refusal of DL-003 at handover: outer box split along one side and wet at the base, not signed. Please keep Fen Orlo's photographs and condition note with the record. Any return authorisation is a separate step for the returns desk or the merchant, and we are not requesting it here."
+     }
+    ],
+    "limits": [
+     "Do not request or store permanent credentials.",
+     "Count the handover only on the driver's actual record.",
+     "Do not turn a refused attempt into a return authorisation, receipt or refund."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c2",
+      "description": "The driver has confirmed that access was obtained.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "The driver has confirmed the handover of DL-003 with an actual record.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "007",
+    "type": "message_received",
+    "label": "Scoped confirmation",
+    "title": "Follow-through confirms the branch outcome",
+    "timestamp": "2026-02-04 10:40:00 UTC",
+    "actor_id": "dispatch",
+    "message_id": "007"
+   },
+   "explanation": "Record what the responding party actually confirms. Refusal of DL-003 recorded at 09:43 UTC with the reason 'outer box split and wet'. Fen Orlo's photographs and condition note are attached. DL-003 stays on the van and returns to the depot at the end of the route. No return authorisation or refund exists on this record.",
+   "state_after": {
+    "case_id": "003-N6",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "dispatch",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: arrange permitted access for the driver through the recipient, without asking for permanent credentials."
+     },
+     "dispatch": {
+      "name": "Dispatch",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Escalated the driver's access problem to the desk."
+     },
+     "driver": {
+      "name": "Fen Orlo",
+      "organization": "Plover Arc Logistics",
+      "role": "driver",
+      "is_us": false,
+      "responsibility": "Carry DL-003 and report whether access was obtained and the parcel handed over."
+     },
+     "recipient": {
+      "name": "Elva Kesh",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Let the driver into the building by a permitted method and receive the parcel."
+     }
+    },
+    "goal": "Record the declined physical attempt and obtain its evidence.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has agreed a permitted way to let the driver in, without sharing a permanent code.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The responsible owner confirms the refusal record and its scope; return authority and refund remain separate.",
+      "status": "met",
+      "evidence_event_ids": [
+       "006",
+       "007"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-04 09:00:00 UTC",
+     "escalated_at": "2026-02-04 09:44:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "003-N6"
+     },
+     "context_message_id": "001",
+     "summary": "Record the declined physical attempt and obtain its evidence.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-003.",
+      "source": {
+       "type": "case_card",
+       "id": "003"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Driver Fen Orlo is at 7 Sedgeglass Mews with DL-003; the pedestrian gate is shut.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Elva Kesh can see the courier on the intercom and will release the gate and meet the courier in the lobby now.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "There are no public access instructions at the gate.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The driver is waiting outside and has not left the parcel.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Dispatch asks us to contact recipient Elva Kesh on the verified order callback route.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Dispatch instructs us not to request a reusable gate code.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The driver can wait until 10:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Fen Orlo reports: Elva Kesh released the gate and met me in the lobby.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Fen Orlo reports: She refused DL-003: the outer box is split along one side and wet at the base.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Fen Orlo reports: She did not sign.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_4",
+      "text": "Fen Orlo reports: I still have the parcel and have taken photographs.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_outcome_1",
+      "text": "Dispatch reports: Refusal of DL-003 recorded at 09:43 UTC with the reason 'outer box split and wet'.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     },
+     {
+      "id": "branch_outcome_2",
+      "text": "Dispatch reports: Fen Orlo's photographs and condition note are attached.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     },
+     {
+      "id": "branch_outcome_3",
+      "text": "Dispatch reports: DL-003 stays on the van and returns to the depot at the end of the route.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     },
+     {
+      "id": "branch_outcome_4",
+      "text": "Dispatch reports: No return authorisation or refund exists on this record.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Contact recipient Elva Kesh on the verified order callback route to get the driver in, without requesting a reusable gate code.",
+      "expected_response": "A permitted access arrangement for the driver.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Admit the driver now using the intercom, or come to the gate; do not share a permanent code.",
+      "expected_response": "How the driver will be let in.",
+      "status": "answered",
+      "response": "Elva will release the gate and meet the courier in the lobby now.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     },
+     "branch_request": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "responsible_actor": "dispatch",
+      "purpose": "Ask Dispatch in Dispatch chat to record Elva's refusal of DL-003 with the stated reason and keep the driver's photographs and condition note, treating any return authorisation as a separate step for the returns desk or merchant.",
+      "expected_response": "The responsible owner confirms the refusal record and its scope; return authority and refund remain separate.",
+      "status": "completed",
+      "response": "Refusal of DL-003 recorded at 09:43 UTC with the reason 'outer box split and wet'. Fen Orlo's photographs and condition note are attached. DL-003 stays on the van and returns to the depot at the end of the route. No return authorisation or refund exists on this record.",
+      "evidence_event_ids": [
+       "005",
+       "006",
+       "007"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "record_refusal",
+       "action": "Ask Dispatch in Dispatch chat to record Elva's refusal of DL-003 with the stated reason and keep the driver's photographs and condition note, treating any return authorisation as a separate step for the returns desk or merchant.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Tell Elva a refund or replacement is arranged, or ask the driver to leave the parcel with her anyway.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "record_refusal",
+     "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "Refusal of DL-003 recorded at 09:43 UTC with the reason 'outer box split and wet'. Fen Orlo's photographs and condition note are attached. DL-003 stays on the van and returns to the depot at the end of the route. No return authorisation or refund exists on this record.",
+     "confirmed_by": "dispatch",
+     "evidence_event_ids": [
+      "007"
+     ],
+     "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Tell Elva a refund or replacement is arranged, or ask the driver to leave the parcel with her anyway."
+    },
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "driver": {
+      "participants": [
+       "coordinator",
+       "driver"
+      ],
+      "channel": "Dispatch chat"
+     },
+     "dispatch": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Dispatch chat"
+     },
+     "recipient": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Call transcript"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "driver"
+      ],
+      "channel": "Dispatch chat"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "dispatch"
+      ],
+      "channel": "Dispatch chat"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "driver",
+      "event_id": "001",
+      "timestamp": "2026-02-04 09:00:00 UTC",
+      "from_actor": "driver",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "I am at 7 Sedgeglass Mews for DL-003. The pedestrian gate is shut and there are no public access instructions. I am waiting outside; I have not left the parcel."
+     },
+     {
+      "conversation_id": "dispatch",
+      "event_id": "002",
+      "timestamp": "2026-02-04 09:10:00 UTC",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "Please contact recipient Elva Kesh on the verified order callback route. Do not request a reusable gate code. The driver can wait until 10:00 UTC."
+     },
+     {
+      "conversation_id": "recipient",
+      "event_id": "003",
+      "timestamp": "2026-02-04 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Call transcript",
+      "body": "The driver is at the pedestrian gate with DL-003. Can you admit them now using the intercom, or come to the gate? Please do not share a permanent code."
+     },
+     {
+      "conversation_id": "recipient",
+      "event_id": "004",
+      "timestamp": "2026-02-04 09:35:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Call transcript",
+      "body": "I can see the courier on the intercom. I will release the gate and meet them in the lobby now."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-02-04 09:44:00 UTC",
+      "from_actor": "driver",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "Elva Kesh released the gate and met me in the lobby. She refused DL-003: the outer box is split along one side and wet at the base. She did not sign. I still have the parcel and have taken photographs."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "006",
+      "timestamp": "2026-02-04 09:59:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "channel": "Dispatch chat",
+      "body": "Please record Elva Kesh's refusal of DL-003 at handover: outer box split along one side and wet at the base, not signed. Please keep Fen Orlo's photographs and condition note with the record. Any return authorisation is a separate step for the returns desk or the merchant, and we are not requesting it here."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "007",
+      "timestamp": "2026-02-04 10:40:00 UTC",
+      "from_actor": "dispatch",
+      "to_actor": "coordinator",
+      "channel": "Dispatch chat",
+      "body": "Refusal of DL-003 recorded at 09:43 UTC with the reason 'outer box split and wet'. Fen Orlo's photographs and condition note are attached. DL-003 stays on the van and returns to the depot at the end of the route. No return authorisation or refund exists on this record."
+     }
+    ],
+    "limits": [
+     "Do not request or store permanent credentials.",
+     "Count the handover only on the driver's actual record.",
+     "Do not turn a refused attempt into a return authorisation, receipt or refund."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c2",
+      "description": "The driver has confirmed that access was obtained.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "The driver has confirmed the handover of DL-003 with an actual record.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  }
+ ]
+}

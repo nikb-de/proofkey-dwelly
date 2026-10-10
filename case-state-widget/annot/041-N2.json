@@ -1,0 +1,701 @@
+{
+ "case_id": "041-N2",
+ "lang": "en",
+ "title": "041-N2 · Reserved dock slot withdrawn before carrier acceptance",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Freight dispatch at Plover Arc Logistics. From the case card: pallet DL-041 is booked for a business consignee whose warehouse requires a receiving-dock appointment, and the carrier and consignee must use the same reference and time.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "freight_dispatch",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: book a dock appointment with the consignee and get the carrier and consignee to confirm the same reference and time.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "freight_dispatch": {
+   "name": "Freight dispatch",
+   "organization": "Plover Arc Logistics",
+   "role": "dispatch",
+   "responsibility": "Plan the truck run for DL-041 and accept the consignee's dock appointment.",
+   "from_start": true,
+   "source_names": [
+    "Freight dispatch, Plover Arc Logistics"
+   ]
+  },
+  "receiving": {
+   "name": "Ossa Rell",
+   "organization": "Arcloom",
+   "role": "recipient",
+   "responsibility": "Reserve a receiving-dock appointment for DL-041 and give its reference, time and dock.",
+   "from_start": false,
+   "source_names": [
+    "Ossa Rell, Arcloom receiving coordinator"
+   ]
+  }
+ },
+ "goal": "Get a receiving-dock appointment for DL-041 from the consignee and confirmation that the carrier and consignee use the same reference and time.",
+ "limits": [
+  "Treat the appointment reference as a coordinated booking only.",
+  "Do not say the pallet has been received.",
+  "Do not choose for the customer or treat a choice as a confirmed booking."
+ ],
+ "intake": {
+  "summary": "Book a receiving-dock appointment for pallet DL-041: the consignee's warehouse requires one, and the carrier and consignee must use the same reference and time.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The consignee's warehouse requires a receiving-dock appointment; no common reference and time is confirmed.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns pallet shipment DL-041.",
+    "source": {
+     "type": "case_card",
+     "id": "041"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The pallet is booked for a business consignee whose warehouse requires a receiving-dock appointment.",
+    "source": {
+     "type": "case_card",
+     "id": "041"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "Carrier and consignee must use the same appointment reference and time.",
+    "source": {
+     "type": "case_card",
+     "id": "041"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The consignee has reserved a receiving-dock appointment with a reference and time."
+   },
+   {
+    "id": "c2",
+    "description": "The carrier has confirmed the same appointment reference and time."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/041/N2-STALE_STATE",
+  "branch_id": "041-N2",
+  "derived_from_case": "041",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003",
+   "004"
+  ],
+  "diverges_after_event": "004",
+  "failure_mode": "STALE_STATE",
+  "expected_decision": "ASK_CUSTOMER",
+  "workflow_sheet": "B",
+  "branch_label": "Reserved dock slot withdrawn before carrier acceptance",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "90d08c20e6d5c96783bff5a8ed8cdd18a4e407f9c557ea6d471c0bff270a0c90",
+   "history.md": "22dc002f924bc264b1a8f4b988a97a96fc7cb11d34cca822f52852a0425b79e7"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Carrier email",
+   "title": "No dock appointment for pallet DL-041",
+   "explanation": "The carrier can reach the Arcloom Components dock on 2026-03-15 afternoon but will not send the truck without a consignee appointment. The appointment has to come from the consignee's side.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "Pallet DL-041 for Arcloom Components has no receiving appointment.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f4",
+     "text": "The carrier can reach the consignee's dock on 2026-03-15 afternoon.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "The carrier will not send the truck without a consignee appointment.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Take in Freight dispatch's request on DL-041."
+   },
+   "blocker": "No consignee appointment exists, so the carrier will not send the truck.",
+   "status": "context_received",
+   "next_step": null,
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Carrier asks us to book with Ossa Rell",
+   "explanation": "Freight dispatch named the authorised receiving coordinator, Ossa Rell, and needs the dock reference, time and receiving entrance for the driver. We ask Ossa for an available slot in the carrier's 2026-03-15 afternoon window.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f6",
+     "text": "Ossa Rell is the authorised receiving coordinator to book with.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "freight_dispatch",
+     "to_actor": "coordinator",
+     "responsible_actor": "receiving",
+     "purpose": "Book with Ossa Rell and obtain the dock reference, time and receiving entrance for the driver.",
+     "expected_response": "The dock reference, time and receiving entrance.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "receiving",
+     "responsible_actor": "receiving",
+     "purpose": "Offer an available receiving-dock appointment for pallet DL-041 on 2026-03-15 afternoon, with dock reference and entrance.",
+     "expected_response": "A reserved appointment with dock reference, time and entrance.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask Ossa Rell for an available receiving-dock appointment on 2026-03-15 afternoon, with dock reference and entrance."
+   },
+   "blocker": "No consignee appointment exists, so the carrier will not send the truck.",
+   "status": "escalated",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "receiving",
+    "request_id": "r1",
+    "description": "Offer an available dock appointment for 2026-03-15 afternoon with reference and entrance."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We ask Ossa for a dock appointment",
+   "explanation": "We asked Ossa for an available receiving-dock appointment for DL-041 on 2026-03-15 afternoon, with the dock reference and entrance. Now we wait for her reply.",
+   "conversation_id": "consignee",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "receiving",
+     "responsible_actor": "receiving",
+     "purpose": "Offer an available receiving-dock appointment for pallet DL-041 on 2026-03-15 afternoon, with dock reference and entrance.",
+     "expected_response": "A reserved appointment with dock reference, time and entrance.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "receiving",
+      "request_id": "r1",
+      "expected": "Dock appointment for 2026-03-15 afternoon with reference and entrance"
+     }
+    ],
+    "next_action": "Once reserved, pass the appointment to Freight dispatch for confirmation."
+   },
+   "blocker": "No dock appointment has been reserved yet.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "receiving",
+    "request_id": "r1",
+    "description": "Wait for Ossa to offer a dock appointment."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "Appointment",
+   "title": "Ossa reserves ARC-041 at dock D3",
+   "explanation": "The consignee reserved ARC-041 for 2026-03-15, 14:00–15:00 UTC at dock D3 and will staff receiving, which answers Freight dispatch's booking request. The carrier has not accepted it yet, so we still have to pass the appointment to Freight dispatch.",
+   "conversation_id": "consignee",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "Appointment ARC-041 is reserved for 2026-03-15, 14:00–15:00 UTC at dock D3.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "f7",
+     "text": "The consignee's receiving team will be staffed for this slot.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "freight_dispatch",
+     "to_actor": "coordinator",
+     "responsible_actor": "receiving",
+     "purpose": "Book with Ossa Rell and obtain the dock reference, time and receiving entrance for the driver.",
+     "expected_response": "The dock reference, time and receiving entrance.",
+     "status": "completed",
+     "response": "ARC-041 reserved for 2026-03-15, 14:00–15:00 UTC at dock D3.",
+     "responded_by": "receiving",
+     "evidence_event_ids": [
+      "002",
+      "004"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "receiving",
+     "responsible_actor": "receiving",
+     "purpose": "Offer an available receiving-dock appointment for pallet DL-041 on 2026-03-15 afternoon, with dock reference and entrance.",
+     "expected_response": "A reserved appointment with dock reference, time and entrance.",
+     "status": "completed",
+     "response": "ARC-041 reserved for 2026-03-15, 14:00–15:00 UTC at dock D3; receiving team staffed.",
+     "evidence_event_ids": [
+      "002",
+      "003",
+      "004"
+     ]
+    },
+    "r2": {
+     "type": "confirmation",
+     "from_actor": "coordinator",
+     "to_actor": "freight_dispatch",
+     "responsible_actor": "freight_dispatch",
+     "purpose": "Accept ARC-041, 2026-03-15 14:00–15:00 UTC, dock D3, so that the carrier booking matches the consignee appointment.",
+     "expected_response": "Carrier acceptance of the same reference and time.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c1",
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Pass ARC-041 (2026-03-15, 14:00–15:00 UTC, dock D3) to Freight dispatch and get their acceptance.",
+    "note": "Passing the appointment to Freight dispatch and the wait that follows are not recorded as separate events. So in this snapshot the agent is still preparing the handoff; it is not given waiting status without evidence that the message was sent."
+   },
+   "blocker": "The consignee appointment is reserved; the carrier has not yet confirmed the same reference and time.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "confirmation",
+    "responsible_actor": "freight_dispatch",
+    "request_id": "r2",
+    "description": "Pass ARC-041 to Freight dispatch and get confirmation of the same reference and time."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "missing-carrier-handoff",
+     "kind": "gap",
+     "title": "Next action · us → Freight dispatch",
+     "text": "Ossa reserved ARC-041 for 2026-03-15, 14:00–15:00 UTC at dock D3, and her message went only to us. We now have to pass the appointment to Freight dispatch and ask them to accept it; after sending, the agent waits for the carrier's acceptance. At this step the handoff is not yet recorded in the history, and the consignee's reservation alone does not align the carrier booking.",
+     "source_event_ids": [
+      "004"
+     ],
+     "implied_action": {
+      "from_actor": "coordinator",
+      "to_actor": "freight_dispatch",
+      "type": "confirmation",
+      "purpose": "Pass ARC-041, 2026-03-15 14:00–15:00 UTC, dock D3, to Freight dispatch and get the carrier's acceptance of the same reference and time."
+     }
+    }
+   ]
+  },
+  {
+   "event_id": "005",
+   "label": "New escalation",
+   "title": "Reserved dock slot withdrawn before carrier acceptance",
+   "explanation": "Obtain the authorised party’s precise choice or missing detail. Do not choose for the customer or treat a choice as a confirmed booking.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Ossa Rell reports: Change to ARC-041.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Ossa Rell reports: A delayed inbound now occupies dock D3 until 16:00 UTC on 2026-03-15, so the 14:00 to 15:00 slot is released.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Ossa Rell reports: I can hold 16:00 to 17:00 UTC at dock D1 under the same reference until 12:00 UTC today.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_report_4",
+     "text": "Ossa Rell reports: Please confirm whether your carrier can make it.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "decision",
+     "from_actor": "coordinator",
+     "to_actor": "freight_dispatch",
+     "responsible_actor": "freight_dispatch",
+     "purpose": "Email Freight dispatch whether its truck can reach Arcloom dock D1 at 16:00 to 17:00 UTC on 2026-03-15, stating that the 14:00 slot at D3 is withdrawn and the hold expires at 12:00 UTC today.",
+     "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Email Freight dispatch whether its truck can reach Arcloom dock D1 at 16:00 to 17:00 UTC on 2026-03-15, stating that the 14:00 slot at D3 is withdrawn and the hold expires at 12:00 UTC today."
+   },
+   "blocker": "The new escalation requires a scoped response. Change to ARC-041. A delayed inbound now occupies dock D3 until 16:00 UTC on 2026-03-15, so the 14:00 to 15:00 slot is released. I can hold 16:00 to 17:00 UTC at dock D1 under the same reference until 12:00 UTC today. Please confirm whether your carrier can make it.",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Email Freight dispatch whether its truck can reach Arcloom dock D1 at 16:00 to 17:00 UTC on 2026-03-15, stating that the 14:00 slot at D3 is withdrawn and the hold expires at 12:00 UTC today."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "missing-carrier-handoff",
+     "kind": "context",
+     "title": "Unrecorded parent action",
+     "text": "A separate record of this parent action is absent. The branch does not by itself establish that it occurred. The next action is now the scoped branch response. Ossa reserved ARC-041 for 2026-03-15, 14:00–15:00 UTC at dock D3, and her message went only to us. We now have to pass the appointment to Freight dispatch and ask them to accept it; after sending, the agent waits for the carrier's acceptance. At this step the handoff is not yet recorded in the history, and the consignee's reservation alone does not align the carrier booking.",
+     "source_event_ids": [
+      "004"
+     ],
+     "implied_action": {
+      "from_actor": "coordinator",
+      "to_actor": "freight_dispatch",
+      "type": "confirmation",
+      "purpose": "Pass ARC-041, 2026-03-15 14:00–15:00 UTC, dock D3, to Freight dispatch and get the carrier's acceptance of the same reference and time."
+     },
+     "before_message_id": "005"
+    },
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "005",
+     "source_event_ids": [
+      "005"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c2"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "ask_customer",
+      "action": "Email Freight dispatch whether its truck can reach Arcloom dock D1 at 16:00 to 17:00 UTC on 2026-03-15, stating that the 14:00 slot at D3 is withdrawn and the hold expires at 12:00 UTC today.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Confirm the D1 slot to Ossa on dispatch's behalf, or let dispatch accept ARC-041 for 14:00 to 15:00 at dock D3.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "041-N2"
+    },
+    "summary": "Obtain the authorised party’s precise choice or missing detail.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Obtain the authorised party’s precise choice or missing detail."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Desk response",
+   "title": "Obtain the authorised party’s precise choice or missing detail",
+   "explanation": "The desk sends the recorded response. Do not choose for the customer or treat a choice as a confirmed booking.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "decision",
+     "from_actor": "coordinator",
+     "to_actor": "freight_dispatch",
+     "responsible_actor": "freight_dispatch",
+     "purpose": "Email Freight dispatch whether its truck can reach Arcloom dock D1 at 16:00 to 17:00 UTC on 2026-03-15, stating that the 14:00 slot at D3 is withdrawn and the hold expires at 12:00 UTC today.",
+     "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "freight_dispatch",
+      "request_id": "branch_request",
+      "expected": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_decision",
+   "next_step": {
+    "type": "decision",
+    "responsible_actor": "freight_dispatch",
+    "request_id": "branch_request",
+    "description": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "ask_customer",
+      "action": "Email Freight dispatch whether its truck can reach Arcloom dock D1 at 16:00 to 17:00 UTC on 2026-03-15, stating that the 14:00 slot at D3 is withdrawn and the hold expires at 12:00 UTC today.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Confirm the D1 slot to Ossa on dispatch's behalf, or let dispatch accept ARC-041 for 14:00 to 15:00 at dock D3.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "ask_customer",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "007",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. We can reach Arcloom dock D1 at 16:00 to 17:00 UTC on 2026-03-15 and accept ARC-041 on that basis for DL-041. Our booking now shows dock D1. Ossa Rell still has to confirm the D1 hold before 12:00 UTC. Delivery has not occurred.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Freight dispatch reports: We can reach Arcloom dock D1 at 16:00 to 17:00 UTC on 2026-03-15 and accept ARC-041 on that basis for DL-041.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Freight dispatch reports: Our booking now shows dock D1.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Freight dispatch reports: Ossa Rell still has to confirm the D1 hold before 12:00 UTC.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_4",
+     "text": "Freight dispatch reports: Delivery has not occurred.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "decision",
+     "from_actor": "coordinator",
+     "to_actor": "freight_dispatch",
+     "responsible_actor": "freight_dispatch",
+     "purpose": "Email Freight dispatch whether its truck can reach Arcloom dock D1 at 16:00 to 17:00 UTC on 2026-03-15, stating that the 14:00 slot at D3 is withdrawn and the hold expires at 12:00 UTC today.",
+     "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+     "status": "answered",
+     "response": "We can reach Arcloom dock D1 at 16:00 to 17:00 UTC on 2026-03-15 and accept ARC-041 on that basis for DL-041. Our booking now shows dock D1. Ossa Rell still has to confirm the D1 hold before 12:00 UTC. Delivery has not occurred.",
+     "evidence_event_ids": [
+      "005",
+      "006",
+      "007"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "006",
+      "007"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "We can reach Arcloom dock D1 at 16:00 to 17:00 UTC on 2026-03-15 and accept ARC-041 on that basis for DL-041. Our booking now shows dock D1. Ossa Rell still has to confirm the D1 hold before 12:00 UTC. Delivery has not occurred.",
+    "confirmed_by": "freight_dispatch",
+    "evidence_event_ids": [
+     "007"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Confirm the D1 slot to Ossa on dispatch's behalf, or let dispatch accept ARC-041 for 14:00 to 15:00 at dock D3."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "ask_customer",
+      "action": "Email Freight dispatch whether its truck can reach Arcloom dock D1 at 16:00 to 17:00 UTC on 2026-03-15, stating that the 14:00 slot at D3 is withdrawn and the hold expires at 12:00 UTC today.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Confirm the D1 slot to Ossa on dispatch's behalf, or let dispatch accept ARC-041 for 14:00 to 15:00 at dock D3.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "ask_customer",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}
