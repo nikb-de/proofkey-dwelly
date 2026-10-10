@@ -512,10 +512,10 @@ def _save_window_readiness(self, expected, **changes):
 
 **Files:**
 
-- Modify: `runtime/src/proofkey/host_admission.py`, `runtime/src/proofkey/synthetic_provisioning.py`, `runtime/src/proofkey/host.py`, `runtime/src/proofkey/bootstrap.py` (configured-CLI closed selector only), `runtime/src/proofkey/profiles.py` (closed selected-profile validator only).
+- Modify: `runtime/src/proofkey/host_admission.py`, `runtime/src/proofkey/synthetic_provisioning.py`, `runtime/src/proofkey/bootstrap.py` (configured-CLI closed selector only), `runtime/src/proofkey/profiles.py` (closed selected-profile validator only).
 - Create: `runtime/tests/test_window_readiness_composition.py`.
 - Modify: `runtime/tests/support_window_readiness.py` (registered wrapper only; consume its existing candidate_case_data).
-- Read-only dependencies: `runtime/tests/support_synthetic_provisioning.py`, `runtime/tests/support_observed_stop_v2.py`, `runtime/tests/test_synthetic_provisioning_cli.py`, `runtime/tests/test_host_admission.py`.
+- Read-only dependencies: `runtime/src/proofkey/host.py` (existing exact returned-profile construction), `runtime/tests/support_synthetic_provisioning.py`, `runtime/tests/support_observed_stop_v2.py`, `runtime/tests/test_synthetic_provisioning_cli.py`, `runtime/tests/test_host_admission.py`.
 
 Anchors: `host_admission.py:138` implementation paths, `:238` composition and `:901` guard; `synthetic_provisioning.py:219` initial input, `:557` prepared revalidation; `host.py:264` runtime construction. Keep v2 stop code and its tuple/all-package test unchanged.
 
