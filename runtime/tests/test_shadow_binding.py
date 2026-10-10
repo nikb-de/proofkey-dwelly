@@ -236,6 +236,27 @@ class ShadowBindingTests(unittest.TestCase):
         result["target"]["binding"]["principal_id"] = "changed"
         self.assertEqual(self.resolve(resolver)["target"]["binding"]["principal_id"], "U1")
 
+    def test_protected_roots_exposes_existing_main_database_parent_without_writes(self):
+        resolver = self.resolver()
+        self.assertTrue(hasattr(type(resolver), "shadow_protected_roots"), "Protected runtime roots API is unavailable")
+        before, total = self.contents(), self.store._db.total_changes
+        self.assertEqual(resolver.shadow_protected_roots, (self.path.parent.resolve(),))
+        self.assertEqual(self.contents(), before)
+        self.assertEqual(self.store._db.total_changes, total)
+        self.assertFalse(self.store._db.in_transaction)
+        with self.assertRaises(AttributeError):
+            resolver.shadow_protected_roots = ()
+
+    def test_protected_roots_fails_closed_for_closed_or_missing_database(self):
+        resolver = self.resolver()
+        self.assertTrue(hasattr(type(resolver), "shadow_protected_roots"), "Protected runtime roots API is unavailable")
+        self.path.unlink()
+        with self.assertRaisesRegex(ValueError, "^runtime_unavailable$"):
+            resolver.shadow_protected_roots
+        self.store.close()
+        with self.assertRaisesRegex(ValueError, "^runtime_unavailable$"):
+            resolver.shadow_protected_roots
+
 
 if __name__ == "__main__":
     unittest.main()

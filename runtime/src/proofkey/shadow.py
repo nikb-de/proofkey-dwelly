@@ -5,6 +5,7 @@ module opens no store, invokes no gateway and persists no runtime state.
 """
 from datetime import datetime, timezone
 import json
+from pathlib import Path
 import re
 import threading
 from typing import Annotated
@@ -74,6 +75,28 @@ class RuntimeShadowResolver:
         except Exception:
             raise ValueError("Invalid shadow host registration") from None
         self._store, self._authorize, self._clock = store, authorize, clock
+
+    @property
+    def shadow_protected_roots(self) -> tuple[Path, ...]:
+        """Trusted output-exclusion roots; reading them never opens a store.
+
+        Bridge hosts must exclude these canonical directories from shadow
+        storage. An unavailable main database raises a bounded error rather
+        than supplying an empty set that could disable overlap protection.
+        """
+        store = self._store
+        if threading.get_ident() != store._owner_thread or store._db is None:
+            raise ValueError("runtime_unavailable")
+        try:
+            paths = [row[2] for row in store._db.execute("PRAGMA database_list") if row[1] == "main"]
+            if len(paths) != 1 or type(paths[0]) is not str or not paths[0]:
+                raise ValueError()
+            path = Path(paths[0]).resolve(strict=True)
+            if not path.is_file():
+                raise ValueError()
+            return (path.parent,)
+        except Exception:
+            raise ValueError("runtime_unavailable") from None
 
     def __call__(self, source_case_id, snapshot_hash):
         if (type(source_case_id) is not str or re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:-]{0,255}", source_case_id) is None
