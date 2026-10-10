@@ -19,7 +19,8 @@ from ..contracts import (AuthContext, AuthorityObservation, AuthorityReadback, D
 from ..identity import fingerprint
 from ..ports import AdapterBundle
 from ..process import material_fields
-from ..profiles import load_profile, requires_completed_service, validate_profile
+from ..profiles import (load_profile, requires_completed_service, validate_profile,
+                        is_window_readiness_profile, supports_process_operation, _window_original_request_id)
 from ..retained_state import RetainedStateClock, RetainedStateLimitsV1
 from ..execution import ExecutionContext
 from ..source_retained_state import SourceRetainedStateSnapshotV1, capture, prepare_context
@@ -55,7 +56,30 @@ _ORIGINAL_SCOPES = {"read_refusal": {"register_goods_refusal", "register_service
                     "read_receipt": {"enqueue_handoff"}, "read_resume": {"enqueue_handoff", "transfer_owner"},
                     "read_owner": {"transfer_owner"}}
 _FAULTS = frozenset({"none", "business_rejection", "timeout_before", "timeout_after", "wrong_object", "429",
-                    "delivered", "owner_accepted", "return_received", "terminal_not_executed", "final_rejection_unknown"})
+                    "delivered", "owner_accepted", "return_received", "terminal_not_executed", "final_rejection_unknown",
+                    "http200_business_failed"})
+
+_ORIGINAL_FIELDS = ('account_id', 'provider_key', 'case_id', 'object_id', 'operation',
+                    'generation', 'action_id', 'fingerprint', 'identity_hash')
+
+
+def _window_row_valid(row, now):
+    try:
+        if type(row['request_id']) is not str or row['request_id'] != _window_original_request_id(
+                **{key: row[key] for key in _ORIGINAL_FIELDS}):
+            return False
+        if type(row['created_at']) is not str:
+            return False
+        created_at = datetime.fromisoformat(row['created_at'].replace('Z', '+00:00'))
+        return created_at.utcoffset() is not None and created_at <= now
+    except (ValueError, TypeError, KeyError, OverflowError):
+        return False
+
+
+def _source_json(value):
+    if isinstance(value, datetime):
+        return value.isoformat()
+    raise TypeError('Unsupported source value')
 _FAULT_ALIASES = {"timeout_before_execute": "timeout_before", "timeout_after_execute": "timeout_after"}
 
 
@@ -357,10 +381,21 @@ class SimulatedWorld:
 
     def _dispatch(self, operation, intent: EffectIntent, *, deadline: datetime | None = None,
                   auth: AuthContext | None = None) -> DispatchResult:
+        return DispatchResult.model_validate(self._dispatch_data(operation, intent, deadline=deadline, auth=auth))
+
+    def _dispatch_scheduling_raw(self, intent: EffectIntent, *, deadline: datetime | None = None) -> bytes:
+        body = self._dispatch_data('reschedule', intent, deadline=deadline, window_envelope=True)
+        return json.dumps(dict(contract='synthetic-scheduling-envelope-v1', http_status=200,
+                               operation='reschedule', body=body), default=_source_json,
+                          ensure_ascii=False, allow_nan=False, separators=(',', ':')).encode('utf-8')
+
+    def _dispatch_data(self, operation: str, intent: EffectIntent, *, deadline: datetime | None = None,
+                       auth: AuthContext | None = None, window_envelope: bool = False) -> dict:
         """Apply a trusted transport scope without changing saved provider identity."""
         intent = EffectIntent.model_validate(intent.model_dump())
         behavior = self._call(operation, "dispatch")
-        reject = lambda reason: DispatchResult(status="rejected", reason=reason, evidence_refs=["synthetic-provider:dispatch"])
+        reject = lambda reason: dict(status="rejected", reason=reason, provider_request_id=None,
+                                     evidence_refs=["synthetic-provider:dispatch"])
         if deadline is not None:
             try:
                 if not isinstance(deadline, datetime) or deadline.utcoffset() is None or not math.isfinite(deadline.timestamp()):
@@ -402,34 +437,69 @@ class SimulatedWorld:
                 required = required_material_keys(connection, self._profile, operation, intent.stage)
                 if required is None:
                     return reject("unsupported_guarantee")
+                candidate = is_window_readiness_profile(self._profile)
+                values = ({key: json.loads(row['value']) for key, row in
+                           self._facts(connection, intent.binding.case_id, intent.binding.object_id).items()}
+                          if candidate else {})
+                if candidate and (intent.profile_version != self._profile.version or not supports_process_operation(
+                        self._profile, intent.process_version, operation, values.get('customer.consent_mode'))):
+                    return reject('provider_precondition_rejected')
+                window = candidate and operation == 'reschedule' and intent.process_version == 'v2-window-readiness'
                 identity_hash = fingerprint(intent.model_dump(mode="json"))
-                existing = connection.execute("SELECT identity_hash,request_id FROM effects WHERE account_id=? AND provider_key=?",
+                original = dict(account_id=account, provider_key=intent.provider_key, case_id=intent.binding.case_id,
+                    object_id=intent.binding.object_id, operation=operation, generation=intent.binding.generation,
+                    action_id=intent.action_id, fingerprint=intent.argument_fingerprint, identity_hash=identity_hash)
+                existing = connection.execute("SELECT * FROM effects WHERE account_id=? AND provider_key=?",
                                               (account, intent.provider_key)).fetchone()
+                if window and existing and connection.execute(
+                        'SELECT 1 FROM final_rejections WHERE account_id=? AND provider_key=?',
+                        (account, intent.provider_key)).fetchone():
+                    return reject('idempotency_conflict')
                 if existing:
                     if self._now() >= tool_deadline:
                         return reject("deadline_expired")
                     if existing["identity_hash"] != identity_hash:
                         return reject("idempotency_conflict")
-                    return DispatchResult(status="acknowledged", provider_request_id=existing["request_id"],
-                                          evidence_refs=["synthetic-provider:acknowledgement"])
-                fenced = connection.execute("SELECT identity_hash FROM final_rejections WHERE account_id=? AND provider_key=?",
+                    if window and (not _window_row_valid(existing, self._now())
+                                   or any(existing[key] != value for key, value in original.items())):
+                        return reject('idempotency_conflict')
+                    return dict(status="acknowledged", provider_request_id=existing["request_id"], reason=None,
+                                evidence_refs=["synthetic-provider:acknowledgement"])
+                fenced = connection.execute("SELECT * FROM final_rejections WHERE account_id=? AND provider_key=?",
                                             (account, intent.provider_key)).fetchone()
                 if fenced:
                     if self._now() >= tool_deadline:
                         return reject("deadline_expired")
-                    return reject("terminally_rejected" if fenced[0] == identity_hash else "idempotency_conflict")
+                    if fenced['identity_hash'] != identity_hash:
+                        return reject('idempotency_conflict')
+                    if window:
+                        if not _window_row_valid(fenced, self._now()) or any(fenced[key] != value for key, value in original.items()):
+                            return reject('idempotency_conflict')
+                        return dict(status='outcome_unknown', provider_request_id=fenced['request_id'],
+                                    evidence_refs=['synthetic-provider:transport'], reason=None)
+                    return reject('terminally_rejected')
                 expected = intent.expected_revisions.revisions
                 if not required <= expected.keys():
                     return reject("missing_material_revision")
                 current = read_material_revisions(connection, required, intent.binding.case_id, intent.binding.object_id)
                 if current != {key: expected[key] for key in required}:
                     return reject("stale_material_revision")
+                if window and (type(values.get('scheduling.slot')) is not str or values['scheduling.slot'] != 'S0'):
+                    return reject('provider_precondition_rejected')
                 if registered_transfer and not self._ownership.current_allowed(connection, intent):
                     return reject("ownership_scope_rejected")
                 if self._now() >= tool_deadline:
                     return reject("deadline_expired")
+                request_id = (_window_original_request_id(**original) if window else
+                              'provider:' + fingerprint({'account': account, 'provider_key': intent.provider_key})[:24])
+                if window:
+                    for table in ('effects', 'final_rejections'):
+                        collisions = connection.execute('SELECT * FROM ' + table + ' WHERE request_id=?', (request_id,)).fetchall()
+                        if any(any(row[key] != value for key, value in original.items()) for row in collisions):
+                            return reject('idempotency_conflict')
+                if window_envelope and window and behavior == 'http200_business_failed':
+                    return dict(status='business_failed', provider_request_id=None, evidence_refs=[], reason=None)
                 if behavior in {"business_rejection", "final_rejection_unknown"}:
-                    request_id = "provider:" + fingerprint({"account": account, "provider_key": intent.provider_key})[:24]
                     connection.execute("INSERT INTO final_rejections VALUES(?,?,?,?,?,?,?,?,?,?,?)",
                         (account, intent.provider_key, intent.binding.case_id, intent.binding.object_id, operation,
                          intent.binding.generation, intent.action_id, intent.argument_fingerprint, identity_hash,
@@ -440,10 +510,15 @@ class SimulatedWorld:
                         connection.rollback()
                         return reject("deadline_expired")
                     if behavior == "final_rejection_unknown":
-                        return DispatchResult(status="outcome_unknown", evidence_refs=["synthetic-provider:transport"])
-                    return reject("business_rejected")
+                        return dict(status="outcome_unknown", provider_request_id=request_id if window else None,
+                                    reason=None, evidence_refs=["synthetic-provider:transport"])
+                    result = reject("business_rejected")
+                    if window:
+                        result['provider_request_id'] = request_id
+                    return result
                 if behavior == "timeout_before":
-                    return DispatchResult(status="outcome_unknown", evidence_refs=["synthetic-provider:transport"])
+                    return dict(status="outcome_unknown", provider_request_id=None, reason=None,
+                                evidence_refs=["synthetic-provider:transport"])
                 result = self._apply_declared_operation(connection, intent, behavior)
                 if result is None:
                     return reject("provider_precondition_rejected")
@@ -451,23 +526,23 @@ class SimulatedWorld:
                 if self._now() >= tool_deadline:
                     connection.rollback()
                     return reject("deadline_expired")
-                observations = self._effect_observations(connection, intent, values)
-                request_id = "provider:" + fingerprint({"account": account, "provider_key": intent.provider_key})[:24]
+                observations = self._effect_observation_data(connection, intent, values)
                 connection.execute("INSERT INTO effects VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                     (account, intent.provider_key, intent.binding.case_id, intent.binding.object_id, operation,
                      intent.binding.generation, intent.action_id, intent.argument_fingerprint, identity_hash,
-                     request_id, stage, json.dumps([o.model_dump(mode="json") for o in observations]),
+                     request_id, stage, json.dumps(observations, default=_source_json, allow_nan=False),
                      self._now().isoformat(), intent.arguments.get("question_id"),
                      intent.arguments["intent"]["transfer_id"] if registered_transfer else intent.arguments.get("transfer_id"),
                      intent.arguments.get("packet_id"), intent.arguments.get("packet_revision")))
                 if self._now() >= tool_deadline:
                     connection.rollback()
                     return reject("deadline_expired")
-            return DispatchResult(status="outcome_unknown" if behavior == "timeout_after" else "acknowledged",
+            return dict(status="outcome_unknown" if behavior == "timeout_after" else "acknowledged", reason=None,
                                   provider_request_id=None if behavior == "timeout_after" else request_id,
                                   evidence_refs=["synthetic-provider:transport" if behavior == "timeout_after" else "synthetic-provider:acknowledgement"])
         except sqlite3.OperationalError:
-            return DispatchResult(status="outcome_unknown", evidence_refs=["synthetic-provider:transport"])
+            return dict(status="outcome_unknown", provider_request_id=None, reason=None,
+                        evidence_refs=["synthetic-provider:transport"])
         finally:
             self._release(account, token)
 
@@ -482,7 +557,9 @@ class SimulatedWorld:
         requires_business_consent = not _scope_contract(self._profile) or operation in _BUSINESS_EFFECTS
         if ((requires_business_consent and values["customer.consent"] != "granted") or values["delivery.risk"] != "safe"
                 or values["delivery.stage"] != "eligible" or values["policy.version"] != intent.policy_version
-                or intent.profile_version != self._profile.version or intent.process_version != "v1"):
+                or intent.profile_version != self._profile.version
+                or not supports_process_operation(self._profile, intent.process_version, operation,
+                                                   values.get('customer.consent_mode'))):
             return None
         if values["ownership.state"] != "accepted":
             return None
@@ -595,6 +672,9 @@ class SimulatedWorld:
         return stage, outcome
 
     def _effect_observations(self, connection, intent, values):
+        return [AuthorityObservation.model_validate(item) for item in self._effect_observation_data(connection, intent, values)]
+
+    def _effect_observation_data(self, connection, intent: EffectIntent, values: dict) -> list[dict]:
         facts = self._facts(connection, intent.binding.case_id, intent.binding.object_id)
         receipt = values.get("operator.packet_content_receipt")
         # The original receipt and its evidence describe one provider event.
@@ -604,16 +684,26 @@ class SimulatedWorld:
         now = (PacketContentReceiptV1.model_validate(receipt).stored_at if receipt is not None else
                datetime.fromisoformat(transfer.get("accepted_at") or transfer.get("pending_at") or transfer["rejected_at"])
                if transfer is not None else self._now())
-        return [AuthorityObservation(authority=key.partition(".")[0], fact=key.partition(".")[2],
+        return [dict(authority=key.partition(".")[0], fact=key.partition(".")[2],
                 object_id=intent.binding.object_id, value=value, revision=facts[key]["revision"] if key in facts else "v1",
                 provider_at=now, observed_at=now, evidence_ref="synthetic-provider:effect:" + intent.action_id)
                 for key, value in values.items()]
 
     def _read(self, operation, request: ReadRequest) -> AuthorityReadback:
+        return AuthorityReadback.model_validate(self._read_data(operation, request))
+
+    def _read_scheduling_raw(self, operation: str, request: ReadRequest) -> bytes:
+        body = self._read_data(operation, request, window_envelope=True)
+        return json.dumps(dict(contract='synthetic-scheduling-envelope-v1', http_status=200,
+                               operation=operation, body=body), default=_source_json,
+                          ensure_ascii=False, allow_nan=False, separators=(',', ':')).encode('utf-8')
+
+    def _read_data(self, operation: str, request: ReadRequest, *, window_envelope: bool = False) -> dict:
         request = ReadRequest.model_validate(request.model_dump())
         behavior = self._call(operation, request.purpose)
-        empty = lambda stage="unavailable": AuthorityReadback(operation=operation, object_id=request.object_id,
-                         observations=[], stage=stage, as_of=self._now(), evidence_refs=[])
+        empty = lambda stage="unavailable": dict(operation=operation, object_id=request.object_id,
+            observations=[], stage=stage, as_of=self._now(), evidence_refs=[], provider_request_id=None,
+            action_id=None, fingerprint=None, nonexecution=dict(status='unknown', basis=None, evidence_ref=None))
         target = request.target
         capability_name = target.operation if target.kind == "original_effect" else "read_authority"
         capability = self._profile.capabilities.get(capability_name)
@@ -659,7 +749,7 @@ class SimulatedWorld:
                         row = facts.get(target.authority + "." + fact)
                         if row is None:
                             return empty("unknown")
-                        observations.append(AuthorityObservation(authority=target.authority, fact=fact, object_id=request.object_id,
+                        observations.append(dict(authority=target.authority, fact=fact, object_id=request.object_id,
                             value=json.loads(row["value"]), revision=row["revision"], provider_at=self._now(), observed_at=self._now(), evidence_ref=row["evidence_ref"]))
                 else:
                     where, params = "account_id=? AND case_id=? AND object_id=?", [account, request.case_id, request.object_id]
@@ -685,7 +775,23 @@ class SimulatedWorld:
                     else:
                         return empty("scope_rejected")
                     records = connection.execute("SELECT * FROM effects WHERE " + where, params).fetchall()
-                    if target.kind == "original_effect" and not records and behavior == "terminal_not_executed":
+                    candidate_original = (window_envelope and is_window_readiness_profile(self._profile)
+                                          and target.kind == 'original_effect' and target.operation == 'reschedule')
+                    rejections = (connection.execute('SELECT * FROM final_rejections WHERE ' + where, params).fetchall()
+                                  if candidate_original else [])
+                    if candidate_original and (len(records) > 1 or len(rejections) > 1 or (records and rejections)):
+                        return empty('unknown')
+                    if candidate_original:
+                        for saved in records + rejections:
+                            if saved['request_id'].startswith('provider:window-envelope-v1:'):
+                                if not _window_row_valid(saved, self._now()):
+                                    return empty('unknown')
+                            elif saved['request_id'] != 'provider:' + fingerprint({'account': saved['account_id'],
+                                                                                  'provider_key': saved['provider_key']})[:24]:
+                                return empty('unknown')
+                    automatic = (candidate_original and len(rejections) == 1
+                                 and rejections[0]['request_id'].startswith('provider:window-envelope-v1:'))
+                    if target.kind == "original_effect" and not records and (automatic or behavior == "terminal_not_executed"):
                         rejections = connection.execute("SELECT * FROM final_rejections WHERE " + where, params).fetchall()
                         terminal = self._profile.capabilities[target.operation].terminal_nonexecution_basis
                         if len(rejections) == 1 and terminal.status == "supported":
@@ -705,13 +811,13 @@ class SimulatedWorld:
                                     return empty("unknown")
                                 if not saved or not isinstance(saved.receipt, TransferRejectedV1):
                                     return empty("unknown")
-                                terminal_observations = self._effect_observations(connection, saved.effect,
+                                terminal_observations = self._effect_observation_data(connection, saved.effect,
                                     self._ownership.outcome(saved.receipt))
-                                terminal_observations = [AuthorityObservation.model_validate({**obs.model_dump(), "observed_at": as_of})
+                                terminal_observations = [{**obs, "observed_at": as_of}
                                                          for obs in terminal_observations]
-                            return AuthorityReadback(operation=record["operation"], object_id=request.object_id, observations=terminal_observations,
+                            return dict(operation=record["operation"], object_id=request.object_id, observations=terminal_observations,
                                 provider_request_id=record["request_id"], action_id=record["action_id"], fingerprint=record["fingerprint"],
-                                stage="terminally_rejected", nonexecution=NonexecutionProof(status="proven", basis=terminal.basis,
+                                stage="terminally_rejected", nonexecution=dict(status="proven", basis=terminal.basis,
                                                                                           evidence_ref=evidence),
                                 as_of=as_of, evidence_refs=[evidence])
                     # A reusable business ID is ambiguous, never resolved by latest.
@@ -730,13 +836,13 @@ class SimulatedWorld:
                     capability = self._profile.capabilities.get(record["operation"])
                     if not capability or capability.readback.status != "supported":
                         return empty("unavailable")
-                    observations = [AuthorityObservation.model_validate({**item, "observed_at": self._now()})
+                    observations = [{**item, "observed_at": self._now()}
                                     for item in json.loads(record["observations"])]
-                    if any(obs.authority == "operator" and obs.fact == "transfer_receipt" for obs in observations):
+                    if any(obs['authority'] == "operator" and obs['fact'] == "transfer_receipt" for obs in observations):
                         if (self._ownership is None or operation != "read_owner" or target.kind != "original_effect"
                                 or target.operation != "transfer_owner"):
                             return empty("scope_rejected")
-                    content_bearing = any(obs.authority == "operator" and obs.fact in
+                    content_bearing = any(obs['authority'] == "operator" and obs['fact'] in
                                           {"packet_content", "packet_content_receipt"} for obs in observations)
                     # Disclosure follows the stored provider-owned outcome,
                     # not a later profile selection when reopening this DB.
@@ -747,16 +853,16 @@ class SimulatedWorld:
                             return empty("scope_rejected")
                         # Full private contents remain in the immutable outcome. Public
                         # original verification initially exposes digest/receipt only.
-                        observations = [obs for obs in observations if obs.fact != "packet_content"]
+                        observations = [obs for obs in observations if obs['fact'] != "packet_content"]
                 object_id = "provider-other-object" if behavior == "wrong_object" else request.object_id
                 if behavior == "wrong_object":
-                    observations = [AuthorityObservation.model_validate({**obs.model_dump(), "object_id": object_id}) for obs in observations]
+                    observations = [{**obs, "object_id": object_id} for obs in observations]
                 if self._now() >= tool_deadline:
                     return empty()
-                return AuthorityReadback(operation=record["operation"] if record else operation, object_id=object_id,
+                return dict(operation=record["operation"] if record else operation, object_id=object_id,
                     observations=observations, provider_request_id=record["request_id"] if record else None,
                     action_id=record["action_id"] if record else None, fingerprint=record["fingerprint"] if record else None,
-                    stage=record["stage"] if record else "observed", nonexecution=NonexecutionProof(),
+                    stage=record["stage"] if record else "observed", nonexecution=dict(status='unknown', basis=None, evidence_ref=None),
                     as_of=self._now(), evidence_refs=["synthetic-provider:readback"])
         except sqlite3.OperationalError:
             return empty()

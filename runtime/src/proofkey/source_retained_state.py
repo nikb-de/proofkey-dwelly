@@ -16,7 +16,7 @@ from .identity import fingerprint, request_fingerprint, validate_json
 from pydantic import TypeAdapter
 from .contracts import (AuthContext, AuthorityObservation, EnvironmentProfile, Hash, Identifier,
                         NonnegativeInt, OwnerState, Revision, RevisionVector, Timestamp)
-from .profiles import validate_profile
+from .profiles import validate_profile, is_window_readiness_profile, _window_original_request_id
 from .process import material_fields
 from .packet_contracts import PacketCatalogV1, PacketAccessSnapshotV1, packet_enabled
 from .ownership_contracts import (OwnershipPacketV1, OwnershipGrantV1, TransferArgumentsV1,
@@ -262,7 +262,14 @@ def _semantics(context, tables, *, check=lambda: None, connection=None, original
             for field in ('fingerprint', 'identity_hash'):
                 _typed(Hash, row[field])
             _timestamp(row['created_at'])
-            if row['request_id'] != 'provider:' + fingerprint({'account': row['account_id'], 'provider_key': row['provider_key']})[:24]:
+            if (is_window_readiness_profile(profile) and row['operation'] == 'reschedule'
+                    and row['request_id'].startswith('provider:window-envelope-v1:')):
+                expected_request_id = _window_original_request_id(**{key: row[key] for key in
+                    ('account_id', 'provider_key', 'case_id', 'object_id', 'operation',
+                     'generation', 'action_id', 'fingerprint', 'identity_hash')})
+            else:
+                expected_request_id = 'provider:' + fingerprint({'account': row['account_id'], 'provider_key': row['provider_key']})[:24]
+            if row['request_id'] != expected_request_id:
                 raise ValueError('invalid')
             key = row['account_id'], row['provider_key']
             if key in outcomes:
