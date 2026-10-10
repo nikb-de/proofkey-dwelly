@@ -61,7 +61,7 @@ def capture_artifacts(root, fixture, output, manifest):
     timings = [json.loads(line.removeprefix('J05_TIMING ')) for record in records
                for line in json.loads(record['raw_utf8'])['stdout'].splitlines()
                if line.startswith('J05_TIMING ')]
-    if {row['lane'] for row in timings} != {'library', 'cli'} or any(
+    if {row['lane'] for row in timings} != {'library', 'configured_cli'} or any(
             len(row['calls']) != 15 or row['active_seconds'] > 120
             or row['host_remaining_seconds'] <= 0
             or any(call['elapsed_seconds'] > 10 for call in row['calls']) for row in timings):
@@ -98,7 +98,7 @@ def capture_artifacts(root, fixture, output, manifest):
             'stop_v2': 'current-source comparison', 'candidate_in_domain': 'executed exact fixed test IDs',
             'candidate_out_of_domain': 'unavailable/unknown, no fallback',
             'unchanged_goods_and_other_paths': 'current-source regression tests',
-            'raw_domain': 'UTF-8 <=262144 bytes, depth <=16, observations <=128, strings <=1024 code points, evidence occurrences <=128; all conjunctive',
+            'raw_domain': 'UTF-8 <=262144 bytes, depth <=16, observations <=128, identifier/revision/reason fields <=1024 Unicode code points, evidence occurrences <=128; all conjunctive',
             'historical_pending_preservation': 'unqualified',
             'limitations': 'No installation, native HTTP, live provider, actual human, activation, migration, retained resolver or completed timed drill.'})
     return artifacts

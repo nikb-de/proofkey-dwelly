@@ -21,6 +21,63 @@ def runner(name='qualify_factory'):
 
 
 class WindowReadinessEvidenceTests(unittest.TestCase):
+    def capture_unit_timing_records(self, timings):
+        # Fabricated unit records exercise capture validation, not qualification.
+        from hashlib import sha256
+        target = runner('qualify_window_readiness')
+        fixture = json.loads((ROOT / 'runtime/tests/fixtures/window-readiness-current-registration-v1.json').read_bytes())
+        ids = fixture['j05_test_ids']
+        records = []
+        for index, test_id in enumerate(ids):
+            stdout = ('J05_TIMING ' + json.dumps(timings[index]) + '\n') if index < len(timings) else ''
+            raw = target.common.canonical({'test_id': test_id, 'outcome': 'passed', 'stdout': stdout})
+            records.append({'case_id': test_id, 'raw_utf8': raw.decode(), 'output_hash': sha256(raw).hexdigest()})
+        manifest = {'execution_id': 'unit-timing-validation-only',
+            'tests': {'planned_ids': ids, 'executed_ids': ids, 'case_outputs': records}}
+        with tempfile.TemporaryDirectory() as directory:
+            artifacts = target.capture_artifacts(ROOT, fixture, Path(directory), manifest)
+        return artifacts, manifest
+
+    def test_capture_accepts_actual_library_and_configured_cli_timing_emitters(self):
+        timings = [{'lane': lane, 'calls': [{'elapsed_seconds': 10}] * 15,
+                    'active_seconds': 120, 'host_remaining_seconds': 0.001}
+                   for lane in ('library', 'configured_cli')]
+        try:
+            artifacts, manifest = self.capture_unit_timing_records(timings)
+        except ValueError as error:
+            self.fail('actual timing emitter identities must pass capture validation: ' + str(error))
+        self.assertEqual(len(artifacts), 6)
+        self.assertEqual(manifest['measured_fit'], timings)
+        self.assertEqual(manifest['executed_test_count'], 156)
+        self.assertEqual(manifest['receipt_group_count'], 8)
+        self.assertIn('identifier/revision/reason fields <=1024 Unicode code points',
+                      manifest['evidence_scope']['raw_domain'])
+
+    def test_capture_rejects_missing_unknown_timing_lanes_and_invalid_fit(self):
+        from copy import deepcopy
+        valid = [{'lane': lane, 'calls': [{'elapsed_seconds': 10}] * 15,
+                  'active_seconds': 120, 'host_remaining_seconds': 0.001}
+                 for lane in ('library', 'configured_cli')]
+        invalid = [[], valid[:1], valid[1:]]
+        for lane in ('cli', 'unknown'):
+            changed = deepcopy(valid)
+            changed[1]['lane'] = lane
+            invalid.append(changed)
+        for field, value in (('active_seconds', 120.001), ('host_remaining_seconds', 0)):
+            changed = deepcopy(valid)
+            changed[0][field] = value
+            invalid.append(changed)
+        changed = deepcopy(valid)
+        changed[1]['calls'][0]['elapsed_seconds'] = 10.001
+        invalid.append(changed)
+        for count in (14, 16):
+            changed = deepcopy(valid)
+            changed[1]['calls'] = [{'elapsed_seconds': 10}] * count
+            invalid.append(changed)
+        for timings in invalid:
+            with self.subTest(timings=timings), self.assertRaisesRegex(ValueError, 'unmeasured_or_failed_fit_blocker'):
+                self.capture_unit_timing_records(timings)
+
     def test_factory_body_injection_preserves_test_id_and_executes_valid_code(self):
         import ast
         from test_factory_qualification import FactoryQualificationTests
