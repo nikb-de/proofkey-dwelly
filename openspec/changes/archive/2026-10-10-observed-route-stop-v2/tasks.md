@@ -11,6 +11,6 @@
 
 ## 3. Evidence and closure
 
-- [ ] 3.1 Implement and execute the trusted-library real-clock run-to-stop example with actual pending-wait fencing and preserved original identities.
-- [ ] 3.2 Run focused/full frozen regression, retain exact evidence and complete independent whole-leaf review.
-- [ ] 3.3 Update bounded support claims and archive the completed child; leave broader J07 recovery/reply/restart and external gates open.
+- [x] 3.1 Implement and execute the trusted-library real-clock run-to-stop example with actual pending-wait fencing and preserved original identities.
+- [x] 3.2 Run focused/full frozen regression, retain exact evidence and complete independent whole-leaf review.
+- [x] 3.3 Update bounded support claims and archive the completed child; leave broader J07 recovery/reply/restart and external gates open.

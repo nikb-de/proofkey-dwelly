@@ -24,7 +24,7 @@ The system SHALL prepare one finite synthetic release from a structured case and
 - **AND** an expired validation context, nonexact clock type or grant that expired after configuration is rejected without extending any grant or already-started case deadline
 
 ### Requirement: Preparation accepts only bounded fixed-family source data
-The helper SHALL support only the packaged flat-v1.3 profile, process-v1 fixed synthetic factory and structured reschedule-window or whole-order goods-refusal requests. It SHALL derive the business fingerprint from the validated request and SHALL NOT describe that fingerprint as a complete request identity.
+The helper SHALL support only the packaged flat-v1.3 profile, process-v1 fixed synthetic family and structured reschedule-window or whole-order goods-refusal requests. It SHALL default to `fixed-synthetic-v1` and permit only the separately specified explicit trusted `fixed-synthetic-observed-stop-v2` selection. It SHALL derive the business fingerprint from the validated request and SHALL NOT describe that fingerprint as a complete request identity.
 
 #### Scenario: Untrusted or malformed preparation input
 - **WHEN** input contains a code/profile/factory override, unsupported request kind, narrative/media input, malformed or oversized fixture, duplicate JSON keys, nonfinite values, invalid UTF-8, excessive nesting or contradictory declared case scope
@@ -92,10 +92,10 @@ The system SHALL permit an exact optional registered composition in trusted `Cli
 - **AND** no supplied authority or code is used
 
 ### Requirement: Registered compatibility and denial contracts remain intact
-The integration helper SHALL preserve one-release composition, fixed executable versions, original writer/route/claim enforcement and current unsupported-command boundaries.
+The integration helper SHALL preserve one-release composition, exact executable versions, original writer/route/claim enforcement and unsupported-command boundaries. Only explicitly selected v2 same-owner stop is added by its separate contract; default v1 remains run-only.
 
 #### Scenario: Unsupported or retained work
-- **WHEN** a caller supplies a different executable family, multiple registered releases, source/pin/resource mismatch, occupied root, ambiguous claim or unsupported registered recovery/reply/stop/transfer
+- **WHEN** a caller supplies a different executable family, multiple registered releases, source/pin/resource mismatch, occupied root, ambiguous claim, registered recovery/reply/transfer, v1 stop or v2 stop outside its current-owner contract
 - **THEN** the existing denial, unavailability or writer-conflict semantics are retained
 - **AND** no existing debt, effect, original identity, deadline or claim is cleared or rebound
 

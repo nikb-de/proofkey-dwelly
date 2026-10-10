@@ -1,15 +1,16 @@
 # Observed-route stop v2: local acceptance, 2026-10-10
 
-Status: the two real-clock trusted-library acceptance cases and the two retained
-example invocations passed. Final frozen-source full-suite verification and
-independent review are **pending** with the controller. This document does not
-claim those gates, OpenSpec archival, or broader J07 integration are complete.
+Status: implementation, both real-clock trusted-library acceptance cases,
+retained example invocations, independent reviews and final frozen regression
+are complete for this bounded source scope. The child is archived and its
+requirements are synced to the living specifications. Broader J07 remains open.
 
 ## Candidate and reproducibility
 
-The production candidate is commit `c370fe7ecd5eda15c847e386090a2cb20600fa82`
+The final tested candidate is commit `4c8fd5a8d515aec6fe9cbd8453f5663027f84ecd`
 on `codex/proofkey-runtime`. Task 3 adds only the example, acceptance tests and
-this document. The resulting Task 3 commit is recorded in the task report at
+this document to production base `c370fe7ecd5eda15c847e386090a2cb20600fa82`.
+The Task 3 implementation record is at
 `.superpowers/sdd/2026-10-10-observed-route-stop-v2/task-3-report.md`; the exact
 tested example and test content hashes are:
 
@@ -220,8 +221,58 @@ The Task 2 focused result is retained without rerunning unchanged code:
 recorded source/test hashes were rechecked successfully during Task 3.
 This is distinct from the final full suite.
 
-Final frozen-source full-suite verification: **pending**. Independent task and
-whole-branch review: **pending**; no approval outcome exists to cite here.
-The controller owns those evidence links and the separate OpenSpec stop-leaf
-archival after gates pass. Broader J07 integration and unrelated trace work
-remain outside this acceptance scope.
+## Final frozen regression and reviews
+
+The controller ran `-B -m unittest discover -s runtime/tests -v` on an exact
+committed Git archive of `4c8fd5a`, with the existing interpreter, explicit
+source/test import paths and the established macOS temporary-root environment.
+Result: **1,829 tests, 1,286.651 seconds, exit 0, zero failures/errors/skips**.
+Wall duration was 1,287.943 seconds. All 281 tracked runtime files had identical
+before/after hashes; the working runtime also still matched that candidate.
+The documentation-only HEAD at completion was `ab34e84`; it did not change
+the archived test input or qualify any J05 implementation.
+
+The [full receipt](../../outputs/proofkey-observed-stop-full-4c8fd5a/receipt.json),
+[unittest log](../../outputs/proofkey-observed-stop-full-4c8fd5a/stderr.txt) and
+both source inventories remain with the exact tested archive. Receipt SHA-256:
+`cf6fb440bc202951896832197bdd29f497f7325b05e5069da04bd2d09e6ae34c`.
+Archive SHA-256:
+`5bcaea6ee9ae326d8af36fbad642bdc9b064819f8c8ec7c9a3afda3adb03f490`.
+Before/after inventory SHA-256:
+`5f424efb78d38cb1cc788a333b7daa782a0b0e383772cf0e2d74e69d55c0309f`.
+
+All three task reviews and the exact-range whole-leaf review report C0/I0/M0
+within their stated scope. The [whole-leaf report](../../outputs/proofkey-observed-stop-20261010/whole-leaf-review.md)
+covers `7b4c6e2..4c8fd5a`, including the original-owner, accounting, clock,
+wait and irreversible-fence boundaries. The review package SHA-256 is
+`248d46c6c50eed17267e9d341179884c8af89848e04b68f4c9f327e944d992e1`.
+The private retention helper separately passed 27 synthetic contract tests
+and a C0/I0/M0 rereview; this is packaging evidence, not more runtime coverage.
+
+Broader J07 recovery/reply/restart, installed-v2, live systems, actual human
+approval and historical-state migration remain unqualified. The parent
+remediation register therefore keeps J07 open.
+
+## Specification closure
+
+Strict child validation passed before archival. The [completed child](../../openspec/changes/archive/2026-10-10-observed-route-stop-v2/tasks.md)
+is archived with all tasks complete. Six added requirements are in the
+[living stop specification](../../openspec/specs/observed-route-stop-v2/spec.md),
+and two modified provisioning requirements are in the
+[living provisioning specification](../../openspec/specs/trusted-replay-case-provisioning/spec.md).
+This closes only the bounded stop leaf, not the parent remediation program.
+
+## Retained closure evidence
+
+The [retention manifest](../../outputs/proofkey-observed-stop-20261010/retention.json)
+records 28 copied review/plan/helper records and 342 original evidence files.
+The controller independently rehashed all 370 entries after successful packing.
+Manifest SHA-256:
+`33fc4cd3bc15bdfbf1c155ee83e1850423bf6d21af9c21cdd0d9dbd2169f3470`.
+The [closure review](../../outputs/proofkey-observed-stop-20261010/closure-review.md)
+reports C0/I0/M0 and verifies the actual suite, archived requirements, open
+parent gates and 122 then-current local links. That review preceded the final
+retention paragraph; its recorded document hash identifies the reviewed
+pre-retention version, not this later index addition. The retained
+[helper review](../../outputs/proofkey-observed-stop-20261010/retention-rereview.md)
+and its RED/GREEN logs distinguish packaging checks from runtime tests.
