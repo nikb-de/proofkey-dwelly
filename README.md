@@ -65,7 +65,9 @@ Team-owned independent evaluation cases and real data remain pending. Follow [th
 
 The saved historical baseline had 50 valid drafts and 11/50 routing matches; this is **not semantic accuracy**. Its results stay in [pilot/](data/dwelly-public-cases/pilot). New model quality must be read from actual experiment receipts, not inferred from passing unit tests or a Docker build.
 
-The [current verification record](docs/model-release-verification.md) records 60 model tests and 58 intake tests passing, an offline Docker run over all 50 cases, and a two-case live smoke with eight received responses: two valid proposals and six valid judge outputs across OpenAI, Anthropic and Gemini. The smoke establishes request compatibility on those cases, with zero business effects; it does not establish calibrated judging or model quality.
+The [current verification record](docs/model-release-verification.md) now includes the completed 50-case development experiment: 50 structurally valid proposals, 200 API attempts, 142/150 scored judge outputs, eight Gemini errors, no abstentions and zero business effects. USD 3.5423817 was reserved under a USD 5 per-provider/model cap; this is not an invoice. Earlier verification recorded 60 model tests, 58 intake tests, an offline 50-case Docker run and a two-case live smoke.
+
+An internal assistant spot-check found wrong-party routing, a false date-boundary claim, an invented attachment and unsupported service options; see [observed semantic failures](docs/model-release-verification.md#observed-semantic-failures). On one faulty proposal, OpenAI awarded all eight maximum scores while Claude flagged a critical error. Structurally valid outputs and judge agreement do not establish correctness.
 
 Eight rubric scores assess next action, routing, required details, grounding, authority/consent, fabrication, escalation and clarity. All are provisional model judgments. No human calibration, untouched holdout, semantic safety certification, meaningful vision/audio or operational execution is claimed. Missing/error/abstaining judge seats never become zero scores or successes. Read [release verification](docs/model-release-verification.md) for the actual available evidence.
 
@@ -73,4 +75,4 @@ This private release does not resolve ownership or redistribution rights for ups
 
 ## 8. Next steps
 
-The complete 50-case model experiment remains pending after the two-case smoke. Run it with the configured credentials and a fresh output directory, then inspect provider identities, reservations, errors and judge disagreements. Collect the team's independent evaluation cases and permitted real examples, inspect judge sensitivity, and obtain human review before asserting correctness. A bridge to the execution runtime, native adapters, demo video and unseen challenge submission remain separate work.
+Collect the team's independent evaluation cases and permitted real examples, calibrate judges against explicit correct and incorrect controls, and test a bounded general prompt candidate for routing, policy boundaries and unsupported claims. That candidate has not been implemented or evaluated. Obtain human review before asserting correctness. A bridge to the execution runtime, native adapters, demo video and unseen challenge submission remain separate work.
