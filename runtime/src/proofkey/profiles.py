@@ -176,6 +176,29 @@ def is_window_readiness_profile(profile: EnvironmentProfile) -> bool:
         return False
 
 
+def _validate_selected_profile(factory_key: str, profile: EnvironmentProfile,
+                               request_kind: str | None = None) -> None:
+    """Accept only a fixed factory/profile selection; otherwise raise ValueError."""
+    if type(factory_key) is not str or type(profile) is not EnvironmentProfile:
+        raise ValueError("Unsupported fixed profile selection")
+    validate_profile(profile)
+    if factory_key in ('fixed-synthetic-v1', 'fixed-synthetic-observed-stop-v2'):
+        if ((profile.profile_id, profile.version, profile.release_hash,
+             profile.process_hash, profile.policy_hash) !=
+            ('flat-v1.3', 'v1.3',
+             '5bb712b13efaace655ee7180f3d913d93cbd637e3d1685331c6a1eecbade7bf4',
+             '91cb93780a0cd1612fbeea2aab4e9ee7ac5cc6007e1d8ee2952d52655a9f75e2',
+             '1905842f17fd73559d48f4f2d04928a5be734464b966b7167808a05732cdf752')
+                or any(item.version != 'v1' for item in profile.processes.values())):
+            raise ValueError("Unsupported fixed profile selection")
+    elif factory_key == WINDOW_READINESS_FACTORY_KEY:
+        if (not is_window_readiness_profile(profile)
+                or (request_kind is not None and request_kind != 'reschedule_window')):
+            raise ValueError("Unsupported fixed profile selection")
+    else:
+        raise ValueError("Unsupported fixed profile selection")
+
+
 def supports_process_operation(profile: EnvironmentProfile, process_version: str,
                                operation: str, consent_mode: object) -> bool:
     if not is_window_readiness_profile(profile):

@@ -1,4 +1,5 @@
 """Independent J05 fixtures; unit source bytes confer no execution qualification."""
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from hashlib import sha256
 
@@ -9,6 +10,43 @@ from proofkey.identity import fingerprint
 from proofkey.packet_contracts import PacketCatalogV1, PacketAccessSnapshotV1
 from proofkey.profiles import load_profile
 from support_synthetic_provisioning import case_data, cj
+
+
+@contextmanager
+def opened_candidate_case():
+    """Fresh real registered v3 resources; source is complete before hashing."""
+    from datetime import timedelta
+    from pathlib import Path
+    from tempfile import TemporaryDirectory
+    from types import SimpleNamespace
+    from proofkey.contracts import AuthContext
+    from proofkey.host import RuntimeFactory
+    from proofkey.host_admission import (LocalAdmissionCompositionV1,
+        ProvisionedReviewResolverV1, SyntheticReviewGrantV1)
+    from proofkey.synthetic_provisioning import SyntheticCaseReleaseSpecV1, prepare_synthetic_release
+    from support_synthetic_provisioning import context
+    from test_host_admission import paced_clock
+    with TemporaryDirectory() as folder, paced_clock() as (clock, state):
+        parent = Path(folder).resolve()
+        parent.chmod(0o700)
+        request, source = candidate_case_data()
+        prepared = prepare_synthetic_release(
+            SyntheticCaseReleaseSpecV1('J05-H', 'J05-L', 'J05-R', request, cj(source)),
+            parent=parent, clock=clock, execution=context(clock),
+            factory_key='fixed-synthetic-window-readiness-v3')
+        grant = SyntheticReviewGrantV1('j05-review', prepared.binding.artifact_hash,
+            'j05-synthetic-reviewer', 'admit_fixed_local_replay', 'synthetic_rehearsal',
+            clock.now(), clock.now() + timedelta(minutes=10))
+        composition = LocalAdmissionCompositionV1(prepared.registry, prepared.binding,
+            ProvisionedReviewResolverV1((grant,)), grant.review_id, prepared.control_parent)
+        runtime = RuntimeFactory().create_registered(prepared.host_release, clock,
+            composition=composition, execution=context(clock))
+        try:
+            yield SimpleNamespace(parent=parent, prepared=prepared, runtime=runtime,
+                request=request, clock=clock, state=state, composition=composition,
+                auth=AuthContext(caller_id=request.principal_id, proof_reference='j06-synthetic-proof'))
+        finally:
+            runtime.close()
 
 
 UNIT_PATHS = (

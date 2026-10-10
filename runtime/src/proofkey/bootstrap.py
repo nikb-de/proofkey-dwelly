@@ -16,6 +16,7 @@ from .contracts import AuthContext, WireModel
 from .clock import SyntheticReplayClock
 from .host import ApprovedProfileRelease, AuthResolver, ProfileRegistry, RuntimeFactory
 from .host_admission import LocalAdmissionCompositionV1
+from .profiles import _validate_selected_profile
 from .host_contracts import (BatchRunReceiptV1, CommandRunReceiptV1, ShutdownReceiptV1,
                              HostLimitsV1, InterfaceLimitsV1)
 from .host_files import _read
@@ -206,12 +207,12 @@ class CliConfiguration:
         registered = composition.registry.resolve(binding.registered_release_id)
         factory, resource = registered.factory, registered.resource
         profile, fixture = _registered_fixture_snapshot(release)
+        _validate_selected_profile(binding.host_factory_key, profile, release.admitted_request_kind)
         source = json.loads(b64decode(json.loads(registered.wire_bytes)["blobs"]["source"]["base64"], validate=True))
         identity = os.lstat(release.resource_root)
         if (release.release_id != binding.host_release_id
                 or registered.artifact_hash != binding.artifact_hash
-                or release.mode != "synthetic_replay" or profile.version != "v1.3"
-                or any(process.version != "v1" for process in profile.processes.values())
+                or release.mode != "synthetic_replay"
                 or factory.factory_id != binding.factory_id
                 or factory.implementation_pins != binding.implementation_pins
                 or factory.dependency_hash != binding.dependency_hash

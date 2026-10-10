@@ -21,6 +21,8 @@ from .identity import request_fingerprint
 from .admission_routes import AdmissionRouteStoreV1, RouteRecordV1
 from .retained_state import RetainedStateSnapshotV1
 from .registered_releases import ReleaseRegistryV1, RegisteredReleaseV1
+from .profiles import (WINDOW_READINESS_FACTORY_KEY, WINDOW_READINESS_IMPLEMENTATION_PATHS,
+                       _validate_selected_profile)
 
 
 class AdmissionCompositionFailure(ValueError):
@@ -141,6 +143,8 @@ def _implementation_paths(factory_key: str) -> tuple[str, ...]:
         return FIXED_IMPLEMENTATION_PATHS
     if factory_key == OBSERVED_STOP_V2_FACTORY_KEY:
         return OBSERVED_STOP_V2_IMPLEMENTATION_PATHS
+    if factory_key == WINDOW_READINESS_FACTORY_KEY:
+        return WINDOW_READINESS_IMPLEMENTATION_PATHS
     raise AdmissionCompositionFailure('unsupported_release')
 
 
@@ -237,6 +241,7 @@ class LocalAdmissionCompositionV1:
 @_checked
 def validate_composition(release, clock, composition, execution):
     from .host import ApprovedProfileRelease
+    from .synthetic_provisioning import _profile_commitment
     _require(type(release) is ApprovedProfileRelease and type(clock) is SyntheticReplayClock, 'scope')
     _require(type(composition) is LocalAdmissionCompositionV1)
     LocalAdmissionCompositionV1(composition.registry, composition.binding, composition.approvals,
@@ -252,8 +257,13 @@ def validate_composition(release, clock, composition, execution):
     _require(factory.factory_id == binding.factory_id and factory.implementation_pins == binding.implementation_pins
         and factory.dependency_hash == binding.dependency_hash, 'conflict')
     profile = release.validate()
-    _require(release.mode == 'synthetic_replay' and profile.version == 'v1.3'
-        and all(process.version == 'v1' for process in profile.processes.values()), 'unsupported_release')
+    _require(release.mode == 'synthetic_replay', 'unsupported_release')
+    try:
+        _validate_selected_profile(binding.host_factory_key, profile, release.admitted_request_kind)
+        _require(release.profile_file_hash == _profile_commitment(binding.host_factory_key)[1],
+                 'unsupported_release')
+    except ValueError:
+        raise AdmissionCompositionFailure('unsupported_release') from None
     body = json.loads(registered.wire_bytes)
     _require(base64.b64decode(body['blobs']['profile']['base64'], validate=True)
         == _canonical(profile.model_dump(mode='json')), 'conflict')
@@ -911,7 +921,8 @@ class RegisteredAdmissionOwner:
             return
         _require(entry_kind is None, 'scope')
         self._guard_parent(execution, gateway)
-        control_context(execution, self.clock)
+        if self.composition.binding.host_factory_key != WINDOW_READINESS_FACTORY_KEY:
+            control_context(execution, self.clock)
 
     @_checked
     def require_entry(self, request, auth):

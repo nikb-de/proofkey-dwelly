@@ -27,12 +27,27 @@ from .host_admission import (AdmissionCompositionFailure, HostExecutableBindingV
 from .host_contracts import parse_command
 from .host_files import _read, _write
 from .identity import request_fingerprint
-from .profiles import validate_profile
+from .profiles import validate_profile, _validate_selected_profile
 from .registered_releases import (KnownFactoryV1, ReleaseArtifactV1, ReleaseBlobV1,
                                   ReleaseRegistryV1, ResourceSetV1, _POLICY)
 
 _MIB = 1048576
 _CHILDREN = ("data", "resources", "control", "inventories", "outputs")
+
+
+def _profile_commitment(factory_key: str) -> tuple[str, str, str, str, str]:
+    """Exact packaged resource and semantic commitments for each trusted key."""
+    if type(factory_key) is str and factory_key in (
+            'fixed-synthetic-v1', 'fixed-synthetic-observed-stop-v2'):
+        return ('flat-v1.3.json', _PINNED_PROFILE_FILE, _PINNED_PROFILE,
+                _PINNED_PROCESS, _PINNED_POLICY)
+    if type(factory_key) is str and factory_key == 'fixed-synthetic-window-readiness-v3':
+        return ('flat-window-readiness-v1.json',
+                '19e2cb56c5a7353406020ee06e1b7bf750f27e59e304ffdcbd48ac36963427a7',
+                '487ad1455373bf86f957e2d2a4fd852af47d9ca2c83488e8754b399e015cbc2a',
+                'e8e09a51083d58781ff2e8935263840d08b3457a88f171c49053b81d24de9184',
+                '1905842f17fd73559d48f4f2d04928a5be734464b966b7167808a05732cdf752')
+    raise ValueError('Unsupported fixed profile selection')
 
 
 class SyntheticPreparationFailureV1(ValueError):
@@ -230,13 +245,13 @@ def _validate_input(spec, clock, execution, *, factory_key='fixed-synthetic-v1')
         _fixture_envelope(_fixture_json(raw), request, business)
         _boundary(clock, execution)
         package = Path(__file__).resolve().parent
-        profile_bytes = _installed_bytes(package / "resources/profiles/flat-v1.3.json")
-        _require(sha256(profile_bytes).hexdigest() == _PINNED_PROFILE_FILE)
+        resource_name, file_hash, release_hash, process_hash, policy_hash = _profile_commitment(factory_key)
+        profile_bytes = _installed_bytes(package / "resources/profiles" / resource_name)
+        _require(sha256(profile_bytes).hexdigest() == file_hash)
         profile = validate_profile(EnvironmentProfile.model_validate_json(profile_bytes))
-        _require(profile.profile_id == "flat-v1.3" and profile.version == "v1.3"
-                 and (profile.release_hash, profile.process_hash, profile.policy_hash)
-                 == (_PINNED_PROFILE, _PINNED_PROCESS, _PINNED_POLICY)
-                 and all(item.version == "v1" for item in profile.processes.values()))
+        _validate_selected_profile(factory_key, profile, request.kind)
+        _require((profile.release_hash, profile.process_hash, profile.policy_hash)
+                 == (release_hash, process_hash, policy_hash))
         implementations = []
         for name in implementation_paths:
             _boundary(clock, execution)
@@ -481,12 +496,15 @@ class PreparedSyntheticReleaseV1:
     _identities: tuple[tuple[Path, tuple[tuple[int, int], ...]], ...]
     _file_identities: tuple[tuple[Path, tuple[int, ...]], ...]
     _clock: SyntheticReplayClock
+    _request_bytes: bytes
 
     def summary(self):
         return dict(host_release_id=self.binding.host_release_id,
             registered_release_id=self.binding.registered_release_id,
             resource_id=self.registry.resolve(self.binding.registered_release_id).resource.resource_id,
-            profile_version=self.host_release.profile_version, process_version="v1",
+            profile_version=self.host_release.profile_version,
+            process_version=("v2-window-readiness" if self.binding.host_factory_key ==
+                             'fixed-synthetic-window-readiness-v3' else "v1"),
             business_fingerprint=self.host_release.admitted_request_fingerprint,
             artifact_hash=self.binding.artifact_hash, status="prepared_synthetic_unapproved")
 
@@ -587,6 +605,12 @@ def _revalidate_prepared(prepared, clock, execution):
                  (str(host.resource_root), *dict(prepared._identities)[host.resource_root][-1]),
                  "identity_changed")
         package = Path(__file__).resolve().parent
+        implementation_paths = _implementation_paths(binding.host_factory_key)
+        _require(tuple(name for name, _ in binding.implementation_pins) == implementation_paths,
+                 "identity_changed")
+        resource_name, file_hash, release_hash, process_hash, policy_hash = _profile_commitment(binding.host_factory_key)
+        _require(sha256(_installed_bytes(package / "resources/profiles" / resource_name)).hexdigest()
+                 == file_hash, "identity_changed")
         for name, digest in binding.implementation_pins:
             _boundary(clock, execution)
             _require(sha256(_installed_bytes(package / name)).hexdigest() == digest, "identity_changed")
@@ -595,12 +619,23 @@ def _revalidate_prepared(prepared, clock, execution):
         profile_raw, profile_identity = _staged_snapshot(host.profile_path, prepared._identities, root)
         fixture_raw, fixture_identity = _staged_snapshot(host.fixture_path, prepared._identities, root)
         _require((profile_identity, fixture_identity) == tuple(recorded_files.values()), "identity_changed")
-        _require(sha256(profile_raw).hexdigest() == host.profile_file_hash == _PINNED_PROFILE_FILE
+        _require(sha256(profile_raw).hexdigest() == host.profile_file_hash == file_hash
                  and sha256(fixture_raw).hexdigest() == host.fixture_hash, "identity_changed")
         profile = validate_profile(EnvironmentProfile.model_validate_json(profile_raw))
         _require((profile.profile_id, profile.version, profile.release_hash, profile.process_hash, profile.policy_hash) ==
                  (host.profile_id, host.profile_version, host.profile_hash, host.process_hash, host.policy_hash)
-                 == ("flat-v1.3", "v1.3", _PINNED_PROFILE, _PINNED_PROCESS, _PINNED_POLICY), "identity_changed")
+                 == (resource_name.removesuffix('.json'), "v1.3", release_hash, process_hash, policy_hash), "identity_changed")
+        _require(type(prepared._request_bytes) is bytes and 0 < len(prepared._request_bytes) <= _MIB,
+                 "identity_changed")
+        try:
+            request = _request_snapshot(CanonicalRequest.model_validate_json(prepared._request_bytes), host.release_id)
+        except (ValueError, TypeError):
+            raise SyntheticPreparationFailureV1("identity_changed") from None
+        _require(_canonical(request.model_dump(mode='json')) == prepared._request_bytes
+                 and request.kind == host.admitted_request_kind
+                 and request_fingerprint(request) == host.admitted_request_fingerprint, "identity_changed")
+        _validate_selected_profile(binding.host_factory_key, profile, request.kind)
+        _fixture_envelope(_fixture_json(fixture_raw), request, host.admitted_request_fingerprint)
         body = json.loads(registered.wire_bytes)
         _require(b64decode(body["blobs"]["profile"]["base64"], validate=True) ==
                  _canonical(profile.model_dump(mode="json")), "identity_changed")
@@ -653,11 +688,13 @@ def prepare_synthetic_release(spec, *, parent, clock, execution, factory_key='fi
         host = ApprovedProfileRelease(snapshot.host_release_id, "synthetic_replay", profile_path,
             fixture_path, allocation.resources, sha256(snapshot.profile_bytes).hexdigest(),
             profile.release_hash, profile.process_hash, profile.policy_hash,
-            sha256(snapshot.fixture_bytes).hexdigest(), snapshot.request.kind, snapshot.business_fingerprint)
+            sha256(snapshot.fixture_bytes).hexdigest(), snapshot.request.kind, snapshot.business_fingerprint,
+            profile.profile_id, profile.version)
         files = tuple((path, _staged_snapshot(path, allocation.identities, allocation.root)[1])
                       for path in (profile_path, fixture_path))
         prepared = PreparedSyntheticReleaseV1(host, registry, binding, allocation.root,
-            allocation.control, allocation.inventories, allocation.outputs, allocation.identities, files, clock)
+            allocation.control, allocation.inventories, allocation.outputs, allocation.identities, files, clock,
+            _canonical(snapshot.request.model_dump(mode='json')))
         _revalidate_prepared(prepared, clock, execution)
     return prepared
 
