@@ -35,6 +35,11 @@ The helper SHALL support the packaged flat-v1.3 profile, process-v1 fixed synthe
 - **THEN** it is rejected before entry
 - **AND** a default or v2 selection is not silently upgraded to v3 and no historical resource root is adopted.
 
+#### Scenario: Configured CLI validates the same closed selection
+- **WHEN** a trusted configured CLI validates an exact v3 composition
+- **THEN** its structural bootstrap SHALL apply the same bound factory-key/profile/request-kind selection as preparation and host composition
+- **AND** independent registry, executable-pin, source-snapshot, resource identity and directory checks SHALL remain mandatory with no arbitrary profile override.
+
 ### Requirement: Registered compatibility and denial contracts remain intact
 The integration helper SHALL preserve one-release composition, exact executable versions, original writer/route/claim enforcement and unsupported-command boundaries. Only explicitly selected v2 same-owner stop is added by its separate contract; default v1 remains run-only. Explicit v3 SHALL also be run-only and SHALL NOT inherit v2 stop or any registered recovery/reply/transfer authority. Adapter-level candidate exact-slot comparisons SHALL NOT expand v3 preparation beyond reschedule-window.
 
