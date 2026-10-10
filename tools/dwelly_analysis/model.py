@@ -289,6 +289,10 @@ def parse(value, response):
             raise ValueError
         if kind in {"request_information", "request_readback", "propose_forwarding"} and target is None:
             raise ValueError
+        # Forwarding requires another recipient; a valid actor ID alone must not
+        # allow an accepted proposal to route the request back to our own desk.
+        if kind == "propose_forwarding" and target == value["our_actor_id"]:
+            raise ValueError
         return {"schema_version": "proofkey-step-candidate-v1", "input_hash": value["input_hash"],
                 "mode": "model", **copy.deepcopy(candidate), "live_calls": 1, "operational_effects": 0,
                 "physical_delivery": "not_inferred"}

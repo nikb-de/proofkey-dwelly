@@ -59,3 +59,7 @@ python3 -m tools.dwelly_submission \
 ```
 
 The commands refuse existing case directories so reproduction must use a fresh output directory. They package retained development evidence; they do not rerun the original model or certify provenance. The official run uses the separate [reality runner](../tools/dwelly_reality/README.md), not this development exporter.
+
+## Post-run corrections
+
+Independent comparison identified recipient, wording and state issues. [Human-reviewed corrections](../docs/verification/answer-comparison/README.md) are linked separately from cases 001, 004, 005, 007, 009, 014, 017, 018 and 025. These are proposed review amendments; original response/candidate JSON and source evidence remain unchanged. They do not replace the frozen system results or count as a new model run.
