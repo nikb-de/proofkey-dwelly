@@ -42,8 +42,10 @@ case-state-widget/
 ├── schema.json               # структурная JSON Schema
 ├── case-002.json             # полный разбор исходного кейса 002
 ├── examples/minimal.json     # самостоятельный пример: запрос → ожидание
+├── examples/case-002-channel-failure.json # негативная ветка N4
+├── examples/case-002-negative.md # разбор негативной ветки
 ├── package.json              # ES modules и команда тестов
-└── tests/viewer.test.mjs      # тесты без сторонних зависимостей
+└── tests/                    # тесты движка и негативной ветки
 ```
 
 ## Структура входных данных
@@ -241,6 +243,12 @@ case-state-widget/
 
 Источник: [DwellyOrg/HackatonPublicCases](https://github.com/DwellyOrg/HackatonPublicCases/tree/9bcdca585955dfb930005ed742572606e68f5688/Delivery%20%26%20Logistics/002), коммит `9bcdca585955dfb930005ed742572606e68f5688`. Кейс синтетический; русские формулировки и снимки состояния подготовлены для визуализации. В общей копии репозитория к исходным и производным данным применимы [NOTICE.md](https://github.com/nikb-de/proofkey-dwelly/blob/main/NOTICE.md) и [LICENSE-STATUS.md](https://github.com/nikb-de/proofkey-dwelly/blob/main/LICENSE-STATUS.md).
 
+## Негативный сценарий 002
+
+Размечена существующая ветка **N4 · CHANNEL_FAILURE**: форма завершилась ошибкой, и неизвестно, сохранилось ли исправление. [JSON для загрузки](examples/case-002-channel-failure.json) · [разбор шагов, выбора и критериев](examples/case-002-negative.md).
+
+На 005 агент готов запросить проверку; на 006 ждёт службу; на 007 завершает обращение после подтверждения первой попытки. Повторная отправка исправления не производится.
+
 ## Встраивание
 
 Расположите `viewer.js` и `viewer.css` рядом. Компонент использует Shadow DOM; готовая оболочка `app.js` для встраивания не обязательна.
@@ -275,6 +283,7 @@ case-state-widget/
 
 ```sh
 node case-state-widget/tests/viewer.test.mjs
+node case-state-widget/tests/negative-002.test.mjs
 ```
 
 Проверяются воспроизведение всех состояний 002, точность JSON и diff, удаление полей, экранирование текста, ожидание другого исполнителя, недопустимые ссылки на будущее, изменение прошлых сообщений и минимальный пример из README.
