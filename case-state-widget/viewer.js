@@ -49,6 +49,7 @@ export function validateCase(data) {
   for(const msg of state.messages) {
    need(object(msg)&&typeof msg.event_id==='string'&&!messageIds.has(msg.event_id),`${label}: идентификаторы сообщений должны быть уникальны.`);
    need(own(state.actors,msg.from_actor)&&own(state.actors,msg.to_actor),`${label}: неизвестный участник сообщения ${msg.event_id}.`);
+   need(msg.copy_to===undefined||(Array.isArray(msg.copy_to)&&msg.copy_to.length>0&&msg.copy_to.every(id=>own(state.actors,id))),`${label}: copy_to сообщения ${msg.event_id} должен содержать известных участников.`);
    need(typeof (msg.body_ru??msg.body)==='string',`${label}: нет текста сообщения ${msg.event_id}.`);
    messageIds.add(msg.event_id);
   }
@@ -64,6 +65,7 @@ export function validateCase(data) {
    for(const id of c.evidence_event_ids) need(observed.has(id),`${label}: подтверждение критерия ${id} ещё не наступило.`);
    criterionIds.add(c.id);
   }
+  need(state.limits===undefined||(Array.isArray(state.limits)&&state.limits.every(item=>typeof item==='string')),`${label}: limits должен быть массивом строк.`);
   need(state.annotations===undefined||Array.isArray(state.annotations),`${label}: annotations должен быть массивом.`);
   for(const note of state.annotations??[]) {
    need(object(note)&&typeof note.text==='string',`${label}: в пояснении нужен text.`);
@@ -133,7 +135,7 @@ export class CaseStateViewer extends Base {
   const first=this.el('state-json').querySelector('.changed');this.el('json-scroll').scrollTop=first?Math.max(0,first.offsetTop-60):0;
   const annotation=n=>`<aside class="reported-context" data-annotation-id="${e(n.id)}"><div class="context-label">${e(n.title??'Пояснение')}</div><p>${e(n.text)}</p>${n.source_event_ids?.length?`<small>Источник: ${e(n.source_event_ids.join(', '))}</small>`:''}</aside>`;
   const notes=state.annotations??[];
-  this.el('history').innerHTML=state.messages.map(m=>notes.filter(n=>n.before_message_id===m.event_id).map(annotation).join('')+`<article class="history-message ${m.from_actor===state.our_actor_id?'outgoing':''} ${m.event_id===step?.event.message_id?'selected':''}" data-event-id="${e(m.event_id)}"><div class="message-label">${m.from_actor===state.our_actor_id?'Мы · исходящее':'Входящее'}${m.event_id===step?.event.message_id?' · текущий шаг':''}</div><div class="route">${e(actor(m.from_actor))} → ${e(actor(m.to_actor))}</div><div class="meta">${e([m.event_id,m.timestamp,m.channel].filter(Boolean).join(' · '))}</div><p>${e(m.body_ru??m.body)}</p></article>`).join('')+notes.filter(n=>!n.before_message_id).map(annotation).join('')||'<p class="muted">Сообщений пока нет. Нажмите «Следующий шаг».</p>';
+  this.el('history').innerHTML=state.messages.map(m=>notes.filter(n=>n.before_message_id===m.event_id).map(annotation).join('')+`<article class="history-message ${m.from_actor===state.our_actor_id?'outgoing':''} ${m.event_id===step?.event.message_id?'selected':''}" data-event-id="${e(m.event_id)}"><div class="message-label">${m.from_actor===state.our_actor_id?'Мы · исходящее':'Входящее'}${m.event_id===step?.event.message_id?' · текущий шаг':''}</div><div class="route">${e(actor(m.from_actor))} → ${e([actor(m.to_actor),...(m.copy_to??[]).map(actor)].join(', '))}</div><div class="meta">${e([m.event_id,m.timestamp,m.channel].filter(Boolean).join(' · '))}</div><p>${e(m.body_ru??m.body)}</p></article>`).join('')+notes.filter(n=>!n.before_message_id).map(annotation).join('')||'<p class="muted">Сообщений пока нет. Нажмите «Следующий шаг».</p>';
   this.el('message-count').textContent=`Сообщений: ${state.messages.length}`;
   this.el('history').scrollTop=this.el('history').scrollHeight;
  }
