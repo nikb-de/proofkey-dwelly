@@ -51,6 +51,12 @@ The helper SHALL recheck binding, phase, next gate, profile/process/policy versi
 ### Requirement: Raw source bytes precede adapter normalization
 The synthetic world SHALL expose private raw scheduling entrypoints returning UTF-8 JSON bytes assembled from private source transaction/read data before public normalization. Legacy typed results SHALL use the common source data through their original typed path. Public scheduling-port signatures SHALL remain unchanged. Every candidate scheduling read SHALL use raw decoding; only candidate window dispatch SHALL use raw dispatch, while candidate exact-slot dispatch remains typed.
 
+#### Scenario: Legacy observation validation precedes commitment
+- **WHEN** a legacy typed dispatch generates an observation with an invalid optional source revision, even if all required material revisions are valid
+- **THEN** its original typed observation validation fails inside the source transaction before any effect is committed
+- **AND** all transaction-owned source mutations roll back, with no acknowledged invalid original
+- **AND** valid typed dispatches retain typed observation JSON serialization, while candidate raw scheduling bytes remain assembled from raw source data rather than a serialized public result.
+
 #### Scenario: Distinct source response is exercised
 - **WHEN** trusted fault `http200_business_failed` executes for candidate window dispatch
 - **THEN** raw bytes contain HTTP 200 and business_failed while no effect or terminal row exists

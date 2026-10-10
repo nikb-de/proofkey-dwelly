@@ -26,6 +26,8 @@ The controlled synthetic factory cannot yet qualify an executable process change
 
 ## Impact
 
+Final regression also identified a legacy transaction-validation regression introduced by shared raw assembly. The implementation must preserve pre-commit typed observation validation and serialization for typed dispatches, without manufacturing raw scheduling responses from normalized public models. A malformed optional source fact must not produce an acknowledged, unreadable committed original.
+
 Changes are confined to existing package modules (principally profiles, factory proposal/release, scheduling/world adapters, gateway/engine, host admission and provisioning), two profile JSON copies, explicit packaging lists and focused tests. There are no new package modules, dependencies, database DDL, providers or public scheduling-port signatures.
 
 This change depends on completion, archive and source freeze of `observed-route-stop-v2`; its shared provisioning delta is based on that post-archive contract. A separate reviewed Superpowers implementation plan must follow these artifacts before code changes. Final executable hashes are calculated only after implementation and freeze. This proposal makes no runtime, installed-artifact, live-provider, human-review, activation, migration or completed-drill claim.
