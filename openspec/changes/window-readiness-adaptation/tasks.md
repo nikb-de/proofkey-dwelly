@@ -1,7 +1,7 @@
 ## 1. Freeze prerequisites and implementation plan
 
-- [ ] 1.1 Confirm observed-route-stop-v2 is complete, archived and source-frozen; reconcile these shared provisioning deltas against its resulting living requirements without removing v1/v2 behavior.
-- [ ] 1.2 Review this child specification, refresh source anchors, and create a separate reviewed Superpowers implementation plan under docs/superpowers/plans using these tasks as input; do not begin code before that plan.
+- [x] 1.1 Confirm observed-route-stop-v2 is complete, archived and source-frozen; reconcile these shared provisioning deltas against its resulting living requirements without removing v1/v2 behavior.
+- [x] 1.2 Review this child specification, refresh source anchors, and create a separate reviewed Superpowers implementation plan under docs/superpowers/plans using these tasks as input; do not begin code before that plan.
 
 ## 2. Exact profile and trusted registration
 
