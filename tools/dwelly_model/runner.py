@@ -31,7 +31,8 @@ def _validate_config(config):
         raise ValueError("exactly_three_judges_required")
     rates = {}
     for seat in [config["proposer"], *judges]:
-        if type(seat) is not dict or set(seat) != seat_fields:
+        if (type(seat) is not dict or not seat_fields <= set(seat)
+                or set(seat) - seat_fields - {"workspace_id_env"}):
             raise ValueError("invalid_provider_config")
         if seat["provider"] not in {"openai", "anthropic", "gemini"}:
             raise ValueError("unsupported_provider")
@@ -40,6 +41,10 @@ def _validate_config(config):
             raise ValueError("invalid_model")
         if type(seat["api_key_env"]) is not str or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", seat["api_key_env"]):
             raise ValueError("invalid_api_key_env")
+        if "workspace_id_env" in seat:
+            if (seat["provider"] != "anthropic" or type(seat["workspace_id_env"]) is not str
+                    or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", seat["workspace_id_env"])):
+                raise ValueError("invalid_workspace_id_env")
         pair = (positive_decimal(seat["input_usd_per_million"], "input_price"),
                 positive_decimal(seat["output_usd_per_million"], "output_price"))
         key = (seat["provider"], seat["model"])
@@ -55,10 +60,15 @@ def preflight(config):
     _validate_config(config)
     names = sorted({seat["api_key_env"] for seat in [config["proposer"], *config["judges"]]})
     missing = [name for name in names if name not in os.environ]
-    return {"ready": not missing, "missing_credentials": missing,
+    workspace_names = sorted({seat["workspace_id_env"] for seat in [config["proposer"], *config["judges"]]
+                              if "workspace_id_env" in seat})
+    missing_workspace = [name for name in workspace_names if name not in os.environ]
+    return {"ready": not missing and not missing_workspace, "missing_credentials": missing,
             "credential_presence": {name: name in os.environ for name in names},
+            "missing_workspace_config": missing_workspace,
+            "workspace_config_presence": {name: name in os.environ for name in workspace_names},
             "network_checked": False, "billing_checked": False,
-            "note": "Presence only; empty, expired or unauthorized keys are not validated."}
+            "note": "Presence only; key/workspace values, permissions, expiration and billing are not validated."}
 
 
 def _write(path, value):
@@ -73,7 +83,7 @@ def _write(path, value):
 def _error_code(error):
     if isinstance(error, providers.ProviderError):
         code = error.code
-        if re.fullmatch(r"(?:http_[0-9]{3}|invalid_config|missing_api_key|invalid_api_key|timeout|network_error|response_too_large|invalid_response|incomplete_response|missing_text)", code):
+        if re.fullmatch(r"(?:http_[0-9]{3}|invalid_config|missing_api_key|invalid_api_key|missing_workspace_id|invalid_workspace_id|timeout|network_error|response_too_large|invalid_response|incomplete_response|missing_text)", code):
             return code
         return "provider_error"
     if isinstance(error, TimeoutError):
@@ -81,6 +91,19 @@ def _error_code(error):
     if isinstance(error, ValueError) and error.args and error.args[0] in {"budget_exhausted", "duplicate_request"}:
         return error.args[0]
     return "invalid_output" if isinstance(error, (ValueError, TypeError, KeyError)) else "request_failed"
+
+
+def _model_json(text):
+    """Decode model text, allowing one complete outer JSON Markdown fence."""
+    if not isinstance(text, str):
+        raise ValueError("invalid_model_json")
+    text = text.strip()
+    if text.startswith("```"):
+        fenced = re.fullmatch(r"```json\r?\n(.*)\r?\n```", text, re.DOTALL)
+        if fenced is None:
+            raise ValueError("invalid_model_json_fence")
+        text = fenced.group(1)
+    return cases.strict_json(text)
 
 
 def _baseline_candidate(baseline):
@@ -200,7 +223,7 @@ def run_experiment(bundle, output, config, *, live=False, limit=50, include_refe
                     candidate = None
                     if response is not None:
                         try:
-                            candidate = semantic.validate_proposal(snapshot, cases.strict_json(response["text"]))
+                            candidate = semantic.validate_proposal(snapshot, _model_json(response["text"]))
                         except (ValueError, TypeError, KeyError, RecursionError, OverflowError):
                             state["execution_errors"][f"{case_id}-proposer"] = "invalid_proposal"
                     proposals[case_id] = _envelope(snapshot, candidate, mode) if candidate is not None else None
@@ -240,7 +263,7 @@ def run_experiment(bundle, output, config, *, live=False, limit=50, include_refe
                                     record.update(status="error", reason=state["execution_errors"].get(request_key, "request_failed"))
                                 else:
                                     try:
-                                        judgment = semantic.validate_judgment(snapshot, cases.strict_json(response["text"]))
+                                        judgment = semantic.validate_judgment(snapshot, _model_json(response["text"]))
                                         record.update(status="ok", judgment=judgment, reason=None,
                                                       observed_model=response.get("observed_model"))
                                     except (ValueError, TypeError, KeyError, RecursionError, OverflowError):

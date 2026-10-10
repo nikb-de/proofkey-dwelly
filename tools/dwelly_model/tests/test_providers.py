@@ -107,6 +107,84 @@ class ProviderTests(unittest.TestCase):
                 self.assertEqual(error.exception.code, code)
                 boundary.assert_not_called()
 
+    def test_anthropic_workspace_is_resolved_into_only_the_header(self):
+        config = dict(self.config("anthropic"), workspace_id_env="DWELLY_TEST_WORKSPACE")
+        for workspace in ("wrkspc_A", "wrkspc_Synthetic123", "wrkspc_" + "A" * 128):
+            with self.subTest(workspace=workspace), patch.dict(os.environ, {
+                "DWELLY_TEST_WORKSPACE": workspace,
+                "ANTHROPIC_WORKSPACE_ID": "wrkspc_UnusedDefault",
+            }), patch.object(providers, "_open", return_value=Response(fixture("anthropic"))) as boundary:
+                result = providers.complete(config, "system policy", "visible input", 123, 9)
+                request = boundary.call_args.args[0]
+                self.assertEqual(request.get_header("Anthropic-workspace-id"), workspace)
+                self.assertEqual(request.get_header("X-api-key"), "synthetic-secret")
+                self.assertEqual(request.full_url, "https://api.anthropic.com/v1/messages")
+                self.assertEqual(json.loads(request.data), {
+                    "model": "configured-model", "system": "system policy",
+                    "messages": [{"role": "user", "content": "visible input"}], "max_tokens": 123,
+                })
+                self.assertNotIn(workspace, json.dumps(result))
+
+    def test_explicit_missing_anthropic_workspace_never_dispatches(self):
+        config = dict(self.config("anthropic"), workspace_id_env="DWELLY_TEST_WORKSPACE")
+        for value in (None, ""):
+            with self.subTest(value=value), patch.dict(os.environ), patch.object(providers, "_open") as boundary:
+                if value is None:
+                    os.environ.pop("DWELLY_TEST_WORKSPACE", None)
+                else:
+                    os.environ["DWELLY_TEST_WORKSPACE"] = value
+                with self.assertRaises(providers.ProviderError) as error:
+                    providers.complete(config, "s", "p")
+                self.assertEqual(error.exception.code, "missing_workspace_id")
+                self.assertEqual(str(error.exception), "missing_workspace_id")
+                boundary.assert_not_called()
+
+    def test_invalid_anthropic_workspace_env_name_never_dispatches(self):
+        invalid_names = (None, "", 1, True, [], {}, "1WORKSPACE", "WORK-SPACE", "WORK.SPACE",
+                         "WORK SPACE", "WORKSPACE\n", "WORKSPACÉ")
+        for name in invalid_names:
+            with self.subTest(name=name), patch.object(providers, "_open") as boundary:
+                with self.assertRaises(providers.ProviderError) as error:
+                    providers.complete(dict(self.config("anthropic"), workspace_id_env=name), "s", "p")
+                self.assertEqual(error.exception.code, "invalid_config")
+                boundary.assert_not_called()
+
+    def test_invalid_anthropic_workspace_value_never_dispatches(self):
+        config = dict(self.config("anthropic"), workspace_id_env="DWELLY_TEST_WORKSPACE")
+        invalid_values = ("wrkspc_", "workspace_ABC", "WRKSPC_ABC", "wrkspc_ABC-123", "wrkspc_ABC_123",
+                          "wrkspc_ÄBC", " wrkspc_ABC", "wrkspc_ABC ", "\t", "wrkspc_ABC\n",
+                          "wrkspc_ABC\r\nX-injected: value", "wrkspc_" + "A" * 129)
+        for workspace in invalid_values:
+            with self.subTest(workspace=repr(workspace)), patch.dict(os.environ, {
+                "DWELLY_TEST_WORKSPACE": workspace,
+            }), patch.object(providers, "_open") as boundary:
+                with self.assertRaises(providers.ProviderError) as error:
+                    providers.complete(config, "s", "p")
+                self.assertEqual(error.exception.code, "invalid_workspace_id")
+                self.assertEqual(str(error.exception), "invalid_workspace_id")
+                boundary.assert_not_called()
+
+    def test_workspace_config_is_rejected_for_other_providers_before_dispatch(self):
+        for provider in ("openai", "gemini"):
+            with self.subTest(provider=provider), patch.dict(os.environ, {
+                "DWELLY_TEST_WORKSPACE": "wrkspc_Synthetic123",
+            }), patch.object(providers, "_open") as boundary:
+                with self.assertRaises(providers.ProviderError) as error:
+                    providers.complete(dict(self.config(provider), workspace_id_env="DWELLY_TEST_WORKSPACE"), "s", "p")
+                self.assertEqual(error.exception.code, "invalid_config")
+                boundary.assert_not_called()
+
+    def test_omitted_workspace_config_preserves_header_free_requests(self):
+        for provider in ("openai", "anthropic", "gemini"):
+            with self.subTest(provider=provider), patch.dict(os.environ, {
+                "ANTHROPIC_WORKSPACE_ID": "wrkspc_UnusedDefault",
+                "DWELLY_TEST_WORKSPACE": "wrkspc_UnusedExplicit",
+            }):
+                _, call = self.invoke(fixture(provider), provider)
+                request = call.args[0]
+                self.assertIsNone(request.get_header("Anthropic-workspace-id"))
+                self.assertNotIn("wrkspc_", request.data.decode())
+
     def test_rejects_incomplete_or_empty_outputs(self):
         for provider in ("openai", "anthropic", "gemini"):
             body = fixture(provider)

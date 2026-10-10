@@ -70,6 +70,24 @@ class SemanticTests(unittest.TestCase):
         self.assertIn("exact", system.lower())
         self.assertIn("missing", system.lower())
 
+    def test_json_mode_input_does_not_depend_on_incidental_case_text(self):
+        source = snapshot()
+        candidate = proposal()
+        reference = {"recipients": "Customer", "channel": "Customer portal",
+                     "body": "Ask the customer to choose an offered slot."}
+        self.assertNotIn("json", json.dumps([source, candidate, reference]).lower())
+        prompts = {
+            "proposal": semantic.proposal_prompt(source),
+            "judge": semantic.judge_prompt(source, candidate),
+            "judge_with_reference": semantic.judge_prompt(source, candidate, reference),
+        }
+        for name, (system, prompt) in prompts.items():
+            with self.subTest(name=name):
+                self.assertIn("json", system.lower())
+                # Responses JSON mode checks input, not just its instructions field.
+                self.assertIn("json", prompt.lower())
+                self.assertEqual(json.loads(prompt)["output_format"], "json_object")
+
     def test_good_control_and_insufficient_information_control_validate(self):
         candidate = proposal()
         self.assertEqual(semantic.validate_proposal(snapshot(), candidate), candidate)
