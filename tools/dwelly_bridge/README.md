@@ -46,10 +46,8 @@ python3 -B -m unittest discover -s tools/dwelly_service/tests -p 'test_*.py'
 The base tool tests use only the standard library. For the optional runtime checks, activate an environment where the existing runtime project and its dependencies are installed. If needed, install that local project into your chosen virtual environment separately with `python -m pip install -e ./runtime`. This is dependency setup, not a bridge operation. Then run:
 
 ```sh
-PYTHONPATH=runtime/src:runtime/tests python -B -m unittest \
-  tools.dwelly_bridge.tests.test_bridge tools.dwelly_bridge.tests.test_cli
-PYTHONPATH=runtime/src python -B -m unittest discover \
-  -s runtime/tests -p test_shadow_binding.py
+PYTHONPATH=runtime/src:runtime/tests python -B -m unittest discover \
+  -s tools/dwelly_bridge/tests -p 'test_*.py'
 ```
 
 The integration test creates a real completed offline `JobStore` experiment and a separate real admitted synthetic `CaseStore`, then imports with the actual runtime resolver. Provider/network/gateway hooks fail if reached, and source/runtime file hashes and runtime row contents are compared before and after. It also tests the public command in a subprocess, denied scope, repeated imports, independent-process concurrency, overlap, symlinks and malformed resolver output. The optional runtime integration is explicitly skipped when the runtime package is unavailable; run the optional runtime commands to include it. Explicit suite paths above matter because namespace package directories are not all traversed by a single `unittest discover -s tools`. Local tests do not establish live-provider participation or operational acceptance.

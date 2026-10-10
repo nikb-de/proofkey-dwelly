@@ -2,16 +2,20 @@
 from concurrent.futures import ThreadPoolExecutor
 from datetime import timedelta
 import importlib
+import importlib.util
 from pathlib import Path
 import tempfile
 import unittest
 from unittest.mock import patch
 
-from proofkey.identity import fingerprint
-from proofkey.journal import CaseStore
-from support import NOW, DEADLINE, make_auth, make_binding, make_checkpoint, make_request
+RUNTIME_AVAILABLE = importlib.util.find_spec("proofkey") is not None
+if RUNTIME_AVAILABLE:
+    from proofkey.identity import fingerprint
+    from proofkey.journal import CaseStore
+    from support import NOW, DEADLINE, make_auth, make_binding, make_checkpoint, make_request
 
 
+@unittest.skipUnless(RUNTIME_AVAILABLE, "Requires runtime environment and PYTHONPATH=runtime/src:runtime/tests")
 class ShadowBindingTests(unittest.TestCase):
     def setUp(self):
         folder = tempfile.TemporaryDirectory()
