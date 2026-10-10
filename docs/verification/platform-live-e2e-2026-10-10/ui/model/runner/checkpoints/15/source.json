@@ -1,0 +1,83 @@
+{
+  "case_id": "e2e-integration-minimal-s1",
+  "source": {
+    "source_id": "minimal",
+    "step_index": 1,
+    "family_id": "minimal-control",
+    "source_sha256": "7371c3816502b3a347c6b83b9b1ebc8aa471ce355d2f43558285ddca29ec43c2",
+    "qualification": "author_labels_unvalidated",
+    "split": "development",
+    "kind": "ui_control_fixture",
+    "event_mapping": [
+      {
+        "source_event_id": "001",
+        "event_id": "001",
+        "source_channel": "Email",
+        "canonical_channel": "email",
+        "timestamp_fallback": true,
+        "body_source": "body"
+      }
+    ],
+    "synthetic_participants": [
+      {
+        "id": "e2e-observer",
+        "reason": "Source control has no distinct customer."
+      }
+    ],
+    "transformation": "Visible source messages plus internal goal/actor context; unsupported channels become internal; missing timestamps use fixed fallback."
+  },
+  "declaration": {
+    "case_id": "e2e-integration-minimal-s1",
+    "links": {
+      "order_id": "e2e-minimal",
+      "customer_id": "e2e-observer",
+      "operator_id": "desk"
+    },
+    "participants": [
+      "desk",
+      "service",
+      "e2e-observer"
+    ],
+    "language": "en"
+  },
+  "events": [
+    {
+      "event_id": "source-context",
+      "occurred_at": "2026-02-03T00:00:00+00:00",
+      "channel": "internal",
+      "sender_id": "desk",
+      "recipient_ids": [],
+      "kind": "message",
+      "text": "{\"goal\": \"Получить подтверждение выполнения заявки.\", \"actors\": [{\"id\": \"desk\", \"name\": \"Координатор\", \"role\": \"coordinator\"}, {\"id\": \"service\", \"name\": \"Служба исполнения\", \"role\": \"executor\"}]}",
+      "media": null
+    },
+    {
+      "event_id": "001",
+      "occurred_at": "2026-02-03T00:00:00+00:00",
+      "channel": "email",
+      "sender_id": "desk",
+      "recipient_ids": [
+        "service"
+      ],
+      "kind": "message",
+      "text": "Подтвердите, пожалуйста, выполнение заявки.",
+      "media": null
+    }
+  ],
+  "expectation": {
+    "allowed_states": [
+      "waiting"
+    ],
+    "allowed_actions": [
+      "wait"
+    ],
+    "waiting_for": [
+      "service"
+    ],
+    "completion_allowed": false,
+    "action_targets": [
+      "service"
+    ],
+    "qualification": "author_labels_unvalidated"
+  }
+}

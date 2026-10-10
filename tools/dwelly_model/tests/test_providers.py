@@ -52,6 +52,21 @@ class ProviderTests(unittest.TestCase):
             result = providers.complete(self.config(provider), "system policy", "visible input", 123, 9)
         return result, boundary.call_args
 
+    def test_openai_json_mode_requires_json_in_input_not_only_instructions(self):
+        prompt = '{"messages":[{"body":"Confirm the delivery slot"}]}'
+        def boundary(request, timeout):
+            payload = json.loads(request.data)
+            if 'json' not in payload['input'].lower():
+                raise HTTPError(request.full_url, 400, 'input must contain json', {}, io.BytesIO())
+            self.assertEqual(payload['instructions'], 'Return JSON using only supplied evidence.')
+            self.assertEqual(payload['input'], 'Return a JSON object.\n' + prompt)
+            self.assertIs(payload['store'], False)
+            return Response(fixture('openai'))
+        with patch.object(providers, '_open', side_effect=boundary) as transport:
+            result = providers.complete(self.config(), 'Return JSON using only supplied evidence.', prompt)
+        self.assertEqual(result['text'], '{"ok":true}')
+        self.assertEqual(transport.call_count, 1)
+
     def test_provider_envelopes_and_attribution(self):
         expected = {
             "openai": ("https://api.openai.com/v1/responses", "gpt-observed", "resp_123"),
@@ -79,7 +94,7 @@ class ProviderTests(unittest.TestCase):
                 self.assertGreaterEqual(result["latency_ms"], 0)
                 if provider == "openai":
                     self.assertEqual(payload, {"model": "configured-model", "instructions": "system policy",
-                                               "input": "visible input", "max_output_tokens": 123,
+                                               "input": "Return a JSON object.\nvisible input", "max_output_tokens": 123,
                                                "store": False, "text": {"format": {"type": "json_object"}}})
                     self.assertEqual(request.get_header("Authorization"), "Bearer synthetic-secret")
                 elif provider == "anthropic":

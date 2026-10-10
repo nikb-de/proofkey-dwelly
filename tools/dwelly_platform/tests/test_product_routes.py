@@ -14,6 +14,11 @@ from .test_server import platform
     ("/preparation-model.js", "text/javascript"),
     ("/preparation.css", "text/css"),
     ("/product.js", "text/javascript"),
+    ("/showcase.html", "text/html"),
+    ("/showcase.js", "text/javascript"),
+    ("/showcase.css", "text/css"),
+    ("/showcase-data-llm.json", "application/json"),
+    ("/showcase-data-synthetic.json", "application/json"),
 ])
 def test_product_assets_are_served_with_the_platform_boundary(platform, path, mime):
     request, _, _ = platform
@@ -29,6 +34,7 @@ def test_product_assets_are_served_with_the_platform_boundary(platform, path, mi
 @pytest.mark.parametrize("path", [
     "/../.env", "/%2e%2e/.env", "/customer.js/../.env",
     "/preparation/../../.env", "/unlisted.js", "/.env",
+    "/showcase-data-private.json", "/showcase-data-llm.json/../.env",
 ])
 def test_product_routes_do_not_introduce_generic_file_serving(platform, path):
     request, _, _ = platform

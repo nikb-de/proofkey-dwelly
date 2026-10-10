@@ -223,6 +223,10 @@ class Handler(BaseHTTPRequestHandler):
             for stem in ('coordination', 'coordination-panel', 'customer-coordination'):
                 static[f'/{stem}.js'] = (ASSETS/f'{stem}.js','text/javascript')
             static['/coordination.css'] = (ASSETS/'coordination.css','text/css')
+            for suffix, mime in (('html','text/html; charset=utf-8'),('js','text/javascript'),('css','text/css')):
+                static[f'/showcase.{suffix}'] = (ASSETS/f'showcase.{suffix}',mime)
+            for mode in ('synthetic','llm'):
+                static[f'/showcase-data-{mode}.json'] = (ASSETS/f'showcase-data-{mode}.json','application/json')
             if re.fullmatch(r'/brand/forward-(?:paper|forest|symbol-paper|symbol-forest)\.svg',path):
                 static[path] = (DESIGN/path.lstrip('/'),'image/svg+xml')
             if re.fullmatch(r'/fonts/(?:Inter|Manrope)\.ttf',path):

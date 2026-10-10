@@ -1,0 +1,36 @@
+// Read-only pickups of the already-completed case, to make the final receipt legible.
+import assert from 'node:assert/strict';
+import {readFile,writeFile,mkdir} from 'node:fs/promises';
+import {execFile} from 'node:child_process';
+import {promisify} from 'node:util';
+import {performance} from 'node:perf_hooks';
+import path from 'node:path';
+const exec=promisify(execFile),sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const directory=path.resolve(process.argv[2]);
+const report=JSON.parse(await readFile(path.join(directory,'capture-report.json'),'utf8'));
+assert.equal(report.status,'passed');assert.equal(report.final.coordination.phase,'booking_confirmed');
+const manifest=JSON.parse(await readFile(path.join(directory,'assembly.json'),'utf8'));
+const {chromium}=await import('/Users/nbk/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright/index.mjs');
+const browser=await chromium.launch({headless:true,executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
+const dir=path.join(directory,'pickup');await mkdir(dir,{recursive:true});
+const context=await browser.newContext({viewport:{width:390,height:666},recordVideo:{dir,size:{width:390,height:666}}});
+await context.route('**/*',route=>route.request().method()==='GET' && new URL(route.request().url()).origin===report.origin?route.continue():route.abort());
+const page=await context.newPage(),video=page.video(),start=performance.now(),clips=[];
+await page.goto(`${report.origin}/customer.html?case=${report.case_id}`);
+const heading=page.getByRole('heading',{name:'Booking confirmed locally',exact:true});await heading.waitFor();
+async function hold(locator,seconds,name){await locator.evaluate(el=>scrollTo(0,Math.max(0,el.getBoundingClientRect().top+scrollY-26)));await sleep(350);const from=(performance.now()-start)/1000;await sleep(seconds*1000);clips.push({start:from,end:(performance.now()-start)/1000});await page.screenshot({path:path.join(dir,`${name}.png`)});}
+await hold(heading,2,'confirmed-heading');
+await hold(page.getByText('Local booking receipt',{exact:true}),2,'receipt-and-physical-status');
+await context.close();await browser.close();
+const pickup=await video.path();
+const {stdout}=await exec('/opt/homebrew/bin/ffprobe',['-v','error','-show_entries','format=duration','-of','json',manifest.raw_video]);
+const offset=Number(JSON.parse(stdout).format.duration);
+const listing=path.join(dir,'concat.txt'),combined=path.join(dir,'complete-recording.webm');
+assert.ok(![manifest.raw_video,pickup].some(p=>/[\r\n']/.test(p)));
+await writeFile(listing,`file '${manifest.raw_video}'\nfile '${pickup}'\n`);
+await exec('/opt/homebrew/bin/ffmpeg',['-hide_banner','-loglevel','error','-nostdin','-n','-f','concat','-safe','0','-i',listing,'-map','0:v:0','-c','copy',combined]);
+manifest.raw_video=combined;manifest.segments[4].clips=manifest.segments[4].clips.slice(0,2).concat(clips.map(c=>({start:offset+c.start,end:offset+c.end})));
+manifest.output=path.join(directory,`case-001-${report.mode}-50s-final.mp4`);
+const manifestPath=path.join(directory,'assembly-final.json');await writeFile(manifestPath,JSON.stringify(manifest,null,2));
+await writeFile(path.join(dir,'receipt.json'),JSON.stringify({qualification:'Read-only final-state pickup; no model call or business mutation. Appended after original uninterrupted raw capture.',case_id:report.case_id,original_raw_video:report.raw_video,pickup_raw_video:pickup,original_duration_seconds:offset,clips,combined_raw_video:combined},null,2));
+console.log(manifestPath);

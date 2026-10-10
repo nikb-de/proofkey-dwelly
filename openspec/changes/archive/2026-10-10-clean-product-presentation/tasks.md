@@ -1,0 +1,5 @@
+- [x] Add clean presentation rendering with failing-first browser coverage; preserve the default audit view.
+- [x] Update capture/export to support explicit presentation mode and identify clean files.
+- [x] Verify the UI suite and independent browser review without business-fact changes.
+- [x] Record both 40-second films, inspect decoded frames and preserve provenance outside the film.
+- [x] Update handoff documentation and archive the specification change.

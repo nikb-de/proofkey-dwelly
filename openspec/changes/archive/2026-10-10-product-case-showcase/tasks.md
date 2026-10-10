@@ -1,0 +1,5 @@
+- [x] Build and test a source/capture-backed replay bundle; no future evidence in earlier scenes.
+- [x] Build five polished responsive role-based product scenes with explicit replay controls.
+- [x] Add allowlisted platform routes and negative file-serving tests.
+- [x] Verify source/model/receipt fidelity, browser behavior and mobile layout.
+- [x] Produce replacement 50-second videos and archive the specification.

@@ -57,6 +57,9 @@ class ParallelTests(unittest.TestCase):
         wire = json.loads(request.data)
         prompt = wire.get("input") or (wire["messages"][0]["content"] if "messages" in wire
                                        else wire["contents"][0]["parts"][0]["text"])
+        if 'input' in wire:
+            self.assertTrue(prompt.startswith('Return a JSON object.\n'))
+            prompt = prompt[len('Return a JSON object.\n'):]
         payload = json.loads(prompt)
         if "proposal" in payload:
             self.assertTrue((self.output / "proposals-frozen.json").is_file())
@@ -104,6 +107,9 @@ class ParallelTests(unittest.TestCase):
             try:
                 wire = json.loads(request.data)
                 prompt = wire.get("input", "")
+                if prompt:
+                    self.assertTrue(prompt.startswith('Return a JSON object.\n'))
+                    prompt = prompt[len('Return a JSON object.\n'):]
                 is_proposal = bool(prompt and "proposal" not in json.loads(prompt))
                 if is_proposal and "Fixture 001." in prompt:
                     self.assertTrue(second_finished.wait(3), "second call must overlap first")

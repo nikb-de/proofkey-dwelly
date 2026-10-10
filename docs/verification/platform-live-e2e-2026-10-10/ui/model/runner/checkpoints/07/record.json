@@ -1,0 +1,829 @@
+{
+  "plan": {
+    "case_id": "e2e-integration-case-002-n4-s1",
+    "source": {
+      "source_id": "case-002-n4",
+      "step_index": 1,
+      "family_id": "case-002",
+      "source_sha256": "c6c028af21fa456f8505ea22feece25525a95beaf5aca57e28074c14507eedf5",
+      "qualification": "author_labels_unvalidated",
+      "split": "development",
+      "kind": "synthetic_negative_branch",
+      "event_mapping": [
+        {
+          "source_event_id": "001",
+          "event_id": "001",
+          "source_channel": "Email",
+          "canonical_channel": "email",
+          "timestamp_fallback": false,
+          "body_source": "body"
+        }
+      ],
+      "synthetic_participants": [],
+      "transformation": "Visible source messages plus internal goal/actor context; unsupported channels become internal; missing timestamps use fixed fallback."
+    },
+    "declaration": {
+      "case_id": "e2e-integration-case-002-n4-s1",
+      "links": {
+        "order_id": "e2e-case-002-n4",
+        "customer_id": "recipient",
+        "operator_id": "coordinator"
+      },
+      "participants": [
+        "address_desk",
+        "coordinator",
+        "recipient"
+      ],
+      "language": "en"
+    },
+    "events": [
+      {
+        "event_id": "source-context",
+        "occurred_at": "2026-02-03T09:00:00+00:00",
+        "channel": "internal",
+        "sender_id": "coordinator",
+        "recipient_ids": [],
+        "kind": "message",
+        "text": "{\"goal\": \"Уточнить неполный адрес и снять адресную блокировку DL-002.\", \"actors\": [{\"id\": \"address_desk\", \"name\": \"Address desk\", \"role\": \"executor\"}, {\"id\": \"coordinator\", \"name\": \"Iona Quill\", \"role\": \"coordinator\"}, {\"id\": \"recipient\", \"name\": \"Tarin Mave\", \"role\": \"recipient\"}]}",
+        "media": null
+      },
+      {
+        "event_id": "001",
+        "occurred_at": "2026-02-03T09:00:00+00:00",
+        "channel": "email",
+        "sender_id": "address_desk",
+        "recipient_ids": [
+          "coordinator"
+        ],
+        "kind": "message",
+        "text": "DL-002: 18 Copperfin Court, Merrow Quay. The building has multiple apartments; the order has no apartment number. Hold reason: incomplete address. The recipient’s order-linked portal session was verified by our account team.",
+        "media": null
+      }
+    ],
+    "expectation": {
+      "allowed_states": [
+        "ready"
+      ],
+      "allowed_actions": [
+        "request_information"
+      ],
+      "waiting_for": [],
+      "completion_allowed": false,
+      "action_targets": [
+        "recipient"
+      ],
+      "qualification": "author_labels_unvalidated"
+    }
+  },
+  "job": {
+    "schema_version": "proofkey-model-job-v1",
+    "run_id": "4594460f0cd745d986670ba31224defe",
+    "status": "succeeded",
+    "case_id": "e2e-integration-case-002-n4-s1",
+    "step_index": 2,
+    "input_hash": "c4ee3fafc532ab604f2bf6688d08e9685ec1f3c5fdc1ede48e8db2aa5fa161b6",
+    "mode": "model",
+    "model_profile_id": "simulated-case-fixture",
+    "input": {
+      "actors": [
+        {
+          "id": "address_desk",
+          "name": "address_desk",
+          "role": "declared participant"
+        },
+        {
+          "id": "coordinator",
+          "name": "coordinator",
+          "role": "declared participant"
+        },
+        {
+          "id": "recipient",
+          "name": "recipient",
+          "role": "declared participant"
+        }
+      ],
+      "case_id": "e2e-integration-case-002-n4-s1",
+      "cutoff_event_id": "001",
+      "goal": "Review the available case evidence and propose the next coordination step.",
+      "input_hash": "c4ee3fafc532ab604f2bf6688d08e9685ec1f3c5fdc1ede48e8db2aa5fa161b6",
+      "messages": [
+        {
+          "body": "{\"goal\": \"Уточнить неполный адрес и снять адресную блокировку DL-002.\", \"actors\": [{\"id\": \"address_desk\", \"name\": \"Address desk\", \"role\": \"executor\"}, {\"id\": \"coordinator\", \"name\": \"Iona Quill\", \"role\": \"coordinator\"}, {\"id\": \"recipient\", \"name\": \"Tarin Mave\", \"role\": \"recipient\"}]}\n[Declared recipient_ids: []]",
+          "body_source": "body",
+          "channel": "internal",
+          "event_id": "source-context",
+          "from_actor": "coordinator",
+          "timestamp": "2026-02-03T09:00:00+00:00",
+          "to_actor": "coordinator"
+        },
+        {
+          "body": "DL-002: 18 Copperfin Court, Merrow Quay. The building has multiple apartments; the order has no apartment number. Hold reason: incomplete address. The recipient’s order-linked portal session was verified by our account team.",
+          "body_source": "body",
+          "channel": "email",
+          "event_id": "001",
+          "from_actor": "address_desk",
+          "timestamp": "2026-02-03T09:00:00+00:00",
+          "to_actor": "coordinator"
+        }
+      ],
+      "our_actor_id": "coordinator",
+      "schema_version": "proofkey-step-input-v1",
+      "step_index": 2
+    },
+    "reference": null,
+    "source": {
+      "case_id": "e2e-integration-case-002-n4-s1",
+      "kind": "platform_case",
+      "revision": 2,
+      "snapshot_hash": "5b58de1c1508377bdfffd6fea99af8d33f45e6f633bb5e79e847b4a15d8a315d"
+    },
+    "candidate": {
+      "evidence_event_ids": [
+        "001"
+      ],
+      "input_hash": "c4ee3fafc532ab604f2bf6688d08e9685ec1f3c5fdc1ede48e8db2aa5fa161b6",
+      "live_calls": 1,
+      "mode": "model",
+      "next_action": {
+        "description": "Ask the recipient for the apartment number.",
+        "target_actor_id": "recipient",
+        "type": "request_information"
+      },
+      "operational_effects": 0,
+      "physical_delivery": "not_inferred",
+      "schema_version": "proofkey-step-candidate-v1",
+      "state": "ready",
+      "uncertainty": [
+        "The apartment number is missing."
+      ],
+      "waiting_for": []
+    },
+    "evaluation": null,
+    "receipt": {
+      "latency_ms": 800.0,
+      "model_profile_id": "simulated-case-fixture",
+      "observed_model": "SIMULATED-authored-case-fixture",
+      "provider": "openai",
+      "request_id": "SIMULATED-request-8",
+      "requested_model": "SIMULATED-authored-case-fixture",
+      "usage": {
+        "input_tokens": 100,
+        "output_tokens": 50
+      }
+    },
+    "error": null,
+    "created_at": "2026-10-10T13:35:56.451880+00:00",
+    "started_at": "2026-10-10T13:35:56.801253+00:00",
+    "finished_at": "2026-10-10T13:35:57.762722+00:00",
+    "transaction": {
+      "idempotency_key": "e2e:18112d80d9e8205d799308a6ee744488a75fb26c0597e7c33d131ef472a855e7",
+      "attempt_id": "8e9090e1a6a440f9b09225815b033a64",
+      "dispatch_attempts": 1,
+      "automatic_retries": 0,
+      "operational_effects": 0,
+      "reserved_usd": 5.922e-05,
+      "budget_scope": "fixture-case_e2e_test_6895b86c07ee4146a287c10918256336",
+      "prompt_hash": "9dadc1e9ff1f7feeb235efcc9ed14da44094ba31a1f50e78407ef58815d467c6",
+      "profile_hash": "1c07fcb32cb276dbb0639b2077539b720cae1774d270ebdad7e97954b461357e"
+    }
+  },
+  "detail": {
+    "schema_version": "proofkey-platform-case-v1",
+    "case_id": "e2e-integration-case-002-n4-s1",
+    "snapshot": {
+      "analysis_status": "pending_not_started",
+      "authorization": "[REDACTED]",
+      "case_id": "e2e-integration-case-002-n4-s1",
+      "events": [
+        {
+          "channel": "internal",
+          "event_id": "source-context",
+          "kind": "message",
+          "media": null,
+          "occurred_at": "2026-02-03T09:00:00+00:00",
+          "recipient_ids": [],
+          "sender_id": "coordinator",
+          "text": "{\"goal\": \"Уточнить неполный адрес и снять адресную блокировку DL-002.\", \"actors\": [{\"id\": \"address_desk\", \"name\": \"Address desk\", \"role\": \"executor\"}, {\"id\": \"coordinator\", \"name\": \"Iona Quill\", \"role\": \"coordinator\"}, {\"id\": \"recipient\", \"name\": \"Tarin Mave\", \"role\": \"recipient\"}]}"
+        },
+        {
+          "channel": "email",
+          "event_id": "001",
+          "kind": "message",
+          "media": null,
+          "occurred_at": "2026-02-03T09:00:00+00:00",
+          "recipient_ids": [
+            "coordinator"
+          ],
+          "sender_id": "address_desk",
+          "text": "DL-002: 18 Copperfin Court, Merrow Quay. The building has multiple apartments; the order has no apartment number. Hold reason: incomplete address. The recipient’s order-linked portal session was verified by our account team."
+        }
+      ],
+      "language": "en",
+      "links": {
+        "customer_id": "recipient",
+        "operator_id": "coordinator",
+        "order_id": "e2e-case-002-n4"
+      },
+      "needs_analysis": true,
+      "operational_effects": 0,
+      "participants": [
+        "address_desk",
+        "coordinator",
+        "recipient"
+      ],
+      "previous_snapshot_hash": "ef9405f25429dd0bcee7aab24604cd8964b60d4ce49bd6a0b8bb2f53138cf5dc",
+      "revision": 2,
+      "runtime_binding": null,
+      "schema_version": "dwelly-local-case-v1",
+      "snapshot_hash": "5b58de1c1508377bdfffd6fea99af8d33f45e6f633bb5e79e847b4a15d8a315d",
+      "source_mode": "local_fixture"
+    },
+    "states": {
+      "lifecycle": "new",
+      "evidence": "text_available",
+      "analysis": "current",
+      "decision": "none",
+      "action": "none"
+    },
+    "decisions": [],
+    "reviews": [],
+    "actions": [],
+    "assets": [],
+    "model_jobs": [
+      {
+        "schema_version": "proofkey-model-job-v1",
+        "run_id": "4594460f0cd745d986670ba31224defe",
+        "status": "succeeded",
+        "case_id": "e2e-integration-case-002-n4-s1",
+        "step_index": 2,
+        "input_hash": "c4ee3fafc532ab604f2bf6688d08e9685ec1f3c5fdc1ede48e8db2aa5fa161b6",
+        "mode": "model",
+        "model_profile_id": "simulated-case-fixture",
+        "input": {
+          "actors": [
+            {
+              "id": "address_desk",
+              "name": "address_desk",
+              "role": "declared participant"
+            },
+            {
+              "id": "coordinator",
+              "name": "coordinator",
+              "role": "declared participant"
+            },
+            {
+              "id": "recipient",
+              "name": "recipient",
+              "role": "declared participant"
+            }
+          ],
+          "case_id": "e2e-integration-case-002-n4-s1",
+          "cutoff_event_id": "001",
+          "goal": "Review the available case evidence and propose the next coordination step.",
+          "input_hash": "c4ee3fafc532ab604f2bf6688d08e9685ec1f3c5fdc1ede48e8db2aa5fa161b6",
+          "messages": [
+            {
+              "body": "{\"goal\": \"Уточнить неполный адрес и снять адресную блокировку DL-002.\", \"actors\": [{\"id\": \"address_desk\", \"name\": \"Address desk\", \"role\": \"executor\"}, {\"id\": \"coordinator\", \"name\": \"Iona Quill\", \"role\": \"coordinator\"}, {\"id\": \"recipient\", \"name\": \"Tarin Mave\", \"role\": \"recipient\"}]}\n[Declared recipient_ids: []]",
+              "body_source": "body",
+              "channel": "internal",
+              "event_id": "source-context",
+              "from_actor": "coordinator",
+              "timestamp": "2026-02-03T09:00:00+00:00",
+              "to_actor": "coordinator"
+            },
+            {
+              "body": "DL-002: 18 Copperfin Court, Merrow Quay. The building has multiple apartments; the order has no apartment number. Hold reason: incomplete address. The recipient’s order-linked portal session was verified by our account team.",
+              "body_source": "body",
+              "channel": "email",
+              "event_id": "001",
+              "from_actor": "address_desk",
+              "timestamp": "2026-02-03T09:00:00+00:00",
+              "to_actor": "coordinator"
+            }
+          ],
+          "our_actor_id": "coordinator",
+          "schema_version": "proofkey-step-input-v1",
+          "step_index": 2
+        },
+        "reference": null,
+        "source": {
+          "case_id": "e2e-integration-case-002-n4-s1",
+          "kind": "platform_case",
+          "revision": 2,
+          "snapshot_hash": "5b58de1c1508377bdfffd6fea99af8d33f45e6f633bb5e79e847b4a15d8a315d"
+        },
+        "candidate": {
+          "evidence_event_ids": [
+            "001"
+          ],
+          "input_hash": "c4ee3fafc532ab604f2bf6688d08e9685ec1f3c5fdc1ede48e8db2aa5fa161b6",
+          "live_calls": 1,
+          "mode": "model",
+          "next_action": {
+            "description": "Ask the recipient for the apartment number.",
+            "target_actor_id": "recipient",
+            "type": "request_information"
+          },
+          "operational_effects": 0,
+          "physical_delivery": "not_inferred",
+          "schema_version": "proofkey-step-candidate-v1",
+          "state": "ready",
+          "uncertainty": [
+            "The apartment number is missing."
+          ],
+          "waiting_for": []
+        },
+        "evaluation": null,
+        "receipt": {
+          "latency_ms": 800.0,
+          "model_profile_id": "simulated-case-fixture",
+          "observed_model": "SIMULATED-authored-case-fixture",
+          "provider": "openai",
+          "request_id": "SIMULATED-request-8",
+          "requested_model": "SIMULATED-authored-case-fixture",
+          "usage": {
+            "input_tokens": 100,
+            "output_tokens": 50
+          }
+        },
+        "error": null,
+        "created_at": "2026-10-10T13:35:56.451880+00:00",
+        "started_at": "2026-10-10T13:35:56.801253+00:00",
+        "finished_at": "2026-10-10T13:35:57.762722+00:00",
+        "transaction": {
+          "idempotency_key": "e2e:18112d80d9e8205d799308a6ee744488a75fb26c0597e7c33d131ef472a855e7",
+          "attempt_id": "8e9090e1a6a440f9b09225815b033a64",
+          "dispatch_attempts": 1,
+          "automatic_retries": 0,
+          "operational_effects": 0,
+          "reserved_usd": 5.922e-05,
+          "budget_scope": "fixture-case_e2e_test_6895b86c07ee4146a287c10918256336",
+          "prompt_hash": "9dadc1e9ff1f7feeb235efcc9ed14da44094ba31a1f50e78407ef58815d467c6",
+          "profile_hash": "1c07fcb32cb276dbb0639b2077539b720cae1774d270ebdad7e97954b461357e"
+        }
+      }
+    ],
+    "external_effects": 0
+  },
+  "checks": [
+    {
+      "name": "source_snapshot_before_dispatch",
+      "category": "operational",
+      "status": "pass",
+      "expected": "5b58de1c1508377bdfffd6fea99af8d33f45e6f633bb5e79e847b4a15d8a315d",
+      "actual": "5b58de1c1508377bdfffd6fea99af8d33f45e6f633bb5e79e847b4a15d8a315d"
+    },
+    {
+      "name": "frozen_source_binding",
+      "category": "operational",
+      "status": "pass",
+      "expected": {
+        "kind": "platform_case",
+        "case_id": "e2e-integration-case-002-n4-s1",
+        "revision": 2,
+        "snapshot_hash": "5b58de1c1508377bdfffd6fea99af8d33f45e6f633bb5e79e847b4a15d8a315d"
+      },
+      "actual": {
+        "case_id": "e2e-integration-case-002-n4-s1",
+        "kind": "platform_case",
+        "revision": 2,
+        "snapshot_hash": "5b58de1c1508377bdfffd6fea99af8d33f45e6f633bb5e79e847b4a15d8a315d"
+      }
+    },
+    {
+      "name": "frozen_input_binding",
+      "category": "operational",
+      "status": "pass",
+      "expected": "c4ee3fafc532ab604f2bf6688d08e9685ec1f3c5fdc1ede48e8db2aa5fa161b6",
+      "actual": "c4ee3fafc532ab604f2bf6688d08e9685ec1f3c5fdc1ede48e8db2aa5fa161b6"
+    },
+    {
+      "name": "case_profile_binding",
+      "category": "operational",
+      "status": "pass",
+      "expected": [
+        "e2e-integration-case-002-n4-s1",
+        2,
+        "simulated-case-fixture"
+      ],
+      "actual": [
+        "e2e-integration-case-002-n4-s1",
+        2,
+        "simulated-case-fixture"
+      ]
+    },
+    {
+      "name": "no_reference_upload",
+      "category": "operational",
+      "status": "pass",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "first_run_id_preserved",
+      "category": "operational",
+      "status": "pass",
+      "expected": "4594460f0cd745d986670ba31224defe",
+      "actual": "4594460f0cd745d986670ba31224defe"
+    },
+    {
+      "name": "frozen_source_binding",
+      "category": "operational",
+      "status": "pass",
+      "expected": {
+        "kind": "platform_case",
+        "case_id": "e2e-integration-case-002-n4-s1",
+        "revision": 2,
+        "snapshot_hash": "5b58de1c1508377bdfffd6fea99af8d33f45e6f633bb5e79e847b4a15d8a315d"
+      },
+      "actual": {
+        "case_id": "e2e-integration-case-002-n4-s1",
+        "kind": "platform_case",
+        "revision": 2,
+        "snapshot_hash": "5b58de1c1508377bdfffd6fea99af8d33f45e6f633bb5e79e847b4a15d8a315d"
+      }
+    },
+    {
+      "name": "frozen_input_binding",
+      "category": "operational",
+      "status": "pass",
+      "expected": "c4ee3fafc532ab604f2bf6688d08e9685ec1f3c5fdc1ede48e8db2aa5fa161b6",
+      "actual": "c4ee3fafc532ab604f2bf6688d08e9685ec1f3c5fdc1ede48e8db2aa5fa161b6"
+    },
+    {
+      "name": "case_profile_binding",
+      "category": "operational",
+      "status": "pass",
+      "expected": [
+        "e2e-integration-case-002-n4-s1",
+        2,
+        "simulated-case-fixture"
+      ],
+      "actual": [
+        "e2e-integration-case-002-n4-s1",
+        2,
+        "simulated-case-fixture"
+      ]
+    },
+    {
+      "name": "no_reference_upload",
+      "category": "operational",
+      "status": "pass",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "first_run_id_preserved",
+      "category": "operational",
+      "status": "pass",
+      "expected": "4594460f0cd745d986670ba31224defe",
+      "actual": "4594460f0cd745d986670ba31224defe"
+    },
+    {
+      "name": "provider_receipt_binding",
+      "category": "operational",
+      "status": "pass",
+      "expected": [
+        "simulated-case-fixture",
+        "openai",
+        "SIMULATED-authored-case-fixture"
+      ],
+      "actual": [
+        "simulated-case-fixture",
+        "openai",
+        "SIMULATED-authored-case-fixture"
+      ]
+    },
+    {
+      "name": "simulated_receipt_label",
+      "category": "operational",
+      "status": "pass",
+      "expected": "SIMULATED prefix",
+      "actual": "SIMULATED-authored-case-fixture"
+    },
+    {
+      "name": "terminal_readback_unchanged",
+      "category": "operational",
+      "status": "pass",
+      "expected": "exact same terminal job (all fields)",
+      "actual": []
+    },
+    {
+      "name": "frozen_source_binding",
+      "category": "operational",
+      "status": "pass",
+      "expected": {
+        "kind": "platform_case",
+        "case_id": "e2e-integration-case-002-n4-s1",
+        "revision": 2,
+        "snapshot_hash": "5b58de1c1508377bdfffd6fea99af8d33f45e6f633bb5e79e847b4a15d8a315d"
+      },
+      "actual": {
+        "case_id": "e2e-integration-case-002-n4-s1",
+        "kind": "platform_case",
+        "revision": 2,
+        "snapshot_hash": "5b58de1c1508377bdfffd6fea99af8d33f45e6f633bb5e79e847b4a15d8a315d"
+      }
+    },
+    {
+      "name": "frozen_input_binding",
+      "category": "operational",
+      "status": "pass",
+      "expected": "c4ee3fafc532ab604f2bf6688d08e9685ec1f3c5fdc1ede48e8db2aa5fa161b6",
+      "actual": "c4ee3fafc532ab604f2bf6688d08e9685ec1f3c5fdc1ede48e8db2aa5fa161b6"
+    },
+    {
+      "name": "case_profile_binding",
+      "category": "operational",
+      "status": "pass",
+      "expected": [
+        "e2e-integration-case-002-n4-s1",
+        2,
+        "simulated-case-fixture"
+      ],
+      "actual": [
+        "e2e-integration-case-002-n4-s1",
+        2,
+        "simulated-case-fixture"
+      ]
+    },
+    {
+      "name": "no_reference_upload",
+      "category": "operational",
+      "status": "pass",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "first_run_id_preserved",
+      "category": "operational",
+      "status": "pass",
+      "expected": "4594460f0cd745d986670ba31224defe",
+      "actual": "4594460f0cd745d986670ba31224defe"
+    },
+    {
+      "name": "provider_receipt_binding",
+      "category": "operational",
+      "status": "pass",
+      "expected": [
+        "simulated-case-fixture",
+        "openai",
+        "SIMULATED-authored-case-fixture"
+      ],
+      "actual": [
+        "simulated-case-fixture",
+        "openai",
+        "SIMULATED-authored-case-fixture"
+      ]
+    },
+    {
+      "name": "simulated_receipt_label",
+      "category": "operational",
+      "status": "pass",
+      "expected": "SIMULATED prefix",
+      "actual": "SIMULATED-authored-case-fixture"
+    },
+    {
+      "name": "terminal_replay_unchanged",
+      "category": "operational",
+      "status": "pass",
+      "expected": "exact same terminal job (all fields)",
+      "actual": []
+    },
+    {
+      "name": "terminal_replay_no_dispatch",
+      "category": "operational",
+      "status": "pass",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "name": "output_available",
+      "category": "operational",
+      "status": "pass",
+      "expected": "succeeded with candidate",
+      "actual": "succeeded"
+    },
+    {
+      "name": "bounded_dispatch",
+      "category": "operational",
+      "status": "pass",
+      "expected": {
+        "maximum_dispatch_attempts": 1,
+        "automatic_retries": 0
+      },
+      "actual": {
+        "dispatch_attempts": 1,
+        "automatic_retries": 0
+      }
+    },
+    {
+      "name": "zero_effects",
+      "category": "operational",
+      "status": "pass",
+      "expected": "zero effects and no decisions, reviews or actions",
+      "actual": {
+        "external_effects": 0,
+        "snapshot_effects": 0,
+        "transaction_effects": 0,
+        "candidate_effects": 0,
+        "actions": [],
+        "reviews": [],
+        "decisions": []
+      }
+    },
+    {
+      "name": "source_binding",
+      "category": "operational",
+      "status": "pass",
+      "expected": {
+        "case_id": "e2e-integration-case-002-n4-s1",
+        "input_hash": "c4ee3fafc532ab604f2bf6688d08e9685ec1f3c5fdc1ede48e8db2aa5fa161b6"
+      },
+      "actual": {
+        "case_id": "e2e-integration-case-002-n4-s1",
+        "input_hash": "c4ee3fafc532ab604f2bf6688d08e9685ec1f3c5fdc1ede48e8db2aa5fa161b6"
+      }
+    },
+    {
+      "name": "candidate_schema",
+      "category": "semantic",
+      "status": "pass",
+      "expected": "proofkey-step-candidate-v1 bound to exact input",
+      "actual": "proofkey-step-candidate-v1"
+    },
+    {
+      "name": "visible_evidence",
+      "category": "semantic",
+      "status": "pass",
+      "expected": [
+        "001",
+        "source-context"
+      ],
+      "actual": [
+        "001"
+      ]
+    },
+    {
+      "name": "allowed_state",
+      "category": "semantic",
+      "status": "pass",
+      "expected": [
+        "ready"
+      ],
+      "actual": "ready"
+    },
+    {
+      "name": "allowed_action",
+      "category": "semantic",
+      "status": "pass",
+      "expected": [
+        "request_information"
+      ],
+      "actual": "request_information"
+    },
+    {
+      "name": "action_target",
+      "category": "semantic",
+      "status": "pass",
+      "expected": [
+        "recipient"
+      ],
+      "actual": "recipient"
+    },
+    {
+      "name": "waiting_for",
+      "category": "semantic",
+      "status": "pass",
+      "expected": [],
+      "actual": []
+    },
+    {
+      "name": "completion_supported",
+      "category": "semantic",
+      "status": "pass",
+      "expected": false,
+      "actual": false
+    },
+    {
+      "name": "physical_delivery_not_inferred",
+      "category": "semantic",
+      "status": "pass",
+      "expected": "not_inferred",
+      "actual": "not_inferred"
+    }
+  ],
+  "status": "succeeded",
+  "replay": {
+    "schema_version": "proofkey-model-job-v1",
+    "run_id": "4594460f0cd745d986670ba31224defe",
+    "status": "succeeded",
+    "case_id": "e2e-integration-case-002-n4-s1",
+    "step_index": 2,
+    "input_hash": "c4ee3fafc532ab604f2bf6688d08e9685ec1f3c5fdc1ede48e8db2aa5fa161b6",
+    "mode": "model",
+    "model_profile_id": "simulated-case-fixture",
+    "input": {
+      "actors": [
+        {
+          "id": "address_desk",
+          "name": "address_desk",
+          "role": "declared participant"
+        },
+        {
+          "id": "coordinator",
+          "name": "coordinator",
+          "role": "declared participant"
+        },
+        {
+          "id": "recipient",
+          "name": "recipient",
+          "role": "declared participant"
+        }
+      ],
+      "case_id": "e2e-integration-case-002-n4-s1",
+      "cutoff_event_id": "001",
+      "goal": "Review the available case evidence and propose the next coordination step.",
+      "input_hash": "c4ee3fafc532ab604f2bf6688d08e9685ec1f3c5fdc1ede48e8db2aa5fa161b6",
+      "messages": [
+        {
+          "body": "{\"goal\": \"Уточнить неполный адрес и снять адресную блокировку DL-002.\", \"actors\": [{\"id\": \"address_desk\", \"name\": \"Address desk\", \"role\": \"executor\"}, {\"id\": \"coordinator\", \"name\": \"Iona Quill\", \"role\": \"coordinator\"}, {\"id\": \"recipient\", \"name\": \"Tarin Mave\", \"role\": \"recipient\"}]}\n[Declared recipient_ids: []]",
+          "body_source": "body",
+          "channel": "internal",
+          "event_id": "source-context",
+          "from_actor": "coordinator",
+          "timestamp": "2026-02-03T09:00:00+00:00",
+          "to_actor": "coordinator"
+        },
+        {
+          "body": "DL-002: 18 Copperfin Court, Merrow Quay. The building has multiple apartments; the order has no apartment number. Hold reason: incomplete address. The recipient’s order-linked portal session was verified by our account team.",
+          "body_source": "body",
+          "channel": "email",
+          "event_id": "001",
+          "from_actor": "address_desk",
+          "timestamp": "2026-02-03T09:00:00+00:00",
+          "to_actor": "coordinator"
+        }
+      ],
+      "our_actor_id": "coordinator",
+      "schema_version": "proofkey-step-input-v1",
+      "step_index": 2
+    },
+    "reference": null,
+    "source": {
+      "case_id": "e2e-integration-case-002-n4-s1",
+      "kind": "platform_case",
+      "revision": 2,
+      "snapshot_hash": "5b58de1c1508377bdfffd6fea99af8d33f45e6f633bb5e79e847b4a15d8a315d"
+    },
+    "candidate": {
+      "evidence_event_ids": [
+        "001"
+      ],
+      "input_hash": "c4ee3fafc532ab604f2bf6688d08e9685ec1f3c5fdc1ede48e8db2aa5fa161b6",
+      "live_calls": 1,
+      "mode": "model",
+      "next_action": {
+        "description": "Ask the recipient for the apartment number.",
+        "target_actor_id": "recipient",
+        "type": "request_information"
+      },
+      "operational_effects": 0,
+      "physical_delivery": "not_inferred",
+      "schema_version": "proofkey-step-candidate-v1",
+      "state": "ready",
+      "uncertainty": [
+        "The apartment number is missing."
+      ],
+      "waiting_for": []
+    },
+    "evaluation": null,
+    "receipt": {
+      "latency_ms": 800.0,
+      "model_profile_id": "simulated-case-fixture",
+      "observed_model": "SIMULATED-authored-case-fixture",
+      "provider": "openai",
+      "request_id": "SIMULATED-request-8",
+      "requested_model": "SIMULATED-authored-case-fixture",
+      "usage": {
+        "input_tokens": 100,
+        "output_tokens": 50
+      }
+    },
+    "error": null,
+    "created_at": "2026-10-10T13:35:56.451880+00:00",
+    "started_at": "2026-10-10T13:35:56.801253+00:00",
+    "finished_at": "2026-10-10T13:35:57.762722+00:00",
+    "transaction": {
+      "idempotency_key": "e2e:18112d80d9e8205d799308a6ee744488a75fb26c0597e7c33d131ef472a855e7",
+      "attempt_id": "8e9090e1a6a440f9b09225815b033a64",
+      "dispatch_attempts": 1,
+      "automatic_retries": 0,
+      "operational_effects": 0,
+      "reserved_usd": 5.922e-05,
+      "budget_scope": "fixture-case_e2e_test_6895b86c07ee4146a287c10918256336",
+      "prompt_hash": "9dadc1e9ff1f7feeb235efcc9ed14da44094ba31a1f50e78407ef58815d467c6",
+      "profile_hash": "1c07fcb32cb276dbb0639b2077539b720cae1774d270ebdad7e97954b461357e"
+    }
+  }
+}

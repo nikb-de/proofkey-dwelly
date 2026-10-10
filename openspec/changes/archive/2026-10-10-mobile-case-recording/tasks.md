@@ -1,0 +1,8 @@
+- [x] Review original source and safe model cutoffs.
+- [x] Verify current model entitlement without inference.
+- [x] Capture scripted browser workflow against isolated PostgreSQL service.
+- [x] Capture five bounded live calls and preserve individual receipts.
+- [x] Review semantic output separately from transport/state checks.
+- [x] Assemble two non-overwriting 50-second mobile exports.
+- [x] Verify backend/UI suites, database state and media properties.
+- [x] Archive requirements and hand off for user viewing.

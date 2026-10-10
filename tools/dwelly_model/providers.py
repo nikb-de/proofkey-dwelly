@@ -119,7 +119,7 @@ def complete(config: dict, system: str, prompt: str, max_output_tokens: int = 20
     if provider == "openai":
         url = "https://api.openai.com/v1/responses"
         headers["Authorization"] = "Bearer " + secret
-        payload = {"model": model, "instructions": system, "input": prompt,
+        payload = {"model": model, "instructions": system, "input": "Return a JSON object.\n" + prompt,
                    "max_output_tokens": max_output_tokens, "store": False,
                    "text": {"format": {"type": "json_object"}}}
     elif provider == "anthropic":
