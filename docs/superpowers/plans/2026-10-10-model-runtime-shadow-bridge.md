@@ -8,7 +8,9 @@
 
 **Tech Stack:** Python 3.12, unittest, pathlib/os/fcntl, SQLite, existing canonical JSON/snapshot validators; Pydantic only in the optional runtime resolver.
 
-**Spec:** `openspec/changes/model-runtime-shadow-bridge/specs/model-runtime-shadow-bridge/spec.md`; design in the parent change directory.
+**Spec:** `openspec/specs/model-runtime-shadow-bridge/spec.md`; archived design in `openspec/changes/archive/2026-10-10-model-runtime-shadow-bridge/`.
+
+**Delivery:** Implemented, independently reviewed and archived on2026-10-10. Exact verification and remaining boundaries: `docs/verification/model-runtime-shadow-bridge-2026-10-10.md`.
 
 ## Global Constraints
 
@@ -55,6 +57,8 @@ def test_source_does_not_accept_a_different_attempt(self):
 
 **Interfaces:** `RuntimeShadowTarget` is a frozen registration containing `source_case_id`, `source_snapshot_hash`, expected `RequestBinding`, expected checkpoint hash, profile/process/policy versions, and allowed caller IDs. `RuntimeShadowResolver(store, registrations, *, authorize, clock)` is callable as `resolver(source_case_id, snapshot_hash)` and returns a JSON-compatible mapping with `status` (`bound`, `unmapped`, `rejected`), `reason`, and for bound results `target` (the complete binding, versions, checkpoint_hash, checked_at). `authorize(target, auth)` is an explicitly trusted host callback; auth is fixed at resolver construction, never supplied by the model. Include `auth` in the constructor. Bound target payload is finite and validated.
 
+The optional resolver also exposes `shadow_protected_roots`, a read-only tuple containing the canonical main runtime database parent obtained from its existing connection. Missing/unavailable database identity fails closed. The bridge uses this path metadata only to prohibit shadow-storage overlap, not as authority or in public output.
+
 - [ ] Write a real CaseStore fixture test before implementation: create admitted synthetic state through existing harness helpers, capture the exact checkpoint, construct trusted registration, and assert returned case/object/principal/revisions/version/hash agree. Mutate generation or checkpoint through supported fixture APIs and assert rejected. Denied authorization and absent mapping must not disclose target data.
 
 ```python
@@ -93,6 +97,8 @@ def test_repeat_preserves_first_observation(self):
 **Files:** Create `tools/dwelly_bridge/bridge.py`, `__main__.py`, `tests/test_bridge.py`, `tests/test_cli.py`, `README.md`; update `docs/model-service.md` with one optional companion link. Consume Tasks 1–3, do not change their interfaces without coordination.
 
 **Interfaces:** `import_shadow(service_root, job_id, case_id, shadow_root, *, resolver=None)` returns a JSON-compatible record. Resolver follows Task 2's callable shape. CLI flags: `--service-state`, `--job-id`, `--case-id`, `--shadow-state`. CLI installs no runtime resolver and offers no arbitrary module import or caller-supplied binding flag.
+
+When configured, a resolver must supply finite canonical `shadow_protected_roots`. Reject missing/invalid roots and any shadow output root equal to, inside, or above source or protected runtime roots before creating output storage. The default unmapped CLI has no runtime roots.
 
 - [ ] Write failing tests for default unmapped, bound result via a controlled host resolver, sanitized rejected errors, repeated identical import and changed content conflict. A record contains `schema_version=dwelly-shadow-record-v1`, `status`, `reason`, `source` from summary(), `target` or null, `effects=[]`, `authorization=False`, `import_id`. It does not copy the draft text. Stable logical import identity derives from service namespace, job/case and registered target identity (or unmapped); content fingerprint also includes the complete source/target except checked_at so rechecking an identical binding is idempotent. Retain first observation time; a changed checkpoint is a conflict, not silently another success.
 

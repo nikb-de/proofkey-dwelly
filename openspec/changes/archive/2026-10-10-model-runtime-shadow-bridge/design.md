@@ -1,6 +1,6 @@
 ## Context
 
-Status: proposed design, not implementation. Source review: 2026-10-10, starting commit `3b4ef53`.
+Status: the shadow-only increment is implemented and reviewed through `0e8e170`; operational planning remains future work. Source review: 2026-10-10, starting commit `3b4ef53`. Verification: `docs/verification/model-runtime-shadow-bridge-2026-10-10.md`.
 
 | Current component | Observed boundary |
 | --- | --- |
