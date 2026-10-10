@@ -1,2184 +1,2186 @@
 {
-  "schema_version": "case-step-viewer/1.0",
-  "title": "002-N4 · Сбой формы: сохранилось ли исправление?",
-  "initial_explanation": "Мы — координатор Iona Quill. Клиент — Tarin Mave. Участники, цель и исходная проблема известны из карточки кейса.",
-  "initial_state": {
+ "schema_version": "case-step-viewer/1.0",
+ "title": "002-N4 · Form failure: did the correction save?",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Tarin Mave. The participants, goal and initial problem are known from the case card.",
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_commit": "553b4bcd84e4e7290f68a2b157d137625a92f53f",
+  "source_path": "data/negative-branches-001-050/_source/002.json",
+  "branch_id": "002-N4",
+  "history_path": "data/negative-branches-001-050/002/N4-CHANNEL_FAILURE/history.md",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003",
+   "004"
+  ],
+  "note": "Alternative synthetic continuation. No separate form-submission step was invented: the 09:54 time becomes known from auto-reply 005."
+ },
+ "initial_state": {
+  "case_id": "002-N4",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "recipient",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: get the missing details and confirmation that the change is done."
+   },
+   "recipient": {
+    "name": "Tarin Mave",
+    "organization": null,
+    "role": "recipient",
+    "is_us": false,
+    "responsibility": "Provide the details needed to clarify the address."
+   }
+  },
+  "goal": "Clarify the incomplete address and get the address hold on DL-002 cleared.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The recipient has provided the apartment number.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The address desk has confirmed the address correction.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c3",
+    "description": "The address hold is cleared.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The address is incomplete and needs clarification.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-002.",
+    "source": {
+     "type": "case_card",
+     "id": "002"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The address is incomplete; the shipment is paused until it is clarified.",
+    "source": {
+     "type": "case_card",
+     "id": "002"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": []
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Address desk email",
+    "title": "Address desk gives the hold reason",
+    "timestamp": "2026-02-03 09:00:00 UTC",
+    "actor_id": "address_desk",
+    "message_id": "001"
+   },
+   "explanation": "The recipient knows the missing detail; no extra identity check is needed here.",
+   "state_after": {
     "case_id": "002-N4",
     "our_actor_id": "coordinator",
     "client_actor_id": "recipient",
     "actors": {
-      "coordinator": {
-        "name": "Iona Quill",
-        "organization": "Rivet Delivery Desk",
-        "role": "coordinator",
-        "is_us": true,
-        "responsibility": "Вести обращение: получить сведения и подтверждение выполнения."
-      },
-      "recipient": {
-        "name": "Tarin Mave",
-        "organization": null,
-        "role": "recipient",
-        "is_us": false,
-        "responsibility": "Сообщить сведения, необходимые для уточнения адреса."
-      }
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the missing details and confirmation that the change is done."
+     },
+     "recipient": {
+      "name": "Tarin Mave",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Provide the details needed to clarify the address."
+     },
+     "address_desk": {
+      "name": "Address desk",
+      "organization": "Plover Arc Logistics",
+      "role": "address_desk",
+      "is_us": false,
+      "responsibility": "Apply the address correction and confirm the result."
+     }
     },
-    "goal": "Уточнить неполный адрес и снять адресную блокировку DL-002.",
+    "goal": "Clarify the incomplete address and get the address hold on DL-002 cleared.",
     "agent_state": {
-      "status": "ready",
-      "waiting_for": [],
-      "next_action": "Принять входящие сведения по обращению."
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask the recipient for the missing apartment number."
     },
     "success_criteria": [
-      {
-        "id": "c1",
-        "description": "Получен номер квартиры от получателя.",
-        "status": "pending",
-        "evidence_event_ids": []
-      },
-      {
-        "id": "c2",
-        "description": "Адресная служба подтвердила исправление адреса.",
-        "status": "pending",
-        "evidence_event_ids": []
-      },
-      {
-        "id": "c3",
-        "description": "Адресная блокировка снята.",
-        "status": "pending",
-        "evidence_event_ids": []
-      }
+     {
+      "id": "c1",
+      "description": "The recipient has provided the apartment number.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The address desk has confirmed the address correction.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The address hold is cleared.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
     ],
-    "intake": null,
-    "blocker": "Адрес неполон; требуется уточнение.",
-    "facts": [
-      {
-        "id": "f1",
-        "text": "Обращение касается отправления DL-002.",
-        "source": {
-          "type": "case_card",
-          "id": "002"
-        }
-      },
-      {
-        "id": "f2",
-        "text": "Адрес неполон; отправление приостановлено до уточнения.",
-        "source": {
-          "type": "case_card",
-          "id": "002"
-        }
-      }
-    ],
-    "requests": {},
-    "decision": {
-      "required": null,
-      "question": null,
-      "options": [],
-      "decision_maker": null,
-      "selected_option": null,
-      "reason": null
+    "intake": {
+     "created_at": "2026-02-03 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "002-N4"
+     },
+     "context_message_id": "001",
+     "summary": "Clarify the address for shipment DL-002: the order has no apartment number.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
     },
-    "status": "not_started",
-    "next_step": null,
+    "blocker": "The order is missing the apartment number.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-002.",
+      "source": {
+       "type": "case_card",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The order has no apartment number; the address hold is in place.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Address on the order: 18 Copperfin Court, Merrow Quay.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The recipient's order-linked portal session was verified by the account team.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Clarify the apartment number.",
+      "expected_response": "The apartment number.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "001"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": {
+     "type": "information",
+     "responsible_actor": "recipient",
+     "request_id": "r1",
+     "description": "Confirm the apartment number through the verified order portal."
+    },
     "result": null,
     "annotations": [],
-    "conversations": {},
-    "messages": []
+    "conversations": {
+     "service": {
+      "participants": [
+       "coordinator",
+       "address_desk"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "service",
+      "event_id": "001",
+      "timestamp": "2026-02-03 09:00:00 UTC",
+      "from_actor": "address_desk",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-002: 18 Copperfin Court, Merrow Quay. The building has multiple apartments; the order has no apartment number. Hold reason: incomplete address. The recipient’s order-linked portal session was verified by our account team."
+     }
+    ]
+   }
   },
-  "steps": [
-    {
-      "event": {
-        "id": "001",
-        "type": "message_received",
-        "label": "Письмо службы",
-        "title": "Служба сообщает причину блокировки",
-        "timestamp": "2026-02-03 09:00:00 UTC",
-        "actor_id": "address_desk",
-        "message_id": "001"
-      },
-      "explanation": "Недостающие сведения знает получатель; дополнительная проверка личности здесь не требуется.",
-      "state_after": {
-        "case_id": "002-N4",
-        "our_actor_id": "coordinator",
-        "client_actor_id": "recipient",
-        "actors": {
-          "address_desk": {
-            "name": "Address desk",
-            "organization": "Plover Arc Logistics",
-            "role": "executor",
-            "responsibility": "Выполнить исправление адреса и подтвердить результат.",
-            "is_us": false
-          },
-          "coordinator": {
-            "name": "Iona Quill",
-            "organization": "Rivet Delivery Desk",
-            "role": "coordinator",
-            "is_us": true,
-            "responsibility": "Вести обращение: получить сведения и подтверждение выполнения."
-          },
-          "recipient": {
-            "name": "Tarin Mave",
-            "organization": null,
-            "role": "recipient",
-            "is_us": false,
-            "responsibility": "Сообщить сведения, необходимые для уточнения адреса."
-          }
-        },
-        "goal": "Уточнить неполный адрес и снять адресную блокировку DL-002.",
-        "agent_state": {
-          "status": "ready",
-          "waiting_for": [],
-          "next_action": "Запросить у получателя недостающий номер квартиры."
-        },
-        "success_criteria": [
-          {
-            "id": "c1",
-            "description": "Получен номер квартиры от получателя.",
-            "status": "pending",
-            "evidence_event_ids": []
-          },
-          {
-            "id": "c2",
-            "description": "Адресная служба подтвердила исправление адреса.",
-            "status": "pending",
-            "evidence_event_ids": []
-          },
-          {
-            "id": "c3",
-            "description": "Адресная блокировка снята.",
-            "status": "pending",
-            "evidence_event_ids": []
-          }
-        ],
-        "intake": {
-          "created_at": "2026-02-03 09:00:00 UTC",
-          "escalated_at": null,
-          "source": {
-            "type": "case_card",
-            "id": "002"
-          },
-          "context_message_id": "001",
-          "summary": "Уточнить адрес отправления DL-002: в заказе нет номера квартиры.",
-          "note": "Время создания — из карточки кейса. Отдельного системного события создания тикета в истории нет."
-        },
-        "blocker": "В заказе отсутствует номер квартиры.",
-        "facts": [
-          {
-            "id": "f1",
-            "text": "Обращение касается отправления DL-002.",
-            "source": {
-              "type": "case_card",
-              "id": "002"
-            }
-          },
-          {
-            "id": "f2",
-            "text": "В заказе нет номера квартиры; адресная блокировка действует.",
-            "source": {
-              "type": "message",
-              "id": "001"
-            }
-          },
-          {
-            "id": "f3",
-            "text": "Адрес в заказе: 18 Copperfin Court, Merrow Quay.",
-            "source": {
-              "type": "message",
-              "id": "001"
-            }
-          },
-          {
-            "id": "f4",
-            "text": "Привязанная к заказу сессия получателя проверена командой аккаунтов.",
-            "source": {
-              "type": "message",
-              "id": "001"
-            }
-          }
-        ],
-        "requests": {
-          "r1": {
-            "type": "information",
-            "from_actor": "coordinator",
-            "to_actor": "recipient",
-            "responsible_actor": "recipient",
-            "purpose": "Уточнить номер квартиры.",
-            "expected_response": "Номер квартиры.",
-            "status": "planned",
-            "response": null,
-            "evidence_event_ids": [
-              "001"
-            ]
-          }
-        },
-        "decision": {
-          "required": false,
-          "question": null,
-          "options": [],
-          "decision_maker": null,
-          "selected_option": null,
-          "reason": null
-        },
-        "status": "context_received",
-        "next_step": {
-          "type": "information",
-          "responsible_actor": "recipient",
-          "request_id": "r1",
-          "description": "Подтвердить номер квартиры через проверенный портал заказа."
-        },
-        "result": null,
-        "annotations": [],
-        "conversations": {
-          "service": {
-            "participants": [
-              "coordinator",
-              "address_desk"
-            ],
-            "channel": "Email"
-          }
-        },
-        "messages": [
-          {
-            "conversation_id": "service",
-            "event_id": "001",
-            "timestamp": "2026-02-03 09:00:00 UTC",
-            "from_actor": "address_desk",
-            "to_actor": "coordinator",
-            "channel": "Email",
-            "body": "DL-002: 18 Copperfin Court, Merrow Quay. The building has multiple apartments; the order has no apartment number. Hold reason: incomplete address. The recipient’s order-linked portal session was verified by our account team.",
-            "body_ru": "DL-002: 18 Copperfin Court, Merrow Quay. В здании несколько квартир; в заказе нет номера квартиры. Причина удержания: неполный адрес. Наша команда по работе с учётными записями проверила привязанную к заказу сессию получателя в портале."
-          }
-        ]
-      }
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client question",
+    "title": "Client asks what needs clarifying",
+    "timestamp": "2026-02-03 09:10:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "002"
+   },
+   "explanation": "Event 001 tells us which field is missing, so we can ask a specific question.",
+   "state_after": {
+    "case_id": "002-N4",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the missing details and confirmation that the change is done."
+     },
+     "recipient": {
+      "name": "Tarin Mave",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Provide the details needed to clarify the address."
+     },
+     "address_desk": {
+      "name": "Address desk",
+      "organization": "Plover Arc Logistics",
+      "role": "address_desk",
+      "is_us": false,
+      "responsibility": "Apply the address correction and confirm the result."
+     }
     },
-    {
-      "event": {
-        "id": "002",
-        "type": "message_received",
-        "label": "Вопрос клиента",
-        "title": "Клиент спрашивает, что нужно уточнить",
-        "timestamp": "2026-02-03 09:10:00 UTC",
-        "actor_id": "recipient",
-        "message_id": "002"
-      },
-      "explanation": "Из события 001 известно, какое поле отсутствует. Мы можем задать конкретный вопрос.",
-      "state_after": {
-        "case_id": "002-N4",
-        "our_actor_id": "coordinator",
-        "client_actor_id": "recipient",
-        "actors": {
-          "address_desk": {
-            "name": "Address desk",
-            "organization": "Plover Arc Logistics",
-            "role": "executor",
-            "responsibility": "Выполнить исправление адреса и подтвердить результат.",
-            "is_us": false
-          },
-          "coordinator": {
-            "name": "Iona Quill",
-            "organization": "Rivet Delivery Desk",
-            "role": "coordinator",
-            "is_us": true,
-            "responsibility": "Вести обращение: получить сведения и подтверждение выполнения."
-          },
-          "recipient": {
-            "name": "Tarin Mave",
-            "organization": null,
-            "role": "recipient",
-            "is_us": false,
-            "responsibility": "Сообщить сведения, необходимые для уточнения адреса."
-          }
-        },
-        "goal": "Уточнить неполный адрес и снять адресную блокировку DL-002.",
-        "agent_state": {
-          "status": "ready",
-          "waiting_for": [],
-          "next_action": "Ответить Tarin: требуется номер квартиры."
-        },
-        "success_criteria": [
-          {
-            "id": "c1",
-            "description": "Получен номер квартиры от получателя.",
-            "status": "pending",
-            "evidence_event_ids": []
-          },
-          {
-            "id": "c2",
-            "description": "Адресная служба подтвердила исправление адреса.",
-            "status": "pending",
-            "evidence_event_ids": []
-          },
-          {
-            "id": "c3",
-            "description": "Адресная блокировка снята.",
-            "status": "pending",
-            "evidence_event_ids": []
-          }
-        ],
-        "intake": {
-          "created_at": "2026-02-03 09:00:00 UTC",
-          "escalated_at": "2026-02-03 09:10:00 UTC",
-          "source": {
-            "type": "case_card",
-            "id": "002"
-          },
-          "context_message_id": "001",
-          "summary": "Уточнить адрес отправления DL-002: в заказе нет номера квартиры.",
-          "note": "Время создания — из карточки кейса. Отдельного системного события создания тикета в истории нет."
-        },
-        "blocker": "В заказе отсутствует номер квартиры.",
-        "facts": [
-          {
-            "id": "f1",
-            "text": "Обращение касается отправления DL-002.",
-            "source": {
-              "type": "case_card",
-              "id": "002"
-            }
-          },
-          {
-            "id": "f2",
-            "text": "В заказе нет номера квартиры; адресная блокировка действует.",
-            "source": {
-              "type": "message",
-              "id": "001"
-            }
-          },
-          {
-            "id": "f3",
-            "text": "Адрес в заказе: 18 Copperfin Court, Merrow Quay.",
-            "source": {
-              "type": "message",
-              "id": "001"
-            }
-          },
-          {
-            "id": "f4",
-            "text": "Привязанная к заказу сессия получателя проверена командой аккаунтов.",
-            "source": {
-              "type": "message",
-              "id": "001"
-            }
-          },
-          {
-            "id": "f5",
-            "text": "Получатель подтвердил, что здание указано верно.",
-            "source": {
-              "type": "message",
-              "id": "002"
-            }
-          },
-          {
-            "id": "f8",
-            "text": "По словам получателя, до своего вопроса он увидел на странице отслеживания статус «Требуется уточнение адреса». Время появления статуса неизвестно.",
-            "source": {
-              "type": "message",
-              "id": "002"
-            }
-          }
-        ],
-        "requests": {
-          "r1": {
-            "type": "information",
-            "from_actor": "coordinator",
-            "to_actor": "recipient",
-            "responsible_actor": "recipient",
-            "purpose": "Уточнить номер квартиры.",
-            "expected_response": "Номер квартиры.",
-            "status": "planned",
-            "response": null,
-            "evidence_event_ids": [
-              "001"
-            ]
-          },
-          "r0": {
-            "type": "information",
-            "from_actor": "recipient",
-            "to_actor": "coordinator",
-            "responsible_actor": "coordinator",
-            "purpose": "Объяснить, какие сведения нужны для уточнения адреса.",
-            "expected_response": "Указать недостающие сведения.",
-            "status": "received",
-            "response": null,
-            "evidence_event_ids": [
-              "002"
-            ]
-          }
-        },
-        "decision": {
-          "required": false,
-          "question": null,
-          "options": [],
-          "decision_maker": null,
-          "selected_option": null,
-          "reason": null
-        },
-        "status": "escalated",
-        "next_step": {
-          "type": "information",
-          "responsible_actor": "recipient",
-          "request_id": "r1",
-          "description": "Подтвердить номер квартиры через проверенный портал заказа."
-        },
-        "result": null,
-        "annotations": [
-          {
-            "id": "tracking-context",
-            "kind": "context",
-            "title": "Что Tarin увидел до своего вопроса",
-            "text": "На странице отслеживания: «Требуется уточнение адреса». Из слов Tarin в сообщении 002. Время появления статуса неизвестно; отдельное уведомление об этом статусе в истории не записано.",
-            "before_message_id": "002",
-            "source_event_ids": [
-              "002"
-            ]
-          }
-        ],
-        "conversations": {
-          "service": {
-            "participants": [
-              "coordinator",
-              "address_desk"
-            ],
-            "channel": "Email"
-          },
-          "client": {
-            "participants": [
-              "coordinator",
-              "recipient"
-            ],
-            "channel": "Customer portal"
-          }
-        },
-        "messages": [
-          {
-            "conversation_id": "service",
-            "event_id": "001",
-            "timestamp": "2026-02-03 09:00:00 UTC",
-            "from_actor": "address_desk",
-            "to_actor": "coordinator",
-            "channel": "Email",
-            "body": "DL-002: 18 Copperfin Court, Merrow Quay. The building has multiple apartments; the order has no apartment number. Hold reason: incomplete address. The recipient’s order-linked portal session was verified by our account team.",
-            "body_ru": "DL-002: 18 Copperfin Court, Merrow Quay. В здании несколько квартир; в заказе нет номера квартиры. Причина удержания: неполный адрес. Наша команда по работе с учётными записями проверила привязанную к заказу сессию получателя в портале."
-          },
-          {
-            "conversation_id": "client",
-            "event_id": "002",
-            "timestamp": "2026-02-03 09:10:00 UTC",
-            "from_actor": "recipient",
-            "to_actor": "coordinator",
-            "channel": "Customer portal",
-            "body": "The tracking page says address clarification required. The building is correct; what do you need from me?",
-            "body_ru": "На странице отслеживания указано, что требуется уточнение адреса. Здание указано верно; что вам нужно от меня?"
-          }
-        ]
-      }
+    "goal": "Clarify the incomplete address and get the address hold on DL-002 cleared.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Reply to Tarin: the apartment number is needed."
     },
-    {
-      "event": {
-        "id": "003",
-        "type": "message_sent",
-        "label": "Наш вопрос",
-        "title": "Наш вопрос клиенту",
-        "timestamp": "2026-02-03 09:25:00 UTC",
-        "actor_id": "coordinator",
-        "message_id": "003"
-      },
-      "explanation": "Запрошено только недостающее поле. Коды входа и другие домашние сведения не нужны.",
-      "state_after": {
-        "case_id": "002-N4",
-        "our_actor_id": "coordinator",
-        "client_actor_id": "recipient",
-        "actors": {
-          "address_desk": {
-            "name": "Address desk",
-            "organization": "Plover Arc Logistics",
-            "role": "executor",
-            "responsibility": "Выполнить исправление адреса и подтвердить результат.",
-            "is_us": false
-          },
-          "coordinator": {
-            "name": "Iona Quill",
-            "organization": "Rivet Delivery Desk",
-            "role": "coordinator",
-            "is_us": true,
-            "responsibility": "Вести обращение: получить сведения и подтверждение выполнения."
-          },
-          "recipient": {
-            "name": "Tarin Mave",
-            "organization": null,
-            "role": "recipient",
-            "is_us": false,
-            "responsibility": "Сообщить сведения, необходимые для уточнения адреса."
-          }
-        },
-        "goal": "Уточнить неполный адрес и снять адресную блокировку DL-002.",
-        "agent_state": {
-          "status": "waiting",
-          "waiting_for": [
-            {
-              "actor_id": "recipient",
-              "request_id": "r1",
-              "expected": "Номер квартиры"
-            }
-          ],
-          "next_action": "После ответа передать уточнённый адрес адресной службе."
-        },
-        "success_criteria": [
-          {
-            "id": "c1",
-            "description": "Получен номер квартиры от получателя.",
-            "status": "pending",
-            "evidence_event_ids": []
-          },
-          {
-            "id": "c2",
-            "description": "Адресная служба подтвердила исправление адреса.",
-            "status": "pending",
-            "evidence_event_ids": []
-          },
-          {
-            "id": "c3",
-            "description": "Адресная блокировка снята.",
-            "status": "pending",
-            "evidence_event_ids": []
-          }
-        ],
-        "intake": {
-          "created_at": "2026-02-03 09:00:00 UTC",
-          "escalated_at": "2026-02-03 09:10:00 UTC",
-          "source": {
-            "type": "case_card",
-            "id": "002"
-          },
-          "context_message_id": "001",
-          "summary": "Уточнить адрес отправления DL-002: в заказе нет номера квартиры.",
-          "note": "Время создания — из карточки кейса. Отдельного системного события создания тикета в истории нет."
-        },
-        "blocker": "В заказе отсутствует номер квартиры.",
-        "facts": [
-          {
-            "id": "f1",
-            "text": "Обращение касается отправления DL-002.",
-            "source": {
-              "type": "case_card",
-              "id": "002"
-            }
-          },
-          {
-            "id": "f2",
-            "text": "В заказе нет номера квартиры; адресная блокировка действует.",
-            "source": {
-              "type": "message",
-              "id": "001"
-            }
-          },
-          {
-            "id": "f3",
-            "text": "Адрес в заказе: 18 Copperfin Court, Merrow Quay.",
-            "source": {
-              "type": "message",
-              "id": "001"
-            }
-          },
-          {
-            "id": "f4",
-            "text": "Привязанная к заказу сессия получателя проверена командой аккаунтов.",
-            "source": {
-              "type": "message",
-              "id": "001"
-            }
-          },
-          {
-            "id": "f5",
-            "text": "Получатель подтвердил, что здание указано верно.",
-            "source": {
-              "type": "message",
-              "id": "002"
-            }
-          },
-          {
-            "id": "f8",
-            "text": "По словам получателя, до своего вопроса он увидел на странице отслеживания статус «Требуется уточнение адреса». Время появления статуса неизвестно.",
-            "source": {
-              "type": "message",
-              "id": "002"
-            }
-          }
-        ],
-        "requests": {
-          "r1": {
-            "type": "information",
-            "from_actor": "coordinator",
-            "to_actor": "recipient",
-            "responsible_actor": "recipient",
-            "purpose": "Уточнить номер квартиры.",
-            "expected_response": "Номер квартиры.",
-            "status": "awaiting_response",
-            "response": null,
-            "evidence_event_ids": [
-              "001",
-              "003"
-            ]
-          },
-          "r0": {
-            "type": "information",
-            "from_actor": "recipient",
-            "to_actor": "coordinator",
-            "responsible_actor": "coordinator",
-            "purpose": "Объяснить, какие сведения нужны для уточнения адреса.",
-            "expected_response": "Указать недостающие сведения.",
-            "status": "answered",
-            "response": "Нужно подтвердить номер квартиры.",
-            "evidence_event_ids": [
-              "002",
-              "003"
-            ]
-          }
-        },
-        "decision": {
-          "required": false,
-          "question": null,
-          "options": [],
-          "decision_maker": null,
-          "selected_option": null,
-          "reason": null
-        },
-        "status": "awaiting_response",
-        "next_step": {
-          "type": "information",
-          "responsible_actor": "recipient",
-          "request_id": "r1",
-          "description": "Дождаться номера квартиры от получателя."
-        },
-        "result": null,
-        "annotations": [
-          {
-            "id": "tracking-context",
-            "kind": "context",
-            "title": "Что Tarin увидел до своего вопроса",
-            "text": "На странице отслеживания: «Требуется уточнение адреса». Из слов Tarin в сообщении 002. Время появления статуса неизвестно; отдельное уведомление об этом статусе в истории не записано.",
-            "before_message_id": "002",
-            "source_event_ids": [
-              "002"
-            ]
-          }
-        ],
-        "conversations": {
-          "service": {
-            "participants": [
-              "coordinator",
-              "address_desk"
-            ],
-            "channel": "Email"
-          },
-          "client": {
-            "participants": [
-              "coordinator",
-              "recipient"
-            ],
-            "channel": "Customer portal"
-          }
-        },
-        "messages": [
-          {
-            "conversation_id": "service",
-            "event_id": "001",
-            "timestamp": "2026-02-03 09:00:00 UTC",
-            "from_actor": "address_desk",
-            "to_actor": "coordinator",
-            "channel": "Email",
-            "body": "DL-002: 18 Copperfin Court, Merrow Quay. The building has multiple apartments; the order has no apartment number. Hold reason: incomplete address. The recipient’s order-linked portal session was verified by our account team.",
-            "body_ru": "DL-002: 18 Copperfin Court, Merrow Quay. В здании несколько квартир; в заказе нет номера квартиры. Причина удержания: неполный адрес. Наша команда по работе с учётными записями проверила привязанную к заказу сессию получателя в портале."
-          },
-          {
-            "conversation_id": "client",
-            "event_id": "002",
-            "timestamp": "2026-02-03 09:10:00 UTC",
-            "from_actor": "recipient",
-            "to_actor": "coordinator",
-            "channel": "Customer portal",
-            "body": "The tracking page says address clarification required. The building is correct; what do you need from me?",
-            "body_ru": "На странице отслеживания указано, что требуется уточнение адреса. Здание указано верно; что вам нужно от меня?"
-          },
-          {
-            "conversation_id": "client",
-            "event_id": "003",
-            "timestamp": "2026-02-03 09:25:00 UTC",
-            "from_actor": "coordinator",
-            "to_actor": "recipient",
-            "channel": "Customer portal",
-            "body": "Please confirm the apartment number at 18 Copperfin Court. We do not need entry codes or any other household details.",
-            "body_ru": "Пожалуйста, подтвердите номер квартиры по адресу 18 Copperfin Court. Нам не нужны коды входа или любые другие сведения о домохозяйстве."
-          }
-        ]
-      }
-    },
-    {
-      "event": {
-        "id": "004",
-        "type": "message_received",
-        "label": "Ответ клиента",
-        "title": "Получен номер квартиры",
-        "timestamp": "2026-02-03 09:50:00 UTC",
-        "actor_id": "recipient",
-        "message_id": "004"
-      },
-      "explanation": "Сведения получены, но получение номера ещё не означает, что адрес исправлен.",
-      "state_after": {
-        "case_id": "002-N4",
-        "our_actor_id": "coordinator",
-        "client_actor_id": "recipient",
-        "actors": {
-          "address_desk": {
-            "name": "Address desk",
-            "organization": "Plover Arc Logistics",
-            "role": "executor",
-            "responsibility": "Выполнить исправление адреса и подтвердить результат.",
-            "is_us": false
-          },
-          "coordinator": {
-            "name": "Iona Quill",
-            "organization": "Rivet Delivery Desk",
-            "role": "coordinator",
-            "is_us": true,
-            "responsibility": "Вести обращение: получить сведения и подтверждение выполнения."
-          },
-          "recipient": {
-            "name": "Tarin Mave",
-            "organization": null,
-            "role": "recipient",
-            "is_us": false,
-            "responsibility": "Сообщить сведения, необходимые для уточнения адреса."
-          }
-        },
-        "goal": "Уточнить неполный адрес и снять адресную блокировку DL-002.",
-        "agent_state": {
-          "status": "ready",
-          "waiting_for": [],
-          "next_action": "Передать номер квартиры адресной службе и затем ждать подтверждения."
-        },
-        "success_criteria": [
-          {
-            "id": "c1",
-            "description": "Получен номер квартиры от получателя.",
-            "status": "met",
-            "evidence_event_ids": [
-              "004"
-            ]
-          },
-          {
-            "id": "c2",
-            "description": "Адресная служба подтвердила исправление адреса.",
-            "status": "pending",
-            "evidence_event_ids": []
-          },
-          {
-            "id": "c3",
-            "description": "Адресная блокировка снята.",
-            "status": "pending",
-            "evidence_event_ids": []
-          }
-        ],
-        "intake": {
-          "created_at": "2026-02-03 09:00:00 UTC",
-          "escalated_at": "2026-02-03 09:10:00 UTC",
-          "source": {
-            "type": "case_card",
-            "id": "002"
-          },
-          "context_message_id": "001",
-          "summary": "Уточнить адрес отправления DL-002: в заказе нет номера квартиры.",
-          "note": "Время создания — из карточки кейса. Отдельного системного события создания тикета в истории нет."
-        },
-        "blocker": "Номер квартиры получен; применение исправления и снятие блокировки ещё не подтверждены.",
-        "facts": [
-          {
-            "id": "f1",
-            "text": "Обращение касается отправления DL-002.",
-            "source": {
-              "type": "case_card",
-              "id": "002"
-            }
-          },
-          {
-            "id": "f2",
-            "text": "В заказе нет номера квартиры; адресная блокировка действует.",
-            "source": {
-              "type": "message",
-              "id": "001"
-            }
-          },
-          {
-            "id": "f3",
-            "text": "Адрес в заказе: 18 Copperfin Court, Merrow Quay.",
-            "source": {
-              "type": "message",
-              "id": "001"
-            }
-          },
-          {
-            "id": "f4",
-            "text": "Привязанная к заказу сессия получателя проверена командой аккаунтов.",
-            "source": {
-              "type": "message",
-              "id": "001"
-            }
-          },
-          {
-            "id": "f5",
-            "text": "Получатель подтвердил, что здание указано верно.",
-            "source": {
-              "type": "message",
-              "id": "002"
-            }
-          },
-          {
-            "id": "f8",
-            "text": "По словам получателя, до своего вопроса он увидел на странице отслеживания статус «Требуется уточнение адреса». Время появления статуса неизвестно.",
-            "source": {
-              "type": "message",
-              "id": "002"
-            }
-          },
-          {
-            "id": "f6",
-            "text": "Получатель сообщил квартиру 4B и попросил добавить её к DL-002; улица и здание остаются прежними.",
-            "source": {
-              "type": "message",
-              "id": "004"
-            }
-          }
-        ],
-        "requests": {
-          "r1": {
-            "type": "information",
-            "from_actor": "coordinator",
-            "to_actor": "recipient",
-            "responsible_actor": "recipient",
-            "purpose": "Уточнить номер квартиры.",
-            "expected_response": "Номер квартиры.",
-            "status": "answered",
-            "response": "4B",
-            "evidence_event_ids": [
-              "001",
-              "003",
-              "004"
-            ]
-          },
-          "r0": {
-            "type": "information",
-            "from_actor": "recipient",
-            "to_actor": "coordinator",
-            "responsible_actor": "coordinator",
-            "purpose": "Объяснить, какие сведения нужны для уточнения адреса.",
-            "expected_response": "Указать недостающие сведения.",
-            "status": "answered",
-            "response": "Нужно подтвердить номер квартиры.",
-            "evidence_event_ids": [
-              "002",
-              "003"
-            ]
-          },
-          "r2": {
-            "type": "action",
-            "from_actor": "recipient",
-            "to_actor": "coordinator",
-            "responsible_actor": "address_desk",
-            "purpose": "Добавить квартиру 4B к отправлению, сохранив улицу и здание.",
-            "expected_response": "Исправленный адрес отправления.",
-            "status": "received",
-            "response": null,
-            "evidence_event_ids": [
-              "004"
-            ]
-          },
-          "r3": {
-            "type": "confirmation",
-            "from_actor": "coordinator",
-            "to_actor": "address_desk",
-            "responsible_actor": "address_desk",
-            "purpose": "Получить подтверждение исправления и снятия блокировки.",
-            "expected_response": "Подтверждение адресной службы.",
-            "status": "planned",
-            "response": null,
-            "evidence_event_ids": [
-              "004"
-            ]
-          }
-        },
-        "decision": {
-          "required": false,
-          "question": null,
-          "options": [],
-          "decision_maker": null,
-          "selected_option": null,
-          "reason": null
-        },
-        "status": "action_required",
-        "next_step": {
-          "type": "action",
-          "responsible_actor": "coordinator",
-          "description": "Передать исправление адресной службе."
-        },
-        "result": null,
-        "annotations": [
-          {
-            "id": "tracking-context",
-            "kind": "context",
-            "title": "Что Tarin увидел до своего вопроса",
-            "text": "На странице отслеживания: «Требуется уточнение адреса». Из слов Tarin в сообщении 002. Время появления статуса неизвестно; отдельное уведомление об этом статусе в истории не записано.",
-            "before_message_id": "002",
-            "source_event_ids": [
-              "002"
-            ]
-          }
-        ],
-        "conversations": {
-          "service": {
-            "participants": [
-              "coordinator",
-              "address_desk"
-            ],
-            "channel": "Email"
-          },
-          "client": {
-            "participants": [
-              "coordinator",
-              "recipient"
-            ],
-            "channel": "Customer portal"
-          }
-        },
-        "messages": [
-          {
-            "conversation_id": "service",
-            "event_id": "001",
-            "timestamp": "2026-02-03 09:00:00 UTC",
-            "from_actor": "address_desk",
-            "to_actor": "coordinator",
-            "channel": "Email",
-            "body": "DL-002: 18 Copperfin Court, Merrow Quay. The building has multiple apartments; the order has no apartment number. Hold reason: incomplete address. The recipient’s order-linked portal session was verified by our account team.",
-            "body_ru": "DL-002: 18 Copperfin Court, Merrow Quay. В здании несколько квартир; в заказе нет номера квартиры. Причина удержания: неполный адрес. Наша команда по работе с учётными записями проверила привязанную к заказу сессию получателя в портале."
-          },
-          {
-            "conversation_id": "client",
-            "event_id": "002",
-            "timestamp": "2026-02-03 09:10:00 UTC",
-            "from_actor": "recipient",
-            "to_actor": "coordinator",
-            "channel": "Customer portal",
-            "body": "The tracking page says address clarification required. The building is correct; what do you need from me?",
-            "body_ru": "На странице отслеживания указано, что требуется уточнение адреса. Здание указано верно; что вам нужно от меня?"
-          },
-          {
-            "conversation_id": "client",
-            "event_id": "003",
-            "timestamp": "2026-02-03 09:25:00 UTC",
-            "from_actor": "coordinator",
-            "to_actor": "recipient",
-            "channel": "Customer portal",
-            "body": "Please confirm the apartment number at 18 Copperfin Court. We do not need entry codes or any other household details.",
-            "body_ru": "Пожалуйста, подтвердите номер квартиры по адресу 18 Copperfin Court. Нам не нужны коды входа или любые другие сведения о домохозяйстве."
-          },
-          {
-            "conversation_id": "client",
-            "event_id": "004",
-            "timestamp": "2026-02-03 09:50:00 UTC",
-            "from_actor": "recipient",
-            "to_actor": "coordinator",
-            "channel": "Customer portal",
-            "body": "Apartment 4B. Please add that to DL-002; the street and building remain unchanged.",
-            "body_ru": "Квартира 4B. Пожалуйста, добавьте её к DL-002; улица и здание остаются прежними."
-          }
-        ]
-      }
-    },
-    {
-      "event": {
-        "id": "005",
-        "type": "message_received",
-        "label": "Сбой формы",
-        "title": "Форма сообщила ошибку; результат исправления неизвестен",
-        "timestamp": "2026-02-03 09:57:00 UTC",
-        "actor_id": "correction_form",
-        "message_id": "005"
-      },
-      "explanation": "Ошибка сессии не доказывает, что запись не сохранилась. Сначала нужно проверить состояние у исполнителя.",
-      "state_after": {
-        "case_id": "002-N4",
-        "our_actor_id": "coordinator",
-        "client_actor_id": "recipient",
-        "actors": {
-          "address_desk": {
-            "name": "Address desk",
-            "organization": "Plover Arc Logistics",
-            "role": "executor",
-            "responsibility": "Выполнить исправление адреса и подтвердить результат.",
-            "is_us": false
-          },
-          "coordinator": {
-            "name": "Iona Quill",
-            "organization": "Rivet Delivery Desk",
-            "role": "coordinator",
-            "is_us": true,
-            "responsibility": "Вести обращение: получить сведения и подтверждение выполнения."
-          },
-          "recipient": {
-            "name": "Tarin Mave",
-            "organization": null,
-            "role": "recipient",
-            "is_us": false,
-            "responsibility": "Сообщить сведения, необходимые для уточнения адреса."
-          },
-          "correction_form": {
-            "name": "Форма исправления адреса",
-            "organization": "Plover Arc Logistics",
-            "role": "system",
-            "responsibility": "Сообщить технический результат отправки формы; автоответ не подтверждает сохранение изменения."
-          }
-        },
-        "goal": "Уточнить неполный адрес и снять адресную блокировку DL-002.",
-        "agent_state": {
-          "status": "ready",
-          "waiting_for": [],
-          "next_action": "Написать адресной службе: проверить сохранённый адрес и блокировку. До ответа не отправлять исправление повторно."
-        },
-        "success_criteria": [
-          {
-            "id": "c1",
-            "description": "Получен номер квартиры от получателя.",
-            "status": "met",
-            "evidence_event_ids": [
-              "004"
-            ]
-          },
-          {
-            "id": "c2",
-            "description": "Адресная служба подтвердила исправление адреса.",
-            "status": "pending",
-            "evidence_event_ids": []
-          },
-          {
-            "id": "c3",
-            "description": "Адресная блокировка снята.",
-            "status": "pending",
-            "evidence_event_ids": []
-          },
-          {
-            "id": "c4",
-            "description": "Служба установила исход первой попытки и подтвердила одну запись исправления.",
-            "status": "pending",
-            "evidence_event_ids": []
-          }
-        ],
-        "intake": {
-          "created_at": "2026-02-03 09:00:00 UTC",
-          "escalated_at": "2026-02-03 09:57:00 UTC",
-          "source": {
-            "type": "negative_branch",
-            "id": "002-N4"
-          },
-          "context_message_id": "001",
-          "summary": "Проверить результат исправления DL-002 после ошибки формы и получить подтверждение адреса и снятия блокировки.",
-          "note": "Время создания — из карточки кейса. Отдельного системного события создания тикета в истории нет."
-        },
-        "blocker": "Результат отправки формы неизвестен: изменение могло сохраниться до истечения сессии.",
-        "facts": [
-          {
-            "id": "f1",
-            "text": "Обращение касается отправления DL-002.",
-            "source": {
-              "type": "case_card",
-              "id": "002"
-            }
-          },
-          {
-            "id": "f2",
-            "text": "Последнее подтверждённое состояние — адресная блокировка; её текущее состояние после отправки формы неизвестно.",
-            "source": {
-              "type": "message",
-              "id": "005"
-            }
-          },
-          {
-            "id": "f3",
-            "text": "Ранее в заказе был адрес без квартиры. Сохранённый адрес после попытки исправления ещё не проверен.",
-            "source": {
-              "type": "message",
-              "id": "005"
-            }
-          },
-          {
-            "id": "f4",
-            "text": "Привязанная к заказу сессия получателя проверена командой аккаунтов.",
-            "source": {
-              "type": "message",
-              "id": "001"
-            }
-          },
-          {
-            "id": "f5",
-            "text": "Получатель подтвердил, что здание указано верно.",
-            "source": {
-              "type": "message",
-              "id": "002"
-            }
-          },
-          {
-            "id": "f8",
-            "text": "По словам получателя, до своего вопроса он увидел на странице отслеживания статус «Требуется уточнение адреса». Время появления статуса неизвестно.",
-            "source": {
-              "type": "message",
-              "id": "002"
-            }
-          },
-          {
-            "id": "f6",
-            "text": "Получатель сообщил квартиру 4B и попросил добавить её к DL-002; улица и здание остаются прежними.",
-            "source": {
-              "type": "message",
-              "id": "004"
-            }
-          },
-          {
-            "id": "f9",
-            "text": "Автоответ сообщает: исправление с квартирой 4B отправлено в 09:54, сессия истекла, номер исправления не выдан; данные могли сохраниться.",
-            "source": {
-              "type": "message",
-              "id": "005"
-            }
-          }
-        ],
-        "requests": {
-          "r1": {
-            "type": "information",
-            "from_actor": "coordinator",
-            "to_actor": "recipient",
-            "responsible_actor": "recipient",
-            "purpose": "Уточнить номер квартиры.",
-            "expected_response": "Номер квартиры.",
-            "status": "answered",
-            "response": "4B",
-            "evidence_event_ids": [
-              "001",
-              "003",
-              "004"
-            ]
-          },
-          "r0": {
-            "type": "information",
-            "from_actor": "recipient",
-            "to_actor": "coordinator",
-            "responsible_actor": "coordinator",
-            "purpose": "Объяснить, какие сведения нужны для уточнения адреса.",
-            "expected_response": "Указать недостающие сведения.",
-            "status": "answered",
-            "response": "Нужно подтвердить номер квартиры.",
-            "evidence_event_ids": [
-              "002",
-              "003"
-            ]
-          },
-          "r2": {
-            "type": "action",
-            "from_actor": "recipient",
-            "to_actor": "coordinator",
-            "responsible_actor": "address_desk",
-            "purpose": "Добавить квартиру 4B к отправлению, сохранив улицу и здание.",
-            "expected_response": "Исправленный адрес отправления.",
-            "status": "outcome_unknown",
-            "response": null,
-            "evidence_event_ids": [
-              "004",
-              "005"
-            ]
-          },
-          "r3": {
-            "type": "confirmation",
-            "from_actor": "coordinator",
-            "to_actor": "address_desk",
-            "responsible_actor": "address_desk",
-            "purpose": "Получить подтверждение исправления и снятия блокировки.",
-            "expected_response": "Подтверждение адресной службы.",
-            "status": "superseded",
-            "response": null,
-            "evidence_event_ids": [
-              "004",
-              "005"
-            ]
-          },
-          "r4": {
-            "type": "information",
-            "from_actor": "coordinator",
-            "to_actor": "address_desk",
-            "responsible_actor": "address_desk",
-            "purpose": "Установить результат первой отправки до повторного изменения.",
-            "expected_response": "Сохранённый адрес, статус блокировки и результат первой попытки.",
-            "status": "planned",
-            "response": null,
-            "evidence_event_ids": [
-              "005"
-            ]
-          }
-        },
-        "decision": {
-          "required": true,
-          "question": "Можно ли повторно отправить исправление после ошибки сессии?",
-          "options": [
-            {
-              "id": "verify_saved_state",
-              "action": "Сначала проверить сохранённый адрес и блокировку у службы.",
-              "allowed": true,
-              "reason": "Форма могла сохранить изменение до ошибки."
-            },
-            {
-              "id": "resubmit_now",
-              "action": "Повторно отправить исправление сразу.",
-              "allowed": false,
-              "reason": "Исход первой попытки неизвестен; можно создать повторное изменение."
-            },
-            {
-              "id": "claim_success",
-              "action": "Сообщить клиенту, что блокировка снята.",
-              "allowed": false,
-              "reason": "Нет подтверждения сохранённого адреса и снятия блокировки."
-            }
-          ],
-          "decision_maker": "coordinator",
-          "selected_option": null,
-          "reason": null
-        },
-        "status": "verification_required",
-        "next_step": {
-          "type": "verification",
-          "responsible_actor": "coordinator",
-          "request_id": "r4",
-          "description": "Запросить сохранённое состояние у адресной службы."
-        },
-        "result": null,
-        "annotations": [
-          {
-            "id": "tracking-context",
-            "kind": "context",
-            "title": "Что Tarin увидел до своего вопроса",
-            "text": "На странице отслеживания: «Требуется уточнение адреса». Из слов Tarin в сообщении 002. Время появления статуса неизвестно; отдельное уведомление об этом статусе в истории не записано.",
-            "before_message_id": "002",
-            "source_event_ids": [
-              "002"
-            ]
-          },
-          {
-            "id": "reported-form-submission",
-            "kind": "reported_context",
-            "title": "Отправка формы известна из автоответа",
-            "text": "Автоответ 005 сообщает об отправке в 09:54. Отдельной записи отправки в истории нет; результат пока неизвестен. Дополнительное сообщение от нашего имени не добавлено.",
-            "before_message_id": "005",
-            "source_event_ids": [
-              "005"
-            ]
-          }
-        ],
-        "conversations": {
-          "service": {
-            "participants": [
-              "coordinator",
-              "address_desk"
-            ],
-            "channel": "Email"
-          },
-          "client": {
-            "participants": [
-              "coordinator",
-              "recipient"
-            ],
-            "channel": "Customer portal"
-          }
-        },
-        "messages": [
-          {
-            "conversation_id": "service",
-            "event_id": "001",
-            "timestamp": "2026-02-03 09:00:00 UTC",
-            "from_actor": "address_desk",
-            "to_actor": "coordinator",
-            "channel": "Email",
-            "body": "DL-002: 18 Copperfin Court, Merrow Quay. The building has multiple apartments; the order has no apartment number. Hold reason: incomplete address. The recipient’s order-linked portal session was verified by our account team.",
-            "body_ru": "DL-002: 18 Copperfin Court, Merrow Quay. В здании несколько квартир; в заказе нет номера квартиры. Причина удержания: неполный адрес. Наша команда по работе с учётными записями проверила привязанную к заказу сессию получателя в портале."
-          },
-          {
-            "conversation_id": "client",
-            "event_id": "002",
-            "timestamp": "2026-02-03 09:10:00 UTC",
-            "from_actor": "recipient",
-            "to_actor": "coordinator",
-            "channel": "Customer portal",
-            "body": "The tracking page says address clarification required. The building is correct; what do you need from me?",
-            "body_ru": "На странице отслеживания указано, что требуется уточнение адреса. Здание указано верно; что вам нужно от меня?"
-          },
-          {
-            "conversation_id": "client",
-            "event_id": "003",
-            "timestamp": "2026-02-03 09:25:00 UTC",
-            "from_actor": "coordinator",
-            "to_actor": "recipient",
-            "channel": "Customer portal",
-            "body": "Please confirm the apartment number at 18 Copperfin Court. We do not need entry codes or any other household details.",
-            "body_ru": "Пожалуйста, подтвердите номер квартиры по адресу 18 Copperfin Court. Нам не нужны коды входа или любые другие сведения о домохозяйстве."
-          },
-          {
-            "conversation_id": "client",
-            "event_id": "004",
-            "timestamp": "2026-02-03 09:50:00 UTC",
-            "from_actor": "recipient",
-            "to_actor": "coordinator",
-            "channel": "Customer portal",
-            "body": "Apartment 4B. Please add that to DL-002; the street and building remain unchanged.",
-            "body_ru": "Квартира 4B. Пожалуйста, добавьте её к DL-002; улица и здание остаются прежними."
-          },
-          {
-            "event_id": "005",
-            "timestamp": "2026-02-03 09:57:00 UTC",
-            "from_actor": "correction_form",
-            "to_actor": "coordinator",
-            "channel": "Email",
-            "body": "Automatic response. Your address correction for DL-002, Apartment 4B, submitted at 09:54, ended with 'Session expired'. The form may have saved before the session closed. No correction reference was issued.",
-            "body_ru": "Автоответ. Отправка исправления DL-002, квартира 4B, в 09:54 завершилась ошибкой «Сессия истекла». Форма могла сохранить данные до закрытия сессии. Номер исправления не выдан."
-          }
-        ],
-        "constraints": [
-          {
-            "id": "no_repeat",
-            "text": "Не отправлять исправление повторно, пока не установлен результат первой попытки.",
-            "source_event_ids": [
-              "005"
-            ]
-          },
-          {
-            "id": "no_unconfirmed_success",
-            "text": "Не заявлять клиенту о снятии блокировки без подтверждения службы.",
-            "source_event_ids": [
-              "005"
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "event": {
-        "id": "006",
-        "type": "message_sent",
-        "label": "Проверить, не повторять",
-        "title": "Мы запросили проверку и ждём службу",
-        "timestamp": "2026-02-03 10:12:00 UTC",
-        "actor_id": "coordinator",
-        "message_id": "006"
-      },
-      "explanation": "Запрос проверяет исход предыдущего действия. Он не является повторной заявкой на изменение адреса.",
-      "state_after": {
-        "case_id": "002-N4",
-        "our_actor_id": "coordinator",
-        "client_actor_id": "recipient",
-        "actors": {
-          "address_desk": {
-            "name": "Address desk",
-            "organization": "Plover Arc Logistics",
-            "role": "executor",
-            "responsibility": "Выполнить исправление адреса и подтвердить результат.",
-            "is_us": false
-          },
-          "coordinator": {
-            "name": "Iona Quill",
-            "organization": "Rivet Delivery Desk",
-            "role": "coordinator",
-            "is_us": true,
-            "responsibility": "Вести обращение: получить сведения и подтверждение выполнения."
-          },
-          "recipient": {
-            "name": "Tarin Mave",
-            "organization": null,
-            "role": "recipient",
-            "is_us": false,
-            "responsibility": "Сообщить сведения, необходимые для уточнения адреса."
-          },
-          "correction_form": {
-            "name": "Форма исправления адреса",
-            "organization": "Plover Arc Logistics",
-            "role": "system",
-            "responsibility": "Сообщить технический результат отправки формы; автоответ не подтверждает сохранение изменения."
-          }
-        },
-        "goal": "Уточнить неполный адрес и снять адресную блокировку DL-002.",
-        "agent_state": {
-          "status": "waiting",
-          "waiting_for": [
-            {
-              "actor_id": "address_desk",
-              "request_id": "r4",
-              "expected": "Сохранённый адрес DL-002, статус блокировки и результат первой попытки."
-            }
-          ],
-          "next_action": "Если исправление сохранено — зафиксировать подтверждение. Если служба подтвердит, что оно не сохранилось, выполнить одну исправляющую попытку и дождаться подтверждения.",
-          "note": "Повторное исправление пока не отправляем. Ответа получателя здесь недостаточно: состояние записи знает служба."
-        },
-        "success_criteria": [
-          {
-            "id": "c1",
-            "description": "Получен номер квартиры от получателя.",
-            "status": "met",
-            "evidence_event_ids": [
-              "004"
-            ]
-          },
-          {
-            "id": "c2",
-            "description": "Адресная служба подтвердила исправление адреса.",
-            "status": "pending",
-            "evidence_event_ids": []
-          },
-          {
-            "id": "c3",
-            "description": "Адресная блокировка снята.",
-            "status": "pending",
-            "evidence_event_ids": []
-          },
-          {
-            "id": "c4",
-            "description": "Служба установила исход первой попытки и подтвердила одну запись исправления.",
-            "status": "pending",
-            "evidence_event_ids": []
-          }
-        ],
-        "intake": {
-          "created_at": "2026-02-03 09:00:00 UTC",
-          "escalated_at": "2026-02-03 09:57:00 UTC",
-          "source": {
-            "type": "negative_branch",
-            "id": "002-N4"
-          },
-          "context_message_id": "001",
-          "summary": "Проверить результат исправления DL-002 после ошибки формы и получить подтверждение адреса и снятия блокировки.",
-          "note": "Время создания — из карточки кейса. Отдельного системного события создания тикета в истории нет."
-        },
-        "blocker": "Результат отправки формы неизвестен: изменение могло сохраниться до истечения сессии.",
-        "facts": [
-          {
-            "id": "f1",
-            "text": "Обращение касается отправления DL-002.",
-            "source": {
-              "type": "case_card",
-              "id": "002"
-            }
-          },
-          {
-            "id": "f2",
-            "text": "Последнее подтверждённое состояние — адресная блокировка; её текущее состояние после отправки формы неизвестно.",
-            "source": {
-              "type": "message",
-              "id": "005"
-            }
-          },
-          {
-            "id": "f3",
-            "text": "Ранее в заказе был адрес без квартиры. Сохранённый адрес после попытки исправления ещё не проверен.",
-            "source": {
-              "type": "message",
-              "id": "005"
-            }
-          },
-          {
-            "id": "f4",
-            "text": "Привязанная к заказу сессия получателя проверена командой аккаунтов.",
-            "source": {
-              "type": "message",
-              "id": "001"
-            }
-          },
-          {
-            "id": "f5",
-            "text": "Получатель подтвердил, что здание указано верно.",
-            "source": {
-              "type": "message",
-              "id": "002"
-            }
-          },
-          {
-            "id": "f8",
-            "text": "По словам получателя, до своего вопроса он увидел на странице отслеживания статус «Требуется уточнение адреса». Время появления статуса неизвестно.",
-            "source": {
-              "type": "message",
-              "id": "002"
-            }
-          },
-          {
-            "id": "f6",
-            "text": "Получатель сообщил квартиру 4B и попросил добавить её к DL-002; улица и здание остаются прежними.",
-            "source": {
-              "type": "message",
-              "id": "004"
-            }
-          },
-          {
-            "id": "f9",
-            "text": "Автоответ сообщает: исправление с квартирой 4B отправлено в 09:54, сессия истекла, номер исправления не выдан; данные могли сохраниться.",
-            "source": {
-              "type": "message",
-              "id": "005"
-            }
-          }
-        ],
-        "requests": {
-          "r1": {
-            "type": "information",
-            "from_actor": "coordinator",
-            "to_actor": "recipient",
-            "responsible_actor": "recipient",
-            "purpose": "Уточнить номер квартиры.",
-            "expected_response": "Номер квартиры.",
-            "status": "answered",
-            "response": "4B",
-            "evidence_event_ids": [
-              "001",
-              "003",
-              "004"
-            ]
-          },
-          "r0": {
-            "type": "information",
-            "from_actor": "recipient",
-            "to_actor": "coordinator",
-            "responsible_actor": "coordinator",
-            "purpose": "Объяснить, какие сведения нужны для уточнения адреса.",
-            "expected_response": "Указать недостающие сведения.",
-            "status": "answered",
-            "response": "Нужно подтвердить номер квартиры.",
-            "evidence_event_ids": [
-              "002",
-              "003"
-            ]
-          },
-          "r2": {
-            "type": "action",
-            "from_actor": "recipient",
-            "to_actor": "coordinator",
-            "responsible_actor": "address_desk",
-            "purpose": "Добавить квартиру 4B к отправлению, сохранив улицу и здание.",
-            "expected_response": "Исправленный адрес отправления.",
-            "status": "outcome_unknown",
-            "response": null,
-            "evidence_event_ids": [
-              "004",
-              "005"
-            ]
-          },
-          "r3": {
-            "type": "confirmation",
-            "from_actor": "coordinator",
-            "to_actor": "address_desk",
-            "responsible_actor": "address_desk",
-            "purpose": "Получить подтверждение исправления и снятия блокировки.",
-            "expected_response": "Подтверждение адресной службы.",
-            "status": "superseded",
-            "response": null,
-            "evidence_event_ids": [
-              "004",
-              "005"
-            ]
-          },
-          "r4": {
-            "type": "information",
-            "from_actor": "coordinator",
-            "to_actor": "address_desk",
-            "responsible_actor": "address_desk",
-            "purpose": "Установить результат первой отправки до повторного изменения.",
-            "expected_response": "Сохранённый адрес, статус блокировки и результат первой попытки.",
-            "status": "awaiting_response",
-            "response": null,
-            "evidence_event_ids": [
-              "005",
-              "006"
-            ]
-          }
-        },
-        "decision": {
-          "required": true,
-          "question": "Можно ли повторно отправить исправление после ошибки сессии?",
-          "options": [
-            {
-              "id": "verify_saved_state",
-              "action": "Сначала проверить сохранённый адрес и блокировку у службы.",
-              "allowed": true,
-              "reason": "Форма могла сохранить изменение до ошибки."
-            },
-            {
-              "id": "resubmit_now",
-              "action": "Повторно отправить исправление сразу.",
-              "allowed": false,
-              "reason": "Исход первой попытки неизвестен; можно создать повторное изменение."
-            },
-            {
-              "id": "claim_success",
-              "action": "Сообщить клиенту, что блокировка снята.",
-              "allowed": false,
-              "reason": "Нет подтверждения сохранённого адреса и снятия блокировки."
-            }
-          ],
-          "decision_maker": "coordinator",
-          "selected_option": "verify_saved_state",
-          "reason": "Отправлен запрос текущего состояния без повторного изменения."
-        },
-        "status": "awaiting_verification",
-        "next_step": {
-          "type": "information",
-          "responsible_actor": "address_desk",
-          "request_id": "r4",
-          "description": "Дождаться результата проверки первой попытки."
-        },
-        "result": null,
-        "annotations": [
-          {
-            "id": "tracking-context",
-            "kind": "context",
-            "title": "Что Tarin увидел до своего вопроса",
-            "text": "На странице отслеживания: «Требуется уточнение адреса». Из слов Tarin в сообщении 002. Время появления статуса неизвестно; отдельное уведомление об этом статусе в истории не записано.",
-            "before_message_id": "002",
-            "source_event_ids": [
-              "002"
-            ]
-          },
-          {
-            "id": "reported-form-submission",
-            "kind": "reported_context",
-            "title": "Отправка формы известна из автоответа",
-            "text": "Автоответ 005 сообщает об отправке в 09:54. Отдельной записи отправки в истории нет; результат пока неизвестен. Дополнительное сообщение от нашего имени не добавлено.",
-            "before_message_id": "005",
-            "source_event_ids": [
-              "005"
-            ]
-          }
-        ],
-        "conversations": {
-          "service": {
-            "participants": [
-              "coordinator",
-              "address_desk"
-            ],
-            "channel": "Email"
-          },
-          "client": {
-            "participants": [
-              "coordinator",
-              "recipient"
-            ],
-            "channel": "Customer portal"
-          }
-        },
-        "messages": [
-          {
-            "conversation_id": "service",
-            "event_id": "001",
-            "timestamp": "2026-02-03 09:00:00 UTC",
-            "from_actor": "address_desk",
-            "to_actor": "coordinator",
-            "channel": "Email",
-            "body": "DL-002: 18 Copperfin Court, Merrow Quay. The building has multiple apartments; the order has no apartment number. Hold reason: incomplete address. The recipient’s order-linked portal session was verified by our account team.",
-            "body_ru": "DL-002: 18 Copperfin Court, Merrow Quay. В здании несколько квартир; в заказе нет номера квартиры. Причина удержания: неполный адрес. Наша команда по работе с учётными записями проверила привязанную к заказу сессию получателя в портале."
-          },
-          {
-            "conversation_id": "client",
-            "event_id": "002",
-            "timestamp": "2026-02-03 09:10:00 UTC",
-            "from_actor": "recipient",
-            "to_actor": "coordinator",
-            "channel": "Customer portal",
-            "body": "The tracking page says address clarification required. The building is correct; what do you need from me?",
-            "body_ru": "На странице отслеживания указано, что требуется уточнение адреса. Здание указано верно; что вам нужно от меня?"
-          },
-          {
-            "conversation_id": "client",
-            "event_id": "003",
-            "timestamp": "2026-02-03 09:25:00 UTC",
-            "from_actor": "coordinator",
-            "to_actor": "recipient",
-            "channel": "Customer portal",
-            "body": "Please confirm the apartment number at 18 Copperfin Court. We do not need entry codes or any other household details.",
-            "body_ru": "Пожалуйста, подтвердите номер квартиры по адресу 18 Copperfin Court. Нам не нужны коды входа или любые другие сведения о домохозяйстве."
-          },
-          {
-            "conversation_id": "client",
-            "event_id": "004",
-            "timestamp": "2026-02-03 09:50:00 UTC",
-            "from_actor": "recipient",
-            "to_actor": "coordinator",
-            "channel": "Customer portal",
-            "body": "Apartment 4B. Please add that to DL-002; the street and building remain unchanged.",
-            "body_ru": "Квартира 4B. Пожалуйста, добавьте её к DL-002; улица и здание остаются прежними."
-          },
-          {
-            "event_id": "005",
-            "timestamp": "2026-02-03 09:57:00 UTC",
-            "from_actor": "correction_form",
-            "to_actor": "coordinator",
-            "channel": "Email",
-            "body": "Automatic response. Your address correction for DL-002, Apartment 4B, submitted at 09:54, ended with 'Session expired'. The form may have saved before the session closed. No correction reference was issued.",
-            "body_ru": "Автоответ. Отправка исправления DL-002, квартира 4B, в 09:54 завершилась ошибкой «Сессия истекла». Форма могла сохранить данные до закрытия сессии. Номер исправления не выдан."
-          },
-          {
-            "event_id": "006",
-            "timestamp": "2026-02-03 10:12:00 UTC",
-            "from_actor": "coordinator",
-            "to_actor": "address_desk",
-            "channel": "Email",
-            "body": "Our address correction for DL-002, Apartment 4B, submitted at 09:54, ended with 'Session expired' and no reference was issued. What do DL-002's saved address and hold status show now? Please do not create a second change. We will not resubmit the correction until we know.",
-            "body_ru": "Исправление DL-002, квартира 4B, отправленное в 09:54, завершилось ошибкой «Сессия истекла»; номер исправления не выдан. Какие адрес и статус блокировки сейчас сохранены у DL-002? Не создавайте второе изменение. Мы не будем отправлять исправление повторно, пока не узнаем результат."
-          }
-        ],
-        "constraints": [
-          {
-            "id": "no_repeat",
-            "text": "Не отправлять исправление повторно, пока не установлен результат первой попытки.",
-            "source_event_ids": [
-              "005"
-            ]
-          },
-          {
-            "id": "no_unconfirmed_success",
-            "text": "Не заявлять клиенту о снятии блокировки без подтверждения службы.",
-            "source_event_ids": [
-              "005"
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "event": {
-        "id": "007",
-        "type": "message_received",
-        "label": "Результат проверен",
-        "title": "Служба подтвердила: первая попытка сохранилась",
-        "timestamp": "2026-02-03 10:40:00 UTC",
-        "actor_id": "address_desk",
-        "message_id": "007"
-      },
-      "explanation": "Подтверждение службы устраняет неопределённость. Все критерии обращения выполнены; физическая доставка остаётся за его пределами.",
-      "state_after": {
-        "case_id": "002-N4",
-        "our_actor_id": "coordinator",
-        "client_actor_id": "recipient",
-        "actors": {
-          "address_desk": {
-            "name": "Address desk",
-            "organization": "Plover Arc Logistics",
-            "role": "executor",
-            "responsibility": "Выполнить исправление адреса и подтвердить результат.",
-            "is_us": false
-          },
-          "coordinator": {
-            "name": "Iona Quill",
-            "organization": "Rivet Delivery Desk",
-            "role": "coordinator",
-            "is_us": true,
-            "responsibility": "Вести обращение: получить сведения и подтверждение выполнения."
-          },
-          "recipient": {
-            "name": "Tarin Mave",
-            "organization": null,
-            "role": "recipient",
-            "is_us": false,
-            "responsibility": "Сообщить сведения, необходимые для уточнения адреса."
-          },
-          "correction_form": {
-            "name": "Форма исправления адреса",
-            "organization": "Plover Arc Logistics",
-            "role": "system",
-            "responsibility": "Сообщить технический результат отправки формы; автоответ не подтверждает сохранение изменения."
-          }
-        },
-        "goal": "Уточнить неполный адрес и снять адресную блокировку DL-002.",
-        "agent_state": {
-          "status": "completed",
-          "waiting_for": [],
-          "next_action": null,
-          "note": "Исход первой попытки проверен, адрес исправлен, блокировка снята. Повторная отправка не требуется; доставка ещё не выполнена."
-        },
-        "success_criteria": [
-          {
-            "id": "c1",
-            "description": "Получен номер квартиры от получателя.",
-            "status": "met",
-            "evidence_event_ids": [
-              "004"
-            ]
-          },
-          {
-            "id": "c2",
-            "description": "Адресная служба подтвердила исправление адреса.",
-            "status": "met",
-            "evidence_event_ids": [
-              "007"
-            ]
-          },
-          {
-            "id": "c3",
-            "description": "Адресная блокировка снята.",
-            "status": "met",
-            "evidence_event_ids": [
-              "007"
-            ]
-          },
-          {
-            "id": "c4",
-            "description": "Служба установила исход первой попытки и подтвердила одну запись исправления.",
-            "status": "met",
-            "evidence_event_ids": [
-              "007"
-            ]
-          }
-        ],
-        "intake": {
-          "created_at": "2026-02-03 09:00:00 UTC",
-          "escalated_at": "2026-02-03 09:57:00 UTC",
-          "source": {
-            "type": "negative_branch",
-            "id": "002-N4"
-          },
-          "context_message_id": "001",
-          "summary": "Проверить результат исправления DL-002 после ошибки формы и получить подтверждение адреса и снятия блокировки.",
-          "note": "Время создания — из карточки кейса. Отдельного системного события создания тикета в истории нет."
-        },
-        "blocker": null,
-        "facts": [
-          {
-            "id": "f1",
-            "text": "Обращение касается отправления DL-002.",
-            "source": {
-              "type": "case_card",
-              "id": "002"
-            }
-          },
-          {
-            "id": "f2",
-            "text": "Адресная блокировка снята.",
-            "source": {
-              "type": "message",
-              "id": "007"
-            }
-          },
-          {
-            "id": "f3",
-            "text": "Сохранён адрес: Apartment 4B, 18 Copperfin Court, Merrow Quay.",
-            "source": {
-              "type": "message",
-              "id": "007"
-            }
-          },
-          {
-            "id": "f4",
-            "text": "Привязанная к заказу сессия получателя проверена командой аккаунтов.",
-            "source": {
-              "type": "message",
-              "id": "001"
-            }
-          },
-          {
-            "id": "f5",
-            "text": "Получатель подтвердил, что здание указано верно.",
-            "source": {
-              "type": "message",
-              "id": "002"
-            }
-          },
-          {
-            "id": "f8",
-            "text": "По словам получателя, до своего вопроса он увидел на странице отслеживания статус «Требуется уточнение адреса». Время появления статуса неизвестно.",
-            "source": {
-              "type": "message",
-              "id": "002"
-            }
-          },
-          {
-            "id": "f6",
-            "text": "Получатель сообщил квартиру 4B и попросил добавить её к DL-002; улица и здание остаются прежними.",
-            "source": {
-              "type": "message",
-              "id": "004"
-            }
-          },
-          {
-            "id": "f9",
-            "text": "Автоответ сообщает: исправление с квартирой 4B отправлено в 09:54, сессия истекла, номер исправления не выдан; данные могли сохраниться.",
-            "source": {
-              "type": "message",
-              "id": "005"
-            }
-          },
-          {
-            "id": "f10",
-            "text": "Служба подтвердила: исправление 09:54 сохранилось до закрытия сессии, в системе одна запись.",
-            "source": {
-              "type": "message",
-              "id": "007"
-            }
-          },
-          {
-            "id": "f7",
-            "text": "DL-002 не покидало депо.",
-            "source": {
-              "type": "message",
-              "id": "007"
-            }
-          }
-        ],
-        "requests": {
-          "r1": {
-            "type": "information",
-            "from_actor": "coordinator",
-            "to_actor": "recipient",
-            "responsible_actor": "recipient",
-            "purpose": "Уточнить номер квартиры.",
-            "expected_response": "Номер квартиры.",
-            "status": "answered",
-            "response": "4B",
-            "evidence_event_ids": [
-              "001",
-              "003",
-              "004"
-            ]
-          },
-          "r0": {
-            "type": "information",
-            "from_actor": "recipient",
-            "to_actor": "coordinator",
-            "responsible_actor": "coordinator",
-            "purpose": "Объяснить, какие сведения нужны для уточнения адреса.",
-            "expected_response": "Указать недостающие сведения.",
-            "status": "answered",
-            "response": "Нужно подтвердить номер квартиры.",
-            "evidence_event_ids": [
-              "002",
-              "003"
-            ]
-          },
-          "r2": {
-            "type": "action",
-            "from_actor": "recipient",
-            "to_actor": "coordinator",
-            "responsible_actor": "address_desk",
-            "purpose": "Добавить квартиру 4B к отправлению, сохранив улицу и здание.",
-            "expected_response": "Исправленный адрес отправления.",
-            "status": "completed",
-            "response": "Квартира 4B сохранена первой попыткой; блокировка снята.",
-            "evidence_event_ids": [
-              "004",
-              "005",
-              "007"
-            ]
-          },
-          "r3": {
-            "type": "confirmation",
-            "from_actor": "coordinator",
-            "to_actor": "address_desk",
-            "responsible_actor": "address_desk",
-            "purpose": "Получить подтверждение исправления и снятия блокировки.",
-            "expected_response": "Подтверждение адресной службы.",
-            "status": "answered",
-            "response": "Результат подтверждён в ответе на проверку r4.",
-            "evidence_event_ids": [
-              "004",
-              "007"
-            ]
-          },
-          "r4": {
-            "type": "information",
-            "from_actor": "coordinator",
-            "to_actor": "address_desk",
-            "responsible_actor": "address_desk",
-            "purpose": "Установить результат первой отправки до повторного изменения.",
-            "expected_response": "Сохранённый адрес, статус блокировки и результат первой попытки.",
-            "status": "answered",
-            "response": "Адрес содержит 4B; исправление 09:54 сохранено, запись одна, блокировка снята.",
-            "evidence_event_ids": [
-              "005",
-              "006",
-              "007"
-            ]
-          }
-        },
-        "decision": {
-          "required": false,
-          "question": "Можно ли повторно отправить исправление после ошибки сессии?",
-          "options": [
-            {
-              "id": "verify_saved_state",
-              "action": "Сначала проверить сохранённый адрес и блокировку у службы.",
-              "allowed": true,
-              "reason": "Форма могла сохранить изменение до ошибки."
-            },
-            {
-              "id": "resubmit_now",
-              "action": "Повторно отправить исправление сразу.",
-              "allowed": false,
-              "reason": "Исход первой попытки неизвестен; можно создать повторное изменение."
-            },
-            {
-              "id": "claim_success",
-              "action": "Сообщить клиенту, что блокировка снята.",
-              "allowed": false,
-              "reason": "Нет подтверждения сохранённого адреса и снятия блокировки."
-            }
-          ],
-          "decision_maker": "coordinator",
-          "selected_option": "verify_saved_state",
-          "reason": "Проверка подтвердила сохранение первой попытки; повторное изменение не нужно."
-        },
-        "status": "completed",
-        "next_step": null,
-        "result": {
-          "summary": "Установлено, что исправление сохранилось до ошибки сессии. Адрес содержит 4B, блокировка снята, запись исправления одна.",
-          "confirmed_by": "address_desk",
-          "evidence_event_ids": [
-            "007"
-          ],
-          "remaining_work": "Дальнейшая перевозка и доставка: отправление ещё в депо."
-        },
-        "annotations": [
-          {
-            "id": "tracking-context",
-            "kind": "context",
-            "title": "Что Tarin увидел до своего вопроса",
-            "text": "На странице отслеживания: «Требуется уточнение адреса». Из слов Tarin в сообщении 002. Время появления статуса неизвестно; отдельное уведомление об этом статусе в истории не записано.",
-            "before_message_id": "002",
-            "source_event_ids": [
-              "002"
-            ]
-          },
-          {
-            "id": "reported-form-submission",
-            "kind": "reported_context",
-            "title": "Отправка формы известна из автоответа",
-            "text": "Автоответ 005 сообщает об отправке в 09:54. Отдельной записи отправки в истории нет; результат пока неизвестен. Дополнительное сообщение от нашего имени не добавлено.",
-            "before_message_id": "005",
-            "source_event_ids": [
-              "005"
-            ]
-          }
-        ],
-        "conversations": {
-          "service": {
-            "participants": [
-              "coordinator",
-              "address_desk"
-            ],
-            "channel": "Email"
-          },
-          "client": {
-            "participants": [
-              "coordinator",
-              "recipient"
-            ],
-            "channel": "Customer portal"
-          }
-        },
-        "messages": [
-          {
-            "conversation_id": "service",
-            "event_id": "001",
-            "timestamp": "2026-02-03 09:00:00 UTC",
-            "from_actor": "address_desk",
-            "to_actor": "coordinator",
-            "channel": "Email",
-            "body": "DL-002: 18 Copperfin Court, Merrow Quay. The building has multiple apartments; the order has no apartment number. Hold reason: incomplete address. The recipient’s order-linked portal session was verified by our account team.",
-            "body_ru": "DL-002: 18 Copperfin Court, Merrow Quay. В здании несколько квартир; в заказе нет номера квартиры. Причина удержания: неполный адрес. Наша команда по работе с учётными записями проверила привязанную к заказу сессию получателя в портале."
-          },
-          {
-            "conversation_id": "client",
-            "event_id": "002",
-            "timestamp": "2026-02-03 09:10:00 UTC",
-            "from_actor": "recipient",
-            "to_actor": "coordinator",
-            "channel": "Customer portal",
-            "body": "The tracking page says address clarification required. The building is correct; what do you need from me?",
-            "body_ru": "На странице отслеживания указано, что требуется уточнение адреса. Здание указано верно; что вам нужно от меня?"
-          },
-          {
-            "conversation_id": "client",
-            "event_id": "003",
-            "timestamp": "2026-02-03 09:25:00 UTC",
-            "from_actor": "coordinator",
-            "to_actor": "recipient",
-            "channel": "Customer portal",
-            "body": "Please confirm the apartment number at 18 Copperfin Court. We do not need entry codes or any other household details.",
-            "body_ru": "Пожалуйста, подтвердите номер квартиры по адресу 18 Copperfin Court. Нам не нужны коды входа или любые другие сведения о домохозяйстве."
-          },
-          {
-            "conversation_id": "client",
-            "event_id": "004",
-            "timestamp": "2026-02-03 09:50:00 UTC",
-            "from_actor": "recipient",
-            "to_actor": "coordinator",
-            "channel": "Customer portal",
-            "body": "Apartment 4B. Please add that to DL-002; the street and building remain unchanged.",
-            "body_ru": "Квартира 4B. Пожалуйста, добавьте её к DL-002; улица и здание остаются прежними."
-          },
-          {
-            "event_id": "005",
-            "timestamp": "2026-02-03 09:57:00 UTC",
-            "from_actor": "correction_form",
-            "to_actor": "coordinator",
-            "channel": "Email",
-            "body": "Automatic response. Your address correction for DL-002, Apartment 4B, submitted at 09:54, ended with 'Session expired'. The form may have saved before the session closed. No correction reference was issued.",
-            "body_ru": "Автоответ. Отправка исправления DL-002, квартира 4B, в 09:54 завершилась ошибкой «Сессия истекла». Форма могла сохранить данные до закрытия сессии. Номер исправления не выдан."
-          },
-          {
-            "event_id": "006",
-            "timestamp": "2026-02-03 10:12:00 UTC",
-            "from_actor": "coordinator",
-            "to_actor": "address_desk",
-            "channel": "Email",
-            "body": "Our address correction for DL-002, Apartment 4B, submitted at 09:54, ended with 'Session expired' and no reference was issued. What do DL-002's saved address and hold status show now? Please do not create a second change. We will not resubmit the correction until we know.",
-            "body_ru": "Исправление DL-002, квартира 4B, отправленное в 09:54, завершилось ошибкой «Сессия истекла»; номер исправления не выдан. Какие адрес и статус блокировки сейчас сохранены у DL-002? Не создавайте второе изменение. Мы не будем отправлять исправление повторно, пока не узнаем результат."
-          },
-          {
-            "event_id": "007",
-            "timestamp": "2026-02-03 10:40:00 UTC",
-            "from_actor": "address_desk",
-            "to_actor": "coordinator",
-            "channel": "Email",
-            "body": "DL-002's saved address reads Apartment 4B, 18 Copperfin Court, Merrow Quay. Your 09:54 correction saved before the session closed, and there is one entry. The address hold is cleared. DL-002 has not left the depot.",
-            "body_ru": "У DL-002 сохранён адрес Apartment 4B, 18 Copperfin Court, Merrow Quay. Исправление, отправленное в 09:54, сохранилось до закрытия сессии; запись одна. Адресная блокировка снята. DL-002 не покидало депо."
-          }
-        ],
-        "constraints": [
-          {
-            "id": "no_repeat",
-            "text": "Не отправлять исправление повторно, пока не установлен результат первой попытки.",
-            "source_event_ids": [
-              "005"
-            ]
-          },
-          {
-            "id": "no_unconfirmed_success",
-            "text": "Не заявлять клиенту о снятии блокировки без подтверждения службы.",
-            "source_event_ids": [
-              "005"
-            ]
-          }
-        ]
-      }
-    }
-  ],
-  "provenance": {
-    "type": "synthetic_negative_branch",
-    "repository": "nikb-de/proofkey-dwelly",
-    "source_commit": "553b4bcd84e4e7290f68a2b157d137625a92f53f",
-    "source_path": "data/negative-branches-001-050/_source/002.json",
-    "branch_id": "002-N4",
-    "history_path": "data/negative-branches-001-050/002/N4-CHANNEL_FAILURE/history.md",
-    "retained_public_events": [
-      "001",
-      "002",
-      "003",
-      "004"
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has provided the apartment number.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The address desk has confirmed the address correction.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The address hold is cleared.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
     ],
-    "note": "Альтернативное синтетическое продолжение. Отдельный шаг отправки формы не придуман: время 09:54 становится известно из автоответа 005."
+    "intake": {
+     "created_at": "2026-02-03 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "002-N4"
+     },
+     "context_message_id": "001",
+     "summary": "Clarify the address for shipment DL-002: the order has no apartment number.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The order is missing the apartment number.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-002.",
+      "source": {
+       "type": "case_card",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The order has no apartment number; the address hold is in place.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Address on the order: 18 Copperfin Court, Merrow Quay.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The recipient's order-linked portal session was verified by the account team.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The recipient confirmed that the building is correct.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The recipient says that, before asking, they saw the status \"address clarification required\" on the tracking page. When the status appeared is unknown.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Clarify the apartment number.",
+      "expected_response": "The apartment number.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "001"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Explain what information is needed to clarify the address.",
+      "expected_response": "Name the missing information.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "information",
+     "responsible_actor": "recipient",
+     "request_id": "r1",
+     "description": "Confirm the apartment number through the verified order portal."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "tracking-context",
+      "kind": "context",
+      "title": "What Tarin saw before asking",
+      "text": "Tracking page: \"address clarification required\". Taken from Tarin's words in message 002. When the status appeared is unknown; no separate notification about it is recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "service": {
+      "participants": [
+       "coordinator",
+       "address_desk"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "service",
+      "event_id": "001",
+      "timestamp": "2026-02-03 09:00:00 UTC",
+      "from_actor": "address_desk",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-002: 18 Copperfin Court, Merrow Quay. The building has multiple apartments; the order has no apartment number. Hold reason: incomplete address. The recipient’s order-linked portal session was verified by our account team."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-03 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The tracking page says address clarification required. The building is correct; what do you need from me?"
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our question",
+    "title": "Our question to the client",
+    "timestamp": "2026-02-03 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We asked only for the missing field. Entry codes and other household details are not needed.",
+   "state_after": {
+    "case_id": "002-N4",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the missing details and confirmation that the change is done."
+     },
+     "recipient": {
+      "name": "Tarin Mave",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Provide the details needed to clarify the address."
+     },
+     "address_desk": {
+      "name": "Address desk",
+      "organization": "Plover Arc Logistics",
+      "role": "address_desk",
+      "is_us": false,
+      "responsibility": "Apply the address correction and confirm the result."
+     }
+    },
+    "goal": "Clarify the incomplete address and get the address hold on DL-002 cleared.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "recipient",
+       "request_id": "r1",
+       "expected": "Apartment number"
+      }
+     ],
+     "next_action": "Once answered, pass the clarified address to the address desk."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has provided the apartment number.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The address desk has confirmed the address correction.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The address hold is cleared.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-03 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "002-N4"
+     },
+     "context_message_id": "001",
+     "summary": "Clarify the address for shipment DL-002: the order has no apartment number.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The order is missing the apartment number.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-002.",
+      "source": {
+       "type": "case_card",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The order has no apartment number; the address hold is in place.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Address on the order: 18 Copperfin Court, Merrow Quay.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The recipient's order-linked portal session was verified by the account team.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The recipient confirmed that the building is correct.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The recipient says that, before asking, they saw the status \"address clarification required\" on the tracking page. When the status appeared is unknown.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Clarify the apartment number.",
+      "expected_response": "The apartment number.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "001",
+       "003"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Explain what information is needed to clarify the address.",
+      "expected_response": "Name the missing information.",
+      "status": "answered",
+      "response": "The apartment number needs to be confirmed.",
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_response",
+    "next_step": {
+     "type": "information",
+     "responsible_actor": "recipient",
+     "request_id": "r1",
+     "description": "Wait for the apartment number from the recipient."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "tracking-context",
+      "kind": "context",
+      "title": "What Tarin saw before asking",
+      "text": "Tracking page: \"address clarification required\". Taken from Tarin's words in message 002. When the status appeared is unknown; no separate notification about it is recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "service": {
+      "participants": [
+       "coordinator",
+       "address_desk"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "service",
+      "event_id": "001",
+      "timestamp": "2026-02-03 09:00:00 UTC",
+      "from_actor": "address_desk",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-002: 18 Copperfin Court, Merrow Quay. The building has multiple apartments; the order has no apartment number. Hold reason: incomplete address. The recipient’s order-linked portal session was verified by our account team."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-03 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The tracking page says address clarification required. The building is correct; what do you need from me?"
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "003",
+      "timestamp": "2026-02-03 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Customer portal",
+      "body": "Please confirm the apartment number at 18 Copperfin Court. We do not need entry codes or any other household details."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "Client reply",
+    "title": "Apartment number received",
+    "timestamp": "2026-02-03 09:50:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "004"
+   },
+   "explanation": "We have the information, but receiving the number does not mean the address is corrected.",
+   "state_after": {
+    "case_id": "002-N4",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the missing details and confirmation that the change is done."
+     },
+     "recipient": {
+      "name": "Tarin Mave",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Provide the details needed to clarify the address."
+     },
+     "address_desk": {
+      "name": "Address desk",
+      "organization": "Plover Arc Logistics",
+      "role": "address_desk",
+      "is_us": false,
+      "responsibility": "Apply the address correction and confirm the result."
+     }
+    },
+    "goal": "Clarify the incomplete address and get the address hold on DL-002 cleared.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Send the apartment number to the address desk, then wait for confirmation."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has provided the apartment number.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The address desk has confirmed the address correction.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The address hold is cleared.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-03 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "002-N4"
+     },
+     "context_message_id": "001",
+     "summary": "Clarify the address for shipment DL-002: the order has no apartment number.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "Apartment number received; the correction and the hold release are not yet confirmed.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-002.",
+      "source": {
+       "type": "case_card",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The order has no apartment number; the address hold is in place.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Address on the order: 18 Copperfin Court, Merrow Quay.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The recipient's order-linked portal session was verified by the account team.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The recipient confirmed that the building is correct.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The recipient says that, before asking, they saw the status \"address clarification required\" on the tracking page. When the status appeared is unknown.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient gave Apartment 4B and asked for it to be added to DL-002; the street and building remain unchanged.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Clarify the apartment number.",
+      "expected_response": "The apartment number.",
+      "status": "answered",
+      "response": "4B",
+      "evidence_event_ids": [
+       "001",
+       "003",
+       "004"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Explain what information is needed to clarify the address.",
+      "expected_response": "Name the missing information.",
+      "status": "answered",
+      "response": "The apartment number needs to be confirmed.",
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "r2": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "address_desk",
+      "purpose": "Add Apartment 4B to the shipment, keeping the street and building.",
+      "expected_response": "The corrected shipment address.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     "r3": {
+      "type": "confirmation",
+      "from_actor": "coordinator",
+      "to_actor": "address_desk",
+      "responsible_actor": "address_desk",
+      "purpose": "Get confirmation that the correction is applied and the hold is cleared.",
+      "expected_response": "Confirmation from the address desk.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "action_required",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "description": "Send the correction to the address desk."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "tracking-context",
+      "kind": "context",
+      "title": "What Tarin saw before asking",
+      "text": "Tracking page: \"address clarification required\". Taken from Tarin's words in message 002. When the status appeared is unknown; no separate notification about it is recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "service": {
+      "participants": [
+       "coordinator",
+       "address_desk"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "service",
+      "event_id": "001",
+      "timestamp": "2026-02-03 09:00:00 UTC",
+      "from_actor": "address_desk",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-002: 18 Copperfin Court, Merrow Quay. The building has multiple apartments; the order has no apartment number. Hold reason: incomplete address. The recipient’s order-linked portal session was verified by our account team."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-03 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The tracking page says address clarification required. The building is correct; what do you need from me?"
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "003",
+      "timestamp": "2026-02-03 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Customer portal",
+      "body": "Please confirm the apartment number at 18 Copperfin Court. We do not need entry codes or any other household details."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "004",
+      "timestamp": "2026-02-03 09:50:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Apartment 4B. Please add that to DL-002; the street and building remain unchanged."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "005",
+    "type": "message_received",
+    "label": "Form failure",
+    "title": "Form reports an error; correction outcome unknown",
+    "timestamp": "2026-02-03 09:57:00 UTC",
+    "actor_id": "correction_form",
+    "message_id": "005"
+   },
+   "explanation": "A session error does not prove the entry was not saved. First we need to check the state with the address desk.",
+   "state_after": {
+    "case_id": "002-N4",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the missing details and confirmation that the change is done."
+     },
+     "recipient": {
+      "name": "Tarin Mave",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Provide the details needed to clarify the address."
+     },
+     "address_desk": {
+      "name": "Address desk",
+      "organization": "Plover Arc Logistics",
+      "role": "address_desk",
+      "is_us": false,
+      "responsibility": "Apply the address correction and confirm the result."
+     },
+     "correction_form": {
+      "name": "Address correction form",
+      "organization": "Plover Arc Logistics",
+      "role": "system",
+      "is_us": false,
+      "responsibility": "Report the technical result of the form submission; the auto-reply does not confirm that the change was saved."
+     }
+    },
+    "goal": "Clarify the incomplete address and get the address hold on DL-002 cleared.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Email the address desk to check the saved address and the hold. Do not resubmit the correction until they reply."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has provided the apartment number.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The address desk has confirmed the address correction.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The address hold is cleared.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c4",
+      "description": "The address desk has established the outcome of the first attempt and confirmed a single correction entry.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-03 09:00:00 UTC",
+     "escalated_at": "2026-02-03 09:57:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "002-N4"
+     },
+     "context_message_id": "001",
+     "summary": "Check the outcome of the DL-002 correction after the form error and get confirmation of the address and the cleared hold.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The form submission outcome is unknown: the change may have saved before the session expired.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-002.",
+      "source": {
+       "type": "case_card",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The last confirmed state is an address hold; its current state after the form submission is unknown.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The order previously had an address with no apartment. The saved address after the correction attempt has not been checked yet.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The recipient's order-linked portal session was verified by the account team.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The recipient confirmed that the building is correct.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The recipient says that, before asking, they saw the status \"address clarification required\" on the tracking page. When the status appeared is unknown.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient gave Apartment 4B and asked for it to be added to DL-002; the street and building remain unchanged.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "The auto-reply says the correction with Apartment 4B was submitted at 09:54, the session expired and no correction reference was issued; the data may have saved.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Clarify the apartment number.",
+      "expected_response": "The apartment number.",
+      "status": "answered",
+      "response": "4B",
+      "evidence_event_ids": [
+       "001",
+       "003",
+       "004"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Explain what information is needed to clarify the address.",
+      "expected_response": "Name the missing information.",
+      "status": "answered",
+      "response": "The apartment number needs to be confirmed.",
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "r2": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "address_desk",
+      "purpose": "Add Apartment 4B to the shipment, keeping the street and building.",
+      "expected_response": "The corrected shipment address.",
+      "status": "outcome_unknown",
+      "response": null,
+      "evidence_event_ids": [
+       "004",
+       "005"
+      ]
+     },
+     "r3": {
+      "type": "confirmation",
+      "from_actor": "coordinator",
+      "to_actor": "address_desk",
+      "responsible_actor": "address_desk",
+      "purpose": "Get confirmation that the correction is applied and the hold is cleared.",
+      "expected_response": "Confirmation from the address desk.",
+      "status": "superseded",
+      "response": null,
+      "evidence_event_ids": [
+       "004",
+       "005"
+      ]
+     },
+     "r4": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "address_desk",
+      "responsible_actor": "address_desk",
+      "purpose": "Establish the outcome of the first submission before making any further change.",
+      "expected_response": "The saved address, the hold status and the outcome of the first attempt.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "005"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Can the correction be resubmitted after the session error?",
+     "options": [
+      {
+       "id": "verify_saved_state",
+       "action": "First check the saved address and the hold with the address desk.",
+       "allowed": true,
+       "reason": "The form may have saved the change before the error."
+      },
+      {
+       "id": "resubmit_now",
+       "action": "Resubmit the correction right away.",
+       "allowed": false,
+       "reason": "The outcome of the first attempt is unknown; a resubmission could create a duplicate change."
+      },
+      {
+       "id": "claim_success",
+       "action": "Tell the client the hold is cleared.",
+       "allowed": false,
+       "reason": "There is no confirmation of the saved address or the cleared hold."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "verification_required",
+    "next_step": {
+     "type": "verification",
+     "responsible_actor": "coordinator",
+     "request_id": "r4",
+     "description": "Ask the address desk for the saved state."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "tracking-context",
+      "kind": "context",
+      "title": "What Tarin saw before asking",
+      "text": "Tracking page: \"address clarification required\". Taken from Tarin's words in message 002. When the status appeared is unknown; no separate notification about it is recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "reported-form-submission",
+      "kind": "context",
+      "title": "Form submission known from the auto-reply",
+      "text": "Auto-reply 005 reports a submission at 09:54. The history has no separate record of the submission; the outcome is still unknown. No extra message on our behalf has been added.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "service": {
+      "participants": [
+       "coordinator",
+       "address_desk"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "form": {
+      "participants": [
+       "coordinator",
+       "correction_form"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "service",
+      "event_id": "001",
+      "timestamp": "2026-02-03 09:00:00 UTC",
+      "from_actor": "address_desk",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-002: 18 Copperfin Court, Merrow Quay. The building has multiple apartments; the order has no apartment number. Hold reason: incomplete address. The recipient’s order-linked portal session was verified by our account team."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-03 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The tracking page says address clarification required. The building is correct; what do you need from me?"
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "003",
+      "timestamp": "2026-02-03 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Customer portal",
+      "body": "Please confirm the apartment number at 18 Copperfin Court. We do not need entry codes or any other household details."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "004",
+      "timestamp": "2026-02-03 09:50:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Apartment 4B. Please add that to DL-002; the street and building remain unchanged."
+     },
+     {
+      "conversation_id": "form",
+      "event_id": "005",
+      "timestamp": "2026-02-03 09:57:00 UTC",
+      "from_actor": "correction_form",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Automatic response. Your address correction for DL-002, Apartment 4B, submitted at 09:54, ended with 'Session expired'. The form may have saved before the session closed. No correction reference was issued."
+     }
+    ],
+    "constraints": [
+     {
+      "id": "no_repeat",
+      "text": "Do not resubmit the correction until the outcome of the first attempt is known.",
+      "source_event_ids": [
+       "005"
+      ]
+     },
+     {
+      "id": "no_unconfirmed_success",
+      "text": "Do not tell the client the hold is cleared without confirmation from the address desk.",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "006",
+    "type": "message_sent",
+    "label": "Verify, don't resubmit",
+    "title": "Check requested; waiting on the address desk",
+    "timestamp": "2026-02-03 10:12:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "006"
+   },
+   "explanation": "The request checks the outcome of the previous action. It is not a second request to change the address.",
+   "state_after": {
+    "case_id": "002-N4",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the missing details and confirmation that the change is done."
+     },
+     "recipient": {
+      "name": "Tarin Mave",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Provide the details needed to clarify the address."
+     },
+     "address_desk": {
+      "name": "Address desk",
+      "organization": "Plover Arc Logistics",
+      "role": "address_desk",
+      "is_us": false,
+      "responsibility": "Apply the address correction and confirm the result."
+     },
+     "correction_form": {
+      "name": "Address correction form",
+      "organization": "Plover Arc Logistics",
+      "role": "system",
+      "is_us": false,
+      "responsibility": "Report the technical result of the form submission; the auto-reply does not confirm that the change was saved."
+     }
+    },
+    "goal": "Clarify the incomplete address and get the address hold on DL-002 cleared.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "address_desk",
+       "request_id": "r4",
+       "expected": "DL-002's saved address, the hold status and the outcome of the first attempt."
+      }
+     ],
+     "next_action": "If the correction saved, record the confirmation. If the address desk confirms it did not save, make one corrective submission and wait for confirmation.",
+     "note": "We are not resubmitting the correction yet. The recipient's answer is not enough here: the address desk is the one that knows the state of the record."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has provided the apartment number.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The address desk has confirmed the address correction.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The address hold is cleared.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c4",
+      "description": "The address desk has established the outcome of the first attempt and confirmed a single correction entry.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-03 09:00:00 UTC",
+     "escalated_at": "2026-02-03 09:57:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "002-N4"
+     },
+     "context_message_id": "001",
+     "summary": "Check the outcome of the DL-002 correction after the form error and get confirmation of the address and the cleared hold.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The form submission outcome is unknown: the change may have saved before the session expired.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-002.",
+      "source": {
+       "type": "case_card",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The last confirmed state is an address hold; its current state after the form submission is unknown.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The order previously had an address with no apartment. The saved address after the correction attempt has not been checked yet.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The recipient's order-linked portal session was verified by the account team.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The recipient confirmed that the building is correct.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The recipient says that, before asking, they saw the status \"address clarification required\" on the tracking page. When the status appeared is unknown.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient gave Apartment 4B and asked for it to be added to DL-002; the street and building remain unchanged.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "The auto-reply says the correction with Apartment 4B was submitted at 09:54, the session expired and no correction reference was issued; the data may have saved.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Clarify the apartment number.",
+      "expected_response": "The apartment number.",
+      "status": "answered",
+      "response": "4B",
+      "evidence_event_ids": [
+       "001",
+       "003",
+       "004"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Explain what information is needed to clarify the address.",
+      "expected_response": "Name the missing information.",
+      "status": "answered",
+      "response": "The apartment number needs to be confirmed.",
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "r2": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "address_desk",
+      "purpose": "Add Apartment 4B to the shipment, keeping the street and building.",
+      "expected_response": "The corrected shipment address.",
+      "status": "outcome_unknown",
+      "response": null,
+      "evidence_event_ids": [
+       "004",
+       "005"
+      ]
+     },
+     "r3": {
+      "type": "confirmation",
+      "from_actor": "coordinator",
+      "to_actor": "address_desk",
+      "responsible_actor": "address_desk",
+      "purpose": "Get confirmation that the correction is applied and the hold is cleared.",
+      "expected_response": "Confirmation from the address desk.",
+      "status": "superseded",
+      "response": null,
+      "evidence_event_ids": [
+       "004",
+       "005"
+      ]
+     },
+     "r4": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "address_desk",
+      "responsible_actor": "address_desk",
+      "purpose": "Establish the outcome of the first submission before making any further change.",
+      "expected_response": "The saved address, the hold status and the outcome of the first attempt.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "005",
+       "006"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Can the correction be resubmitted after the session error?",
+     "options": [
+      {
+       "id": "verify_saved_state",
+       "action": "First check the saved address and the hold with the address desk.",
+       "allowed": true,
+       "reason": "The form may have saved the change before the error."
+      },
+      {
+       "id": "resubmit_now",
+       "action": "Resubmit the correction right away.",
+       "allowed": false,
+       "reason": "The outcome of the first attempt is unknown; a resubmission could create a duplicate change."
+      },
+      {
+       "id": "claim_success",
+       "action": "Tell the client the hold is cleared.",
+       "allowed": false,
+       "reason": "There is no confirmation of the saved address or the cleared hold."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "verify_saved_state",
+     "reason": "A request for the current state was sent without making another change."
+    },
+    "status": "awaiting_verification",
+    "next_step": {
+     "type": "information",
+     "responsible_actor": "address_desk",
+     "request_id": "r4",
+     "description": "Wait for the result of the check on the first attempt."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "tracking-context",
+      "kind": "context",
+      "title": "What Tarin saw before asking",
+      "text": "Tracking page: \"address clarification required\". Taken from Tarin's words in message 002. When the status appeared is unknown; no separate notification about it is recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "reported-form-submission",
+      "kind": "context",
+      "title": "Form submission known from the auto-reply",
+      "text": "Auto-reply 005 reports a submission at 09:54. The history has no separate record of the submission; the outcome is still unknown. No extra message on our behalf has been added.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "service": {
+      "participants": [
+       "coordinator",
+       "address_desk"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "form": {
+      "participants": [
+       "coordinator",
+       "correction_form"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "service",
+      "event_id": "001",
+      "timestamp": "2026-02-03 09:00:00 UTC",
+      "from_actor": "address_desk",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-002: 18 Copperfin Court, Merrow Quay. The building has multiple apartments; the order has no apartment number. Hold reason: incomplete address. The recipient’s order-linked portal session was verified by our account team."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-03 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The tracking page says address clarification required. The building is correct; what do you need from me?"
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "003",
+      "timestamp": "2026-02-03 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Customer portal",
+      "body": "Please confirm the apartment number at 18 Copperfin Court. We do not need entry codes or any other household details."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "004",
+      "timestamp": "2026-02-03 09:50:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Apartment 4B. Please add that to DL-002; the street and building remain unchanged."
+     },
+     {
+      "conversation_id": "form",
+      "event_id": "005",
+      "timestamp": "2026-02-03 09:57:00 UTC",
+      "from_actor": "correction_form",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Automatic response. Your address correction for DL-002, Apartment 4B, submitted at 09:54, ended with 'Session expired'. The form may have saved before the session closed. No correction reference was issued."
+     },
+     {
+      "conversation_id": "service",
+      "event_id": "006",
+      "timestamp": "2026-02-03 10:12:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "address_desk",
+      "channel": "Email",
+      "body": "Our address correction for DL-002, Apartment 4B, submitted at 09:54, ended with 'Session expired' and no reference was issued. What do DL-002's saved address and hold status show now? Please do not create a second change. We will not resubmit the correction until we know."
+     }
+    ],
+    "constraints": [
+     {
+      "id": "no_repeat",
+      "text": "Do not resubmit the correction until the outcome of the first attempt is known.",
+      "source_event_ids": [
+       "005"
+      ]
+     },
+     {
+      "id": "no_unconfirmed_success",
+      "text": "Do not tell the client the hold is cleared without confirmation from the address desk.",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "007",
+    "type": "message_received",
+    "label": "Outcome verified",
+    "title": "Address desk confirms the first attempt saved",
+    "timestamp": "2026-02-03 10:40:00 UTC",
+    "actor_id": "address_desk",
+    "message_id": "007"
+   },
+   "explanation": "The address desk's confirmation removes the uncertainty. All of the case's criteria are met; physical delivery remains outside its scope.",
+   "state_after": {
+    "case_id": "002-N4",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the missing details and confirmation that the change is done."
+     },
+     "recipient": {
+      "name": "Tarin Mave",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Provide the details needed to clarify the address."
+     },
+     "address_desk": {
+      "name": "Address desk",
+      "organization": "Plover Arc Logistics",
+      "role": "address_desk",
+      "is_us": false,
+      "responsibility": "Apply the address correction and confirm the result."
+     },
+     "correction_form": {
+      "name": "Address correction form",
+      "organization": "Plover Arc Logistics",
+      "role": "system",
+      "is_us": false,
+      "responsibility": "Report the technical result of the form submission; the auto-reply does not confirm that the change was saved."
+     }
+    },
+    "goal": "Clarify the incomplete address and get the address hold on DL-002 cleared.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "The outcome of the first attempt is verified, the address is corrected and the hold is cleared. No resubmission is needed; delivery has not happened yet."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has provided the apartment number.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The address desk has confirmed the address correction.",
+      "status": "met",
+      "evidence_event_ids": [
+       "007"
+      ]
+     },
+     {
+      "id": "c3",
+      "description": "The address hold is cleared.",
+      "status": "met",
+      "evidence_event_ids": [
+       "007"
+      ]
+     },
+     {
+      "id": "c4",
+      "description": "The address desk has established the outcome of the first attempt and confirmed a single correction entry.",
+      "status": "met",
+      "evidence_event_ids": [
+       "007"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-03 09:00:00 UTC",
+     "escalated_at": "2026-02-03 09:57:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "002-N4"
+     },
+     "context_message_id": "001",
+     "summary": "Check the outcome of the DL-002 correction after the form error and get confirmation of the address and the cleared hold.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-002.",
+      "source": {
+       "type": "case_card",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The address hold is cleared.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Saved address: Apartment 4B, 18 Copperfin Court, Merrow Quay.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The recipient's order-linked portal session was verified by the account team.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The recipient confirmed that the building is correct.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The recipient says that, before asking, they saw the status \"address clarification required\" on the tracking page. When the status appeared is unknown.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient gave Apartment 4B and asked for it to be added to DL-002; the street and building remain unchanged.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "The auto-reply says the correction with Apartment 4B was submitted at 09:54, the session expired and no correction reference was issued; the data may have saved.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "f10",
+      "text": "The address desk confirmed that the 09:54 correction saved before the session closed; there is one entry in the system.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "DL-002 has not left the depot.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Clarify the apartment number.",
+      "expected_response": "The apartment number.",
+      "status": "answered",
+      "response": "4B",
+      "evidence_event_ids": [
+       "001",
+       "003",
+       "004"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Explain what information is needed to clarify the address.",
+      "expected_response": "Name the missing information.",
+      "status": "answered",
+      "response": "The apartment number needs to be confirmed.",
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "r2": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "address_desk",
+      "purpose": "Add Apartment 4B to the shipment, keeping the street and building.",
+      "expected_response": "The corrected shipment address.",
+      "status": "completed",
+      "response": "Apartment 4B saved by the first attempt; hold cleared.",
+      "evidence_event_ids": [
+       "004",
+       "005",
+       "007"
+      ]
+     },
+     "r3": {
+      "type": "confirmation",
+      "from_actor": "coordinator",
+      "to_actor": "address_desk",
+      "responsible_actor": "address_desk",
+      "purpose": "Get confirmation that the correction is applied and the hold is cleared.",
+      "expected_response": "Confirmation from the address desk.",
+      "status": "answered",
+      "response": "Outcome confirmed in the reply to check r4.",
+      "evidence_event_ids": [
+       "004",
+       "007"
+      ]
+     },
+     "r4": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "address_desk",
+      "responsible_actor": "address_desk",
+      "purpose": "Establish the outcome of the first submission before making any further change.",
+      "expected_response": "The saved address, the hold status and the outcome of the first attempt.",
+      "status": "answered",
+      "response": "Address includes 4B; the 09:54 correction saved, one entry, hold cleared.",
+      "evidence_event_ids": [
+       "005",
+       "006",
+       "007"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": "Can the correction be resubmitted after the session error?",
+     "options": [
+      {
+       "id": "verify_saved_state",
+       "action": "First check the saved address and the hold with the address desk.",
+       "allowed": true,
+       "reason": "The form may have saved the change before the error."
+      },
+      {
+       "id": "resubmit_now",
+       "action": "Resubmit the correction right away.",
+       "allowed": false,
+       "reason": "The outcome of the first attempt is unknown; a resubmission could create a duplicate change."
+      },
+      {
+       "id": "claim_success",
+       "action": "Tell the client the hold is cleared.",
+       "allowed": false,
+       "reason": "There is no confirmation of the saved address or the cleared hold."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "verify_saved_state",
+     "reason": "The check confirmed the first attempt saved; no further change is needed."
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "Confirmed that the correction saved before the session error. The address includes 4B, the hold is cleared, and there is one correction entry.",
+     "confirmed_by": "address_desk",
+     "evidence_event_ids": [
+      "007"
+     ],
+     "remaining_work": "Onward transport and delivery: the shipment is still at the depot."
+    },
+    "annotations": [
+     {
+      "id": "tracking-context",
+      "kind": "context",
+      "title": "What Tarin saw before asking",
+      "text": "Tracking page: \"address clarification required\". Taken from Tarin's words in message 002. When the status appeared is unknown; no separate notification about it is recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "reported-form-submission",
+      "kind": "context",
+      "title": "Form submission known from the auto-reply",
+      "text": "Auto-reply 005 reports a submission at 09:54. The history has no separate record of the submission; the outcome is still unknown. No extra message on our behalf has been added.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "service": {
+      "participants": [
+       "coordinator",
+       "address_desk"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "form": {
+      "participants": [
+       "coordinator",
+       "correction_form"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "service",
+      "event_id": "001",
+      "timestamp": "2026-02-03 09:00:00 UTC",
+      "from_actor": "address_desk",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-002: 18 Copperfin Court, Merrow Quay. The building has multiple apartments; the order has no apartment number. Hold reason: incomplete address. The recipient’s order-linked portal session was verified by our account team."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-03 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The tracking page says address clarification required. The building is correct; what do you need from me?"
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "003",
+      "timestamp": "2026-02-03 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Customer portal",
+      "body": "Please confirm the apartment number at 18 Copperfin Court. We do not need entry codes or any other household details."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "004",
+      "timestamp": "2026-02-03 09:50:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Apartment 4B. Please add that to DL-002; the street and building remain unchanged."
+     },
+     {
+      "conversation_id": "form",
+      "event_id": "005",
+      "timestamp": "2026-02-03 09:57:00 UTC",
+      "from_actor": "correction_form",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Automatic response. Your address correction for DL-002, Apartment 4B, submitted at 09:54, ended with 'Session expired'. The form may have saved before the session closed. No correction reference was issued."
+     },
+     {
+      "conversation_id": "service",
+      "event_id": "006",
+      "timestamp": "2026-02-03 10:12:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "address_desk",
+      "channel": "Email",
+      "body": "Our address correction for DL-002, Apartment 4B, submitted at 09:54, ended with 'Session expired' and no reference was issued. What do DL-002's saved address and hold status show now? Please do not create a second change. We will not resubmit the correction until we know."
+     },
+     {
+      "conversation_id": "service",
+      "event_id": "007",
+      "timestamp": "2026-02-03 10:40:00 UTC",
+      "from_actor": "address_desk",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-002's saved address reads Apartment 4B, 18 Copperfin Court, Merrow Quay. Your 09:54 correction saved before the session closed, and there is one entry. The address hold is cleared. DL-002 has not left the depot."
+     }
+    ],
+    "constraints": [
+     {
+      "id": "no_repeat",
+      "text": "Do not resubmit the correction until the outcome of the first attempt is known.",
+      "source_event_ids": [
+       "005"
+      ]
+     },
+     {
+      "id": "no_unconfirmed_success",
+      "text": "Do not tell the client the hold is cleared without confirmation from the address desk.",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ]
+   }
   }
+ ]
 }
