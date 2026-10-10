@@ -7,21 +7,21 @@ Repository: [nikb-de/proofkey-dwelly](https://github.com/nikb-de/proofkey-dwelly
 ## A. Working source and reproducible setup
 
 - [x] [Platform source](tools/dwelly_platform/), [UI source](platform-ui/), [runtime source](runtime/) and configuration are included.
-- [x] [README setup](README.md#4-reproducible-setup-and-run) identifies Python, PostgreSQL/Docker, installation, environment variables, startup and optional services.
+- [x] [README setup](README.md#4-how-to-run-it) identifies Python, PostgreSQL/Docker, installation, environment variables, startup and optional services.
 - [x] [Detailed platform guide](docs/platform-operations.md) and [API contract](contracts/platform-v1/README.md) explain local service boundaries.
 - [x] Fresh-environment smoke on 10 October 2026: CPython 3.12.11, the documented dependency pins, a new PostgreSQL 17 instance, migrations, HTTP health/capabilities and the scripted terms workflow passed. The result was `booking_confirmed`, `physical_delivery=not_confirmed`, 21 revisions, zero model calls and zero external effects. The temporary test database was removed after verification.
 - [x] A clean archive of the staged submission passed 41 tests and 15 subtests, with PostgreSQL enabled and no skips, covering the retained-record exporter and product scenario/terms workflow. See the [audit](docs/submission-audit-2026-10-10.md). Record the event's final source-freeze commit when officially submitting.
 
 ## B. English README with all eight sections
 
-- [x] [What we built](README.md#1-what-we-built).
-- [x] [Operational problem](README.md#2-operational-problem).
+- [x] [What you built](README.md#1-what-you-built).
+- [x] [What operational problem it solves](README.md#2-what-operational-problem-it-solves).
 - [x] [Architecture](README.md#3-architecture).
-- [x] [Reproducible setup and run](README.md#4-reproducible-setup-and-run).
-- [x] [Models, APIs and external services](README.md#5-models-apis-and-external-services).
-- [x] [Assumptions and data](README.md#6-assumptions-and-data).
-- [x] [Known limitations and evidence](README.md#7-known-limitations-and-evidence).
-- [x] [What we would do next](README.md#8-what-we-would-do-next).
+- [x] [How to run it](README.md#4-how-to-run-it).
+- [x] [Models, APIs and external services used](README.md#5-models-apis-and-external-services-used).
+- [x] [Key assumptions](README.md#6-key-assumptions).
+- [x] [Known limitations](README.md#7-known-limitations).
+- [x] [What you'd build next](README.md#8-what-youd-build-next).
 
 ## C. Reality Test answers for every supplied case
 
