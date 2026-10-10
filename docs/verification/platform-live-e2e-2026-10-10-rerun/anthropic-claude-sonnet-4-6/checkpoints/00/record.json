@@ -1,0 +1,1180 @@
+{
+  "plan": {
+    "case_id": "e2e-r2-claude-1010-case-002-n4-s6",
+    "source": {
+      "source_id": "case-002-n4",
+      "step_index": 6,
+      "family_id": "case-002",
+      "source_sha256": "c6c028af21fa456f8505ea22feece25525a95beaf5aca57e28074c14507eedf5",
+      "qualification": "author_labels_unvalidated",
+      "split": "development",
+      "kind": "synthetic_negative_branch",
+      "event_mapping": [
+        {
+          "source_event_id": "001",
+          "event_id": "001",
+          "source_channel": "Email",
+          "canonical_channel": "email",
+          "timestamp_fallback": false,
+          "body_source": "body"
+        },
+        {
+          "source_event_id": "002",
+          "event_id": "002",
+          "source_channel": "Customer portal",
+          "canonical_channel": "internal",
+          "timestamp_fallback": false,
+          "body_source": "body"
+        },
+        {
+          "source_event_id": "003",
+          "event_id": "003",
+          "source_channel": "Customer portal",
+          "canonical_channel": "internal",
+          "timestamp_fallback": false,
+          "body_source": "body"
+        },
+        {
+          "source_event_id": "004",
+          "event_id": "004",
+          "source_channel": "Customer portal",
+          "canonical_channel": "internal",
+          "timestamp_fallback": false,
+          "body_source": "body"
+        },
+        {
+          "source_event_id": "005",
+          "event_id": "005",
+          "source_channel": "Email",
+          "canonical_channel": "email",
+          "timestamp_fallback": false,
+          "body_source": "body"
+        },
+        {
+          "source_event_id": "006",
+          "event_id": "006",
+          "source_channel": "Email",
+          "canonical_channel": "email",
+          "timestamp_fallback": false,
+          "body_source": "body"
+        }
+      ],
+      "synthetic_participants": [],
+      "transformation": "Visible source messages plus internal goal/actor context; unsupported channels become internal; missing timestamps use fixed fallback."
+    },
+    "declaration": {
+      "case_id": "e2e-r2-claude-1010-case-002-n4-s6",
+      "links": {
+        "order_id": "e2e-case-002-n4",
+        "customer_id": "recipient",
+        "operator_id": "coordinator"
+      },
+      "participants": [
+        "address_desk",
+        "coordinator",
+        "recipient",
+        "correction_form"
+      ],
+      "language": "en"
+    },
+    "events": [
+      {
+        "event_id": "source-context",
+        "occurred_at": "2026-02-03T09:00:00+00:00",
+        "channel": "internal",
+        "sender_id": "coordinator",
+        "recipient_ids": [],
+        "kind": "message",
+        "text": "{\"goal\": \"Уточнить неполный адрес и снять адресную блокировку DL-002.\", \"actors\": [{\"id\": \"address_desk\", \"name\": \"Address desk\", \"role\": \"executor\"}, {\"id\": \"coordinator\", \"name\": \"Iona Quill\", \"role\": \"coordinator\"}, {\"id\": \"recipient\", \"name\": \"Tarin Mave\", \"role\": \"recipient\"}, {\"id\": \"correction_form\", \"name\": \"Форма исправления адреса\", \"role\": \"system\"}]}",
+        "media": null
+      },
+      {
+        "event_id": "001",
+        "occurred_at": "2026-02-03T09:00:00+00:00",
+        "channel": "email",
+        "sender_id": "address_desk",
+        "recipient_ids": [
+          "coordinator"
+        ],
+        "kind": "message",
+        "text": "DL-002: 18 Copperfin Court, Merrow Quay. The building has multiple apartments; the order has no apartment number. Hold reason: incomplete address. The recipient’s order-linked portal session was verified by our account team.",
+        "media": null
+      },
+      {
+        "event_id": "002",
+        "occurred_at": "2026-02-03T09:10:00+00:00",
+        "channel": "internal",
+        "sender_id": "recipient",
+        "recipient_ids": [
+          "coordinator"
+        ],
+        "kind": "message",
+        "text": "The tracking page says address clarification required. The building is correct; what do you need from me?",
+        "media": null
+      },
+      {
+        "event_id": "003",
+        "occurred_at": "2026-02-03T09:25:00+00:00",
+        "channel": "internal",
+        "sender_id": "coordinator",
+        "recipient_ids": [
+          "recipient"
+        ],
+        "kind": "message",
+        "text": "Please confirm the apartment number at 18 Copperfin Court. We do not need entry codes or any other household details.",
+        "media": null
+      },
+      {
+        "event_id": "004",
+        "occurred_at": "2026-02-03T09:50:00+00:00",
+        "channel": "internal",
+        "sender_id": "recipient",
+        "recipient_ids": [
+          "coordinator"
+        ],
+        "kind": "message",
+        "text": "Apartment 4B. Please add that to DL-002; the street and building remain unchanged.",
+        "media": null
+      },
+      {
+        "event_id": "005",
+        "occurred_at": "2026-02-03T09:57:00+00:00",
+        "channel": "email",
+        "sender_id": "correction_form",
+        "recipient_ids": [
+          "coordinator"
+        ],
+        "kind": "message",
+        "text": "Automatic response. Your address correction for DL-002, Apartment 4B, submitted at 09:54, ended with 'Session expired'. The form may have saved before the session closed. No correction reference was issued.",
+        "media": null
+      },
+      {
+        "event_id": "006",
+        "occurred_at": "2026-02-03T10:12:00+00:00",
+        "channel": "email",
+        "sender_id": "coordinator",
+        "recipient_ids": [
+          "address_desk"
+        ],
+        "kind": "message",
+        "text": "Our address correction for DL-002, Apartment 4B, submitted at 09:54, ended with 'Session expired' and no reference was issued. What do DL-002's saved address and hold status show now? Please do not create a second change. We will not resubmit the correction until we know.",
+        "media": null
+      }
+    ],
+    "expectation": {
+      "allowed_states": [
+        "waiting"
+      ],
+      "allowed_actions": [
+        "wait"
+      ],
+      "waiting_for": [
+        "address_desk"
+      ],
+      "completion_allowed": false,
+      "action_targets": [
+        "address_desk"
+      ],
+      "qualification": "author_labels_unvalidated"
+    }
+  },
+  "job": {
+    "schema_version": "proofkey-model-job-v1",
+    "run_id": "69a426ee0f434b888882df903674f007",
+    "status": "succeeded",
+    "case_id": "e2e-r2-claude-1010-case-002-n4-s6",
+    "step_index": 7,
+    "input_hash": "5d3451b47280247bf6819469204169da8663702bd8c06bb74884ee3ddaad2f46",
+    "mode": "model",
+    "model_profile_id": "anthropic-claude-sonnet-4-6",
+    "input": {
+      "actors": [
+        {
+          "id": "address_desk",
+          "name": "address_desk",
+          "role": "declared participant"
+        },
+        {
+          "id": "coordinator",
+          "name": "coordinator",
+          "role": "declared participant"
+        },
+        {
+          "id": "recipient",
+          "name": "recipient",
+          "role": "declared participant"
+        },
+        {
+          "id": "correction_form",
+          "name": "correction_form",
+          "role": "declared participant"
+        }
+      ],
+      "case_id": "e2e-r2-claude-1010-case-002-n4-s6",
+      "cutoff_event_id": "006",
+      "goal": "Review the available case evidence and propose the next coordination step.",
+      "input_hash": "5d3451b47280247bf6819469204169da8663702bd8c06bb74884ee3ddaad2f46",
+      "messages": [
+        {
+          "body": "{\"goal\": \"Уточнить неполный адрес и снять адресную блокировку DL-002.\", \"actors\": [{\"id\": \"address_desk\", \"name\": \"Address desk\", \"role\": \"executor\"}, {\"id\": \"coordinator\", \"name\": \"Iona Quill\", \"role\": \"coordinator\"}, {\"id\": \"recipient\", \"name\": \"Tarin Mave\", \"role\": \"recipient\"}, {\"id\": \"correction_form\", \"name\": \"Форма исправления адреса\", \"role\": \"system\"}]}\n[Declared recipient_ids: []]",
+          "body_source": "body",
+          "channel": "internal",
+          "event_id": "source-context",
+          "from_actor": "coordinator",
+          "timestamp": "2026-02-03T09:00:00+00:00",
+          "to_actor": "coordinator"
+        },
+        {
+          "body": "DL-002: 18 Copperfin Court, Merrow Quay. The building has multiple apartments; the order has no apartment number. Hold reason: incomplete address. The recipient’s order-linked portal session was verified by our account team.",
+          "body_source": "body",
+          "channel": "email",
+          "event_id": "001",
+          "from_actor": "address_desk",
+          "timestamp": "2026-02-03T09:00:00+00:00",
+          "to_actor": "coordinator"
+        },
+        {
+          "body": "The tracking page says address clarification required. The building is correct; what do you need from me?",
+          "body_source": "body",
+          "channel": "internal",
+          "event_id": "002",
+          "from_actor": "recipient",
+          "timestamp": "2026-02-03T09:10:00+00:00",
+          "to_actor": "coordinator"
+        },
+        {
+          "body": "Please confirm the apartment number at 18 Copperfin Court. We do not need entry codes or any other household details.",
+          "body_source": "body",
+          "channel": "internal",
+          "event_id": "003",
+          "from_actor": "coordinator",
+          "timestamp": "2026-02-03T09:25:00+00:00",
+          "to_actor": "recipient"
+        },
+        {
+          "body": "Apartment 4B. Please add that to DL-002; the street and building remain unchanged.",
+          "body_source": "body",
+          "channel": "internal",
+          "event_id": "004",
+          "from_actor": "recipient",
+          "timestamp": "2026-02-03T09:50:00+00:00",
+          "to_actor": "coordinator"
+        },
+        {
+          "body": "Automatic response. Your address correction for DL-002, Apartment 4B, submitted at 09:54, ended with 'Session expired'. The form may have saved before the session closed. No correction reference was issued.",
+          "body_source": "body",
+          "channel": "email",
+          "event_id": "005",
+          "from_actor": "correction_form",
+          "timestamp": "2026-02-03T09:57:00+00:00",
+          "to_actor": "coordinator"
+        },
+        {
+          "body": "Our address correction for DL-002, Apartment 4B, submitted at 09:54, ended with 'Session expired' and no reference was issued. What do DL-002's saved address and hold status show now? Please do not create a second change. We will not resubmit the correction until we know.",
+          "body_source": "body",
+          "channel": "email",
+          "event_id": "006",
+          "from_actor": "coordinator",
+          "timestamp": "2026-02-03T10:12:00+00:00",
+          "to_actor": "address_desk"
+        }
+      ],
+      "our_actor_id": "coordinator",
+      "schema_version": "proofkey-step-input-v1",
+      "step_index": 7
+    },
+    "reference": null,
+    "source": {
+      "case_id": "e2e-r2-claude-1010-case-002-n4-s6",
+      "kind": "platform_case",
+      "revision": 7,
+      "snapshot_hash": "7220fd22544f1cabb648fe69f1a55cdff4dc3656e1e63e36950c14114999c60a"
+    },
+    "candidate": {
+      "evidence_event_ids": [
+        "001",
+        "004",
+        "005",
+        "006"
+      ],
+      "input_hash": "5d3451b47280247bf6819469204169da8663702bd8c06bb74884ee3ddaad2f46",
+      "live_calls": 1,
+      "mode": "model",
+      "next_action": {
+        "description": "Await address_desk's response confirming whether DL-002's saved address now shows Apartment 4B and whether the hold has been lifted, before deciding whether to resubmit the correction.",
+        "target_actor_id": "address_desk",
+        "type": "wait"
+      },
+      "operational_effects": 0,
+      "physical_delivery": "not_inferred",
+      "schema_version": "proofkey-step-candidate-v1",
+      "state": "waiting",
+      "uncertainty": [
+        "The correction form session expired and no reference was issued; it is unknown whether the address update for Apartment 4B was saved before expiry.",
+        "The hold status of DL-002 is currently unknown — it may still be active or may have been cleared if the partial save succeeded.",
+        "No response from address_desk has been received yet for the readback request sent in event 006.",
+        "The correction_form actor is a system and its reliability in reporting partial saves is unverifiable from this evidence."
+      ],
+      "waiting_for": [
+        "address_desk"
+      ]
+    },
+    "evaluation": null,
+    "receipt": {
+      "latency_ms": 6451.537,
+      "model_profile_id": "anthropic-claude-sonnet-4-6",
+      "observed_model": "claude-sonnet-4-6",
+      "provider": "anthropic",
+      "request_id": "req_011CftfrLyu5RbqUL7yCYXMV",
+      "requested_model": "claude-sonnet-4-6",
+      "usage": {
+        "input_tokens": 1369,
+        "output_tokens": 258
+      }
+    },
+    "error": null,
+    "created_at": "2026-10-10T13:55:11.410851+00:00",
+    "started_at": "2026-10-10T13:55:11.845646+00:00",
+    "finished_at": "2026-10-10T13:55:18.322931+00:00",
+    "transaction": {
+      "idempotency_key": "e2e:2857db454d0c1f5f272f54a1c48f3a8ccaca0de3549d8778d2e9c85a37caaca8",
+      "attempt_id": "ea1d102399784b8ab2cddc4a5471e10b",
+      "dispatch_attempts": 1,
+      "automatic_retries": 0,
+      "operational_effects": 0,
+      "reserved_usd": 0.047706,
+      "budget_scope": "platform-e2e-20261010",
+      "prompt_hash": "539f3a5e6443abe210121fce686deab829221f86391a79a2823ee7e859524883",
+      "profile_hash": "d900166c556c711852ca5a8608bc466fe72f5ff0476e132e312294c45f60afd4"
+    }
+  },
+  "detail": {
+    "schema_version": "proofkey-platform-case-v1",
+    "case_id": "e2e-r2-claude-1010-case-002-n4-s6",
+    "snapshot": {
+      "analysis_status": "pending_not_started",
+      "authorization": "[REDACTED]",
+      "case_id": "e2e-r2-claude-1010-case-002-n4-s6",
+      "events": [
+        {
+          "channel": "internal",
+          "event_id": "source-context",
+          "kind": "message",
+          "media": null,
+          "occurred_at": "2026-02-03T09:00:00+00:00",
+          "recipient_ids": [],
+          "sender_id": "coordinator",
+          "text": "{\"goal\": \"Уточнить неполный адрес и снять адресную блокировку DL-002.\", \"actors\": [{\"id\": \"address_desk\", \"name\": \"Address desk\", \"role\": \"executor\"}, {\"id\": \"coordinator\", \"name\": \"Iona Quill\", \"role\": \"coordinator\"}, {\"id\": \"recipient\", \"name\": \"Tarin Mave\", \"role\": \"recipient\"}, {\"id\": \"correction_form\", \"name\": \"Форма исправления адреса\", \"role\": \"system\"}]}"
+        },
+        {
+          "channel": "email",
+          "event_id": "001",
+          "kind": "message",
+          "media": null,
+          "occurred_at": "2026-02-03T09:00:00+00:00",
+          "recipient_ids": [
+            "coordinator"
+          ],
+          "sender_id": "address_desk",
+          "text": "DL-002: 18 Copperfin Court, Merrow Quay. The building has multiple apartments; the order has no apartment number. Hold reason: incomplete address. The recipient’s order-linked portal session was verified by our account team."
+        },
+        {
+          "channel": "internal",
+          "event_id": "002",
+          "kind": "message",
+          "media": null,
+          "occurred_at": "2026-02-03T09:10:00+00:00",
+          "recipient_ids": [
+            "coordinator"
+          ],
+          "sender_id": "recipient",
+          "text": "The tracking page says address clarification required. The building is correct; what do you need from me?"
+        },
+        {
+          "channel": "internal",
+          "event_id": "003",
+          "kind": "message",
+          "media": null,
+          "occurred_at": "2026-02-03T09:25:00+00:00",
+          "recipient_ids": [
+            "recipient"
+          ],
+          "sender_id": "coordinator",
+          "text": "Please confirm the apartment number at 18 Copperfin Court. We do not need entry codes or any other household details."
+        },
+        {
+          "channel": "internal",
+          "event_id": "004",
+          "kind": "message",
+          "media": null,
+          "occurred_at": "2026-02-03T09:50:00+00:00",
+          "recipient_ids": [
+            "coordinator"
+          ],
+          "sender_id": "recipient",
+          "text": "Apartment 4B. Please add that to DL-002; the street and building remain unchanged."
+        },
+        {
+          "channel": "email",
+          "event_id": "005",
+          "kind": "message",
+          "media": null,
+          "occurred_at": "2026-02-03T09:57:00+00:00",
+          "recipient_ids": [
+            "coordinator"
+          ],
+          "sender_id": "correction_form",
+          "text": "Automatic response. Your address correction for DL-002, Apartment 4B, submitted at 09:54, ended with 'Session expired'. The form may have saved before the session closed. No correction reference was issued."
+        },
+        {
+          "channel": "email",
+          "event_id": "006",
+          "kind": "message",
+          "media": null,
+          "occurred_at": "2026-02-03T10:12:00+00:00",
+          "recipient_ids": [
+            "address_desk"
+          ],
+          "sender_id": "coordinator",
+          "text": "Our address correction for DL-002, Apartment 4B, submitted at 09:54, ended with 'Session expired' and no reference was issued. What do DL-002's saved address and hold status show now? Please do not create a second change. We will not resubmit the correction until we know."
+        }
+      ],
+      "language": "en",
+      "links": {
+        "customer_id": "recipient",
+        "operator_id": "coordinator",
+        "order_id": "e2e-case-002-n4"
+      },
+      "needs_analysis": true,
+      "operational_effects": 0,
+      "participants": [
+        "address_desk",
+        "coordinator",
+        "recipient",
+        "correction_form"
+      ],
+      "previous_snapshot_hash": "b227db1a61f32a98ef42b35f8656ba0e81a971859b8b5b3cdde2aec8ad205772",
+      "revision": 7,
+      "runtime_binding": null,
+      "schema_version": "dwelly-local-case-v1",
+      "snapshot_hash": "7220fd22544f1cabb648fe69f1a55cdff4dc3656e1e63e36950c14114999c60a",
+      "source_mode": "local_fixture"
+    },
+    "states": {
+      "lifecycle": "new",
+      "evidence": "text_available",
+      "analysis": "current",
+      "decision": "none",
+      "action": "none"
+    },
+    "decisions": [],
+    "reviews": [],
+    "actions": [],
+    "assets": [],
+    "model_jobs": [
+      {
+        "schema_version": "proofkey-model-job-v1",
+        "run_id": "69a426ee0f434b888882df903674f007",
+        "status": "succeeded",
+        "case_id": "e2e-r2-claude-1010-case-002-n4-s6",
+        "step_index": 7,
+        "input_hash": "5d3451b47280247bf6819469204169da8663702bd8c06bb74884ee3ddaad2f46",
+        "mode": "model",
+        "model_profile_id": "anthropic-claude-sonnet-4-6",
+        "input": {
+          "actors": [
+            {
+              "id": "address_desk",
+              "name": "address_desk",
+              "role": "declared participant"
+            },
+            {
+              "id": "coordinator",
+              "name": "coordinator",
+              "role": "declared participant"
+            },
+            {
+              "id": "recipient",
+              "name": "recipient",
+              "role": "declared participant"
+            },
+            {
+              "id": "correction_form",
+              "name": "correction_form",
+              "role": "declared participant"
+            }
+          ],
+          "case_id": "e2e-r2-claude-1010-case-002-n4-s6",
+          "cutoff_event_id": "006",
+          "goal": "Review the available case evidence and propose the next coordination step.",
+          "input_hash": "5d3451b47280247bf6819469204169da8663702bd8c06bb74884ee3ddaad2f46",
+          "messages": [
+            {
+              "body": "{\"goal\": \"Уточнить неполный адрес и снять адресную блокировку DL-002.\", \"actors\": [{\"id\": \"address_desk\", \"name\": \"Address desk\", \"role\": \"executor\"}, {\"id\": \"coordinator\", \"name\": \"Iona Quill\", \"role\": \"coordinator\"}, {\"id\": \"recipient\", \"name\": \"Tarin Mave\", \"role\": \"recipient\"}, {\"id\": \"correction_form\", \"name\": \"Форма исправления адреса\", \"role\": \"system\"}]}\n[Declared recipient_ids: []]",
+              "body_source": "body",
+              "channel": "internal",
+              "event_id": "source-context",
+              "from_actor": "coordinator",
+              "timestamp": "2026-02-03T09:00:00+00:00",
+              "to_actor": "coordinator"
+            },
+            {
+              "body": "DL-002: 18 Copperfin Court, Merrow Quay. The building has multiple apartments; the order has no apartment number. Hold reason: incomplete address. The recipient’s order-linked portal session was verified by our account team.",
+              "body_source": "body",
+              "channel": "email",
+              "event_id": "001",
+              "from_actor": "address_desk",
+              "timestamp": "2026-02-03T09:00:00+00:00",
+              "to_actor": "coordinator"
+            },
+            {
+              "body": "The tracking page says address clarification required. The building is correct; what do you need from me?",
+              "body_source": "body",
+              "channel": "internal",
+              "event_id": "002",
+              "from_actor": "recipient",
+              "timestamp": "2026-02-03T09:10:00+00:00",
+              "to_actor": "coordinator"
+            },
+            {
+              "body": "Please confirm the apartment number at 18 Copperfin Court. We do not need entry codes or any other household details.",
+              "body_source": "body",
+              "channel": "internal",
+              "event_id": "003",
+              "from_actor": "coordinator",
+              "timestamp": "2026-02-03T09:25:00+00:00",
+              "to_actor": "recipient"
+            },
+            {
+              "body": "Apartment 4B. Please add that to DL-002; the street and building remain unchanged.",
+              "body_source": "body",
+              "channel": "internal",
+              "event_id": "004",
+              "from_actor": "recipient",
+              "timestamp": "2026-02-03T09:50:00+00:00",
+              "to_actor": "coordinator"
+            },
+            {
+              "body": "Automatic response. Your address correction for DL-002, Apartment 4B, submitted at 09:54, ended with 'Session expired'. The form may have saved before the session closed. No correction reference was issued.",
+              "body_source": "body",
+              "channel": "email",
+              "event_id": "005",
+              "from_actor": "correction_form",
+              "timestamp": "2026-02-03T09:57:00+00:00",
+              "to_actor": "coordinator"
+            },
+            {
+              "body": "Our address correction for DL-002, Apartment 4B, submitted at 09:54, ended with 'Session expired' and no reference was issued. What do DL-002's saved address and hold status show now? Please do not create a second change. We will not resubmit the correction until we know.",
+              "body_source": "body",
+              "channel": "email",
+              "event_id": "006",
+              "from_actor": "coordinator",
+              "timestamp": "2026-02-03T10:12:00+00:00",
+              "to_actor": "address_desk"
+            }
+          ],
+          "our_actor_id": "coordinator",
+          "schema_version": "proofkey-step-input-v1",
+          "step_index": 7
+        },
+        "reference": null,
+        "source": {
+          "case_id": "e2e-r2-claude-1010-case-002-n4-s6",
+          "kind": "platform_case",
+          "revision": 7,
+          "snapshot_hash": "7220fd22544f1cabb648fe69f1a55cdff4dc3656e1e63e36950c14114999c60a"
+        },
+        "candidate": {
+          "evidence_event_ids": [
+            "001",
+            "004",
+            "005",
+            "006"
+          ],
+          "input_hash": "5d3451b47280247bf6819469204169da8663702bd8c06bb74884ee3ddaad2f46",
+          "live_calls": 1,
+          "mode": "model",
+          "next_action": {
+            "description": "Await address_desk's response confirming whether DL-002's saved address now shows Apartment 4B and whether the hold has been lifted, before deciding whether to resubmit the correction.",
+            "target_actor_id": "address_desk",
+            "type": "wait"
+          },
+          "operational_effects": 0,
+          "physical_delivery": "not_inferred",
+          "schema_version": "proofkey-step-candidate-v1",
+          "state": "waiting",
+          "uncertainty": [
+            "The correction form session expired and no reference was issued; it is unknown whether the address update for Apartment 4B was saved before expiry.",
+            "The hold status of DL-002 is currently unknown — it may still be active or may have been cleared if the partial save succeeded.",
+            "No response from address_desk has been received yet for the readback request sent in event 006.",
+            "The correction_form actor is a system and its reliability in reporting partial saves is unverifiable from this evidence."
+          ],
+          "waiting_for": [
+            "address_desk"
+          ]
+        },
+        "evaluation": null,
+        "receipt": {
+          "latency_ms": 6451.537,
+          "model_profile_id": "anthropic-claude-sonnet-4-6",
+          "observed_model": "claude-sonnet-4-6",
+          "provider": "anthropic",
+          "request_id": "req_011CftfrLyu5RbqUL7yCYXMV",
+          "requested_model": "claude-sonnet-4-6",
+          "usage": {
+            "input_tokens": 1369,
+            "output_tokens": 258
+          }
+        },
+        "error": null,
+        "created_at": "2026-10-10T13:55:11.410851+00:00",
+        "started_at": "2026-10-10T13:55:11.845646+00:00",
+        "finished_at": "2026-10-10T13:55:18.322931+00:00",
+        "transaction": {
+          "idempotency_key": "e2e:2857db454d0c1f5f272f54a1c48f3a8ccaca0de3549d8778d2e9c85a37caaca8",
+          "attempt_id": "ea1d102399784b8ab2cddc4a5471e10b",
+          "dispatch_attempts": 1,
+          "automatic_retries": 0,
+          "operational_effects": 0,
+          "reserved_usd": 0.047706,
+          "budget_scope": "platform-e2e-20261010",
+          "prompt_hash": "539f3a5e6443abe210121fce686deab829221f86391a79a2823ee7e859524883",
+          "profile_hash": "d900166c556c711852ca5a8608bc466fe72f5ff0476e132e312294c45f60afd4"
+        }
+      }
+    ],
+    "external_effects": 0,
+    "media_runs": []
+  },
+  "checks": [
+    {
+      "name": "source_snapshot_before_dispatch",
+      "category": "operational",
+      "status": "pass",
+      "expected": "7220fd22544f1cabb648fe69f1a55cdff4dc3656e1e63e36950c14114999c60a",
+      "actual": "7220fd22544f1cabb648fe69f1a55cdff4dc3656e1e63e36950c14114999c60a"
+    },
+    {
+      "name": "frozen_source_binding",
+      "category": "operational",
+      "status": "pass",
+      "expected": {
+        "kind": "platform_case",
+        "case_id": "e2e-r2-claude-1010-case-002-n4-s6",
+        "revision": 7,
+        "snapshot_hash": "7220fd22544f1cabb648fe69f1a55cdff4dc3656e1e63e36950c14114999c60a"
+      },
+      "actual": {
+        "case_id": "e2e-r2-claude-1010-case-002-n4-s6",
+        "kind": "platform_case",
+        "revision": 7,
+        "snapshot_hash": "7220fd22544f1cabb648fe69f1a55cdff4dc3656e1e63e36950c14114999c60a"
+      }
+    },
+    {
+      "name": "frozen_input_binding",
+      "category": "operational",
+      "status": "pass",
+      "expected": "5d3451b47280247bf6819469204169da8663702bd8c06bb74884ee3ddaad2f46",
+      "actual": "5d3451b47280247bf6819469204169da8663702bd8c06bb74884ee3ddaad2f46"
+    },
+    {
+      "name": "case_profile_binding",
+      "category": "operational",
+      "status": "pass",
+      "expected": [
+        "e2e-r2-claude-1010-case-002-n4-s6",
+        7,
+        "anthropic-claude-sonnet-4-6"
+      ],
+      "actual": [
+        "e2e-r2-claude-1010-case-002-n4-s6",
+        7,
+        "anthropic-claude-sonnet-4-6"
+      ]
+    },
+    {
+      "name": "no_reference_upload",
+      "category": "operational",
+      "status": "pass",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "first_run_id_preserved",
+      "category": "operational",
+      "status": "pass",
+      "expected": "69a426ee0f434b888882df903674f007",
+      "actual": "69a426ee0f434b888882df903674f007"
+    },
+    {
+      "name": "frozen_source_binding",
+      "category": "operational",
+      "status": "pass",
+      "expected": {
+        "kind": "platform_case",
+        "case_id": "e2e-r2-claude-1010-case-002-n4-s6",
+        "revision": 7,
+        "snapshot_hash": "7220fd22544f1cabb648fe69f1a55cdff4dc3656e1e63e36950c14114999c60a"
+      },
+      "actual": {
+        "case_id": "e2e-r2-claude-1010-case-002-n4-s6",
+        "kind": "platform_case",
+        "revision": 7,
+        "snapshot_hash": "7220fd22544f1cabb648fe69f1a55cdff4dc3656e1e63e36950c14114999c60a"
+      }
+    },
+    {
+      "name": "frozen_input_binding",
+      "category": "operational",
+      "status": "pass",
+      "expected": "5d3451b47280247bf6819469204169da8663702bd8c06bb74884ee3ddaad2f46",
+      "actual": "5d3451b47280247bf6819469204169da8663702bd8c06bb74884ee3ddaad2f46"
+    },
+    {
+      "name": "case_profile_binding",
+      "category": "operational",
+      "status": "pass",
+      "expected": [
+        "e2e-r2-claude-1010-case-002-n4-s6",
+        7,
+        "anthropic-claude-sonnet-4-6"
+      ],
+      "actual": [
+        "e2e-r2-claude-1010-case-002-n4-s6",
+        7,
+        "anthropic-claude-sonnet-4-6"
+      ]
+    },
+    {
+      "name": "no_reference_upload",
+      "category": "operational",
+      "status": "pass",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "first_run_id_preserved",
+      "category": "operational",
+      "status": "pass",
+      "expected": "69a426ee0f434b888882df903674f007",
+      "actual": "69a426ee0f434b888882df903674f007"
+    },
+    {
+      "name": "provider_receipt_binding",
+      "category": "operational",
+      "status": "pass",
+      "expected": [
+        "anthropic-claude-sonnet-4-6",
+        "anthropic",
+        "claude-sonnet-4-6"
+      ],
+      "actual": [
+        "anthropic-claude-sonnet-4-6",
+        "anthropic",
+        "claude-sonnet-4-6"
+      ]
+    },
+    {
+      "name": "live_receipt_label",
+      "category": "operational",
+      "status": "pass",
+      "expected": "no SIMULATED prefix",
+      "actual": "claude-sonnet-4-6"
+    },
+    {
+      "name": "terminal_readback_unchanged",
+      "category": "operational",
+      "status": "pass",
+      "expected": "exact same terminal job (all fields)",
+      "actual": []
+    },
+    {
+      "name": "frozen_source_binding",
+      "category": "operational",
+      "status": "pass",
+      "expected": {
+        "kind": "platform_case",
+        "case_id": "e2e-r2-claude-1010-case-002-n4-s6",
+        "revision": 7,
+        "snapshot_hash": "7220fd22544f1cabb648fe69f1a55cdff4dc3656e1e63e36950c14114999c60a"
+      },
+      "actual": {
+        "case_id": "e2e-r2-claude-1010-case-002-n4-s6",
+        "kind": "platform_case",
+        "revision": 7,
+        "snapshot_hash": "7220fd22544f1cabb648fe69f1a55cdff4dc3656e1e63e36950c14114999c60a"
+      }
+    },
+    {
+      "name": "frozen_input_binding",
+      "category": "operational",
+      "status": "pass",
+      "expected": "5d3451b47280247bf6819469204169da8663702bd8c06bb74884ee3ddaad2f46",
+      "actual": "5d3451b47280247bf6819469204169da8663702bd8c06bb74884ee3ddaad2f46"
+    },
+    {
+      "name": "case_profile_binding",
+      "category": "operational",
+      "status": "pass",
+      "expected": [
+        "e2e-r2-claude-1010-case-002-n4-s6",
+        7,
+        "anthropic-claude-sonnet-4-6"
+      ],
+      "actual": [
+        "e2e-r2-claude-1010-case-002-n4-s6",
+        7,
+        "anthropic-claude-sonnet-4-6"
+      ]
+    },
+    {
+      "name": "no_reference_upload",
+      "category": "operational",
+      "status": "pass",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "first_run_id_preserved",
+      "category": "operational",
+      "status": "pass",
+      "expected": "69a426ee0f434b888882df903674f007",
+      "actual": "69a426ee0f434b888882df903674f007"
+    },
+    {
+      "name": "provider_receipt_binding",
+      "category": "operational",
+      "status": "pass",
+      "expected": [
+        "anthropic-claude-sonnet-4-6",
+        "anthropic",
+        "claude-sonnet-4-6"
+      ],
+      "actual": [
+        "anthropic-claude-sonnet-4-6",
+        "anthropic",
+        "claude-sonnet-4-6"
+      ]
+    },
+    {
+      "name": "live_receipt_label",
+      "category": "operational",
+      "status": "pass",
+      "expected": "no SIMULATED prefix",
+      "actual": "claude-sonnet-4-6"
+    },
+    {
+      "name": "terminal_replay_unchanged",
+      "category": "operational",
+      "status": "pass",
+      "expected": "exact same terminal job (all fields)",
+      "actual": []
+    },
+    {
+      "name": "terminal_replay_no_dispatch",
+      "category": "operational",
+      "status": "pass",
+      "expected": 1,
+      "actual": 1
+    },
+    {
+      "name": "output_available",
+      "category": "operational",
+      "status": "pass",
+      "expected": "succeeded with candidate",
+      "actual": "succeeded"
+    },
+    {
+      "name": "bounded_dispatch",
+      "category": "operational",
+      "status": "pass",
+      "expected": {
+        "maximum_dispatch_attempts": 1,
+        "automatic_retries": 0
+      },
+      "actual": {
+        "dispatch_attempts": 1,
+        "automatic_retries": 0
+      }
+    },
+    {
+      "name": "zero_effects",
+      "category": "operational",
+      "status": "pass",
+      "expected": "zero effects and no decisions, reviews or actions",
+      "actual": {
+        "external_effects": 0,
+        "snapshot_effects": 0,
+        "transaction_effects": 0,
+        "candidate_effects": 0,
+        "actions": [],
+        "reviews": [],
+        "decisions": []
+      }
+    },
+    {
+      "name": "source_binding",
+      "category": "operational",
+      "status": "pass",
+      "expected": {
+        "case_id": "e2e-r2-claude-1010-case-002-n4-s6",
+        "input_hash": "5d3451b47280247bf6819469204169da8663702bd8c06bb74884ee3ddaad2f46"
+      },
+      "actual": {
+        "case_id": "e2e-r2-claude-1010-case-002-n4-s6",
+        "input_hash": "5d3451b47280247bf6819469204169da8663702bd8c06bb74884ee3ddaad2f46"
+      }
+    },
+    {
+      "name": "candidate_schema",
+      "category": "semantic",
+      "status": "pass",
+      "expected": "proofkey-step-candidate-v1 bound to exact input",
+      "actual": "proofkey-step-candidate-v1"
+    },
+    {
+      "name": "visible_evidence",
+      "category": "semantic",
+      "status": "pass",
+      "expected": [
+        "001",
+        "002",
+        "003",
+        "004",
+        "005",
+        "006",
+        "source-context"
+      ],
+      "actual": [
+        "001",
+        "004",
+        "005",
+        "006"
+      ]
+    },
+    {
+      "name": "allowed_state",
+      "category": "semantic",
+      "status": "pass",
+      "expected": [
+        "waiting"
+      ],
+      "actual": "waiting"
+    },
+    {
+      "name": "allowed_action",
+      "category": "semantic",
+      "status": "pass",
+      "expected": [
+        "wait"
+      ],
+      "actual": "wait"
+    },
+    {
+      "name": "action_target",
+      "category": "semantic",
+      "status": "pass",
+      "expected": [
+        "address_desk"
+      ],
+      "actual": "address_desk"
+    },
+    {
+      "name": "waiting_for",
+      "category": "semantic",
+      "status": "pass",
+      "expected": [
+        "address_desk"
+      ],
+      "actual": [
+        "address_desk"
+      ]
+    },
+    {
+      "name": "completion_supported",
+      "category": "semantic",
+      "status": "pass",
+      "expected": false,
+      "actual": false
+    },
+    {
+      "name": "physical_delivery_not_inferred",
+      "category": "semantic",
+      "status": "pass",
+      "expected": "not_inferred",
+      "actual": "not_inferred"
+    }
+  ],
+  "status": "succeeded",
+  "replay": {
+    "schema_version": "proofkey-model-job-v1",
+    "run_id": "69a426ee0f434b888882df903674f007",
+    "status": "succeeded",
+    "case_id": "e2e-r2-claude-1010-case-002-n4-s6",
+    "step_index": 7,
+    "input_hash": "5d3451b47280247bf6819469204169da8663702bd8c06bb74884ee3ddaad2f46",
+    "mode": "model",
+    "model_profile_id": "anthropic-claude-sonnet-4-6",
+    "input": {
+      "actors": [
+        {
+          "id": "address_desk",
+          "name": "address_desk",
+          "role": "declared participant"
+        },
+        {
+          "id": "coordinator",
+          "name": "coordinator",
+          "role": "declared participant"
+        },
+        {
+          "id": "recipient",
+          "name": "recipient",
+          "role": "declared participant"
+        },
+        {
+          "id": "correction_form",
+          "name": "correction_form",
+          "role": "declared participant"
+        }
+      ],
+      "case_id": "e2e-r2-claude-1010-case-002-n4-s6",
+      "cutoff_event_id": "006",
+      "goal": "Review the available case evidence and propose the next coordination step.",
+      "input_hash": "5d3451b47280247bf6819469204169da8663702bd8c06bb74884ee3ddaad2f46",
+      "messages": [
+        {
+          "body": "{\"goal\": \"Уточнить неполный адрес и снять адресную блокировку DL-002.\", \"actors\": [{\"id\": \"address_desk\", \"name\": \"Address desk\", \"role\": \"executor\"}, {\"id\": \"coordinator\", \"name\": \"Iona Quill\", \"role\": \"coordinator\"}, {\"id\": \"recipient\", \"name\": \"Tarin Mave\", \"role\": \"recipient\"}, {\"id\": \"correction_form\", \"name\": \"Форма исправления адреса\", \"role\": \"system\"}]}\n[Declared recipient_ids: []]",
+          "body_source": "body",
+          "channel": "internal",
+          "event_id": "source-context",
+          "from_actor": "coordinator",
+          "timestamp": "2026-02-03T09:00:00+00:00",
+          "to_actor": "coordinator"
+        },
+        {
+          "body": "DL-002: 18 Copperfin Court, Merrow Quay. The building has multiple apartments; the order has no apartment number. Hold reason: incomplete address. The recipient’s order-linked portal session was verified by our account team.",
+          "body_source": "body",
+          "channel": "email",
+          "event_id": "001",
+          "from_actor": "address_desk",
+          "timestamp": "2026-02-03T09:00:00+00:00",
+          "to_actor": "coordinator"
+        },
+        {
+          "body": "The tracking page says address clarification required. The building is correct; what do you need from me?",
+          "body_source": "body",
+          "channel": "internal",
+          "event_id": "002",
+          "from_actor": "recipient",
+          "timestamp": "2026-02-03T09:10:00+00:00",
+          "to_actor": "coordinator"
+        },
+        {
+          "body": "Please confirm the apartment number at 18 Copperfin Court. We do not need entry codes or any other household details.",
+          "body_source": "body",
+          "channel": "internal",
+          "event_id": "003",
+          "from_actor": "coordinator",
+          "timestamp": "2026-02-03T09:25:00+00:00",
+          "to_actor": "recipient"
+        },
+        {
+          "body": "Apartment 4B. Please add that to DL-002; the street and building remain unchanged.",
+          "body_source": "body",
+          "channel": "internal",
+          "event_id": "004",
+          "from_actor": "recipient",
+          "timestamp": "2026-02-03T09:50:00+00:00",
+          "to_actor": "coordinator"
+        },
+        {
+          "body": "Automatic response. Your address correction for DL-002, Apartment 4B, submitted at 09:54, ended with 'Session expired'. The form may have saved before the session closed. No correction reference was issued.",
+          "body_source": "body",
+          "channel": "email",
+          "event_id": "005",
+          "from_actor": "correction_form",
+          "timestamp": "2026-02-03T09:57:00+00:00",
+          "to_actor": "coordinator"
+        },
+        {
+          "body": "Our address correction for DL-002, Apartment 4B, submitted at 09:54, ended with 'Session expired' and no reference was issued. What do DL-002's saved address and hold status show now? Please do not create a second change. We will not resubmit the correction until we know.",
+          "body_source": "body",
+          "channel": "email",
+          "event_id": "006",
+          "from_actor": "coordinator",
+          "timestamp": "2026-02-03T10:12:00+00:00",
+          "to_actor": "address_desk"
+        }
+      ],
+      "our_actor_id": "coordinator",
+      "schema_version": "proofkey-step-input-v1",
+      "step_index": 7
+    },
+    "reference": null,
+    "source": {
+      "case_id": "e2e-r2-claude-1010-case-002-n4-s6",
+      "kind": "platform_case",
+      "revision": 7,
+      "snapshot_hash": "7220fd22544f1cabb648fe69f1a55cdff4dc3656e1e63e36950c14114999c60a"
+    },
+    "candidate": {
+      "evidence_event_ids": [
+        "001",
+        "004",
+        "005",
+        "006"
+      ],
+      "input_hash": "5d3451b47280247bf6819469204169da8663702bd8c06bb74884ee3ddaad2f46",
+      "live_calls": 1,
+      "mode": "model",
+      "next_action": {
+        "description": "Await address_desk's response confirming whether DL-002's saved address now shows Apartment 4B and whether the hold has been lifted, before deciding whether to resubmit the correction.",
+        "target_actor_id": "address_desk",
+        "type": "wait"
+      },
+      "operational_effects": 0,
+      "physical_delivery": "not_inferred",
+      "schema_version": "proofkey-step-candidate-v1",
+      "state": "waiting",
+      "uncertainty": [
+        "The correction form session expired and no reference was issued; it is unknown whether the address update for Apartment 4B was saved before expiry.",
+        "The hold status of DL-002 is currently unknown — it may still be active or may have been cleared if the partial save succeeded.",
+        "No response from address_desk has been received yet for the readback request sent in event 006.",
+        "The correction_form actor is a system and its reliability in reporting partial saves is unverifiable from this evidence."
+      ],
+      "waiting_for": [
+        "address_desk"
+      ]
+    },
+    "evaluation": null,
+    "receipt": {
+      "latency_ms": 6451.537,
+      "model_profile_id": "anthropic-claude-sonnet-4-6",
+      "observed_model": "claude-sonnet-4-6",
+      "provider": "anthropic",
+      "request_id": "req_011CftfrLyu5RbqUL7yCYXMV",
+      "requested_model": "claude-sonnet-4-6",
+      "usage": {
+        "input_tokens": 1369,
+        "output_tokens": 258
+      }
+    },
+    "error": null,
+    "created_at": "2026-10-10T13:55:11.410851+00:00",
+    "started_at": "2026-10-10T13:55:11.845646+00:00",
+    "finished_at": "2026-10-10T13:55:18.322931+00:00",
+    "transaction": {
+      "idempotency_key": "e2e:2857db454d0c1f5f272f54a1c48f3a8ccaca0de3549d8778d2e9c85a37caaca8",
+      "attempt_id": "ea1d102399784b8ab2cddc4a5471e10b",
+      "dispatch_attempts": 1,
+      "automatic_retries": 0,
+      "operational_effects": 0,
+      "reserved_usd": 0.047706,
+      "budget_scope": "platform-e2e-20261010",
+      "prompt_hash": "539f3a5e6443abe210121fce686deab829221f86391a79a2823ee7e859524883",
+      "profile_hash": "d900166c556c711852ca5a8608bc466fe72f5ff0476e132e312294c45f60afd4"
+    }
+  }
+}

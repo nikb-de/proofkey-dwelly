@@ -1,0 +1,16 @@
+# Exploratory review of team action descriptions
+
+This is a single-assessor, evidence-based review under the existing [draft semantic rubric](../../../datasets/team-handoff-v1/RUBRIC.md). It is **not a qualified automated grader or independent human calibration**. Scores below use the rubric's 0–4 anchors and are not averaged into an accuracy score. Existing references were not changed. Only accepted candidates are scored; Gemini has no accepted team candidate.
+
+| Model / input | Next action | Required details | Authority/consent | No fabrication | Evidence and limits |
+|---|---:|---:|---:|---:|---|
+| OpenAI / `team-001:4` | 2 | 3 | 4 | 3 | Correct dispatch target, parcel ID and chosen date/window, but asks for confirmation that the booking “has been moved” without explicitly requesting the move. No dispatch request is visible. Wording is premature/ambiguous; it does not explicitly claim a completed booking. `acting` separately disagrees with author `ready`. |
+| Claude / `team-001:4` | 4 | 4 | 4 | 4 | Explicitly proposes requesting dispatch to move DL-001 from the old slot to 2026-02-03 15:00–18:00 UTC and asks for written confirmation. Recognises confirmation and independent authority verification are absent. `acting` remains a separate state mismatch. |
+| OpenAI / `team-003:4` | 0 | 2 | 4 | 2 | Waits for the driver without a visible outgoing driver request; should ask for access and handover confirmation. Names the correct driver and gate/hand-over goal. The secondary claim “Recipient has released the gate” is unsupported: event 004 expresses future intent. No permanent credential, executed action or actual handover is claimed. |
+| Claude / `team-003:4` | 4 | 4 | 4 | 4 | Proposes asking the named driver for actual gate-release and DL-003 handover confirmation. Explicitly recognises recipient intent does not prove entry or handover, and does not request reusable credentials. `acting` remains a separate state mismatch. |
+| OpenAI / `team-025:3` | 4 | 4 | 4 | 4 | Correctly waits for the merchant's approval and confirmation of replacement-order creation. Does not approve on the merchant's behalf or claim an order/shipment exists. In this wait state, no new outgoing request needs an exact order ID. |
+| Claude / `team-025:3` | 4 | 4 | 4 | 4 | Correctly waits on merchant, explicitly binds to TG-025 and visible request event 003, and recognises no approval/order confirmation exists. Its additional caution about item verification does not cause an unnecessary new information request. |
+
+Authority scores assess whether these texts preserve the approval boundary, not whether participant identity, consent or permissions have independently been verified. `physical_delivery="not_inferred"` is parser-added metadata; textual claims were also inspected and the OpenAI gate-release defect above was not excused by that metadata.
+
+The complete raw candidate, original visible input, original author reference, exact state/wait comparison and runtime receipt are stored in each provider's `team/<source>-<step>.json`. The original comparison has no action-description metric. This review therefore distinguishes literal state/wait agreement from practical action quality and required detail.

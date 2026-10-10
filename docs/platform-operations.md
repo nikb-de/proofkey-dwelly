@@ -11,10 +11,10 @@ See the [verification record and UI screenshots](verification/platform-ui-2026-1
 ## Product screens
 
 - **Team** at `/`: searchable cases, operator queue, Summary / Requests / Sources, ownership and activity. Analysis remains a proposal; approval and sandbox execution are separate controls under Requests.
-- **Customer** at `/customer.html?case=<case-id>`: operator-assisted window preference and current status. It writes a proposal to the same case; it cannot approve or execute. This is not an authenticated external customer portal.
+- **Customer** at `/customer.html?case=<case-id>`: compact operator-assisted delivery options, reviewed preference and current status. It displays only a valid current recorded offer, with that offer's own evidence references; missing options require operator help, not manual customer evidence selection. It writes a proposal to the same case; it cannot approve, execute or cancel backend work. This is not an authenticated external customer portal.
 - **Preparation** at `/preparation.html`: current service capabilities, six adapter mappings, process/acknowledgement/readback settings, browser-local save/load and JSON export. Preflight is read-only; the draft is not activated in the runtime.
 
-The Team-to-Customer link preserves case identity. New evidence invalidates old decision status while retaining history. See the [product-screen verification](verification/product-workspace-2026-10-10/README.md) for current tests and screenshots.
+The Team-to-Customer link preserves case identity. New evidence invalidates old decision status while retaining history. Stale customer offers require reselection; only an identical previously dispatched request is eligible for uncertain-response replay. See the [revised design and verification](verification/ui-design-parity-2026-10-10/README.md) and [live model results](verification/platform-live-e2e-2026-10-10-rerun/README.md).
 
 ## Run
 

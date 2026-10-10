@@ -30,11 +30,13 @@ export function buildRequest(binding,current,draft,now=Date.now()) {
 export function offeredWindows(detail,now=Date.now()) {
   const latest=detail?.decisions?.at(-1);
   if(!boundRecord(latest,detail?.snapshot) || latest.action?.type!=='reschedule_delivery' || latest.action.address_change!==false || !validateWindow(latest.action,now).valid)return [];
+  const refs=latest.evidence_event_ids,available=new Set((detail.snapshot.events || []).map(event=>event.event_id));
+  if(!Array.isArray(refs) || !refs.length || new Set(refs).size!==refs.length || refs.some(id=>typeof id!=='string' || !available.has(id)))return [];
   return [{decision_id:latest.decision_id,slot_start:latest.action.slot_start,slot_end:latest.action.slot_end,evidence_event_ids:[...(latest.evidence_event_ids || [])]}];
 }
 
 export function customerStatus(detail) {
-  const none={kind:'none',title:'No current delivery proposal',description:'Choose a requested window and its supporting sources. Carrier availability and price are not confirmed.',decision:null,receipt:null};
+  const none={kind:'none',title:'No current delivery proposal',description:'There is no current proposal to review. Ask the team for available times and confirmed terms.',decision:null,receipt:null};
   const d=detail?.decisions?.at(-1),snapshot=detail?.snapshot;
   if(!boundRecord(d,snapshot) || d.action?.type!=='reschedule_delivery')return none;
   const matching=record=>boundRecord(record,snapshot) && record.decision_id===d.decision_id;
@@ -51,11 +53,22 @@ export class CustomerSession {
     this.api=api;this.now=now;this.onChange=onChange;this.detail=null;this.binding=null;
     this.draft={slot_start:'',slot_end:'',evidence_event_ids:[]};this.step='choose';this.busy=false;
     this.error='';this.pending=new Map();this.completed=new Set();this.generation=0;this.checkedAt=null;
-    this.savedOutcome=null;this.statusConfirmed=true;
+    this.savedOutcome=null;this.statusConfirmed=true;this.offerId=null;this.dispatched=new Set();
   }
   get status(){
     if(!this.statusConfirmed)return {kind:'unknown',title:'Preference saved; refresh status',description:'The submission receipt confirms this preference was saved. The current case status could not be refreshed. Refresh before relying on an approval or action status.',decision:null,receipt:null};
     return customerStatus(this.detail);
+  }
+  get reviewedOfferCurrent(){
+    if(!this.offerId)return true;
+    const offer=offeredWindows(this.detail,this.now()).find(item=>item.decision_id===this.offerId);
+    return Boolean(offer && dateValue(offer.slot_start)===dateValue(this.draft.slot_start) && dateValue(offer.slot_end)===dateValue(this.draft.slot_end) && JSON.stringify([...offer.evidence_event_ids].sort())===JSON.stringify([...this.draft.evidence_event_ids].sort()));
+  }
+  get canReplaySubmission(){
+    try{
+      const body=buildRequest(this.binding,this.detail?.snapshot,this.draft,this.now()),signature=JSON.stringify([this.detail?.case_id,body]);
+      return this.dispatched.has(signature) && !this.completed.has(signature);
+    }catch{return false;}
   }
   accept(detail){
     if(!validSnapshot(detail?.snapshot) || detail.case_id!==detail.snapshot.case_id)throw Error('The case response is invalid.');
@@ -72,10 +85,12 @@ export class CustomerSession {
     else {this.detail=detail;this.checkedAt=new Date(this.now()).toISOString();}
     this.statusConfirmed=true;this.error='';this.onChange();return detail;
   }
-  review(){
+  review({offerId=null}={}){
     if(this.busy)throw Error('A submission is in progress.');
     const snapshot=this.detail?.snapshot;
     buildRequest(snapshot,snapshot,this.draft,this.now());
+    this.offerId=offerId;
+    if(!this.reviewedOfferCurrent)throw Error('This offer has changed. Select a current offer; your draft is retained.');
     this.binding={...snapshot};this.step='review';this.error='';this.onChange();
   }
   async submit(){
@@ -84,6 +99,7 @@ export class CustomerSession {
     const body=buildRequest(this.binding,this.detail?.snapshot,this.draft,this.now());
     const signature=JSON.stringify([id,body]);
     if(this.completed.has(signature))throw Error('This proposal is already recorded. Refresh its status.');
+    if(!this.reviewedOfferCurrent && !this.canReplaySubmission)throw Error('This offer has changed. Select a current offer; your draft is retained.');
     const key=this.pending.get(signature) || newKey();this.pending.set(signature,key);
     this.busy=true;this.error='';this.onChange();
     try {
@@ -92,6 +108,10 @@ export class CustomerSession {
       if(fresh.case_id!==id || fresh.snapshot?.case_id!==id)throw Error('The response does not match the selected case.');
       this.detail=fresh;this.checkedAt=new Date(this.now()).toISOString();this.statusConfirmed=true;
       buildRequest(this.binding,fresh.snapshot,this.draft,this.now());
+      // A prior uncertain POST can only replay the identical request and key.
+      // New submissions must still match the offer reviewed by the customer.
+      if(!this.reviewedOfferCurrent && !this.dispatched.has(signature))throw Error('This offer has changed. Select a current offer; your draft is retained.');
+      this.dispatched.add(signature);
       const response=await this.api(`/cases/${encodeURIComponent(id)}/decisions`,{method:'POST',body,idempotencyKey:key});
       const result=response.case || response,latest=result?.decisions?.at(-1);
       if(result?.case_id!==id || !sameSnapshot(result.snapshot,this.binding) || !boundRecord(latest,result.snapshot) || latest.action?.type!=='reschedule_delivery' || dateValue(latest.action.slot_start)!==dateValue(body.action.slot_start) || dateValue(latest.action.slot_end)!==dateValue(body.action.slot_end) || latest.action.address_change!==false || JSON.stringify([...(latest.evidence_event_ids || [])].sort())!==JSON.stringify([...body.evidence_event_ids].sort()))throw Error('The submission result could not be verified. Retry this unchanged request to recover its result.');
@@ -105,6 +125,7 @@ export class CustomerSession {
       } catch(error){this.error=`Preference saved, but current status refresh failed: ${error.message || 'Connection unavailable'}`;}
       return result;
     } catch(error){
+      if(error.status>=400 && error.status<500)this.dispatched.delete(signature);
       if(error.status===409){
         try {
           const response=await this.api(`/cases/${encodeURIComponent(id)}`),current=response.case || response;

@@ -62,7 +62,11 @@ function renderCases() {
     const id=item.case_id || item.snapshot?.case_id;
     const b=button('',()=>selectCase(id),'case-item'+(session.selectedId===id?' selected':''));
     const caseLinks=item.snapshot?.links || item.links || {};
-    b.dataset.caseId=id;b.append(node('strong',id),node('p',`Order ${caseLinks.order_id || '—'}`),node('p',caseLinks.customer_id || 'Customer not recorded','case-customer'),node('span',human(item.states?.lifecycle || 'new'),'tag'),node('p',`Owner · ${caseLinks.operator_id || 'Not recorded'}`,'case-owner'));
+    const selectedDetail=session.detail?.case_id===id?session.detail:null;
+    const summary=selectedDetail?caseSummary(selectedDetail):null;
+    const next=summary?.nextStep || (needsReview(item)?'Review the current proposal':'Review source context');
+    b.dataset.caseId=id;b.title=`Case ${id}`;
+    b.append(node('strong',caseLinks.order_id || id),node('p',summary?.title || (needsReview(item)?'Operator review':'Task not assessed'),'case-task'),node('span',human(item.states?.lifecycle || 'new'),'tag'),node('p',caseLinks.customer_id || 'Customer not recorded','case-customer'),node('p',`Owner: ${caseLinks.operator_id || 'Not recorded'}`,'case-owner'),node('p',`Next: ${next}`,'case-next'),node('p',`Case ${id}`,'case-identity'));
     if(session.selectedId===id)b.setAttribute('aria-current','true');parent.append(b);
   }
 }
@@ -98,11 +102,21 @@ function activateTab(tab,{focus=false}={}) {
 function renderProductDetail(detail) {
   const summary=caseSummary(detail);
   $('case-title').textContent=summary.title;
-  $('summary-next-step').textContent=summary.nextStep;
+  $('summary-next-step').textContent=summary.sourceExcerpt || 'No original request has been recorded. Add source evidence to establish the task context.';
   $('summary-owner').textContent=summary.owner;$('summary-order').textContent=summary.order;$('summary-customer').textContent=summary.customer;
   $('control-next-step').textContent=summary.nextStep;$('control-communication').textContent=summary.externalCommunication;$('control-outcome').textContent=summary.physicalOutcome;
   $('summary-state').textContent=human(detail.states?.lifecycle || 'new');
   $('summary-source').hidden=!summary.sourceExcerpt;$('summary-source-text').textContent=summary.sourceExcerpt;
+  const current=caseRequests(detail).find(request=>request.current);
+  $('summary-proposal-status').textContent=current?current.status:'Not proposed';
+  const proposed=$('summary-proposal-detail');proposed.replaceChildren();
+  if(current){
+    proposed.append(node('strong',current.title),node('p',summary.nextStep));
+    if(current.slotStart && current.slotEnd)proposed.append(node('p',`${stamp(current.slotStart)} → ${stamp(current.slotEnd)}`));
+    proposed.append(node('p',`Proposal ${current.id} · revision ${current.revision}`,'hint'));
+  }else{
+    proposed.append(node('strong','No current proposal'),node('p',(detail.decisions || []).length?'Earlier proposals are historical. Assess the current evidence or prepare a fresh proposal.':'Assess the source evidence or prepare an operator proposal.'));
+  }
   $('request-count').textContent=String(summary.requestCount);$('source-count').textContent=String(summary.eventCount);
   const list=$('request-status-list');list.replaceChildren();
   if(!summary.requestCount)empty(list,'No request has been proposed. Add source evidence or prepare an operator proposal below.');

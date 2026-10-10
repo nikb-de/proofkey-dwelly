@@ -26,6 +26,42 @@ test('window options only expose the latest current real reschedule proposal',()
   assert.deepEqual(offeredWindows(detail({decisions:[decision(),decision({revision:0})]}),now),[]);
   assert.deepEqual(offeredWindows(detail({decisions:[decision({action:{type:'operator_review'}})]}),now),[]);
 });
+test('offered windows require their own valid evidence references',()=>{
+  for(const ids of [[],['missing'],['source-1','source-1']])assert.deepEqual(offeredWindows(detail({decisions:[decision({evidence_event_ids:ids})]}),now),[]);
+});
+test('optional reviewed offer binding blocks a same-snapshot superseding proposal at preflight',async()=>{
+  let posts=0;
+  const newer=decision({decision_id:'decision-2',action:{...decision().action,slot_start:'2030-01-03T10:00:00Z',slot_end:'2030-01-03T12:00:00Z'}});
+  const s=new CustomerSession(async(_path,options)=>{if(options?.method==='POST')posts++;return {case:detail({decisions:[decision(),newer]})};},{now:()=>now});
+  s.accept(detail({decisions:[decision()]}));s.setDraft(draft);s.review({offerId:'decision-1'});
+  await assert.rejects(s.submit(),/offer.*changed|offer.*current/i);
+  assert.equal(posts,0);assert.deepEqual(s.draft,draft);assert.equal(s.binding.revision,1);
+});
+test('offer-bound uncertain retry recovers only the unchanged dispatched request with its original key',async()=>{
+  const keys=[],saved=decision({decision_id:'saved-preference'}),newer=decision({decision_id:'newer-offer'});let posts=0;
+  const s=new CustomerSession(async(_path,options)=>{
+    if(options?.method!=='POST')return {case:detail({decisions:posts?[decision(),saved,newer]:[decision()]})};
+    keys.push(options.idempotencyKey);posts++;
+    if(posts===1)throw Error('Reply lost');
+    return {case:detail({decisions:[decision(),saved]})};
+  },{now:()=>now});
+  s.accept(detail({decisions:[decision()]}));s.setDraft(draft);s.review({offerId:'decision-1'});
+  await assert.rejects(s.submit(),/Reply lost/);
+  assert.equal(s.canReplaySubmission,true);
+  await s.load('case-1');assert.equal(s.reviewedOfferCurrent,false);
+  await s.submit();assert.equal(posts,2);assert.equal(keys[0],keys[1]);assert.equal(s.savedOutcome.decision_id,'saved-preference');assert.equal(s.status.decision.decision_id,'newer-offer');
+});
+test('a rejected offer-bound POST cannot bypass current-offer checks on retry',async()=>{
+  let posts=0;
+  const s=new CustomerSession(async(_path,options)=>{
+    if(options?.method==='POST'){posts++;const error=Error('Request rejected');error.status=400;throw error;}
+    return {case:detail({decisions:[decision()]})};
+  },{now:()=>now});
+  s.accept(detail({decisions:[decision()]}));s.setDraft(draft);s.review({offerId:'decision-1'});
+  await assert.rejects(s.submit(),/Request rejected/);assert.equal(s.canReplaySubmission,false);
+  s.detail=detail({decisions:[decision(),decision({decision_id:'replacement'})]});
+  await assert.rejects(s.submit(),/offer.*changed/i);assert.equal(posts,1);assert.deepEqual(s.draft,draft);
+});
 test('status refuses stale, foreign, superseded and mismatched execution receipts',()=>{
   const d=decision();
   const receipt={case_id:'case-1',decision_id:d.decision_id,revision:1,snapshot_hash:d.snapshot_hash,status:'verified',execution_mode:'postgres_sandbox',sandbox_effects:1,external_effects:0,action_id:'receipt-1'};
@@ -131,7 +167,7 @@ test('customer case and order metadata fit 390px with valid maximum-length IDs',
     const id='c'.repeat(64),order='o'.repeat(64),fixture=detail({case_id:id,snapshot:{...snapshot(),case_id:id,links:{order_id:order}}});
     await page.route('**/api/platform/cases/**',route=>route.fulfill({contentType:'application/json',body:JSON.stringify({case:fixture})}));
     await page.goto(`${process.env.PROOFKEY_CUSTOMER_URL || 'http://127.0.0.1:8105'}/customer.html?case=${id}`);
-    await page.locator('#review-preference').waitFor();
+    await page.locator('.case-strip').waitFor();
     assert.equal(await page.locator('.case-strip').innerText().then(text=>text.includes(order)),true);
     const bounds=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth,metadata:[...document.querySelectorAll('.case-strip strong,.case-strip span')].map(element=>({left:element.getBoundingClientRect().left,right:element.getBoundingClientRect().right,scroll:element.scrollWidth,width:element.clientWidth}))}));
     assert.ok(bounds.scroll<=bounds.width,`Document overflows: ${JSON.stringify(bounds)}`);

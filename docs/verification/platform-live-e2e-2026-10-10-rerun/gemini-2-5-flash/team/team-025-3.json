@@ -1,0 +1,100 @@
+{
+  "source_id": "team-025",
+  "step_index": 3,
+  "input": {
+    "schema_version": "proofkey-step-input-v1",
+    "case_id": "team-025",
+    "step_index": 3,
+    "cutoff_event_id": "003",
+    "goal": "Get the merchant to approve the recipient's chosen replacement and confirm that the replacement order is created.",
+    "our_actor_id": "coordinator",
+    "actors": [
+      {
+        "id": "coordinator",
+        "name": "Iona Quill",
+        "role": "coordinator"
+      },
+      {
+        "id": "recipient",
+        "name": "Aven Korrin",
+        "role": "recipient"
+      },
+      {
+        "id": "loss_investigations",
+        "name": "Loss investigations",
+        "role": "carrier"
+      },
+      {
+        "id": "merchant",
+        "name": "Replacement authorisations",
+        "role": "merchant"
+      }
+    ],
+    "messages": [
+      {
+        "event_id": "001",
+        "from_actor": "loss_investigations",
+        "to_actor": "coordinator",
+        "body": "Final trace record INV-025: DL-025 could not be located after the completed depot and route search; carrier status is confirmed lost. This finding does not itself create a merchant replacement order.",
+        "body_source": "body",
+        "timestamp": "2026-02-26 09:00:00 UTC",
+        "channel": "Email",
+        "conversation_id": "carrier"
+      },
+      {
+        "event_id": "002",
+        "from_actor": "recipient",
+        "to_actor": "coordinator",
+        "body": "I still need the kettle from TG-025. I choose a like-for-like replacement rather than a refund. Please ask the merchant to approve it.",
+        "body_source": "body",
+        "timestamp": "2026-02-26 09:10:00 UTC",
+        "channel": "Customer portal",
+        "conversation_id": "client"
+      },
+      {
+        "event_id": "003",
+        "from_actor": "coordinator",
+        "to_actor": "merchant",
+        "body": "Please approve the customer-selected kettle replacement for TG-025. Carrier INV-025 confirms DL-025 lost; Aven’s choice is recorded in the verified order thread.",
+        "body_source": "body",
+        "timestamp": "2026-02-26 09:25:00 UTC",
+        "channel": "Email",
+        "conversation_id": "merchant"
+      }
+    ],
+    "author_limits": [
+      "Do not approve the replacement on the merchant's behalf; confirmed loss does not give the desk that authority.",
+      "Do not claim the replacement has been delivered."
+    ],
+    "input_hash": "aca077911f0552130046290942e29da4d82508c832f1b548dcd42f47ee00e1d3"
+  },
+  "reference": {
+    "schema_version": "proofkey-step-reference-v1",
+    "input_hash": "aca077911f0552130046290942e29da4d82508c832f1b548dcd42f47ee00e1d3",
+    "qualification": "author_labels_unvalidated",
+    "state": "waiting",
+    "waiting_for": [
+      "merchant"
+    ],
+    "next_action": "Once the merchant replies, record the approval and the replacement order.",
+    "source_agent_state": {
+      "status": "waiting",
+      "waiting_for": [
+        {
+          "actor_id": "merchant",
+          "request_id": "r1",
+          "expected": "Approval of the kettle replacement"
+        }
+      ],
+      "next_action": "Once the merchant replies, record the approval and the replacement order."
+    }
+  },
+  "source": {
+    "source_sha256": "960b9105c9388bad4871069d9a64e2b21246ed826a8dbbd6d79ac4a3c857dd45",
+    "source_commit": "c361245eaad4361f7b886adc56f05dd56d4807b3",
+    "family_id": "team-025",
+    "qualification": "author_labels_unvalidated"
+  },
+  "status": "not_run",
+  "checks": []
+}

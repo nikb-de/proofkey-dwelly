@@ -14,7 +14,6 @@ const post=async(route,body)=>{
   const value=await response.json();assert.equal(response.ok,true,JSON.stringify(value));return value;
 };
 const read=async()=>{const r=await fetch(base+'/api/platform/cases/'+caseId);assert.equal(r.ok,true);return (await r.json()).case;};
-const local=date=>`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}T${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
 try {
   await post('/cases',{case_id:caseId,links:{order_id:'product-order',customer_id:'product-customer',operator_id:'product-operator'},participants:['product-customer','product-operator'],language:'en'});
   await post(`/cases/${caseId}/events`,{expected_revision:0,event:{event_id:'source-request',occurred_at:new Date().toISOString(),channel:'chat',sender_id:'product-customer',recipient_ids:['product-operator'],kind:'message',text:'Please move my delivery to a later window. <script>window.productInjected=true</script>',media:null}});
@@ -29,18 +28,19 @@ try {
   assert.equal(await page.evaluate(()=>Boolean(window.productInjected)),false);
   await page.getByRole('tab',{name:/Summary/}).click();
   await page.screenshot({path:path.join(output,'team-desktop.png'),fullPage:true});
-  await page.locator('#customer-link').click();
-  await page.locator('#slot_start').waitFor();
   const start=new Date(Date.now()+3*86400000);start.setHours(10,0,0,0);const end=new Date(start.getTime()+2*3600000);
-  await page.fill('#slot_start',local(start));await page.fill('#slot_end',local(end));
-  await page.locator('input[name="source-event"]').check();
+  const current=await read();
+  await post(`/cases/${caseId}/decisions`,{expected_revision:current.snapshot.revision,snapshot_hash:current.snapshot.snapshot_hash,action:{type:'reschedule_delivery',slot_start:start.toISOString(),slot_end:end.toISOString(),address_change:false},evidence_event_ids:['source-request']});
+  await page.locator('#customer-link').click();
+  await page.locator('input[name="window-choice"]').check();
   await page.locator('#review-preference').click();await page.locator('#submit-preference').waitFor();
-  assert.match(await page.locator('#main').innerText(),/Price\s+Not confirmed/);
+  assert.match(await page.locator('#main').innerText(),/Full surcharge\s+Not confirmed/);
   await page.screenshot({path:path.join(output,'customer-review.png'),fullPage:true});
   await page.locator('#submit-preference').click();
   await page.locator('#customer-status[data-status="proposed"]').waitFor();
-  let detail=await read();assert.equal(detail.decisions.length,1);assert.equal(detail.reviews.length,0);assert.equal(detail.actions.length,0);
-  checks.push('Customer preference becomes one persisted proposal, never approval or execution');
+  let detail=await read();assert.equal(detail.decisions.length,2);assert.equal(detail.reviews.length,0);assert.equal(detail.actions.length,0);
+  assert.deepEqual(detail.decisions.at(-1).evidence_event_ids,['source-request']);assert.equal(detail.decisions.at(-1).action.slot_start,start.toISOString());assert.equal(detail.decisions.at(-1).action.slot_end,end.toISOString());
+  checks.push('Customer reviews a current recorded offer and persists one additional preference, never approval or execution');
   await page.locator('#team-link').click();await page.getByRole('tab',{name:/Requests/}).click();
   assert.match(await page.locator('#request-status-list').innerText(),/Awaiting human review/);
   await page.fill('#review-note','Synthetic UI test: source request and selected slot reviewed; address unchanged.');
@@ -74,7 +74,7 @@ try {
     const mobile=await browser.newPage({viewport:{width:390,height:844}});mobile.on('pageerror',error=>errors.push(error.message));
     await mobile.goto(base+route);await mobile.evaluate(()=>document.fonts.ready);
     if(route.startsWith('/#'))await mobile.locator('#case-detail').waitFor({state:'visible'});
-    else if(route.startsWith('/customer'))await mobile.locator('#slot_start').waitFor();
+    else if(route.startsWith('/customer'))await mobile.getByRole('heading',{name:'No suitable windows yet'}).waitFor();
     else await mobile.locator('#profile-name').waitFor();
     assert.equal(await mobile.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,route+' overflow');
     await mobile.screenshot({path:path.join(output,route.startsWith('/#')?'team-mobile.png':route.startsWith('/customer')?'customer-mobile.png':'preparation-mobile.png'),fullPage:true});

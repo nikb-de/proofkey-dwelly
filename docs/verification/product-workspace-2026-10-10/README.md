@@ -1,5 +1,7 @@
 # Right onTime product workspace — verification
 
+Historical baseline. The subsequent [design-parity revision](../ui-design-parity-2026-10-10/README.md) replaces the Customer evidence/timestamp form and updates Team hierarchy. The functional tests below did not establish conformity with the original design; later rendered checks address that gap.
+
 Date: 2026-10-10. Scope: product screens on the existing local PostgreSQL-backed platform, not cloud deployment or provider accuracy certification.
 
 ## Delivered
