@@ -635,7 +635,12 @@ def _revalidate_prepared(prepared, clock, execution):
                  and request.kind == host.admitted_request_kind
                  and request_fingerprint(request) == host.admitted_request_fingerprint, "identity_changed")
         _validate_selected_profile(binding.host_factory_key, profile, request.kind)
-        _fixture_envelope(_fixture_json(fixture_raw), request, host.admitted_request_fingerprint)
+        try:
+            _fixture_envelope(_fixture_json(fixture_raw), request, host.admitted_request_fingerprint)
+        except SyntheticPreparationFailureV1 as error:
+            if error.code != "invalid_input":
+                raise
+            raise SyntheticPreparationFailureV1("identity_changed") from None
         body = json.loads(registered.wire_bytes)
         _require(b64decode(body["blobs"]["profile"]["base64"], validate=True) ==
                  _canonical(profile.model_dump(mode="json")), "identity_changed")

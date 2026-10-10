@@ -308,6 +308,17 @@ class WindowReadinessCompositionTests(unittest.TestCase):
             self.assertEqual(caught.exception.code, 'identity_changed')
             self.assertEqual(caught.exception.retained_root, fx.prepared.root)
 
+    def test_revalidation_rejects_changed_original_request_id_as_identity_changed(self):
+        with opened_candidate_case() as fx:
+            changed = fx.request.model_dump(mode='json')
+            changed['request_id'] = 'J05-ALTERED-ORIGINAL'
+            object.__setattr__(fx.prepared, '_request_bytes', cj(changed))
+            with self.assertRaises(provisioning.SyntheticPreparationFailureV1) as caught:
+                provisioning._revalidate_prepared(fx.prepared, fx.clock, context(fx.clock))
+            self.assertEqual(caught.exception.code, 'identity_changed')
+            self.assertEqual(caught.exception.retained_root, fx.prepared.root)
+            self.assertTrue(fx.prepared.root.is_dir())
+
     def test_current_source_bytes_are_rechecked_at_both_boundaries(self):
         with opened_candidate_case() as fx:
             installed = provisioning._installed_bytes
