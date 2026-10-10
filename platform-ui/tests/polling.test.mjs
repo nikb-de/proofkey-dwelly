@@ -66,7 +66,7 @@ test('browser polling preserves each run inspector without reopening closed sect
   try {
     const page=await browser.newPage(),errors=[],writes=[];
     page.on('pageerror',error=>errors.push(error.message));
-    const staticFiles=new Map(await Promise.all(['index.html','app.js','session.js'].map(async name=>[name,await readFile(new URL('../'+name,import.meta.url),'utf8')])));
+    const staticFiles=new Map(await Promise.all(['index.html','app.js','session.js','product.js','style.css'].map(async name=>[name,await readFile(new URL('../'+name,import.meta.url),'utf8')])));
     let reads=0;
     const pending={run_id:'pending',case_id:'first',status:'running'};
     const done={run_id:'done',case_id:'first',status:'succeeded',candidate:{state:'waiting'}};
@@ -93,8 +93,11 @@ test('browser polling preserves each run inspector without reopening closed sect
     const donePanels=page.locator('[data-job-id="done"] details');
     await pendingPanel.locator('summary').click();
     for(const panel of await donePanels.all())await panel.locator('summary').click();
+    await page.getByRole('tab',{name:/Sources/}).click();
     await page.fill('#evidence-text','Keep source draft');
+    await page.getByRole('tab',{name:/Requests/}).click();
     await page.fill('#review-note','Keep review draft');
+    await page.getByRole('tab',{name:/Summary/}).click();
     await page.waitForFunction(()=>document.querySelector('[data-job-id="pending"] pre')?.textContent.includes('"observation": 1'));
     assert.equal(await pendingPanel.evaluate(panel=>panel.open),true,'the pending run receipt stays open after its own update');
     assert.deepEqual(await donePanels.evaluateAll(panels=>panels.map(panel=>panel.open)),[true,true],'both completed-run sections stay open during another run update');
@@ -104,7 +107,7 @@ test('browser polling preserves each run inspector without reopening closed sect
     assert.equal(await page.inputValue('#evidence-text'),'Keep source draft');
     assert.equal(await page.inputValue('#review-note'),'Keep review draft');
     await page.locator('.case-item[data-case-id="second"]').click();
-    await page.locator('#case-title').filter({hasText:'second'}).waitFor();
+    await page.locator('#case-detail[data-case-id="second"]').waitFor();
     assert.deepEqual(await page.locator('#model-jobs details').evaluateAll(panels=>panels.map(panel=>panel.open)),[false,false,false],'the next case starts closed even if run IDs coincide');
     assert.deepEqual(writes,[]);assert.deepEqual(errors,[]);
   } finally {await browser.close();}

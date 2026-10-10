@@ -21,7 +21,8 @@ let outcome;
 try {
   await page.goto(ready.origin);await page.locator('#create-case-panel summary').click();
   await page.fill('#case-id','test-media-case');await page.fill('#order-id','test-media-order');
-  await page.locator('#create-case-form button').click();await page.locator('#case-title').filter({hasText:'test-media-case'}).waitFor();
+  await page.locator('#create-case-form button').click();await page.locator('#case-detail[data-case-id="test-media-case"]').waitFor();
+  await page.getByRole('tab',{name:/Sources/}).click();
   const waitWrite=route=>page.waitForResponse(r=>r.url().includes('/cases/test-media-case/'+route) && r.request().method()==='POST');
   async function upload(kind,file,text){
     await page.selectOption('#evidence-kind',kind);await page.fill('#evidence-text',text);
@@ -56,6 +57,7 @@ try {
   for(const event of derived){assert.equal(event.sender_id,'operator-1');assert.deepEqual(event.recipient_ids,['customer-1']);assert.match(event.text,/^\[Operator-reviewed (ASR|image analysis) of asset .* SHA256 [a-f0-9]{64}\]/);}
   for(const run of current.case.media_runs){assert.equal(run.receipt.provider,'test-provider');assert.equal(run.human_review,'required');assert.equal(run.validation.sha256_verified,true);assert.equal(run.status,'succeeded');}
   await page.reload();await page.locator('#case-detail').waitFor({state:'visible'});
+  await page.getByRole('tab',{name:/Sources/}).click();
   assert.equal(await page.locator('.derived-evidence').count(),2);
   assert.equal(await page.getByRole('button',{name:'Reviewed text added',exact:true}).count(),2);
   await upload('photo','invalid.png','TEST SOURCE: intentionally corrupt photo');

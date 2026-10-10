@@ -1,4 +1,5 @@
 import { PlatformSession, CommunicationsSession, communicationEnvelope, createAPI, needsReview, reviewedMediaMessage, normalizeMediaRun, canReview, modelStatusView, ModelPoller } from './session.js';
+import { filterCases, caseCounters, caseSummary, caseRequests } from './product.js';
 
 const $ = id => document.getElementById(id);
 const api = createAPI();
@@ -7,6 +8,9 @@ const communications = new CommunicationsSession(api, renderCommunications);
 let preparingImport = false;
 let cases = [], capabilities = null, activeView = 'cases', renderedCase = null, notice = '';
 let createAttempt = null;
+let activeTab='summary';
+$('summary-analysis').append($('analysis-card'));
+$('request-proposal').append($('proposal-card'));
 const mediaReviewed = new Set();
 const mediaDraftEvents = new Map();
 function createModelPoller() {
@@ -44,15 +48,21 @@ async function loadCases() {
 }
 function renderCases() {
   const selected=cases.filter(needsReview);
+  const counts=caseCounters(cases);
+  $('case-total').textContent=`${counts.total} case${counts.total===1?'':'s'} · current service records`;
+  $('metric-open').textContent=String(counts.open);$('metric-attention').textContent=String(counts.attention);$('metric-completed').textContent=String(counts.completed);
   $('queue-count').textContent=String(selected.length);
   $('case-list-title').textContent=activeView==='queue'?'Review queue':'Cases';
   const parent=$('case-list');parent.replaceChildren();
-  const visible=activeView==='queue'?selected:cases;
-  if(!visible.length)empty(parent,activeView==='queue'?'No cases awaiting review.':'No cases yet. Start with a new case.');
+  const pool=activeView==='queue'?selected:cases;
+  const visible=filterCases(pool,{query:$('case-search').value,filter:$('case-filter').value});
+  $('case-filter-count').textContent=`${visible.length} of ${pool.length} shown`;
+  if(!visible.length)empty(parent,pool.length?'No cases match these filters.':activeView==='queue'?'No cases awaiting review.':'No cases yet. Start with a new case.');
   for(const item of visible){
     const id=item.case_id || item.snapshot?.case_id;
     const b=button('',()=>selectCase(id),'case-item'+(session.selectedId===id?' selected':''));
-    b.dataset.caseId=id;b.append(node('strong',id),node('p',`Order ${item.snapshot?.links?.order_id || item.links?.order_id || '—'}`),node('span',human(item.states?.lifecycle || 'new'),'tag'));
+    const caseLinks=item.snapshot?.links || item.links || {};
+    b.dataset.caseId=id;b.append(node('strong',id),node('p',`Order ${caseLinks.order_id || '—'}`),node('p',caseLinks.customer_id || 'Customer not recorded','case-customer'),node('span',human(item.states?.lifecycle || 'new'),'tag'),node('p',`Owner · ${caseLinks.operator_id || 'Not recorded'}`,'case-owner'));
     if(session.selectedId===id)b.setAttribute('aria-current','true');parent.append(b);
   }
 }
@@ -76,6 +86,35 @@ async function selectCase(id) {
   captureDrafts();await perform(()=>session.select(id));renderCases();
   if(session.detail)history.replaceState(null,'',`#case=${encodeURIComponent(session.selectedId)}`);
 }
+function activateTab(tab,{focus=false}={}) {
+  if(!['summary','requests','sources'].includes(tab))return;
+  activeTab=tab;
+  for(const control of document.querySelectorAll('[data-tab]')){
+    const selected=control.dataset.tab===tab;control.classList.toggle('active',selected);control.setAttribute('aria-selected',String(selected));control.tabIndex=selected?0:-1;
+  }
+  for(const key of ['summary','requests','sources'])$(`panel-${key}`).hidden=key!==tab;
+  if(focus)$(`tab-${tab}`).focus();
+}
+function renderProductDetail(detail) {
+  const summary=caseSummary(detail);
+  $('case-title').textContent=summary.title;
+  $('summary-next-step').textContent=summary.nextStep;
+  $('summary-owner').textContent=summary.owner;$('summary-order').textContent=summary.order;$('summary-customer').textContent=summary.customer;
+  $('control-next-step').textContent=summary.nextStep;$('control-communication').textContent=summary.externalCommunication;$('control-outcome').textContent=summary.physicalOutcome;
+  $('summary-state').textContent=human(detail.states?.lifecycle || 'new');
+  $('summary-source').hidden=!summary.sourceExcerpt;$('summary-source-text').textContent=summary.sourceExcerpt;
+  $('request-count').textContent=String(summary.requestCount);$('source-count').textContent=String(summary.eventCount);
+  const list=$('request-status-list');list.replaceChildren();
+  if(!summary.requestCount)empty(list,'No request has been proposed. Add source evidence or prepare an operator proposal below.');
+  for(const request of caseRequests(detail)){
+    const item=node('article',undefined,'request-status');
+    item.append(node('h4',request.title),node('span',request.status,'tag'),node('p',`${request.scope} · revision ${request.revision} · ${request.id}`,'hint'));
+    if(request.slotStart)item.append(node('p',`${stamp(request.slotStart)} → ${stamp(request.slotEnd)}`));
+    item.append(node('p',request.communication,'small muted'));
+    if(request.receiptId)item.append(node('p',`Saved receipt ${request.receiptId}. ${request.outcome}`,'small muted'));
+    list.append(item);
+  }
+}
 function updateFormVisibility() {
   const media=$('evidence-kind').value!=='message';$('file-label').hidden=!media;
   const retained=session.getDraft('evidence').file;$('retained-file').textContent=retained?`Selected source retained: ${retained.name}`:'';
@@ -87,14 +126,16 @@ function updateFormVisibility() {
 function renderDetail() {
   showMessages();renderCases();
   const detail=session.detail;
+  $('customer-link').href=session.selectedId?`/customer.html?case=${encodeURIComponent(session.selectedId)}`:'/customer.html';
   $('case-detail').hidden=!detail;$('empty-state').hidden=Boolean(detail);
+  $('case-detail').dataset.caseId=detail?.case_id || '';
   if(!detail){modelPoller.watch({caseId:null,generation:session.generation,jobs:[]});return;}
   const snapshot=detail.snapshot;
   const changed=renderedCase!==detail.case_id;
-  if(changed){renderedCase=detail.case_id;restoreDrafts(detail);}
-  $('case-title').textContent=detail.case_id;
+  if(changed){renderedCase=detail.case_id;restoreDrafts(detail);activateTab('summary');}
   $('case-order').textContent=`Order ${snapshot.links.order_id}`;
-  $('case-meta').textContent=`Revision ${snapshot.revision} · ${snapshot.links.customer_id} · ${snapshot.events.length} evidence event${snapshot.events.length===1?'':'s'}`;
+  $('case-meta').textContent=`Case ${detail.case_id} · revision ${snapshot.revision} · ${snapshot.links.customer_id} · ${snapshot.events.length} evidence event${snapshot.events.length===1?'':'s'}`;
+  renderProductDetail(detail);
   const states=$('case-states');states.replaceChildren();
   for(const key of ['lifecycle','evidence','analysis','decision','action']){const d=node('div',undefined,'state');d.append(node('dt',human(key)),node('dd',human(detail.states[key])));states.append(d);}
   const sender=$('evidence-sender'),currentSender=changed?session.getDraft('evidence').sender:sender.value;sender.replaceChildren();
@@ -303,12 +344,24 @@ function renderCapabilities() {
   for(const [key,value] of Object.entries(capabilities?.media || {})){const item=node('article',undefined,'card');item.append(node('h3',human(key)),node('span',human(value.status || (value.enabled?'available':'not_configured')),'tag'),node('p',value.enabled?'Configured processing is available from source evidence.':'No configured provider. Source evidence remains unprocessed.'));parent.append(item);}
 }
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{
-  activeView=b.dataset.view;document.querySelectorAll('[data-view]').forEach(n=>n.classList.toggle('active',n===b));
-  $('integrations-view').hidden=activeView!=='integrations';$('communications-view').hidden=activeView!=='communications';$('cases-view').hidden=!['cases','queue'].includes(activeView);
-  $('page-title').textContent=activeView==='communications'?'Every message, traceable.':activeView==='integrations'?'Connected, with control.':activeView==='queue'?'Decisions that need you.':'A clear next step.';
+  activeView=b.dataset.view;document.querySelectorAll('[data-view]').forEach(n=>{n.classList.toggle('active',n===b);if(n===b)n.setAttribute('aria-current','page');else n.removeAttribute('aria-current');});
+  $('integrations-view').hidden=activeView!=='integrations';$('communications-view').hidden=activeView!=='communications';$('cases-workspace').hidden=!['cases','queue'].includes(activeView);
+  $('page-title').textContent=activeView==='communications'?'Every message, traceable.':activeView==='integrations'?'Connected, with control.':activeView==='queue'?'Decisions that need you.':'Every request has a next step';
+  $('workspace-crumb').textContent=activeView==='queue'?'Operator queue':human(activeView);
   renderCases();if(session.detail)renderJobs(session.detail);
   if(activeView==='communications')perform(()=>communications.load());
 }));
+for(const control of document.querySelectorAll('[data-tab]')){
+  control.addEventListener('click',()=>activateTab(control.dataset.tab));
+  control.addEventListener('keydown',event=>{
+    const tabs=['summary','requests','sources'],index=tabs.indexOf(activeTab);
+    const key=event.key;
+    if(!['ArrowRight','ArrowLeft','Home','End'].includes(key))return;
+    event.preventDefault();activateTab(key==='Home'?tabs[0]:key==='End'?tabs[2]:tabs[(index+(key==='ArrowRight'?1:2))%3],{focus:true});
+  });
+}
+document.querySelectorAll('[data-open-tab]').forEach(control=>control.addEventListener('click',()=>activateTab(control.dataset.openTab,{focus:true})));
+$('case-search').addEventListener('input',renderCases);$('case-filter').addEventListener('change',renderCases);
 $('refresh-communications').addEventListener('click',()=>perform(()=>communications.load()));
 for(const id of ['communication-format','communication-connector'])$(id).addEventListener('change',renderCommunications);
 $('communication-form').addEventListener('submit',event=>{event.preventDefault();perform(async()=>{

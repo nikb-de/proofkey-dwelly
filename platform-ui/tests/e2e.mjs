@@ -15,7 +15,8 @@ async function write(route,action){const pending=waitWrite(route);await action()
 try {
   await page.goto(base);await page.locator('#create-case-panel summary').click();
   await page.fill('#case-id',caseId);await page.fill('#order-id',`order-${Date.now()}`);
-  await page.locator('#create-case-form button').click();await page.locator('#case-title').filter({hasText:caseId}).waitFor();
+  await page.locator('#create-case-form button').click();await page.locator(`#case-detail[data-case-id="${caseId}"]`).waitFor();
+  await page.getByRole('tab',{name:/Sources/}).click();
   assert.equal(await page.locator('#case-states .state').count(),5);
   await page.fill('#evidence-text','Please reschedule my delivery. <script>window.sourceExecuted=true</script>');
   await write('events',()=>page.locator('#evidence-form button').click());
@@ -26,7 +27,9 @@ try {
   await write('events',()=>page.locator('#evidence-form button').click());
   assert.equal(await page.locator('#evidence-list .evidence-item').count(),2);
   assert.equal(await page.locator('#evidence-list img').count(),1);
+  await page.getByRole('tab',{name:/Summary/}).click();
   await write('analyze',()=>page.click('#analyze-case'));
+  await page.getByRole('tab',{name:/Requests/}).click();
   assert.match(await page.locator('#decision-list').innerText(),/Operator review/);
   const start=new Date(Date.now()+3*86400000);start.setHours(10,0,0,0);const end=new Date(start.getTime()+2*3600000);
   const localInput=date=>`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}T${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
@@ -41,7 +44,7 @@ try {
   assert.match(await page.locator('#decision-list').innerText(),/Sandbox action verified/);
   assert.match(await page.locator('#decision-list').innerText(),/External effects: 0/);
   const before=await page.locator('#case-history').innerText();await page.reload();await page.locator('#case-detail').waitFor({state:'visible'});
-  assert.equal(await page.locator('#case-title').textContent(),caseId);
+  assert.equal(await page.locator('#case-detail').getAttribute('data-case-id'),caseId);
   assert.equal(await page.locator('#case-history').innerText(),before);
   assert.match(await page.locator('#case-states').innerText(),/Resolved/);
   await page.screenshot({path:path.join(output,'desktop.png'),fullPage:true});

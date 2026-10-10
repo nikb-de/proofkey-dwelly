@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Right onTime · Preparation</title>
+  <link rel="icon" href="/brand/forward-symbol-forest.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/tokens.css"><link rel="stylesheet" href="/preparation.css">
+  <script type="module" src="/preparation.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to preparation</a>
+  <aside class="sidebar">
+    <a class="brand" href="/" aria-label="Right onTime team workspace"><img src="/brand/forward-paper.svg" alt="Right onTime"></a>
+    <p class="workspace-label">OPERATOR WORKSPACE</p>
+    <nav aria-label="Workspace">
+      <a class="nav-link" href="/">Team workspace <span>↗</span></a>
+      <a class="nav-link active" href="/preparation.html" aria-current="page">Preparation <span>02</span></a>
+    </nav>
+    <div class="sidebar-note"><span class="dot"></span> Local preparation<p>Understand the environment.<br>Make the handoff clear.</p></div>
+  </aside>
+  <main id="main">
+    <header class="page-header">
+      <div><p class="eyebrow">RIGHT ONTIME / PREPARATION</p><h1>A considered start.</h1><p class="subtitle">Inspect the environment. Shape a profile. Check what is still needed.</p></div>
+      <span class="environment-label">Read-only workspace</span>
+    </header>
+    <nav class="steps" aria-label="Preparation steps">
+      <a href="#environment"><span>01</span>Environment</a><a href="#profile"><span>02</span>Profile draft</a><a href="#preflight"><span>03</span>Local preflight</a><a href="#handoff"><span>04</span>Handoff</a>
+    </nav>
+    <div id="preparation-notice" class="notice" role="status" aria-live="polite" hidden></div>
+    <section id="environment" class="section" aria-labelledby="environment-title">
+      <div class="section-heading"><div><p class="eyebrow">01 / OBSERVE</p><h2 id="environment-title">Your environment</h2></div><button type="button" class="secondary" id="refresh-environment">Refresh capabilities</button></div>
+      <p class="section-intro">Current facts reported by the local service. Available capabilities do not grant permission to run an action.</p>
+      <p id="environment-meta" class="meta" role="status">Reading the environment…</p>
+      <div id="environment-facts" class="fact-grid"></div>
+      <div class="minor-heading"><h3>Adapter surfaces</h3><span class="meta">Availability reported by the service</span></div>
+      <div id="adapter-list" class="adapter-grid"></div>
+      <details class="service-details"><summary>Model, media and communication capabilities</summary><div id="service-capabilities" class="service-grid"></div></details>
+    </section>
+    <section id="profile" class="section" aria-labelledby="profile-title">
+      <div class="section-heading"><div><p class="eyebrow">02 / DEFINE</p><h2 id="profile-title">Integration profile</h2></div><span id="draft-state" class="tag">Unsaved local draft</span></div>
+      <p class="section-intro">Describe the intended process and mapping references. This draft stays in this browser until you download it. Keep credentials and personal data out of these fields.</p>
+      <form id="profile-form" novalidate>
+        <div class="profile-grid">
+          <div class="card settings-card"><h3>Process settings</h3>
+            <label for="profile-name">Profile name</label><input id="profile-name" name="name" maxlength="100" autocomplete="off" placeholder="e.g. Delivery operations review" aria-describedby="name-help"><p class="field-help" id="name-help">A name for this local handoff draft.</p>
+            <label for="process-type">Process type</label><select id="process-type" name="process_type"><option value="reschedule">Reschedule delivery</option><option value="refusal">Delivery refusal</option></select>
+            <label for="acknowledgement">Acknowledgement means</label><select id="acknowledgement" name="acknowledgement" aria-describedby="acknowledgement-help"><option value="receipt_only">Request received only</option><option value="explicit_confirmation">Explicit outcome confirmation</option><option value="source_readback">Outcome verified by source readback</option></select><p id="acknowledgement-help" class="field-help">A receipt proves the request was received. It does not prove a booking changed or a delivery happened.</p>
+            <label class="checkbox-label" for="readback-required"><input type="checkbox" id="readback-required" name="readback_required" checked><span>Require source readback before treating an outcome as verified</span></label>
+            <p class="field-help">These settings express intent for review. They do not change the running service or its safety rules.</p>
+          </div>
+          <fieldset class="card mapping-card"><legend>Six adapter mappings</legend><p class="field-help">Use a table, queue or connector reference your team can review. References are labels; no connection is opened or checked.</p><div id="mapping-fields"></div></fieldset>
+        </div>
+        <div class="form-actions"><button type="submit" class="primary" id="save-profile">Save browser draft</button><button type="button" class="secondary" id="load-profile">Load saved draft</button><p class="meta">Incomplete mappings may be saved for later.</p></div>
+      </form>
+    </section>
+    <div class="bottom-grid">
+      <section id="preflight" class="section card" aria-labelledby="preflight-title">
+        <p class="eyebrow">03 / CHECK</p><h2 id="preflight-title">Local preflight</h2><p class="section-intro">Read-only checks of the current capability contract, local case service and draft completeness.</p>
+        <button class="primary" type="button" id="run-preflight">Run local preflight</button>
+        <p id="preflight-status" class="meta" role="status">Not run for this draft.</p>
+        <div id="preflight-counts" class="check-counts" hidden></div><div id="preflight-results"></div>
+        <p class="scope-note">This is not a live integration test or full regression suite. External mappings, carrier outcomes and upstream source readback need separate verification.</p>
+      </section>
+      <section id="handoff" class="section card handoff-card" aria-labelledby="handoff-title">
+        <p class="eyebrow">04 / SHARE</p><h2 id="handoff-title">A clear handoff.</h2><p class="section-intro">Take the local profile to the people who will configure and verify the integration.</p>
+        <ol class="handoff-list"><li><strong>Review the mapping references</strong><span>Confirm ownership, permissions and source semantics.</span></li><li><strong>Verify in a separate integration environment</strong><span>Resolve unavailable adapters and prove source readback.</span></li><li><strong>Keep operational approval explicit</strong><span>Saving this file does not activate a profile, send a message or execute an action.</span></li></ol>
+        <button type="button" class="primary" id="export-profile">Download draft JSON <span aria-hidden="true">↓</span></button>
+        <p class="meta">Includes the current draft and any current local preflight report. No credentials are requested.</p>
+        <details class="json-details"><summary>Preview profile JSON</summary><pre id="profile-preview" tabindex="0" aria-label="Profile JSON preview">Add a profile name to preview the draft.</pre></details>
+      </section>
+    </div>
+    <footer><span>Right onTime · Preparation</span><span>Browser-local draft · Human review before operation</span></footer>
+  </main>
+</body>
+</html>

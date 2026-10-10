@@ -192,10 +192,18 @@ class Handler(BaseHTTPRequestHandler):
             if matched: return self._send(200,self.server.bridge.get(matched[1]))
             static = {'/':(ASSETS/'index.html','text/html; charset=utf-8'),
                       '/index.html':(ASSETS/'index.html','text/html; charset=utf-8'),
+                      '/team.html':(ASSETS/'index.html','text/html; charset=utf-8'),
                       '/app.js':(ASSETS/'app.js','text/javascript'),
                       '/session.js':(ASSETS/'session.js','text/javascript'),
                       '/style.css':(ASSETS/'style.css','text/css'),
                       '/tokens.css':(DESIGN/'tokens.css','text/css')}
+            # Explicit product asset allowlist, never expose the workspace tree.
+            for stem in ('customer', 'preparation'):
+                static[f'/{stem}.html'] = (ASSETS/f'{stem}.html','text/html; charset=utf-8')
+                static[f'/{stem}.js'] = (ASSETS/f'{stem}.js','text/javascript')
+                static[f'/{stem}-model.js'] = (ASSETS/f'{stem}-model.js','text/javascript')
+                static[f'/{stem}.css'] = (ASSETS/f'{stem}.css','text/css')
+            static['/product.js'] = (ASSETS/'product.js','text/javascript')
             if re.fullmatch(r'/brand/forward-(?:paper|forest|symbol-paper|symbol-forest)\.svg',path):
                 static[path] = (DESIGN/path.lstrip('/'),'image/svg+xml')
             if re.fullmatch(r'/fonts/(?:Inter|Manrope)\.ttf',path):
