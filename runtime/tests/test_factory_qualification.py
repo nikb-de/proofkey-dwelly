@@ -74,9 +74,9 @@ class FactoryQualificationTests(unittest.TestCase):
     def inject_body(self, root, code):
         path = root / "runtime/tests/test_adaptation_factory.py"
         source = path.read_text()
-        marker = "    def test_truthful_capability_leaf_cannot_omit_changed_semantic_siblings(self):\\n"
+        marker = "    def test_truthful_capability_leaf_cannot_omit_changed_semantic_siblings(self):\n"
         self.assertIn(marker, source)
-        source = source.replace(marker, marker + "".join("        " + line + "\\n" for line in code.splitlines()), 1)
+        source = source.replace(marker, marker + "".join("        " + line + "\n" for line in code.splitlines()), 1)
         path.write_text(source)
 
     def assert_invalid(self, result, reason):

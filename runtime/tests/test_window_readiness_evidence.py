@@ -21,6 +21,36 @@ def runner(name='qualify_factory'):
 
 
 class WindowReadinessEvidenceTests(unittest.TestCase):
+    def test_factory_body_injection_preserves_test_id_and_executes_valid_code(self):
+        import ast
+        from test_factory_qualification import FactoryQualificationTests
+
+        source = (ROOT / 'runtime/tests/test_adaptation_factory.py').read_text()
+        method = 'test_truthful_capability_leaf_cannot_omit_changed_semantic_siblings'
+        def test_ids(raw):
+            tree = ast.parse(raw)
+            return [f'test_adaptation_factory.{node.name}.{member.name}'
+                    for node in tree.body if isinstance(node, ast.ClassDef)
+                    for member in node.body if isinstance(member, ast.FunctionDef)
+                    and member.name.startswith('test_')]
+        before = test_ids(source)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path = root / 'runtime/tests/test_adaptation_factory.py'
+            path.parent.mkdir(parents=True)
+            path.write_text(source)
+            helper = FactoryQualificationTests('test_default_lane_rejects_changed_current_source')
+            helper.inject_body(root, "self.i1_probe = 'injected-body'\nraise RuntimeError(self.i1_probe)")
+            changed = path.read_text()
+            self.assertEqual(test_ids(changed), before)
+            namespace = {'__name__': 'test_adaptation_factory', '__file__': str(path)}
+            exec(compile(changed, str(path), 'exec'), namespace)
+            case = namespace['AdaptationFactoryTests'](method)
+            self.assertEqual(case.id(), 'test_adaptation_factory.AdaptationFactoryTests.' + method)
+            with self.assertRaisesRegex(RuntimeError, '^injected-body$'):
+                getattr(case, method)()
+            self.assertEqual(case.i1_probe, 'injected-body')
+
     def test_receipt_groups_bind_all_records_without_changing_test_denominator(self):
         from hashlib import sha256
         common = runner()
