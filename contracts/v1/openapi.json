@@ -1,0 +1,101 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ProofKey local case intake",
+    "version": "1.0.0",
+    "description": "Implemented local case routes only. JSON metadata, not file upload. Loopback Host and bearer required; any Origin header is rejected. Benchmark job endpoints are separately documented in docs/model-service.md."
+  },
+  "servers": [{"url": "http://127.0.0.1:8787", "description": "Example local address; use the configured port"}],
+  "security": [{"localBearer": []}],
+  "paths": {
+    "/healthz": {
+      "get": {"operationId": "health", "security": [], "responses": {"200": {"description": "Service ready"}, "403": {"$ref": "#/components/responses/Forbidden"}, "503": {"description": "Service or storage unavailable"}}}
+    },
+    "/v1/cases": {
+      "post": {
+        "operationId": "createCase",
+        "description": "Create revision 0. Exact key/body retry returns the original revision with 200. 16 KiB request maximum. No file bytes accepted.",
+        "parameters": [{"$ref": "#/components/parameters/IdempotencyKey"}],
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "schemas/local-case.schema.json#/$defs/declaration"}}}},
+        "responses": {
+          "201": {"$ref": "#/components/responses/Snapshot"},
+          "200": {"$ref": "#/components/responses/Snapshot"},
+          "400": {"$ref": "#/components/responses/Invalid"},
+          "401": {"$ref": "#/components/responses/Unauthorized"},
+          "403": {"$ref": "#/components/responses/Forbidden"},
+          "409": {"$ref": "#/components/responses/Conflict"},
+          "413": {"$ref": "#/components/responses/TooLarge"},
+          "415": {"$ref": "#/components/responses/UnsupportedMedia"},
+          "429": {"$ref": "#/components/responses/Capacity"},
+          "503": {"$ref": "#/components/responses/Unavailable"}
+        }
+      }
+    },
+    "/v1/cases/{case_id}": {
+      "parameters": [{"$ref": "#/components/parameters/CaseId"}],
+      "get": {
+        "operationId": "getCase",
+        "description": "Read latest or exact immutable revision. Query spelling is canonical nonnegative decimal, no leading zeros except 0.",
+        "parameters": [{"name": "revision", "in": "query", "required": false, "schema": {"type": "string", "pattern": "^(0|[1-9][0-9]*)$"}}],
+        "responses": {
+          "200": {"$ref": "#/components/responses/Snapshot"},
+          "400": {"$ref": "#/components/responses/Invalid"},
+          "401": {"$ref": "#/components/responses/Unauthorized"},
+          "403": {"$ref": "#/components/responses/Forbidden"},
+          "404": {"$ref": "#/components/responses/NotFound"},
+          "503": {"$ref": "#/components/responses/Unavailable"}
+        }
+      }
+    },
+    "/v1/cases/{case_id}/events": {
+      "parameters": [{"$ref": "#/components/parameters/CaseId"}],
+      "post": {
+        "operationId": "appendEvent",
+        "description": "Append one participant-scoped event using expected_revision CAS. Declared attachment hash does not establish stored bytes. Exact retry returns original revision even after later appends.",
+        "parameters": [{"$ref": "#/components/parameters/IdempotencyKey"}],
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "schemas/local-case.schema.json#/$defs/append"}}}},
+        "responses": {
+          "201": {"$ref": "#/components/responses/Snapshot"},
+          "200": {"$ref": "#/components/responses/Snapshot"},
+          "400": {"$ref": "#/components/responses/Invalid"},
+          "401": {"$ref": "#/components/responses/Unauthorized"},
+          "403": {"$ref": "#/components/responses/Forbidden"},
+          "404": {"$ref": "#/components/responses/NotFound"},
+          "409": {"$ref": "#/components/responses/Conflict"},
+          "413": {"$ref": "#/components/responses/TooLarge"},
+          "415": {"$ref": "#/components/responses/UnsupportedMedia"},
+          "429": {"$ref": "#/components/responses/Capacity"},
+          "503": {"$ref": "#/components/responses/Unavailable"}
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {"localBearer": {"type": "http", "scheme": "bearer", "description": "PROOFKEY_SERVICE_TOKEN; trusted local client only, never frontend code"}},
+    "parameters": {
+      "CaseId": {"name": "case_id", "in": "path", "required": true, "schema": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"}},
+      "IdempotencyKey": {"name": "Idempotency-Key", "in": "header", "required": true, "schema": {"type": "string", "pattern": "^[A-Za-z0-9._:-]{1,128}$"}}
+    },
+    "schemas": {"Error": {"type": "object", "additionalProperties": false, "required": ["error"], "properties": {"error": {"type": "string"}}}},
+    "responses": {
+      "Snapshot": {"description": "Immutable case snapshot. Cache-Control: no-store", "content": {"application/json": {"schema": {"$ref": "schemas/local-case.schema.json#/$defs/snapshot"}}}},
+      "Invalid": {"description": "invalid_case_request or invalid_request", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}},
+      "Unauthorized": {"description": "unauthorized", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}},
+      "Forbidden": {"description": "forbidden: Host/Origin rejected", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}},
+      "NotFound": {"description": "case_not_found or revision_not_found", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}},
+      "Conflict": {"description": "idempotency_conflict, event_conflict or revision_conflict", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}},
+      "TooLarge": {"description": "request_too_large", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}},
+      "UnsupportedMedia": {"description": "unsupported_media_type", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}},
+      "Capacity": {"description": "case_capacity", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}},
+      "Unavailable": {"description": "case_storage_error or storage_unavailable", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}}
+    }
+  },
+  "x-target-interfaces": [
+    {"id": "browser-bff", "availability": "not_implemented", "contract": "Authenticated same-origin session boundary. Server alone holds service token. Per-case authorization, CSRF protection, no user-controlled backend URL."},
+    {"id": "list-cases", "availability": "not_implemented", "proposed_path": "GET /v1/cases", "request": {"cursor": "opaque nullable string", "limit": "1..100"}, "response": {"cases": "authorized case summaries only", "next_cursor": "opaque nullable string"}},
+    {"id": "upload-asset", "availability": "not_implemented", "proposed_path": "POST /v1/cases/{case_id}/assets", "request": {"content": "bounded bytes, not a fetch URL", "kind": "photo|voice_message|call_recording", "idempotency_key": "required"}, "response_schema": "schemas/asset.schema.json", "invariants": ["server-issued ID", "server-verified bytes/hash/MIME", "case and uploader ownership", "private storage", "no extraction implied"]},
+    {"id": "revision-analysis", "availability": "not_implemented", "proposed_path": "GET /v1/cases/{case_id}/analyses?revision=N", "enqueue": "atomic with revision append, unique pipeline key", "response_schema": "schemas/analysis.schema.json", "invariants": ["late result historical only", "visible inputs frozen by revision/hash", "no implicit paid retry after unknown outcome"]},
+    {"id": "operation-approval", "availability": "not_implemented", "proposed_path": "POST /v1/cases/{case_id}/operations/{action_id}/approval", "request": {"binding": "runtime RequestBinding + RevisionVector", "intent_hash": "exact approved intent hash", "decision": "approve|reject"}, "response": {"status": "projection in state-machines.json; not a new runtime wire model"}, "invariants": ["trusted authenticated approver", "stale approval rejected", "training labels never authority"]},
+    {"id": "operation-readback", "availability": "not_implemented", "proposed_path": "GET /v1/cases/{case_id}/operations/{action_id}", "response": {"intent": "runtime EffectIntent", "dispatch": "runtime DispatchResult", "verification": "runtime VerificationResult"}, "invariants": ["acknowledged is not verified", "unknown outcome reconciles original effect", "no blind retry"]}
+  ]
+}

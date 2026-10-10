@@ -4,6 +4,8 @@ Private experimental release for the Dwelly Delivery & Logistics track. **Runnab
 
 Start with [model quickstart](tools/dwelly_model/README.md), [local asynchronous service](docs/model-service.md), [team data intake](docs/model-team-intake.md), [architecture](docs/architecture.md) and [raw/agent/evaluation data](data/dwelly-public-cases/README.md). There is no complete hackathon submission, video, live logistics integration or human-validated model-quality claim.
 
+For parallel UI, backend and E2E/evals work, use the [team contract v1](contracts/v1/README.md) and [state/storage architecture](docs/architecture/team-contract-v1.md). The [Right onTime design](design/right-ontime/prototype/index.html) now has a separate [local case and file intake workbench](design/right-ontime/prototype/intake.html); browser-local storage is not server upload or automatic analysis.
+
 ## 1. What we built
 
 - A bounded importer for 50 public fictional logistics cases, separating visible input from future answers.
