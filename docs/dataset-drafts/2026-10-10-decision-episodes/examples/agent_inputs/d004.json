@@ -1,0 +1,108 @@
+{
+  "schema_version": "logistics-decision-v0.1",
+  "decision_id": "d004",
+  "episode_id": "ep01",
+  "case_id": "order-d",
+  "case_revision": 1,
+  "stage": "resume",
+  "as_of": "2026-10-10T10:03:00Z",
+  "payload": {
+    "objective": "Find the next permitted step for the damage claim",
+    "participants": [
+      {
+        "participant_id": "customer-d",
+        "role": "customer",
+        "channel": "customer_portal",
+        "case_binding": "verified_fixture",
+        "authority_source": "synthetic_harness"
+      },
+      {
+        "participant_id": "operator-d",
+        "role": "refund_operator",
+        "channel": "internal",
+        "case_binding": "verified_fixture",
+        "authority_source": "synthetic_harness"
+      },
+      {
+        "participant_id": "orders-d",
+        "role": "order_system",
+        "channel": "internal",
+        "case_binding": "verified_fixture",
+        "authority_source": "synthetic_harness"
+      }
+    ],
+    "events": [
+      {
+        "event_id": "e101",
+        "kind": "message",
+        "sender_id": "customer-d",
+        "occurred_at": "2026-10-10T10:00:00Z",
+        "observed_at": "2026-10-10T10:00:00Z",
+        "body": "Order D-01 arrived with a cracked chair leg. I attached a photo. I request a GBP 75 refund."
+      },
+      {
+        "event_id": "e102",
+        "kind": "message",
+        "sender_id": "customer-d",
+        "occurred_at": "2026-10-10T10:03:00Z",
+        "observed_at": "2026-10-10T10:03:00Z",
+        "body": "Uploading a clearer image for order D-01. The damaged leg is visible."
+      }
+    ],
+    "artifacts": [
+      {
+        "artifact_id": "a102",
+        "source_event_id": "e102",
+        "media_type": "image/jpeg",
+        "availability": "available",
+        "read_status": "readable",
+        "content_kind": "simulated_extraction",
+        "extracted_content": "Synthetic media extraction: the image description identifies a crack along one chair leg. It does not establish cause, liability or refund eligibility."
+      }
+    ],
+    "policy_snapshot": {
+      "policy_id": "damage-policy",
+      "version": "1",
+      "synthetic": true,
+      "provenance": "trusted_test_fixture_not_company_policy",
+      "rules": [
+        {
+          "rule_id": "damage-evidence",
+          "statement": "A damage refund proposal requires a readable damage description from an available artifact or an approved alternative; opening an information request does not."
+        },
+        {
+          "rule_id": "refund-approval",
+          "statement": "Issuing a refund requires a verified refund operator approval bound to operation ID, exact amount/currency, policy version, case revision and unexpired authority."
+        },
+        {
+          "rule_id": "no-liability-inference",
+          "statement": "A described defect may support review; it does not by itself prove carrier liability."
+        },
+        {
+          "rule_id": "draft-messages",
+          "statement": "Evidence and approval requests may be drafted without sending them."
+        }
+      ]
+    },
+    "capabilities": [
+      {
+        "operation": "request_evidence",
+        "mode": "propose_only"
+      },
+      {
+        "operation": "operator_review",
+        "mode": "propose_only"
+      },
+      {
+        "operation": "evaluate_gate",
+        "mode": "simulated_only"
+      }
+    ],
+    "prior_checkpoint": {
+      "decision_id": "d002",
+      "operation_id": null,
+      "state": "waiting_for_damage_evidence"
+    },
+    "trigger_event_id": "e102"
+  }
+}

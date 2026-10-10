@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Draft episode transitions v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "logistics-simulator-v0.1"
+    },
+    "episode_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{1,79}$"
+    },
+    "initial_decision_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{1,79}$"
+    },
+    "execution_mode": {
+      "const": "simulated_only"
+    },
+    "transitions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "from_decision_id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{1,79}$"
+          },
+          "on": {
+            "type": "string",
+            "minLength": 1
+          },
+          "inject_events": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "event_id": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9-]{1,79}$"
+                },
+                "kind": {
+                  "enum": [
+                    "message",
+                    "system_event",
+                    "operator_approval",
+                    "timeout",
+                    "tool_event"
+                  ]
+                },
+                "sender_id": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9-]{1,79}$"
+                },
+                "occurred_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "observed_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "body": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "event_id",
+                "kind",
+                "sender_id",
+                "occurred_at",
+                "observed_at",
+                "body"
+              ]
+            }
+          },
+          "next_decision_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{1,79}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "terminal": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "from_decision_id",
+          "on",
+          "inject_events",
+          "next_decision_id",
+          "terminal"
+        ]
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "episode_id",
+    "initial_decision_id",
+    "execution_mode",
+    "transitions"
+  ]
+}

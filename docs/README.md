@@ -2,6 +2,7 @@
 
 Start with the [compact architecture](architecture.md): the shipped model experiment, the proposed integration harness, and the next evidence needed. The [detailed design reference](architecture-reference.md) retains the original ontology, workflows, sources and requirements.
 
+- [Decision-episode training/evaluation authoring kit](dataset-drafts/2026-10-10-decision-episodes/README.md)
 - [Model CLI and Docker guide](../tools/dwelly_model/README.md)
 - [Current release verification](model-release-verification.md)
 - [Team data intake: 10–20 eval cases and 10–20 real examples](model-team-intake.md)

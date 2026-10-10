@@ -1,0 +1,76 @@
+{
+  "schema_version": "logistics-simulator-v0.1",
+  "episode_id": "ep03",
+  "initial_decision_id": "d009",
+  "transitions": [
+    {
+      "from_decision_id": "d009",
+      "on": "The customer selects a current option; the scheduling fixture refreshes availability.",
+      "inject_events": [
+        {
+          "event_id": "e213",
+          "kind": "message",
+          "sender_id": "customer-r",
+          "occurred_at": "2026-10-10T11:02:00Z",
+          "observed_at": "2026-10-10T11:02:00Z",
+          "body": "Choose slot-r-b on 13 October 14:00–16:00 UTC at the same address. I accept the zero fee."
+        },
+        {
+          "event_id": "e214",
+          "kind": "system_event",
+          "sender_id": "schedule-r",
+          "occurred_at": "2026-10-10T11:02:00Z",
+          "observed_at": "2026-10-10T11:02:00Z",
+          "body": "Order R-01 is revision 2 after customer selection; slot-r-b remains available, zero fee, unchanged addr-r."
+        }
+      ],
+      "next_decision_id": "d011",
+      "terminal": null
+    },
+    {
+      "from_decision_id": "d011",
+      "on": "The allowed synthetic gate receipt is bound to the unchanged operation.",
+      "inject_events": [],
+      "next_decision_id": "d012",
+      "terminal": null
+    },
+    {
+      "from_decision_id": "d012",
+      "on": "The simulated adapter returns only an acceptance acknowledgement.",
+      "inject_events": [],
+      "next_decision_id": "d013",
+      "terminal": null
+    },
+    {
+      "from_decision_id": "d013",
+      "on": "Before authoritative lookup finishes, the worker restarts.",
+      "inject_events": [
+        {
+          "event_id": "e215",
+          "kind": "system_event",
+          "sender_id": "schedule-r",
+          "occurred_at": "2026-10-10T11:05:00Z",
+          "observed_at": "2026-10-10T11:05:00Z",
+          "body": "Worker restarted. The prior operation op-r-slot has no saved final readback; do not assume it failed."
+        }
+      ],
+      "next_decision_id": "d014",
+      "terminal": null
+    },
+    {
+      "from_decision_id": "d014",
+      "on": "Lookup of the existing operation returns authoritative matching applied state.",
+      "inject_events": [],
+      "next_decision_id": "d015",
+      "terminal": null
+    },
+    {
+      "from_decision_id": "d015",
+      "on": "Completion draft is prepared; no real message is sent.",
+      "inject_events": [],
+      "next_decision_id": null,
+      "terminal": "verified_in_simulation"
+    }
+  ],
+  "execution_mode": "simulated_only"
+}
