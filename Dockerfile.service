@@ -1,0 +1,18 @@
+# Local persistent service only. Managed Cloud Run execution is refused by the app.
+# Override with an already available compatible image for an offline local build.
+ARG PYTHON_IMAGE=python:3.12-slim
+FROM ${PYTHON_IMAGE}
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+WORKDIR /app
+RUN groupadd --gid 10001 proofkey \
+    && useradd --uid 10001 --gid 10001 --no-create-home \
+       --home-dir /state --shell /usr/sbin/nologin proofkey \
+    && mkdir -p /state \
+    && chown proofkey:proofkey /state
+COPY tools/dwelly_cases /app/tools/dwelly_cases
+COPY tools/dwelly_model /app/tools/dwelly_model
+COPY tools/dwelly_service /app/tools/dwelly_service
+USER 10001:10001
+EXPOSE 8080
+ENTRYPOINT ["python", "-B", "-m", "tools.dwelly_service"]
+CMD ["--bundle", "/input/bundle", "--config", "/input/config.json", "--state-dir", "/state", "--host", "0.0.0.0", "--port", "8080"]

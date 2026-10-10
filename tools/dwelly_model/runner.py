@@ -1,4 +1,6 @@
 """Frozen-input API experiments. Every output is an unsent, unqualified draft."""
+from contextlib import ExitStack
+from copy import deepcopy
 from hashlib import sha256
 import json
 import math
@@ -10,6 +12,8 @@ from tools.dwelly_cases import runner as cases
 from tools.dwelly_cases.baseline import propose
 from tools.dwelly_cases.importer import canonical_bytes, digest, prepare_destination, read_bytes
 from .budget import BudgetLedger, positive_decimal, sync_directory
+from .cloud_guard import reject_live_cloud
+from .parallel import dispatch
 from . import providers, semantic
 
 
@@ -154,18 +158,44 @@ def _load_inputs(bundle, limit):
 
 
 def run_experiment(bundle, output, config, *, live=False, limit=50, include_reference=True,
-                   compare_baseline=True, repeat_judges=0):
+                   compare_baseline=True, repeat_judges=0, max_parallel_requests=1,
+                   per_provider_limit=1, proposals_only=False, cancel_requested=None,
+                   shared_budget_path=None):
     """Write an exclusive, non-resumable experiment; never send a business action."""
     checked = preflight(config)
-    if type(live) is not bool or type(include_reference) is not bool or type(compare_baseline) is not bool:
+    if any(type(value) is not bool for value in (live, include_reference, compare_baseline, proposals_only)):
         raise ValueError("invalid_mode")
     if type(limit) is not int or not 1 <= limit <= 50:
         raise ValueError("invalid_limit")
     if type(repeat_judges) is not int or not 0 <= repeat_judges <= 10:
         raise ValueError("invalid_repeat_judges")
+    if type(max_parallel_requests) is not int or not 1 <= max_parallel_requests <= 16:
+        raise ValueError("invalid_max_parallel_requests")
+    if type(per_provider_limit) is not int or not 1 <= per_provider_limit <= 8:
+        raise ValueError("invalid_per_provider_limit")
+    if cancel_requested is not None and not callable(cancel_requested):
+        raise ValueError("invalid_cancel_requested")
+    cancelled = False
+
+    def cancellation_requested():
+        nonlocal cancelled
+        if not cancelled and cancel_requested is not None:
+            value = cancel_requested()
+            if type(value) is not bool:
+                raise ValueError("invalid_cancel_result")
+            cancelled = value
+        return cancelled
+
+    cancellation_requested()
+    reject_live_cloud(live)
+    config = deepcopy(config)
     if live and config["proposer"]["api_key_env"] not in os.environ:
         raise ValueError("missing_proposer_credential")
     bundle, output = prepare_destination(bundle, output)
+    if shared_budget_path is not None:
+        shared_budget_path = Path(shared_budget_path).resolve()
+        if shared_budget_path == output / "budget.jsonl":
+            raise ValueError("shared_budget_must_be_separate")
     snapshots, input_ledger = _load_inputs(bundle, limit)
     # mkdir is the exclusive experiment lock. A failed/crashed run remains reserved.
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -177,6 +207,8 @@ def run_experiment(bundle, output, config, *, live=False, limit=50, include_refe
              "live_calls": 0, "operational_effects": 0, "execution_errors": {},
              "include_reference": include_reference, "compare_baseline": compare_baseline,
              "repeat_judges": repeat_judges, "preflight": checked,
+             "max_parallel_requests": max_parallel_requests, "per_provider_limit": per_provider_limit,
+             "proposals_only": proposals_only,
              "same_provider_judge_relationship": [s["provider"] for s in config["judges"]
                                                    if s["provider"] == config["proposer"]["provider"]]}
     _write(output / "config.json", config)
@@ -185,72 +217,109 @@ def run_experiment(bundle, output, config, *, live=False, limit=50, include_refe
                                        "terminal_records": ["summary.json", "failure.json"]})
     proposals, baselines, primary_seats, all_seats = {}, {}, [], []
     try:
-        with BudgetLedger(output / "budget.jsonl", config["budget_per_model_usd"]) as budget:
-            def request(seat, system, prompt, request_key):
+        with ExitStack() as stack:
+            shared = (stack.enter_context(BudgetLedger(shared_budget_path, config["budget_per_model_usd"]))
+                      if shared_budget_path is not None else None)
+            budget = stack.enter_context(BudgetLedger(output / "budget.jsonl", config["budget_per_model_usd"]))
+            namespace = sha256(str(output).encode("utf-8")).hexdigest()
+            completed_requests = set()
+
+            def admit(task):
+                seat, system, prompt, request_key = task
                 metadata = {"request_key": request_key, "provider": seat["provider"], "requested_model": seat["model"]}
                 try:
+                    if shared is not None:
+                        shared.reserve(seat, system, prompt, config["max_output_tokens"], namespace + ":" + request_key)
                     reservation = budget.reserve(seat, system, prompt, config["max_output_tokens"], request_key)
                 except ValueError as error:
                     code = _error_code(error)
                     _write(output / "receipts" / f"{request_key}.json", {**metadata, "status": "not_sent", "error": code})
                     state["execution_errors"][request_key] = code
-                    return None
+                    return False
                 _write(output / "requests" / f"{request_key}.json", {**metadata, "system": system, "prompt": prompt,
                                                                         "reservation": reservation})
                 state["live_calls"] += 1
-                try:
-                    result = providers.complete(seat, system, prompt, max_output_tokens=config["max_output_tokens"],
-                                                timeout=config["timeout_seconds"])
-                except Exception as error:
+                return True
+
+            def settle(task, result, error):
+                seat, _, _, request_key = task
+                metadata = {"request_key": request_key, "provider": seat["provider"], "requested_model": seat["model"]}
+                outcome = "error" if error is not None else "received"
+                for ledger, key in ((budget, request_key), (shared, namespace + ":" + request_key)):
+                    if ledger is not None:
+                        ledger.record_outcome(key, outcome, result.get("input_tokens") if result else None,
+                                              result.get("output_tokens") if result else None)
+                if error is not None:
                     code = _error_code(error)
-                    budget.record_outcome(request_key, "error")
                     _write(output / "receipts" / f"{request_key}.json", {**metadata, "status": "error", "error": code})
                     state["execution_errors"][request_key] = code
-                    return None
-                _write(output / "receipts" / f"{request_key}.json", {**metadata, "status": "received", "response": result})
-                budget.record_outcome(request_key, "received", result.get("input_tokens"), result.get("output_tokens"))
-                return result
+                else:
+                    _write(output / "receipts" / f"{request_key}.json", {**metadata, "status": "received", "response": result})
+                completed_requests.add(request_key)
+
+            def run_requests(tasks, on_result):
+                def finish(task, result, error):
+                    settle(task, result, error)
+                    on_result(task, result)
+                dispatch(tasks, admit=admit, settle=finish, cancelled=cancellation_requested,
+                         max_parallel_requests=max_parallel_requests, per_provider_limit=per_provider_limit,
+                         max_output_tokens=config["max_output_tokens"], timeout=config["timeout_seconds"])
 
             # No reference reads or evaluator calls exist in this proposal phase.
+            proposal_tasks = []
             for case_id, snapshot in snapshots.items():
                 _write(output / "snapshots" / f"{case_id}.json", snapshot)
                 baseline = propose(snapshot)
                 baselines[case_id] = baseline
                 _write(output / "baseline_proposals" / f"{case_id}.json", baseline)
+                proposals[case_id] = None if live or cancellation_requested() else baseline
                 if live:
                     system, prompt = semantic.proposal_prompt(snapshot)
-                    response = request(config["proposer"], system, prompt, f"{case_id}-proposer")
-                    candidate = None
-                    if response is not None:
-                        try:
-                            candidate = semantic.validate_proposal(snapshot, _model_json(response["text"]))
-                        except (ValueError, TypeError, KeyError, RecursionError, OverflowError):
-                            state["execution_errors"][f"{case_id}-proposer"] = "invalid_proposal"
-                    proposals[case_id] = _envelope(snapshot, candidate, mode) if candidate is not None else None
-                else:
-                    proposals[case_id] = baseline
+                    proposal_tasks.append((config["proposer"], system, prompt, f"{case_id}-proposer"))
+
+            def proposal_result(task, response):
+                request_key = task[3]
+                case_id = request_key.removesuffix("-proposer")
+                snapshot = snapshots[case_id]
+                if response is not None:
+                    try:
+                        candidate = semantic.validate_proposal(snapshot, _model_json(response["text"]))
+                        proposals[case_id] = _envelope(snapshot, candidate, mode)
+                    except (ValueError, TypeError, KeyError, RecursionError, OverflowError):
+                        state["execution_errors"][request_key] = "invalid_proposal"
+                _write(output / "proposals" / f"{case_id}.json", proposals[case_id])
+
+            run_requests(proposal_tasks, proposal_result)
+            for case_id in snapshots:
+                if f"{case_id}-proposer" in completed_requests:
+                    continue
                 _write(output / "proposals" / f"{case_id}.json", proposals[case_id])
             _write(output / "proposals-frozen.json", {"proposal_set_hash": digest(proposals),
                                                        "baseline_set_hash": digest(baselines),
                                                        "input_set_hash": digest({c: s["input_hash"] for c, s in snapshots.items()})})
             # All proposals above are persisted before the first reference file is opened.
-            for case_id, snapshot in snapshots.items():
-                reference = cases.bundle_json(bundle, f"evaluation/{case_id}.json")
-                cases.validate_reference(reference, snapshot)
-                if digest(reference) != input_ledger[case_id].get("reference_hash"):
-                    raise ValueError("reference_integrity_mismatch")
-                _write(output / "reference-validation" / f"{case_id}.json", {"reference_hash": digest(reference), "valid": True})
+            judge_tasks, records, assessments = [], {}, []
+            for case_id, snapshot in (() if proposals_only else snapshots.items()):
+                reference = None
+                if not cancellation_requested():
+                    reference = cases.bundle_json(bundle, f"evaluation/{case_id}.json")
+                    cases.validate_reference(reference, snapshot)
+                    if digest(reference) != input_ledger[case_id].get("reference_hash"):
+                        raise ValueError("reference_integrity_mismatch")
+                    _write(output / "reference-validation" / f"{case_id}.json", {"reference_hash": digest(reference), "valid": True})
                 variants = [("candidate", proposals[case_id])]
                 if live and compare_baseline:
                     variants.append(("baseline", _envelope(snapshot, _baseline_candidate(baselines[case_id]), "baseline")))
                 for variant, proposal in variants:
                     for repeat in range(repeat_judges + 1):
-                        seats = []
+                        keys = []
                         for index, seat in enumerate(config["judges"]):
                             request_key = f"{case_id}-{variant}-r{repeat}-judge{index}"
                             record = {"provider": seat["provider"], "requested_model": seat["model"],
                                       "status": "missing", "judgment": None, "reason": "offline_dry_run"}
-                            if live and proposal is None:
+                            if cancellation_requested():
+                                record["reason"] = "cancelled"
+                            elif live and proposal is None:
                                 record["reason"] = "proposal_unavailable"
                             elif live and seat["api_key_env"] not in os.environ:
                                 record["reason"] = "missing_credential"
@@ -258,37 +327,55 @@ def run_experiment(bundle, output, config, *, live=False, limit=50, include_refe
                                 candidate = {key: proposal[key] for key in semantic.PROPOSAL_FIELDS}
                                 system, prompt = semantic.judge_prompt(snapshot, candidate,
                                                                      reference["action"] if include_reference else None)
-                                response = request(seat, system, prompt, request_key)
-                                if response is None:
-                                    record.update(status="error", reason=state["execution_errors"].get(request_key, "request_failed"))
-                                else:
-                                    try:
-                                        judgment = semantic.validate_judgment(snapshot, _model_json(response["text"]))
-                                        record.update(status="ok", judgment=judgment, reason=None,
-                                                      observed_model=response.get("observed_model"))
-                                    except (ValueError, TypeError, KeyError, RecursionError, OverflowError):
-                                        record.update(status="error", reason="invalid_judgment")
-                                        state["execution_errors"][request_key] = "invalid_judgment"
-                            _write(output / "judgments" / f"{request_key}.json", record)
-                            seats.append(record)
-                        all_seats.extend(seats)
-                        if variant == "candidate" and repeat == 0:
-                            primary_seats.extend(seats)
-                        _write(output / "assessments" / f"{case_id}-{variant}-r{repeat}.json", semantic.aggregate(seats))
+                                judge_tasks.append((seat, system, prompt, request_key))
+                                record["reason"] = "cancelled"  # If admission stops before this seat.
+                            records[request_key] = (snapshot, record)
+                            keys.append(request_key)
+                        assessments.append((case_id, variant, repeat, keys))
+
+            def judgment_result(task, response):
+                request_key = task[3]
+                snapshot, record = records[request_key]
+                if response is None:
+                    record.update(status="error", reason=state["execution_errors"].get(request_key, "request_failed"))
+                    return
+                try:
+                    judgment = semantic.validate_judgment(snapshot, _model_json(response["text"]))
+                    record.update(status="ok", judgment=judgment, reason=None,
+                                  observed_model=response.get("observed_model"))
+                except (ValueError, TypeError, KeyError, RecursionError, OverflowError):
+                    record.update(status="error", reason="invalid_judgment")
+                    state["execution_errors"][request_key] = "invalid_judgment"
+
+            run_requests(judge_tasks, judgment_result)
+            for task in judge_tasks:
+                if task[3] in state["execution_errors"] and task[3] not in completed_requests:
+                    judgment_result(task, None)
+            for request_key, (_, record) in records.items():
+                _write(output / "judgments" / f"{request_key}.json", record)
+            for case_id, variant, repeat, keys in assessments:
+                seats = [records[key][1] for key in keys]
+                all_seats.extend(seats)
+                if variant == "candidate" and repeat == 0:
+                    primary_seats.extend(seats)
+                _write(output / "assessments" / f"{case_id}-{variant}-r{repeat}.json", semantic.aggregate(seats))
             state["proposal_count"] = sum(p is not None for p in proposals.values())
             state["judge_coverage"] = semantic.aggregate(primary_seats)
             state["all_judge_coverage"] = semantic.aggregate(all_seats)
             state["budget"] = budget.summary()
+            if shared is not None:
+                state["shared_budget"] = shared.summary()
+                state["experiment_namespace"] = namespace
             state["proposal_set_hash"] = digest(proposals)
-            state["status"] = "completed"
+            state["status"] = "cancelled" if cancellation_requested() else "completed"
             state["limits"] = ["Public development examples; no untouched holdout or human quality approval.",
                                "Judges and repeats are uncalibrated assessments, not authorization.",
                                "Local reservations depend on configured prices; provider billing may differ.",
                                "Attachment hashes are validated; models receive metadata, not attachment contents.",
                                "All contacts remain unsent proposals; no business effects are executed."]
             _write(output / "summary.json", state)
-            report = ("# Dwelly model experiment\n\n" + f"Mode: {mode}. Status: completed. Cases: {len(snapshots)}.\n\n"
-                      + "`manifest.json` is immutable start evidence; `summary.json` records this completed result.\n\n"
+            report = ("# Dwelly model experiment\n\n" + f"Mode: {mode}. Status: {state['status']}. Cases: {len(snapshots)}.\n\n"
+                      + "`manifest.json` is immutable start evidence; `summary.json` records this terminal result.\n\n"
                       + f"API calls: {state['live_calls']}. Valid proposals: {state['proposal_count']}. "
                       + f"Reserved USD: {state['budget']['reserved_usd']:.6f}.\n\n"
                       + "Primary judge coverage:\n\n```json\n" + json.dumps(state["judge_coverage"], indent=2) + "\n```\n\n"
