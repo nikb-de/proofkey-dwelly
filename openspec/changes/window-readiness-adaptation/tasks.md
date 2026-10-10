@@ -13,12 +13,12 @@
 - [x] 3.1 Use TDD to factor private source data assembly and implement actual raw bytes plus exact strict decoders in existing world/scheduling files; verify separate raw, normalized and independently read outcomes for success, HTTP200 business failure, contradictions, faults and malformed input.
 - [x] 3.2 Implement and test validated window-only request-ID minting, same-key idempotency, collision denial, all eight original join mismatches, namespace/digest/identity/time corruption, inconsistent rows, reader ACL, deadline and purpose invariance; preserve exact-slot terminal-knob semantics. Use a shared pure explicit-field formula for world and retained-source validation; verify post-effect/post-terminal capture and invalid-row rejection without repair.
 - [x] 3.3 Verify 262144/262145 byte, 16/17 depth, 128/129 observation and total-evidence boundaries plus 1024/1025 reference comparisons; explicitly record coupled observation/evidence violations and valid legacy data denied by the candidate.
-- [ ] 3.4 Verify bounded-domain exact-slot comparisons with typed dispatch, zero pre-write business dispatch on denied authority reads and preserved original intent/key/effect/debt with zero resend/undo after unreadable committed-effect readback.
+- [x] 3.4 Verify bounded-domain exact-slot comparisons with typed dispatch, zero pre-write business dispatch on denied authority reads and preserved original intent/key/effect/debt with zero resend/undo after unreadable committed-effect readback.
 
 ## 4. Readiness engine and core fences
 
-- [ ] 4.1 Use TDD to implement the four separately leased reads and finite engine branch, strict source owner equality before settlement, active-state/execution rechecks and latest-budget observation save; verify identity/consent/owner failures, false or forged S0, unavailable source, stop/deadline/state races and save failure.
-- [ ] 4.2 Enforce the S0 prerequisite again through fresh material/policy and provider CAS; verify stale/direct-intent denial and original readback after slot change, then measure one positive full workflow with one verified effect inside unchanged 24-call/120-second/10-second limits.
+- [x] 4.1 Use TDD to implement the four separately leased reads and finite engine branch, strict source owner equality before settlement, active-state/execution rechecks and latest-budget observation save; verify identity/consent/owner failures, false or forged S0, unavailable source, stop/deadline/state races and save failure.
+- [x] 4.2 Enforce the S0 prerequisite again through fresh material/policy and provider CAS; verify stale/direct-intent denial and original readback after slot change, then measure one positive full workflow with one verified effect inside unchanged 24-call/120-second/10-second limits.
 
 ## 5. Closed composition and current-source evidence
 
