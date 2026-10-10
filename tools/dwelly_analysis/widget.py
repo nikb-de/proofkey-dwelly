@@ -197,8 +197,9 @@ def validate_document(document):
                 raise ValueError("Event has no matching message")
             message = matches[0]
             outgoing = message["from_actor"] == state["our_actor_id"]
-            incoming = message["to_actor"] == state["our_actor_id"]
-            if (kind == "message_sent" and (not outgoing or incoming)) or (
+            addressed = message["to_actor"] == state["our_actor_id"]
+            incoming = addressed or state["our_actor_id"] in message.get('copy_to', [])
+            if (kind == "message_sent" and (not outgoing or addressed)) or (
                     kind == "message_received" and (not incoming or outgoing)):
                 raise ValueError("Invalid message direction")
             if "actor_id" in event and event["actor_id"] != message["from_actor"]:

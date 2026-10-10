@@ -24,10 +24,13 @@ try {
   await page.goto(base);await waitReady();
   assert.equal(await page.title(),'ProofKey · Case state workbench');
   const catalog=await page.evaluate(async()=> (await (await fetch('/api/catalog')).json()).cases);
-  let count=0;
+  let count=0,legacyCount=0,teamCount=0;
+  const coveredCases=new Set();
   for(const item of catalog){
     await choose(item.id);
-    for(let index=0;index<=item.steps;index++){
+    const isTeam=item.id.startsWith('team-');
+    const indices=isTeam?[0,item.steps]:Array.from({length:item.steps+1},(_,index)=>index);
+    for(const index of indices){
       if(index){await page.selectOption('#step-select',String(index));await waitReady()}
       const input=await parse('input-json'); assert.equal(input.case_id,item.id);assert.equal(input.step_index,index);
       assert.equal(await page.locator('case-state-viewer').evaluate(el=>el.stepIndex),index);
@@ -35,11 +38,15 @@ try {
       const candidate=await run();assert.equal(candidate.input_hash,input.input_hash);assert.equal(candidate.live_calls,0);assert.equal(candidate.operational_effects,0);
       assert.equal((await parse('reference-json')).qualification,'author_labels_unvalidated');
       count++;
+      if(isTeam)teamCount++;else legacyCount++;
+      coveredCases.add(item.id);
     }
   }
   assert.equal(catalog.filter(item=>!item.id.startsWith('team-')).reduce((total,item)=>total+item.steps+1,0),16);
-  assert.equal(catalog.filter(item=>item.id.startsWith('team-')).reduce((total,item)=>total+item.steps+1,0),20);
-  assert.equal(count,36);checks.push('36 catalog snapshots (legacy 16 + team 20): input, source navigation, offline candidate, zero calls/effects, separate reference');
+  assert.equal(catalog.filter(item=>item.id.startsWith('team-')).length,51);
+  assert.equal(legacyCount,16);assert.equal(teamCount,102);assert.equal(count,118);
+  assert.deepEqual([...coveredCases].sort(),catalog.map(item=>item.id).sort());
+  checks.push('118 catalog selections (all 16 legacy cutoffs + first/last of all 51 team cases): input, source navigation, offline candidate, zero calls/effects, separate reference');
   await choose('case-002-n4',5);const n4=await run();
   assert.match(JSON.stringify(n4.next_action),/readback|verify|saved/i);checks.push('N4 ambiguous outcome requests verification');
   const downloadEvent=page.waitForEvent('download');await page.click('#download-run');const download=await downloadEvent;

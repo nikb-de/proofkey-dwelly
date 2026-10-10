@@ -29,6 +29,16 @@ test('numeric copied actor does not match a string actor key',()=>{
   data.initial_state.messages[0].copy_to=[1];
   assert.throws(()=>validateCase(data),/copy_to/);
 });
+test('incoming messages may copy us while addressing another actor',()=>{
+  const data=JSON.parse(fs.readFileSync(new URL('../examples/minimal.json',import.meta.url)));
+  const state=data.steps[0].state_after;
+  state.actors.other={name:'Other',role:'Observer'};
+  const message=state.messages[0];message.from_actor='other';message.to_actor='service';message.copy_to=[state.our_actor_id];
+  data.steps[0].event.type='message_received';data.steps[0].event.actor_id='other';
+  assert.doesNotThrow(()=>validateCase(data));
+  message.copy_to=[];
+  assert.throws(()=>validateCase(data),/direction/);
+});
 test('limits reject non-string entries',()=>{
   const data=fixture();data.initial_state.limits=[42];
   assert.throws(()=>validateCase(data),/limits/);

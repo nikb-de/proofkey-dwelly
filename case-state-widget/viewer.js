@@ -117,7 +117,7 @@ export function validateCase(data) {
    const message=step.state_after.messages.find(m=>m.event_id===(step.event.message_id??step.event.id));
    need(message,`Шаг ${i+1}: сообщение события отсутствует в состоянии.`);
    const ours=step.state_after.our_actor_id;
-   need(step.event.type==='message_sent'?message.from_actor===ours&&message.to_actor!==ours:message.from_actor!==ours&&message.to_actor===ours,`Шаг ${i+1}: неверное направление сообщения (direction).`);
+   need(step.event.type==='message_sent'?message.from_actor===ours&&message.to_actor!==ours:message.from_actor!==ours&&(message.to_actor===ours||message.copy_to?.includes(ours)),`Шаг ${i+1}: неверное направление сообщения (direction).`);
   }
  }
  return data;

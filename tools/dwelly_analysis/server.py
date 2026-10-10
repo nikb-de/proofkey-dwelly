@@ -97,9 +97,7 @@ class RunStore:
 
 
 def step_record(case_id, index):
-    item = next((item for item in catalog.load_catalog() if item['id'] == case_id), None)
-    if item is None:
-        raise KeyError('case_not_found')
+    item = catalog.get_metadata(case_id)
     document = catalog.get_document(case_id)
     if type(index) is not int or not 0 <= index <= len(document['steps']):
         raise IndexError('step_not_found')

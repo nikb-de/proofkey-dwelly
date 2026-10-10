@@ -5,9 +5,31 @@ from tools.dwelly_analysis import baseline, catalog, widget
 
 
 class TeamCatalogTests(unittest.TestCase):
+    def test_copied_incoming_message_is_visible_to_our_actor(self):
+        document = catalog.get_document('minimal')
+        state = document['steps'][0]['state_after']
+        state['actors']['other'] = {'name': 'Other recipient', 'role': 'observer'}
+        message = state['messages'][0]
+        message['from_actor'] = 'other'
+        message['to_actor'] = 'service'
+        message['copy_to'] = [state['our_actor_id']]
+        event = document['steps'][0]['event']
+        event['type'] = 'message_received'
+        event['actor_id'] = 'other'
+        widget.validate_document(document)
+        projected = widget.project(document, 1, 'minimal')
+        self.assertEqual(projected['messages'][0]['copy_to'], [state['our_actor_id']])
+        message['copy_to'] = []
+        with self.assertRaisesRegex(ValueError, 'direction'):
+            widget.validate_document(document)
+
     def test_team_catalog_and_all_cutoffs(self):
         rows = catalog.load_catalog()
-        self.assertEqual([row['id'] for row in rows][3:], ['team-001', 'team-002', 'team-002-n4'])
+        expected = ['team-001', 'team-002', 'team-002-n4'] + [f'team-{i:03}' for i in range(3, 51)]
+        self.assertEqual([row['id'] for row in rows][3:], expected)
+        self.assertEqual(sum(row['steps'] + 1 for row in rows[3:]), 286)
+        self.assertEqual(len({row['family_id'] for row in rows[3:]}), 50)
+        self.assertTrue(all(row['source_commit'] == '4fa3f4d0196db82e0816909590d176b0eb0c4e5e' for row in rows[3:]))
         self.assertEqual(len(catalog.load_catalog(group='legacy')), 3)
         for row in rows[3:]:
             document = catalog.get_document(row['id'])

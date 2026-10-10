@@ -11,7 +11,7 @@ import threading
 import unittest
 from unittest.mock import patch
 
-from tools.dwelly_analysis import server, __main__ as cli
+from tools.dwelly_analysis import catalog, server, __main__ as cli
 
 
 class AnalysisServerTests(unittest.TestCase):
@@ -49,7 +49,9 @@ class AnalysisServerTests(unittest.TestCase):
         status, data, _ = self.request('GET', '/api/catalog')
         self.assertEqual(status, 200)
         self.assertEqual({item['id'] for item in data['cases']},
-                         {'case-002', 'case-002-n4', 'minimal', 'team-001', 'team-002', 'team-002-n4'})
+                         {'case-002', 'case-002-n4', 'minimal', 'team-002-n4'} |
+                         {f'team-{i:03}' for i in range(1, 51)})
+        self.assertEqual(len(data['cases']), 54)
         status, step, _ = self.request('GET', '/api/cases/case-002/steps/3')
         self.assertEqual(status, 200)
         self.assertEqual(step['reference']['state'], 'waiting')
@@ -148,8 +150,22 @@ class AnalysisServerTests(unittest.TestCase):
 
 
 class ExportTests(unittest.TestCase):
+    def test_selected_case_ignores_unrelated_corruption_but_checks_own_source(self):
+        original_path = catalog._source_path
+        with tempfile.TemporaryDirectory(dir=catalog.ROOT) as temporary:
+            corrupt = Path(temporary, 'corrupt.json')
+            corrupt.write_text('{}')
+            def source_path(case_id):
+                return corrupt if case_id == 'team-050' else original_path(case_id)
+            with patch.object(catalog, '_source_path', side_effect=source_path):
+                self.assertEqual(server.step_record('minimal', 0)['input']['case_id'], 'minimal')
+                with self.assertRaisesRegex(ValueError, 'hash mismatch'):
+                    server.step_record('team-050', 0)
+        with self.assertRaisesRegex(KeyError, 'case_not_found'):
+            server.step_record('not-a-case', 0)
+
     def test_cli_exports_default_and_explicit_catalog_groups(self):
-        for group, expected in [(None, 16), ('legacy', 16), ('team', 20), ('all', 36)]:
+        for group, expected in [(None, 16), ('legacy', 16), ('team', 286), ('all', 302)]:
             with self.subTest(group=group), tempfile.TemporaryDirectory() as temporary:
                 output = Path(temporary, 'export')
                 args = ['export', '--output', str(output)]
@@ -161,13 +177,14 @@ class ExportTests(unittest.TestCase):
                 rows = (output / 'manifest.jsonl').read_text().splitlines()
                 self.assertEqual(len(rows), expected)
 
-    def test_team_export_has_twenty_cutoffs_and_preserves_context(self):
+    def test_team_export_has_286_cutoffs_and_preserves_context(self):
         with tempfile.TemporaryDirectory() as temporary:
             output = Path(temporary, 'team-export')
             summary = server.export_dataset(output, group='team')
-            self.assertEqual(summary['snapshots'], 20)
+            self.assertEqual(summary['snapshots'], 286)
             rows = [json.loads(line) for line in (output / 'manifest.jsonl').read_text().splitlines()]
-            self.assertEqual({r['case_id'] for r in rows}, {'team-001', 'team-002', 'team-002-n4'})
+            self.assertEqual({r['case_id'] for r in rows},
+                             {'team-002-n4'} | {f'team-{i:03}' for i in range(1, 51)})
             self.assertTrue(all(r['eligible_for_training'] is False for r in rows))
 
     def test_export_has_16_separate_inputs_references_and_grouped_development_rows(self):

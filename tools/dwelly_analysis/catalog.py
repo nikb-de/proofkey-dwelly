@@ -18,6 +18,8 @@ _TEAM_PATHS = {
     'team-002': 'case-state-widget/cases/002.json',
     'team-002-n4': 'case-state-widget/cases/002-N4.json',
 }
+_TEAM_PATHS.update({f'team-{i:03}': f'case-state-widget/cases/{i:03}.json'
+                    for i in range(3, 51)})
 _PATHS.update(_TEAM_PATHS)
 
 
@@ -61,6 +63,16 @@ def _manifest(team=False):
         return value
     except (OSError, KeyError, TypeError) as exc:
         raise ValueError("Catalog unavailable") from exc
+
+
+def get_metadata(case_id):
+    """Read only the selected case's pinned metadata; do not cache source bytes."""
+    if type(case_id) is not str or case_id not in _PATHS:
+        raise KeyError('case_not_found')
+    manifest = _manifest(True) if case_id in _TEAM_PATHS else _manifest()
+    row = next(row for row in manifest['cases'] if row['id'] == case_id)
+    return {**row, 'source_commit': manifest['source_commit'],
+            'qualification': manifest['qualification'], 'split': manifest['split']}
 
 
 def get_document(case_id):
