@@ -33,5 +33,15 @@ try{
  assert.equal((await fetch(url+'/api/cases',{headers:{Authorization:'Bearer test-only-token-123456789012345'}})).status,200);
  await stop();await start({maxEntries:2});assert.equal((await post({...example,title:'Third'})).status,507);
  const concurrent=await Promise.all([post(example),post(example)]);assert.deepEqual(concurrent.map(r=>r.status),[200,200]);
+ await stop();
+ const provider={config:{source:'github'},list:async()=>[{id:'002',source:'github'}],get:async id=>({id,data:example}),propose:async(input,token)=>{assert.equal(token,'writer');assert.deepEqual(input.data,example);return {number:42}}};
+ await start({github:provider});
+ assert.equal((await (await fetch(url+'/api/config')).json()).source,'github');
+ assert.equal((await (await fetch(url+'/api/cases')).json()).cases[0].id,'002');
+ assert.deepEqual((await (await fetch(url+'/api/cases/002')).json()).data,example);
+ assert.equal((await post(example)).status,409);
+ const proposal=await fetch(url+'/api/github/pull-requests',{method:'POST',headers:{'Content-Type':'application/json','X-GitHub-Token':'writer'},body:JSON.stringify({data:example})});assert.equal(proposal.status,201);
+ await stop();await start({github:{config:{source:'github'},list:async()=>{throw new Error('Need GITHUB_READ_TOKEN')}}});
+ const fallback=await (await fetch(url+'/api/config')).json();assert.equal(fallback.source,'server');assert.match(fallback.notice,/GITHUB_READ_TOKEN/);assert.equal((await (await fetch(url+'/api/cases')).json()).cases.length,2);
  console.log('PASS: persistence across restart, exact retrieval, deduplication, immutable versions, validation, capacity, origin checks and team authorization.');
 }finally{if(app?.server.listening)await stop();await fs.rm(dir,{recursive:true,force:true})}
