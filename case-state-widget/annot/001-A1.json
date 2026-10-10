@@ -1,0 +1,592 @@
+{
+ "case_id": "001-A1",
+ "lang": "en",
+ "title": "001-A1 · Delivery window change (noise)",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Vessa Lorne. From the case card: the desk-lamp parcel DL-001 is at the destination depot, the original delivery slot does not work for the recipient, and only dispatch can change the booking. In this variant the escalation arrives as two informal fragments with an unrelated aside; the desk still has everything needed to offer the slots.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get the recipient's slot choice and dispatch's booking confirmation.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Vessa Lorne",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Choose a new delivery slot from the ones dispatch offers.",
+   "from_start": true,
+   "source_names": [
+    "Vessa Lorne, recipient"
+   ]
+  },
+  "dispatch": {
+   "name": "Dispatch",
+   "organization": "Plover Arc Logistics",
+   "role": "dispatch",
+   "responsibility": "Offer available slots and change the booking to the recipient's choice.",
+   "from_start": false,
+   "source_names": [
+    "Dispatch, Plover Arc Logistics"
+   ]
+  }
+ },
+ "goal": "Get the recipient's choice of a new slot and dispatch's confirmation that the DL-001 booking has been moved.",
+ "limits": [
+  "Do not promise arrival at a precise minute.",
+  "Do not say the lamp has been delivered.",
+  "Do not act on the aside about the neighbour or mirror the informal register."
+ ],
+ "intake": {
+  "summary": "Reschedule DL-001: the recipient cannot take delivery in the original slot.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The recipient cannot take delivery in the original slot; no new slot has been chosen.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-001.",
+    "source": {
+     "type": "case_card",
+     "id": "001"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The desk-lamp parcel is at the destination depot.",
+    "source": {
+     "type": "case_card",
+     "id": "001"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The recipient cannot take delivery in the original slot.",
+    "source": {
+     "type": "case_card",
+     "id": "001"
+    }
+   },
+   {
+    "id": "f4",
+    "text": "Dispatch, not the desk, controls booking changes.",
+    "source": {
+     "type": "case_card",
+     "id": "001"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The recipient has chosen a new slot from the options dispatch confirmed."
+   },
+   {
+    "id": "c2",
+    "description": "Dispatch has confirmed the booking for the chosen slot."
+   },
+   {
+    "id": "c3",
+    "description": "Dispatch has confirmed that the original slot is removed."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "annotations": []
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Dispatch email",
+   "title": "Dispatch offers two no-charge slots",
+   "explanation": "Dispatch gave the current booking and two no-charge slots for rescheduling. The recipient chooses the slot and dispatch books it, so the next step is a question to the recipient.",
+   "conversation_id": "dispatch",
+   "facts_upsert": [
+    {
+     "id": "f5",
+     "text": "DL-001 is booked for 2026-02-03, 09:00–12:00 UTC.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f6",
+     "text": "Dispatch's rescheduling inventory currently has 2026-02-03 15:00–18:00 and 2026-02-04 10:00–13:00 UTC.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f7",
+     "text": "There is no rescheduling charge.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r1": {
+     "type": "decision",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Choose one of the two slots offered by dispatch.",
+     "expected_response": "The chosen delivery slot.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "001"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask the recipient to choose one of the two slots."
+   },
+   "blocker": "The recipient cannot take delivery in the booked slot; no new slot has been chosen.",
+   "status": "context_received",
+   "next_step": {
+    "type": "decision",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Choose one of the two no-charge slots."
+   },
+   "result": null,
+   "decision": {
+    "required": true,
+    "question": "Which slot should be booked instead of the original?",
+    "options": [
+     {
+      "id": "o1",
+      "label": "2026-02-03 15:00–18:00 UTC",
+      "conditions": "No rescheduling charge."
+     },
+     {
+      "id": "o2",
+      "label": "2026-02-04 10:00–13:00 UTC",
+      "conditions": "No rescheduling charge."
+     }
+    ],
+    "decision_maker": "recipient",
+    "selected_option": null,
+    "reason": null
+   },
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Vessa asks to move the morning delivery, informally",
+   "explanation": "Vessa confirms in an informal first fragment that the morning slot does not work and asks to move the lamp. We already have dispatch's options, so we can offer them.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f3",
+     "text": "The recipient has a work meeting during the morning delivery.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "dispatch",
+     "purpose": "Move the lamp delivery out of the morning slot.",
+     "expected_response": "A new delivery booking.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Reply to Vessa in the order thread: name dispatch's two slots and ask which one to book."
+   },
+   "blocker": "The morning slot does not work for the recipient; no new slot has been chosen.",
+   "status": "escalated",
+   "next_step": {
+    "type": "decision",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Choose one of the two no-charge slots."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "morning-slot-context",
+     "kind": "context",
+     "title": "What Vessa knew before her message",
+     "text": "Vessa refers to the morning delivery, so she knows the delivery is scheduled for the morning. How she learned this is not recorded in the history.",
+     "before_message_id": "002",
+     "source_event_ids": [
+      "002"
+     ]
+    }
+   ]
+  },
+  {
+   "event_id": "003",
+   "label": "Client addendum",
+   "title": "Second fragment: thread instruction and an aside",
+   "explanation": "A second fragment carries the channel instruction and an aside about a neighbour's parcel. It adds no case facts and requires no separate action; the next step stays the same.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f8",
+     "text": "The recipient asks us to keep messages in the order-linked thread.",
+     "source": {
+      "type": "message",
+      "id": "003"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Reply to Vessa in the order thread: name dispatch's two slots and ask which one to book."
+   },
+   "blocker": "The morning slot does not work for the recipient; no new slot has been chosen.",
+   "status": "escalated",
+   "next_step": {
+    "type": "decision",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Choose one of the two no-charge slots."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "noise-fragment",
+     "kind": "context",
+     "title": "What the second fragment adds",
+     "text": "The fragment repeats the channel request and adds an unrelated aside about a neighbour. It carries no case facts and no new request; the desk continues with the same next step.",
+     "before_message_id": "003",
+     "source_event_ids": [
+      "003"
+     ]
+    }
+   ]
+  },
+  {
+   "event_id": "004",
+   "label": "Our question",
+   "title": "We ask Vessa to choose a slot",
+   "explanation": "We named only the slots dispatch confirmed and promised no booking before she chooses. Now we wait for Vessa's reply.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "decision",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Choose one of the two slots offered by dispatch.",
+     "expected_response": "The chosen delivery slot.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "001",
+      "004"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "recipient",
+      "request_id": "r1",
+      "expected": "Choice of one of the two slots"
+     }
+    ],
+    "next_action": "Once she chooses, send dispatch a booking request for the chosen slot."
+   },
+   "blocker": "No new slot has been chosen.",
+   "status": "awaiting_decision",
+   "next_step": {
+    "type": "decision",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Wait for Vessa to choose a slot."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "dispatch-options-source",
+     "kind": "context",
+     "title": "Where the slots come from · message 001",
+     "text": "Dispatch sent both no-charge slots in message 001 (09:00), before the client wrote. Here we pass on those ready options; the history has no separate request to dispatch between 002 and 004.",
+     "before_message_id": "004",
+     "source_event_ids": [
+      "001"
+     ]
+    }
+   ]
+  },
+  {
+   "event_id": "005",
+   "label": "Client choice",
+   "title": "Vessa picks the 3 February afternoon slot",
+   "explanation": "We have her choice, but a choice is not yet a booking: dispatch has to book the slot.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f9",
+     "text": "The recipient chose 2026-02-03 15:00–18:00 and will be home then.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r1": {
+     "type": "decision",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Choose one of the two slots offered by dispatch.",
+     "expected_response": "The chosen delivery slot.",
+     "status": "answered",
+     "response": "2026-02-03 15:00–18:00",
+     "evidence_event_ids": [
+      "001",
+      "004",
+      "005"
+     ]
+    },
+    "r2": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "dispatch",
+     "responsible_actor": "dispatch",
+     "purpose": "Book the recipient's chosen slot, 2026-02-03 15:00–18:00, instead of the morning one.",
+     "expected_response": "Confirmation of the new booking.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "005"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c1",
+     "evidence_event_ids": [
+      "005"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Send dispatch a booking request for 2026-02-03 15:00–18:00, then wait for confirmation.",
+    "note": "Sending the request to dispatch and the wait that follows are not recorded as separate events. So in this snapshot the agent is still preparing the handoff; it is not given waiting status without evidence that the request was sent."
+   },
+   "blocker": "Slot chosen; dispatch has not yet confirmed the booking.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "dispatch",
+    "request_id": "r2",
+    "description": "Pass Vessa's choice to dispatch and get confirmation of the new booking."
+   },
+   "result": null,
+   "decision": {
+    "required": true,
+    "question": "Which slot should be booked instead of the original?",
+    "options": [
+     {
+      "id": "o1",
+      "label": "2026-02-03 15:00–18:00 UTC",
+      "conditions": "No rescheduling charge."
+     },
+     {
+      "id": "o2",
+      "label": "2026-02-04 10:00–13:00 UTC",
+      "conditions": "No rescheduling charge."
+     }
+    ],
+    "decision_maker": "recipient",
+    "selected_option": "o1",
+    "reason": "The recipient will be home then."
+   },
+   "annotations_add": [
+    {
+     "id": "missing-booking-request",
+     "kind": "gap",
+     "title": "Next action · us → dispatch",
+     "text": "Vessa chose the 3 February 15:00–18:00 UTC slot. We now have to pass her choice to dispatch and request the booking; after sending, the agent waits for dispatch's confirmation. At this step the sending is not yet recorded in the history, and the client's choice by itself does not change the booking.",
+     "source_event_ids": [
+      "005"
+     ],
+     "implied_action": {
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "type": "action",
+      "purpose": "Book the slot Vessa chose and remove the morning booking."
+     }
+    }
+   ]
+  },
+  {
+   "event_id": "006",
+   "label": "Confirmation",
+   "title": "Dispatch confirms the new booking",
+   "explanation": "Dispatch confirmed the new slot and removed the morning one, so the coordination task can be closed. The delivery itself has not happened yet.",
+   "conversation_id": "dispatch",
+   "facts_upsert": [
+    {
+     "id": "f5",
+     "text": "DL-001 is now reserved for 2026-02-03 15:00–18:00; the morning slot has been removed.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "f10",
+     "text": "Dispatch noted that this is a booking confirmation, not a completed delivery.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "dispatch",
+     "purpose": "Move the lamp delivery out of the morning slot.",
+     "expected_response": "A new delivery booking.",
+     "status": "completed",
+     "response": "DL-001 is now reserved for 2026-02-03 15:00–18:00; the morning slot has been removed.",
+     "responded_by": "dispatch",
+     "evidence_event_ids": [
+      "002",
+      "006"
+     ]
+    },
+    "r2": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "dispatch",
+     "responsible_actor": "dispatch",
+     "purpose": "Book the recipient's chosen slot, 2026-02-03 15:00–18:00, instead of the morning one.",
+     "expected_response": "Confirmation of the new booking.",
+     "status": "completed",
+     "response": "Slot 2026-02-03 15:00–18:00 booked; morning slot removed.",
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c2",
+     "evidence_event_ids": [
+      "006"
+     ]
+    },
+    {
+     "id": "c3",
+     "evidence_event_ids": [
+      "006"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Coordination task complete: dispatch confirmed the new slot and removed the morning one. Delivery is not part of this case's success criteria."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "DL-001 booking moved to 2026-02-03 15:00–18:00; morning slot removed.",
+    "confirmed_by": "dispatch",
+    "evidence_event_ids": [
+     "006"
+    ],
+    "remaining_work": "The lamp has not been delivered yet. No exact arrival time within the slot is promised."
+   },
+   "annotations_add": [
+    {
+     "id": "missing-booking-request",
+     "kind": "gap",
+     "title": "Between 005 and 006 · our booking request to dispatch",
+     "text": "Client's choice → our booking request → waiting on dispatch → confirmation 006. Dispatch refers to our request in 006 (\"Following your booking request with Vessa’s selection\"), but the request and the wait are not recorded separately: their exact time and wording are unknown.",
+     "before_message_id": "006",
+     "source_event_ids": [
+      "006"
+     ],
+     "implied_action": {
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "type": "action",
+      "purpose": "Book the slot Vessa chose and remove the morning booking."
+     }
+    }
+   ]
+  }
+ ],
+ "provenance": {
+  "type": "synthetic_context_augmentation",
+  "noise": true,
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/context-augmentations-001-050/001/A1-SLOPPY_NOISE",
+  "variant_id": "001-A1",
+  "derived_from_case": "001",
+  "complication": "noise",
+  "complication_tag": "A1-SLOPPY_NOISE",
+  "label": "sloppy fragmentary correspondence",
+  "expected_decision": "ASK_CUSTOMER",
+  "source_sha256": {
+   "index.md": "399136759a92fbed7913cecbe7741df72033a7fcc0e9b1bce94743d2196526b4",
+   "history.md": "5d7da76902a6c1d9881ccf24a76edb8e965049fe85e6c802d28eb4759c37538b"
+  }
+ }
+}

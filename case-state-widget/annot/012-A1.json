@@ -1,0 +1,533 @@
+{
+ "case_id": "012-A1",
+ "lang": "en",
+ "title": "012-A1 · Replacement slot after a vehicle breakdown (noise)",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Fenn Azel. From the case card: the carrier confirms its vehicle breakdown prevented delivery of DL-012 on the promised day, and dispatch needs to schedule a replacement attempt. In this variant the escalation omits the recipient's availability, so the desk asks for it before contacting dispatch.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: pass the recipient's availability to dispatch, get a confirmed replacement booking and the recipient's acknowledgement.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Fenn Azel",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Give availability for the replacement attempt and acknowledge the revised booking.",
+   "from_start": true,
+   "source_names": [
+    "Fenn Azel, recipient"
+   ]
+  },
+  "dispatch": {
+   "name": "Dispatch",
+   "organization": "Plover Arc Logistics",
+   "role": "dispatch",
+   "responsibility": "Schedule and reserve the replacement delivery attempt and state any charge.",
+   "from_start": false,
+   "source_names": [
+    "Dispatch, Plover Arc Logistics"
+   ]
+  }
+ },
+ "goal": "Get dispatch's confirmation of a replacement booking for DL-012 and the recipient's acknowledgement of the revised plan.",
+ "limits": [
+  "Do not treat the customer's acknowledgement as a delivery; it closes the rebooking only.",
+  "Do not request a rebooking before the recipient states availability."
+ ],
+ "intake": {
+  "summary": "DL-012: the promised delivery day was missed after a vehicle breakdown; a replacement attempt is needed.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "Delivery on the promised day failed after a vehicle breakdown; no replacement attempt is scheduled.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-012.",
+    "source": {
+     "type": "case_card",
+     "id": "012"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The carrier confirms its vehicle breakdown prevented delivery on the promised day.",
+    "source": {
+     "type": "case_card",
+     "id": "012"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "Dispatch needs to schedule a replacement attempt.",
+    "source": {
+     "type": "case_card",
+     "id": "012"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "Dispatch has confirmed a replacement booking."
+   },
+   {
+    "id": "c2",
+    "description": "The recipient has acknowledged the revised booking."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "annotations": []
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Dispatch email",
+   "title": "Dispatch reports the failed route",
+   "explanation": "Dispatch confirmed the booked window failed because of a vehicle fault and the parcel is back at the depot. A replacement attempt needs the recipient's availability, so we take in the recipient's request first.",
+   "conversation_id": "dispatch",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "Vehicle fault V-12 ended the route at 08:20 on 2026-02-12.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f4",
+     "text": "DL-012 was due on 2026-02-12, 08:00–09:00 UTC.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "The parcel is back in depot custody and was not delivered.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Take in the recipient's request; the replacement attempt has to be scheduled by dispatch."
+   },
+   "blocker": "The parcel is back in depot custody; no replacement attempt is scheduled.",
+   "status": "context_received",
+   "next_step": null,
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Fenn asks for a replacement slot without stating availability",
+   "explanation": "Fenn asks to arrange a replacement slot but does not say when they can receive. The availability is the missing prerequisite, so the next step is a question to Fenn.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f6",
+     "text": "The recipient still has no parcel after yesterday's booked window was missed.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "dispatch",
+     "purpose": "Arrange a replacement slot.",
+     "expected_response": "A replacement delivery booking.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Get the recipient's availability for the replacement attempt.",
+     "expected_response": "A day and a time range when the recipient can receive the parcel.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask Fenn for the day and time range when they can receive the parcel."
+   },
+   "blocker": "No replacement attempt is scheduled; the recipient's availability is not known.",
+   "status": "escalated",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Wait for Fenn to state availability."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "missed-window-context",
+     "kind": "context",
+     "title": "What Fenn knew before the message",
+     "text": "Fenn refers to yesterday's booked window, so Fenn knew the booking and that it was missed. Whether Fenn was told about the vehicle breakdown is not recorded in the history.",
+     "before_message_id": "002",
+     "source_event_ids": [
+      "002"
+     ]
+    }
+   ]
+  },
+  {
+   "event_id": "003",
+   "label": "Our question",
+   "title": "We ask Fenn when they can receive",
+   "explanation": "Fenn did not state when they can receive, so we ask for the missing availability before any rebooking request. Now we wait for the reply.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Get the recipient's availability for the replacement attempt.",
+     "expected_response": "A day and a time range when the recipient can receive the parcel.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "recipient",
+      "request_id": "r1",
+      "expected": "A day and a time range for the replacement attempt"
+     }
+    ],
+    "next_action": "Once Fenn replies, ask dispatch to rebook and confirm a specific window and any charge."
+   },
+   "blocker": "The recipient's availability is not known; no replacement attempt is scheduled.",
+   "status": "awaiting_response",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Wait for Fenn to state availability."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "Client reply",
+   "title": "Fenn states availability for 14 February afternoon",
+   "explanation": "Fenn is free on 2026-02-14 in the afternoon. Only dispatch can book the replacement, so the next step is a rebooking request to dispatch with that availability.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f7",
+     "text": "The recipient is free on 2026-02-14 in the afternoon.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Get the recipient's availability for the replacement attempt.",
+     "expected_response": "A day and a time range when the recipient can receive the parcel.",
+     "status": "answered",
+     "response": "2026-02-14 in the afternoon",
+     "evidence_event_ids": [
+      "002",
+      "003",
+      "004"
+     ]
+    },
+    "r2": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "dispatch",
+     "responsible_actor": "dispatch",
+     "purpose": "Rebook DL-012 after the confirmed breakdown for 2026-02-14 afternoon, and confirm a specific available window and any charge.",
+     "expected_response": "A specific available window and any charge.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask dispatch to rebook DL-012 for 2026-02-14 afternoon and to confirm a specific window and any charge."
+   },
+   "blocker": "No replacement attempt is scheduled; Fenn is free on 2026-02-14 in the afternoon.",
+   "status": "escalated",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "dispatch",
+    "request_id": "r2",
+    "description": "Rebook DL-012 for 2026-02-14 afternoon and confirm a specific window and any charge."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "005",
+   "label": "Dispatch booking",
+   "title": "Dispatch books 14:00–17:00, no charge",
+   "explanation": "Dispatch reserved a window in Fenn's stated afternoon at no extra charge and says it sent the revised booking to Fenn. The case also needs Fenn's acknowledgement of the revised plan.",
+   "conversation_id": "dispatch",
+   "facts_upsert": [
+    {
+     "id": "f8",
+     "text": "Replacement booking: 2026-02-14, 14:00–17:00 UTC, no extra charge.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "f9",
+     "text": "Dispatch has reserved capacity and sent the revised booking to Fenn.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "dispatch",
+     "purpose": "Arrange a replacement slot.",
+     "expected_response": "A replacement delivery booking.",
+     "status": "completed",
+     "response": "Replacement booking 2026-02-14, 14:00–17:00 UTC, no extra charge; capacity reserved.",
+     "responded_by": "dispatch",
+     "evidence_event_ids": [
+      "002",
+      "005"
+     ]
+    },
+    "r2": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "dispatch",
+     "responsible_actor": "dispatch",
+     "purpose": "Rebook DL-012 after the confirmed breakdown for 2026-02-14 afternoon, and confirm a specific available window and any charge.",
+     "expected_response": "A specific available window and any charge.",
+     "status": "completed",
+     "response": "2026-02-14, 14:00–17:00 UTC, no extra charge; capacity reserved; revised booking sent to Fenn.",
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    },
+    "r3": {
+     "type": "confirmation",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Acknowledge the revised booking for 2026-02-14, 14:00–17:00 UTC.",
+     "expected_response": "Fenn's acknowledgement of the revised booking.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "005"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c1",
+     "evidence_event_ids": [
+      "005"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Get Fenn's acknowledgement of the revised booking that dispatch has sent.",
+    "note": "Dispatch's message with the revised booking to Fenn is not recorded as a separate event, and no request from us to Fenn to acknowledge it is recorded. So in this snapshot the agent is not given waiting status without evidence that a request was sent."
+   },
+   "blocker": "Booking confirmed by dispatch; Fenn has not yet acknowledged the revised plan.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "confirmation",
+    "responsible_actor": "recipient",
+    "request_id": "r3",
+    "description": "Get Fenn's acknowledgement of the 2026-02-14, 14:00–17:00 UTC booking."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "missing-rebook-request",
+     "kind": "gap",
+     "title": "Between 004 and 005 · our rebooking request to dispatch",
+     "text": "Fenn stated availability in 004. We then had to pass it to dispatch and request a specific window and any charge; that request and the wait are not recorded as separate events. Dispatch's 005 message confirms the booking.",
+     "before_message_id": "005",
+     "source_event_ids": [
+      "004",
+      "005"
+     ],
+     "implied_action": {
+      "from_actor": "coordinator",
+      "to_actor": "dispatch",
+      "type": "action",
+      "purpose": "Rebook DL-012 for 2026-02-14 afternoon and confirm a specific window and any charge."
+     }
+    }
+   ]
+  },
+  {
+   "event_id": "006",
+   "label": "Client acknowledgement",
+   "title": "Fenn acknowledges the new booking",
+   "explanation": "Fenn confirmed receiving the 2026-02-14, 14:00–17:00 booking and will be home, so the rebooking task can be closed. Delivery itself is still pending.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f10",
+     "text": "The recipient received the 2026-02-14, 14:00–17:00 booking and will be home.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r3": {
+     "type": "confirmation",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Acknowledge the revised booking for 2026-02-14, 14:00–17:00 UTC.",
+     "expected_response": "Fenn's acknowledgement of the revised booking.",
+     "status": "answered",
+     "response": "Received the 2026-02-14, 14:00–17:00 booking and will be home.",
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c2",
+     "evidence_event_ids": [
+      "006"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Coordination task complete: dispatch confirmed the replacement booking and Fenn acknowledged it. Delivery is not part of this case's success criteria."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "DL-012 rebooked for 2026-02-14, 14:00–17:00 UTC at no extra charge; Fenn acknowledged the booking and will be home.",
+    "confirmed_by": "dispatch",
+    "evidence_event_ids": [
+     "005",
+     "006"
+    ],
+    "remaining_work": "Delivery in the 2026-02-14, 14:00–17:00 UTC window is still pending; Fenn's acknowledgement closes the rebooking only."
+   },
+   "annotations_add": [
+    {
+     "id": "revised-booking-context",
+     "kind": "context",
+     "title": "What Fenn knew before the message",
+     "text": "Fenn had the revised booking from dispatch: in message 005 dispatch said it sent it to Fenn, and Fenn confirms receiving it. Dispatch's message to Fenn is not in the history, and no message from us to Fenn is recorded before this acknowledgement.",
+     "before_message_id": "006",
+     "source_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   ]
+  }
+ ],
+ "provenance": {
+  "type": "synthetic_context_augmentation",
+  "noise": true,
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/context-augmentations-001-050/012/A2-MISSING_DETAIL",
+  "variant_id": "012-A1",
+  "derived_from_case": "012",
+  "complication": "missing_detail",
+  "complication_tag": "A2-MISSING_DETAIL",
+  "label": "missing prerequisite detail",
+  "expected_decision": "ASK_CUSTOMER",
+  "source_sha256": {
+   "index.md": "5b66c62f7dd8687cffc4614311deee0f1d0972c82d948dd57e7fce0d697d2218",
+   "history.md": "ce6caff83ba6c30b3c24a15c8a1961236a44f938b91caed65e5b5515196b3b58"
+  }
+ }
+}
