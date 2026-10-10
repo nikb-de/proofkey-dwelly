@@ -1,0 +1,271 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Case step viewer 1.0",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "title",
+    "initial_state",
+    "steps"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "case-step-viewer/1.0"
+    },
+    "title": {
+      "type": "string"
+    },
+    "initial_explanation": {
+      "type": "string"
+    },
+    "initial_state": {
+      "$ref": "#/$defs/state"
+    },
+    "steps": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "type": "object",
+        "required": [
+          "event",
+          "explanation",
+          "state_after"
+        ],
+        "properties": {
+          "event": {
+            "type": "object",
+            "required": [
+              "id",
+              "type",
+              "title"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "message_received",
+                  "message_sent",
+                  "action",
+                  "state_changed"
+                ]
+              },
+              "title": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              },
+              "actor_id": {
+                "type": "string"
+              },
+              "message_id": {
+                "type": "string"
+              }
+            }
+          },
+          "explanation": {
+            "type": "string"
+          },
+          "state_after": {
+            "$ref": "#/$defs/state"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "state": {
+      "type": "object",
+      "required": [
+        "actors",
+        "our_actor_id",
+        "goal",
+        "agent_state",
+        "success_criteria",
+        "messages"
+      ],
+      "properties": {
+        "actors": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "our_actor_id": {
+          "type": "string"
+        },
+        "client_actor_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "goal": {
+          "type": "string"
+        },
+        "agent_state": {
+          "type": "object",
+          "required": [
+            "status",
+            "waiting_for"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "ready",
+                "acting",
+                "waiting",
+                "completed"
+              ]
+            },
+            "waiting_for": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "actor_id",
+                  "expected"
+                ],
+                "properties": {
+                  "actor_id": {
+                    "type": "string"
+                  },
+                  "request_id": {
+                    "type": "string"
+                  },
+                  "expected": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "next_action": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "note": {
+              "type": "string"
+            }
+          }
+        },
+        "success_criteria": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "description",
+              "status",
+              "evidence_event_ids"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "pending",
+                  "met"
+                ]
+              },
+              "evidence_event_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "messages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "event_id",
+              "from_actor",
+              "to_actor"
+            ],
+            "anyOf": [
+              {
+                "required": [
+                  "body"
+                ]
+              },
+              {
+                "required": [
+                  "body_ru"
+                ]
+              }
+            ],
+            "properties": {
+              "event_id": {
+                "type": "string"
+              },
+              "from_actor": {
+                "type": "string"
+              },
+              "to_actor": {
+                "type": "string"
+              },
+              "body": {
+                "type": "string"
+              },
+              "body_ru": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              },
+              "channel": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "annotations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "text"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              },
+              "before_message_id": {
+                "type": "string"
+              },
+              "source_event_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

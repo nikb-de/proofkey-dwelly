@@ -1,0 +1,84 @@
+{
+  "schema_version": "case-step-viewer/1.0",
+  "title": "Пример: ожидание исполнителя",
+  "initial_state": {
+    "our_actor_id": "desk",
+    "actors": {
+      "desk": {
+        "name": "Координатор",
+        "role": "coordinator"
+      },
+      "service": {
+        "name": "Служба исполнения",
+        "role": "executor"
+      }
+    },
+    "goal": "Получить подтверждение выполнения заявки.",
+    "agent_state": {
+      "status": "ready",
+      "waiting_for": [],
+      "next_action": "Запросить подтверждение у службы."
+    },
+    "success_criteria": [
+      {
+        "id": "confirmed",
+        "description": "Служба подтвердила выполнение.",
+        "status": "pending",
+        "evidence_event_ids": []
+      }
+    ],
+    "messages": []
+  },
+  "steps": [
+    {
+      "event": {
+        "id": "001",
+        "type": "message_sent",
+        "title": "Запросили подтверждение",
+        "message_id": "001"
+      },
+      "explanation": "Результат должен подтвердить исполнитель; после отправки ждём его ответа.",
+      "state_after": {
+        "our_actor_id": "desk",
+        "actors": {
+          "desk": {
+            "name": "Координатор",
+            "role": "coordinator"
+          },
+          "service": {
+            "name": "Служба исполнения",
+            "role": "executor"
+          }
+        },
+        "goal": "Получить подтверждение выполнения заявки.",
+        "agent_state": {
+          "status": "waiting",
+          "waiting_for": [
+            {
+              "actor_id": "service",
+              "expected": "Подтверждение выполнения заявки."
+            }
+          ],
+          "next_action": "Проверить ответ службы."
+        },
+        "success_criteria": [
+          {
+            "id": "confirmed",
+            "description": "Служба подтвердила выполнение.",
+            "status": "pending",
+            "evidence_event_ids": []
+          }
+        ],
+        "messages": [
+          {
+            "event_id": "001",
+            "from_actor": "desk",
+            "to_actor": "service",
+            "channel": "Email",
+            "body": "Подтвердите, пожалуйста, выполнение заявки."
+          }
+        ]
+      }
+    }
+  ]
+}

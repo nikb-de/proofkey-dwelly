@@ -84,3 +84,7 @@ Collect the team's independent evaluation cases and permitted real examples, cal
 - [Negative branches for 001–050](data/negative-branches-001-050/README.md): the team's separately authored alternative continuations. They are preserved unchanged by the decision-draft update; no new validation or model-quality claim about them is implied here.
 
 All three collections need source-family grouping and reviewed labels before train/test use. Do not give a proposer the repository, label files, reference actions or future continuations.
+
+## 10. Case state visualization
+
+[Case State Widget](case-state-widget/README.md) is a standalone JSON-driven replay viewer: step controls, agent actions and waiting states, state diffs, a unified message timeline and evidence-backed completion criteria. It includes the source-derived public case 002, a loadable minimal example, a data-format guide and dependency-free tests. It does not call the model or send messages; integration with the model harness requires a separate adapter.
