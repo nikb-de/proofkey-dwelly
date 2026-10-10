@@ -102,6 +102,7 @@ case-state-widget/
 | `success_criteria` | Да | Проверяемые условия завершения |
 | `messages` | Да | Накопленная переписка к этому шагу |
 | `case_id`, `intake` | Нет | ID и карточка заявки: `summary`, `created_at`, `escalated_at`, `note` |
+| `limits` | Нет | Запреты из раздела Limits. Один и тот же список в каждом снимке |
 | `annotations` | Нет | Пояснения и пробелы источника, отдельно от сообщений |
 | `facts`, `requests`, `decision`, `result` | Нет | Свободные предметные данные; видны в JSON и участвуют в diff |
 
@@ -118,7 +119,7 @@ case-state-widget/
 
 ### Переписка: `messages[]`
 
-Сообщение: `{ event_id, from_actor, to_actor, body?, body_ru?, channel?, timestamp? }`. ID и участники обязательны; нужен текст в `body` или `body_ru`. Если заполнены оба, интерфейс показывает `body_ru`.
+Сообщение: `{ event_id, from_actor, to_actor, copy_to?, body?, body_ru?, channel?, timestamp? }`. ID и участники обязательны; нужен текст в `body` или `body_ru`. Если заполнены оба, интерфейс показывает `body_ru`. `to_actor` — основной адресат. `copy_to` — остальные адресаты того же сообщения; ключ пишется только когда их больше одного.
 
 История накапливается: прошлые сообщения сохраняются без изменения и в том же порядке. В JSON и чате используется один массив. Разные адресаты и каналы остаются в общей ленте.
 
@@ -135,7 +136,7 @@ case-state-widget/
 | Блок | Соглашение в кейсе 002 |
 |---|---|
 | `facts[]` | `{ id, text, source: { type, id } }` — сведения и источник |
-| `requests` | Объект запросов: `type`, `from_actor`, `to_actor`, `responsible_actor`, `purpose`, `expected_response`, `status`, `response`, `evidence_event_ids` |
+| `requests` | Объект запросов: `type`, `from_actor`, `to_actor`, `responded_by`, `responsible_actor`, `purpose`, `expected_response`, `status`, `response`, `evidence_event_ids`. `responded_by` — кто ответил, если это не `to_actor` |
 | `decision` | `required`, `question`, `options`, `decision_maker`, `selected_option`, `reason` |
 | `result` | `summary`, `confirmed_by`, `evidence_event_ids`, `remaining_work` |
 
