@@ -8,7 +8,7 @@
 
 **Tech Stack:** Static HTML/CSS/JavaScript, IndexedDB, browser Web Crypto, Node test runner/Playwright, Python unittest, JSON Schema 2020-12, OpenAPI 3.1.
 
-**Spec:** `openspec/changes/team-contracts-and-case-workbench/design.md` and its two delta specifications.
+**Spec:** `openspec/changes/archive/2026-10-10-team-contracts-and-case-workbench/design.md` and living specifications `openspec/specs/team-backend-contract/spec.md` / `openspec/specs/local-case-workbench/spec.md`.
 
 ## Global constraints
 
@@ -39,7 +39,7 @@ The user explicitly requested autonomous implementation and parallel independent
 
 **Interfaces:** Consume actual `CaseStore` declarations/events/snapshots. Publish schemas for these and separate versioned decision input/label/episode/transition/run, asset and analysis records. Examples must include a valid zero-based case and an evaluator-only label. Do not change service code.
 
-- [ ] Write tests before schemas: a valid fixture must load, revision -1 and undeclared fields must fail, correct CaseStore snapshot hash must validate, and labels must fail when inserted into input.
+- [x] Write tests before schemas: a valid fixture must load, revision -1 and undeclared fields must fail, correct CaseStore snapshot hash must validate, and labels must fail when inserted into input.
 
 ```python
 def test_revision_is_zero_based(self):
@@ -48,11 +48,11 @@ def test_revision_is_zero_based(self):
     self.assert_invalid('decision-input', valid)
 ```
 
-- [ ] Run `python -m unittest discover -s contracts/v1 -p 'test_*.py' -v`; retain the expected missing-schema/red result.
-- [ ] Implement closed versioned JSON Schemas, positive/negative examples and tests against actual CaseStore. Use an available standards-compliant validator; do not create a partial validator advertised as JSON Schema.
-- [ ] Pin provenance, revision/hash linkage, review status and typed transition conditions. Do not encode guessed business policy as permission.
-- [ ] Run the full contract suite and service tests; report commands, counts and any excluded checks.
-- [ ] Commit only owned contract schema/example/test files; provide a written report and review diff.
+- [x] Run `python -m unittest discover -s contracts/v1 -p 'test_*.py' -v`; retain the expected missing-schema/red result.
+- [x] Implement closed versioned JSON Schemas, positive/negative examples and tests against actual CaseStore. Use an available standards-compliant validator; do not create a partial validator advertised as JSON Schema.
+- [x] Pin provenance, revision/hash linkage, review status and typed transition conditions. Do not encode guessed business policy as permission.
+- [x] Run the full contract suite and service tests; report commands, counts and any excluded checks.
+- [x] Commit only owned contract schema/example/test files; provide a written report and review diff.
 
 ### Task 2: Local case and evidence workbench
 
@@ -60,19 +60,19 @@ def test_revision_is_zero_based(self):
 
 **Interfaces:** Declarations/events use the existing closed backend fields. Local records may wrap UI metadata separately. `window.ProofKeyIntake` (or explicitly documented module exports) exposes validation/store functions for browser tests. Use a new IndexedDB name/version; never reset simulator storage. Export declaration and ordered append payloads separately from local attachment manifest.
 
-- [ ] Write pure tests first for declaration/event validation, metadata mapping and file limits; run to the expected missing-feature failure.
+- [x] Write pure tests first for declaration/event validation, metadata mapping and file limits; run to the expected missing-feature failure.
 
 ```javascript
 assert.throws(() => validateDeclaration({...validDeclaration, case_id: '<script>'}));
 assert.throws(() => validateFileMetadata({type:'image/png', size:0}));
 ```
 
-- [ ] Implement the pure model and test it. Add browser failing checks for creation, real photo persistence/reload and corrupt photo rejection before implementing store/UI.
-- [ ] Implement atomic IndexedDB case/event/asset storage, SHA-256 and image decode; native audio preview must not imply transcription. Limit browser storage to a documented bounded total and fail transactionally.
-- [ ] Implement accessible create-case and add-evidence forms, explicit per-file validation/status, staged removal, preview cleanup, case list/detail/missing-case screen, immutable committed history, and JSON export. Prevent duplicate submit and preserve failed drafts.
-- [ ] Keep original demos unchanged; add a clearly separate Local intake navigation link. No fetch/Bearer key or fabricated analysis/execution result.
-- [ ] Run new unit/browser tests: valid image/audio, unsupported/empty/large/corrupt content, duplicate files/IDs, reload, quota/storage failure, HTML injection, missing case, keyboard and 360px layout. Run all three original suites from an isolated copied prototype.
-- [ ] Commit only owned design files; report exact tests and limitations.
+- [x] Implement the pure model and test it. Add browser failing checks for creation, real photo persistence/reload and corrupt photo rejection before implementing store/UI.
+- [x] Implement atomic IndexedDB case/event/asset storage, SHA-256 and image decode; native audio preview must not imply transcription. Limit browser storage to a documented bounded total and fail transactionally.
+- [x] Implement accessible create-case and add-evidence forms, explicit per-file validation/status, staged removal, preview cleanup, case list/detail/missing-case screen, immutable committed history, and JSON export. Prevent duplicate submit and preserve failed drafts.
+- [x] Keep original demos unchanged; add a clearly separate Local intake navigation link. No fetch/Bearer key or fabricated analysis/execution result.
+- [x] Run new unit/browser tests: valid image/audio, unsupported/empty/large/corrupt content, duplicate files/IDs, reload, quota/storage failure, HTML injection, missing case, keyboard and 360px layout. Run all three original suites from an isolated copied prototype.
+- [x] Commit only owned design files; report exact tests and limitations.
 
 ### Task 3: Architecture, API availability and team handoff
 
@@ -80,17 +80,17 @@ assert.throws(() => validateFileMetadata({type:'image/png', size:0}));
 
 **Interfaces:** Task 1 schema filenames are stable: `local-case.schema.json`, `decision-input.schema.json`, `decision-label.schema.json`, `episode.schema.json`, `transition.schema.json`, `decision-run.schema.json`, `asset.schema.json`, `analysis.schema.json`. Target path definitions are under `x-target-interfaces`, never ordinary OpenAPI `paths`.
 
-- [ ] Verify all 53 supplied file hashes before changes; preserve ZIP hash and source commit in import provenance.
-- [ ] Write four small diagrams and transition tables separating source revisions, media, analysis and operations. Explain restart, idempotency, late results, ownership, storage and cancellation.
-- [ ] Describe current endpoints exactly; missing list/upload/analysis/approval/execution interfaces must be visibly target-only, with proposed request/response contracts and extension points.
-- [ ] Provide parallel work assignments and acceptance checks for UI, backend and E2E/evals, including source revision/hash and no-future-evidence boundaries.
-- [ ] Parse JSON and check schema references; audit prose claims against implementation. Add root entry links without changing existing deliverable claims.
+- [x] Verify all 53 supplied file hashes before changes; preserve ZIP hash and source commit in import provenance.
+- [x] Write four small diagrams and transition tables separating source revisions, media, analysis and operations. Explain restart, idempotency, late results, ownership, storage and cancellation.
+- [x] Describe current endpoints exactly; missing list/upload/analysis/approval/execution interfaces must be visibly target-only, with proposed request/response contracts and extension points.
+- [x] Provide parallel work assignments and acceptance checks for UI, backend and E2E/evals, including source revision/hash and no-future-evidence boundaries.
+- [x] Parse JSON and check schema references; audit prose claims against implementation. Add root entry links without changing existing deliverable claims.
 
 ### Task 4: Independent review and completion
 
 **Files:** `docs/verification/team-contract-workbench-2026-10-10.md`, OpenSpec task checkboxes and archive; fixes in the responsible owned paths.
 
-- [ ] Review task 1 and task 2 diffs independently for spec compliance and quality. Handle important findings with test-first fixes and scoped re-review.
-- [ ] Run fresh contract, intake, original design and affected service tests. Inspect actual desktop/mobile renders; note exact unavailable checks rather than infer success.
-- [ ] Validate OpenSpec strictly, archive this completed additive scope and verify archived/living specs. Target backend work stays explicitly unimplemented.
-- [ ] Commit the verified local changes and give the user clickable entry points, test results and remaining backend gaps. Do not push or publish.
+- [x] Review task 1 and task 2 diffs independently for spec compliance and quality. Handle important findings with test-first fixes and scoped re-review.
+- [x] Run fresh contract, intake, original design and affected service tests. Inspect actual desktop/mobile renders; note exact unavailable checks rather than infer success.
+- [x] Validate OpenSpec strictly, archive this completed additive scope and verify archived/living specs. Target backend work stays explicitly unimplemented.
+- [x] Commit the verified local changes and give the user clickable entry points, test results and remaining backend gaps. Do not push or publish.
