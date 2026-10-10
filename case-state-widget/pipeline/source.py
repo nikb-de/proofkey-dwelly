@@ -8,6 +8,7 @@ PUBLIC = Path(os.environ.get('PROOFKEY_PUBLIC', str(ROOT / 'data' / 'dwelly-publ
 REPO = Path(os.environ.get('PROOFKEY_REPO', str(ROOT)))
 NEG = REPO / 'data' / 'negative-branches-001-050'
 CONTEXT = REPO / 'data' / 'training-context-cases'
+AUG = Path(os.environ.get('PROOFKEY_AUG', str(REPO / 'data' / 'context-augmentations-001-050')))
 ATLAS = Path(os.environ.get('PROOFKEY_ATLAS', str(ROOT / 'outputs' / 'ontology-explorer' / 'dist' / 'data.json')))
 
 EVENT_RE = re.compile(r'<a id="event-(\d+)"></a>\s*\n## (.+?) — event \1\n(.*?)(?=\n<a id="event-|\Z)', re.S)
@@ -48,7 +49,13 @@ def folder_for(ref):
                 if row['branch'] == ref:
                     return NEG / row['folder'], 'negative'
         raise FileNotFoundError(f'ветка {ref} не найдена в {NEG / "index.csv"}')
-    raise ValueError(f'непонятный идентификатор кейса {ref!r} (ожидается 001 или 001-N1)')
+    if re.fullmatch(r'\d{3}-A\d', ref):
+        with open(AUG / 'index.csv', newline='') as f:
+            for row in csv.DictReader(f):
+                if row['variant'] == ref:
+                    return AUG / row['folder'], 'augmentation'
+        raise FileNotFoundError(f'вариант {ref} не найден в {AUG / "index.csv"}')
+    raise ValueError(f'непонятный идентификатор кейса {ref!r} (ожидается 001, 001-N1 или 001-A1)')
 
 
 def load_case(ref):

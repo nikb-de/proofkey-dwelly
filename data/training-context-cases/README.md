@@ -1,6 +1,6 @@
 # Three independent training cases with extra context difficulty
 
-These three English synthetic cases extend the reviewed previews as separate records. Each has one additional complication and a new ID. The original 325 catalog cases are unchanged; the annotated catalog now contains 328 files. The proposed wider distribution has not been generated.
+These three English synthetic cases extend the reviewed previews as separate records. Each has one additional complication and a new ID. Existing public cases, negative branches and previously added context variants are unchanged. The proposed wider distribution from this preview has not been generated.
 
 | Case ID | Parent | Added complication | Decision at cutoff |
 |---|---|---|---|

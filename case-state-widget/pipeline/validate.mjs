@@ -14,6 +14,7 @@ const ROOT = path.resolve(WIDGET, '..');
 const SRC = process.env.PROOFKEY_PUBLIC || path.join(ROOT, 'data', 'dwelly-public-cases', 'raw', 'Delivery & Logistics');
 const REPO = process.env.PROOFKEY_REPO || path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const NEG = path.join(REPO, 'data', 'negative-branches-001-050');
+const AUG = path.join(REPO, 'data', 'context-augmentations-001-050');
 function folderFor(cid) {
   if (/^\d{3}(?:-N\d)?-A1-(?:NOISE|MISSING|LONG)$/.test(cid)) {
     return path.join(REPO, 'data', 'training-context-cases', 'sources', cid);
@@ -23,6 +24,12 @@ function folderFor(cid) {
     for (const row of fs.readFileSync(path.join(NEG, 'index.csv'), 'utf8').split('\n')) {
       const mm = /^(\d{3}),([\w-]+),([^,]+),/.exec(row);
       if (mm && mm[2] === cid) return path.join(NEG, mm[3]);
+    }
+  }
+  if (/^\d{3}-A\d$/.test(cid)) {
+    for (const row of fs.readFileSync(path.join(AUG, 'index.csv'), 'utf8').split('\n')) {
+      const mm = /^(\d{3}),([\w-]+),([^,]+),/.exec(row);
+      if (mm && mm[2] === cid) return path.join(AUG, mm[3]);
     }
   }
   throw new Error(`неизвестный кейс ${cid}`);
