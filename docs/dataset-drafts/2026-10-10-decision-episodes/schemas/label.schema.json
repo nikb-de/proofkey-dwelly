@@ -1,0 +1,263 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Unvalidated decision label v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "logistics-label-v0.1"
+    },
+    "decision_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{1,79}$"
+    },
+    "annotation_status": {
+      "enum": [
+        "assistant_authored_draft",
+        "model_draft",
+        "human_reviewed"
+      ]
+    },
+    "human_reviewed": {
+      "type": "boolean"
+    },
+    "sufficiency": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "for_action": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "enum": [
+              "sufficient",
+              "insufficient",
+              "unknown"
+            ]
+          },
+          "missing": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "for_action",
+          "status",
+          "missing"
+        ]
+      }
+    },
+    "acceptable_next_actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "recipient_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{1,79}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "requested_items": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          },
+          "control_mode": {
+            "enum": [
+              "autonomous_draft",
+              "human_in_the_loop",
+              "human_on_the_loop",
+              "deterministic_gate"
+            ]
+          },
+          "execution_mode": {
+            "enum": [
+              "propose_only",
+              "simulated_only"
+            ]
+          },
+          "parameters": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "kind",
+          "recipient_id",
+          "requested_items",
+          "control_mode",
+          "execution_mode",
+          "parameters"
+        ]
+      },
+      "minItems": 1
+    },
+    "human_involvement": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "information_participants": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "required_approval_role": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "oversight_mode": {
+          "enum": [
+            "none",
+            "in_the_loop",
+            "on_the_loop"
+          ]
+        }
+      },
+      "required": [
+        "information_participants",
+        "required_approval_role",
+        "oversight_mode"
+      ]
+    },
+    "required_observations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "must_not": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "policy_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "next_wait_condition": {
+      "type": "string",
+      "minLength": 1
+    },
+    "expected_gate": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "allowed": {
+              "type": "boolean"
+            },
+            "reason_codes": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            }
+          },
+          "required": [
+            "allowed",
+            "reason_codes"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "expected_operation_status": {
+      "anyOf": [
+        {
+          "enum": [
+            "accepted",
+            "pending",
+            "applied",
+            "failed",
+            "unknown"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "rationale_summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ambiguities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "schema_version",
+    "decision_id",
+    "annotation_status",
+    "human_reviewed",
+    "sufficiency",
+    "acceptable_next_actions",
+    "human_involvement",
+    "required_observations",
+    "must_not",
+    "evidence_refs",
+    "policy_refs",
+    "next_wait_condition",
+    "expected_gate",
+    "expected_operation_status",
+    "rationale_summary",
+    "ambiguities"
+  ]
+}

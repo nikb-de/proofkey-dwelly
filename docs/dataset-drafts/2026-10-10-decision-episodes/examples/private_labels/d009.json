@@ -1,0 +1,60 @@
+{
+  "schema_version": "logistics-label-v0.1",
+  "decision_id": "d009",
+  "annotation_status": "assistant_authored_draft",
+  "human_reviewed": false,
+  "sufficiency": [
+    {
+      "for_action": "draft_slot_options",
+      "status": "sufficient",
+      "missing": []
+    },
+    {
+      "for_action": "reschedule",
+      "status": "insufficient",
+      "missing": [
+        "verified_customer_slot_selection"
+      ]
+    }
+  ],
+  "acceptable_next_actions": [
+    {
+      "kind": "request_customer_choice",
+      "recipient_id": "customer-r",
+      "requested_items": [
+        "choose_slot_r_a_or_slot_r_b"
+      ],
+      "control_mode": "autonomous_draft",
+      "execution_mode": "propose_only",
+      "parameters": {}
+    }
+  ],
+  "human_involvement": {
+    "information_participants": [
+      "customer-r"
+    ],
+    "required_approval_role": null,
+    "oversight_mode": "on_the_loop"
+  },
+  "required_observations": [
+    "Two precise alternatives are visible; neither is selected."
+  ],
+  "must_not": [
+    "invent_a_third_available_slot",
+    "book_without_customer_selection",
+    "escalate_a_routine_choice_to_operator"
+  ],
+  "evidence_refs": [
+    "e211",
+    "e212"
+  ],
+  "policy_refs": [
+    "select-offered-slot",
+    "routine-autonomy"
+  ],
+  "next_wait_condition": "verified_customer_selection_or_refusal",
+  "expected_gate": null,
+  "expected_operation_status": null,
+  "rationale_summary": "Offer the known options and ask for the missing choice, not a generic operator decision.",
+  "ambiguities": []
+}

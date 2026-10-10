@@ -1,0 +1,678 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Proposed decision input v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "logistics-decision-v0.1"
+    },
+    "decision_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{1,79}$"
+    },
+    "episode_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{1,79}$"
+    },
+    "case_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{1,79}$"
+    },
+    "case_revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "stage": {
+      "enum": [
+        "intake",
+        "decide",
+        "authorize",
+        "execute",
+        "verify",
+        "resume"
+      ]
+    },
+    "as_of": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "objective": {
+          "type": "string",
+          "minLength": 1
+        },
+        "participants": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "participant_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{1,79}$"
+              },
+              "role": {
+                "type": "string",
+                "minLength": 1
+              },
+              "channel": {
+                "type": "string",
+                "minLength": 1
+              },
+              "case_binding": {
+                "enum": [
+                  "verified_fixture",
+                  "unverified"
+                ]
+              },
+              "authority_source": {
+                "enum": [
+                  "synthetic_harness",
+                  "self_claim_only"
+                ]
+              }
+            },
+            "required": [
+              "participant_id",
+              "role",
+              "channel",
+              "case_binding",
+              "authority_source"
+            ]
+          }
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{1,79}$"
+              },
+              "kind": {
+                "enum": [
+                  "message",
+                  "system_event",
+                  "operator_approval",
+                  "timeout",
+                  "tool_event"
+                ]
+              },
+              "sender_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{1,79}$"
+              },
+              "occurred_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "observed_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "body": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "event_id",
+              "kind",
+              "sender_id",
+              "occurred_at",
+              "observed_at",
+              "body"
+            ]
+          }
+        },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "artifact_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{1,79}$"
+              },
+              "source_event_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{1,79}$"
+              },
+              "media_type": {
+                "type": "string",
+                "minLength": 1
+              },
+              "availability": {
+                "enum": [
+                  "available",
+                  "unavailable"
+                ]
+              },
+              "read_status": {
+                "enum": [
+                  "not_read",
+                  "readable",
+                  "unreadable"
+                ]
+              },
+              "content_kind": {
+                "enum": [
+                  "none",
+                  "simulated_extraction"
+                ]
+              },
+              "extracted_content": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "artifact_id",
+              "source_event_id",
+              "media_type",
+              "availability",
+              "read_status",
+              "content_kind",
+              "extracted_content"
+            ]
+          }
+        },
+        "policy_snapshot": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "policy_id": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9-]{1,79}$"
+                },
+                "version": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "synthetic": {
+                  "const": true
+                },
+                "provenance": {
+                  "const": "trusted_test_fixture_not_company_policy"
+                },
+                "rules": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "rule_id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9-]{1,79}$"
+                      },
+                      "statement": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "rule_id",
+                      "statement"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "policy_id",
+                "version",
+                "synthetic",
+                "provenance",
+                "rules"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "type": "string",
+                "minLength": 1
+              },
+              "mode": {
+                "enum": [
+                  "propose_only",
+                  "simulated_only"
+                ]
+              }
+            },
+            "required": [
+              "operation",
+              "mode"
+            ]
+          }
+        },
+        "operation": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "operation_id": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]{1,79}$"
+            },
+            "kind": {
+              "type": "string",
+              "minLength": 1
+            },
+            "parameters": {
+              "type": "object"
+            },
+            "case_revision": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "policy_version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "idempotency_key": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "operation_id",
+            "kind",
+            "parameters",
+            "case_revision",
+            "policy_version",
+            "idempotency_key"
+          ]
+        },
+        "approvals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "approval_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{1,79}$"
+              },
+              "approver_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{1,79}$"
+              },
+              "role": {
+                "type": "string",
+                "minLength": 1
+              },
+              "verification": {
+                "const": "synthetic_harness_verified"
+              },
+              "operation_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{1,79}$"
+              },
+              "kind": {
+                "type": "string",
+                "minLength": 1
+              },
+              "parameters": {
+                "type": "object"
+              },
+              "case_revision": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "policy_version": {
+                "type": "string",
+                "minLength": 1
+              },
+              "observed_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "expires_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "revoked": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "approval_id",
+              "approver_id",
+              "role",
+              "verification",
+              "operation_id",
+              "kind",
+              "parameters",
+              "case_revision",
+              "policy_version",
+              "observed_at",
+              "expires_at",
+              "revoked"
+            ]
+          }
+        },
+        "gate_receipt": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "gate_id": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]{1,79}$"
+            },
+            "allowed": {
+              "type": "boolean"
+            },
+            "operation": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "operation_id": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9-]{1,79}$"
+                },
+                "kind": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "parameters": {
+                  "type": "object"
+                },
+                "case_revision": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "policy_version": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "idempotency_key": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "operation_id",
+                "kind",
+                "parameters",
+                "case_revision",
+                "policy_version",
+                "idempotency_key"
+              ]
+            },
+            "verification": {
+              "const": "synthetic_harness_verified"
+            },
+            "observed_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "required": [
+            "gate_id",
+            "allowed",
+            "operation",
+            "verification",
+            "observed_at"
+          ]
+        },
+        "tool_receipts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "receipt_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{1,79}$"
+              },
+              "operation_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{1,79}$"
+              },
+              "source": {
+                "type": "string",
+                "minLength": 1
+              },
+              "observed_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "status": {
+                "enum": [
+                  "accepted",
+                  "pending",
+                  "applied",
+                  "failed",
+                  "unknown"
+                ]
+              },
+              "parameters": {
+                "type": "object"
+              },
+              "authoritative": {
+                "type": "boolean"
+              },
+              "provenance": {
+                "const": "synthetic_harness"
+              }
+            },
+            "required": [
+              "receipt_id",
+              "operation_id",
+              "source",
+              "observed_at",
+              "status",
+              "parameters",
+              "authoritative",
+              "provenance"
+            ]
+          }
+        },
+        "prior_checkpoint": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "decision_id": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]{1,79}$"
+            },
+            "operation_id": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9-]{1,79}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "state": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "decision_id",
+            "operation_id",
+            "state"
+          ]
+        },
+        "trigger_event_id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]{1,79}$"
+        }
+      },
+      "required": [
+        "objective",
+        "participants",
+        "events",
+        "artifacts",
+        "policy_snapshot",
+        "capabilities"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "decision_id",
+    "episode_id",
+    "case_id",
+    "case_revision",
+    "stage",
+    "as_of",
+    "payload"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "stage": {
+            "const": "authorize"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "required": [
+              "operation"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "stage": {
+            "const": "execute"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "required": [
+              "operation"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "stage": {
+            "const": "verify"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "required": [
+              "operation"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "stage": {
+            "const": "authorize"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "required": [
+              "approvals"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "stage": {
+            "const": "execute"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "required": [
+              "gate_receipt"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "stage": {
+            "const": "verify"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "required": [
+              "tool_receipts"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "stage": {
+            "const": "resume"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "required": [
+              "prior_checkpoint",
+              "trigger_event_id"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

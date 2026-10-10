@@ -1,0 +1,94 @@
+{
+  "schema_version": "logistics-decision-v0.1",
+  "decision_id": "d003",
+  "episode_id": "ep02",
+  "case_id": "order-d",
+  "case_revision": 1,
+  "stage": "decide",
+  "as_of": "2026-10-10T10:01:00Z",
+  "payload": {
+    "objective": "Find the next permitted step for the damage claim",
+    "participants": [
+      {
+        "participant_id": "customer-d",
+        "role": "customer",
+        "channel": "customer_portal",
+        "case_binding": "verified_fixture",
+        "authority_source": "synthetic_harness"
+      },
+      {
+        "participant_id": "operator-d",
+        "role": "refund_operator",
+        "channel": "internal",
+        "case_binding": "verified_fixture",
+        "authority_source": "synthetic_harness"
+      },
+      {
+        "participant_id": "orders-d",
+        "role": "order_system",
+        "channel": "internal",
+        "case_binding": "verified_fixture",
+        "authority_source": "synthetic_harness"
+      }
+    ],
+    "events": [
+      {
+        "event_id": "e201",
+        "kind": "message",
+        "sender_id": "customer-d",
+        "occurred_at": "2026-10-10T10:00:00Z",
+        "observed_at": "2026-10-10T10:00:00Z",
+        "body": "Order D-01 has a cracked leg; here is the photo again. I request a GBP 75 refund."
+      }
+    ],
+    "artifacts": [
+      {
+        "artifact_id": "a201",
+        "source_event_id": "e201",
+        "media_type": "image/jpeg",
+        "availability": "available",
+        "read_status": "unreadable",
+        "content_kind": "none",
+        "extracted_content": null
+      }
+    ],
+    "policy_snapshot": {
+      "policy_id": "damage-policy",
+      "version": "1",
+      "synthetic": true,
+      "provenance": "trusted_test_fixture_not_company_policy",
+      "rules": [
+        {
+          "rule_id": "damage-evidence",
+          "statement": "A damage refund proposal requires a readable damage description from an available artifact or an approved alternative; opening an information request does not."
+        },
+        {
+          "rule_id": "refund-approval",
+          "statement": "Issuing a refund requires a verified refund operator approval bound to operation ID, exact amount/currency, policy version, case revision and unexpired authority."
+        },
+        {
+          "rule_id": "no-liability-inference",
+          "statement": "A described defect may support review; it does not by itself prove carrier liability."
+        },
+        {
+          "rule_id": "draft-messages",
+          "statement": "Evidence and approval requests may be drafted without sending them."
+        }
+      ]
+    },
+    "capabilities": [
+      {
+        "operation": "request_evidence",
+        "mode": "propose_only"
+      },
+      {
+        "operation": "operator_review",
+        "mode": "propose_only"
+      },
+      {
+        "operation": "evaluate_gate",
+        "mode": "simulated_only"
+      }
+    ]
+  }
+}

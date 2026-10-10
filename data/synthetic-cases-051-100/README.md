@@ -18,7 +18,8 @@ The public 001–050 all end well and show only "pass it on" or "ask back". Thes
 | WAIT_WITH_DEADLINE | 079–081 | a reply is missing: one reminder with the deadline and consequence, no booking | B |
 | DECLINE_EXPLAIN | 082–085 | the request is outside policy: decline citing the policy, offer the permitted alternative | A |
 | RECORD_STOP | 086–088 | the requester cancels: record the stop, forbid new actions, ask what was already executed | F |
-| RECORD_REFUSAL | 089–092 | goods refused: record the refusal; return authorisation is a separate step; refusal is not a refund | D |
+| RECORD_REFUSAL | 089, 090, 092 | goods refused at handover: record the refusal; return authorisation is separate; refusal is not a refund | D |
+| REQUEST_RETURN_AUTHORISATION | 091 | after completed handover: register a return request and seek merchant authorisation; do not record it as a refusal | D |
 | RESOLVE_DUPLICATE | 093–094 | the same request twice: link to the first, one change only | F |
 | SEPARATE_AUTHORITY | 095–097 | the requester lacks the recorded authority: go to the authorised party, disclose nothing | A |
 | RECONCILE_CONFLICT | 098–100 | two sources disagree: keep both, request evidence, no finding | A / E |
@@ -37,11 +38,31 @@ The public 001–050 all end well and show only "pass it on" or "ask back". Thes
 
 Give the system events 001–002 only (plus `Context` and `Initial request` from `index.md`), hide event 003 and later, and compare its proposal with event 003 on four things: who it addresses, through which channel, what it asks, and what it claims. `labels.csv` carries the expected decision type for scoring.
 
-## Check
+## Use with the existing model CLI
+
+This directory contains narrative sources, not a `dwelly-bundle-v1` input bundle. From the repository root, use **fresh output paths**:
+
+```sh
+python3 -B -m tools.dwelly_cases import \
+  --source data/synthetic-cases-051-100 \
+  --output /tmp/proofkey-synthetic-bundle \
+  --expected-cases 50
+python3 -B -m tools.dwelly_model dry-run \
+  --config tools/dwelly_model/config.example.json \
+  --bundle /tmp/proofkey-synthetic-bundle \
+  --output /tmp/proofkey-synthetic-offline \
+  --limit 50
+```
+
+The importer creates separate `agent/` snapshots and evaluator-only references. It does not use `labels.csv` as model input or automatically score its decision-type taxonomy. The generic importer currently labels provenance as `local_public_synthetic`; these sources are **team-generated synthetic development data**, not additional organiser cases. Preserve that distinction in experiment reporting.
+
+No independent-family split, human-validated labels or untouched test set is supplied here. See the [decision-episode authoring kit](../../docs/dataset-drafts/2026-10-10-decision-episodes/README.md) for per-action sufficiency, HITL/HOTL, future-event separation and the review workflow.
+
+## Check — rewrites labels.csv
 
 ```sh
 cd _spec
 python3 validate.py --public "<path to HackatonPublicCases>/Delivery & Logistics"
 ```
 
-Exits non-zero on any error and prints the case and the reason. Last run: 50 cases, 0 errors.
+The validator rewrites `_spec/labels.csv` even when checking; it is not read-only. Run on a disposable copy or review the resulting diff. It checks format and internal consistency, not business correctness or model quality. It exits non-zero on detected errors and prints the case and reason. Historical authoring report: 50 cases, 0 format errors.

@@ -1,0 +1,112 @@
+{
+  "schema_version": "logistics-decision-v0.1",
+  "decision_id": "d019",
+  "episode_id": "ep06",
+  "case_id": "order-w",
+  "case_revision": 1,
+  "stage": "resume",
+  "as_of": "2026-10-11T12:02:00Z",
+  "payload": {
+    "objective": "Resolve the next return/refund-review step",
+    "participants": [
+      {
+        "participant_id": "customer-w",
+        "role": "customer",
+        "channel": "customer_portal",
+        "case_binding": "verified_fixture",
+        "authority_source": "synthetic_harness"
+      },
+      {
+        "participant_id": "warehouse-w",
+        "role": "warehouse_receiving",
+        "channel": "email",
+        "case_binding": "verified_fixture",
+        "authority_source": "synthetic_harness"
+      },
+      {
+        "participant_id": "operator-w",
+        "role": "refund_operator",
+        "channel": "internal",
+        "case_binding": "verified_fixture",
+        "authority_source": "synthetic_harness"
+      },
+      {
+        "participant_id": "tracking-w",
+        "role": "tracking_system",
+        "channel": "internal",
+        "case_binding": "verified_fixture",
+        "authority_source": "synthetic_harness"
+      },
+      {
+        "participant_id": "clock-w",
+        "role": "clock",
+        "channel": "internal",
+        "case_binding": "verified_fixture",
+        "authority_source": "synthetic_harness"
+      }
+    ],
+    "events": [
+      {
+        "event_id": "e311",
+        "kind": "message",
+        "sender_id": "customer-w",
+        "occurred_at": "2026-10-10T12:00:00Z",
+        "observed_at": "2026-10-10T12:00:00Z",
+        "body": "I returned order W-01 and attached a receipt. Please start the refund review."
+      },
+      {
+        "event_id": "e312",
+        "kind": "timeout",
+        "sender_id": "clock-w",
+        "occurred_at": "2026-10-11T12:02:00Z",
+        "observed_at": "2026-10-11T12:02:00Z",
+        "body": "Harness record: the warehouse confirmation request was simulated as sent at 12:01 UTC on 10 October; there has been no reply. Its 24-hour deadline has passed."
+      }
+    ],
+    "artifacts": [],
+    "policy_snapshot": {
+      "policy_id": "return-policy",
+      "version": "1",
+      "synthetic": true,
+      "provenance": "trusted_test_fixture_not_company_policy",
+      "rules": [
+        {
+          "rule_id": "receipt-for-review",
+          "statement": "A verified warehouse message confirming order-linked physical receipt is sufficient to open refund review; a separate file is not mandatory."
+        },
+        {
+          "rule_id": "refund-authority",
+          "statement": "Warehouse receiving cannot approve or issue refunds; the refund operator must review eligibility."
+        },
+        {
+          "rule_id": "receipt-missing",
+          "statement": "If physical receipt is not evidenced, request confirmation from the known warehouse contact before proposing a refund."
+        },
+        {
+          "rule_id": "receipt-conflict",
+          "statement": "Conflicting receipt records must be clarified with the physical receiving source before a payment recommendation."
+        },
+        {
+          "rule_id": "receipt-timeout",
+          "statement": "After a warehouse confirmation request has been unanswered for 24 hours, draft an internal operations review; do not infer a refund or return rejection."
+        }
+      ]
+    },
+    "capabilities": [
+      {
+        "operation": "request_evidence",
+        "mode": "propose_only"
+      },
+      {
+        "operation": "operator_review",
+        "mode": "propose_only"
+      }
+    ],
+    "prior_checkpoint": {
+      "decision_id": "d017",
+      "operation_id": null,
+      "state": "waiting_for_warehouse_confirmation"
+    },
+    "trigger_event_id": "e312"
+  }
+}

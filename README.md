@@ -76,3 +76,11 @@ This private release does not resolve ownership or redistribution rights for ups
 ## 8. Next steps
 
 Collect the team's independent evaluation cases and permitted real examples, calibrate judges against explicit correct and incorrect controls, and test a bounded general prompt candidate for routing, policy boundaries and unsupported claims. That candidate has not been implemented or evaluated. Obtain human review before asserting correctness. A bridge to the execution runtime, native adapters, demo video and unseen challenge submission remain separate work.
+
+## 9. Dataset authoring and new scenarios
+
+- [Decision-episode authoring kit](docs/dataset-drafts/2026-10-10-decision-episodes/README.md): Russian team brief, generator prompt, six-stage input contract, 19 synthetic decision snapshots, separate labels/futures and eight review rubrics. All examples are development drafts, not a held-out benchmark or a runtime integration.
+- [Synthetic cases 051–100](data/synthetic-cases-051-100/README.md): 50 additional narrative scenarios. Run the documented import before passing them to the model CLI; their CSV decision taxonomy is separate from the runner's action schema.
+- [Negative branches for 001–050](data/negative-branches-001-050/README.md): the team's separately authored alternative continuations. They are preserved unchanged by the decision-draft update; no new validation or model-quality claim about them is implied here.
+
+All three collections need source-family grouping and reviewed labels before train/test use. Do not give a proposer the repository, label files, reference actions or future continuations.
