@@ -21,6 +21,66 @@ def runner(name='qualify_factory'):
 
 
 class WindowReadinessEvidenceTests(unittest.TestCase):
+    def import_only_control(self, mutation=''):
+        # Keep all fixed IDs, but use no-op bodies: this probes import accounting only.
+        import ast
+        with tempfile.TemporaryDirectory(prefix='import-baseline-unit-') as directory:
+            copied = Path(directory) / 'checkout'
+            shutil.copytree(ROOT / 'runtime', copied / 'runtime',
+                            ignore=shutil.ignore_patterns('__pycache__', '*.pyc', '.pytest_cache'))
+            common = runner()
+            probe = '''import importlib, sys
+for name in ('proofkey.adapters.case', 'proofkey.adapters.delivery',
+             'proofkey.adapters.scheduling', 'proofkey.adapters.returns',
+             'proofkey.adapters.messaging', 'proofkey.adapters.operator'):
+    importlib.import_module(name)
+''' + mutation
+            for name in common.CURRENT_V1_INNER_MODULES:
+                path = copied / 'runtime/tests' / (name + '.py')
+                tree = ast.parse(path.read_bytes())
+                for cls in tree.body:
+                    if isinstance(cls, ast.ClassDef):
+                        for method in cls.body:
+                            if isinstance(method, ast.FunctionDef) and method.name.startswith('test_'):
+                                method.body = (ast.parse(probe).body if
+                                    method.name == 'test_truthful_capability_leaf_cannot_omit_changed_semantic_siblings'
+                                    else [ast.Pass()])
+                path.write_text(ast.unparse(ast.fix_missing_locations(tree)) + '\n')
+            output = Path(directory) / 'result'
+            result = subprocess.run([sys.executable, '-B', str(copied / 'runtime/scripts/qualify_factory.py'),
+                '--lane', 'current-source-v1-comparison-v1', '--output', str(output)],
+                capture_output=True, text=True, timeout=30)
+            manifest = json.loads((output / 'manifest.json').read_bytes())
+            return result, manifest
+
+    def test_fixed_adapter_preload_accepts_normal_bundle_imports(self):
+        result, manifest = self.import_only_control()
+        self.assertEqual(result.returncode, 0, manifest.get('error'))
+        self.assertEqual(manifest['status'], 'passed')
+        self.assertTrue(manifest['source_stable'])
+        self.assertEqual(len(manifest['tests']['executed_ids']), 42)
+        for name in ('proofkey.adapters.case', 'proofkey.adapters.delivery',
+                     'proofkey.adapters.scheduling', 'proofkey.adapters.returns',
+                     'proofkey.adapters.messaging', 'proofkey.adapters.operator'):
+            self.assertEqual(manifest['imports']['before'][name], manifest['imports']['after'][name])
+
+    def test_fixed_adapter_preload_keeps_binding_alias_and_origin_guards(self):
+        mutations = (
+            ("sys.modules['proofkey.adapters'].operator = object()", 'pinned module binding changed'),
+            ("sys.modules['proofkey.adapters'].unapproved = object()", 'pinned module binding changed'),
+            ("sys.modules['proofkey.adapters.operator_alias'] = sys.modules['proofkey.adapters.operator']",
+             'aliased local module'),
+            ("sys.modules['proofkey.adapters.operator'].__file__ = '/outside/foreign.py'",
+             'module origin outside selected root'),
+        )
+        for mutation, reason in mutations:
+            with self.subTest(mutation=mutation):
+                result, manifest = self.import_only_control(mutation)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertEqual(manifest['status'], 'invalid')
+                self.assertTrue(manifest['source_stable'])
+                self.assertIn(reason, manifest['error'])
+
     def capture_unit_timing_records(self, timings):
         # Fabricated unit records exercise capture validation, not qualification.
         from hashlib import sha256

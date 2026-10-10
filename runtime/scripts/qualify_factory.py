@@ -521,6 +521,12 @@ def _execute_child(output, *, lane, selected_modules, capture, test_ids_key):
         # Some adapters are lazy-loaded by SimulatedWorld; retain all six before tests.
         for name in PIN_MODULES:
             importlib.import_module(name)
+        if lane == CURRENT_LANE:
+            # Settle the fixed bundle's ordinary lazy imports before pinning namespaces.
+            for name in ('proofkey.adapters.case', 'proofkey.adapters.delivery',
+                         'proofkey.adapters.scheduling', 'proofkey.adapters.returns',
+                         'proofkey.adapters.messaging', 'proofkey.adapters.operator'):
+                importlib.import_module(name)
         observed, retained = import_snapshot(root, before, modules=selected_modules)
         manifest["imports"]["before"] = observed
         run_inner(modules, manifest["tests"], output,
