@@ -5,8 +5,8 @@
 
 ## 2. Exact profile and trusted registration
 
-- [ ] 2.1 Use TDD for the exact profile/process/capability delta and all forbidden semantic edits; create the two identical candidate profile resources, explicit package-list entries and independent literal 86-name J05 inventory in existing package files only.
-- [ ] 2.2 Implement the exact frozen semantic registration and bounded detached context, including mixed-mode/material rejection, every proposal reconstruction path, explicit inventory/registration digests, reconstructed staged-manifest copy and unchanged legacy serialization vectors; verify mutation invalidates bound regression evidence.
+- [x] 2.1 Use TDD for the exact profile/process/capability delta and all forbidden semantic edits; create the two identical candidate profile resources, explicit package-list entries and independent literal 86-name J05 inventory in existing package files only.
+- [x] 2.2 Implement the exact frozen semantic registration and bounded detached context, including mixed-mode/material rejection, every proposal reconstruction path, explicit inventory/registration digests, reconstructed staged-manifest copy and unchanged legacy serialization vectors; verify mutation invalidates bound regression evidence.
 
 ## 3. Raw source and bounded scheduling adapter
 
