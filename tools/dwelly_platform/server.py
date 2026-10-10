@@ -16,6 +16,7 @@ DESIGN = ROOT / 'design/right-ontime/prototype/assets'
 CASE_PATH = re.compile(r'/api/platform/cases/([A-Za-z0-9][A-Za-z0-9_-]{0,63})(?:/(events|analyze|decisions|reviews|execute|assets|model-runs))?')
 ASSET_PATH = re.compile(r'/api/platform/cases/([A-Za-z0-9][A-Za-z0-9_-]{0,63})/assets/([A-Za-z0-9][A-Za-z0-9_-]{0,63})(/process)?')
 MODEL_PATH = re.compile(r'/api/platform/model-runs/([a-f0-9]{32})')
+COORDINATION_PATH = re.compile(r'/api/platform/cases/([A-Za-z0-9][A-Za-z0-9_-]{0,63})/coordination')
 CSP = "default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' blob: data:; media-src 'self' blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"
 
 
@@ -54,6 +55,11 @@ def capabilities(bridge, media=None, channels=None):
             {'id':'operator','label':'Operator inbox','status':'connected','mode':'local_review_queue'}]}
     result['communications'] = {'connectors':channels.capabilities() if channels else [],
                                 'provider_connections':False,'outbound_enabled':False}
+    result['coordination'] = {'enabled': True, 'schema_version': 'proofkey-coordination-v1',
+        'mode': 'local_sandbox', 'external_effects': 0,
+        'dispatch': 'operator_recorded_sandbox_readbacks',
+        'commands': ['initialize', 'request_cancellation', 'confirm_cancellation', 'record_offer',
+                     'record_consent', 'request_booking', 'confirm_booking', 'escalate']}
     if channels is not None:
         result['adapters'][4].update(status='sandbox',mode='local_ingress')
     return result
@@ -132,13 +138,17 @@ class Handler(BaseHTTPRequestHandler):
                     'decision_superseded','already_executed','media_budget_exceeded',
                     'event_conflict','media_processing_disabled','media_budget_exhausted',
                     'media_budget_cap_changed','budget_exhausted','budget_cap_changed','queue_full',
-                    'delivery_conflict','inbox_capacity','receipt_not_quarantined','communications_not_configured'}
+                    'delivery_conflict','inbox_capacity','receipt_not_quarantined','communications_not_configured',
+                    'workflow_conflict','coordination_not_initialized','coordination_already_initialized',
+                    'coordination_transition_blocked','evidence_actor_mismatch','evidence_stale',
+                    'evidence_correlation_mismatch','offer_mismatch','consent_stale'}
         invalid = {'invalid_case_request','invalid_request','invalid_content_type','request_too_large','duplicate_key',
                    'invalid_model_request','invalid_media','invalid_asset','invalid_asset_type','evidence_not_found',
                    'invalid_platform_request','invalid_review','invalid_action','invalid_slot','invalid_media_request',
                    'asset_too_large','asset_mismatch','invalid_model_job','media_mode_mismatch',
                    'media_too_large','media_dimensions_exceeded','media_duration_exceeded',
-                   'invalid_envelope','invalid_identity','envelope_too_large','unknown_connector'}
+                   'invalid_envelope','invalid_identity','envelope_too_large','unknown_connector',
+                   'invalid_coordination_request','invalid_terms','coordination_audit_too_large'}
         if code in missing: status = 404
         elif code in conflict: status = 409
         # Only documented public codes may cross the HTTP boundary. A database
@@ -181,6 +191,9 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, {'cases':summaries})
             matched = CASE_PATH.fullmatch(path)
             if matched and not matched[2]: return self._send(200, {'case':self._detail(matched[1])})
+            matched = COORDINATION_PATH.fullmatch(path)
+            if matched:
+                return self._send(200, {'coordination': self.server.store.coordination_detail(matched[1])})
             matched = ASSET_PATH.fullmatch(path)
             if matched and not matched[3]:
                 meta, raw = self.server.store.get_asset(matched[1],matched[2])
@@ -239,6 +252,10 @@ class Handler(BaseHTTPRequestHandler):
             if path == '/api/platform/cases':
                 snapshot, created = self.server.store.create(key,self._body(16384))
                 return self._send(201 if created else 200, {'case':self._detail(snapshot['case_id'])})
+            matched = COORDINATION_PATH.fullmatch(path)
+            if matched:
+                result = self.server.store.coordination_command(matched[1],key,self._body(16384))
+                return self._send(200, {'coordination': result})
             matched = ASSET_PATH.fullmatch(path)
             if matched and matched[3]:
                 body = self._body(16384)
