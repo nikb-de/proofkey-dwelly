@@ -1,0 +1,158 @@
+{
+  "case": "020",
+  "title": "A multi-parcel order arrives with one parcel still outstanding",
+  "snapshot": "Parcel support reports that order TG-020 consists of DL-020-A, DL-020-B and DL-020-C, that A and B have delivery scans while C has only an inbound depot scan, and that all three are required. Eris Kael, the recipient, has two cartons, names DL-020-C as missing, and is available on 2026-02-22.",
+  "recorded_action": "Iona emailed the Parcel trace team to trace DL-020-C specifically and arrange its remaining delivery, without marking TG-020 complete on the A and B scans.",
+  "negatives": [
+    {
+      "id": "020-N1",
+      "label": "Order-level trace duplicates carton trace",
+      "failure_mode": "DUPLICATE_REQUEST",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-21 09:40:00 UTC",
+        "channel": "Email",
+        "from": "Parcel trace team, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "We now have two open traces: yours for DL-020-C and one opened by Parcel support at 09:15 UTC for the whole order TG-020. Each trace can arrange a delivery."
+      },
+      "expected_decision": "RESOLVE_DUPLICATE",
+      "sheet": "F",
+      "expected_action": "Ask the Parcel trace team by email to link the order-level trace to the DL-020-C trace and run one trace with one delivery arrangement for DL-020-C.",
+      "must_not": "Do not let both traces book a delivery, and do not let the order-level trace close TG-020 on the A and B delivery scans.",
+      "done_means": "The trace team confirms one open trace for DL-020-C with the other linked; this settles the duplicate, not the carton's location.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Parcel trace team, Plover Arc Logistics",
+        "text": "Please link Parcel support's 09:15 UTC order-level trace for TG-020 to our trace for DL-020-C and run one trace with one delivery arrangement for DL-020-C. Please do not create a second delivery. TG-020 must not be closed on the A and B delivery scans."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-21 10:30:00 UTC",
+        "channel": "Email",
+        "from": "Parcel trace team, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "The 09:15 UTC order-level trace is now linked to the DL-020-C trace and closed. One trace remains open, for DL-020-C only, and TG-020 stays open. This settles the duplicate; we have not yet located the carton."
+      }
+    },
+    {
+      "id": "020-N2",
+      "label": "Next-day route full after locating carton",
+      "failure_mode": "STALE_STATE",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-21 10:30:00 UTC",
+        "channel": "Email",
+        "from": "Parcel trace team, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "DL-020-C has been located in depot stock. Capacity on the 2026-02-22 route for this area filled at 10:15 UTC. Available: delivery on 2026-02-23, 09:00–13:00 UTC, or depot collection from 2026-02-22, 10:00 UTC. Nothing is booked."
+      },
+      "expected_decision": "ASK_CUSTOMER",
+      "sheet": "B",
+      "expected_action": "Ask Eris in the Customer portal to choose between delivery on 2026-02-23, 09:00–13:00 UTC and depot collection from 2026-02-22, 10:00 UTC, and book nothing until Eris answers.",
+      "must_not": "Do not book the 2026-02-23 delivery because Eris wants the carton; Eris said only that 2026-02-22 is available.",
+      "done_means": "Eris chooses and the trace team confirms the booking or collection readiness; neither reconciles the parcel count.",
+      "agent_event": {
+        "channel": "Customer portal",
+        "to": "Eris Kael, recipient",
+        "text": "DL-020-C has been located in depot stock, but the 2026-02-22 delivery route is now full. The carrier offers delivery on 2026-02-23, 09:00–13:00 UTC, or depot collection from 2026-02-22, 10:00 UTC. Nothing is booked. Which would you like?"
+      },
+      "followup_event": {
+        "timestamp": "2026-02-21 11:20:00 UTC",
+        "channel": "Email",
+        "from": "Parcel trace team, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Eris's choice, relayed by you at 11:05 UTC, is recorded: DL-020-C is set for depot collection from 2026-02-22, 10:00 UTC. It has not been collected. TG-020 remains at two of three cartons received."
+      }
+    },
+    {
+      "id": "020-N3",
+      "label": "Delivery scan but carton not received",
+      "failure_mode": "CONFLICTING_RECORDS",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-02-22 11:10:00 UTC",
+        "channel": "Customer portal",
+        "from": "Eris Kael, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "The tracker says DL-020-C was delivered at 10:55 UTC today. I have been home all morning and I still have only two cartons, A and B."
+      },
+      "expected_decision": "RECONCILE_CONFLICT",
+      "sheet": "E",
+      "expected_action": "Keep both records and ask the Parcel trace team by email for the evidence behind the 10:55 scan, including the handover location and the driver's record, keeping TG-020 open.",
+      "must_not": "Do not tell Eris that DL-020-C is delivered or mark TG-020 complete because the scan says so, and do not open a loss claim yet.",
+      "done_means": "The trace team returns evidence for the 10:55 scan; that clarifies the record, not where the carton is, and the order count stays at two of three.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Parcel trace team, Plover Arc Logistics",
+        "text": "DL-020-C shows a delivery scan at 10:55 UTC today, but Eris Kael says she has been home all morning and has only cartons A and B. We are keeping both records and TG-020 stays open. Please send the evidence behind that scan, including the handover location and the driver's record."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-22 12:20:00 UTC",
+        "channel": "Email",
+        "from": "Parcel trace team, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Evidence for the 10:55 UTC scan of DL-020-C: the handset location is two streets from Eris's address, with no signature or photo. The driver's record notes 'left with neighbour' without a name. This clarifies the record, not where the carton is. TG-020 stays at two of three cartons."
+      }
+    },
+    {
+      "id": "020-N4",
+      "label": "Damaged third carton refused at door",
+      "failure_mode": "PHYSICAL_FAILURE",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-02-22 12:40:00 UTC",
+        "channel": "Dispatch chat",
+        "from": "Parcel trace team, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Driver report for DL-020-C at 12:30 UTC: the outer carton was split along one side. Eris Kael refused it at the door for that reason. The carton is back on the van and will return to the depot tonight."
+      },
+      "expected_decision": "RECORD_REFUSAL",
+      "sheet": "D",
+      "expected_action": "Record Eris's refusal of DL-020-C and the stated damage reason with the Parcel trace team by email, ask for the driver's condition record, and leave any return authorisation as a separate step for the seller or the Returns desk.",
+      "must_not": "Do not mark TG-020 complete, and do not tell Eris that a refund or replacement is arranged; refusal, return and refund are separate.",
+      "done_means": "The refusal is recorded with the driver's condition record and DL-020-C is held at the depot; return authorisation and any refund remain pending, and the order still has two of three cartons.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Parcel trace team, Plover Arc Logistics",
+        "text": "Please record that Eris Kael refused DL-020-C at the door at 12:30 UTC because the outer carton was split along one side. Please send us the driver's condition record for the carton. Any return authorisation is a separate step for the seller or the Returns desk. TG-020 stays open with two of three cartons."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-22 19:30:00 UTC",
+        "channel": "Email",
+        "from": "Parcel trace team, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Refusal of DL-020-C recorded at 13:10 UTC, reason: outer carton split along one side. The driver's condition record and photos are attached to the trace. The carton was booked back into the depot at 19:15 UTC and is held there. No return is authorised and no refund is arranged. TG-020 has two of three cartons."
+      }
+    },
+    {
+      "id": "020-N5",
+      "label": "Recipient stops the remaining delivery",
+      "failure_mode": "CUSTOMER_CANCELS",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-02-21 11:00:00 UTC",
+        "channel": "Customer portal",
+        "from": "Eris Kael, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Please stop the delivery of DL-020-C. I have asked the seller to cancel TG-020, and I plan to send A and B back."
+      },
+      "expected_decision": "RECORD_STOP",
+      "sheet": "F",
+      "expected_action": "Record the stop with the Parcel trace team by email, forbid any new action on DL-020-C, and ask what had already been executed, including its allocation to the 2026-02-22 route.",
+      "must_not": "Do not arrange a collection of A and B or promise a refund; the return and refund belong to the seller and the Returns desk.",
+      "done_means": "The trace team confirms the stop and the actual state of DL-020-C; A and B stay delivered, and no return or refund is established.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Parcel trace team, Plover Arc Logistics",
+        "text": "Eris Kael has asked us to stop the delivery of DL-020-C and has asked the seller to cancel TG-020. Please record the stop and take no new action on DL-020-C. What had already been done before this message, including its allocation to the 2026-02-22 route?"
+      },
+      "followup_event": {
+        "timestamp": "2026-02-21 11:50:00 UTC",
+        "channel": "Email",
+        "from": "Parcel trace team, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Stop recorded for DL-020-C at 11:30 UTC. Before it, the carton had been allocated to the 2026-02-22 route. It is now held in depot stock and will not be delivered while the stop stands. A and B remain delivered. No return or refund is established."
+      }
+    }
+  ]
+}

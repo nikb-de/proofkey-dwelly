@@ -1,0 +1,188 @@
+{
+  "case": "040",
+  "title": "Cancelled order is packed but has not left the merchant warehouse",
+  "snapshot": "Tallowmere Goods authorised cancellation CAN-040 for TG-040 at 08:45 UTC while DL-040 sits packed in outbound cage O7 with no carrier handover scan; refund processing is a separate task. Order control asks the desk to get the warehouse to stop DL-040 before the next outbound sweep.",
+  "recorded_action": "Iona Quill posted to Warehouse dispatch, Tallowmere Goods, in the Warehouse work queue, asking it to apply CAN-040, stop DL-040 in cage O7 and confirm physical removal and the resulting shipment status.",
+  "negatives": [
+    {
+      "id": "040-N1",
+      "label": "Parcel handed over before the stop",
+      "failure_mode": "STALE_STATE",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-03-13 09:41:00 UTC",
+        "channel": "Warehouse work queue",
+        "from": "Warehouse dispatch, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Cage O7 was swept at 09:30, before the stop task was picked up. DL-040 was loaded onto the Plover Arc trailer and has a carrier handover scan at 09:32. We can no longer stop it in the warehouse."
+      },
+      "expected_decision": "GET_OPTIONS",
+      "sheet": "B",
+      "expected_action": "Ask Dispatch, Plover Arc Logistics, by email for the intercept or return options and any charge for DL-040, changing nothing until Order control accepts one.",
+      "must_not": "Do not report the dispatch as stopped, and do not order an intercept on the strength of CAN-040; the warehouse stop it covered is no longer possible.",
+      "done_means": "The carrier's options reach Order control and it chooses one; an intercept request is not a parcel back in the warehouse, and refund stays separate.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Dispatch, Plover Arc Logistics",
+        "text": "DL-040 for TG-040 was loaded onto your trailer with a handover scan at 09:32, after Tallowmere Goods authorised cancellation CAN-040. Please send the options to stop or return it, such as an intercept, and any charge for each. We are changing nothing until Tallowmere's Order control chooses one, and will pass your reply to them."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-13 10:40:00 UTC",
+        "channel": "Warehouse work queue",
+        "from": "Order control, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Your desk passed on Plover Arc's options for DL-040: depot intercept with return to our warehouse at GBP 6.50, or delivery as addressed. We choose the depot intercept. The parcel is not back with us until our warehouse scans it in, and refund remains a separate task."
+      }
+    },
+    {
+      "id": "040-N2",
+      "label": "Stop task fails to sync",
+      "failure_mode": "CHANNEL_FAILURE",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-03-13 09:27:00 UTC",
+        "channel": "Warehouse work queue",
+        "from": "Warehouse dispatch, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Queue notice. The task for DL-040 hit a sync error at 09:26 and shows no assignee. The queue cannot confirm whether the stop instruction reached the cage O7 team."
+      },
+      "expected_decision": "VERIFY_FIRST",
+      "sheet": "R",
+      "expected_action": "Ask Warehouse dispatch in the Warehouse work queue whether a stop task for DL-040 is saved and assigned, stating that no second task will be posted until it answers and that the next outbound sweep is the limit.",
+      "must_not": "Do not post a second stop task or ask the carrier to refuse the parcel; parallel instructions can leave DL-040 in two states.",
+      "done_means": "Warehouse dispatch confirms one assigned stop task, or none and one resubmission; a saved task is not physical removal, and refund stays separate.",
+      "agent_event": {
+        "channel": "Warehouse work queue",
+        "to": "Warehouse dispatch, Tallowmere Goods",
+        "text": "The queue shows a sync error at 09:26 on the DL-040 task, with no assignee. Please check whether a stop task for DL-040 under CAN-040 is saved and assigned to the cage O7 team. We will not post a second task until you answer. The next outbound sweep is the limit."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-13 09:55:00 UTC",
+        "channel": "Warehouse work queue",
+        "from": "Warehouse dispatch, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "The DL-040 stop task is saved and now assigned to the cage O7 team; no second task exists. DL-040 has not yet been removed from cage O7. A saved task is not a stop, and refund is not handled by our team."
+      }
+    },
+    {
+      "id": "040-N3",
+      "label": "Customer reverses the cancellation",
+      "failure_mode": "SNAPSHOT_CONFLICT",
+      "insert_after": "002",
+      "new_event": {
+        "timestamp": "2026-03-13 09:15:00 UTC",
+        "channel": "Customer portal",
+        "from": "Customer for order TG-040",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "I cancelled TG-040 this morning but I have changed my mind. Please do not stop the parcel. Send it as planned to my address."
+      },
+      "expected_decision": "SEPARATE_AUTHORITY",
+      "sheet": "A",
+      "expected_action": "Pass the customer's message to Order control in the Warehouse work queue as the owner of CAN-040, and act on the stop only as Order control instructs.",
+      "must_not": "Do not hold or reverse the stop on the customer's word, and do not tell the customer the order is reinstated.",
+      "done_means": "Order control confirms whether CAN-040 stands and the desk acts on that instruction only; the customer's message settles nothing about dispatch or refund.",
+      "agent_event": {
+        "channel": "Warehouse work queue",
+        "to": "Order control, Tallowmere Goods",
+        "text": "At 09:15 a Customer portal message for TG-040 asked us not to stop the parcel and to send it as planned. You own CAN-040. Does CAN-040 still stand? We will act on the stop only as you instruct and have told the customer nothing about reinstatement."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-13 09:50:00 UTC",
+        "channel": "Warehouse work queue",
+        "from": "Order control, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "CAN-040 stands. A reinstatement would need a new order through our order account, and none has been placed. Continue with the warehouse stop for DL-040. The stop is not yet confirmed by warehouse dispatch, and refund remains a separate task."
+      }
+    },
+    {
+      "id": "040-N4",
+      "label": "Carrier scan contradicts warehouse stop",
+      "failure_mode": "CONFLICTING_RECORDS",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-03-13 10:05:00 UTC",
+        "channel": "Email",
+        "from": "Tracking support, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "DL-040 shows a collection scan at the Tallowmere outbound dock at 09:48 UTC today, on the trailer manifest for the 10:00 departure. No exception has been recorded against it."
+      },
+      "expected_decision": "RECONCILE_CONFLICT",
+      "sheet": "E",
+      "expected_action": "Record both statements and ask Warehouse dispatch in the Warehouse work queue for a physical check of cancellation stock for DL-040, quoting the carrier's 09:48 collection scan, overwriting neither record.",
+      "must_not": "Do not tell Order control the dispatch is stopped on the warehouse record alone, and do not request a carrier intercept before the physical check.",
+      "done_means": "Warehouse dispatch reports where DL-040 physically is, with the carrier scan kept on record beside it; refund and customer communication stay separate.",
+      "agent_event": {
+        "channel": "Warehouse work queue",
+        "to": "Warehouse dispatch, Tallowmere Goods",
+        "text": "Two records disagree for DL-040. Your entry says it was removed from cage O7 into cancellation stock at 09:45 with no carrier handover. Plover Arc Tracking support reports a collection scan at your outbound dock at 09:48, on the manifest for the 10:00 departure. Please physically check cancellation stock for DL-040 and report where it is. Both records stay as they are meanwhile."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-13 10:45:00 UTC",
+        "channel": "Warehouse work queue",
+        "from": "Warehouse dispatch, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Physical check at 10:35: DL-040 is in cancellation stock with its label intact. The carrier's 09:48 scan remains on its record; we cannot explain it from our side. Refund and customer communication are not handled by our team."
+      }
+    },
+    {
+      "id": "040-N5",
+      "label": "Asked to announce an unissued refund",
+      "failure_mode": "OUT_OF_POLICY_ASK",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-03-13 10:00:00 UTC",
+        "channel": "Warehouse work queue",
+        "from": "Order control, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Dispatch stop confirmed, thank you. Please now message the customer that TG-040 is cancelled and the refund has been issued, so we can close the ticket."
+      },
+      "expected_decision": "DECLINE_EXPLAIN",
+      "sheet": "A",
+      "expected_action": "Reply to Order control in the Warehouse work queue that the desk can report only the confirmed dispatch stop, that refund processing is a separate task under event 001 which warehouse dispatch does not perform, and that any refund statement must come from the refund owner.",
+      "must_not": "Do not tell the customer a refund has been issued; nothing in the record shows a refund approved or paid.",
+      "done_means": "Order control acknowledges and only the dispatch stop is recorded as done; refund and customer communication remain open.",
+      "agent_event": {
+        "channel": "Warehouse work queue",
+        "to": "Order control, Tallowmere Goods",
+        "text": "We can report only the confirmed dispatch stop: warehouse dispatch removed DL-040 from cage O7 at 09:45, with no carrier handover. Your 09:00 note makes refund processing a separate task, and warehouse dispatch does not perform it. Nothing on record shows a refund approved or paid, so any refund statement must come from the refund owner."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-13 10:40:00 UTC",
+        "channel": "Warehouse work queue",
+        "from": "Order control, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Understood. We have recorded the dispatch stop for DL-040 as done. The refund for TG-040 has not been issued; our refunds team owns it. Refund and the customer message about it remain open."
+      }
+    },
+    {
+      "id": "040-N6",
+      "label": "Warehouse silent as the sweep nears",
+      "failure_mode": "NO_REPLY",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-03-13 10:05:00 UTC",
+        "channel": "Warehouse work queue",
+        "from": "Order control, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "No reply from warehouse dispatch on DL-040 yet. The next outbound sweep of cage O7 is at 10:30. Is the stop in place?"
+      },
+      "expected_decision": "WAIT_WITH_DEADLINE",
+      "sheet": "B",
+      "expected_action": "Post one reminder to Warehouse dispatch in the Warehouse work queue that CAN-040 requires DL-040 to be removed from cage O7 before the 10:30 sweep, and tell Order control that no stop is confirmed yet.",
+      "must_not": "Do not tell Order control the stop is in place, and do not ask the carrier to refuse the parcel; a reminder is not a stop.",
+      "done_means": "Warehouse dispatch confirms removal before 10:30, or the sweep passes on record without it; either way refund stays separate.",
+      "agent_event": {
+        "channel": "Warehouse work queue",
+        "to": "Warehouse dispatch, Tallowmere Goods; Order control, Tallowmere Goods",
+        "text": "Reminder for Warehouse dispatch: CAN-040 requires DL-040 to be removed from cage O7 before the 10:30 outbound sweep; if it stays in the cage, it leaves with the sweep. Please confirm physical removal and the shipment status. For Order control: no stop is confirmed yet."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-13 10:28:00 UTC",
+        "channel": "Warehouse work queue",
+        "from": "Warehouse dispatch, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "At 10:26 UTC we removed DL-040 from cage O7 into cancellation stock, before the 10:30 sweep. Shipment status is dispatch stopped; no carrier handover occurred. Refund action is not performed by our team."
+      }
+    }
+  ]
+}

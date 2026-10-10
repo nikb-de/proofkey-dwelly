@@ -1,0 +1,158 @@
+{
+  "case": "022",
+  "title": "A delivered household item is confirmed broken",
+  "snapshot": "Tallowmere Goods has accepted damage on TG-022, a ceramic table lamp with a separated base, for replacement assessment, but no replacement approval is recorded. Remi Dask prefers the same lamp to a refund and asks for the merchant to approve a replacement.",
+  "recorded_action": "Iona emailed Replacement authorisations, Tallowmere Goods, asking them to approve a like-for-like lamp replacement for TG-022 using the accepted inspection record.",
+  "negatives": [
+    {
+      "id": "022-N1",
+      "label": "Mail gateway times out on request",
+      "failure_mode": "CHANNEL_FAILURE",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-23 09:27:00 UTC",
+        "channel": "Email",
+        "from": "Mail system, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Delivery status unknown for your message to Replacement authorisations sent at 09:25 UTC. The mailbox gateway timed out after accepting part of the message. It may or may not have reached the team. No ticket reference was returned."
+      },
+      "expected_decision": "VERIFY_FIRST",
+      "sheet": "R",
+      "expected_action": "Email Damage assessor, Tallowmere Goods, which holds the TG-022 record, to ask whether a replacement request is now logged against it, and send no second request until it answers.",
+      "must_not": "Do not resend the replacement request blindly, which risks two replacement orders, and do not tell Remi that the request has been received.",
+      "done_means": "The merchant confirms whether one request is logged on TG-022; a logged request is not an approval.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Damage assessor, Tallowmere Goods",
+        "text": "Our 09:25 UTC email asking Replacement authorisations to approve a like-for-like lamp replacement for TG-022 hit a gateway timeout, and no ticket reference came back. Please check the TG-022 record and tell us whether a replacement request is now logged against it. Please do not create a second request. We will not send one until you answer."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-23 10:05:00 UTC",
+        "channel": "Email",
+        "from": "Damage assessor, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "One replacement request is logged against TG-022, received from your desk at 09:25 UTC and assigned to Replacement authorisations. No second request exists. A logged request is not an approval. No replacement order has been created."
+      }
+    },
+    {
+      "id": "022-N2",
+      "label": "Warehouse offers dispatch without authorisation",
+      "failure_mode": "UNAUTHORISED_REPLY",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-23 09:40:00 UTC",
+        "channel": "Email",
+        "from": "Warehouse dispatch, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Saw your lamp request for TG-022. We have the same lamp on the shelf and can send it on the 11:00 van if you confirm the delivery address. No need to wait for Replacement authorisations."
+      },
+      "expected_decision": "SEPARATE_AUTHORITY",
+      "sheet": "A",
+      "expected_action": "Confirm nothing and share no address with Warehouse dispatch, tell Replacement authorisations, Tallowmere Goods, about the offer, and keep the approval request with them.",
+      "must_not": "Do not confirm Remi's address or a dispatch on the warehouse's word, as that bypasses the party authorised to approve the replacement.",
+      "done_means": "Replacement authorisations confirms its own decision on TG-022; a warehouse offer is not an approval, and stock on a shelf is not a dispatch.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Replacement authorisations, Tallowmere Goods",
+        "text": "For TG-022: at 09:40 UTC Warehouse dispatch offered to send the same lamp on the 11:00 van if we confirm the delivery address, without waiting for you. We have confirmed nothing and shared no address. Our 09:25 UTC approval request stays with you. Please tell us your decision on the like-for-like replacement."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-23 10:20:00 UTC",
+        "channel": "Email",
+        "from": "Replacement authorisations, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Our decision on TG-022: approved. A like-for-like replacement order is created for the same lamp at no additional charge, and stock is reserved. Warehouse dispatch may not send anything outside this order. No replacement parcel has been dispatched. Approval is not dispatch."
+      }
+    },
+    {
+      "id": "022-N3",
+      "label": "Same lamp sold out, grey offered",
+      "failure_mode": "STALE_STATE",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-23 09:45:00 UTC",
+        "channel": "Email",
+        "from": "Replacement authorisations, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "TG-022: the same ceramic lamp sold out at 09:30 UTC today and has no restock date. We can approve the same model in a grey finish at no additional charge, or a refund. We need the customer's choice before we create anything."
+      },
+      "expected_decision": "ASK_CUSTOMER",
+      "sheet": "B",
+      "expected_action": "Ask Remi in the customer portal one question: does he choose the grey lamp at no additional charge or a refund, as offered by the merchant for TG-022.",
+      "must_not": "Do not treat Remi's earlier choice of the same lamp as consent to the grey finish, and do not tell him a refund is under way.",
+      "done_means": "Remi states one of the two offered options; his choice is not a merchant approval, a replacement order or a refund payment.",
+      "agent_event": {
+        "channel": "Customer portal",
+        "to": "Remi Dask, recipient",
+        "text": "Tallowmere Goods reports that the same ceramic lamp sold out at 09:30 UTC today, with no restock date. For TG-022 it offers the same lamp in a grey finish at no additional charge, or a refund. Which do you choose: the grey lamp or a refund? The merchant creates nothing until you choose."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-23 10:25:00 UTC",
+        "channel": "Customer portal",
+        "from": "Remi Dask, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "I choose the grey lamp at no additional charge. I understand the merchant still has to approve it and create the order, and nothing has been sent yet."
+      }
+    },
+    {
+      "id": "022-N4",
+      "label": "Return logged versus returned-item inspection",
+      "failure_mode": "CONFLICTING_RECORDS",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-23 09:48:00 UTC",
+        "channel": "Email",
+        "from": "Replacement authorisations, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "We cannot approve TG-022 yet. A replacement needs the broken lamp back first, and no return is logged against TG-022 in our system. Please ask the customer to send it back."
+      },
+      "expected_decision": "RECONCILE_CONFLICT",
+      "sheet": "E",
+      "expected_action": "Email Replacement authorisations and Damage assessor, Tallowmere Goods, quoting both records, and ask the damage assessor to confirm whether the lamp was returned and inspected under TG-022.",
+      "must_not": "Do not ask Remi to send the lamp back, and do not decide which merchant record is correct.",
+      "done_means": "The merchant states one return status for TG-022 with its source; that settles the record, not the replacement approval.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Damage assessor, Tallowmere Goods; Replacement authorisations, Tallowmere Goods",
+        "text": "Two TG-022 records disagree. The 09:00 UTC inspection record says the recipient report was reviewed against your returned-item inspection. Replacement authorisations wrote at 09:48 UTC that no return is logged against TG-022. Damage assessor, please confirm whether the lamp was returned and inspected under TG-022, and from which record. We have not asked Remi to send anything back."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-23 10:30:00 UTC",
+        "channel": "Email",
+        "from": "Damage assessor, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "TG-022: the broken lamp was returned and inspected before our 09:00 UTC record, and the inspection entry holds the return. It was not linked to the order, so Replacement authorisations saw no return. It is now linked. This settles the return status only. The replacement approval is still with Replacement authorisations."
+      }
+    },
+    {
+      "id": "022-N5",
+      "label": "Customer stops replacement, wants money",
+      "failure_mode": "CUSTOMER_CANCELS",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-02-23 10:12:00 UTC",
+        "channel": "Customer portal",
+        "from": "Remi Dask, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Please stop my replacement request. I have decided I want my money back instead of another lamp. I do not want a second lamp delivered."
+      },
+      "expected_decision": "RECORD_STOP",
+      "sheet": "F",
+      "expected_action": "Record Remi's stop against TG-022-R and email Replacement authorisations, Tallowmere Goods, asking them to hold the replacement and state what is already done, passing on his refund request for their decision.",
+      "must_not": "Do not tell Remi that TG-022-R is cancelled or that a refund is approved before the merchant confirms either.",
+      "done_means": "The merchant confirms the hold on TG-022-R and what was already executed; a stopped replacement is not a refund, and the refund decision stays with the merchant.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Replacement authorisations, Tallowmere Goods",
+        "text": "Remi Dask asked at 10:12 UTC to stop replacement order TG-022-R. He now wants his money back instead of another lamp and does not want a second lamp delivered. We have recorded his stop. Please hold TG-022-R, tell us what is already done on it, and decide his refund request. We have not told him that anything is cancelled or refunded."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-23 10:55:00 UTC",
+        "channel": "Email",
+        "from": "Replacement authorisations, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "TG-022-R is on hold from 10:40 UTC. Already done: the order was created at 09:50 UTC and stock was reserved. Nothing has been picked or dispatched. The refund request is with our refunds team for decision. A hold is not a cancellation and not a refund. No refund has been approved."
+      }
+    }
+  ]
+}

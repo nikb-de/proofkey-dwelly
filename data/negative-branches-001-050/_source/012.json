@@ -1,0 +1,188 @@
+{
+  "case": "012",
+  "title": "Promised delivery day missed after vehicle breakdown",
+  "snapshot": "Dispatch confirms that vehicle fault V-12 ended DL-012's route at 08:20 UTC on 2026-02-12, so the 08:00–09:00 window was missed and the parcel is back in depot custody. Fenn Azel, the recipient, asks for a replacement slot and is free on the afternoon of 2026-02-14.",
+  "recorded_action": "Iona emailed Dispatch to rebook DL-012 after the confirmed breakdown for the afternoon of 2026-02-14 and to confirm a specific window and any charge.",
+  "negatives": [
+    {
+      "id": "012-N1",
+      "label": "Booking tool timed out on reservation",
+      "failure_mode": "CHANNEL_FAILURE",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-13 09:40:00 UTC",
+        "channel": "Email",
+        "from": "Dispatch, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "We tried to reserve an afternoon window on 2026-02-14 for DL-012. The booking tool timed out before showing a confirmation. We cannot see whether the reservation saved and have sent nothing to Fenn."
+      },
+      "expected_decision": "VERIFY_FIRST",
+      "sheet": "R",
+      "expected_action": "Ask Dispatch by email to read the saved booking record for DL-012 and report whether a 2026-02-14 reservation exists, with no second reservation until that is known.",
+      "must_not": "Do not ask Dispatch to try the booking again straight away, which could create two reservations, and do not tell Fenn that a slot is booked.",
+      "done_means": "Dispatch reports one saved window or none, and if none, one resubmission is confirmed once; this closes the rebooking question, not delivery.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Dispatch, Plover Arc Logistics",
+        "text": "Please read the saved booking record for DL-012 and tell us whether any 2026-02-14 reservation exists after the booking tool timed out. Please do not create a second reservation until we know. If none is saved, we will ask for one reservation within Fenn's 2026-02-14 afternoon availability."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-13 10:20:00 UTC",
+        "channel": "Email",
+        "from": "Dispatch, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "The saved record for DL-012 shows one reservation: 2026-02-14, 13:00–16:00 UTC, no extra charge, created at 09:38 UTC. No second reservation exists. We have not yet sent the booking to Fenn. This closes the rebooking question, not delivery."
+      }
+    },
+    {
+      "id": "012-N2",
+      "label": "Afternoon capacity filled before booking",
+      "failure_mode": "STALE_STATE",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-13 09:45:00 UTC",
+        "channel": "Email",
+        "from": "Dispatch, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Afternoon capacity on 2026-02-14 was filled at 09:30 UTC, before we reached your request. Available instead: 2026-02-14, 09:00–12:00 UTC, or 2026-02-15, 14:00–17:00 UTC. Neither carries a charge. Nothing is reserved yet."
+      },
+      "expected_decision": "ASK_CUSTOMER",
+      "sheet": "B",
+      "expected_action": "Ask Fenn in the Customer portal to choose between 2026-02-14, 09:00–12:00 UTC and 2026-02-15, 14:00–17:00 UTC, both without charge, and pass only that choice to Dispatch.",
+      "must_not": "Do not book the 2026-02-14 morning window because the date matches; Fenn offered only the afternoon.",
+      "done_means": "Fenn chooses one window and Dispatch confirms the reservation; this is a booking, not a delivery.",
+      "agent_event": {
+        "channel": "Customer portal",
+        "to": "Fenn Azel, recipient",
+        "text": "Dispatch has no afternoon capacity left on 2026-02-14. They can offer 2026-02-14, 09:00–12:00 UTC, or 2026-02-15, 14:00–17:00 UTC, both without charge. Nothing is reserved yet. Which window should we ask them to book?"
+      },
+      "followup_event": {
+        "timestamp": "2026-02-13 10:40:00 UTC",
+        "channel": "Email",
+        "from": "Dispatch, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Fenn's choice, relayed by you at 10:25 UTC, is reserved: DL-012, 2026-02-15, 14:00–17:00 UTC, no extra charge. We have sent the revised booking to Fenn. This is a booking, not a delivery."
+      }
+    },
+    {
+      "id": "012-N3",
+      "label": "Dispatch silent before next-day window",
+      "failure_mode": "NO_REPLY",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-13 15:30:00 UTC",
+        "channel": "Customer portal",
+        "from": "Fenn Azel, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "I have heard nothing about tomorrow afternoon. Is DL-012 booked or not? I will only keep the afternoon free if someone confirms a window today."
+      },
+      "expected_decision": "WAIT_WITH_DEADLINE",
+      "sheet": "B",
+      "expected_action": "Send Dispatch one email reminder asking for a specific 2026-02-14 afternoon window and any charge before the end of today, record Dispatch as owner, and tell Fenn in the portal that no window is confirmed yet.",
+      "must_not": "Do not tell Fenn that DL-012 is booked for tomorrow afternoon; a reminder to Dispatch is not a booking.",
+      "done_means": "Dispatch confirms a specific window and charge, or the missed deadline is recorded against Dispatch; neither is a delivery.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Dispatch, Plover Arc Logistics",
+        "text": "Reminder on DL-012: please send a specific 2026-02-14 afternoon window and any charge before the end of today, 2026-02-13. Fenn Azel will keep tomorrow afternoon free only if a window is confirmed today. Without it, Fenn may not be home and the replacement attempt could fail again."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-13 16:30:00 UTC",
+        "channel": "Email",
+        "from": "Dispatch, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Replacement booking for DL-012: 2026-02-14, 13:00–16:00 UTC, no extra charge. We have reserved capacity and sent the revised booking to Fenn. This is a booking, not a delivery."
+      }
+    },
+    {
+      "id": "012-N4",
+      "label": "Recipient withdraws the rebooking request",
+      "failure_mode": "CUSTOMER_CANCELS",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-13 09:40:00 UTC",
+        "channel": "Customer portal",
+        "from": "Fenn Azel, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Please stop the rebooking for DL-012. I have asked the seller to cancel the order and refund me. I do not want another delivery attempt."
+      },
+      "expected_decision": "RECORD_STOP",
+      "sheet": "F",
+      "expected_action": "Record the stop with Dispatch by email, forbid any new booking for DL-012, and ask what had already been reserved or sent to Fenn before the stop.",
+      "must_not": "Do not request a return to sender or promise Fenn a refund; the seller owns the cancellation and refund, and a return is a separate step.",
+      "done_means": "Dispatch confirms the stop and reports the actual state of DL-012; this does not cancel the order, start a return or establish a refund.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Dispatch, Plover Arc Logistics",
+        "text": "Fenn Azel has asked us to stop the rebooking of DL-012 and does not want another delivery attempt. Please record the stop and make no new booking for DL-012. What, if anything, was reserved or sent to Fenn before this message? The seller handles any order cancellation and refund."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-13 10:20:00 UTC",
+        "channel": "Email",
+        "from": "Dispatch, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Stop recorded for DL-012 at 10:05 UTC. No replacement booking had been reserved and nothing was sent to Fenn. The parcel stays in depot custody. This does not cancel the order, start a return or establish a refund."
+      }
+    },
+    {
+      "id": "012-N5",
+      "label": "Recipient asks for unoffered arrival time",
+      "failure_mode": "AMBIGUOUS_REPLY",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-02-13 10:00:00 UTC",
+        "channel": "Customer portal",
+        "from": "Fenn Azel, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "I got the 14:00–17:00 booking for tomorrow. I can only be home from 16:00. Can the driver come at 16:30 instead?"
+      },
+      "expected_decision": "GET_OPTIONS",
+      "sheet": "B",
+      "expected_action": "Ask Dispatch by email whether a window from 16:00 UTC on 2026-02-14 is available and at what charge, keeping the current booking unchanged until Fenn accepts an offered option.",
+      "must_not": "Do not promise Fenn a 16:30 arrival, and do not cancel the 14:00–17:00 booking before Dispatch offers an alternative.",
+      "done_means": "Dispatch quotes an available window and Fenn accepts it in the portal; until then the 14:00–17:00 booking stands, and neither proves delivery.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Dispatch, Plover Arc Logistics",
+        "text": "Fenn Azel can only be home from 16:00 UTC on 2026-02-14 and asks for a 16:30 arrival. Is any window starting from 16:00 UTC on 2026-02-14 available, and at what charge? Please keep the current 14:00–17:00 UTC booking unchanged until Fenn accepts an offered option."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-13 10:45:00 UTC",
+        "channel": "Email",
+        "from": "Dispatch, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "We can offer DL-012 on 2026-02-14, 16:00–19:00 UTC, at no extra charge. We cannot promise a 16:30 arrival. The 14:00–17:00 UTC booking stays in place until Fenn accepts the new window. Nothing has been changed yet, and neither window proves delivery."
+      }
+    },
+    {
+      "id": "012-N6",
+      "label": "Customer notice shows a different window",
+      "failure_mode": "CONFLICTING_RECORDS",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-02-13 10:00:00 UTC",
+        "channel": "Customer portal",
+        "from": "Fenn Azel, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "The revised booking I received says 2026-02-14, 08:00–11:00 UTC, not the afternoon. I asked for the afternoon. Which one is right?"
+      },
+      "expected_decision": "RECONCILE_CONFLICT",
+      "sheet": "E",
+      "expected_action": "Keep both records and ask Dispatch by email which window is saved in the DL-012 booking record and to correct the notice sent to Fenn, telling Fenn only that the window is being checked.",
+      "must_not": "Do not tell Fenn that the afternoon window is correct because Dispatch's email says so, or that the notice can be ignored.",
+      "done_means": "Dispatch confirms one saved window and reissues a matching notice; this settles the booking record, not delivery.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Dispatch, Plover Arc Logistics",
+        "text": "Fenn Azel received a revised booking notice for DL-012 showing 2026-02-14, 08:00–11:00 UTC, while your email confirms 14:00–17:00 UTC. We are keeping both records. Which window is saved in the DL-012 booking record? If the notice is wrong, please reissue a corrected notice to Fenn."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-13 10:45:00 UTC",
+        "channel": "Email",
+        "from": "Dispatch, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "The DL-012 booking record holds one window: 2026-02-14, 14:00–17:00 UTC, no extra charge. The 08:00–11:00 notice was sent in error and is withdrawn. We reissued a matching notice to Fenn at 10:40 UTC. This settles the booking record, not delivery."
+      }
+    }
+  ]
+}

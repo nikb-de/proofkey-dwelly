@@ -1,0 +1,158 @@
+{
+  "case": "047",
+  "title": "Customer asks for an explanation of a carrier-issued import charge",
+  "snapshot": "Recipient Teren Osk asks what the GBP 32.00 on charge notice IC-047 for DL-047 consists of, handling versus import assessment, before deciding what to do. The itemisation is held by Plover Arc's billing team and no payment is confirmed.",
+  "recorded_action": "Iona Quill emailed Plover Arc import billing for the itemised IC-047 explanation, including the total, through Teren's verified order thread, stating it was not payment authorisation.",
+  "negatives": [
+    {
+      "id": "047-N1",
+      "label": "Billing confirms total without itemisation",
+      "failure_mode": "AMBIGUOUS_REPLY",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-03-20 09:45:00 UTC",
+        "channel": "Email",
+        "from": "Import billing, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "IC-047 is the standard import charge for a parcel of this declared value. Total GBP 32.00. The notice is correct as issued and no change is needed."
+      },
+      "expected_decision": "REQUEST_ACTION",
+      "sheet": "B",
+      "expected_action": "Reply to Import billing by email asking for the amount of each IC-047 line, handling and import assessment, with the record each comes from.",
+      "must_not": "Split the GBP 32.00 yourself, or quote a general import rate to Teren as the explanation.",
+      "done_means": "Billing supplies line amounts that add up to GBP 32.00 with their source; that explains the notice, not payment, waiver or release.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Import billing, Plover Arc Logistics",
+        "text": "Teren Osk needs to know how IC-047 for DL-047 splits between carrier handling and import assessment. Please give the amount of each IC-047 line, with the record each comes from. This is a request for information, not payment authorisation."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-20 10:25:00 UTC",
+        "channel": "Email",
+        "from": "Import billing, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "IC-047 breakdown: import assessment GBP 20.00, recorded from this shipment's broker notice; carrier handling GBP 12.00; total GBP 32.00. This explains the notice only. No payment or waiver is posted, and DL-047 is not released."
+      }
+    },
+    {
+      "id": "047-N2",
+      "label": "Customer portal shows a different total",
+      "failure_mode": "CONFLICTING_RECORDS",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-03-20 09:58:00 UTC",
+        "channel": "Customer portal",
+        "from": "Teren Osk, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "My portal now shows IC-047 as GBP 34.00 due, not GBP 32.00. It changed this morning. Which amount is the charge I am asking about?"
+      },
+      "expected_decision": "RECONCILE_CONFLICT",
+      "sheet": "E",
+      "expected_action": "Ask Import billing by email which IC-047 total is current, GBP 32.00 or GBP 34.00, and what the GBP 2.00 difference is, keeping both records on file.",
+      "must_not": "Send Teren the GBP 32.00 breakdown as final, or explain the GBP 2.00 difference yourself, for example as storage.",
+      "done_means": "Billing confirms one total with lines that add up to it; that is still an explanation, not payment or waiver.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Import billing, Plover Arc Logistics",
+        "text": "Teren Osk's customer portal now shows IC-047 for DL-047 as GBP 34.00 due, while your breakdown of 09:50 UTC totals GBP 32.00. Which IC-047 total is current, and what is the GBP 2.00 difference? We are keeping both records and holding the breakdown until you confirm."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-20 10:45:00 UTC",
+        "channel": "Email",
+        "from": "Import billing, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "The current IC-047 total is GBP 32.00: import assessment GBP 20.00 and carrier handling GBP 12.00. The GBP 34.00 in the customer portal included a GBP 2.00 notice fee added in error, now removed. This explains the charge; no payment or waiver is posted."
+      }
+    },
+    {
+      "id": "047-N3",
+      "label": "Unverified payment link reaches customer",
+      "failure_mode": "UNAUTHORISED_REPLY",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-03-20 10:00:00 UTC",
+        "channel": "Customer portal",
+        "from": "Teren Osk, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "I just got an email signed Plover Arc Billing with a link to pay GBP 32.00 today, or DL-047 goes back. The address is not one I know. Is it genuine? Should I pay through it?"
+      },
+      "expected_decision": "SEPARATE_AUTHORITY",
+      "sheet": "A",
+      "expected_action": "Tell Teren in the customer portal that the desk did not send that link and cannot verify it, and ask Import billing by email whether it issued any payment request for IC-047.",
+      "must_not": "Confirm the link as genuine, forward it, or tell Teren that paying through it settles IC-047.",
+      "done_means": "Import billing states whether it issued a payment request; that neither pays IC-047 nor releases DL-047.",
+      "agent_event": {
+        "channel": "Customer portal",
+        "to": "Teren Osk, recipient",
+        "text": "We did not send that link and cannot verify it. It did not come through your verified order thread. We are asking Import billing whether it issued any payment request for IC-047. Please do not treat the link as genuine until billing answers."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-20 10:50:00 UTC",
+        "channel": "Email",
+        "from": "Import billing, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Import billing has issued no payment request and no payment link for IC-047. The email Teren Osk received did not come from us. IC-047 remains unpaid, and DL-047 is not released."
+      }
+    },
+    {
+      "id": "047-N4",
+      "label": "Billing ticketing outage, request unlogged",
+      "failure_mode": "CHANNEL_FAILURE",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-03-20 09:27:00 UTC",
+        "channel": "Email",
+        "from": "Mail system, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Automatic reply from Import billing: our ticketing system is unavailable between 09:20 and 10:00 UTC. Messages received in this period may not be logged. No ticket number has been issued for your message."
+      },
+      "expected_decision": "VERIFY_FIRST",
+      "sheet": "R",
+      "expected_action": "After 10:00 UTC, ask Import billing by email whether a request for the IC-047 breakdown is logged, before sending it again.",
+      "must_not": "Send a second request that could open two tickets, or tell Teren that billing is already working on it.",
+      "done_means": "Billing confirms one logged request; that is not yet the breakdown.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Import billing, Plover Arc Logistics",
+        "text": "Our email of 09:25 UTC asked for the itemised IC-047 / DL-047 explanation, and your ticketing system was down when it arrived. Once the system is back after 10:00 UTC, please check whether that request is logged. We will not resend it, so that no second ticket is opened."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-20 10:20:00 UTC",
+        "channel": "Email",
+        "from": "Import billing, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "One request for the IC-047 / DL-047 breakdown is logged, received at 09:25 UTC. No second ticket exists. The breakdown is not yet supplied; this confirms only that the request is on file."
+      }
+    },
+    {
+      "id": "047-N5",
+      "label": "Customer demands handling line removed",
+      "failure_mode": "OUT_OF_POLICY_ASK",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-03-20 09:40:00 UTC",
+        "channel": "Customer portal",
+        "from": "Teren Osk, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Whatever the split turns out to be, I want the handling part removed. Please cancel that line before I pay anything. You can tell billing I have agreed to pay the rest."
+      },
+      "expected_decision": "DECLINE_EXPLAIN",
+      "sheet": "A",
+      "expected_action": "Reply to Teren in the customer portal that the desk cannot waive or cancel charge lines, and that once he has the breakdown he can ask billing to review a line.",
+      "must_not": "Promise a waiver, or tell billing that Teren has agreed to pay part of IC-047.",
+      "done_means": "Teren has the desk's position and, later, the breakdown; no waiver, payment or release follows from it.",
+      "agent_event": {
+        "channel": "Customer portal",
+        "to": "Teren Osk, recipient",
+        "text": "We cannot waive or cancel any line on IC-047, and we will not tell billing that you have agreed to pay part of it. We have asked billing for the itemised breakdown. Once you have it, you can ask billing to review a specific line."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-20 10:10:00 UTC",
+        "channel": "Customer portal",
+        "from": "Teren Osk, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Understood. I will wait for the breakdown before deciding whether to ask billing to review the handling line. I have not paid anything and I am not agreeing to any part of IC-047 yet."
+      }
+    }
+  ]
+}

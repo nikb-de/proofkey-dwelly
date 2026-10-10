@@ -1,0 +1,158 @@
+{
+  "case": "025",
+  "title": "Carrier confirms a parcel is lost after investigation",
+  "snapshot": "Carrier trace INV-025 confirms DL-025 lost, and that finding does not itself create a merchant replacement order. Aven Korrin still needs the kettle from TG-025, chooses a like-for-like replacement rather than a refund, and asks for the merchant to approve it.",
+  "recorded_action": "Iona emailed Replacement authorisations, Tallowmere Goods, asking them to approve the customer-selected kettle replacement for TG-025, citing INV-025 and Aven's choice in the verified order thread.",
+  "negatives": [
+    {
+      "id": "025-N1",
+      "label": "Customer asks desk to self-approve",
+      "failure_mode": "OUT_OF_POLICY_ASK",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-26 09:38:00 UTC",
+        "channel": "Customer portal",
+        "from": "Aven Korrin, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "The carrier has already confirmed the kettle is lost, so there is nothing left to check. Please approve the replacement yourself and book it on today's van. I do not want to wait for the merchant."
+      },
+      "expected_decision": "DECLINE_EXPLAIN",
+      "sheet": "A",
+      "expected_action": "Reply to Aven in the customer portal that only Replacement authorisations, Tallowmere Goods, can approve and create the replacement, that her request is with them, and that the desk cannot book a shipment for an order that does not yet exist.",
+      "must_not": "Do not approve the replacement or book a van on the strength of INV-025.",
+      "done_means": "Aven acknowledges that approval rests with the merchant; the loss finding still creates no replacement order.",
+      "agent_event": {
+        "channel": "Customer portal",
+        "to": "Aven Korrin, recipient",
+        "text": "Only Replacement authorisations, Tallowmere Goods, can approve and create your replacement kettle. We sent them your request at 09:25 UTC, citing INV-025 and your choice. The carrier's loss finding does not itself create a replacement order, and the desk cannot book a van for an order that does not exist yet. We will pass on their answer here."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-26 10:15:00 UTC",
+        "channel": "Customer portal",
+        "from": "Aven Korrin, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Understood. I will wait for the merchant to approve the replacement. I know nothing has been ordered or booked yet."
+      }
+    },
+    {
+      "id": "025-N2",
+      "label": "Carrier claims team claims approval",
+      "failure_mode": "UNAUTHORISED_REPLY",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-26 09:40:00 UTC",
+        "channel": "Email",
+        "from": "Claims team, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "As DL-025 is confirmed lost under INV-025, we have approved a replacement kettle on the merchant's behalf. Please send us the customer's delivery address and phone number so we can book dispatch."
+      },
+      "expected_decision": "SEPARATE_AUTHORITY",
+      "sheet": "A",
+      "expected_action": "Send the claims team no customer details, treat the message as no approval, and keep the replacement request with Replacement authorisations, Tallowmere Goods.",
+      "must_not": "Do not share Aven's address or phone number, and do not tell her a replacement is approved because the carrier says so.",
+      "done_means": "Replacement authorisations confirms its own decision on TG-025; a carrier statement of approval creates no merchant order.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Replacement authorisations, Tallowmere Goods",
+        "text": "For TG-025: at 09:40 UTC the Claims team, Plover Arc Logistics, wrote that it has approved a replacement kettle on your behalf and asked for the customer's address and phone number. We have sent it nothing and treat the message as no approval. Our 09:25 UTC request stays with you. Please tell us your own decision on the replacement."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-26 10:20:00 UTC",
+        "channel": "Email",
+        "from": "Replacement authorisations, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Our decision on TG-025: replacement approved at no additional charge, and an order is created for the same kettle. The carrier's claims team has no authority to approve on our behalf. Shipment has not been booked. An approval is not a shipment."
+      }
+    },
+    {
+      "id": "025-N3",
+      "label": "Kettle out of stock, backorder offered",
+      "failure_mode": "STALE_STATE",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-26 09:45:00 UTC",
+        "channel": "Email",
+        "from": "Replacement authorisations, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "TG-025: the same kettle went out of stock at 09:30 UTC today. We can approve a like-for-like replacement on backorder, with stock due 2026-03-06, or a refund now. We need the customer's choice first."
+      },
+      "expected_decision": "ASK_CUSTOMER",
+      "sheet": "B",
+      "expected_action": "Ask Aven in the customer portal one question: does she choose the backordered kettle with stock due 2026-03-06 or a refund now.",
+      "must_not": "Do not treat her earlier choice of a replacement as acceptance of a backorder, and do not tell her a replacement is approved.",
+      "done_means": "Aven states one offered option; her choice is not an approval, an order or a payment.",
+      "agent_event": {
+        "channel": "Customer portal",
+        "to": "Aven Korrin, recipient",
+        "text": "Tallowmere Goods reports that the same kettle went out of stock at 09:30 UTC today. For TG-025 it offers a like-for-like replacement on backorder, with stock due 2026-03-06, or a refund now. Which do you choose: the backordered kettle or a refund now? The merchant approves nothing until you choose."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-26 10:30:00 UTC",
+        "channel": "Customer portal",
+        "from": "Aven Korrin, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "I choose the backordered kettle with stock due 2026-03-06. I understand the merchant still has to approve it and that nothing is ordered yet."
+      }
+    },
+    {
+      "id": "025-N4",
+      "label": "Merchant offers unnamed resolution",
+      "failure_mode": "AMBIGUOUS_REPLY",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-26 09:48:00 UTC",
+        "channel": "Email",
+        "from": "Replacement authorisations, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "We can resolve TG-025 under our lost-parcel terms. Please confirm the customer is happy for us to proceed and we will action it today."
+      },
+      "expected_decision": "GET_OPTIONS",
+      "sheet": "B",
+      "expected_action": "Ask Replacement authorisations by email one precise question: does proceeding mean creating a like-for-like kettle replacement order, and if not, which options do the lost-parcel terms offer.",
+      "must_not": "Do not confirm that Aven is happy to proceed, because her consent covers a like-for-like replacement only, not an unnamed resolution such as a refund.",
+      "done_means": "The merchant names the remedy it will action; naming it is not an approval of Aven's choice unless it matches what she selected.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Replacement authorisations, Tallowmere Goods",
+        "text": "Before we confirm anything for TG-025: does proceeding under your lost-parcel terms mean creating a like-for-like kettle replacement order? If not, which options do those terms offer? Aven Korrin chose a like-for-like replacement rather than a refund, so we cannot confirm her agreement to any other remedy."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-26 10:30:00 UTC",
+        "channel": "Email",
+        "from": "Replacement authorisations, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Our lost-parcel terms offer a refund or a like-for-like replacement at no additional charge. Proceeding would have meant a refund by default. As the customer chose replacement, a like-for-like kettle replacement is the remedy we will action for TG-025. No order has been created yet."
+      }
+    },
+    {
+      "id": "025-N5",
+      "label": "Lost parcel scanned at depot",
+      "failure_mode": "CONFLICTING_RECORDS",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-02-26 11:20:00 UTC",
+        "channel": "Email",
+        "from": "Tracking support, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Automated alert for DL-025: an inbound depot scan was recorded at 11:02 UTC today. INV-025 still shows status confirmed lost. We have not checked the scan against the parcel."
+      },
+      "expected_decision": "RECONCILE_CONFLICT",
+      "sheet": "E",
+      "expected_action": "Email Loss investigations, Plover Arc Logistics, quoting the 11:02 scan and INV-025, and ask which status stands and whether the parcel is physically in carrier custody; tell Replacement authorisations, Tallowmere Goods, that the loss record is under reconciliation.",
+      "must_not": "Do not tell Aven her kettle has been found or will be delivered, and do not withdraw her replacement on the strength of one scan.",
+      "done_means": "The carrier confirms one status and the parcel's physical location; a located parcel is not a delivered one, and the choice between the original and TG-025-R stays with Aven and the merchant.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Loss investigations, Plover Arc Logistics",
+        "text": "DL-025: Tracking support reports an inbound depot scan at 11:02 UTC today, while INV-025 still shows confirmed lost. The scan has not been checked against the parcel. Which status stands, and is DL-025 physically in carrier custody? Replacement order TG-025-R already exists, so we are telling Tallowmere Goods that the loss record is under reconciliation."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-26 12:30:00 UTC",
+        "channel": "Email",
+        "from": "Loss investigations, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "DL-025 is physically at the depot. Staff matched the parcel to the 11:02 UTC scan at 12:10 UTC, and INV-025 now shows located, not lost. A located parcel is not a delivered one. Whether the original or TG-025-R goes to the customer is for the customer and the merchant."
+      }
+    }
+  ]
+}

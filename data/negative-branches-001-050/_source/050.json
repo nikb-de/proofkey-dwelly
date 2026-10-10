@@ -1,0 +1,158 @@
+{
+  "case": "050",
+  "title": "Customer requests reimbursement of a guaranteed-delivery surcharge after confirmed delay",
+  "snapshot": "DL-050 was guaranteed by 2026-03-23 08:00 UTC with a GBP 7.50 surcharge and was handed over at 08:40 after a carrier sorting delay, with no exclusion recorded. Customer Nella Voss asks the desk to request the GBP 7.50 under the booking terms, which allow a credit after billing review.",
+  "recorded_action": "Iona Quill emailed Plover Arc guarantee billing to review a surcharge-only credit request for DL-050, giving the guaranteed and actual handover times and the GBP 7.50 surcharge.",
+  "negatives": [
+    {
+      "id": "050-N1",
+      "label": "Customer adds losses, doubles surcharge",
+      "failure_mode": "OUT_OF_POLICY_ASK",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-03-23 09:35:00 UTC",
+        "channel": "Customer portal",
+        "from": "Nella Voss, customer",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "I missed a client call because of this. Please add GBP 60.00 for my lost time to the request, and double the surcharge to GBP 15.00 since the delay was 40 minutes."
+      },
+      "expected_decision": "DECLINE_EXPLAIN",
+      "sheet": "A",
+      "expected_action": "Reply to Nella in the customer portal that the booking terms cover only the GBP 7.50 surcharge, so the request stays at that amount.",
+      "must_not": "Add GBP 60.00 or raise the request to GBP 15.00, or promise compensation for the missed call.",
+      "done_means": "Nella has the desk's position and the request stays at GBP 7.50; billing's review is still pending.",
+      "agent_event": {
+        "channel": "Customer portal",
+        "to": "Nella Voss, customer",
+        "text": "The DL-050 booking terms cover only the GBP 7.50 guaranteed-delivery surcharge. The 40-minute delay does not change that amount, and lost time is not covered. Your request to guarantee billing stays at GBP 7.50, and its review is still pending."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-23 10:20:00 UTC",
+        "channel": "Customer portal",
+        "from": "Nella Voss, customer",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Understood. Keep the request at GBP 7.50 for the surcharge only. I am not claiming for the missed call through this request. I note that billing has not decided yet."
+      }
+    },
+    {
+      "id": "050-N2",
+      "label": "Billing scan contradicts route record",
+      "failure_mode": "CONFLICTING_RECORDS",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-03-23 09:45:00 UTC",
+        "channel": "Email",
+        "from": "Guarantee billing, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Our handover scan for DL-050 shows 07:55 UTC on 2026-03-23, inside the guarantee. On that basis the request is declined. No credit will be posted."
+      },
+      "expected_decision": "RECONCILE_CONFLICT",
+      "sheet": "E",
+      "expected_action": "Ask Guarantee billing by email to check its 07:55 UTC scan against the service guarantees route record of 08:40 UTC and say which record it relies on.",
+      "must_not": "Accept the decline and close, or tell Nella either time is wrong before billing answers.",
+      "done_means": "Billing confirms one handover time with its source and decides on that; even a reversed decline yields a credit, not cash.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Guarantee billing, Plover Arc Logistics",
+        "text": "Your handover scan for DL-050 shows 07:55 UTC on 2026-03-23. The service guarantees route record shows a carrier sorting delay and actual recipient handover at 08:40 UTC. Please check the two records against each other and tell us which one your decision relies on."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-23 10:45:00 UTC",
+        "channel": "Email",
+        "from": "Guarantee billing, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "The 07:55 UTC scan was the arrival scan at the delivery depot, not the recipient handover. The route record's 08:40 UTC handover stands. The decline is withdrawn and credit GC-050 for GBP 7.50 is approved against the surcharge, posted to the booking account. This is not a cash transfer."
+      }
+    },
+    {
+      "id": "050-N3",
+      "label": "Unverified email asks for bank payment",
+      "failure_mode": "UNAUTHORISED_REPLY",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-03-23 10:05:00 UTC",
+        "channel": "Email",
+        "from": "Sender signing as Nella Voss, unverified address",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "This is Nella. Please pay any refund for DL-050 to my bank account rather than the booking account. I have changed banks, so ignore the details on file. I will send the new account details by reply."
+      },
+      "expected_decision": "SEPARATE_AUTHORITY",
+      "sheet": "A",
+      "expected_action": "Act on nothing in the email and reply only to Nella Voss in her customer-portal thread, stating that billing posted GC-050 for GBP 7.50 as a booking-account credit.",
+      "must_not": "Ask billing to pay cash, or accept or forward bank details received by unverified email.",
+      "done_means": "Nella answers through the verified portal; GC-050 remains a booking-account credit, not a cash payment.",
+      "agent_event": {
+        "channel": "Customer portal",
+        "to": "Nella Voss, customer",
+        "text": "Guarantee billing has posted credit GC-050 for GBP 7.50 against DL-050's surcharge, to your booking account. It is a booking-account credit, not a cash payment. We have also received an email signed with your name from an address we cannot verify, asking for payment to a bank account. We are not acting on it. Did you send it?"
+      },
+      "followup_event": {
+        "timestamp": "2026-03-23 11:00:00 UTC",
+        "channel": "Customer portal",
+        "from": "Nella Voss, customer",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "I did not send that email and I have not changed banks. I understand GC-050 is a GBP 7.50 credit on my booking account, not a payment to me. Please keep using this portal for DL-050."
+      }
+    },
+    {
+      "id": "050-N4",
+      "label": "Customer filed her own claim too",
+      "failure_mode": "DUPLICATE_REQUEST",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-03-23 09:40:00 UTC",
+        "channel": "Customer portal",
+        "from": "Nella Voss, customer",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "I also filed a guarantee claim for DL-050 myself in the carrier's customer portal at 09:15 UTC, before you replied. I hope that speeds things up."
+      },
+      "expected_decision": "RESOLVE_DUPLICATE",
+      "sheet": "F",
+      "expected_action": "Email Guarantee billing that Nella's 09:15 UTC claim and the desk's 09:25 UTC request concern the same GBP 7.50 surcharge and ask that they be handled as one.",
+      "must_not": "Let both run, which could post two GBP 7.50 credits, GBP 15.00 in total.",
+      "done_means": "Billing confirms one claim for DL-050; that is not yet an approval or a credit.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Guarantee billing, Plover Arc Logistics",
+        "text": "Nella Voss filed a guarantee claim for DL-050 in your customer portal at 09:15 UTC. Our request of 09:25 UTC concerns the same GBP 7.50 surcharge. Please handle the two as one claim, so that at most one GBP 7.50 credit can result."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-23 10:20:00 UTC",
+        "channel": "Email",
+        "from": "Guarantee billing, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Nella Voss's 09:15 UTC claim and your 09:25 UTC request are now one claim for DL-050. Only one GBP 7.50 surcharge credit can be considered. Review is still pending; nothing is approved or posted."
+      }
+    },
+    {
+      "id": "050-N5",
+      "label": "Customer withdraws after credit posted",
+      "failure_mode": "CUSTOMER_CANCELS",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-03-23 10:00:00 UTC",
+        "channel": "Customer portal",
+        "from": "Nella Voss, customer",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Please withdraw my guarantee request for DL-050. The sender has already covered the surcharge for me, so I do not want to claim it twice."
+      },
+      "expected_decision": "RECORD_STOP",
+      "sheet": "F",
+      "expected_action": "Record the stop with Nella as owner, tell her in the customer portal that GC-050 for GBP 7.50 was posted before her message, and inform Guarantee billing by email of the withdrawal for its decision on GC-050.",
+      "must_not": "Reverse GC-050 on the desk's own initiative, or tell Nella the request never went through.",
+      "done_means": "Billing states what it does with GC-050; the stop prevents new steps but does not undo the posted credit.",
+      "agent_event": {
+        "channel": "Customer portal",
+        "to": "Nella Voss, customer",
+        "text": "We have recorded your withdrawal of the DL-050 guarantee request. Guarantee billing had already posted credit GC-050 for GBP 7.50 to your booking account before your message. We are telling guarantee billing of your withdrawal; what happens to GC-050 is its decision. We will take no further step on the request."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-23 10:50:00 UTC",
+        "channel": "Email",
+        "from": "Guarantee billing, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Withdrawal of the DL-050 guarantee request noted, with Nella Voss as owner of the stop. GC-050 for GBP 7.50 was posted at 09:50 UTC and stays on the booking account unless she asks us to reverse it. No new request is open. The credit is not a cash payment."
+      }
+    }
+  ]
+}

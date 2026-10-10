@@ -1,0 +1,158 @@
+{
+  "case": "039",
+  "title": "Merchant shipped a replacement but the original parcel then also arrived",
+  "snapshot": "TG-039 ordered one floor light, but original DL-039-O and replacement DL-039-R both have handover scans, and Tallowmere Goods says no duplicate charge applies without its authorised reconciliation. Dessa Kelm has kept the replacement, left the original carton sealed, and asks how to return the duplicate.",
+  "recorded_action": "Iona Quill emailed Duplicate returns, Tallowmere Goods, asking it to authorise return of the sealed original DL-039-O, noting that Dessa keeps DL-039-R, and to arrange carrier collection and confirm the reconciled quantity after pickup.",
+  "negatives": [
+    {
+      "id": "039-N1",
+      "label": "Duplicate return form times out",
+      "failure_mode": "CHANNEL_FAILURE",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-03-12 09:30:00 UTC",
+        "channel": "Email",
+        "from": "Duplicate returns, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Automated notice. Your request for TG-039 could not be filed: the duplicate-return form timed out at 09:29. A return authorisation may have been partly created. No reference was issued."
+      },
+      "expected_decision": "VERIFY_FIRST",
+      "sheet": "R",
+      "expected_action": "Email Duplicate returns and ask whether any return authorisation or collection exists for DL-039-O, stating that no second request will be sent until it answers.",
+      "must_not": "Do not resend the request; two authorisations can book two collections or recover the wrong unit.",
+      "done_means": "Duplicate returns confirms one authorisation for DL-039-O, or none and one resubmission; an authorisation is not a collection or a reconciled order.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Duplicate returns, Tallowmere Goods",
+        "text": "Your 09:29 notice says the duplicate-return form for TG-039 timed out and an authorisation may be partly created. Please check whether any return authorisation or collection exists for DL-039-O, with references. We will not send a second request until you confirm."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-12 10:15:00 UTC",
+        "channel": "Email",
+        "from": "Duplicate returns, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "We found one partial authorisation for DL-039-O and completed it as DR-039, no charge, collection 2026-03-13, 10:00–12:00 UTC. No second authorisation or collection exists. The original has not been collected and TG-039 is not reconciled."
+      }
+    },
+    {
+      "id": "039-N2",
+      "label": "Carrier job names the wrong unit",
+      "failure_mode": "CONFLICTING_RECORDS",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-03-12 14:00:00 UTC",
+        "channel": "Email",
+        "from": "Collections control, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Collection job for DR-039 is set for 2026-03-13, 10:00–12:00 UTC. The job lists unit DL-039-R as the item to collect. Driver instructions will be issued from this record tomorrow morning."
+      },
+      "expected_decision": "RECONCILE_CONFLICT",
+      "sheet": "E",
+      "expected_action": "Email Duplicate returns with both records, DR-039 authorising DL-039-O and the carrier job listing DL-039-R, and ask it to confirm to Collections control which unit the job must name.",
+      "must_not": "Do not edit the carrier job yourself or let the driver take whichever carton is offered; Dessa is keeping DL-039-R.",
+      "done_means": "Duplicate returns confirms the unit on the carrier job; neither record is overwritten by the desk, and collection and reconciliation are still pending.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Duplicate returns, Tallowmere Goods",
+        "text": "Two records disagree for DR-039. Your authorisation covers the original unit DL-039-O, and the customer keeps DL-039-R. The carrier's collection job for 2026-03-13, 10:00–12:00 UTC lists DL-039-R as the item to collect. Please confirm to Collections control, Plover Arc Logistics, which unit the job must name before driver instructions go out tomorrow morning."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-12 15:30:00 UTC",
+        "channel": "Email",
+        "from": "Duplicate returns, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "We have confirmed to Collections control that the DR-039 job must name DL-039-O, and the carrier has updated the job. The customer keeps DL-039-R. Collection and order reconciliation are still pending."
+      }
+    },
+    {
+      "id": "039-N3",
+      "label": "Sealed original opened before collection",
+      "failure_mode": "STALE_STATE",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-03-12 16:20:00 UTC",
+        "channel": "Customer portal",
+        "from": "Dessa Kelm, customer",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "I opened the original carton this afternoon to check it was the same model. The light is untouched and back in its box, but the factory seal is broken. Is tomorrow's collection still fine?"
+      },
+      "expected_decision": "GET_OPTIONS",
+      "sheet": "B",
+      "expected_action": "Email Duplicate returns that DL-039-O is no longer sealed, reported untouched by Dessa, and ask whether DR-039 and its no-charge terms still apply to the opened unit before the collection runs.",
+      "must_not": "Do not tell Dessa that DR-039 stands unchanged; the desk requested it for a sealed original.",
+      "done_means": "Duplicate returns confirms or revises DR-039 for the opened unit; this does not prove collection, condition on receipt or reconciliation.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Duplicate returns, Tallowmere Goods",
+        "text": "The customer reports opening the original DL-039-O carton this afternoon to check it was the same light. The light is reported untouched and back in its box, but the factory seal is broken. Please confirm whether DR-039 and its no-charge terms still apply to the opened unit before the collection on 2026-03-13, 10:00–12:00 UTC."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-12 17:30:00 UTC",
+        "channel": "Email",
+        "from": "Duplicate returns, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "DR-039 stands for the opened DL-039-O at no charge, and collection remains 2026-03-13, 10:00–12:00 UTC. This does not confirm collection, condition on arrival or reconciliation of TG-039."
+      }
+    },
+    {
+      "id": "039-N4",
+      "label": "Customer asks to keep duplicate free",
+      "failure_mode": "OUT_OF_POLICY_ASK",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-03-12 10:10:00 UTC",
+        "channel": "Customer portal",
+        "from": "Dessa Kelm, customer",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "The original arrived very late. Instead of a collection, could I keep the second floor light free as compensation for the delay? Then nobody needs to come tomorrow."
+      },
+      "expected_decision": "DECLINE_EXPLAIN",
+      "sheet": "A",
+      "expected_action": "Reply to Dessa in the Customer portal that the desk cannot grant a free unit or compensation, and that Tallowmere has authorised DR-039 for collection of DL-039-O on 2026-03-13, 10:00–12:00 UTC at no charge, which stands.",
+      "must_not": "Do not agree that Dessa can keep both units or cancel the collection; decisions on the duplicate belong to Tallowmere's authorised reconciliation.",
+      "done_means": "Dessa acknowledges and DR-039 stands; collection and reconciliation are still pending.",
+      "agent_event": {
+        "channel": "Customer portal",
+        "to": "Dessa Kelm, customer",
+        "text": "We cannot grant a free unit or compensation for the delay. Decisions on the duplicate belong to Tallowmere Goods' authorised reconciliation, and Tallowmere has authorised return DR-039 for the original DL-039-O at no charge. The collection on 2026-03-13, 10:00–12:00 UTC stands, and you keep DL-039-R. A complaint about the delay is for Tallowmere to consider separately."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-12 10:50:00 UTC",
+        "channel": "Customer portal",
+        "from": "Dessa Kelm, customer",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Understood. I will have the original DL-039-O ready for collection on 2026-03-13, 10:00–12:00, and keep DL-039-R. I know it has not been collected yet."
+      }
+    },
+    {
+      "id": "039-N5",
+      "label": "Household member asks to swap units",
+      "failure_mode": "UNAUTHORISED_REPLY",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-03-12 11:00:00 UTC",
+        "channel": "Email",
+        "from": "Sender signing as Dessa Kelm's partner (address not on the order)",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "I live with Dessa. We would rather keep the original and send back the replacement. Please change the collection to DL-039-R and send the new details to this address."
+      },
+      "expected_decision": "SEPARATE_AUTHORITY",
+      "sheet": "A",
+      "expected_action": "Ask Dessa in the verified Customer portal thread whether Dessa wants to change which unit is returned, and send nothing to the email address.",
+      "must_not": "Do not ask Duplicate returns to switch units, and do not send collection details to the unverified sender.",
+      "done_means": "Dessa confirms or rejects the change in the portal; DR-039 for DL-039-O stands until Tallowmere authorises otherwise, and nothing is collected.",
+      "agent_event": {
+        "channel": "Customer portal",
+        "to": "Dessa Kelm, customer",
+        "text": "We received an email from someone signing as your partner, from an address not on the order, asking to return DL-039-R instead and send details to that address. We have changed nothing and sent nothing to it. Do you want to change which unit is returned?"
+      },
+      "followup_event": {
+        "timestamp": "2026-03-12 11:45:00 UTC",
+        "channel": "Customer portal",
+        "from": "Dessa Kelm, customer",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "No change. I am keeping the replacement DL-039-R and returning the sealed original DL-039-O as authorised. Please send nothing to that address. I understand nothing has been collected yet."
+      }
+    }
+  ]
+}

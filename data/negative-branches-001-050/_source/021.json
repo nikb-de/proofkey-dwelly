@@ -1,0 +1,158 @@
+{
+  "case": "021",
+  "title": "Outer packaging is damaged and the merchant needs evidence",
+  "snapshot": "Tallowmere Goods damage intake needs a full carton view with the DL-021 marking and a close view of the dented corner through the order-linked upload channel, and does not want the customer to unpack anything she considers unsafe. Lessa Vire reports a dented outer corner on an unopened carton and asks which views are needed.",
+  "recorded_action": "Iona asked Lessa through the customer portal to upload the full carton with the DL-021 marking and a close view of the dented corner through the order-linked upload channel, without unpacking it if unsafe.",
+  "negatives": [
+    {
+      "id": "021-N1",
+      "label": "Recipient is not the order holder",
+      "failure_mode": "SNAPSHOT_CONFLICT",
+      "insert_after": "002",
+      "new_event": {
+        "timestamp": "2026-02-22 09:14:00 UTC",
+        "channel": "Customer portal",
+        "from": "Lessa Vire, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "One more detail. The order was placed by my sister under her own account. I only received the carton at my address. I cannot open her order page, so I do not know how to reach the upload channel."
+      },
+      "expected_decision": "SEPARATE_AUTHORITY",
+      "sheet": "A",
+      "expected_action": "Email Damage intake, Tallowmere Goods, to ask whether the recipient may submit the two views for TG-021 or whether the order holder must upload them, and send Lessa no order details meanwhile.",
+      "must_not": "Do not invent a workaround upload route for Lessa or contact the order holder on Lessa's word without the merchant's instruction.",
+      "done_means": "The merchant names who may submit evidence for TG-021 and through which channel; this does not open the assessment or decide any remedy.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Damage intake, Tallowmere Goods",
+        "text": "For TG-021 / DL-021, the recipient, Lessa Vire, reports a dented outer corner on an unopened carton. She says her sister placed the order under the sister's own account, and she cannot open the order page or its upload channel. May the recipient submit the two views, or must the order holder upload them? Please name the channel to use. We are sending her no order details until you answer."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-22 09:55:00 UTC",
+        "channel": "Email",
+        "from": "Damage intake, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "For TG-021 / DL-021, only the order holder may submit the two views, through the order-linked upload channel on their account. We will contact the order holder from our own records. Do not send the recipient any order details. This settles who submits evidence and how. The packaging-damage assessment is not open and no remedy is decided."
+      }
+    },
+    {
+      "id": "021-N2",
+      "label": "Upload times out, saved state unknown",
+      "failure_mode": "CHANNEL_FAILURE",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-22 09:41:00 UTC",
+        "channel": "Customer portal",
+        "from": "Lessa Vire, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "I tried to upload both views. After the second file the page showed 'upload timed out' and reloaded. My order thread shows nothing new. I do not know whether either photo was saved. Should I send them again?"
+      },
+      "expected_decision": "VERIFY_FIRST",
+      "sheet": "R",
+      "expected_action": "Email Damage intake, Tallowmere Goods, to ask which files the order-linked upload record for TG-021 now holds, and tell Lessa in the customer portal to wait for that answer before uploading again.",
+      "must_not": "Do not ask Lessa to upload again, and do not tell her the evidence is received, before the merchant states what is saved.",
+      "done_means": "The merchant states which views are saved on TG-021; this does not show that they are sufficient and decides neither contents condition nor compensation.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Damage intake, Tallowmere Goods",
+        "text": "Lessa Vire reports that the order-linked upload for TG-021 / DL-021 timed out after her second file, at about 09:41 UTC. She cannot see whether either view was saved. Please check the upload record for TG-021 and tell us which files it now holds. Please do not create a second upload request. We are asking her not to upload again until you answer."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-22 10:15:00 UTC",
+        "channel": "Email",
+        "from": "Damage intake, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "The upload record for TG-021 / DL-021 holds two files, saved at 09:39 and 09:40 UTC: a full carton view and a close view of the dented corner. The customer does not need to upload again. This is a storage record. It does not show that the views are sufficient, and contents condition and compensation are not decided."
+      }
+    },
+    {
+      "id": "021-N3",
+      "label": "Customer demands refund promise before upload",
+      "failure_mode": "OUT_OF_POLICY_ASK",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-22 09:38:00 UTC",
+        "channel": "Customer portal",
+        "from": "Lessa Vire, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "I will upload the photos, but first confirm that the merchant will refund me in full for the dent. I do not want to spend time on photos and then be told no."
+      },
+      "expected_decision": "DECLINE_EXPLAIN",
+      "sheet": "A",
+      "expected_action": "Reply to Lessa in the customer portal that the merchant decides any remedy only after assessing the two views, that the desk cannot confirm a refund, and that the order-linked upload remains the next step.",
+      "must_not": "Do not promise a refund or any compensation, and do not suggest that the dent alone shows the contents are damaged.",
+      "done_means": "Lessa acknowledges the explanation or uploads the views; neither decides the remedy.",
+      "agent_event": {
+        "channel": "Customer portal",
+        "to": "Lessa Vire, recipient",
+        "text": "We cannot confirm a refund. Tallowmere Goods assesses the two views before it decides any remedy, and the desk cannot promise one. The next step is unchanged: please upload the full carton with the DL-021 marking and a close view of the dented corner through the order-linked upload channel. Do not unpack it if unsafe."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-22 10:10:00 UTC",
+        "channel": "Customer portal",
+        "from": "Lessa Vire, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Understood. I have uploaded both views through the order-linked upload channel: the full carton with the DL-021 marking and the close view of the dented corner. I accept that the merchant has decided nothing yet."
+      }
+    },
+    {
+      "id": "021-N4",
+      "label": "Marking hidden, carton too heavy",
+      "failure_mode": "AMBIGUOUS_REPLY",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-22 09:47:00 UTC",
+        "channel": "Customer portal",
+        "from": "Lessa Vire, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "I have uploaded the close view of the dented corner and a full view of the top and sides. The DL-021 label is on the underside and the carton is too heavy for me to turn over safely."
+      },
+      "expected_decision": "GET_OPTIONS",
+      "sheet": "B",
+      "expected_action": "Email Damage intake, Tallowmere Goods, to ask whether the full view without the visible marking is acceptable for TG-021 or which alternative view it accepts.",
+      "must_not": "Do not press Lessa to lift or turn the carton, and do not tell the merchant that the requested evidence is complete.",
+      "done_means": "The merchant accepts the views as they are or names a safe alternative; this does not open the assessment or decide any remedy.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Damage intake, Tallowmere Goods",
+        "text": "For TG-021 / DL-021, Lessa Vire has uploaded the close view of the dented corner and a full view of the top and sides. The DL-021 marking is on the underside, and she cannot turn the carton over safely. Is the full view without the marking acceptable, or which alternative view do you accept? We have not asked her to lift or turn the carton."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-22 10:30:00 UTC",
+        "channel": "Email",
+        "from": "Damage intake, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "For TG-021 / DL-021, the full view of the top and sides is acceptable without the marking. We will match the carton to the order from our dispatch record. The customer does not need to turn it over. This settles which views we accept. The packaging-damage assessment is not yet open and no remedy is decided."
+      }
+    },
+    {
+      "id": "021-N5",
+      "label": "Damp patch and smell at dent",
+      "failure_mode": "NEEDS_HUMAN",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-22 09:44:00 UTC",
+        "channel": "Customer portal",
+        "from": "Lessa Vire, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Before taking the photos I noticed a damp patch spreading from the dented corner and a sharp chemical smell. I have not opened the carton. Should I open it to check what is leaking?"
+      },
+      "expected_decision": "ESCALATE_OPERATOR",
+      "sheet": "E",
+      "expected_action": "Escalate by email to Damage intake, Tallowmere Goods, and the desk's human operator with the reported damp patch and smell, the time, the unopened state and the pending photo request, asking for the merchant's handling instruction, and tell Lessa she is not asked to open the carton.",
+      "must_not": "Do not tell Lessa to open the carton, identify the liquid, clean it up or declare it safe.",
+      "done_means": "The merchant confirms receipt and gives its handling instruction; this establishes neither what is leaking, nor the contents condition, nor compensation.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Damage intake, Tallowmere Goods; Operator, Rivet Delivery Desk",
+        "text": "Escalation for TG-021 / DL-021. At 09:44 UTC Lessa Vire reported a damp patch spreading from the dented corner and a sharp chemical smell. The carton is unopened. Sources: her customer portal message and your 09:00 UTC evidence request. The photo request is still pending. What handling instruction should we give her? We are telling her she is not asked to open the carton."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-22 10:25:00 UTC",
+        "channel": "Email",
+        "from": "Damage intake, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Report received for TG-021 / DL-021. Our instruction: the customer should leave the carton unopened where it is, keep people away from it, and take no further photos for now. Our handling team will contact her through the order thread today. This is a handling instruction only. It does not identify the liquid, the contents condition or any compensation."
+      }
+    }
+  ]
+}

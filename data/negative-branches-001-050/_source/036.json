@@ -1,0 +1,188 @@
+{
+  "case": "036",
+  "title": "Business sender needs collection of several labelled cartons",
+  "snapshot": "Orris Fold Studio has four labelled cartons on packing list OF-036, each 40 × 30 × 25 cm and 5 kg, 20 kg in total, ready at dispatch door S1 from 10:00 UTC on 2026-03-10. Fesk Rowan asks for confirmation that one vehicle takes all four, since a partial consignment cannot be released.",
+  "recorded_action": "Iona Quill emailed the Collection planner, Plover Arc Logistics, asking it to confirm capacity for all four cartons, request collection from 10:00 UTC on 2026-03-10 at door S1, and accept DL-036-A to D as one manifest.",
+  "negatives": [
+    {
+      "id": "036-N1",
+      "label": "Morning van capacity drops to two",
+      "failure_mode": "STALE_STATE",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-03-09 09:46:00 UTC",
+        "channel": "Email",
+        "from": "Collection planner, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "At 09:40 a freight job took most of the 2026-03-10 morning van. The 10:00–12:00 collection now has room for two cartons only. Full capacity for all four is open 2026-03-10, 14:00–16:00, or 2026-03-11, 10:00–12:00. Nothing is booked."
+      },
+      "expected_decision": "ASK_CUSTOMER",
+      "sheet": "B",
+      "expected_action": "Ask Fesk in the Business portal to choose one of the two full-capacity windows, 2026-03-10 14:00–16:00 or 2026-03-11 10:00–12:00, for all four cartons on one manifest.",
+      "must_not": "Do not book two cartons in the morning and two later; a split collection is the partial release Fesk ruled out.",
+      "done_means": "Fesk's chosen window is booked with all four cartons on one manifest; capacity and manifest still do not prove collection.",
+      "agent_event": {
+        "channel": "Business portal",
+        "to": "Fesk Rowan, Orris Fold Studio shipping coordinator",
+        "text": "The 2026-03-10 morning van now has room for two cartons only, and nothing is booked. Collection planning offers two windows with capacity for all four cartons on one manifest: 2026-03-10, 14:00–16:00, or 2026-03-11, 10:00–12:00. Which should we ask them to book?"
+      },
+      "followup_event": {
+        "timestamp": "2026-03-09 10:40:00 UTC",
+        "channel": "Email",
+        "from": "Collection planner, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "On the studio's choice, booking COL-036 is confirmed for 2026-03-10, 14:00–16:00 UTC. Capacity is reserved for all four cartons, 20 kg, and manifest MN-036 lists DL-036-A, B, C and D. Pickup has not occurred."
+      }
+    },
+    {
+      "id": "036-N2",
+      "label": "Booking save times out, manifest unknown",
+      "failure_mode": "CHANNEL_FAILURE",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-03-09 09:36:00 UTC",
+        "channel": "Email",
+        "from": "Collection planner, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "System notice. Saving the OF-036 booking failed at 09:35 with a timeout. No booking or manifest number was returned. The collection plan may hold a partial entry."
+      },
+      "expected_decision": "VERIFY_FIRST",
+      "sheet": "R",
+      "expected_action": "Email the Collection planner and ask what the collection plan shows for OF-036, including any booking and which cartons sit on any manifest, stating that no second booking will be requested until that is known.",
+      "must_not": "Do not resend the booking request; a second entry can produce two vehicles or a manifest that splits A to D.",
+      "done_means": "The planner confirms one booking with all four cartons on one manifest, or none and one resubmission confirmed once; this still does not prove pickup.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Collection planner, Plover Arc Logistics",
+        "text": "Your 09:35 notice says the OF-036 booking save timed out and the plan may hold a partial entry. Please check what the collection plan shows for OF-036: any booking, its window, and which of DL-036-A to D sit on any manifest. We will not request a second booking until you confirm."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-09 10:20:00 UTC",
+        "channel": "Email",
+        "from": "Collection planner, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "The plan held a partial entry for OF-036 with cartons A and B only; it is removed. One booking is now saved: COL-036, 2026-03-10, 10:00–12:00 UTC, all four cartons on manifest MN-036, 20 kg. Pickup has not occurred."
+      }
+    },
+    {
+      "id": "036-N3",
+      "label": "Van arrives with room for two",
+      "failure_mode": "PHYSICAL_FAILURE",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-03-10 10:20:00 UTC",
+        "channel": "Dispatch chat",
+        "from": "Collection driver, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "At door S1 for COL-036. My van has shelf space for two of the four cartons. Studio staff say they cannot release a part load. Do I take two now or leave all four?"
+      },
+      "expected_decision": "REQUEST_ACTION",
+      "sheet": "C",
+      "expected_action": "Tell the driver in Dispatch chat to take no cartons, and ask the Collection planner by email to provide the capacity reserved under COL-036 for all four cartons within 10:00–12:00, or report that it cannot.",
+      "must_not": "Do not let the driver take two cartons now; MN-036 lists all four and Fesk cannot release a partial consignment.",
+      "done_means": "The planner confirms a vehicle for all four cartons or states it cannot meet the window; this is not a collection, and any new window needs Fesk's agreement.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Collection planner, Plover Arc Logistics",
+        "text": "The driver at door S1 for COL-036 has shelf space for two cartons only. Manifest MN-036 lists all four, and the studio cannot release a part load, so we are telling the driver to take none. Please provide the capacity reserved under COL-036 for all four cartons within 10:00–12:00 today, or tell us you cannot."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-10 11:05:00 UTC",
+        "channel": "Email",
+        "from": "Collection planner, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "A second van with space for all four cartons will reach door S1 by 11:45 under COL-036, within the booked window. The first van left with nothing from OF-036. This is a vehicle assignment, not a collection; pickup has not occurred."
+      }
+    },
+    {
+      "id": "036-N4",
+      "label": "Studio reception changes door and cartons",
+      "failure_mode": "UNAUTHORISED_REPLY",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-03-09 11:30:00 UTC",
+        "channel": "Email",
+        "from": "Reception, Orris Fold Studio",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Please move tomorrow's collection to door S4 at 15:00 and add a fifth carton, DL-036-E, 7 kg. Fesk is out today, so just confirm the change with us."
+      },
+      "expected_decision": "SEPARATE_AUTHORITY",
+      "sheet": "A",
+      "expected_action": "Ask Fesk in the Business portal whether the change comes from Fesk, and send nothing to the Collection planner until Fesk confirms there.",
+      "must_not": "Do not forward the door, time or carton change to the planner, and do not share booking details with the reception address.",
+      "done_means": "Fesk confirms or rejects the change in the Business portal; until then COL-036 and MN-036 stand as booked, and nothing is collected.",
+      "agent_event": {
+        "channel": "Business portal",
+        "to": "Fesk Rowan, Orris Fold Studio shipping coordinator",
+        "text": "We received an email from Reception, Orris Fold Studio, asking to move tomorrow's collection to door S4 at 15:00 and add a fifth carton, DL-036-E, 7 kg. We have passed nothing to the collection planner. Does this change come from you?"
+      },
+      "followup_event": {
+        "timestamp": "2026-03-09 13:00:00 UTC",
+        "channel": "Business portal",
+        "from": "Fesk Rowan, Orris Fold Studio shipping coordinator",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "No, the change did not come from me. COL-036 stands: four cartons, DL-036-A to D, door S1, 2026-03-10, 10:00–12:00. There is no fifth carton. I understand nothing has been collected yet."
+      }
+    },
+    {
+      "id": "036-N5",
+      "label": "Final weigh differs from the manifest",
+      "failure_mode": "CONFLICTING_RECORDS",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-03-09 14:00:00 UTC",
+        "channel": "Business portal",
+        "from": "Fesk Rowan, Orris Fold Studio shipping coordinator",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Final weigh before sealing: cartons A, B and C are 5 kg each, carton D is 8 kg. Total 23 kg, not the 20 kg on our packing list. Dimensions are unchanged."
+      },
+      "expected_decision": "RECONCILE_CONFLICT",
+      "sheet": "E",
+      "expected_action": "Email the Collection planner with both weights, MN-036 at 20 kg and Fesk's final weigh of 23 kg with carton D at 8 kg, and ask whether the manifest and reserved capacity are amended for 23 kg.",
+      "must_not": "Do not tell Fesk the booking covers 23 kg, and do not edit the weight in the desk's own records.",
+      "done_means": "The planner states the manifest weight on record and whether capacity covers 23 kg; neither figure is overwritten by the desk, and pickup is still pending.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Collection planner, Plover Arc Logistics",
+        "text": "Two weights now exist for OF-036. Manifest MN-036 records 20 kg. The shipper's final weigh before sealing gives 23 kg: cartons A, B and C at 5 kg each and carton D at 8 kg, dimensions unchanged. Please confirm the manifest weight on record and whether the capacity reserved under COL-036 covers 23 kg."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-09 15:10:00 UTC",
+        "channel": "Email",
+        "from": "Collection planner, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "MN-036 recorded 20 kg. On the shipper's final weigh we have amended it to 23 kg, with carton D at 8 kg. The capacity reserved under COL-036 covers 23 kg. Pickup has not occurred, and the weights are not yet checked at collection."
+      }
+    },
+    {
+      "id": "036-N6",
+      "label": "Studio self-booked before the desk",
+      "failure_mode": "DUPLICATE_REQUEST",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-03-09 09:40:00 UTC",
+        "channel": "Email",
+        "from": "Collection planner, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "OF-036 already has a self-service booking made from the studio's business account at 08:50: 2026-03-10, 13:00–15:00, four cartons. Your request would add a second vehicle for the same consignment."
+      },
+      "expected_decision": "RESOLVE_DUPLICATE",
+      "sheet": "F",
+      "expected_action": "Reply to the Collection planner to link the desk's request to the 08:50 self-service booking and create no second booking, then ask Fesk in the Business portal which single window stands.",
+      "must_not": "Do not keep both bookings; two vehicles for one consignment risk the cartons leaving in two parts.",
+      "done_means": "One booking remains for all four cartons in the window Fesk confirms; the duplicate is closed, and collection is still pending.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Collection planner, Plover Arc Logistics",
+        "text": "Please link our 09:25 request to the studio's 08:50 self-service booking for OF-036 and create no second booking or vehicle. We are asking the shipper which single window stands and will tell you."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-09 10:40:00 UTC",
+        "channel": "Email",
+        "from": "Collection planner, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Your 09:25 request is linked to the 08:50 booking; no second vehicle was created. One booking stands for OF-036: 2026-03-10, 13:00–15:00 UTC, all four cartons on one manifest, confirmed by the studio's account at 10:30. Pickup has not occurred."
+      }
+    }
+  ]
+}

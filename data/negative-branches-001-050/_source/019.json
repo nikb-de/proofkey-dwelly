@@ -1,0 +1,158 @@
+{
+  "case": "019",
+  "title": "Severe weather suspends the delivery route",
+  "snapshot": "Route safety control has suspended route MQ-19 for severe weather, DL-019 is secure in depot stock, and Dispatch will review conditions at 15:00 UTC with no approved delivery estimate. Tessa Jorn, the recipient, asks whether the parcel is coming today and when to expect an update.",
+  "recorded_action": "Iona emailed Dispatch for the approved disruption wording and the next review time for DL-019, asking for a verified update rather than an arrival estimate.",
+  "negatives": [
+    {
+      "id": "019-N1",
+      "label": "Tracker shows arrival estimate during suspension",
+      "failure_mode": "CONFLICTING_RECORDS",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-20 09:40:00 UTC",
+        "channel": "Customer portal",
+        "from": "Tessa Jorn, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "The tracker has just changed to 'Out for delivery, arriving 12:00–14:00'. The weather alert said the route is suspended. Which is right? Should I stay in?"
+      },
+      "expected_decision": "RECONCILE_CONFLICT",
+      "sheet": "E",
+      "expected_action": "Keep both records and ask Dispatch by email which status of DL-019 is current and whether the 12:00–14:00 estimate is approved, telling Tessa only that it is being checked.",
+      "must_not": "Do not tell Tessa to expect DL-019 between 12:00 and 14:00 because the tracker shows it.",
+      "done_means": "Dispatch confirms the current status and approved wording; a tracker entry or review time is not a delivery time.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Dispatch, Plover Arc Logistics",
+        "text": "Tessa Jorn's tracker for DL-019 now shows 'Out for delivery, arriving 12:00–14:00', while route safety control reports route MQ-19 suspended with no approved estimate. We are keeping both records. Which status is current, and is the 12:00–14:00 estimate approved? Please include the approved wording for Tessa."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-20 10:30:00 UTC",
+        "channel": "Email",
+        "from": "Dispatch, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "The 'Out for delivery' entry for DL-019 was generated in error and is being withdrawn. Route MQ-19 remains suspended and DL-019 is in depot stock. Approved wording: the route is suspended, the parcel remains at the depot and conditions will be reviewed at 15:00 UTC. No delivery estimate is approved."
+      }
+    },
+    {
+      "id": "019-N2",
+      "label": "Driver offers run during suspension",
+      "failure_mode": "UNAUTHORISED_REPLY",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-20 09:50:00 UTC",
+        "channel": "Dispatch chat",
+        "from": "Route driver, route MQ-19, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "I'm at the depot with the MQ-19 load. The main road looks passable now. I can take DL-019 out at 13:00 if the customer really needs it. Want me to go?"
+      },
+      "expected_decision": "SEPARATE_AUTHORITY",
+      "sheet": "A",
+      "expected_action": "Give the driver no instruction, leave the route decision with Dispatch and route safety control, and tell Tessa nothing until Dispatch's approved update arrives.",
+      "must_not": "Do not tell the driver to go, and do not tell Tessa that DL-019 may arrive at 13:00; a driver's offer does not lift a route suspension.",
+      "done_means": "Dispatch issues approved wording or a route decision; the driver's offer authorises nothing.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Dispatch, Plover Arc Logistics",
+        "text": "The MQ-19 route driver offered in Dispatch chat at 09:50 UTC to take DL-019 out at 13:00 UTC. We have given the driver no instruction and told Tessa nothing about it. The route decision stays with you and route safety control. Please send the approved update for DL-019 when it is ready."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-20 10:35:00 UTC",
+        "channel": "Email",
+        "from": "Dispatch, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Route MQ-19 stays suspended and the driver has been told not to leave the depot. Approved update: DL-019 remains at the depot and conditions will be reviewed at 15:00 UTC today. We cannot promise delivery today. The driver's offer changes nothing."
+      }
+    },
+    {
+      "id": "019-N3",
+      "label": "Recipient asks for roadside handover",
+      "failure_mode": "OUT_OF_POLICY_ASK",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-20 09:45:00 UTC",
+        "channel": "Customer portal",
+        "from": "Tessa Jorn, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "If the van can reach the main road junction, I can meet the driver there this afternoon. Please ask them to bring DL-019 today."
+      },
+      "expected_decision": "DECLINE_EXPLAIN",
+      "sheet": "A",
+      "expected_action": "Tell Tessa in the Customer portal that route safety control has suspended the route, so no delivery or roadside handover can be arranged, and that the next step is the 15:00 UTC review.",
+      "must_not": "Do not ask Dispatch or a driver to arrange a roadside meeting, and do not promise delivery today.",
+      "done_means": "Tessa acknowledges and the suspension stands; the 15:00 UTC review is not a restart time.",
+      "agent_event": {
+        "channel": "Customer portal",
+        "to": "Tessa Jorn, recipient",
+        "text": "Route safety control has suspended the delivery route, so we cannot arrange a delivery or a roadside handover at the junction today. DL-019 is secure in depot stock. The next step is the conditions review at 15:00 UTC today."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-20 10:20:00 UTC",
+        "channel": "Customer portal",
+        "from": "Tessa Jorn, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Understood. I will not go to the junction today. I will wait for the update after the 15:00 UTC review, and I know that review is not a delivery time."
+      }
+    },
+    {
+      "id": "019-N4",
+      "label": "Refrigerated contents raise safety question",
+      "failure_mode": "NEEDS_HUMAN",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-20 10:00:00 UTC",
+        "channel": "Customer portal",
+        "from": "Tessa Jorn, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "DL-019 contains medicine that must be kept refrigerated. The seller packed it with cooling packs for one day only. Can someone make sure it is kept cold, or release it to me today?"
+      },
+      "expected_decision": "ESCALATE_OPERATOR",
+      "sheet": "E",
+      "expected_action": "Register DL-019 with the Operations supervisor queue by email, giving the suspension, the depot storage, Tessa's statement about refrigerated contents, the sources, the exact question of cold storage or release, and that the 15:00 UTC review is pending.",
+      "must_not": "Do not promise Tessa cold storage, a release or delivery today, and do not ask a driver to take the parcel out during the suspension.",
+      "done_means": "The supervisor queue accepts the case with a reference and a next-update time; nothing is decided about storage, release or delivery.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Operations supervisor queue, Plover Arc Logistics",
+        "text": "Please register DL-019 for a supervisor decision. Facts: route MQ-19 is suspended for severe weather and DL-019 is in depot stock (Route safety control, 09:00 UTC); Tessa Jorn states it holds medicine needing refrigeration, packed with cooling packs for one day (Customer portal, 10:00 UTC). Question: should DL-019 go to cold storage, or be released, during the suspension? Pending: the 15:00 UTC conditions review."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-20 10:50:00 UTC",
+        "channel": "Email",
+        "from": "Operations supervisor queue, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "DL-019 is registered as SUP-019-1 at 10:40 UTC. A supervisor will decide on storage and update you by 12:30 UTC. Nothing is decided yet about cold storage, release or delivery. The 15:00 UTC route review is unchanged."
+      }
+    },
+    {
+      "id": "019-N5",
+      "label": "Review time superseded after approval",
+      "failure_mode": "STALE_STATE",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-02-20 10:00:00 UTC",
+        "channel": "Email",
+        "from": "Route safety control, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Update for MQ-19: today's 15:00 UTC review is cancelled. Conditions will next be reviewed at 08:00 UTC on 2026-02-21. Dispatch's 09:50 approved wording is superseded and will be reissued."
+      },
+      "expected_decision": "REQUEST_ACTION",
+      "sheet": "B",
+      "expected_action": "Ask Dispatch by email for the reissued approved wording for DL-019 with the new review time, and send Tessa nothing based on the 09:50 wording.",
+      "must_not": "Do not relay the 15:00 UTC review time to Tessa, and do not turn the new review time into a delivery estimate.",
+      "done_means": "Dispatch reissues approved wording and it reaches Tessa; a review time is not a route restart or a delivery time.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Dispatch, Plover Arc Logistics",
+        "text": "Route safety control has cancelled today's 15:00 UTC review for MQ-19 and says your 09:50 approved wording is superseded. Please send the reissued approved wording for DL-019 with the new review time. We will send Tessa nothing based on the 09:50 wording."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-20 10:50:00 UTC",
+        "channel": "Email",
+        "from": "Dispatch, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Reissued approved update: the delivery route is suspended and DL-019 remains at the depot. Conditions will next be reviewed at 08:00 UTC on 2026-02-21. We cannot promise delivery today. The review time is not a route restart or a delivery time."
+      }
+    }
+  ]
+}

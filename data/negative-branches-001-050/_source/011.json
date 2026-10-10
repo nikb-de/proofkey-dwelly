@@ -1,0 +1,188 @@
+{
+  "case": "011",
+  "title": "Shipment tracking has not updated after depot arrival",
+  "snapshot": "Tracking support reports that DL-011's last public scan is the destination depot arrival at 06:15 UTC on 2026-02-12, with no sort or route scan and no confirmed storage position. Mera Olt, the recipient, asks whether the parcel is physically at the depot.",
+  "recorded_action": "Iona asked the destination depot, through the Depot work queue, to physically locate DL-011 and provide a new scan with its storage position.",
+  "negatives": [
+    {
+      "id": "011-N1",
+      "label": "Locate task submission timed out",
+      "failure_mode": "CHANNEL_FAILURE",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-12 09:27:00 UTC",
+        "channel": "Depot work queue",
+        "from": "Depot work queue, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Submission for DL-011 at 09:25 UTC timed out before a task reference was issued. The destination depot task list may or may not contain this request. Do not assume the locate task was created."
+      },
+      "expected_decision": "VERIFY_FIRST",
+      "sheet": "R",
+      "expected_action": "Ask the destination depot in Dispatch chat whether its task list holds a saved locate request for DL-011, and submit the request once only if it is absent.",
+      "must_not": "Do not resubmit the locate task straight away, which risks two open tasks for one parcel, and do not tell Mera that a depot check is under way.",
+      "done_means": "The depot confirms exactly one saved locate task with a reference; this proves the request exists, not that DL-011 has been found.",
+      "agent_event": {
+        "channel": "Dispatch chat",
+        "to": "Destination depot, Plover Arc Logistics",
+        "text": "Our 09:25 UTC locate request for DL-011 timed out in the Depot work queue before a task reference was issued. Please check your task list: is a locate task for DL-011 saved there? If there is none, we will submit it once. Please do not create a second task in the meantime."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-12 10:05:00 UTC",
+        "channel": "Dispatch chat",
+        "from": "Destination depot, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Our task list holds one saved locate task for DL-011, reference DQ-011-01, created at 09:25 UTC. No second task exists and none is needed. The search has not started yet. This confirms the request exists, not that DL-011 has been found."
+      }
+    },
+    {
+      "id": "011-N2",
+      "label": "Depot leaves locate task unstarted",
+      "failure_mode": "NO_REPLY",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-12 13:30:00 UTC",
+        "channel": "Depot work queue",
+        "from": "Depot work queue, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "DL-011 locate task, opened 09:25 UTC: status open, not started. No comment from the destination depot. Tasks not started by the 14:00 UTC shift change are carried to the next shift."
+      },
+      "expected_decision": "WAIT_WITH_DEADLINE",
+      "sheet": "B",
+      "expected_action": "Send one reminder on the same Depot work queue task asking the destination depot for the physical scan and storage position before the 14:00 UTC shift change, and record the depot as owner with that deadline.",
+      "must_not": "Do not open a second task, and do not tell Mera the parcel is at the depot on the strength of the 06:15 arrival scan.",
+      "done_means": "The depot posts a fresh physical scan with a storage position, or the queue records the task passing to the next shift; neither proves dispatch or delivery.",
+      "agent_event": {
+        "channel": "Depot work queue",
+        "to": "Destination depot, Plover Arc Logistics",
+        "text": "Reminder on this task: please physically locate DL-011 and post a new scan with its storage position before the 14:00 UTC shift change. If the task is not started by then, it passes to the next shift and Mera Olt waits longer for an answer. The 06:15 UTC arrival scan alone does not answer her question."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-12 13:58:00 UTC",
+        "channel": "Depot work queue",
+        "from": "Destination depot, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "At 13:52 UTC we found DL-011 on inbound shelf B-04 and scanned the label. The new location scan is now visible. It has not been sorted or allocated to a van. This confirms its position at the depot, not dispatch or delivery."
+      }
+    },
+    {
+      "id": "011-N3",
+      "label": "Depot search does not find parcel",
+      "failure_mode": "PHYSICAL_FAILURE",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-12 10:20:00 UTC",
+        "channel": "Depot work queue",
+        "from": "Destination depot, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "We searched the inbound bay, the sort cages and the exceptions shelf for DL-011 between 09:40 and 10:15 UTC. The parcel was not found. The 06:15 arrival scan remains the last scan. We have not raised a trace."
+      },
+      "expected_decision": "REQUEST_ACTION",
+      "sheet": "C",
+      "expected_action": "Ask the Parcel trace team by email to open a trace for DL-011, citing the 06:15 arrival scan and the depot's negative search from 09:40 to 10:15 UTC, and to report a trace reference.",
+      "must_not": "Do not tell Mera that the parcel is lost or offer a claim or refund, and do not repeat that it is at the depot because the arrival scan says so.",
+      "done_means": "The trace team confirms an open trace with a reference; this proves a search is registered, not where DL-011 is or that it is lost.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Parcel trace team, Plover Arc Logistics",
+        "text": "Please open a trace for DL-011. Its last scan is the destination depot arrival at 06:15 UTC on 2026-02-12, with no sort or route scan since. The destination depot searched the inbound bay, the sort cages and the exceptions shelf between 09:40 and 10:15 UTC and did not find it. Please reply with the trace reference."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-12 11:10:00 UTC",
+        "channel": "Email",
+        "from": "Parcel trace team, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Trace PT-011-04 is open for DL-011 from 11:05 UTC. It records the 06:15 UTC arrival scan and the depot's negative search as its starting points. This registers a search. It does not show where DL-011 is or that it is lost."
+      }
+    },
+    {
+      "id": "011-N4",
+      "label": "Second locate task opened by phone",
+      "failure_mode": "DUPLICATE_REQUEST",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-12 09:40:00 UTC",
+        "channel": "Email",
+        "from": "Tracking support, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Mera Olt also called us at 09:30 UTC about DL-011. We raised a second locate task for the destination depot at 09:34 UTC. Both tasks are now open in the Depot work queue."
+      },
+      "expected_decision": "RESOLVE_DUPLICATE",
+      "sheet": "F",
+      "expected_action": "Ask the destination depot through the Depot work queue to link the 09:34 task to the 09:25 task, work DL-011 once and report one scan with one storage position.",
+      "must_not": "Do not let both tasks run and relay two separate answers to Mera, and do not cancel the original 09:25 request in favour of the copy.",
+      "done_means": "The depot confirms one open task with the other linked or closed; this settles the duplicate, not the parcel's location.",
+      "agent_event": {
+        "channel": "Depot work queue",
+        "to": "Destination depot, Plover Arc Logistics",
+        "text": "Two locate tasks are open for DL-011: ours at 09:25 UTC and one from Tracking support at 09:34 UTC after Mera Olt's call. Please link the 09:34 task to the 09:25 task, work DL-011 once and report one scan with one storage position on the 09:25 task. Please do not run a second search."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-12 10:15:00 UTC",
+        "channel": "Depot work queue",
+        "from": "Destination depot, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "The 09:34 UTC task is now linked to the 09:25 UTC task and closed as a duplicate. One locate task for DL-011 remains open, and any scan will be posted there. This settles the duplicate. It does not yet give DL-011's location."
+      }
+    },
+    {
+      "id": "011-N5",
+      "label": "Unverified caller asks for collection",
+      "failure_mode": "UNAUTHORISED_REPLY",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-12 09:45:00 UTC",
+        "channel": "Call transcript",
+        "from": "Caller giving the name Mera Olt, unregistered number",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "I'm calling about DL-011. I'm Mera, but I can't log in to the portal from this phone. Tell me which cage it is in and hold it at the depot. My brother will collect it this afternoon."
+      },
+      "expected_decision": "SEPARATE_AUTHORITY",
+      "sheet": "A",
+      "expected_action": "Act on nothing from the call and ask Mera Olt in the verified Customer portal thread whether Mera made a collection request by phone.",
+      "must_not": "Do not disclose DL-011's status or storage position to the caller, and do not ask the depot to hold the parcel for a third-party collector.",
+      "done_means": "Mera answers in the verified portal thread; that confirms who is asking, not that a hold or third-party collection is permitted.",
+      "agent_event": {
+        "channel": "Customer portal",
+        "to": "Mera Olt, recipient",
+        "text": "We received a call about your parcel at 09:45 UTC from a number not registered on your account. The caller gave your name and asked us to hold it at the depot for collection by a relative. Did you make that call? We have acted on nothing from it and shared no details."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-12 10:25:00 UTC",
+        "channel": "Customer portal",
+        "from": "Mera Olt, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Yes, I called from my work phone because the portal would not load there. I understand nothing from that call will be acted on. I am not asking for a hold or for my brother to collect. Please reply here once the depot has found DL-011."
+      }
+    },
+    {
+      "id": "011-N6",
+      "label": "Tracker says out for delivery",
+      "failure_mode": "CONFLICTING_RECORDS",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-02-12 10:10:00 UTC",
+        "channel": "Email",
+        "from": "Tracking support, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Public tracking for DL-011 now shows 'Out for delivery' timestamped 09:48 UTC. The depot's 09:45 scan places it in sort cage C-17, not allocated to a van. We have not checked which entry is correct."
+      },
+      "expected_decision": "RECONCILE_CONFLICT",
+      "sheet": "E",
+      "expected_action": "Keep both records and ask the destination depot through the Depot work queue for a fresh physical check of cage C-17 and any van allocation record for DL-011, telling Mera only that the status is being checked.",
+      "must_not": "Do not tell Mera that DL-011 is out for delivery today because the public tracker says so, and do not discard the depot's 09:45 cage scan.",
+      "done_means": "The depot confirms one current physical location with a new scan; this resolves the location record, not a delivery time.",
+      "agent_event": {
+        "channel": "Depot work queue",
+        "to": "Destination depot, Plover Arc Logistics",
+        "text": "Public tracking for DL-011 shows 'Out for delivery' at 09:48 UTC, while your 09:45 UTC scan places it in sort cage C-17, not allocated to a van. We are keeping both records. Please physically check cage C-17, rescan DL-011 and send any van allocation record for it."
+      },
+      "followup_event": {
+        "timestamp": "2026-02-12 10:50:00 UTC",
+        "channel": "Depot work queue",
+        "from": "Destination depot, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "At 10:42 UTC DL-011 was still in sort cage C-17 and we rescanned it. No van allocation record exists for DL-011, so the 'Out for delivery' entry has no matching scan. This fixes its current location, not a delivery time."
+      }
+    }
+  ]
+}

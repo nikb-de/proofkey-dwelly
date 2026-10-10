@@ -1,0 +1,51 @@
+# Case 034-N3: Returned parcel has reached the carrier depot but not the merchant warehouse (Customer wants refund on depot scan)
+
+## Case details
+
+- **Source role:** Elrin Kove, customer
+- **Status:** Completed — specific coordination task only
+- **Created:** 2026-03-07 09:00:00 UTC
+- **Escalated:** 2026-03-07 10:15:00 UTC
+- **Updated:** 2026-03-07 11:00:00 UTC
+- **Completed:** 2026-03-07 11:00:00 UTC
+- **Primary task reference:** RT-034
+- **Coordinator:** Iona Quill, Rivet Delivery Desk
+- **Data:** Entirely synthetic; English; fictional geography; all times UTC
+- **Derived from:** Public case 034, events 001–003 retained; branch OUT_OF_POLICY_ASK
+
+## Context
+
+The last scan for return RT-034 is at the carrier's return depot at 07:40 UTC on 2026-03-07, with no merchant receiving scan, so Plover Arc Logistics still holds it. Elrin Kove asks for a trace through to the moment the merchant actually has it. This branch diverges after event 003: Customer wants refund on depot scan.
+
+## Initial request
+
+The carrier has had my parcel since this morning; that should be enough. Please tell Tallowmere to refund me today instead of waiting for their warehouse.
+
+## Overview
+
+The escalation snapshot comprises history events 001–004. Event 005 records the next agent action; the subsequent events provide the disclosed calibration follow-through. Facts learned later must not be used as if already known at escalation.
+
+## Next action at escalation
+
+Reply to Elrin in the Customer portal that a depot scan shows carrier custody, not merchant receipt, that refund decisions belong to Tallowmere Goods after its warehouse receives the return, and that the trace continues until the warehouse confirms physical receipt.
+
+- **Recipient:** Elrin Kove, customer
+- **Channel:** Customer portal
+- **Recorded action:** [History event 005](history.md#event-005)
+- **Expected decision:** DECLINE_EXPLAIN (workflow sheet A)
+
+## Outcome
+
+Elrin acknowledges and the trace continues; no refund request exists and merchant receipt is still unconfirmed.
+
+## Boundaries and remaining work
+
+Must not: Do not ask Tallowmere for a refund on the strength of the depot scan or suggest a refund date.
+
+## History
+
+[Read the complete dated history](history.md).
+
+## Attachments
+
+None. Any documentary record is an explicitly inline excerpt in the history, not a separate file.

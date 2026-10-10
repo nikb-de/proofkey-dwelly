@@ -1,22 +1,31 @@
 # Negative branches for public cases 001–050
 
-For each organisers' public case 001–050: the situation at escalation, the recorded next action, and 4–6 **alternative continuations where something goes wrong**, each with the decision the coordinator should take. The public histories all end well; these branches are the test points for the hard sheets of the v5 workflow (R unknown result, B waiting, D refusal, F stop and duplicates, E operator, A authority and conflicts).
+For each organisers' public case 001–050: 4–6 **alternative continuations where something goes wrong**, each written as its own case folder in the public format. The public histories all end well; these branches are the test points for the hard sheets of the v5 workflow (R unknown result, B waiting, D refusal, F stop and duplicates, E operator, A authority and conflicts).
 
-Kept in its own folder so it never mixes with the organisers' data in `../dwelly-public-cases/`. The organisers' text is not copied here; each branch references the public case by number and adds only the new event.
+Kept in its own folder so it never mixes with the organisers' data in `../dwelly-public-cases/`.
 
-## Shape of one branch
+## Layout
 
-A branch is a new event inserted after a recorded one (`insert_after`: 002, 003 or 004). Everything before it stays as recorded in the public history. Fields:
+```text
+001/
+  N1-AMBIGUOUS_REPLY/
+    index.md
+    history.md
+  N2-STALE_STATE/
+  N3-CHANNEL_FAILURE/
+  ...
+002/
+  ...
+index.csv            one row per branch: case, branch id, folder, failure mode, expected decision, sheet, insert point, label
+_source/0NN.json     the branches as data (source of truth for the folders)
+_spec/               specification, validator, builder
+```
 
-| Field | Meaning |
-|---|---|
-| `failure_mode` | one of 12 codes (below) |
-| `new_event` | timestamp, channel, from, to, text of the inserted event |
-| `expected_decision` | one of the 12 decision types used in `../synthetic-cases-051-100/` |
-| `sheet` | the v5 workflow sheet the branch exercises |
-| `expected_action` | who the coordinator addresses, through which channel, asking what |
-| `must_not` | the tempting wrong move in that branch |
-| `done_means` | the confirmation that closes the branch and what it still does not prove |
+## What one branch folder contains
+
+`history.md`: the public case's events 001–00K retained verbatim (K is the insert point: 002, 003 or 004), then three new events: the branch's new escalation (what went wrong), the coordinator's action, and one confirmation that closes the branch. `index.md`: the same sections as a public case, plus two extra lines: `Derived from` (which public case and how many events are retained) and `Expected decision` (one of twelve decision codes and the v5 sheet). `Boundaries and remaining work` names the tempting wrong move for that branch.
+
+Decision point for testing: give the system events 001 to 00(K+1) only, hide the rest, and compare its proposal with the recorded agent action on who it addresses, through which channel, what it asks, and what it claims. `index.csv` carries the expected decision for scoring.
 
 ## Failure-mode codes
 
@@ -35,25 +44,14 @@ A branch is a new event inserted after a recorded one (`insert_after`: 002, 003 
 | NEEDS_HUMAN | the team cannot act without a supervisor, or a safety, compliance or identity issue appears |
 | SNAPSHOT_CONFLICT | inside events 001–002 themselves: request contradicts context, identity unverified, policy does not cover it (inserted after 002) |
 
-## Files
+Expected-decision codes are the same twelve used in `../synthetic-cases-051-100/`: ASK_CUSTOMER, REQUEST_ACTION, GET_OPTIONS, VERIFY_FIRST, ESCALATE_OPERATOR, WAIT_WITH_DEADLINE, DECLINE_EXPLAIN, RECORD_STOP, RECORD_REFUSAL, RESOLVE_DUPLICATE, SEPARATE_AUTHORITY, RECONCILE_CONFLICT.
 
-| Path | Content |
-|---|---|
-| `negatives/0NN.json` | source of truth, one file per public case |
-| `negatives/0NN.md` | readable rendering |
-| `negatives/README.md` | index and totals per failure mode, decision and sheet (generated) |
-| `_spec/SPEC-NEGATIVES.md` | the generator specification and rules |
-| `_spec/negatives_tool.py` | validation and rendering |
-
-## Decision point for testing
-
-Give the system the recorded public events up to and including `insert_after`, then the `new_event`, hide everything else, and compare its proposal with `expected_decision`, `expected_action`, `must_not` and `done_means`.
-
-## Check
+## Rebuild
 
 ```sh
 cd _spec
-python3 negatives_tool.py --public "<path to HackatonPublicCases>/Delivery & Logistics"
+python3 negatives_tool.py  --public "<HackatonPublicCases>/Delivery & Logistics"            # validate the JSON
+python3 negatives_build.py --public "<HackatonPublicCases>/Delivery & Logistics" --out ..   # write the folders and index.csv
 ```
 
-Validates every JSON, renders the `.md` files and `negatives/README.md`, exits non-zero on any error.
+Both exit non-zero on any error and print the case and the reason.

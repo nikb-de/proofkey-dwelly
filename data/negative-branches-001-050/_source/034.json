@@ -1,0 +1,188 @@
+{
+  "case": "034",
+  "title": "Returned parcel has reached the carrier depot but not the merchant warehouse",
+  "snapshot": "The last scan for return RT-034 is at the carrier's return depot at 07:40 UTC on 2026-03-07, with no merchant receiving scan, so Plover Arc Logistics still holds it. Elrin Kove asks for a trace through to the moment the merchant actually has it.",
+  "recorded_action": "Iona Quill emailed the Returns trace team, Plover Arc Logistics, asking it to trace RT-034 to merchant receipt and to have the merchant receiving team confirm physical acceptance rather than rely on a departure scan.",
+  "negatives": [
+    {
+      "id": "034-N1",
+      "label": "Carrier delivery scan, no merchant receipt",
+      "failure_mode": "CONFLICTING_RECORDS",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-03-08 08:30:00 UTC",
+        "channel": "Email",
+        "from": "Warehouse receiving, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "We have no RT-034 carton at our returns bay and no receiving record for TG-034. We are told the carrier portal shows RT-034 delivered to us at 16:20 UTC yesterday. Nothing here matches that scan."
+      },
+      "expected_decision": "RECONCILE_CONFLICT",
+      "sheet": "E",
+      "expected_action": "Email the Returns trace team with both records, its 16:20 delivery scan and the warehouse's statement that nothing was received, and ask for the proof of delivery: location, time and who signed.",
+      "must_not": "Do not tell Elrin the merchant has the return because the carrier scanned it delivered, and do not declare it lost.",
+      "done_means": "The trace team's proof of delivery is registered and reported as it stands; merchant receipt is established only by a warehouse receipt, and inspection and refund stay open.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Returns trace team, Plover Arc Logistics",
+        "text": "Two records disagree for RT-034. Your portal shows it delivered to Tallowmere Goods at 16:20 UTC on 2026-03-07. Tallowmere's Warehouse receiving reports no RT-034 carton at its returns bay and no receiving record for TG-034. Please send the proof of delivery: the delivery location, time and who signed. We are treating neither record as final."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-08 11:30:00 UTC",
+        "channel": "Email",
+        "from": "Returns trace team, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Proof of delivery for RT-034: handed over at 16:20 on 2026-03-07 at Tallowmere's goods-in dock, not the returns bay, signed for with initials only. This shows carrier handover only. It is not a merchant receipt, and inspection and refund are untouched."
+      }
+    },
+    {
+      "id": "034-N2",
+      "label": "Trace ticket creation fails",
+      "failure_mode": "CHANNEL_FAILURE",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-03-07 09:27:00 UTC",
+        "channel": "Email",
+        "from": "Returns trace team, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Automated reply. Your message was received, but trace creation for RT-034 failed with error TRC-500. If no trace reference reaches you, the request may not be registered."
+      },
+      "expected_decision": "VERIFY_FIRST",
+      "sheet": "R",
+      "expected_action": "Ask the Returns trace team by email whether a trace is open for RT-034, stating that no second trace request will be raised until it answers.",
+      "must_not": "Do not open a second trace through another team or channel; two traces on one parcel split the search and the record.",
+      "done_means": "The trace team confirms one open trace, or none and one resubmission confirmed once; an open trace does not move the parcel or prove merchant receipt.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Returns trace team, Plover Arc Logistics",
+        "text": "Your 09:27 reply says trace creation for RT-034 failed with error TRC-500. Please check whether a trace is now open for RT-034 and send its reference if so. We will not raise a second trace, here or with another team, until you answer."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-07 10:15:00 UTC",
+        "channel": "Email",
+        "from": "Returns trace team, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "No trace was registered for RT-034 before the error. We have opened one trace, TR-034, ending in merchant receiving confirmation. The parcel is still at the return depot; an open trace does not move it or prove merchant receipt."
+      }
+    },
+    {
+      "id": "034-N3",
+      "label": "Customer wants refund on depot scan",
+      "failure_mode": "OUT_OF_POLICY_ASK",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-03-07 10:15:00 UTC",
+        "channel": "Customer portal",
+        "from": "Elrin Kove, customer",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "The carrier has had my parcel since this morning; that should be enough. Please tell Tallowmere to refund me today instead of waiting for their warehouse."
+      },
+      "expected_decision": "DECLINE_EXPLAIN",
+      "sheet": "A",
+      "expected_action": "Reply to Elrin in the Customer portal that a depot scan shows carrier custody, not merchant receipt, that refund decisions belong to Tallowmere Goods after its warehouse receives the return, and that the trace continues until the warehouse confirms physical receipt.",
+      "must_not": "Do not ask Tallowmere for a refund on the strength of the depot scan or suggest a refund date.",
+      "done_means": "Elrin acknowledges and the trace continues; no refund request exists and merchant receipt is still unconfirmed.",
+      "agent_event": {
+        "channel": "Customer portal",
+        "to": "Elrin Kove, customer",
+        "text": "We cannot ask Tallowmere Goods for a refund on the depot scan. That scan shows the carrier holds your return, not that the merchant has received it. Refund decisions belong to Tallowmere after its warehouse receives the return. Our trace continues until the warehouse confirms physical receipt."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-07 11:00:00 UTC",
+        "channel": "Customer portal",
+        "from": "Elrin Kove, customer",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Understood. I will wait for the warehouse to confirm it has my return. I accept that no refund has been requested and that the parcel is still with the carrier."
+      }
+    },
+    {
+      "id": "034-N4",
+      "label": "Unverified email asks for trace details",
+      "failure_mode": "UNAUTHORISED_REPLY",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-03-07 11:05:00 UTC",
+        "channel": "Email",
+        "from": "Sender signing as Elrin Kove (address not on the order)",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "This is Elrin Kove writing from my work email. Please send the full trace here: the depot address, the trailer details and the merchant contact you are dealing with. The portal is slow for me."
+      },
+      "expected_decision": "SEPARATE_AUTHORITY",
+      "sheet": "A",
+      "expected_action": "Ask Elrin in the verified Customer portal thread whether Elrin sent an email from a new address, and send nothing to that address.",
+      "must_not": "Do not send depot, trailer or merchant contact details to the unverified address, even though the name matches.",
+      "done_means": "Elrin confirms or denies the email through the portal and any contact change goes through the verified account; this says nothing about where the parcel is.",
+      "agent_event": {
+        "channel": "Customer portal",
+        "to": "Elrin Kove, customer",
+        "text": "We received an email signed as you, from an address that is not on your order, asking for the full trace details. We have sent nothing to it. Did you send that email?"
+      },
+      "followup_event": {
+        "timestamp": "2026-03-07 12:00:00 UTC",
+        "channel": "Customer portal",
+        "from": "Elrin Kove, customer",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "I did not send that email and I use no other address. Please keep everything in this portal. I understand this does not change where my return is."
+      }
+    },
+    {
+      "id": "034-N5",
+      "label": "Return carton damaged at the depot",
+      "failure_mode": "PHYSICAL_FAILURE",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-03-07 13:10:00 UTC",
+        "channel": "Email",
+        "from": "Returns trace team, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "RT-034 located at the return depot. The outer carton was crushed in depot handling and one corner is open; contents visible, not checked. Held at the depot and not forwarded. We need a decision before it moves."
+      },
+      "expected_decision": "ESCALATE_OPERATOR",
+      "sheet": "E",
+      "expected_action": "Register the case with Delivery investigations, Plover Arc Logistics, by email: the 07:40 depot scan, the trace team's damage report, the exact question of whether to repack and forward or hold for merchant inspection, and that merchant receipt is still pending.",
+      "must_not": "Do not tell the depot to forward the carton as it is, and do not promise Elrin compensation or a refund.",
+      "done_means": "Delivery investigations accepts with a reference and a next-update time; nothing is decided on liability, condition or refund, and merchant receipt is still unconfirmed.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Delivery investigations, Plover Arc Logistics",
+        "text": "Please register RT-034. Facts: last scan at the return depot, 07:40 UTC today. At 13:10 the Returns trace team reported the outer carton crushed in depot handling, one corner open, contents not checked, held and not forwarded. Question: repack and forward to Tallowmere Goods, or hold for merchant inspection? Merchant receipt is still pending. Please reply with a reference and next-update time."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-07 14:30:00 UTC",
+        "channel": "Email",
+        "from": "Delivery investigations, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Registered as INV-034. RT-034 stays held at the return depot and will not be repacked or forwarded until a decision is made. Next update by 2026-03-08, 12:00 UTC. Nothing is decided on liability, condition or refund, and merchant receipt has not occurred."
+      }
+    },
+    {
+      "id": "034-N6",
+      "label": "Customer opens a parallel trace",
+      "failure_mode": "DUPLICATE_REQUEST",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-03-07 10:00:00 UTC",
+        "channel": "Email",
+        "from": "Returns trace team, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "The customer also opened a trace for RT-034 from the tracking page at 09:40. We now have two open traces for one parcel. Should both stay open?"
+      },
+      "expected_decision": "RESOLVE_DUPLICATE",
+      "sheet": "F",
+      "expected_action": "Reply to the Returns trace team that both traces concern RT-034, link the 09:40 trace to the desk's 09:25 request, and ask it to work one trace that ends in merchant receiving confirmation.",
+      "must_not": "Do not keep both traces running, and do not close the one that carries the merchant receipt condition.",
+      "done_means": "The trace team closes the duplicate and confirms one live trace; the parcel's location and merchant receipt are still unconfirmed.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Returns trace team, Plover Arc Logistics",
+        "text": "Both traces concern RT-034. Please link the customer's 09:40 trace to our 09:25 request and keep one trace, the one that ends with Tallowmere's warehouse confirming physical receipt. Please open no further traces for this parcel."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-07 10:45:00 UTC",
+        "channel": "Email",
+        "from": "Returns trace team, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "The 09:40 trace is closed and linked to your 09:25 request. One trace remains for RT-034, ending in merchant receiving confirmation. The last scan is still the return depot at 07:40; merchant receipt is unconfirmed."
+      }
+    }
+  ]
+}

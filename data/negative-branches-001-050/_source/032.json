@@ -1,0 +1,188 @@
+{
+  "case": "032",
+  "title": "Customer cannot print a return label",
+  "snapshot": "Return RT-032 for TG-032 / DL-032 is approved, and Tallowmere Goods offers a printer-free QR token, issued only by its returns team, for presentation at Copperfin Returns Counter, 10:00–18:00 UTC. Oska Vey has no printer and asks for the QR option and the accepting counter.",
+  "recorded_action": "Iona Quill emailed the Printer-free returns team, Tallowmere Goods, asking it to issue the QR token for approved RT-032 and confirm a supported drop-off counter and its hours.",
+  "negatives": [
+    {
+      "id": "032-N1",
+      "label": "Token service errors during issue",
+      "failure_mode": "CHANNEL_FAILURE",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-03-05 09:33:00 UTC",
+        "channel": "Email",
+        "from": "Printer-free returns team, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "System notice. Token issue for RT-032 stopped at 09:32 with error QR-503. The notice cannot show whether a token was saved against the return. No token or counter details are attached."
+      },
+      "expected_decision": "VERIFY_FIRST",
+      "sheet": "R",
+      "expected_action": "Email the Printer-free returns team and ask what the RT-032 record now shows for a saved token, stating that no second token request will be sent until that is known.",
+      "must_not": "Do not resend the request or tell Oska a token is on its way; two live tokens for one return become a reconciliation problem at the counter.",
+      "done_means": "The team reports one saved token, or none and then one reissue confirmed once; a token in hand is still not drop-off or refund.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Printer-free returns team, Tallowmere Goods",
+        "text": "Your 09:32 notice shows token issue for RT-032 stopped with error QR-503. Please check what the RT-032 record shows now: a saved token with its reference, or none. Do not issue a second token meanwhile; we will not resend the request until you confirm."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-05 10:10:00 UTC",
+        "channel": "Email",
+        "from": "Printer-free returns team, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "We checked RT-032. No token was saved before the QR-503 error. We have issued one token, DL032R, for RT-032 and sent it to the customer; Copperfin Returns Counter accepts it 10:00–18:00 UTC. A token in hand is not a drop-off, and refund is not affected."
+      }
+    },
+    {
+      "id": "032-N2",
+      "label": "Counter suspends QR acceptance for a day",
+      "failure_mode": "STALE_STATE",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-03-05 09:47:00 UTC",
+        "channel": "Email",
+        "from": "Printer-free returns team, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Copperfin Returns Counter suspended QR acceptance at 09:40 today until 2026-03-06 10:00 UTC. We can issue the RT-032 token now for use at Copperfin from that time, or arrange a doorstep collection where the courier brings the printed label. We will not do both. Which does the customer want?"
+      },
+      "expected_decision": "ASK_CUSTOMER",
+      "sheet": "B",
+      "expected_action": "Ask Oska in the Customer portal one question: use the token at Copperfin from 2026-03-06 10:00 UTC, or take a doorstep collection with a courier-printed label.",
+      "must_not": "Do not send Oska to Copperfin today on the 10:00–18:00 hours from event 001, and do not pick an option for Oska.",
+      "done_means": "Oska's choice is recorded and the team confirms one arrangement; neither a token nor a collection booking proves drop-off or refund.",
+      "agent_event": {
+        "channel": "Customer portal",
+        "to": "Oska Vey, customer",
+        "text": "Copperfin Returns Counter has paused QR returns until 2026-03-06 10:00 UTC. Tallowmere Goods offers two options for RT-032: a QR token to use at Copperfin from that time, or a doorstep collection where the courier brings a printed label. Which would you like?"
+      },
+      "followup_event": {
+        "timestamp": "2026-03-05 10:40:00 UTC",
+        "channel": "Email",
+        "from": "Printer-free returns team, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "On the customer's choice of the QR option, token DL032R is issued for RT-032, valid at Copperfin Returns Counter from 2026-03-06 10:00 UTC. No doorstep collection was arranged. The parcel is still with the customer; the token is not a drop-off and has no bearing on refund."
+      }
+    },
+    {
+      "id": "032-N3",
+      "label": "Counter offers to issue its own code",
+      "failure_mode": "UNAUTHORISED_REPLY",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-03-05 09:55:00 UTC",
+        "channel": "Pickup-point portal",
+        "from": "Copperfin Returns Counter supervisor",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "We can see RT-032 pending. To save time we can generate a counter QR code here ourselves. Send us the customer's mobile number and we will text it directly."
+      },
+      "expected_decision": "SEPARATE_AUTHORITY",
+      "sheet": "A",
+      "expected_action": "Reply to the Copperfin Returns Counter supervisor in the Pickup-point portal that the token for RT-032 is issued only by the Printer-free returns team, and share no customer contact details.",
+      "must_not": "Do not pass Oska's mobile number to the counter or accept a counter-made code as the return token.",
+      "done_means": "The supervisor's offer is declined on record and the token is still awaited from the returns team; this proves nothing about issue or drop-off.",
+      "agent_event": {
+        "channel": "Pickup-point portal",
+        "to": "Copperfin Returns Counter supervisor",
+        "text": "Please do not generate a counter QR code for RT-032. Tallowmere Goods issues the return token only through its Printer-free returns team, and our request is with that team. We will not share the customer's mobile number. Please accept only the token issued by that team when the customer arrives."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-05 10:30:00 UTC",
+        "channel": "Pickup-point portal",
+        "from": "Copperfin Returns Counter supervisor",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Noted. We have generated no code for RT-032 and hold no customer contact details. We will scan only the token issued by Tallowmere's returns team. Nothing for RT-032 has been presented or dropped off here."
+      }
+    },
+    {
+      "id": "032-N4",
+      "label": "Counter scanner rejects the issued token",
+      "failure_mode": "CONFLICTING_RECORDS",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-03-05 10:40:00 UTC",
+        "channel": "Customer portal",
+        "from": "Oska Vey, customer",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "I am at Copperfin Returns Counter now. Staff scanned DL032R and the screen says token not recognised. They say I can leave the parcel without a label and they will sort it out later. Should I?"
+      },
+      "expected_decision": "RECONCILE_CONFLICT",
+      "sheet": "E",
+      "expected_action": "Tell Oska in the Customer portal to keep the parcel, and email the Printer-free returns team with both statements, token DL032R issued as valid and the counter's not recognised result, asking it to check the token's saved status.",
+      "must_not": "Do not tell Oska to leave the parcel without a scanned token, printed label and receipt, and do not request a new token before the returns team has checked.",
+      "done_means": "The returns team reports the token's saved status and whether Copperfin can accept it; this still does not prove drop-off, carrier custody or refund.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Printer-free returns team, Tallowmere Goods",
+        "text": "The customer is at Copperfin Returns Counter now. Staff scanned token DL032R, which you issued as valid for RT-032, and the screen says token not recognised. Please check the token's saved status and whether Copperfin can accept it. We are telling the customer to keep the parcel meanwhile and are not asking for a new token."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-05 11:20:00 UTC",
+        "channel": "Email",
+        "from": "Printer-free returns team, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "DL032R is saved as valid for RT-032. Copperfin's scanner had not synced today's tokens; it has been refreshed and now accepts DL032R. The parcel is still with the customer. Acceptance at the counter is not a drop-off, carrier custody or refund."
+      }
+    },
+    {
+      "id": "032-N5",
+      "label": "Customer proposes an after-hours box drop",
+      "failure_mode": "OUT_OF_POLICY_ASK",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-03-05 10:00:00 UTC",
+        "channel": "Customer portal",
+        "from": "Oska Vey, customer",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "I finish work at 19:00. Copperfin has a parcel box by the door. Can I drop the parcel in the box tonight with the token number written on it?"
+      },
+      "expected_decision": "DECLINE_EXPLAIN",
+      "sheet": "A",
+      "expected_action": "Reply to Oska in the Customer portal that token DL032R is accepted at the staffed Copperfin Returns Counter during 10:00–18:00 UTC, where staff scan it and print the label, and that the parcel must be brought within those hours.",
+      "must_not": "Do not approve an unattended or after-hours drop, or ask the counter for an exception; no scan means no label and no receipt.",
+      "done_means": "Oska acknowledges the staffed hours; drop-off, carrier custody and refund all remain open.",
+      "agent_event": {
+        "channel": "Customer portal",
+        "to": "Oska Vey, customer",
+        "text": "We cannot approve a parcel box or after-hours drop. Token DL032R is accepted at the staffed Copperfin Returns Counter during 10:00–18:00 UTC, where staff scan it and print the label. Without a scan there is no label and no receipt, so please bring the parcel within those hours."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-05 10:25:00 UTC",
+        "channel": "Customer portal",
+        "from": "Oska Vey, customer",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Understood. I will take the parcel to the Copperfin counter during 10:00–18:00 on a day I can, not to the box. I have not dropped it off yet."
+      }
+    },
+    {
+      "id": "032-N6",
+      "label": "Second token request from customer call",
+      "failure_mode": "DUPLICATE_REQUEST",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-03-05 09:45:00 UTC",
+        "channel": "Email",
+        "from": "Printer-free returns team, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "We now hold two token requests for RT-032: yours from 09:25 and one the customer opened by phone with returns support at 09:38. Should we issue a token on each?"
+      },
+      "expected_decision": "RESOLVE_DUPLICATE",
+      "sheet": "F",
+      "expected_action": "Reply to the Printer-free returns team that both requests concern the same return RT-032, link the phone request to the 09:25 request, and ask for exactly one token.",
+      "must_not": "Do not let both requests run; two tokens for one return invite a double scan or a rejected token at the counter.",
+      "done_means": "The team closes the duplicate and confirms one token for RT-032; a token is still not drop-off or refund.",
+      "agent_event": {
+        "channel": "Email",
+        "to": "Printer-free returns team, Tallowmere Goods",
+        "text": "Both requests concern the same return, RT-032. Please link the customer's 09:38 phone request to our 09:25 request and issue exactly one token for RT-032."
+      },
+      "followup_event": {
+        "timestamp": "2026-03-05 10:15:00 UTC",
+        "channel": "Email",
+        "from": "Printer-free returns team, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "The 09:38 phone request is closed and linked to your 09:25 request. One token, DL032R, is issued for RT-032, valid at Copperfin Returns Counter 10:00–18:00 UTC. The token is not a drop-off or refund."
+      }
+    }
+  ]
+}

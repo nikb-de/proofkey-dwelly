@@ -1,0 +1,63 @@
+# Case 028-N2 history — Wrong item inside a correctly addressed parcel (Morning slots full, two offered)
+
+All identities, records and communications are fictional. Total events: 6. Events 001–003 are retained from public case 028; events 004–006 are this branch.
+
+<a id="event-001"></a>
+## 2026-03-01 09:00:00 UTC — event 001
+
+- **Stage:** Context
+- **Channel:** Email
+- **From:** Order support, Tallowmere Goods
+- **To:** Iona Quill, Rivet Delivery Desk
+
+Inline item-check record TG-028: ordered blue desk organiser SKU BO-4; reported and verified received item is a red kitchen caddy SKU RC-2. Address and DL-028 match the order. Exchange authority is with our returns team.
+
+<a id="event-002"></a>
+## 2026-03-01 09:10:00 UTC — event 002
+
+- **Stage:** Escalation
+- **Channel:** Customer portal
+- **From:** Riva Solt, recipient
+- **To:** Iona Quill, Rivet Delivery Desk
+
+I want the blue desk organiser I ordered. Please arrange an exchange for the wrong item; I can be home on 2026-03-02 morning.
+
+<a id="event-003"></a>
+## 2026-03-01 09:25:00 UTC — event 003
+
+- **Stage:** Agent action
+- **Channel:** Email
+- **From:** Iona Quill, Rivet Delivery Desk
+- **To:** Returns authorisations, Tallowmere Goods
+
+Please authorise exchange TG-028 using the accepted SKU mismatch record. Riva requests the original blue organiser and can attend collection on 2026-03-02 morning.
+
+<a id="event-004"></a>
+## 2026-03-01 09:45:00 UTC — event 004
+
+- **Stage:** Escalation
+- **Channel:** Email
+- **From:** Returns authorisations, Tallowmere Goods
+- **To:** Iona Quill, Rivet Delivery Desk
+
+We can approve the exchange for TG-028. Collection slots on 2026-03-02 morning are now full. Available slots are 2026-03-02 13:00 to 17:00 UTC or 2026-03-03 09:00 to 12:00 UTC. Please confirm which the customer wants.
+
+<a id="event-005"></a>
+## 2026-03-01 10:00:00 UTC — event 005
+
+- **Stage:** Agent action
+- **Channel:** Customer portal
+- **From:** Iona Quill, Rivet Delivery Desk
+- **To:** Riva Solt, recipient
+
+Tallowmere Goods can approve the exchange, but collection slots on the morning of 2026-03-02 are now full. For collection of the red caddy it offers 2026-03-02, 13:00 to 17:00 UTC, or 2026-03-03, 09:00 to 12:00 UTC. Which slot do you choose? Nothing is booked until the returns team confirms it.
+
+<a id="event-006"></a>
+## 2026-03-01 10:20:00 UTC — event 006
+
+- **Stage:** Follow-through / confirmation
+- **Channel:** Customer portal
+- **From:** Riva Solt, recipient
+- **To:** Iona Quill, Rivet Delivery Desk
+
+I choose 2026-03-03, 09:00 to 12:00 UTC. I understand nothing is booked until the returns team confirms the slot.
