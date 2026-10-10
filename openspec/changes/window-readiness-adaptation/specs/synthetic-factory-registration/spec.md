@@ -41,3 +41,9 @@ Current tests SHALL use fixed expected pins independently of submitted material 
 #### Scenario: A receipt lacks matching execution
 - **WHEN** a receipt omits or mismatches required cases, outputs, trusted runner/provenance, execution ID/time, proposal, baseline, candidate or test hash
 - **THEN** neither J05 registration nor source equality SHALL promote it to qualification.
+
+#### Scenario: Full test selection exceeds the existing receipt-case ceiling
+- **WHEN** the exact J05 suite contains more than the unchanged 128 required-case limit
+- **THEN** its receipt SHALL use the eight fixed module groups without truncating or excluding any selected test
+- **AND** the proposal test hash SHALL bind the complete expected sorted test-ID list digest, each group output SHALL bind every ordered raw per-test record and output hash, and missing, extra, reordered, duplicate or failed execution SHALL deny qualification
+- **AND** executed-test counts and receipt-group counts SHALL remain distinct and no existing schema, package limit or historical pin SHALL change.
