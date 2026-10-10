@@ -1,63 +1,42 @@
 # Submission preparation
 
-Status: **incomplete; not submitted**. The GitHub destination is a private development package containing architecture, copied public development data and preserved pilot outputs. It does not yet meet the guide's requirement for one public repository accessible without permission, and does not include runnable project source.
+Status: **incomplete; not submitted**. The private development repository now includes runnable model/evaluation source, CLI, Docker, architecture and public development data. It is not yet a public, rights-cleared hackathon submission.
 
 | Field | Current value |
 |---|---|
-| Project | ProofKey |
+| Project / team | ProofKey / Sunday Grind |
 | Track | Delivery & Logistics, pending final form confirmation |
 | Repository | https://github.com/nikb-de/proofkey-dwelly — private preparation destination |
-| Team name | Sunday Grind |
 | Team size | Five, as supplied by the team |
-| Team roster | Five names and GitHub handles supplied by the team; listed below |
-| Individual event registrations | Not yet verified |
+| Individual registrations | Unverified |
 | Source/video freeze commit | Not created |
 | Final evaluation commit | Not created |
-| Reality Test results | Not generated |
-| In-repository demo-video path | Missing |
-| LinkedIn post URL | Not published |
-| X post URL | Not published |
+| Official unseen Reality Test | Not run |
+| In-repository demo video | Missing |
+| LinkedIn / X launch posts | Not published |
 | Submission receipt | Missing |
 
 ## Team
 
-This is the user-provided Sunday Grind roster, not a claim about commit contributions or verified event registration.
+User-supplied roster, not a claim of commit contribution or event registration. Access is the last verified snapshot, **10 October 2026 at 09:29 UTC**, not a fresh check.
 
-| Name supplied by the team | GitHub handle | Repository access status as of 10 October 2026, 09:29 UTC | Event registration |
-|---|---|---|---|
-| Nikita Bakanchev | [nikb-de](https://github.com/nikb-de) | Existing repository owner | Unverified |
-| Alisher Zhuraev | [zalisher](https://github.com/zalisher) | Collaborator invitation sent; pending acceptance | Unverified |
-| Alex Malyshev | [leadcard](https://github.com/leadcard) | Accepted collaborator; read/write | Unverified |
-| Alexander Turilin | [aturilin](https://github.com/aturilin) | Accepted collaborator; read/write | Unverified |
-| Maria Shchur | [MariaShchur](https://github.com/MariaShchur) | Collaborator invitation sent; pending acceptance | Unverified |
+| Name | GitHub | Last verified access |
+|---|---|---|
+| Nikita Bakanchev | [nikb-de](https://github.com/nikb-de) | Owner |
+| Alisher Zhuraev | [zalisher](https://github.com/zalisher) | Invitation pending |
+| Alex Malyshev | [leadcard](https://github.com/leadcard) | Accepted; read/write |
+| Alexander Turilin | [aturilin](https://github.com/aturilin) | Accepted; read/write |
+| Maria Shchur | [MariaShchur](https://github.com/MariaShchur) | Invitation pending |
 
-The four requested invitations are for normal collaborators on this private personal repository: read/write access upon acceptance, not ownership or administrator access. Two have accepted and two remain pending at the timestamp above. Invitation acceptance and event registration are separate checks.
+## Release evidence and remaining work
 
-## Checklist
+- Runnable source, configuration, CLI/Docker and offline tests: included; see [verification](docs/model-release-verification.md).
+- Three-provider API experiment: implemented, but no live execution without runtime API credentials. Missing judges never become passing scores.
+- Standard Apache-2.0 licence: included for eligible original code only. Rights for all data, source-derived test excerpts, media and contributions remain a public-release gate; see [licence status](LICENSE-STATUS.md).
+- Public development examples: already seen, not official challenge results. Human-calibrated evaluation and the team's 10–20 independent eval cases plus 10–20 permitted real examples remain pending.
+- Demo video, source/video freeze, unseen-case answers, public launch posts, final metadata and actual submission remain pending.
+- Obtain explicit authorisation before making the repository public, publishing posts or submitting. The user authorised this private source update, not those external actions.
 
-- [x] Create and verify a private personal GitHub preparation destination.
-- [x] Prepare a finite local scaffold allowlist and separate source review snapshot.
-- [x] Upload and verify the six-file documentation scaffold in the private repository.
-- [x] Include the user-authorized private development-data package and architecture documentation.
-- [ ] Establish rights for every selected code, data, test and media file; complete dependency notices.
-- [ ] Include the reviewed runnable source, configuration and reproducible instructions.
-- [ ] Include the standard Apache-2.0 `LICENSE` for eligible code after the rights review.
-- [ ] Reproduce the final included source and tests from the exact clean candidate.
-- [ ] Record and review the actual working-product video, target at most 60 seconds, inside the repository.
-- [x] Record the supplied team name Sunday Grind and team size of five.
-- [x] Record the five user-provided names and GitHub handles.
-- [x] Send normal collaborator invitations to the four requested GitHub handles.
-- [ ] Verify that all four repository invitations have been accepted.
-- [ ] Verify each member's individual event registration.
-- [ ] Resolve the guide's 16:30 versus 17:00 source/video freeze wording with the organiser and retain the answer.
-- [ ] Freeze source, configuration, prompts and video; record the source/video commit.
-- [ ] Run the frozen system on every supplied unseen challenge case and retain failures.
-- [ ] Generate `ANSWERS/<case>/ANSWER.md` and `REASONING.md` from the system; record final result hashes.
-- [x] Obtain scoped approval for only the six original documentation files.
-- [ ] Obtain separate approval before uploading other files or making the repository public.
-- [ ] Publish the required LinkedIn and X posts only after explicit authorisation; add their actual URLs.
-- [ ] Submit the actual final metadata through the provided form and retain its receipt.
+The guide captured on 7 October for the 10 October event contains conflicting 16:30/17:00 source/video freeze wording. The earlier preparation convention was source/video ready at 16:30 BST and unseen-case results by 17:00 BST; this is **not organiser clarification or a fresh rules verification**. Reconfirm the current guide before submitting.
 
-The supplied guide, dated 10 October 2026 and inspected from a local 7 October capture, requires working source, README, unseen answers, an in-repository demo video, public launch-post links and Apache-2.0 rights. The guide's source/video freeze statements conflict: one section says 16:30 and another says 17:00. Until clarified, the conservative preparation target is source/video ready at 16:30 BST and generated Reality Test results ready by 17:00 BST. This is a preparation convention, not an organiser clarification or a claim of eligibility.
-
-The public example repository explicitly says its examples are for development and are not to be submitted as challenge results. Nothing in this scaffold represents a completed official Reality Test.
+The public examples are for development and must not be represented as the supplied unseen challenge results. No official Reality Test completion or eligibility is claimed.

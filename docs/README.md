@@ -1,9 +1,12 @@
-# Architecture and offline evidence
+# Project documents
 
-- [Architecture](architecture.md): scope, trust boundaries, information model, adapters, reviewed adaptation, failure handling and a source-to-design-to-test matrix.
-- [Pilot verification](pilot-verification.md): the measured 50-case offline baseline and its limitations.
-- [Raw and normalized development data](../data/dwelly-public-cases/README.md): provenance, split boundaries, hashes and rights caveats.
+Start with the [compact architecture](architecture.md): the shipped model experiment, the proposed integration harness, and the next evidence needed. The [detailed design reference](architecture-reference.md) retains the original ontology, workflows, sources and requirements.
 
-The architecture is a proposal grounded in sources, not a production-readiness claim. The offline pilot generated unsent drafts; it did not demonstrate semantic correctness, live integrations, payouts or operator acceptance. Full runtime regression was pending when this documentation package was frozen. Runtime code, private discussions and Drive originals are not included here.
+- [Model CLI and Docker guide](../tools/dwelly_model/README.md)
+- [Current release verification](model-release-verification.md)
+- [Team data intake: 10–20 eval cases and 10–20 real examples](model-team-intake.md)
+- [Public development data and provenance](../data/dwelly-public-cases/README.md)
+- [Historical deterministic pilot verification](pilot-verification.md)
+- [Case-by-case reference review](verification/dwelly-reference-review-2026-10-10.md)
 
-The four PNG diagrams are exact copies of the previously inspected renders. Their Mermaid definitions remain in the architecture document. The [render receipt](diagrams/render-report.json) records an earlier whole-document digest: surrounding prose and package-relative links changed later, while diagram definitions did not.
+The architecture overview uses native editable Mermaid diagrams once each. The PNGs under `diagrams/` and their render receipt are historical assets retained for provenance; they are not the current overview. The full design describes a target runtime beyond the standalone package shipped here. Passing offline tests does not establish live model quality, operational integration or submission readiness.

@@ -1,68 +1,74 @@
-# ProofKey — Dwelly Delivery & Logistics
+# ProofKey — model-backed logistics decisions and evaluation harness
 
-Private development package for an offline logistics assistant. **This is not a complete hackathon submission.** The repository contains architecture documentation, 50 public development cases with raw source files, separated agent/reference JSON, and preserved deterministic pilot outputs. Runnable project source, licensing clearance, the demo video and unseen-case results remain pending.
+Private experimental release for the Dwelly Delivery & Logistics track. **Runnable source, CLI and Docker are included.** The model proposes the next communication; three API judges assess its content. Nothing sends messages, books deliveries or transfers money.
 
-Start here: [architecture](docs/architecture.md), [pilot verification](docs/pilot-verification.md), [data package and information boundaries](data/dwelly-public-cases/README.md), [pilot summary](data/dwelly-public-cases/pilot/summary.json), [answer layout](ANSWERS/README.md), [missing demo video](DEMO/README.md), [submission checklist](SUBMISSION.md), and [licence status](LICENSE-STATUS.md).
-
-The raw source and evaluation records contain future information. **Do not give an agent the entire repository.** A proposer may receive only its own decision-time `data/dwelly-public-cases/agent/<case>.json` and explicitly allowed visible assets; evaluation and raw source stay separate.
+Start with [model quickstart](tools/dwelly_model/README.md), [team data intake](docs/model-team-intake.md), [architecture](docs/architecture.md) and [raw/agent/evaluation data](data/dwelly-public-cases/README.md). There is no complete hackathon submission, video, live logistics integration or human-validated model-quality claim.
 
 ## 1. What we built
 
-ProofKey has a private offline logistics runtime and a separately staged next-action pilot. The runtime has two fixed synthetic replay demonstrations: delivery-window rescheduling and whole-order goods refusal with return initiation. The pilot reads development cases up to an escalation, freezes a deterministic next-communication proposal, then compares routing against a later example.
+- A bounded importer for 50 public fictional logistics cases, separating visible input from future answers.
+- The original deterministic baseline for comparison.
+- A model proposer with OpenAI, Anthropic and Gemini API transports; the example selects OpenAI.
+- Three separately attributable API judge seats with eight anchored rubrics, abstention and critical-failure reporting.
+- A CLI, Docker build, offline tests, immutable experiment artifacts and conservative per-model spend reservations.
 
-The included pilot artifacts contain 50 unsent drafts, zero operational effects and 11/50 recipient-and-channel routing matches against recorded examples. This is a routing proxy, not semantic accuracy; semantic assessment is unassessed. The pilot source and private runtime remain outside this repository. Neither path establishes a native Dwelly integration or general logistics coverage.
+The separate operational runtime is **not included**. Its synthetic rescheduling/refusal examples and six adapter interfaces are described only in the architecture.
 
 ## 2. Operational problem
 
-Logistics requests arrive across messages, records and attachments, often with missing context, conflicting facts or unclear authority. A useful next action must respect what is actually known and who can authorise the change. ProofKey explores how to keep a proposed action, permission to act, an attempted operation and a verified result distinct, while preserving unresolved work for review.
+Logistics requests contain conflicting messages, missing evidence and unclear permission. A good next step must identify the correct party, ask for exactly what is missing, preserve useful details and avoid claiming that a requested action already happened. The harness separates a proposal, an evaluation and authority to execute.
 
 ## 3. Architecture
 
 ```text
-Public development case folders
-  -> bounded importer: visible events and available attachments
-  -> deterministic baseline: proposed next communication, no effects
-  -> frozen proposal
-  -> separate later-reference reader
-  -> contract checks and routing-agreement proxy
-
-Private synthetic runtime
-  -> typed request -> policy and authority gates -> offline adapters
-  -> intent journal -> postcondition verification -> answer export
+Public source history
+  ├── decision-time snapshot → model proposer → frozen unsent proposal
+  └── separate reference action ─────────────────────┐
+                                                   ↓
+                      OpenAI + Claude + Gemini API judges
+                                                   ↓
+                      provisional scores / disagreements / errors
 ```
 
-The pilot and private runtime are separate paths. No automated bridge between arbitrary public case text and the runtime is claimed. A channel label or case narrative does not grant authenticated authority.
-
-See the [current architecture and boundaries](docs/architecture.md). The private runtime is described for context, not shipped as runnable code in this package.
+Judges see anonymized proposed communications, visible evidence and optionally a recorded next-action example. They never receive later confirmations. The reference is not a unique gold answer. Source text and model scores cannot grant execution authority. See [architecture](docs/architecture.md).
 
 ## 4. How to run
 
-There is no runnable project source in this repository yet. The included JSON and reports are inspectable artifacts, not a working installation. After the separately reviewed pilot is included, its documented interface is Python 3.11+ with no third-party package dependencies:
+Python 3.11+; no third-party Python packages required.
 
 ```sh
-python3 -B -m tools.dwelly_cases import --source SOURCE_REPO --output NEW_BUNDLE --expected-cases 50
-python3 -B -m tools.dwelly_cases run --bundle NEW_BUNDLE --output NEW_RESULTS
-python3 -B -m unittest discover -s tools/dwelly_cases/tests -v
+python3 -B -m tools.dwelly_model --help
+python3 -B -m tools.dwelly_model dry-run \
+  --config tools/dwelly_model/config.example.json \
+  --bundle data/dwelly-public-cases --output /tmp/proofkey-offline-new --limit 2
+docker build -t proofkey-model:0.1 .
+docker run --rm proofkey-model:0.1 --help
 ```
 
-`SOURCE_REPO` denotes a local checkout of the public cases. Output directories must be new and outside the source tree. This repository includes a [pinned private data copy](data/dwelly-public-cases/README.md) and preserved outputs, but no pilot implementation or private runtime. These commands describe the separately staged pilot; they cannot run from this repository alone today.
+Then configure credentials and explicitly choose `run --live`; see [full commands, volumes and limits](tools/dwelly_model/README.md). Output paths must be new. A dry-run uses the baseline and never claims model participation.
 
 ## 5. Models, APIs and external services
 
-The staged pilot uses deterministic rules and local files. It needs no model account, API key, environment variable or external service. The private runtime uses offline simulations for its demonstrated path. Model adapters or interface definitions are not evidence of live provider participation. No live Dwelly, messaging, payment or logistics connection is asserted.
+The example configuration selects `gpt-4.1-mini` for proposals and the OpenAI judge, `claude-sonnet-4-6` for the Anthropic judge, and `gemini-2.5-flash` for the Gemini judge. These are configurable example IDs, not a guarantee of account access or a claim about the best current model. Provider-reported identity is preserved separately from the request.
 
-## 6. Assumptions
+Required environment variables: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`. Never commit key values. `preflight` checks presence only, not validity or balance. API transports use fixed HTTPS endpoints and do not retry or substitute models. The OpenAI producer/judge family relationship is disclosed in each experiment.
 
-The staged pilot expects the supported Delivery & Logistics history format and a defined escalation cutoff. Only events and attachment references available at that point may influence its proposal; later records are held for evaluation. The raw/agent/evaluation/pilot directories are an explicit separation convention, not an enforced security sandbox. Public examples are already-seen development material, and a recorded later action is one reference example rather than a unique correct answer.
+The application reserves up to USD 25 per provider/model per experiment, including repeats and proposer/judge calls using the same model. This is a conservative local limit under configured prices, not an account-level provider billing cap.
 
-Case text and channel labels are contextual evidence, not independently authenticated permission. The intended code licence is Apache-2.0 after ownership and contribution rights are established for the exact included files. Public availability of a dataset is not a redistribution licence.
+## 6. Assumptions and data
 
-## 7. Known limitations
+All 50 included public cases are fictional, English, already-seen development examples. Raw Markdown contains future information: **do not give the entire repository to an agent**. Only the selected `agent/<case>.json` is proposal input. The six attachments occur after the original cutoff, and are not initial model inputs.
 
-Routing agreement is a proxy and does not establish semantic correctness, safety, authorisation or physical completion. Semantic assessment is explicitly unassessed. No unseen Reality Test has been run for this scaffold, and no results are invented.
+Team-owned independent evaluation cases and real data remain pending. Follow [the intake contract](docs/model-team-intake.md) for 10–20 new eval cases and 10–20 appropriately permitted/redacted real examples. Do not upload private Drive originals or real data merely because they are accessible locally.
 
-The pilot handles one track and a bounded history format; it does not understand arbitrary attachments or perform multimodal reasoning. All six public raw attachments occur after the decision cutoff and are not agent-visible inputs. Proposals do not send messages, reserve slots, create returns, issue refunds or transfer ownership. The repository lacks runnable source, the standard code licence, the actual demo video and generated unseen answers. Private conversations, private Drive originals, runtime artifacts, credentials and the parent Git history are excluded. The copied public data remains private/internal: no upstream dataset licence was identified, and no redistribution clearance or Apache re-licensing is asserted.
+## 7. Known limitations and evidence
 
-## 8. What we would improve next
+The saved historical baseline had 50 valid drafts and 11/50 routing matches; this is **not semantic accuracy**. Its results stay in [pilot/](data/dwelly-public-cases/pilot). New model quality must be read from actual experiment receipts, not inferred from passing unit tests or a Docker build.
 
-Include reviewed source and reproducible installation instructions after the file-level rights review. Then broaden supported source formats, conduct independent semantic review, establish native authority contracts, add tested integrations, and measure a complete-batch rehearsal. Produce and review the working-product video and generate all unseen-case outputs with the frozen system. Record evidence for each completed step before expanding the supported scope.
+Eight rubric scores assess next action, routing, required details, grounding, authority/consent, fabrication, escalation and clarity. All are provisional model judgments. No human calibration, untouched holdout, semantic safety certification, meaningful vision/audio or operational execution is claimed. Missing/error/abstaining judge seats never become zero scores or successes. Read [release verification](docs/model-release-verification.md) for the actual available evidence.
+
+This private release does not resolve ownership or redistribution rights for upstream examples. [Licence status](LICENSE-STATUS.md) remains applicable; model service/output terms are separate. Standard-library code introduces no provider SDK dependency. The Docker base image has its own terms.
+
+## 8. Next steps
+
+Provide API credentials in the runtime environment, run a two-case smoke, inspect provider identities/cost/error artifacts, then evaluate the complete 50-case development set. Collect the team's independent cases, inspect judge sensitivity and disagreements, and have a human review before asserting correctness. A bridge to the execution runtime, native adapters, demo video and unseen challenge submission remain separate work.

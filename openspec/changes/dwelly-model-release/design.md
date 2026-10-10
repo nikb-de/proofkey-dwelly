@@ -1,0 +1,18 @@
+# Design
+
+## Accepted decisions
+User approved GitHub source plus Docker/CLI, a 30-minute delivery target, all 50 public cases as next-action proposals, OpenAI/Claude/Gemini API judges, USD 25 per model per experiment, unsent output only, eight rubrics, no current human reviewer, and future 10–20 eval plus 10–20 live cases from the team. Default proposer is OpenAI and its same-provider judge relationship is disclosed. No model-quality certification is implied.
+
+## Interfaces
+- `providers.complete(config: dict, system: str, prompt: str, max_output_tokens: int = 2048, timeout: float = 45) -> dict`: returns text, provider, requested_model, observed_model, input_tokens, output_tokens, request_id, latency_ms, raw_response. Config keys: provider, model, api_key_env, input_usd_per_million, output_usd_per_million. `ProviderError.code` is sanitized. Fixed HTTPS endpoints, no redirects, no web-login reuse, no retries.
+- `semantic.proposal_prompt(snapshot) -> (system, prompt)`; `validate_proposal(snapshot, candidate) -> candidate`. Candidate fields: action {kind, recipient, channel, message}, evidence_refs, rationale, missing_information, required_approvals. Action kinds equal existing six baseline kinds. Host, not model, adds case/input identity, `proposed_unsent`, and `effects: []`.
+- `semantic.judge_prompt(snapshot, proposal, reference_action=None) -> (system, prompt)` includes only visible input, anonymized action and optional recorded next action, never later events, source index or producer identity.
+- `semantic.validate_judgment(snapshot, candidate) -> candidate`: scores mapping of exactly eight rubric IDs to integer 0..4, explanation, evidence_refs, critical_failures list, abstain boolean. Rubric IDs: next_action, routing, required_details, grounding, authority_consent, no_fabrication, escalation, clarity. Explicit abstention uses no aggregate score.
+- `semantic.aggregate(judgments) -> dict`: numeric summaries over successful nonabstaining judgments only, coverage and critical failure union; never treat missing judges as zeros or majority as authorization.
+- `runner.run_experiment(bundle, output, config, *, live=False, limit=50, include_reference=True, compare_baseline=True, repeat_judges=0) -> dict`; `runner.preflight(config) -> dict`. Standard-library, existing snapshot validation, output non-overwrite, no reference read until proposals frozen, raw receipts, budget journal and report. Config top-level keys proposer, judges (three configs), budget_per_model_usd, max_output_tokens, timeout_seconds. Credential values are never serialized.
+
+## Spend and failure boundaries
+Reserve a conservative cost before each request in exclusive experiment state using UTF-8 prompt bytes plus an explicit framing allowance as input token upper estimate, and output token cap. Use positive configured rates, finite amounts, USD 25 ceiling. Retain the reservation after timeout, malformed response or unknown billed usage. A hard provider billing cap is not controlled by this application; the ledger is a conservative local admission limit under configured rates. A second process must not share an active experiment. Missing keys and malformed config deny live calls; no alternative provider substitution.
+
+## Release boundary
+Tests use deterministic fake transport responses only at network boundary, not fake quality scores labelled live. Smoke data/results clearly say offline. Docker excludes credentials, prior outputs and private documents. Publish owned source/tests/docs plus existing authorized public-synthetic data only. New team data require explicit provenance, privacy and permission review before external API submission.
