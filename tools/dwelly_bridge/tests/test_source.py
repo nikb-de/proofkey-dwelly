@@ -308,6 +308,43 @@ class SourceTests(unittest.TestCase):
         path.symlink_to(original)
         self.rejected("source_path_unsafe")
 
+    def test_wal_header_rejected_without_creating_source_sidecars(self):
+        connection = sqlite3.connect(self.service / "queue.sqlite3")
+        try:
+            self.assertEqual(connection.execute("PRAGMA journal_mode=WAL").fetchone(), ("wal",))
+        finally:
+            connection.close()
+        self.assertFalse((self.service / "queue.sqlite3-wal").exists())
+        self.assertFalse((self.service / "queue.sqlite3-shm").exists())
+        before_paths = sorted(str(p.relative_to(self.service)) for p in self.service.rglob("*"))
+        before_hashes = self.file_hashes()
+        self.rejected("source_invalid")
+        self.assertEqual(before_paths, sorted(str(p.relative_to(self.service)) for p in self.service.rglob("*")))
+        self.assertEqual(before_hashes, self.file_hashes())
+
+    def test_bridge_wal_rejection_preserves_all_source_paths_and_hashes(self):
+        from tools.dwelly_bridge.bridge import import_shadow
+        from tools.dwelly_bridge.tests.test_bridge import completed_source, hashes
+        fixture = self.root / "wal-fixture"
+        fixture.mkdir()
+        service, job, case, _ = completed_source(fixture)
+        connection = sqlite3.connect(service / "queue.sqlite3")
+        try:
+            self.assertEqual(connection.execute("PRAGMA journal_mode=WAL").fetchone(), ("wal",))
+        finally:
+            connection.close()
+        self.assertFalse((service / "queue.sqlite3-wal").exists())
+        self.assertFalse((service / "queue.sqlite3-shm").exists())
+        before_paths = sorted(str(p.relative_to(service)) for p in service.rglob("*"))
+        before_hashes = hashes(service)
+        shadow = fixture / "shadow"
+        result = import_shadow(service, job, case, shadow)
+        self.assertEqual(result["status"], "rejected")
+        self.assertEqual(result["reason"], "source_invalid")
+        self.assertEqual(before_paths, sorted(str(p.relative_to(service)) for p in service.rglob("*")))
+        self.assertEqual(before_hashes, hashes(service))
+        self.assertFalse(shadow.exists())
+
     def test_writable_job_directory_is_rejected(self):
         self.output.chmod(0o777)
         self.rejected("source_path_unsafe")

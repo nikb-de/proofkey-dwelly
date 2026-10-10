@@ -163,6 +163,13 @@ def _job(files, job_id):
     with files.open("queue.sqlite3") as descriptor:
         original = os.fstat(descriptor)
         _require(original.st_size <= 64 * 1024 * 1024, "source_too_large")
+        # A read-only SQLite connection can still create WAL/SHM sidecars.
+        # Reject unsupported formats through the already verified descriptor
+        # before SQLite opens the path. Bytes 18 and 19 are the file-format
+        # write/read versions: only rollback-journal version 1 is supported.
+        header = os.pread(descriptor, 100, 0)
+        _require(len(header) == 100 and header[:16] == b"SQLite format 3\x00"
+                 and header[18:20] == b"\x01\x01")
         for suffix in ("-journal", "-wal", "-shm"):
             try:
                 with files.open("queue.sqlite3" + suffix):
