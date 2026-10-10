@@ -1,0 +1,43 @@
+# Preparation template: every REPLACE_* value must be rendered and reviewed.
+# One explicit migration execution; deployment alone must not execute this job.
+apiVersion: run.googleapis.com/v1
+kind: Job
+metadata:
+  name: REPLACE_CASE_MIGRATION_JOB
+  namespace: "REPLACE_PROJECT_NUMBER"
+  labels:
+    cloud.googleapis.com/location: europe-west2
+    proofkey-component: case-migration
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/execution-environment: gen2
+        run.googleapis.com/cloudsql-instances: genaide:europe-west2:REPLACE_SQL_INSTANCE
+    spec:
+      taskCount: 1
+      parallelism: 1
+      template:
+        spec:
+          serviceAccountName: REPLACE_MIGRATION_SERVICE_ACCOUNT@genaide.iam.gserviceaccount.com
+          maxRetries: 0
+          timeoutSeconds: "600"
+          containers:
+            - name: case-migration
+              image: europe-west2-docker.pkg.dev/genaide/REPLACE_ARTIFACT_REPOSITORY/proofkey-case-api@sha256:REPLACE_IMAGE_DIGEST
+              command: ["python", "-B", "-m", "tools.dwelly_service.case_api"]
+              args: ["migrate"]
+              env:
+                - name: PROOFKEY_DEPLOYMENT_PROFILE
+                  value: cloud-run-case-v1
+                - name: PROOFKEY_DATABASE_SCHEMA
+                  value: REPLACE_DATABASE_SCHEMA
+                - name: PROOFKEY_DATABASE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: REPLACE_MIGRATION_DSN_SECRET
+                      key: "REPLACE_MIGRATION_DSN_VERSION"
+              resources:
+                limits:
+                  cpu: "1"
+                  memory: 512Mi

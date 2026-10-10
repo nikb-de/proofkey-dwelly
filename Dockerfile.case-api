@@ -1,0 +1,18 @@
+# Separate case-only API. This image never starts the legacy model worker.
+ARG PYTHON_IMAGE=python:3.12.15-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1
+FROM ${PYTHON_IMAGE}
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+WORKDIR /app
+USER root
+COPY requirements-postgres.lock /app/requirements-postgres.lock
+RUN python -m pip install --no-cache-dir --require-hashes -r requirements-postgres.lock \
+    && groupadd --gid 10002 proofkey-case \
+    && useradd --uid 10002 --gid 10002 --no-create-home \
+       --home-dir /nonexistent --shell /usr/sbin/nologin proofkey-case
+COPY tools/dwelly_cases /app/tools/dwelly_cases
+COPY tools/dwelly_service/__init__.py tools/dwelly_service/cases.py tools/dwelly_service/postgres.py tools/dwelly_service/case_api.py tools/dwelly_service/dataset_export.py /app/tools/dwelly_service/
+COPY tools/dwelly_service/migrations /app/tools/dwelly_service/migrations
+USER 10002:10002
+EXPOSE 8080
+ENTRYPOINT ["python", "-B", "-m", "tools.dwelly_service.case_api"]
+CMD ["serve"]

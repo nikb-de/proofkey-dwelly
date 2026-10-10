@@ -1,0 +1,36 @@
+{
+  "schema_version": "proofkey-platform-state-machines-v1",
+  "language": "en",
+  "semantics": "Independent projections; not a single mutable case status.",
+  "source_revision": {
+    "states": ["absent", "revision_n"],
+    "events": {
+      "create": "absent -> revision_0",
+      "append_evidence": "revision_n -> revision_n_plus_1",
+      "duplicate_request": "return original revision without another append"
+    },
+    "guards": ["idempotency body binding", "expected current revision", "schema validation", "private asset hash binding"]
+  },
+  "decision": {
+    "states": ["none", "proposed", "blocked", "approved", "rejected", "superseded"],
+    "guards": ["immutable decision ID", "case ID + revision + snapshot hash", "latest proposal", "deterministic action checks"],
+    "rules": ["new evidence invalidates prior approval for new execution", "rejection remains possible for blocked proposals", "acknowledging human follow-up grants no execution authority"]
+  },
+  "model_job": {
+    "states": ["queued", "running", "response_received", "succeeded", "failed", "outcome_unknown"],
+    "freshness": ["current", "stale"],
+    "rules": ["job admission holds current case revision lock", "provider dispatch is durable and fenced", "reference and evaluation are null for unlabeled cases", "success is not an operational outcome"]
+  },
+  "media_job": {
+    "states": ["running", "succeeded", "failed", "outcome_unknown"],
+    "modes": ["image_analysis", "asr"],
+    "guards": ["source asset hash", "format + decode or audio inspection", "size + duration limits", "shared model budget", "explicit request"],
+    "rules": ["no automatic processing on upload", "no automatic retry after uncertain dispatch", "300-second abandoned-run expiry", "human review before derivative adoption", "original source unchanged"]
+  },
+  "sandbox_action": {
+    "states": ["none", "verified"],
+    "allowed_action": "reschedule_delivery",
+    "guards": ["current approved proposal", "customer consent attested by local operator", "unchanged address", "future slot <= 8 hours", "visible evidence references"],
+    "rules": ["booking and receipt commit atomically", "duplicate execution returns original receipt", "external effects remain zero"]
+  }
+}

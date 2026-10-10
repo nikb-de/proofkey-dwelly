@@ -5,7 +5,7 @@ const status=document.getElementById('load-status'),error=document.getElementByI
 const picker=document.getElementById('case-picker'),libraryStatus=document.getElementById('library-status'),retry=document.getElementById('retry-save');
 let activeName='',activeId='',available=false,access='team',busy=false,source='server',catalog=[],githubRequested=false;
 let token=sessionStorage.getItem('case-library-token')??'';
-function localLoad(data,name){viewer.load(data);activeName=name;activeId='';status.textContent=`Загружен ${name} · шагов: ${data.steps.length}`;error.textContent='';editor.value=JSON.stringify(data,null,2);document.getElementById('download').disabled=false;retry.hidden=true;currentLabel()}
+function localLoad(data,name){viewer.load(data);data=viewer.data;activeName=name;activeId='';status.textContent=`Загружен ${name} · шагов: ${data.steps.length}`;error.textContent='';editor.value=JSON.stringify(data,null,2);document.getElementById('download').disabled=false;retry.hidden=true;currentLabel()}
 function failure(err){error.textContent=String(err.message).replace(/[.]+$/,'')+'.';document.getElementById('catalog-error').textContent=error.textContent}
 function setBusy(value){busy=value;for(const id of ['file','apply-json','case-picker','refresh-cases','retry-save','connect-library','sync-github'])document.getElementById(id).disabled=value;document.getElementById('sync-github').textContent=value?'Обновление…':'Обновить из GitHub'}
 async function api(route,options={}){
@@ -55,7 +55,7 @@ async function persist(){
  try{const {entry}=await api('/cases',{method:'POST',body:JSON.stringify({filename:activeName,data:viewer.data})});activeId=entry.id;status.textContent=`Сохранён на сервере · шагов: ${entry.step_count}`;retry.hidden=true;history.replaceState(null,'','#saved='+activeId);try{await refresh()}catch(e){failure(new Error('Кейс сохранён, но список не обновился: '+e.message))}}
  catch(e){status.textContent='Не сохранён на сервере · JSON остаётся во вкладке';retry.hidden=false;throw e}
 }
-async function importText(text,name){localLoad(JSON.parse(text),name);currentLabel();history.replaceState(null,'',location.pathname+location.search);await persist()}
+async function importText(text,name){localLoad(text,name);currentLabel();history.replaceState(null,'',location.pathname+location.search);await persist()}
 async function syncGithub(){
  const id=activeId,step=viewer.stepIndex;
  const config=await api('/config');source=config.source??'server';githubRequested=Boolean(config.github_requested);available=true;

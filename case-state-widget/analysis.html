@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>ProofKey · Case state workbench</title>
+  <link rel="stylesheet" href="/analysis.css">
+  <script type="module" src="/analysis.js"></script>
+</head>
+<body>
+<main id="analysis-app">
+  <header class="masthead"><div><p class="eyebrow">ProofKey / Development workbench</p><h1>Inspect evidence. Compare state.</h1><p class="intro">Follow the original case, analyze the evidence at a chosen step, and inspect the result against an unreviewed author reference.</p></div><span id="execution-tag" class="local-tag">Local · Offline baseline</span></header>
+  <aside class="boundary"><strong id="boundary-title">Offline analysis · 0 model calls.</strong> Analysis does not send a message, retry a form, release payment, or verify a real-world outcome.</aside>
+  <section class="selection card" aria-label="Choose evidence">
+    <div><label for="case-select">Source case</label><select id="case-select" disabled></select></div>
+    <div><label for="step-select">Evidence cutoff</label><select id="step-select" disabled></select></div>
+    <p id="selection-label" class="muted full"></p>
+  </section>
+  <p id="error" class="error" role="alert" hidden></p>
+  <div id="connection-warning" class="connection-warning" role="alert" hidden><p id="connection-message"></p><button id="reconnect">Reconnect to this analysis</button></div>
+  <p id="status" class="status" role="status" aria-live="polite">Loading local service…</p>
+  <details class="card source" open><summary>Original source timeline <span>Author snapshots · original language retained</span></summary><p class="section-note">These states and explanations were supplied by the author. Navigate here or use the evidence cutoff above; analysis never changes this timeline.</p><case-state-viewer id="source-viewer" hidden></case-state-viewer><p class="section-note">For browser-local imports, open the <a href="/source-viewer">standalone source viewer</a>. Imports are not added to this analysis catalog.</p></details>
+  <section class="card evidence" aria-labelledby="input-title"><div class="section-head"><div><p class="eyebrow">01 / Evidence boundary</p><h2 id="input-title">Input available to the analysis</h2></div><button id="download-input" disabled>Download input</button></div><p class="section-note">Initial goal, minimal actors, and messages visible through this cutoff. Author states, criteria, explanations, annotations, and future events are excluded.</p><p id="input-hash" class="hash"></p><pre id="input-json" tabindex="0" aria-label="Evidence-only input JSON">Evidence input will appear here.</pre></section>
+  <section class="run-controls card"><div class="engine-control"><h2 id="run-title">Run offline analysis</h2><label for="engine-select">Analysis engine</label><select id="engine-select" disabled><option value="offline">Offline baseline · no model call</option></select><p id="engine-note" class="section-note">The deterministic fixture baseline uses only the evidence above. Unsupported evidence may require operator review.</p></div><button id="analyze" class="primary" disabled>Analyze this step · offline</button><div id="resume-panel" class="resume-panel" hidden><p>A previous model request can be recovered in this browser session.</p><button id="resume-last">Resume last analysis</button></div></section>
+  <div class="results">
+    <section class="card result" aria-labelledby="candidate-title"><p class="eyebrow">02 / Generated candidate</p><h2 id="candidate-title">Baseline result</h2><span id="job-status" class="job-status" role="status" aria-live="polite" hidden></span><p id="candidate-state" class="state-line">Awaiting analysis</p><p id="run-id" class="muted">No run for this selection</p><p id="job-error" class="error" hidden></p><pre id="candidate-json" tabindex="0" aria-label="Analysis candidate JSON">Run the offline baseline to create a candidate.</pre><details id="transaction-details" class="transaction-details" hidden><summary>Run transaction and provider receipt</summary><dl id="receipt-summary" class="receipt-summary"></dl><pre id="transaction-json" tabindex="0" aria-label="Run transaction JSON"></pre></details><h3>Literal comparison</h3><p class="section-note">State and wait-target agreement only. No accuracy score or semantic certification.</p><pre id="comparison-json" tabindex="0" aria-label="Mechanical comparison JSON">No comparison yet.</pre><button id="download-run" disabled>Download full run record</button></section>
+    <section class="card reference" aria-labelledby="reference-title"><p class="eyebrow">Evaluator-only / Not an inference input</p><h2 id="reference-title">Author reference</h2><span class="warning-tag">Unreviewed author labels</span><p class="section-note">Development examples, not ground truth. Related branches share one case family and are not independent outcomes.</p><pre id="reference-json" tabindex="0" aria-label="Unreviewed author reference JSON">Author reference will appear here.</pre><button id="download-reference" disabled>Download reference</button></section>
+  </div>
+  <details class="card provenance"><summary>Source binding and local capabilities</summary><p class="section-note">Exports carry source and input bindings. These examples remain development data with unvalidated author labels. Persistence details are reported by the local service below.</p><pre id="source-json" tabindex="0" aria-label="Source provenance JSON"></pre><button id="download-source" disabled>Download source binding</button><pre id="capabilities-json" tabindex="0" aria-label="Local capabilities JSON"></pre></details>
+  <footer>ProofKey · A local development instrument. Analysis completion does not establish business execution.</footer>
+</main>
+</body>
+</html>

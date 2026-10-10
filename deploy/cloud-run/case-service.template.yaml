@@ -1,0 +1,90 @@
+# Preparation template: every REPLACE_* value must be rendered and reviewed.
+# This file is not deployable as supplied. IAM policy is managed separately.
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: REPLACE_CASE_SERVICE
+  namespace: "REPLACE_PROJECT_NUMBER"
+  labels:
+    cloud.googleapis.com/location: europe-west2
+    proofkey-component: case-api
+  annotations:
+    run.googleapis.com/description: Private case-storage API; analysis remains pending.
+    run.googleapis.com/ingress: all
+    run.googleapis.com/invoker-iam-disabled: "false"
+    run.googleapis.com/minScale: "0"
+    run.googleapis.com/maxScale: "1"
+spec:
+  # Safe update shape: retain the accepted revision until candidate acceptance.
+  # For first creation only, use the separate bootstrap shape in case-release.md.
+  traffic:
+    - revisionName: REPLACE_ACCEPTED_REVISION
+      percent: 100
+    - revisionName: REPLACE_CANDIDATE_REVISION
+      percent: 0
+      tag: candidate
+  template:
+    metadata:
+      name: REPLACE_CANDIDATE_REVISION
+      annotations:
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/maxScale: "1"
+        run.googleapis.com/cpu-throttling: "true"
+        run.googleapis.com/execution-environment: gen2
+        run.googleapis.com/cloudsql-instances: genaide:europe-west2:REPLACE_SQL_INSTANCE
+    spec:
+      serviceAccountName: REPLACE_RUNTIME_SERVICE_ACCOUNT@genaide.iam.gserviceaccount.com
+      containerConcurrency: 8
+      timeoutSeconds: 30
+      containers:
+        - name: case-api
+          image: europe-west2-docker.pkg.dev/genaide/REPLACE_ARTIFACT_REPOSITORY/proofkey-case-api@sha256:REPLACE_IMAGE_DIGEST
+          command: ["python", "-B", "-m", "tools.dwelly_service.case_api"]
+          args: ["serve"]
+          ports:
+            - name: http1
+              containerPort: 8080
+          env:
+            - name: PROOFKEY_DEPLOYMENT_PROFILE
+              value: cloud-run-case-v1
+            - name: PROOFKEY_DATABASE_SCHEMA
+              value: REPLACE_DATABASE_SCHEMA
+            - name: PROOFKEY_DB_POOL_MAX
+              value: "4"
+            - name: HOST
+              value: "0.0.0.0"
+            # Initially render as localhost:8080,127.0.0.1:8080.
+            # Add only observed exact service/tag DNS names after URL discovery.
+            - name: PROOFKEY_ALLOWED_HOSTS
+              value: REPLACE_EXACT_ALLOWED_HOSTS
+            - name: PROOFKEY_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: REPLACE_RUNTIME_DSN_SECRET
+                  key: "REPLACE_RUNTIME_DSN_VERSION"
+            - name: PROOFKEY_SERVICE_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: REPLACE_APP_TOKEN_SECRET
+                  key: "REPLACE_APP_TOKEN_VERSION"
+          resources:
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          startupProbe:
+            tcpSocket:
+              port: 8080
+            timeoutSeconds: 1
+            periodSeconds: 3
+            failureThreshold: 20
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+              httpHeaders:
+                - name: Host
+                  value: localhost:8080
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
+            periodSeconds: 30
+            failureThreshold: 3

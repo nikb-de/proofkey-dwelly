@@ -1,8 +1,26 @@
-# ProofKey — model-backed logistics decisions and evaluation harness
+# ProofKey — case operations platform and evaluation harness
+
+## Start here: the integrated local platform
+
+The primary product is now the [Right onTime case platform](docs/platform-operations.md): PostgreSQL case creation and evidence, independent state axes, deterministic checks, optional model analysis, photo analysis/ASR controls, human review and transactional **sandbox-only** rescheduling. [Inbound communications](docs/inbound-communications.md) adds local email/chat/transcript/recording ingress, quarantine and signed pseudo-provider webhooks; real channel accounts remain disconnected. All platform state names and labels are English. Evaluations remain a separate engineering workspace.
+
+Run `PYTHONPATH=.:tools:runtime/src python -m tools.dwelly_platform serve --database-url-env PROOFKEY_PLATFORM_DATABASE_URL --schema proofkey_platform_local --migrate --port 8095`, then open `http://127.0.0.1:8095/`. Providers are disabled by default; private credentials remain server-side. See [API and data boundaries](contracts/platform-v1/README.md).
+
+Use the [authored-case E2E runbook](docs/case-model-e2e.md) to replay existing histories through the platform and check coordination state, waiting party, current/stale binding, retained jobs and no duplicate dispatch. The UI now observes model jobs by read-only polling. [Verification and explicit limits](docs/verification/case-model-e2e-2026-10-10/README.md) separate real HTTP/PostgreSQL/browser execution with scripted responses from still-unavailable live-provider validation.
+
+This is not the cloud production UI. Real carrier actions, payments, authenticated tenancy and live model/media quality are not verified. The older components below remain available and have their own boundaries; their standalone workbenches are no longer the primary platform UI.
+
+## Existing model and evaluation components
 
 Private experimental release for the Dwelly Delivery & Logistics track. **Runnable source, CLI and Docker are included.** The model proposes the next communication; three API judges assess its content. Nothing sends messages, books deliveries or transfers money.
 
-Start with [model quickstart](tools/dwelly_model/README.md), [team data intake](docs/model-team-intake.md), [architecture](docs/architecture.md) and [raw/agent/evaluation data](data/dwelly-public-cases/README.md). There is no complete hackathon submission, video, live logistics integration or human-validated model-quality claim.
+Start with [model quickstart](tools/dwelly_model/README.md), [local asynchronous service](docs/model-service.md), [team data intake](docs/model-team-intake.md), [architecture](docs/architecture.md) and [raw/agent/evaluation data](data/dwelly-public-cases/README.md). There is no complete hackathon submission, video, live logistics integration or human-validated model-quality claim.
+
+For parallel UI, backend and E2E/evals work, use the [team contract v1](contracts/v1/README.md) and [state/storage architecture](docs/architecture/team-contract-v1.md). The [Right onTime design](design/right-ontime/prototype/index.html) now has a separate [local case and file intake workbench](design/right-ontime/prototype/intake.html); browser-local storage is not server upload or automatic analysis.
+
+The team's step-by-step data now has a separate [case-state analysis workbench](docs/analysis-workbench.md): source timeline, evidence-only step projection, offline state baseline, unreviewed author reference and export. Run `python3 -m tools.dwelly_analysis serve --port 8093` and open `http://127.0.0.1:8093`. Offline remains the default. Optional [transactional model analysis](docs/model-analysis-operations.md) connects the UI to configured OpenAI/Anthropic/Gemini transports through durable PostgreSQL jobs, retained budgets and single-dispatch recovery. It is not connected to the Cloud SQL case outbox or business actions. Its [analysis contract](contracts/analysis-v1/README.md) is separate from frozen intake v1 and the legacy model runner. Real provider verification is pending credentials; mocked integration tests are not model-quality evidence.
+
+The shared-backend path has a separate [PostgreSQL case API and Docker setup](deploy/postgres/README.md): immutable v1 cases, atomic analysis intents and fenced leases. A **private case-storage pilot is deployed on Cloud Run + Cloud SQL** in `genaide/europe-west2`; see the [live verification and limits](docs/verification/cloud-case-pilot-2026-10-10.md) and [current architecture graphic](docs/architecture/proofkey-readiness-2026-10-10.png). The browser, model worker and operational runtime are not connected to it. See [what changes for training/evals](docs/architecture/postgres-case-backend.md); the legacy SQLite benchmark remains local-only.
 
 ## 1. What we built
 
@@ -11,8 +29,13 @@ Start with [model quickstart](tools/dwelly_model/README.md), [team data intake](
 - A model proposer with OpenAI, Anthropic and Gemini API transports; the example selects OpenAI.
 - Three separately attributable API judge seats with eight anchored rubrics, abstention and critical-failure reporting.
 - A CLI, Docker build, offline tests, immutable experiment artifacts and conservative per-model spend reservations.
+- A local authenticated job service with persistent queue, proposal readback, cancellation and optional evaluation; bounded parallel provider calls run inside one active experiment. See [service boundaries and commands](docs/model-service.md).
+- A [local case/event pseudo API](docs/local-case-intake.md) with immutable revisions and declared JSON relationships. New input remains pending analysis; media is metadata-only.
+- An optional [read-only shadow bridge](tools/dwelly_bridge/README.md) for validated model-result/runtime associations. It grants no execution authority.
 
-The separate operational runtime is **not included**. Its synthetic rescheduling/refusal examples and six adapter interfaces are described only in the architecture.
+The **model harness is not deployed**: its legacy [Cloud Run Job template](deploy/cloud-run/README.md) is offline-only, separate from the deployed case-storage pilot. The local model queue must not be deployed as a durable Cloud Run HTTP service; live model requests fail closed until external durable admission and artifact storage exist.
+
+The separate [operational runtime source](runtime/README.md) is included, with synthetic rescheduling/refusal examples and six adapter interfaces. It is not connected to the model harness or case API; native logistics integrations remain unimplemented.
 
 ## 2. Operational problem
 
@@ -53,7 +76,7 @@ The example configuration selects `gpt-4.1-mini` for proposals and the OpenAI ju
 
 Required environment variables for the example configuration: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY` and `ANTHROPIC_WORKSPACE_ID`. For an Anthropic key already scoped to one workspace, remove that seat's `workspace_id_env` field if an explicit workspace header is unnecessary; see [workspace setup](tools/dwelly_model/README.md). Never commit key values or the actual workspace ID. `preflight` checks presence only, not validity or balance. API transports use fixed HTTPS endpoints and do not retry or substitute models. The OpenAI producer/judge family relationship is disclosed in each experiment.
 
-The application reserves up to USD 25 per provider/model per experiment, including repeats and proposer/judge calls using the same model. This is a conservative local limit under configured prices, not an account-level provider billing cap.
+The CLI reserves up to USD 25 per provider/model per experiment, including repeats and proposer/judge calls using the same model. The local service reuses one persistent ledger across its jobs and restarts instead of resetting the cap for each submission. These are conservative local limits under configured prices, not account-level provider billing caps. The service defaults to proposal-only; three-judge assessment is opt-in.
 
 ## 6. Assumptions and data
 

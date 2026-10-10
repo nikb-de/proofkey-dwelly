@@ -1,0 +1,1137 @@
+{
+  "process_id": "goods-refusal-v1",
+  "version": "v1",
+  "release_hash": "69e7f2e12023e87f5d14cc481f2455bd563ff574bf9636d598003c445ac5eee7",
+  "phases": [
+    "intake",
+    "extraction",
+    "completeness",
+    "auth_gate",
+    "read_authority",
+    "wait_customer",
+    "wait_operator",
+    "expired",
+    "operator_facts",
+    "dispatch",
+    "stop",
+    "stopped",
+    "complete",
+    "refusal_gate",
+    "verify_refusal",
+    "refusal_complete",
+    "return_gate",
+    "return_dispatch",
+    "verify_return",
+    "outcome_unknown_refusal",
+    "wait_refusal_operator",
+    "outcome_unknown_return",
+    "wait_return_operator"
+  ],
+  "edges": [
+    {
+      "origin": "intake",
+      "operation": "extract_input",
+      "target": "extraction"
+    },
+    {
+      "origin": "extraction",
+      "operation": "check_completeness",
+      "target": "completeness"
+    },
+    {
+      "origin": "completeness",
+      "operation": "authenticate",
+      "target": "auth_gate"
+    },
+    {
+      "origin": "auth_gate",
+      "operation": "read_authority",
+      "target": "read_authority"
+    },
+    {
+      "origin": "completeness",
+      "operation": "ask_customer",
+      "target": "wait_customer"
+    },
+    {
+      "origin": "wait_customer",
+      "operation": "accept_customer_facts",
+      "target": "completeness"
+    },
+    {
+      "origin": "wait_customer",
+      "operation": "expire_wait",
+      "target": "expired"
+    },
+    {
+      "origin": "wait_operator",
+      "operation": "accept_operator_facts",
+      "target": "operator_facts"
+    },
+    {
+      "origin": "operator_facts",
+      "operation": "reenter_facts",
+      "target": "completeness"
+    },
+    {
+      "origin": "wait_operator",
+      "operation": "expire_wait",
+      "target": "expired"
+    },
+    {
+      "origin": "expired",
+      "operation": "ask_operator",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "stop",
+      "operation": "record_stop",
+      "target": "stopped"
+    },
+    {
+      "origin": "read_authority",
+      "operation": "check_refusal",
+      "target": "refusal_gate"
+    },
+    {
+      "origin": "refusal_gate",
+      "operation": "register_goods_refusal",
+      "target": "dispatch"
+    },
+    {
+      "origin": "dispatch",
+      "operation": "read_effect",
+      "target": "verify_refusal"
+    },
+    {
+      "origin": "verify_refusal",
+      "operation": "verify_refusal",
+      "target": "refusal_complete"
+    },
+    {
+      "origin": "refusal_complete",
+      "operation": "finish",
+      "target": "complete"
+    },
+    {
+      "origin": "refusal_complete",
+      "operation": "check_return",
+      "target": "return_gate"
+    },
+    {
+      "origin": "return_gate",
+      "operation": "create_return",
+      "target": "return_dispatch"
+    },
+    {
+      "origin": "return_dispatch",
+      "operation": "read_effect",
+      "target": "verify_return"
+    },
+    {
+      "origin": "verify_return",
+      "operation": "verify_return",
+      "target": "complete"
+    },
+    {
+      "origin": "intake",
+      "operation": "request_stop",
+      "target": "stop"
+    },
+    {
+      "origin": "extraction",
+      "operation": "request_stop",
+      "target": "stop"
+    },
+    {
+      "origin": "completeness",
+      "operation": "request_stop",
+      "target": "stop"
+    },
+    {
+      "origin": "auth_gate",
+      "operation": "request_stop",
+      "target": "stop"
+    },
+    {
+      "origin": "read_authority",
+      "operation": "request_stop",
+      "target": "stop"
+    },
+    {
+      "origin": "wait_customer",
+      "operation": "request_stop",
+      "target": "stop"
+    },
+    {
+      "origin": "wait_operator",
+      "operation": "request_stop",
+      "target": "stop"
+    },
+    {
+      "origin": "expired",
+      "operation": "request_stop",
+      "target": "stop"
+    },
+    {
+      "origin": "operator_facts",
+      "operation": "request_stop",
+      "target": "stop"
+    },
+    {
+      "origin": "dispatch",
+      "operation": "request_stop",
+      "target": "stop"
+    },
+    {
+      "origin": "refusal_gate",
+      "operation": "request_stop",
+      "target": "stop"
+    },
+    {
+      "origin": "verify_refusal",
+      "operation": "request_stop",
+      "target": "stop"
+    },
+    {
+      "origin": "refusal_complete",
+      "operation": "request_stop",
+      "target": "stop"
+    },
+    {
+      "origin": "return_gate",
+      "operation": "request_stop",
+      "target": "stop"
+    },
+    {
+      "origin": "return_dispatch",
+      "operation": "request_stop",
+      "target": "stop"
+    },
+    {
+      "origin": "verify_return",
+      "operation": "request_stop",
+      "target": "stop"
+    },
+    {
+      "origin": "intake",
+      "operation": "ask_operator",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "extraction",
+      "operation": "ask_operator",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "completeness",
+      "operation": "ask_operator",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "auth_gate",
+      "operation": "ask_operator",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "read_authority",
+      "operation": "ask_operator",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "wait_customer",
+      "operation": "ask_operator",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "dispatch",
+      "operation": "ask_operator",
+      "target": "wait_refusal_operator"
+    },
+    {
+      "origin": "refusal_gate",
+      "operation": "ask_operator",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "verify_refusal",
+      "operation": "ask_operator",
+      "target": "wait_refusal_operator"
+    },
+    {
+      "origin": "refusal_complete",
+      "operation": "ask_operator",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "return_gate",
+      "operation": "ask_operator",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "return_dispatch",
+      "operation": "ask_operator",
+      "target": "wait_return_operator"
+    },
+    {
+      "origin": "verify_return",
+      "operation": "ask_operator",
+      "target": "wait_return_operator"
+    },
+    {
+      "origin": "dispatch",
+      "operation": "mark_unknown",
+      "target": "outcome_unknown_refusal"
+    },
+    {
+      "origin": "verify_refusal",
+      "operation": "read_effect",
+      "target": "verify_refusal"
+    },
+    {
+      "origin": "verify_refusal",
+      "operation": "mark_unknown",
+      "target": "outcome_unknown_refusal"
+    },
+    {
+      "origin": "outcome_unknown_refusal",
+      "operation": "read_effect",
+      "target": "verify_refusal"
+    },
+    {
+      "origin": "outcome_unknown_refusal",
+      "operation": "ask_operator",
+      "target": "wait_refusal_operator"
+    },
+    {
+      "origin": "wait_refusal_operator",
+      "operation": "accept_operator_facts",
+      "target": "verify_refusal"
+    },
+    {
+      "origin": "wait_refusal_operator",
+      "operation": "expire_wait",
+      "target": "outcome_unknown_refusal"
+    },
+    {
+      "origin": "return_dispatch",
+      "operation": "mark_unknown",
+      "target": "outcome_unknown_return"
+    },
+    {
+      "origin": "verify_return",
+      "operation": "read_effect",
+      "target": "verify_return"
+    },
+    {
+      "origin": "verify_return",
+      "operation": "mark_unknown",
+      "target": "outcome_unknown_return"
+    },
+    {
+      "origin": "outcome_unknown_return",
+      "operation": "read_effect",
+      "target": "verify_return"
+    },
+    {
+      "origin": "outcome_unknown_return",
+      "operation": "ask_operator",
+      "target": "wait_return_operator"
+    },
+    {
+      "origin": "wait_return_operator",
+      "operation": "accept_operator_facts",
+      "target": "verify_return"
+    },
+    {
+      "origin": "wait_return_operator",
+      "operation": "expire_wait",
+      "target": "outcome_unknown_return"
+    },
+    {
+      "origin": "stop",
+      "operation": "read_effect",
+      "target": "stop"
+    },
+    {
+      "origin": "stopped",
+      "operation": "read_effect",
+      "target": "stopped"
+    },
+    {
+      "origin": "completeness",
+      "operation": "send_clarification",
+      "target": "wait_customer"
+    },
+    {
+      "origin": "expired",
+      "operation": "enqueue_handoff",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "intake",
+      "operation": "enqueue_handoff",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "extraction",
+      "operation": "enqueue_handoff",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "completeness",
+      "operation": "enqueue_handoff",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "auth_gate",
+      "operation": "enqueue_handoff",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "read_authority",
+      "operation": "enqueue_handoff",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "wait_customer",
+      "operation": "enqueue_handoff",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "dispatch",
+      "operation": "enqueue_handoff",
+      "target": "wait_refusal_operator"
+    },
+    {
+      "origin": "refusal_gate",
+      "operation": "enqueue_handoff",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "verify_refusal",
+      "operation": "enqueue_handoff",
+      "target": "wait_refusal_operator"
+    },
+    {
+      "origin": "refusal_complete",
+      "operation": "enqueue_handoff",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "return_gate",
+      "operation": "enqueue_handoff",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "return_dispatch",
+      "operation": "enqueue_handoff",
+      "target": "wait_return_operator"
+    },
+    {
+      "origin": "verify_return",
+      "operation": "enqueue_handoff",
+      "target": "wait_return_operator"
+    },
+    {
+      "origin": "outcome_unknown_refusal",
+      "operation": "enqueue_handoff",
+      "target": "wait_refusal_operator"
+    },
+    {
+      "origin": "outcome_unknown_return",
+      "operation": "enqueue_handoff",
+      "target": "wait_return_operator"
+    },
+    {
+      "origin": "intake",
+      "operation": "send_status",
+      "target": "intake"
+    },
+    {
+      "origin": "extraction",
+      "operation": "send_status",
+      "target": "extraction"
+    },
+    {
+      "origin": "completeness",
+      "operation": "send_status",
+      "target": "completeness"
+    },
+    {
+      "origin": "auth_gate",
+      "operation": "send_status",
+      "target": "auth_gate"
+    },
+    {
+      "origin": "read_authority",
+      "operation": "send_status",
+      "target": "read_authority"
+    },
+    {
+      "origin": "wait_customer",
+      "operation": "send_status",
+      "target": "wait_customer"
+    },
+    {
+      "origin": "wait_operator",
+      "operation": "send_status",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "wait_operator",
+      "operation": "transfer_owner",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "expired",
+      "operation": "send_status",
+      "target": "expired"
+    },
+    {
+      "origin": "operator_facts",
+      "operation": "send_status",
+      "target": "operator_facts"
+    },
+    {
+      "origin": "dispatch",
+      "operation": "send_status",
+      "target": "dispatch"
+    },
+    {
+      "origin": "refusal_gate",
+      "operation": "send_status",
+      "target": "refusal_gate"
+    },
+    {
+      "origin": "verify_refusal",
+      "operation": "send_status",
+      "target": "verify_refusal"
+    },
+    {
+      "origin": "refusal_complete",
+      "operation": "send_status",
+      "target": "refusal_complete"
+    },
+    {
+      "origin": "return_gate",
+      "operation": "send_status",
+      "target": "return_gate"
+    },
+    {
+      "origin": "return_dispatch",
+      "operation": "send_status",
+      "target": "return_dispatch"
+    },
+    {
+      "origin": "verify_return",
+      "operation": "send_status",
+      "target": "verify_return"
+    },
+    {
+      "origin": "outcome_unknown_refusal",
+      "operation": "request_stop",
+      "target": "stop"
+    },
+    {
+      "origin": "outcome_unknown_refusal",
+      "operation": "send_status",
+      "target": "outcome_unknown_refusal"
+    },
+    {
+      "origin": "wait_refusal_operator",
+      "operation": "request_stop",
+      "target": "stop"
+    },
+    {
+      "origin": "wait_refusal_operator",
+      "operation": "send_status",
+      "target": "wait_refusal_operator"
+    },
+    {
+      "origin": "wait_refusal_operator",
+      "operation": "transfer_owner",
+      "target": "wait_refusal_operator"
+    },
+    {
+      "origin": "outcome_unknown_return",
+      "operation": "request_stop",
+      "target": "stop"
+    },
+    {
+      "origin": "outcome_unknown_return",
+      "operation": "send_status",
+      "target": "outcome_unknown_return"
+    },
+    {
+      "origin": "wait_return_operator",
+      "operation": "request_stop",
+      "target": "stop"
+    },
+    {
+      "origin": "wait_return_operator",
+      "operation": "send_status",
+      "target": "wait_return_operator"
+    },
+    {
+      "origin": "wait_return_operator",
+      "operation": "transfer_owner",
+      "target": "wait_return_operator"
+    },
+    {
+      "origin": "intake",
+      "operation": "read_communication",
+      "target": "intake"
+    },
+    {
+      "origin": "extraction",
+      "operation": "read_communication",
+      "target": "extraction"
+    },
+    {
+      "origin": "completeness",
+      "operation": "read_communication",
+      "target": "completeness"
+    },
+    {
+      "origin": "auth_gate",
+      "operation": "read_communication",
+      "target": "auth_gate"
+    },
+    {
+      "origin": "read_authority",
+      "operation": "read_communication",
+      "target": "read_authority"
+    },
+    {
+      "origin": "wait_customer",
+      "operation": "read_communication",
+      "target": "wait_customer"
+    },
+    {
+      "origin": "wait_operator",
+      "operation": "read_communication",
+      "target": "wait_operator"
+    },
+    {
+      "origin": "expired",
+      "operation": "read_communication",
+      "target": "expired"
+    },
+    {
+      "origin": "operator_facts",
+      "operation": "read_communication",
+      "target": "operator_facts"
+    },
+    {
+      "origin": "dispatch",
+      "operation": "read_communication",
+      "target": "dispatch"
+    },
+    {
+      "origin": "stop",
+      "operation": "read_communication",
+      "target": "stop"
+    },
+    {
+      "origin": "stopped",
+      "operation": "read_communication",
+      "target": "stopped"
+    },
+    {
+      "origin": "refusal_gate",
+      "operation": "read_communication",
+      "target": "refusal_gate"
+    },
+    {
+      "origin": "verify_refusal",
+      "operation": "read_communication",
+      "target": "verify_refusal"
+    },
+    {
+      "origin": "refusal_complete",
+      "operation": "read_communication",
+      "target": "refusal_complete"
+    },
+    {
+      "origin": "return_gate",
+      "operation": "read_communication",
+      "target": "return_gate"
+    },
+    {
+      "origin": "return_dispatch",
+      "operation": "read_communication",
+      "target": "return_dispatch"
+    },
+    {
+      "origin": "verify_return",
+      "operation": "read_communication",
+      "target": "verify_return"
+    },
+    {
+      "origin": "outcome_unknown_refusal",
+      "operation": "read_communication",
+      "target": "outcome_unknown_refusal"
+    },
+    {
+      "origin": "wait_refusal_operator",
+      "operation": "read_communication",
+      "target": "wait_refusal_operator"
+    },
+    {
+      "origin": "outcome_unknown_return",
+      "operation": "read_communication",
+      "target": "outcome_unknown_return"
+    },
+    {
+      "origin": "wait_return_operator",
+      "operation": "read_communication",
+      "target": "wait_return_operator"
+    }
+  ],
+  "operations": [
+    "extract_input",
+    "check_completeness",
+    "authenticate",
+    "read_authority",
+    "ask_customer",
+    "accept_customer_facts",
+    "expire_wait",
+    "accept_operator_facts",
+    "reenter_facts",
+    "ask_operator",
+    "record_stop",
+    "check_refusal",
+    "register_goods_refusal",
+    "read_effect",
+    "verify_refusal",
+    "finish",
+    "check_return",
+    "create_return",
+    "verify_return",
+    "request_stop",
+    "mark_unknown",
+    "send_clarification",
+    "enqueue_handoff",
+    "send_status",
+    "transfer_owner",
+    "read_communication"
+  ],
+  "prerequisites": [
+    {
+      "phase": "return_gate",
+      "authority": "goods",
+      "fact": "refusal",
+      "expected": "verified"
+    },
+    {
+      "phase": "verify_refusal",
+      "authority": "goods",
+      "fact": "refusal",
+      "expected": "verified"
+    },
+    {
+      "phase": "verify_return",
+      "authority": "returns",
+      "fact": "return",
+      "expected": "verified"
+    },
+    {
+      "phase": "completeness",
+      "authority": "case",
+      "fact": "completeness",
+      "expected": "complete"
+    },
+    {
+      "phase": "auth_gate",
+      "authority": "case",
+      "fact": "authorization",
+      "expected": "verified"
+    },
+    {
+      "phase": "refusal_gate",
+      "authority": "customer",
+      "fact": "refusal_scope",
+      "expected": "whole_goods"
+    }
+  ],
+  "waits": [
+    {
+      "phase": "wait_customer",
+      "next_gate": "completeness",
+      "awaited_fields": [
+        "case.missing_facts"
+      ],
+      "recipient_role": "customer",
+      "expiry_seconds": 300
+    },
+    {
+      "phase": "wait_operator",
+      "next_gate": "operator_facts",
+      "awaited_fields": [
+        "case.operator_facts"
+      ],
+      "recipient_role": "operator",
+      "expiry_seconds": 300
+    },
+    {
+      "phase": "wait_refusal_operator",
+      "next_gate": "verify_refusal",
+      "awaited_fields": [
+        "journal.original_effect",
+        "case.reconciliation_facts"
+      ],
+      "recipient_role": "operator",
+      "expiry_seconds": 300
+    },
+    {
+      "phase": "wait_return_operator",
+      "next_gate": "verify_return",
+      "awaited_fields": [
+        "journal.original_effect",
+        "case.reconciliation_facts"
+      ],
+      "recipient_role": "operator",
+      "expiry_seconds": 300
+    }
+  ],
+  "approvals": [
+    {
+      "operation": "register_goods_refusal",
+      "required_scope": [
+        "goods.whole_inventory"
+      ],
+      "approver_role": "customer"
+    },
+    {
+      "operation": "create_return",
+      "required_scope": [
+        "goods.whole_inventory",
+        "returns.destination"
+      ],
+      "approver_role": "customer"
+    }
+  ],
+  "acknowledgements": {
+    "extract_input": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "check_completeness": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "authenticate": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "read_authority": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "ask_customer": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "accept_customer_facts": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "expire_wait": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "accept_operator_facts": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "reenter_facts": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "ask_operator": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "read_effect": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "record_stop": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "check_refusal": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "register_goods_refusal": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "verify_refusal": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "finish": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "check_return": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "create_return": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "verify_return": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "request_stop": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "mark_unknown": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "send_clarification": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "enqueue_handoff": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "send_status": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "transfer_owner": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "read_communication": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    }
+  },
+  "readbacks": {
+    "extract_input": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "check_completeness": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "authenticate": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "read_authority": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "ask_customer": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "accept_customer_facts": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "expire_wait": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "accept_operator_facts": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "reenter_facts": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "ask_operator": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "read_effect": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "record_stop": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "check_refusal": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "register_goods_refusal": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "verify_refusal": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "finish": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "check_return": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "create_return": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "verify_return": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "request_stop": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "mark_unknown": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "send_clarification": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "enqueue_handoff": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "send_status": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "transfer_owner": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    },
+    "read_communication": {
+      "status": "supported",
+      "basis": "synthetic-test-policy-v1: offline world contract only",
+      "covered_fields": [],
+      "evidence_ref": "synthetic-manifest-v1"
+    }
+  },
+  "completion": {
+    "phase": "complete",
+    "required_operations": [
+      "register_goods_refusal"
+    ]
+  }
+}

@@ -1,0 +1,53 @@
+# Preparation only: replace every REPLACE_* value before any approved deployment.
+# Offline smoke only. /work is ephemeral; there is no durable artifact publisher.
+# Use the CLI image built from Dockerfile, never Dockerfile.service.
+apiVersion: run.googleapis.com/v1
+kind: Job
+metadata:
+  name: proofkey-offline-smoke
+  labels:
+    cloud.googleapis.com/location: REPLACE_REGION
+spec:
+  template:
+    spec:
+      taskCount: 1
+      parallelism: 1
+      template:
+        spec:
+          serviceAccountName: REPLACE_SERVICE_ACCOUNT@REPLACE_PROJECT_ID.iam.gserviceaccount.com
+          maxRetries: 0
+          timeoutSeconds: "600"
+          containers:
+            - image: REPLACE_REGION-docker.pkg.dev/REPLACE_PROJECT_ID/REPLACE_REPOSITORY/proofkey-model@sha256:REPLACE_IMAGE_DIGEST
+              command: ["python", "-B", "-m", "tools.dwelly_model"]
+              args:
+                - dry-run
+                - --config
+                - /app/tools/dwelly_model/config.example.json
+                - --bundle
+                - /input/bundle
+                - --output
+                - /work/offline-smoke
+                - --limit
+                - "2"
+                - --proposals-only
+              resources:
+                limits:
+                  cpu: "1"
+                  memory: 512Mi
+              volumeMounts:
+                - name: input-bundle
+                  mountPath: /input/bundle
+                - name: scratch
+                  mountPath: /work
+          volumes:
+            - name: input-bundle
+              csi:
+                driver: gcsfuse.run.googleapis.com
+                readOnly: true
+                volumeAttributes:
+                  bucketName: REPLACE_IMMUTABLE_INPUT_BUCKET
+            - name: scratch
+              emptyDir:
+                medium: Memory
+                sizeLimit: 128Mi

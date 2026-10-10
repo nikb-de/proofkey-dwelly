@@ -1,0 +1,73 @@
+name: proofkey-case
+
+x-case-image: &case-image
+  image: proofkey-case-api:local
+  build:
+    context: .
+    dockerfile: Dockerfile.case-api
+    args:
+      PYTHON_IMAGE: ${PROOFKEY_PYTHON_IMAGE:-python:3.12.15-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1}
+
+x-database-environment: &database-environment
+  PROOFKEY_DATABASE_URL: postgresql://proofkey:${PROOFKEY_POSTGRES_PASSWORD:?Set a private hex PROOFKEY_POSTGRES_PASSWORD}@postgres:5432/proofkey
+  PROOFKEY_DATABASE_SCHEMA: ${PROOFKEY_DATABASE_SCHEMA:-public}
+  PROOFKEY_DB_POOL_MAX: ${PROOFKEY_DB_POOL_MAX:-4}
+
+services:
+  postgres:
+    image: postgres:17.11-bookworm@sha256:639ab7ceb90e13123085b741fb31ef493fba25463002f6da665352e7b534b652
+    environment:
+      POSTGRES_DB: proofkey
+      POSTGRES_USER: proofkey
+      POSTGRES_PASSWORD: ${PROOFKEY_POSTGRES_PASSWORD:?Set a private hex PROOFKEY_POSTGRES_PASSWORD}
+    volumes:
+      - case-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U proofkey -d proofkey']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+
+  migrate:
+    <<: *case-image
+    command: [migrate]
+    environment:
+      <<: *database-environment
+    depends_on:
+      postgres:
+        condition: service_healthy
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: 'no'
+
+  api:
+    <<: *case-image
+    command: [serve]
+    environment:
+      <<: *database-environment
+      PROOFKEY_SERVICE_TOKEN: ${PROOFKEY_SERVICE_TOKEN:?Set a private PROOFKEY_SERVICE_TOKEN}
+      PROOFKEY_ALLOWED_HOSTS: 127.0.0.1:8080,localhost:8080,127.0.0.1:${PROOFKEY_HTTP_PORT:-8080},localhost:${PROOFKEY_HTTP_PORT:-8080}
+      HOST: 0.0.0.0
+      PORT: '8080'
+    ports:
+      - 127.0.0.1:${PROOFKEY_HTTP_PORT:-8080}:8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/readyz', timeout=3).read()"]
+      interval: 5s
+      timeout: 4s
+      retries: 12
+      start_period: 5s
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+
+volumes:
+  case-postgres-data:

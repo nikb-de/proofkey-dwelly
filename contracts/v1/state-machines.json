@@ -1,0 +1,80 @@
+{
+  "schema_version": "proofkey-state-contract-v1",
+  "case_input": {
+    "availability": "implemented_local_service",
+    "initial": "absent",
+    "states": ["absent", "revision_n"],
+    "transitions": [
+      {"from": "absent", "to": "revision_n", "event": "create", "guard": "valid declaration and unique case ID", "effect": "n=0; immutable snapshot"},
+      {"from": "revision_n", "to": "revision_n", "event": "append", "guard": "expected_revision=n; valid participant-scoped unique event", "effect": "n=n+1; immutable snapshot and previous hash"},
+      {"from": "revision_n", "to": "revision_n", "event": "exact_retry", "guard": "same idempotency key and canonical body", "effect": "return original revision; no append"}
+    ],
+    "invariants": ["zero-based", "commit order, not occurred_at order", "no declaration mutation", "no generic resolved status", "pending_not_started is input snapshot metadata, not a job state"]
+  },
+  "media_intake": {
+    "availability": "local_workbench_only",
+    "initial": "selected",
+    "states": ["selected", "validating", "ready", "rejected", "failed", "committed", "removed"],
+    "transitions": [
+      {"from": "selected", "to": "validating", "event": "read_bytes"},
+      {"from": "validating", "to": "ready", "event": "valid_bytes_hash_and_decode"},
+      {"from": "validating", "to": "rejected", "event": "unsupported_empty_oversized_or_corrupt"},
+      {"from": "validating", "to": "failed", "event": "read_failure"},
+      {"from": "ready", "to": "committed", "event": "atomic_case_event_blob_commit"},
+      {"from": "ready", "to": "failed", "event": "storage_failure", "effect": "retain draft; no partial committed metadata"},
+      {"from": "selected", "to": "removed", "event": "remove_staged"},
+      {"from": "ready", "to": "removed", "event": "remove_staged"}
+    ],
+    "invariants": ["committed history cannot be silently removed", "server upload not implied", "hash is local byte identity, not authenticity"]
+  },
+  "extraction": {
+    "availability": "target_not_implemented",
+    "initial": "not_started",
+    "states": ["not_started", "queued", "running", "completed", "failed", "unavailable"],
+    "transitions": [
+      {"from": "not_started", "to": "queued", "event": "enqueue_verified_asset"},
+      {"from": "queued", "to": "running", "event": "lease"},
+      {"from": "running", "to": "completed", "event": "persist_result_and_receipt"},
+      {"from": "running", "to": "failed", "event": "bounded_failure"},
+      {"from": "not_started", "to": "unavailable", "event": "bytes_missing"}
+    ],
+    "invariants": ["photo stored is not photo understood", "transcript must cite input hash and engine version"]
+  },
+  "analysis": {
+    "availability": "target_for_new_case_pipeline",
+    "initial": "queued",
+    "states": ["queued", "running", "completed", "failed", "cancelled", "interrupted"],
+    "transitions": [
+      {"from": "queued", "to": "running", "event": "lease"},
+      {"from": "queued", "to": "cancelled", "event": "cancel"},
+      {"from": "running", "to": "completed", "event": "persist_result"},
+      {"from": "running", "to": "failed", "event": "bounded_failure"},
+      {"from": "running", "to": "cancelled", "event": "cooperative_stop"},
+      {"from": "running", "to": "interrupted", "event": "restart_without_completion"}
+    ],
+    "freshness": ["current", "superseded"],
+    "invariants": ["case_id plus revision plus snapshot_hash", "atomic append and outbox when enabled", "late result retained but not current", "unknown paid-call result requires reconciliation before retry"]
+  },
+  "operation_projection": {
+    "availability": "target_service_projection_not_runtime_wire_enum",
+    "initial": "draft",
+    "states": ["draft", "blocked", "awaiting_approval", "approved", "rejected", "superseded", "dispatching", "acknowledged", "outcome_unknown", "verified", "proven_not_executed", "unresolved"],
+    "transitions": [
+      {"from": "draft", "to": "blocked", "event": "missing_authority_or_evidence"},
+      {"from": "draft", "to": "awaiting_approval", "event": "valid_candidate"},
+      {"from": "awaiting_approval", "to": "approved", "event": "trusted_approval"},
+      {"from": "awaiting_approval", "to": "rejected", "event": "trusted_rejection"},
+      {"from": "awaiting_approval", "to": "superseded", "event": "new_input_or_authority_revision"},
+      {"from": "approved", "to": "superseded", "event": "new_input_or_authority_revision"},
+      {"from": "approved", "to": "dispatching", "event": "persist_intent_and_recheck_current_binding"},
+      {"from": "dispatching", "to": "acknowledged", "event": "correlated_adapter_ack"},
+      {"from": "dispatching", "to": "outcome_unknown", "event": "timeout_crash_or_ambiguous_response"},
+      {"from": "acknowledged", "to": "verified", "event": "authoritative_original_effect_readback"},
+      {"from": "acknowledged", "to": "outcome_unknown", "event": "verification_timeout"},
+      {"from": "outcome_unknown", "to": "verified", "event": "authoritative_original_effect_readback"},
+      {"from": "outcome_unknown", "to": "proven_not_executed", "event": "authoritative_negative_readback"},
+      {"from": "outcome_unknown", "to": "unresolved", "event": "bounded_reconciliation_exhausted"}
+    ],
+    "invariants": ["use actual runtime EffectIntent and RequestBinding", "ack is not success", "no blind retry", "new evidence after dispatch cannot erase intent", "new attempt after proven nonexecution requires a new current approval", "cancel does not undo external effects"]
+  }
+}

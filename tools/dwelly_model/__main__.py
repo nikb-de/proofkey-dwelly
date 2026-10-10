@@ -31,6 +31,9 @@ def main(argv=None):
         command.add_argument("--no-reference", action="store_true")
         command.add_argument("--no-baseline", action="store_true")
         command.add_argument("--repeat-judges", type=int, default=0)
+        command.add_argument("--max-parallel-requests", type=int, default=1)
+        command.add_argument("--per-provider-limit", type=int, default=1)
+        command.add_argument("--proposals-only", action="store_true")
         if name == "run":
             command.add_argument("--live", action="store_true", required=True,
                                  help="Required acknowledgement of external API calls and configured spend")
@@ -46,7 +49,10 @@ def main(argv=None):
             raise ValueError("invalid_run_bounds")
         result = run_experiment(args.bundle, args.output, config, live=args.command == "run",
                                 limit=args.limit, include_reference=not args.no_reference,
-                                compare_baseline=not args.no_baseline, repeat_judges=args.repeat_judges)
+                                compare_baseline=not args.no_baseline, repeat_judges=args.repeat_judges,
+                                max_parallel_requests=args.max_parallel_requests,
+                                per_provider_limit=args.per_provider_limit,
+                                proposals_only=args.proposals_only)
         print(json.dumps(result, sort_keys=True, ensure_ascii=False, allow_nan=False))
         return 0
     except (OSError, ValueError, TypeError, KeyError, IndexError, RecursionError, RuntimeError) as error:

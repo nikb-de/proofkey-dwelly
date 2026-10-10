@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Right onTime · Case workspace</title>
+  <link rel="icon" href="/brand/forward-symbol-forest.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/tokens.css"><link rel="stylesheet" href="./style.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="/" aria-label="Right onTime home"><img src="/brand/forward-paper.svg" alt="Right onTime"></a>
+    <p class="workspace-label">OPERATOR WORKSPACE</p>
+    <nav aria-label="Workspace"><button class="nav-link active" data-view="cases">Cases <span>01</span></button><button class="nav-link" data-view="queue">Review queue <span id="queue-count">0</span></button><button class="nav-link" data-view="communications">Communications <span>↓</span></button><button class="nav-link" data-view="integrations">Integrations <span>↗</span></button><a class="nav-link" href="/evals/">Evaluations <span>↗</span></a></nav>
+    <div class="sidebar-footer"><span class="live-dot"></span> Local sandbox<p>Human oversight.<br>Every decision, traceable.</p></div>
+  </aside>
+  <main>
+    <header class="page-header"><div><p class="eyebrow">RIGHT ONTIME / OPERATIONS</p><h1 id="page-title">A clear next step.</h1><p class="muted" id="page-subtitle">Evidence, decisions and human control in one case workspace.</p></div><span class="environment">Sandbox · no external effects</span></header>
+    <div id="status-message" class="notice" role="status" hidden></div><div id="error-message" class="notice error" role="alert" hidden></div>
+    <section id="integrations-view" hidden><div class="section-heading"><h2>Integration readiness</h2></div><p class="muted">Availability is reported by the local service. A configured provider does not grant permission to execute an action.</p><div id="integration-list" class="integration-grid"></div></section>
+    <section id="communications-view" hidden aria-label="Inbound communications">
+      <div class="section-heading"><h2>Inbound communications</h2><button id="refresh-communications" class="secondary">Refresh inbox</button></div>
+      <div class="communication-boundary"><strong>Local ingress · no live provider connection</strong><p>Email, chat and supplied call transcripts or recordings can be imported here. This workspace does not connect to mailboxes or messaging accounts, send messages, or automatically transcribe audio. Configured contact mappings are not identity verification.</p></div>
+      <p id="communications-loading" class="hint" role="status"></p><div id="communication-connectors" class="integration-grid"></div>
+      <div class="communications-grid">
+        <section class="card"><p class="eyebrow">EXPLICIT OPERATOR IMPORT</p><h3>Add an inbound envelope</h3><form id="communication-form" class="stack">
+          <label>Configured connector<select id="communication-connector" required><option value="">No connectors loaded</option></select></label>
+          <label>Import format<select id="communication-format"><option value="json">JSON envelope</option><option value="eml">Raw email (.eml)</option></select></label>
+          <div id="communication-json-fields"><label>Inbound envelope JSON<textarea id="communication-json" rows="12" spellcheck="false" placeholder='{"schema_version":"proofkey-inbound-v1","delivery_id":"source-001","conversation_id":"configured-thread","format":"message","payload":{"sender":"source@example.test","recipients":["operator@example.test"],"occurred_at":"2026-10-10T12:00:00Z","text":"Original source text"}}'></textarea></label><p class="hint">Paste the complete source envelope. Supported formats: message, transcript, media and email. The server validates the configured route and every contact before promotion.</p></div>
+          <div id="communication-email-fields" class="stack" hidden><label>Source delivery ID<input id="communication-delivery" autocomplete="off" placeholder="Original message or delivery ID"></label><label>Configured conversation ID<input id="communication-conversation" autocomplete="off" placeholder="Configured email thread"></label><label>Original email file<input id="communication-file" type="file" accept=".eml,message/rfc822"></label><p class="hint">Raw email bytes are retained unchanged. Maximum 26 MiB. Supported plain text and validated attachments only; unsupported content is quarantined.</p></div>
+          <p class="hint">Imports cannot choose a new case, create participants, approve a decision or execute an action. Source evidence is not a trusted instruction.</p><button id="communication-import" class="primary" type="submit">Import source</button>
+        </form><p id="communication-outcome" class="communication-outcome" role="status"></p></section>
+        <section class="card"><div class="section-heading"><div><p class="eyebrow">DURABLE INBOX</p><h3>Delivery receipts</h3></div><span id="communication-count" class="count">0</span></div><p class="hint">Accepted entries are bound to existing cases. Quarantined entries remain here; retry only after trusted routing or contact configuration has been corrected outside this UI.</p><div id="communication-receipts"></div></section>
+      </div>
+    </section>
+    <div id="cases-view" class="workspace-grid">
+      <section class="case-rail" aria-label="Case navigation"><div class="section-heading"><h2 id="case-list-title">Cases</h2><button id="refresh-list" class="text-button" aria-label="Refresh cases">Refresh</button></div><div id="case-list"></div>
+        <details id="create-case-panel"><summary>＋ Create a case</summary><form id="create-case-form" class="stack"><label>Case ID<input id="case-id" required pattern="[A-Za-z0-9][A-Za-z0-9_-]{0,63}" placeholder="delivery-001"></label><label>Order ID<input id="order-id" required pattern="[A-Za-z0-9][A-Za-z0-9_-]{0,63}" placeholder="order-001"></label><label>Customer ID<input id="customer-id" required value="customer-1" pattern="[A-Za-z0-9][A-Za-z0-9_-]{0,63}"></label><label>Operator ID<input id="operator-id" required value="operator-1" pattern="[A-Za-z0-9][A-Za-z0-9_-]{0,63}"></label><button type="submit" class="primary">Create case</button></form></details>
+      </section>
+      <section class="case-main" aria-label="Selected case">
+        <div id="empty-state" class="empty-state"><span class="empty-icon">↗</span><h2>Good decisions start with context.</h2><p>Select a case or create one to bring together its evidence and next steps.</p></div>
+        <div id="case-detail" hidden>
+          <div class="case-header"><div><p class="eyebrow" id="case-order"></p><h2 id="case-title"></h2><p class="muted small" id="case-meta"></p></div><button id="refresh-case" class="secondary">Refresh case</button></div>
+          <div id="case-states" class="states" aria-label="Five independent case states"></div>
+          <div class="detail-grid">
+            <section class="card evidence-card"><div class="section-heading"><div><p class="eyebrow">01 / SOURCE MATERIAL</p><h3>Evidence</h3></div><span id="evidence-count" class="count"></span></div><div id="case-communications"></div><div id="evidence-list"></div>
+              <details id="evidence-panel" open><summary>Add source evidence</summary><form id="evidence-form" class="stack"><div class="form-row"><label>Source channel<select id="evidence-channel"><option value="chat">Chat</option><option value="email">Email</option><option value="phone">Phone</option><option value="internal">Internal</option></select></label><label>Source sender<select id="evidence-sender"></select></label></div><label>Evidence type<select id="evidence-kind"><option value="message">Text message</option><option value="photo">Photo (PNG or JPEG)</option><option value="voice_message">Voice message</option><option value="call_recording">Call recording</option></select></label><label>Source text or caption<textarea id="evidence-text" rows="3" maxlength="4096" placeholder="Add the original request or context…"></textarea></label><label id="file-label" hidden>Source file<input id="evidence-file" type="file" accept="image/png,image/jpeg,audio/mpeg,audio/wav,audio/mp4,audio/webm"><span id="retained-file" class="hint"></span></label><p class="hint">Photos and audio remain source evidence. Processing requires a separate explicit action.</p><button class="secondary" type="submit">Add evidence</button></form></details>
+            </section>
+            <div class="decision-column"><section class="card"><p class="eyebrow">02 / UNDERSTAND</p><h3>Assess the next step</h3><p class="muted small">Run the local policy against the current evidence. Model proposals always require human review.</p><button id="analyze-case" class="primary full">Analyze case</button><details class="model-options"><summary>Optional model analysis</summary><label>Configured model<select id="model-profile"><option value="">Loading availability…</option></select></label><button id="run-model" class="secondary full" disabled>Run model analysis</button><p class="hint">Uses a real configured provider. No automatic execution.</p><div id="model-jobs"></div></details></section>
+            <section class="card"><p class="eyebrow">03 / PROPOSE</p><h3>Operator proposal</h3><form id="proposal-form" class="stack"><label>Next action<select id="action-type"><option value="reschedule_delivery">Reschedule delivery</option><option value="operator_review">Operator review</option><option value="request_information">Request information</option><option value="refund">Refund (execution unavailable)</option><option value="request_return">Request return (execution unavailable)</option></select></label><div id="reschedule-fields"><div class="form-row"><label>Slot start<input id="slot-start" type="datetime-local"></label><label>Slot end<input id="slot-end" type="datetime-local"></label></div><p class="hint">Your local time zone. Maximum window: 8 hours. Delivery address stays unchanged.</p></div><fieldset><legend>Supporting evidence</legend><div id="evidence-references"></div></fieldset><button class="secondary" type="submit">Save proposal</button></form></section></div>
+          </div>
+          <section class="card review-card"><div class="section-heading"><div><p class="eyebrow">04 / HUMAN CONTROL</p><h3>Review &amp; sandbox execution</h3></div><span class="tag">Local operator attestation</span></div><div class="review-context"><label>Review note<input id="review-note" maxlength="2000" placeholder="Record the reason for your decision"></label><label class="check"><input id="customer-consent" type="checkbox">I confirm customer consent for this delivery change.</label><p class="hint">This is your attestation; customer identity is not independently verified.</p></div><div id="decision-list"></div></section>
+          <section class="card history-card"><div class="section-heading"><div><p class="eyebrow">05 / AUDIT TRAIL</p><h3>Case history</h3></div><span class="tag">Append-only records</span></div><div id="case-history"></div></section>
+        </div>
+      </section>
+    </div>
+    <footer class="page-footer">Right onTime <span>Local integrated workspace · private source evidence · explicit human review</span></footer>
+  </main>
+</body>
+</html>
