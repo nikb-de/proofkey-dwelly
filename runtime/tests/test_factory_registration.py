@@ -15,6 +15,11 @@ from test_adaptation_factory import (ROOT, current_registration, factory_for, ma
 
 
 class FactoryRegistrationTests(unittest.TestCase):
+    @property
+    def comparison_registration(self):
+        from support_factory_lanes import current_v1_registration
+        return current_v1_registration()
+
     def setUp(self):
         self.registration_type = getattr(factory_api, "SyntheticImplementationRegistration", None)
         self.assertIsNotNone(self.registration_type)
@@ -22,7 +27,7 @@ class FactoryRegistrationTests(unittest.TestCase):
     def test_explicit_current_registration_accepts_material(self):
         self.assertIsNotNone(getattr(factory_api, "SyntheticImplementationRegistration", None))
         mat = material(supported_candidate())
-        factory = factory_for(mat, implementation_registration=current_registration())
+        factory = factory_for(mat, implementation_registration=self.comparison_registration)
         self.assertEqual(prepared(factory, mat).proposal_id, mat.proposal_id)
 
     def assert_registration_denied(self, registration):
@@ -34,11 +39,12 @@ class FactoryRegistrationTests(unittest.TestCase):
 
     def assert_material_denied(self, mat, reason="unsupported_adapter_implementation"):
         with self.assertRaises(FactoryDenied) as denied:
-            factory_for(mat)
+            factory_for(mat, implementation_registration=self.comparison_registration)
         self.assertEqual(denied.exception.reason, reason)
 
-    def test_current_fixture_pins_match_selected_source_bytes(self):
-        expected = dict(current_registration().implementations)
+    def test_current_comparison_pins_match_selected_source_bytes(self):
+        self.assertEqual(self.comparison_registration.registration_id, 'synthetic-factory-j05-current-v1')
+        expected = dict(self.comparison_registration.implementations)
         self.assertEqual({path: sha256(raw).hexdigest() for path, raw in material().adapter_sources}, expected)
 
     def test_none_keeps_historical_admission_and_rejects_current_bytes(self):
@@ -47,7 +53,7 @@ class FactoryRegistrationTests(unittest.TestCase):
         self.assertEqual(denied.exception.reason, "unsupported_adapter_implementation")
 
     def test_registration_is_frozen_slotted_and_detached_from_caller(self):
-        supplied = current_registration()
+        supplied = self.comparison_registration
         factory = factory_for(material(supported_candidate()), implementation_registration=supplied)
         retained = factory.context.implementation_registration
         self.assertIsNot(retained, supplied)
@@ -57,7 +63,7 @@ class FactoryRegistrationTests(unittest.TestCase):
             retained.registration_id = "edited"
         # Even explicit bypass of the caller's frozen wrapper cannot edit retained authority.
         object.__setattr__(supplied, "registration_id", "caller-replaced")
-        self.assertEqual(retained.registration_id, "synthetic-factory-installed-resources-v1")
+        self.assertEqual(retained.registration_id, "synthetic-factory-j05-current-v1")
         mat = factory.context.materials[0]
         proposal = prepared(factory, mat)
         with self.assertRaises(TypeError):
@@ -65,7 +71,7 @@ class FactoryRegistrationTests(unittest.TestCase):
         self.assertEqual(prepared(factory, mat), proposal)
 
     def test_reordered_pins_and_sources_keep_canonical_binding(self):
-        registration = current_registration()
+        registration = self.comparison_registration
         mat = material(supported_candidate())
         forward = factory_for(mat, implementation_registration=registration)
         reverse_mat = replace(mat, adapter_sources=tuple(reversed(mat.adapter_sources)))
@@ -76,7 +82,7 @@ class FactoryRegistrationTests(unittest.TestCase):
                          tuple(sorted(registration.implementations)))
 
     def test_registration_identity_requires_bounded_exact_ascii_value(self):
-        registration = current_registration()
+        registration = self.comparison_registration
         class StringSubclass(str):
             pass
         for value in ("", "a" * 129, "Uppercase", "a b", "../a", "/a", "-a", "é", "a\n", 1,
@@ -89,7 +95,7 @@ class FactoryRegistrationTests(unittest.TestCase):
                     registration, registration_id=value))
 
     def test_registration_provenance_is_exact_synthetic_literal(self):
-        registration = current_registration()
+        registration = self.comparison_registration
         class StringSubclass(str):
             pass
         for value in (None, "actual", "synthetic_rehearsal", "", StringSubclass(registration.provenance)):
@@ -97,7 +103,7 @@ class FactoryRegistrationTests(unittest.TestCase):
                 self.assert_registration_denied(replace(registration, provenance=value))
 
     def test_registration_rejects_subclasses_and_mutable_container_aliases(self):
-        registration = current_registration()
+        registration = self.comparison_registration
         class RegistrationSubclass(self.registration_type):
             pass
         class TupleSubclass(tuple):
@@ -117,7 +123,7 @@ class FactoryRegistrationTests(unittest.TestCase):
                 self.assert_registration_denied(value)
 
     def test_registration_inventory_requires_each_exact_path_once(self):
-        registration = current_registration()
+        registration = self.comparison_registration
         pins = registration.implementations
         class StringSubclass(str):
             pass
@@ -131,7 +137,7 @@ class FactoryRegistrationTests(unittest.TestCase):
                 self.assert_registration_denied(replace(registration, implementations=value))
 
     def test_registration_hashes_require_exact_lowercase_sha256(self):
-        registration = current_registration()
+        registration = self.comparison_registration
         pins = registration.implementations
         class StringSubclass(str):
             pass
@@ -177,13 +183,24 @@ class FactoryRegistrationTests(unittest.TestCase):
         self.assert_material_denied(replace(mat, adapter_sources=tuple(
             (path, b"x" * limit) for path, _ in mat.adapter_sources)))
 
-    def test_golden_registration_digest_and_all_resolution_paths_agree(self):
-        factory, proposal, regression, approval, packet = reviewed()
-        mat = factory.context.materials[0]
-        _, _, _, body = _material_proposal(mat, factory.context.implementation_registration)
+    def test_historical_fixture_serialization_digest(self):
+        historical = current_registration()
         expected = {"registration_id": "synthetic-factory-installed-resources-v1",
                     "provenance": "local_controlled_synthetic",
                     "inventory_sha256": "93959331816f018f3d13f1071cd4298468b428e7c79f253c81542893f6ce0b85"}
+        self.assertEqual(historical.registration_id, expected["registration_id"])
+        self.assertEqual(historical.provenance, expected["provenance"])
+        self.assertEqual(sha256(encoded([{"path": path, "sha256": digest}
+            for path, digest in sorted(historical.implementations)])).hexdigest(), expected["inventory_sha256"])
+
+    def test_current_comparison_digest_and_all_resolution_paths_agree(self):
+        from support_factory_lanes import fixed_current_fixture
+        factory, proposal, regression, approval, packet = reviewed(implementation_registration=self.comparison_registration)
+        mat = factory.context.materials[0]
+        _, _, _, body = _material_proposal(mat, factory.context.implementation_registration)
+        expected = {"registration_id": "synthetic-factory-j05-current-v1",
+                    "provenance": "local_controlled_synthetic",
+                    "inventory_sha256": fixed_current_fixture()["current_v1_inventory_sha256"]}
         self.assertEqual(body["implementation_registration"], expected)
         self.assertEqual(factory._resolve(proposal)[4]["implementation_registration"], expected)
         self.assertEqual(factory._proposal_hash(proposal.proposal_hash), prepared(factory, mat))
@@ -196,7 +213,7 @@ class FactoryRegistrationTests(unittest.TestCase):
             "implementation_registration"], expected)
 
     def test_different_registration_ids_separate_proposals_regressions_reviews_and_stages(self):
-        a = current_registration()
+        a = self.comparison_registration
         b = replace(a, registration_id="synthetic-factory-second-id")
         first, second = reviewed(implementation_registration=a), reviewed(implementation_registration=b)
         self.assertNotEqual(first[1].proposal_hash, second[1].proposal_hash)

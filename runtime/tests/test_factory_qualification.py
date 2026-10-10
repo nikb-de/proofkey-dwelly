@@ -16,15 +16,20 @@ SCRIPT = ROOT / "runtime/scripts/qualify_factory.py"
 
 
 class FactoryQualificationTests(unittest.TestCase):
+    current_lane = "current-source-v1-comparison-v1"
+
     @property
     def happy_result(self):
         cls = type(self)
-        if "_happy_result" not in cls.__dict__:
+        lane = self.current_lane
+        if "_happy_results" not in cls.__dict__:
+            cls._happy_results = {}
+        if lane not in cls._happy_results:
             directory = tempfile.TemporaryDirectory(prefix="factory-shared-capture-")
             cls.addClassCleanup(directory.cleanup)
             base = Path(directory.name)
-            cls._happy_result = cls.launch(ROOT, (), base / "result", base, {})
-        return cls._happy_result
+            cls._happy_results[lane] = cls.launch(ROOT, (), base / "result", base, {}, lane=lane)
+        return cls._happy_results[lane]
 
     def setUp(self):
         self.assertTrue(SCRIPT.is_file(), "fresh-process factory qualifier is absent")
@@ -32,15 +37,19 @@ class FactoryQualificationTests(unittest.TestCase):
         self.addCleanup(self.directory.cleanup)
         self.base = Path(self.directory.name)
 
-    def run_lane(self, root=ROOT, extra_python_args=(), output=None, env_changes=None):
-        return self.launch(root, extra_python_args, output or self.base / "result", self.base, env_changes or {})
+    def run_lane(self, root=ROOT, extra_python_args=(), output=None, env_changes=None, *, lane="current-source-v1-comparison-v1"):
+        if lane == self.current_lane:
+            control = self.happy_result
+            self.assertEqual(control.returncode, 0, self.read_manifest(control).get('error'))
+        return self.launch(root, extra_python_args, output or self.base / "result", self.base, env_changes or {}, lane=lane)
 
     @staticmethod
-    def launch(root, extra_python_args, output, cwd, env_changes):
+    def launch(root, extra_python_args, output, cwd, env_changes, *, lane="current-source-v1-comparison-v1"):
         env = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"}
         env.update(env_changes)
+        lane_args = [] if lane is None else ["--lane", lane]
         result = subprocess.run([sys.executable, *extra_python_args, str(root / "runtime/scripts/qualify_factory.py"),
-                                 "--output", str(output)], capture_output=True, text=True,
+                                 "--output", str(output), *lane_args], capture_output=True, text=True,
                                 env=env, cwd=cwd, timeout=90)
         result.output = output
         return result
@@ -51,6 +60,8 @@ class FactoryQualificationTests(unittest.TestCase):
         return json.loads(path.read_text())
 
     def copy_root(self):
+        control = self.happy_result
+        self.assertEqual(control.returncode, 0, self.read_manifest(control).get("error"))
         root = self.base / "checkout"
         shutil.copytree(ROOT / "runtime", root / "runtime",
                         ignore=shutil.ignore_patterns("__pycache__", "*.pyc", ".pytest_cache"))
@@ -60,6 +71,14 @@ class FactoryQualificationTests(unittest.TestCase):
         with (root / "runtime/tests/test_adaptation_factory.py").open("a") as stream:
             stream.write("\n" + code + "\n")
 
+    def inject_body(self, root, code):
+        path = root / "runtime/tests/test_adaptation_factory.py"
+        source = path.read_text()
+        marker = "    def test_truthful_capability_leaf_cannot_omit_changed_semantic_siblings(self):\\n"
+        self.assertIn(marker, source)
+        source = source.replace(marker, marker + "".join("        " + line + "\\n" for line in code.splitlines()), 1)
+        path.write_text(source)
+
     def assert_invalid(self, result, reason):
         self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
         manifest = self.read_manifest(result)
@@ -67,17 +86,56 @@ class FactoryQualificationTests(unittest.TestCase):
         self.assertIn(reason, manifest["error"])
         return manifest
 
+    def test_default_lane_rejects_changed_current_source(self):
+        result = self.run_lane(lane=None)
+        manifest = self.assert_invalid(result, "pinned source mismatch")
+        self.assertIsNone(manifest["registration"])
+        self.assertNotIn("lane", manifest)
+        self.assertEqual(manifest["tests"], {})
+        self.assertEqual(manifest["artifacts"], [])
+        self.assertEqual(manifest["imports"], {})
+        from test_adaptation_factory import current_registration
+        fixed = json.loads((ROOT / "runtime/tests/fixtures/factory-current-registration-v1.json").read_bytes())
+        self.assertEqual(sha256((ROOT / 'runtime/tests/fixtures/factory-current-registration-v1.json').read_bytes()).hexdigest(),
+                         '6dfa8a42dbf22bce5c6ecb94cfe3de40d88b2ec00ba4cbadeeb513b703e0be8f')
+        self.assertEqual(current_registration().registration_id, "synthetic-factory-installed-resources-v1")
+        self.assertEqual(dict(current_registration().implementations), fixed["implementations"])
+
+    def test_unknown_lane_rejected_before_execution(self):
+        for lane in ("test_factory_qualification", "../../pins.json"):
+            output = self.base / ("result-" + str(len(lane)))
+            result = self.run_lane(lane=lane, output=output)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertFalse(output.exists())
+
+    def test_added_package_module_rejected_by_closed_inventory(self):
+        root = self.copy_root()
+        (root / "runtime/src/proofkey/unapproved_module.py").write_text("VALUE = 1\\n")
+        self.assert_invalid(self.run_lane(root), "package source closure")
+
+    def test_added_test_rejected_before_execution(self):
+        root = self.copy_root()
+        self.inject(root, """class AddedProbe(unittest.TestCase):
+    def test_added(self):
+        self.fail('must never execute')
+""")
+        self.assert_invalid(self.run_lane(root), "planned test identity mismatch")
+
     def test_inner_suite_is_non_recursive_and_complete(self):
         result = self.happy_result
         manifest = self.read_manifest(result)
         self.assertEqual(result.returncode, 0, str(manifest.get("error")) + result.stdout + result.stderr)
         self.assertEqual(manifest["status"], "passed")
+        self.assertEqual(manifest['lane'], self.current_lane)
+        self.assertEqual(manifest['registration']['registration_id'], 'synthetic-factory-j05-current-v1')
+        self.assertEqual(len(manifest['source_registration']['implementations']), 86)
         tests = manifest["tests"]
         self.assertEqual(tests["planned_ids"], tests["executed_ids"])
-        self.assertEqual(len(tests["executed_ids"]), 37)
+        from support_factory_lanes import fixed_current_fixture
+        self.assertEqual(tests["executed_ids"], fixed_current_fixture()["current_v1_test_ids"])
         self.assertEqual(len(tests["executed_ids"]), len(set(tests["executed_ids"])))
         self.assertEqual({name.split(".")[0] for name in tests["executed_ids"]},
-                         {"test_adaptation_factory", "test_factory_registration"})
+                         {"test_adaptation_factory", "test_factory_registration", "test_factory_current_v1"})
         for name in ("skipped", "expected_failures", "unexpected_successes", "failures", "errors"):
             self.assertEqual(tests[name], [])
         self.assertEqual(manifest["python"]["optimize"], 0)
@@ -122,6 +180,11 @@ class FactoryQualificationTests(unittest.TestCase):
         self.assertEqual(values["regression"]["execution_id"], manifest["execution_id"])
         self.assertEqual(values["simulated_approval"]["mode"], "simulated")
         self.assertEqual(values["staged_manifest"]["status"], "staged_simulation")
+        from support_factory_lanes import fixed_current_fixture
+        self.assertEqual(values['staged_manifest']['implementation_registration'], {
+            'registration_id': 'synthetic-factory-j05-current-v1',
+            'provenance': 'local_controlled_synthetic',
+            'inventory_sha256': fixed_current_fixture()['current_v1_inventory_sha256']})
         self.assertEqual(values["staged_receipt"]["release_hash"],
                          next(row["sha256"] for row in manifest["artifacts"] if row["kind"] == "staged_manifest"))
         self.assertEqual(values["non_v1_regression"]["result"], "unavailable")
@@ -150,6 +213,8 @@ class FactoryQualificationTests(unittest.TestCase):
         self.assertEqual(marker.read_bytes(), b"existing result")
 
     def test_child_timeout_emits_invalid_manifest_and_retains_output(self):
+        control = self.happy_result
+        self.assertEqual(control.returncode, 0, self.read_manifest(control).get('error'))
         from unittest.mock import patch
         spec = importlib.util.spec_from_file_location("qualifier", SCRIPT)
         qualifier = importlib.util.module_from_spec(spec)
@@ -158,7 +223,7 @@ class FactoryQualificationTests(unittest.TestCase):
                              "fresh-process child has no declared timeout")
         output = self.base / "timeout-result"
         with patch.object(qualifier, "CHILD_TIMEOUT_SECONDS", 0.001), patch.object(
-                sys, "argv", [str(SCRIPT), "--output", str(output)]):
+                sys, "argv", [str(SCRIPT), "--lane", self.current_lane, "--output", str(output)]):
             result = qualifier.main()
         self.assertNotEqual(result, 0)
         manifest = json.loads((output / "manifest.json").read_text())
@@ -170,16 +235,19 @@ class FactoryQualificationTests(unittest.TestCase):
         partial = self.base / "partial-output"
         expired = subprocess.TimeoutExpired("fixed child", 300, output=b"partial stdout\n", stderr=b"partial stderr\n")
         with patch.object(qualifier.subprocess, "run", side_effect=expired), patch.object(
-                sys, "argv", [str(SCRIPT), "--output", str(partial)]):
+                sys, "argv", [str(SCRIPT), "--lane", self.current_lane, "--output", str(partial)]):
             self.assertNotEqual(qualifier.main(), 0)
         self.assertEqual((partial / "child.stdout.log").read_bytes(), b"partial stdout\n")
         self.assertEqual((partial / "child.stderr.log").read_bytes(), b"partial stderr\n")
         self.assertEqual(json.loads((partial / "manifest.json").read_text())["status"], "invalid")
 
     def test_preloaded_pinned_module_is_rejected_even_with_correct_file(self):
-        fixed = json.loads((ROOT / "runtime/tests/fixtures/factory-current-registration-v1.json").read_text())
+        control = self.happy_result
+        self.assertEqual(control.returncode, 0, self.read_manifest(control).get('error'))
+        from support_factory_lanes import fixed_current_fixture
+        fixed = fixed_current_fixture()["registration"]
         self.assertEqual(sha256((ROOT / "runtime/src/proofkey/process.py").read_bytes()).hexdigest(),
-                         fixed["implementations"]["process.py"])
+                         dict(fixed["implementations"])["process.py"])
         code = """import importlib.util, sys, types
 from pathlib import Path
 spec = importlib.util.spec_from_file_location('qualifier', sys.argv[1])
@@ -189,7 +257,7 @@ stale = types.ModuleType('proofkey.process')
 stale.__file__ = str(Path(sys.argv[2]) / 'runtime/src/proofkey/process.py')
 sys.modules['proofkey.process'] = stale
 try:
-    module.preflight(Path(sys.argv[2]))
+    module.preflight(Path(sys.argv[2]), lane='current-source-v1-comparison-v1')
 except Exception as error:
     print(error)
     sys.exit(7)
@@ -219,23 +287,16 @@ sys.exit(0)
 
     def test_replaced_local_helper_module_is_rejected(self):
         root = self.copy_root()
-        self.inject(root, """class ReplacementProbe(unittest.TestCase):
-    def test_replacement(self):
-        import sys, types
-        stale = sys.modules['support']
-        replacement = types.ModuleType('support')
-        replacement.__file__ = stale.__file__
-        sys.modules['support'] = replacement
-""")
+        self.inject_body(root, """import sys, types
+stale = sys.modules['support']
+replacement = types.ModuleType('support')
+replacement.__file__ = stale.__file__
+sys.modules['support'] = replacement""")
         self.assert_invalid(self.run_lane(root), "identity")
 
     def test_monkeypatched_pinned_binding_is_rejected(self):
         root = self.copy_root()
-        self.inject(root, """class BindingProbe(unittest.TestCase):
-    def test_binding(self):
-        import proofkey.process as process_module
-        process_module.ProcessController = object()
-""")
+        self.inject_body(root, "import proofkey.process as process_module\nprocess_module.ProcessController = object()")
         self.assert_invalid(self.run_lane(root), "binding")
 
     def test_untracked_local_module_is_in_inventory_and_import_report(self):
@@ -252,21 +313,15 @@ sys.exit(0)
 
     def test_file_added_during_execution_invalidates_inventory(self):
         root = self.copy_root()
-        self.inject(root, """class AdditionProbe(unittest.TestCase):
-    def test_addition(self):
-        (ROOT / 'tests/added_during_run.py').write_text('VALUE = 1\\n')
-        import importlib
-        importlib.import_module('added_during_run')
-""")
+        self.inject_body(root, """(ROOT / 'tests/added_during_run.py').write_text('VALUE = 1\\n')
+import importlib
+importlib.import_module('added_during_run')""")
         self.assert_invalid(self.run_lane(root), "source inventory")
 
     def test_broader_source_drift_during_execution_invalidates_inventory(self):
         root = self.copy_root()
-        self.inject(root, """class DriftProbe(unittest.TestCase):
-    def test_drift(self):
-        path = ROOT / 'tests/support.py'
-        path.write_bytes(path.read_bytes() + b'\\n# drift\\n')
-""")
+        self.inject_body(root, """path = ROOT / 'tests/support.py'
+path.write_bytes(path.read_bytes() + b'\\n# drift\\n')""")
         self.assert_invalid(self.run_lane(root), "source inventory")
 
     def test_symlink_and_hardlink_aliases_are_rejected(self):
@@ -297,21 +352,17 @@ sys.exit(0)
 
     def test_skipped_test_invalidates_lane(self):
         root = self.copy_root()
-        self.inject(root, """class SkipProbe(unittest.TestCase):
-    @unittest.skip('controlled skip')
-    def test_skip(self):
-        pass
-""")
+        self.inject_body(root, "self.skipTest('controlled skip')")
         self.assert_invalid(self.run_lane(root), "test accounting")
 
     def test_omitted_execution_invalidates_lane(self):
         root = self.copy_root()
-        self.inject(root, """class OmissionProbe(unittest.TestCase):
-    def test_omitted(self):
-        pass
-    def run(self, result=None):
+        self.inject(root, """_original_run = AdaptationFactoryTests.run
+def _omit_one(self, result=None):
+    if self._testMethodName == 'test_truthful_capability_leaf_cannot_omit_changed_semantic_siblings':
         return result
-""")
+    return _original_run(self, result)
+AdaptationFactoryTests.run = _omit_one""")
         self.assert_invalid(self.run_lane(root), "test accounting")
 
     def test_duplicate_test_identity_invalidates_lane(self):
@@ -321,10 +372,7 @@ sys.exit(0)
 
     def test_failing_test_cannot_emit_pass(self):
         root = self.copy_root()
-        self.inject(root, """class FailureProbe(unittest.TestCase):
-    def test_failure(self):
-        self.fail('controlled failure')
-""")
+        self.inject_body(root, "self.fail('controlled failure')")
         manifest = self.assert_invalid(self.run_lane(root), "test accounting")
         self.assertTrue(manifest["tests"]["failures"])
 

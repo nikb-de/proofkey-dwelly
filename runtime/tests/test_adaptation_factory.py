@@ -87,20 +87,10 @@ def current_registration():
                                              tuple(data["implementations"].items()))
 
 
-_DEFAULT_REGISTRATION = object()
-
-
-def factory_for(mat=None, regressions=(), reviews=(), pending=(), inventory=True,
-                implementation_registration=_DEFAULT_REGISTRATION):
-    mat = mat or material()
-    base = EnvironmentProfile.model_validate_json(mat.baseline)
-    context = FactoryContext(materials=(mat,), regressions=tuple(regressions),
-        runners=(RunnerIdentity("controlled-local-tests", "local_controlled_synthetic", fingerprint(json.loads(mat.tests))),),
-        reviews=tuple(reviews), inventory=OriginalInventory("synthetic-complete-1", "controlled_fixture",
-        base.release_hash, tuple(encoded(i.model_dump(mode="json")) for i in pending)) if inventory else None, now=NOW,
-        implementation_registration=(current_registration() if implementation_registration is _DEFAULT_REGISTRATION
-                                     else implementation_registration))
-    return AdaptationFactory(context)
+def factory_for(mat=None, regressions=(), reviews=(), pending=(), inventory=True, *, implementation_registration):
+    from support_factory_lanes import current_v1_context
+    return AdaptationFactory(current_v1_context(mat or material(), registration=implementation_registration,
+        regressions=regressions, reviews=reviews, pending=pending, inventory=inventory))
 
 
 def prepared(factory, mat):
@@ -188,19 +178,23 @@ def approval_for(proposal, regression):
         decision="approved", reviewed_at=NOW, mode="simulated")
 
 
-def reviewed(mat=None, pending=(), **context_changes):
+def reviewed(mat=None, pending=(), *, implementation_registration, **context_changes):
     mat = mat or material(supported_candidate())
-    proposal = prepared(factory_for(mat, implementation_registration=context_changes.get(
-        "implementation_registration", _DEFAULT_REGISTRATION)), mat)
+    proposal = prepared(factory_for(mat, implementation_registration=implementation_registration), mat)
     regression = evidence(mat, proposal)
     approval = approval_for(proposal, regression)
     event = HumanReviewEvent(approval.proof_reference, encoded(approval.model_dump(mode="json")), "human", "synthetic_rehearsal")
-    factory = factory_for(mat, regressions=(regression,), reviews=(event,), pending=pending, **context_changes)
+    factory = factory_for(mat, regressions=(regression,), reviews=(event,), pending=pending, implementation_registration=implementation_registration, **context_changes)
     packet = factory.check_proposal(proposal, fingerprint(json.loads(regression.receipt)))
     return factory, proposal, regression, approval, packet
 
 
 class AdaptationFactoryTests(unittest.TestCase):
+    @property
+    def comparison_registration(self):
+        from support_factory_lanes import current_v1_registration
+        return current_v1_registration()
+
     def test_truthful_capability_leaf_cannot_omit_changed_semantic_siblings(self):
         mat = material(supported_candidate())
         diffs = json.loads(mat.diff)
@@ -211,7 +205,7 @@ class AdaptationFactoryTests(unittest.TestCase):
         # This leaf is truthful but omits changed permission/ack/readback/coverage.
         changed = replace(mat, diff=encoded([item if item["path"] != "capabilities" else partial for item in diffs]))
         with self.assertRaises(FactoryDenied) as denied:
-            prepared(factory_for(changed), changed)
+            prepared(factory_for(changed, implementation_registration=self.comparison_registration), changed)
         self.assertEqual(denied.exception.reason, "incomplete_diff")
 
     def test_diff_paths_must_be_unique_complete_semantic_top_level_fields(self):
@@ -228,12 +222,12 @@ class AdaptationFactoryTests(unittest.TestCase):
             changed = replace(mat, diff=encoded(declared))
             with self.subTest(label=label):
                 with self.assertRaises(FactoryDenied) as denied:
-                    prepared(factory_for(changed), changed)
+                    prepared(factory_for(changed, implementation_registration=self.comparison_registration), changed)
                 self.assertEqual(denied.exception.reason, reason)
 
     def test_proposal_is_deterministic_and_detached(self):
         mat = material()
-        factory = factory_for(mat)
+        factory = factory_for(mat, implementation_registration=self.comparison_registration)
         proposal = prepared(factory, mat)
         self.assertIsInstance(proposal, AdaptationProposal)
         self.assertEqual(proposal, prepared(factory, mat))
@@ -245,7 +239,7 @@ class AdaptationFactoryTests(unittest.TestCase):
         self.assertEqual(proposal.migration.affected_contracts, changed_contracts(load_profile("flat-v1.2"), candidate_profile()))
         reverse = replace(mat, diff=encoded(list(reversed(json.loads(mat.diff)))),
                           adapter_sources=tuple(reversed(mat.adapter_sources)))
-        self.assertEqual(proposal, prepared(factory_for(reverse), reverse))
+        self.assertEqual(proposal, prepared(factory_for(reverse, implementation_registration=self.comparison_registration), reverse))
 
     def test_rehashed_unregistered_supplement_cannot_mint_new_authority(self):
         raw = supported_candidate().model_dump(mode="json")
@@ -255,15 +249,15 @@ class AdaptationFactoryTests(unittest.TestCase):
             value["release_hash"] = fingerprint({key: item for key, item in value.items() if key != "release_hash"})
         mat = material(EnvironmentProfile.model_validate(raw), reviewed_supplement=encoded(supplement))
         with self.assertRaises(FactoryDenied):
-            prepared(factory_for(mat), mat)
+            prepared(factory_for(mat, implementation_registration=self.comparison_registration), mat)
 
     def test_forged_complete_pass_cannot_overrule_known_candidate_dispatch_gap(self):
         mat = material()
-        proposal = prepared(factory_for(mat), mat)
+        proposal = prepared(factory_for(mat, implementation_registration=self.comparison_registration), mat)
         cases = (*executed_cases(candidate_profile()), {"case_id": "candidate_dispatch", "result": "passed", "output_hash": "0" * 64})
         reg = evidence(mat, proposal, result="passed", cases=cases)
         with self.assertRaises(FactoryDenied) as denied:
-            factory_for(mat, regressions=(reg,)).check_proposal(proposal, fingerprint(json.loads(reg.receipt)))
+            factory_for(mat, regressions=(reg,), implementation_registration=self.comparison_registration).check_proposal(proposal, fingerprint(json.loads(reg.receipt)))
         self.assertEqual(denied.exception.reason, "regression_unavailable")
 
     def test_unknown_adapter_and_omitted_migration_declaration_denied(self):
@@ -271,10 +265,10 @@ class AdaptationFactoryTests(unittest.TestCase):
         for changed in (replace(mat, adapter_sources=(("adapters/operator.py", b"forged adapter"), *mat.adapter_sources[1:])),
                         replace(mat, migration=encoded({"strategy": "compatible", "affected_contracts": []}))):
             with self.assertRaises(FactoryDenied):
-                prepared(factory_for(changed), changed)
+                prepared(factory_for(changed, implementation_registration=self.comparison_registration), changed)
 
     def test_mutable_host_inventory_or_runner_bags_are_not_authority(self):
-        context = factory_for(material(supported_candidate())).context
+        context = factory_for(material(supported_candidate()), implementation_registration=self.comparison_registration).context
         for altered in (replace(context, inventory=replace(context.inventory, pending=[])),
                         replace(context, runners=(replace(context.runners[0], runner_id=[]),)),
                         replace(context, regressions=(RegressionEvidence(b"[]"),))):
@@ -293,7 +287,7 @@ class AdaptationFactoryTests(unittest.TestCase):
         self.assertEqual(index["canonical_diff_bytes"], len(encoded(diffs)))
 
     def test_registered_rejected_stale_scope_events_and_failed_regression_remain_distinct(self):
-        factory, proposal, reg, approval, packet = reviewed()
+        factory, proposal, reg, approval, packet = reviewed(implementation_registration=self.comparison_registration)
         for changes, reason in (({"decision": "rejected"}, "approval_rejected"), ({"scope": ["review_profile"]}, "approval_scope_inadequate"),
                                 ({"reviewed_at": "2026-10-01T10:00:00Z"}, "approval_stale")):
             changed = HumanReviewApproval.model_validate({**approval.model_dump(), **changes})
@@ -305,14 +299,14 @@ class AdaptationFactoryTests(unittest.TestCase):
         mat = factory.context.materials[0]
         failed = evidence(mat, proposal, result="failed", cases=json.loads(reg.receipt)["cases"])
         changed = packet.model_copy(update={"regression_hash": fingerprint(json.loads(failed.receipt))})
-        updated = factory_for(mat, regressions=(failed,))
+        updated = factory_for(mat, regressions=(failed,), implementation_registration=self.comparison_registration)
         with self.assertRaises(ReleaseDenied) as denied:
             updated.release_profile(changed, approval, [])
         self.assertEqual(denied.exception.reason, "failed_regression")
 
     def test_unregistered_source_baseline_agent_and_context_fail_closed(self):
         mat = material()
-        factory = factory_for(mat)
+        factory = factory_for(mat, implementation_registration=self.comparison_registration)
         for args in [(encoded({"source_id": "forged"}), load_profile("flat-v1.2"), mat.agent),
                      (mat.source, load_profile("nested-v1.2"), mat.agent), (mat.source, load_profile("flat-v1.2"), encoded({"agent": "actual"}))]:
             with self.subTest(args=args[0][:20]), self.assertRaises(FactoryDenied):
@@ -334,19 +328,19 @@ class AdaptationFactoryTests(unittest.TestCase):
 
     def test_fabricated_failed_incomplete_and_wrong_runner_evidence_denied(self):
         mat = material(supported_candidate())
-        proposal = prepared(factory_for(mat), mat)
+        proposal = prepared(factory_for(mat, implementation_registration=self.comparison_registration), mat)
         with self.assertRaises(FactoryDenied):
-            factory_for(mat).check_proposal(proposal, "a" * 64)
+            factory_for(mat, implementation_registration=self.comparison_registration).check_proposal(proposal, "a" * 64)
         valid_cases = executed_cases(supported_candidate())
         for changes in ({"result": "failed"}, {"result": "unavailable"}, {"cases": valid_cases[:-1]},
                         {"candidate_hash": "0" * 64}, {"baseline_hash": "0" * 64}, {"test_hash": "0" * 64},
                         {"runner_id": "forged"}, {"provenance": "actual"}):
             reg = evidence(mat, proposal, **{"cases": valid_cases, **changes})
             with self.subTest(changes=changes), self.assertRaises(FactoryDenied):
-                factory_for(mat, regressions=(reg,)).check_proposal(proposal, fingerprint(json.loads(reg.receipt)))
+                factory_for(mat, regressions=(reg,), implementation_registration=self.comparison_registration).check_proposal(proposal, fingerprint(json.loads(reg.receipt)))
 
     def test_nested_candidate_and_proposal_tamper_is_rejected(self):
-        factory, proposal, regression, approval, packet = reviewed()
+        factory, proposal, regression, approval, packet = reviewed(implementation_registration=self.comparison_registration)
         raw = proposal.model_dump(mode="json")
         raw["diff"][0]["after"]["ownership.epoch"] = "tampered"
         proposal = AdaptationProposal.model_validate(raw)
@@ -373,10 +367,10 @@ class AdaptationFactoryTests(unittest.TestCase):
             self.assertEqual(world.bundle().scheduling.reschedule(intent).status, "rejected")
             self.assertEqual(world.effect_count("reschedule"), 0)
         mat = material(candidate)
-        proposal = prepared(factory_for(mat), mat)
+        proposal = prepared(factory_for(mat, implementation_registration=self.comparison_registration), mat)
         reg = evidence(mat, proposal, cases=cases)
         with self.assertRaises(FactoryDenied) as denied:
-            factory_for(mat, regressions=(reg,)).check_proposal(proposal, fingerprint(json.loads(reg.receipt)))
+            factory_for(mat, regressions=(reg,), implementation_registration=self.comparison_registration).check_proposal(proposal, fingerprint(json.loads(reg.receipt)))
         self.assertEqual(denied.exception.reason, "regression_unavailable")
 
     def test_permission_policy_and_authority_changes_rejected(self):
@@ -389,20 +383,20 @@ class AdaptationFactoryTests(unittest.TestCase):
             raw["release_hash"] = fingerprint({k: v for k, v in raw.items() if k != "release_hash"})
             mat = material(EnvironmentProfile.model_validate(raw))
             with self.subTest(mutate=mutate), self.assertRaises(FactoryDenied):
-                prepared(factory_for(mat), mat)
+                prepared(factory_for(mat, implementation_registration=self.comparison_registration), mat)
 
     def test_missing_approval_and_untrusted_inventory_have_distinct_denials(self):
-        factory, _, _, approval, packet = reviewed()
+        factory, _, _, approval, packet = reviewed(implementation_registration=self.comparison_registration)
         with self.assertRaises(ReleaseDenied) as denied:
             factory.release_profile(packet, None, [])
         self.assertEqual(denied.exception.reason, "missing_approval")
-        factory, _, _, approval, packet = reviewed(inventory=False)
+        factory, _, _, approval, packet = reviewed(inventory=False, implementation_registration=self.comparison_registration)
         with self.assertRaises(ReleaseDenied) as denied:
             factory.release_profile(packet, approval, [])
         self.assertEqual(denied.exception.reason, "pending_inventory_unavailable")
 
     def test_review_event_must_match_actor_scope_time_decision_and_content(self):
-        factory, _, _, approval, packet = reviewed()
+        factory, _, _, approval, packet = reviewed(implementation_registration=self.comparison_registration)
         for changes in ({"reviewer_id": "agent-consensus"}, {"mode": "actual"}, {"proof_reference": "forged"},
                         {"scope": []}, {"decision": "rejected"}, {"regression_hash": "0" * 64},
                         {"reviewed_at": DEADLINE}):
@@ -414,14 +408,14 @@ class AdaptationFactoryTests(unittest.TestCase):
             AdaptationFactory(altered).release_profile(packet, approval, [])
 
     def test_attached_approval_and_process_bundle_mismatch_denied(self):
-        factory, _, _, approval, packet = reviewed()
+        factory, _, _, approval, packet = reviewed(implementation_registration=self.comparison_registration)
         for changed in (packet.model_copy(update={"proposed_processes": {}}),
                         packet.model_copy(update={"approval": approval.model_copy(update={"proof_reference": "other"})})):
             with self.assertRaises(ReleaseDenied):
                 factory.release_profile(changed, approval, [])
 
     def test_no_pending_simulated_stage_has_canonical_manifest_and_no_activation(self):
-        factory, _, _, approval, packet = reviewed()
+        factory, _, _, approval, packet = reviewed(implementation_registration=self.comparison_registration)
         stage = factory.release_profile(packet, approval, [])
         self.assertEqual(stage.status, "staged_simulation")
         self.assertEqual(stage.receipt.approval.mode, "simulated")
@@ -433,7 +427,7 @@ class AdaptationFactoryTests(unittest.TestCase):
 
     def test_omitted_or_changed_pending_inventory_cannot_stage(self):
         old = make_intent(profile_version="v1.2")
-        factory, _, _, approval, packet = reviewed(pending=(old,))
+        factory, _, _, approval, packet = reviewed(pending=(old,), implementation_registration=self.comparison_registration)
         for pending in ([], [old], [make_intent(binding=make_binding(generation="foreign"))]):
             with self.subTest(pending=len(pending)), self.assertRaises(ReleaseDenied):
                 factory.release_profile(packet, approval, pending)
@@ -458,7 +452,7 @@ class AdaptationFactoryTests(unittest.TestCase):
             store.begin_dispatch(old, NOW)
             store.stop_waits_atomic(make_binding(), store.checkpoint("C1"))
             checkpoint, wait = store.checkpoint("C1"), store.load_wait_record("Q1")
-            factory, _, _, approval, packet = reviewed(pending=(old,))
+            factory, _, _, approval, packet = reviewed(pending=(old,), implementation_registration=self.comparison_registration)
             with self.assertRaises(ReleaseDenied) as denied:
                 factory.release_profile(packet, approval, [old])
             self.assertEqual(denied.exception.reason, "incompatible_pending_contract")
