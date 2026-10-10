@@ -255,6 +255,9 @@ class CaseStore:
             raise CaseError("idempotency_conflict")
         return saved
 
+    def _after_revision(self, connection, snapshot):
+        """Allow a backend to persist related work inside the revision transaction."""
+
     def create(self, key, body):
         _key(key)
         body, encoded = _bounded_json(body)
@@ -271,6 +274,7 @@ class CaseStore:
             connection.execute("INSERT INTO case_heads VALUES (?, 0)", (body["case_id"],))
             connection.execute("INSERT INTO case_snapshots VALUES (?, 0, ?)", (body["case_id"], _canonical(value)))
             connection.execute("INSERT INTO case_requests VALUES ('create', ?, ?, ?, 0)", (key, encoded, body["case_id"]))
+            self._after_revision(connection, value)
             return self._history(connection, body["case_id"])[0], True
 
     def append(self, case_id, key, body):
@@ -296,6 +300,7 @@ class CaseStore:
             connection.execute("UPDATE case_heads SET current_revision=? WHERE case_id=?", (value["revision"], case_id))
             connection.execute("INSERT INTO case_requests VALUES (?, ?, ?, ?, ?)",
                                ("append:" + case_id, key, encoded, case_id, value["revision"]))
+            self._after_revision(connection, value)
             return self._history(connection, case_id)[-1], True
 
     def get(self, case_id, revision=None):

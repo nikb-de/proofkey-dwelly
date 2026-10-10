@@ -33,7 +33,8 @@ Start with [connected two-revision episode](examples/connected-episode.json), [d
 
 | Interface | Now | Consumer contract |
 |---|---|---|
-| Create case, append event, read exact/latest revision | Local authenticated service | `openapi.json` ordinary `paths` |
+| Create case, append event, read exact/latest revision | PostgreSQL case API and legacy local service | `openapi.json` ordinary `paths` |
+| Durable analysis intent + fenced lease | PostgreSQL case API; worker not connected | [PostgreSQL boundary](../../docs/architecture/postgres-case-backend.md) |
 | Photo/audio metadata in events | Local service, declared hash only | `local-case.schema.json` |
 | File selection, preview, bytes after reload | Separate browser-local workbench | `design/right-ontime/prototype/intake.html` |
 | Shared file upload/object storage, case list API, browser BFF | **Target, not installed** | `x-target-interfaces` |
@@ -52,3 +53,5 @@ Existing closed service schemas must not acquire fields from this pack. Add UI-o
 - **Backend:** implement target asset/BFF and revision-analysis adapters behind these interfaces, with atomic state changes and readback.
 - **E2E:** run fixed fixtures in isolated storage; cover reload, duplicate delivery, stale revision, crash, late result and uncertain effect.
 - **Training/evals:** prepare episode, decision-input, decision-label, transition and decision-run separately; use exact hashes and label provenance. Judge scores do not replace human validation or runtime permission.
+
+The PostgreSQL migration preserves these JSON schemas, not every storage-dependent tool. A new [pinned-revision exporter](../../tools/dwelly_service/dataset_export.py) produces the same model-visible input; database/replay/E2E tests must exercise the real backend. It does not run the legacy model runner or fabricate labels.

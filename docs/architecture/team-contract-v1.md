@@ -8,14 +8,15 @@ This is the shared implementation boundary for parallel UI, E2E and training/eva
 flowchart LR
   UI["Right onTime UI"] --> IDB["Local intake / IndexedDB"]
   IDB --> EX["Request + manifest export"]
-  CLI["Trusted local API client"] --> CS["CaseStore / SQLite"]
-  CS -. "target: atomic outbox" .-> AN["Revision analysis worker"]
+  CLI["Trusted local API client"] --> CS["Case API / PostgreSQL"]
+  CS --> OB["Atomic analysis outbox"]
+  OB -. "not connected" .-> AN["Revision analysis worker"]
   AN -.-> PR["Grounded proposal"]
   PR -.-> G["Deterministic runtime gate"]
   G -.-> AD["Adapter intent / readback"]
 ```
 
-Solid arrows exist locally. Dashed arrows are the new-case pipeline target, not installed connections. The existing model-job worker reads its startup benchmark bundle; it does not consume newly created cases. The optional shadow bridge checks a host-owned mapping but is inert. Current browser storage is private to one browser origin/device and is not shared backend state.
+Solid arrows exist locally. Dashed arrows are the new-case pipeline target, not installed connections. The separate [PostgreSQL case API](postgres-case-backend.md) atomically persists revisions and pending analysis intents; its worker is not connected. The existing SQLite model-job worker reads its startup benchmark bundle; it does not consume newly created cases. The optional shadow bridge checks a host-owned mapping but is inert. Current browser storage is private to one browser origin/device and is not shared backend state.
 
 ## 2. Case input: immutable revisions
 
@@ -59,7 +60,7 @@ stateDiagram-v2
   running --> cancelled: cooperative stop
 ```
 
-`freshness=current|superseded` is independent from the processing status. A completed result for R1 remains immutable historical evidence after R2; it cannot overwrite R2's current decision. Target transaction: commit R2 and unique outbox key `(case_id, revision, snapshot_hash, pipeline_version)` together, then a worker leases that row. Retries retain an attempt ID and provider receipt; paid/model calls must not replay blindly after an uncertain crash.
+`freshness=current|superseded` is independent from the processing status. A completed result for R1 remains immutable historical evidence after R2; it cannot overwrite R2's current decision. The PostgreSQL increment commits R2 and one unique `(case_id, revision)` intent carrying its snapshot hash together; its leases are fenced and expiring, but no analysis worker is connected. The later versioned analysis pipeline still needs `(case_id, revision, snapshot_hash, pipeline_version)`, attempt IDs and provider receipts; paid/model calls must not replay blindly after an uncertain crash. Outbox `completed` is an internal acknowledgement, not the completed model-analysis state in the diagram.
 
 Model output proposes typed next steps (request evidence/customer choice, operator review, propose reschedule, wait, reconcile, no action). Proposed reschedule parameters include a slot but do not authorise dispatch. At first, authority policy is human-approved; training-derived candidate policy cannot activate itself. There is one responsible human reviewer, with explicit ID/version/review receipt required before changing approved policy.
 
@@ -86,10 +87,10 @@ Before dispatch recheck input version, current owner, consent, policy version, c
 
 | Record | Owner now | Target / invariant |
 |---|---|---|
-| Case head/snapshots/idempotency | `CaseStore`, private SQLite owned by `JobStore` | Atomic append; immutable history |
+| Case head/snapshots/idempotency | Shared-backend path: `PostgresCaseStore`; legacy local path: SQLite `CaseStore` | Atomic append; immutable history; same v1 snapshots |
 | Local UI metadata and bytes | Separate versioned IndexedDB | Browser-only, transaction commits both |
 | Uploaded bytes | Not implemented | Private object store; metadata DB binds verified hash/size/owner |
-| Analysis jobs/results | Existing benchmark jobs only | Revision outbox/leases/results; history never overwritten |
+| Analysis jobs/results | PostgreSQL revision outbox/leases; separate legacy benchmark jobs | Worker/results still unconnected; history never overwritten |
 | Execution intents/receipts | Separate synthetic runtime journal | Actual adapters still disconnected |
 | Episode labels/transitions | Evals dataset, not live case store | No leakage to model input; human review provenance |
 
@@ -97,7 +98,7 @@ Google Cloud deployment requires a durable database, private bucket, authenticat
 
 ## 7. API contract and browser boundary
 
-[OpenAPI](../../contracts/v1/openapi.json) lists implemented case routes only, plus health. It deliberately puts future paths under `x-target-interfaces`, so generated clients cannot mistake them for available operations. Benchmark job routes remain documented in [model service](../model-service.md).
+[OpenAPI](../../contracts/v1/openapi.json) lists the frozen case routes, plus health. The separate PostgreSQL service adds readiness and read-only outbox metadata documented in [its API table](postgres-case-backend.md#api). Future paths remain under `x-target-interfaces`, so generated clients cannot mistake them for available operations. Benchmark job routes remain documented in [model service](../model-service.md).
 
 The local service checks loopback Host, bearer token and rejects every `Origin` header, including same-origin browser requests. Do not solve this by disabling the check or embedding the token. A future authenticated BFF is the trusted client and enforces per-user case permissions/CSRF and bounded upload before contacting the service. Until then the UI saves locally and exports explicit request payloads for developer tooling.
 

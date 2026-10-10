@@ -6,6 +6,8 @@ Start with [model quickstart](tools/dwelly_model/README.md), [local asynchronous
 
 For parallel UI, backend and E2E/evals work, use the [team contract v1](contracts/v1/README.md) and [state/storage architecture](docs/architecture/team-contract-v1.md). The [Right onTime design](design/right-ontime/prototype/index.html) now has a separate [local case and file intake workbench](design/right-ontime/prototype/intake.html); browser-local storage is not server upload or automatic analysis.
 
+The shared-backend path now has a separate [PostgreSQL case API and Docker setup](deploy/postgres/README.md): immutable v1 cases, atomic analysis intents and fenced leases. See [what changes for training/evals](docs/architecture/postgres-case-backend.md). Cloud SQL is the deployment target, not a deployed instance; the legacy SQLite benchmark remains local-only.
+
 ## 1. What we built
 
 - A bounded importer for 50 public fictional logistics cases, separating visible input from future answers.
