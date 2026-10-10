@@ -13,6 +13,22 @@ Read [architecture and ownership](../../docs/architecture/team-contract-v1.md), 
 5. Exact append retries use the same body and idempotency key and receive the original snapshot, even if the head has advanced. A changed body requires a new key; concurrent different appends require revision conflict handling.
 6. Training labels, reference decisions, future events and transition expectations stay outside model-visible decision input. Human review status is explicit. Do not turn assistant-authored labels into gold data.
 
+JSON Schema validates structure, not cross-record equality, participant authorization or canonical hashes. Check those through CaseStore/the trusted consumer. The asset schema's `status` is byte-validation metadata (`validating/ready/rejected/failed`); UI lifecycle states such as `committed` or `removed` belong to its separate local envelope. `ready` is not server upload or extraction.
+
+## Data files for parallel implementation
+
+| Record | Audience / use |
+|---|---|
+| `local-case` | Immutable source snapshot; create/event request shapes are in `$defs` |
+| `decision-input` | Model-visible exact snapshot; no labels or future events |
+| `decision-label` | Evaluator-only expected behavior and review provenance |
+| `episode` + `transition` | Evaluator-only scenario graph and typed triggers |
+| `decision-run` | Candidate/run receipt, not a new source of authority |
+| `asset` | Byte-validation status; failed inputs can retain incomplete observed metadata |
+| `analysis` | Revision-bound status; completed state requires run and result references |
+
+Start with [connected two-revision episode](examples/connected-episode.json), [declaration](examples/declaration.json), [append request](examples/append-request.json) and [completed analysis](examples/analysis-completed.json). The analysis result envelope is defined in `analysis.schema.json#/$defs/result`. Reference existence, exact hash linkage and authorisation must still be checked by the trusted consumer.
+
 ## Availability
 
 | Interface | Now | Consumer contract |
