@@ -6,7 +6,7 @@ Start with [model quickstart](tools/dwelly_model/README.md), [local asynchronous
 
 For parallel UI, backend and E2E/evals work, use the [team contract v1](contracts/v1/README.md) and [state/storage architecture](docs/architecture/team-contract-v1.md). The [Right onTime design](design/right-ontime/prototype/index.html) now has a separate [local case and file intake workbench](design/right-ontime/prototype/intake.html); browser-local storage is not server upload or automatic analysis.
 
-The shared-backend path now has a separate [PostgreSQL case API and Docker setup](deploy/postgres/README.md): immutable v1 cases, atomic analysis intents and fenced leases. See [what changes for training/evals](docs/architecture/postgres-case-backend.md). Cloud SQL is the deployment target, not a deployed instance; the legacy SQLite benchmark remains local-only.
+The shared-backend path has a separate [PostgreSQL case API and Docker setup](deploy/postgres/README.md): immutable v1 cases, atomic analysis intents and fenced leases. A **private case-storage pilot is deployed on Cloud Run + Cloud SQL** in `genaide/europe-west2`; see the [live verification and limits](docs/verification/cloud-case-pilot-2026-10-10.md) and [current architecture graphic](docs/architecture/proofkey-readiness-2026-10-10.png). The browser, model worker and operational runtime are not connected to it. See [what changes for training/evals](docs/architecture/postgres-case-backend.md); the legacy SQLite benchmark remains local-only.
 
 ## 1. What we built
 
@@ -19,9 +19,9 @@ The shared-backend path now has a separate [PostgreSQL case API and Docker setup
 - A [local case/event pseudo API](docs/local-case-intake.md) with immutable revisions and declared JSON relationships. New input remains pending analysis; media is metadata-only.
 - An optional [read-only shadow bridge](tools/dwelly_bridge/README.md) for validated model-result/runtime associations. It grants no execution authority.
 
-Google Cloud deployment is **prepared, not performed**: the [Cloud Run Job template](deploy/cloud-run/README.md) is offline-only. The local queue must not be deployed as a durable Cloud Run HTTP service; live cloud requests fail closed until external durable admission and artifact storage exist.
+The **model harness is not deployed**: its legacy [Cloud Run Job template](deploy/cloud-run/README.md) is offline-only, separate from the deployed case-storage pilot. The local model queue must not be deployed as a durable Cloud Run HTTP service; live model requests fail closed until external durable admission and artifact storage exist.
 
-The separate operational runtime is **not included**. Its synthetic rescheduling/refusal examples and six adapter interfaces are described only in the architecture.
+The separate [operational runtime source](runtime/README.md) is included, with synthetic rescheduling/refusal examples and six adapter interfaces. It is not connected to the model harness or case API; native logistics integrations remain unimplemented.
 
 ## 2. Operational problem
 

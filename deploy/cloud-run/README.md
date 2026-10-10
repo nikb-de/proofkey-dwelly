@@ -1,8 +1,10 @@
 # Google Cloud preparation: offline smoke only
 
+For the separate PostgreSQL case-storage release, see [case-release.md](case-release.md) and [production-readiness.md](production-readiness.md). The limitations below describe the **legacy model runner/offline job**, not the explicitly opted-in `cloud-run-case-v1` case API. That case profile does not enable this runner or model execution.
+
 This directory prepares a Cloud Run Job for a two-case, offline, proposal-only smoke check. It has not created or deployed a Google Cloud resource. The template does not call model providers, retain its output after the task stops, or run the local HTTP service. A successful cloud smoke would establish only container startup and offline execution on that platform.
 
-The current local runner uses POSIX files for reservations and immutable evidence. Live CLI calls are rejected when `K_SERVICE` or `CLOUD_RUN_JOB` is present. The local HTTP service refuses both managed environments for all modes. Removing those environment markers would bypass a deployment guard; it would not make storage durable or the service supported.
+The legacy local runner uses POSIX files for reservations and immutable evidence. Live CLI calls are rejected when `K_SERVICE` or `CLOUD_RUN_JOB` is present. The legacy model HTTP service refuses both managed environments for all modes. Removing those environment markers would bypass a deployment guard; it would not make that runner's storage durable or its service supported.
 
 ## Prepared template
 

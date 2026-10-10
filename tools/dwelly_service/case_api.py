@@ -14,6 +14,9 @@ from .cases import CaseError, MAX_CASES, MAX_EVENTS, MAX_REQUEST_BYTES
 
 _ROUTE = re.compile(r"/v1/cases/([A-Za-z0-9][A-Za-z0-9_-]{0,63})(/events|/analysis-jobs)?")
 _AUTHORITY = re.compile(r"(?:[A-Za-z0-9](?:[A-Za-z0-9.-]{0,251}[A-Za-z0-9])?):([0-9]{1,5})")
+_CLOUD_AUTHORITY = re.compile(r"([A-Za-z0-9.-]+)(?::([0-9]{1,5}))?")
+_DNS_LABEL = re.compile(r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?")
+_CLOUD_PROFILE = "cloud-run-case-v1"
 _STATUS = {"invalid_case_request": 400, "case_not_found": 404, "revision_not_found": 404,
            "idempotency_conflict": 409, "revision_conflict": 409, "event_conflict": 409,
            "case_capacity": 429, "case_storage_error": 503}
@@ -102,7 +105,9 @@ class CaseHandler(BaseHTTPRequestHandler):
             if self.path == "/v1/capabilities":
                 return self._send(200, {"storage": "postgresql", "operational_effects": 0,
                     "max_cases": MAX_CASES, "max_events_per_case": MAX_EVENTS,
-                    "media_upload": False, "analysis_outbox": True, "managed_cloud_enabled": False,
+                    "media_upload": False, "analysis_outbox": True,
+                    "deployment_profile": self.server.deployment_profile,
+                    "managed_cloud_enabled": self.server.deployment_profile == _CLOUD_PROFILE,
                     "case_intake": {"enabled": True, "source_mode": "local_fixture",
                         "analysis_status": "pending_not_started", "automated_analysis": False,
                         "runtime_binding": None, "authorization": "unverified", "operational_effects": 0}})
@@ -157,28 +162,56 @@ class CaseHandler(BaseHTTPRequestHandler):
             self._send(503, {"error": "case_storage_error"})
 
 
-def create_case_server(store, *, token, host="127.0.0.1", port=8080, allowed_hosts=None):
-    """Own the supplied store after successful construction; closing closes its pool."""
-    if "K_SERVICE" in os.environ or "CLOUD_RUN_JOB" in os.environ:
+def _check_deployment_profile(profile, command):
+    if type(profile) is not str or profile not in ("local", _CLOUD_PROFILE):
+        raise ValueError("invalid_deployment_profile")
+    cloud = profile == _CLOUD_PROFILE
+    forbidden_markers = (("CLOUD_RUN_JOB",) if command == "serve" else ("K_SERVICE",)) if cloud else ("K_SERVICE", "CLOUD_RUN_JOB")
+    if any(marker in os.environ for marker in forbidden_markers):
         raise ValueError("managed_cloud_unsupported")
-    if type(token) is not str or not 16 <= len(token) <= 4096 or re.fullmatch(r"[!-~]+", token) is None:
+    return cloud
+
+
+def _check_service_token(token, cloud):
+    minimum = 32 if cloud else 16
+    if type(token) is not str or not minimum <= len(token) <= 4096 or re.fullmatch(r"[!-~]+", token) is None:
         raise ValueError("invalid_service_token")
+
+
+def _validated_hosts(allowed_hosts, cloud):
+    extras = [] if allowed_hosts is None else allowed_hosts
+    if not isinstance(extras, (list, tuple)) or (cloud and not extras):
+        raise ValueError("invalid_allowed_hosts")
+    for value in extras:
+        if cloud:
+            match = _CLOUD_AUTHORITY.fullmatch(value) if type(value) is str else None
+            if (match is None or len(match[1]) > 253
+                    or any(_DNS_LABEL.fullmatch(label) is None for label in match[1].split("."))
+                    or (match[2] is not None and not 1 <= int(match[2]) <= 65535)):
+                raise ValueError("invalid_allowed_hosts")
+        else:
+            match = _AUTHORITY.fullmatch(value) if type(value) is str else None
+            if match is None or not 1 <= int(match[1]) <= 65535:
+                raise ValueError("invalid_allowed_hosts")
+    return extras
+
+
+def create_case_server(store, *, token, host="127.0.0.1", port=8080, allowed_hosts=None,
+                       deployment_profile="local"):
+    """Own the supplied store after successful construction; closing closes its pool."""
+    cloud = _check_deployment_profile(deployment_profile, "serve")
+    _check_service_token(token, cloud)
     if type(port) is not int or not 0 <= port <= 65535:
         raise ValueError("invalid_service_config")
     try:
         ipaddress.IPv4Address(host)
     except (ValueError, TypeError):
         raise ValueError("invalid_bind_address") from None
-    extras = [] if allowed_hosts is None else allowed_hosts
-    if not isinstance(extras, (list, tuple)):
-        raise ValueError("invalid_allowed_hosts")
-    for value in extras:
-        match = _AUTHORITY.fullmatch(value) if type(value) is str else None
-        if match is None or not 1 <= int(match[1]) <= 65535:
-            raise ValueError("invalid_allowed_hosts")
+    extras = _validated_hosts(allowed_hosts, cloud)
     store.check_ready()
     server = CaseServer((host, port), CaseHandler)
     server.cases, server.token = store, token
+    server.deployment_profile = deployment_profile
     actual_port = server.server_address[1]
     server.accepted_hosts = {f"127.0.0.1:{actual_port}", f"localhost:{actual_port}"} | {value.lower() for value in extras}
     return server
@@ -190,8 +223,8 @@ def main(argv=None):
     args = parser.parse_args(argv)
     store = server = None
     try:
-        if "K_SERVICE" in os.environ or "CLOUD_RUN_JOB" in os.environ:
-            raise ValueError("managed_cloud_unsupported")
+        profile = os.environ.get("PROOFKEY_DEPLOYMENT_PROFILE", "local")
+        cloud = _check_deployment_profile(profile, args.command)
         url = os.environ.get("PROOFKEY_DATABASE_URL")
         if not url:
             raise ValueError("database_url_required")
@@ -205,14 +238,15 @@ def main(argv=None):
             print(json.dumps({"status": "migrated", "operational_effects": 0}))
             return 0
         token = os.environ.get("PROOFKEY_SERVICE_TOKEN", "")
-        if not 16 <= len(token) <= 4096 or re.fullmatch(r"[!-~]+", token) is None:
-            raise ValueError("invalid_service_token")
+        _check_service_token(token, cloud)
         port = int(os.environ.get("PORT", "8080"))
-        hosts = [value.strip() for value in os.environ.get("PROOFKEY_ALLOWED_HOSTS", "").split(",") if value.strip()]
+        raw_hosts = os.environ.get("PROOFKEY_ALLOWED_HOSTS", "").split(",")
+        hosts = raw_hosts if cloud else [value.strip() for value in raw_hosts if value.strip()]
+        _validated_hosts(hosts, cloud)
         from .postgres import PostgresCaseStore
         store = PostgresCaseStore(url, schema=schema, max_size=pool_max)
-        server = create_case_server(store, token=token, host=os.environ.get("HOST", "127.0.0.1"),
-                                    port=port, allowed_hosts=hosts)
+        server = create_case_server(store, token=token, host=os.environ.get("HOST", "0.0.0.0" if cloud else "127.0.0.1"),
+                                    port=port, allowed_hosts=hosts, deployment_profile=profile)
         server.serve_forever()
         return 0
     except KeyboardInterrupt:
