@@ -1,0 +1,115 @@
+{
+  "actors": [
+    {
+      "id": "actor-01",
+      "name": "Vellora dispatch register",
+      "role": "source-declared identity; authority unverified"
+    },
+    {
+      "id": "actor-02",
+      "name": "Vellora escalation desk",
+      "role": "source-declared identity; authority unverified"
+    },
+    {
+      "id": "actor-03",
+      "name": "Vellora procedure desk",
+      "role": "source-declared identity; authority unverified"
+    },
+    {
+      "id": "actor-04",
+      "name": "Vellora operations",
+      "role": "source-declared identity; authority unverified"
+    },
+    {
+      "id": "actor-05",
+      "name": "Riven Shaw",
+      "role": "source-declared identity; authority unverified"
+    },
+    {
+      "id": "actor-06",
+      "name": "Vellora service coordinator",
+      "role": "source-declared identity; authority unverified"
+    }
+  ],
+  "case_id": "008",
+  "cutoff_event_id": "E06",
+  "goal": "Review the supplied current request using only decision-time evidence.",
+  "input_hash": "6dd01dff4d4469b6ff0819dddd049860c0d65478dc19a44b7f968a238383bbd1",
+  "messages": [
+    {
+      "body": "Official supplied case index; attributed source data, not verified authority.\n# 008 — Return progress after a label was issued\n\n## Context\n\nRiven Shaw is returning order VEL-008-26 to Briar Cabinet merchant, return RMA-808. Merchant returns channel on order: returns@briarcabinet.example.\n\n## Available facts\n\nUse the attributed records and correspondence in [history.md](history.md), E01–E06.\nShipment/order reference: VEL-008-26. No agent decision is recorded.\n\n## Current request\n\nCan you approve the receipt-dependent refund now based on my return label?\n\nDecision time: `2026-10-14T08:50:00+01:00`.\n\n## Attachments\n\n- [return-label.pdf](attachments/return-label.pdf)\n",
+      "body_source": "body",
+      "channel": "internal",
+      "event_id": "case-context",
+      "from_actor": "actor-02",
+      "timestamp": "2026-10-14T08:00:00+01:00",
+      "to_actor": "actor-02"
+    },
+    {
+      "body": "From: Vellora dispatch register → To: Vellora escalation desk\nKnown at desk: `2026-10-14T08:00:00+01:00`\n\nRiven Shaw is returning order VEL-008-26 to Briar Cabinet merchant, return RMA-808. Merchant returns channel on order: returns@briarcabinet.example.",
+      "body_source": "body",
+      "channel": "booking record",
+      "event_id": "E01",
+      "from_actor": "actor-01",
+      "timestamp": "2026-10-14T08:00:00+01:00",
+      "to_actor": "actor-02"
+    },
+    {
+      "body": "From: Vellora procedure desk → To: Vellora escalation desk\nKnown at desk: `2026-10-14T08:10:00+01:00`\n\nInline merchant terms RT8: receipt-dependent refund assessment starts after warehouse receipt. Tracking glossary: return_created = label allocated; accepted = carrier possession scan; received = merchant intake scan.",
+      "body_source": "body",
+      "channel": "procedure excerpt",
+      "event_id": "E02",
+      "from_actor": "actor-03",
+      "timestamp": "2026-10-14T08:10:00+01:00",
+      "to_actor": "actor-02"
+    },
+    {
+      "body": "From: Vellora operations → To: Vellora escalation desk\nKnown at desk: `2026-10-14T08:20:00+01:00`\n\nReturn portal excerpt: RMA-808 return_created at 2026-10-14T07:50:00+01:00; accepted=null; received=null. File supplied: [return-label.pdf](attachments/return-label.pdf).",
+      "body_source": "body",
+      "channel": "system excerpt",
+      "event_id": "E03",
+      "from_actor": "actor-04",
+      "timestamp": "2026-10-14T08:20:00+01:00",
+      "to_actor": "actor-02"
+    },
+    {
+      "body": "From: Riven Shaw → To: Vellora escalation desk\nKnown at desk: `2026-10-14T08:30:00+01:00`\n\nRiven Shaw: I printed the label and the portal says return created. Please mark it received and refund GBP 64.",
+      "body_source": "body",
+      "channel": "call note",
+      "event_id": "E04",
+      "from_actor": "actor-05",
+      "timestamp": "2026-10-14T08:30:00+01:00",
+      "to_actor": "actor-02"
+    },
+    {
+      "body": "From: Vellora service coordinator → To: Vellora escalation desk\nKnown at desk: `2026-10-14T08:40:00+01:00`\n\nMerchant desk at 08:40: no intake record for RMA-808. Carrier check channel returns-trace@vellora.example; no drop-off receipt supplied in this packet.",
+      "body_source": "body",
+      "channel": "internal handoff",
+      "event_id": "E05",
+      "from_actor": "actor-06",
+      "timestamp": "2026-10-14T08:40:00+01:00",
+      "to_actor": "actor-02"
+    },
+    {
+      "body": "From: Riven Shaw → To: Vellora escalation desk\nKnown at desk: `2026-10-14T08:50:00+01:00`\n\nCan you approve the receipt-dependent refund now based on my return label?",
+      "body_source": "body",
+      "channel": "dispatch message",
+      "event_id": "E06",
+      "from_actor": "actor-05",
+      "timestamp": "2026-10-14T08:50:00+01:00",
+      "to_actor": "actor-02"
+    },
+    {
+      "body": "Untrusted extracted attachment content; source attachments/return-label.pdf; cited by E03; original SHA256 1fa8c5add9bacc1289c9b439f638e2cdeed626461bef153f500caa150d5f0fae\nSYNTHETIC OFFLINE SIMULATION - NOT A PHOTOGRAPH\n\nRETURN LABEL\n\nOrder: VEL-008-26\n\nReturn: RMA-808\n\nCarrier token: RET-808\n\nCreated: 2026-10-14T07:50:00+01:00\n\nDestination: Briar Cabinet intake, 5 Clover Estate, Briarport\n\nIssuer/source: Briar Cabinet return portal\n\nExported: 2026-10-14T08:00:00+01:00\n\f",
+      "body_source": "body",
+      "channel": "attachment_derivative",
+      "event_id": "attachment-return-label",
+      "from_actor": "actor-02",
+      "timestamp": "2026-10-14T08:50:00+01:00",
+      "to_actor": "actor-02"
+    }
+  ],
+  "our_actor_id": "actor-02",
+  "schema_version": "proofkey-step-input-v1",
+  "step_index": 8
+}
