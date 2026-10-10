@@ -15,7 +15,10 @@ assessed or endorsed by their scores.
 
 Therefore the audit's 346-unchanged-files statement applies to the local
 assessment execution against the original snapshot. After the teammate revert,
-the `ANSWERS/` tree is byte-identical to that snapshot again. Report answer links
+the `ANSWERS/` tree was byte-identical to that snapshot. The user's subsequent
+request added labelled post-hoc assessment sections to each answer and reasoning
+file. These change full-file hashes but preserve every original byte as a prefix;
+the appended observations were not supplied to any judge. Report answer links
 remain commit-pinned, and exact reviewed bytes remain under `packet-final/frozen/`.
 No original response, prompt, candidate, judgment, or frozen manifest was changed
 to accommodate the concurrent commit.
@@ -37,3 +40,5 @@ Verification on a later checkout may intentionally report `published_answer_chan
 that is the preservation guard working, not permission to update frozen hashes.
 Neither the teammate review notes nor this new post-hoc assessment prove that a
 judge-to-revision loop existed before 16:30 or that replacements are permitted.
+Inline score/status summaries and judge explanations are annotations, not
+replacement answers, original model reasoning, or new system executions.

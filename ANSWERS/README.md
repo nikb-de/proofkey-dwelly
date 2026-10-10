@@ -59,3 +59,22 @@ python3 -m tools.dwelly_submission \
 ```
 
 The commands refuse existing case directories so reproduction must use a fresh output directory. They package retained development evidence; they do not rerun the original model or certify provenance. The official run uses the separate [reality runner](../tools/dwelly_reality/README.md), not this development exporter.
+
+## How to read the appended judge assessments
+
+Each case's `ANSWER.md` and `REASONING.md` retains its entire original report as
+an unchanged prefix. At the user's request, a separately labelled **post-hoc**
+section displays the already recorded OpenAI, Anthropic and Gemini assessments.
+These sections are not replacement answers or the original agent's reasoning.
+No new model run or business action was performed to add them, and no malformed
+answer was repaired. Case 014 remains failed; all three judges abstained.
+
+The [assessment report](../docs/verification/official-answer-judging-2026-10-10/RESULTS.md)
+contains coverage, disagreements and limitations. Exact original reports and
+their hashes are preserved in the
+[frozen packet](../docs/verification/official-answer-judging-2026-10-10/packet-final/manifest.json).
+The judgments are uncalibrated opinions, not official scores or verified truth.
+
+The [append-only audit](../docs/verification/official-answer-judging-2026-10-10/APPEND-AUDIT.md)
+and [annotation hash manifest](../docs/verification/official-answer-judging-2026-10-10/ANNOTATION-MANIFEST.json)
+verify the original prefixes, extended documents and exact review receipts.

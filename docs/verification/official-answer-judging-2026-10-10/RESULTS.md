@@ -1,11 +1,12 @@
 # Exact official-answer assessment — results
 
-**Status: completed, uncalibrated post-hoc model assessment.** No official answer or score was changed. No comparison to human ground truth was performed; human calibration is `NOT_RUN`. The earlier action-only pilot does not qualify this whole-answer framing.
+**Status: completed, uncalibrated post-hoc model assessment.** No original answer body, candidate or score was changed. Subsequently requested inline sections are separately labelled annotations. No comparison to human ground truth was performed; human calibration is `NOT_RUN`. The earlier action-only pilot does not qualify this whole-answer framing.
 
-This assessment did not change official answers. A concurrent teammate added and
+This assessment did not rewrite original answer bodies. A concurrent teammate added and
 then reverted separate review footers on `main`; neither change is part of this
 assessment. Exact answer links below are pinned to the original commit. See
-[INTEGRATION.md](INTEGRATION.md).
+[INTEGRATION.md](INTEGRATION.md). The later user-requested inline assessment
+sections display these retained judgments and are not new answers or executions.
 
 UTC start: `2026-10-10T15:50:43.851624+00:00`. UTC final recorded summary: `2026-10-10T15:53:28.864009+00:00`.
 

@@ -1,10 +1,16 @@
 # Post-hoc assessment of the exact official answers
 
 This auxiliary experiment judges the 30 already-published answers in `ANSWERS/`,
-without generating replacements or changing any original file. The canonical
+without generating replacement answers. At the user's subsequent request, the
+current `ANSWER.md` and `REASONING.md` files append labelled post-hoc sections;
+their original content remains a byte-exact prefix, and `packet-final/frozen/`
+preserves the complete original reviewed files. The canonical
 frozen input is [packet-final](packet-final/manifest.json). Earlier local
 preparation packets are superseded, made zero API calls and are excluded from
 the published package.
+
+See the [append-only audit](APPEND-AUDIT.md) and
+[annotation manifest](ANNOTATION-MANIFEST.json) for original-prefix and appended-file hashes.
 
 The evaluated answers are pinned to `cebf1b2b9520bcae260f1b8c2a50443490f97969`,
 not whichever text is currently on `main`. Concurrent teammate commits added
@@ -53,7 +59,10 @@ are not refunded after failed or unknown requests.
 
 ## Reproduce
 
-Run from the repository root. Preparation makes no API calls. A new empty packet
+Run from the root of a separate clean checkout of assessment commit
+`6421988968ca9023bbb1ff05cd7614cb5985f087`, as described in [INTEGRATION.md](INTEGRATION.md).
+Do not prepare from today's annotated `ANSWERS/`: that would expose prior judge
+comments to a new reviewer. Preparation makes no API calls. A new empty packet
 path is required; no frozen packet is overwritten.
 
 ```sh

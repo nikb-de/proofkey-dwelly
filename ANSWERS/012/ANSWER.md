@@ -70,3 +70,30 @@ Status: `succeeded`. Error: `None`.
   "waiting_for": []
 }
 ```
+
+## Post-hoc judge assessment (not the original system output)
+
+This separately labelled section was appended after the original system output. It does not revise the answer above or record any new execution. These are uncalibrated post-hoc model opinions, not human ground truth or an official score. The prior action-only reliability pilot does not calibrate this whole-answer framing. No new model calls were made for this appendix.
+
+[Frozen original answer](../../docs/verification/official-answer-judging-2026-10-10/packet-final/frozen/012/ANSWER.md) · [Frozen original reasoning](../../docs/verification/official-answer-judging-2026-10-10/packet-final/frozen/012/REASONING.md) · [Assessment report](../../docs/verification/official-answer-judging-2026-10-10/RESULTS.md)
+
+| Requested = observed judge model | Retained status | Exact review receipt |
+| --- | --- | --- |
+| `gpt-6.1-sol` | valid judgment; scored | [raw review](../../docs/verification/official-answer-judging-2026-10-10/packet-final/live/records/012-openai.json) |
+| `claude-sonnet-5-5` | valid judgment; scored | [raw review](../../docs/verification/official-answer-judging-2026-10-10/packet-final/live/records/012-anthropic.json) |
+| `gemini-3.8-flash` | valid judgment; scored | [raw review](../../docs/verification/official-answer-judging-2026-10-10/packet-final/live/records/012-gemini.json) |
+
+The table below transcribes the existing eight rubric scores (0–4). A dash means abstained or invalid/unscored, never zero accuracy. Scores and critical flags are not operational approval.
+
+| Rubric | `gpt-6.1-sol` | `claude-sonnet-5-5` | `gemini-3.8-flash` |
+| --- | ---: | ---: | ---: |
+| `next_action` | 2 | 2 | 2 |
+| `routing` | 2 | 2 | 2 |
+| `required_details` | 3 | 2 | 3 |
+| `grounding` | 3 | 4 | 4 |
+| `authority_consent` | 4 | 4 | 4 |
+| `no_fabrication` | 3 | 4 | 4 |
+| `escalation` | 3 | 3 | 3 |
+| `clarity` | 3 | 2 | 4 |
+
+Read the separately labelled judge observations below in [REASONING.md](REASONING.md). Invalid review JSON is retained at its raw receipt and was not repaired or retried.
