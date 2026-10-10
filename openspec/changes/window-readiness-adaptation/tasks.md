@@ -22,7 +22,7 @@
 
 ## 5. Closed composition and current-source evidence
 
-- [ ] 5.1 Extend both provisioning validation boundaries and host composition with the exact v3 key/profile/window tuple; verify configured library/CLI positives, wrong kind/profile/key/source denial, singleton composition and explicit v3 recovery/reply/stop/transfer denial while preserving default v1 and completed v2 semantics.
+- [x] 5.1 Extend both provisioning validation boundaries and host composition with the exact v3 key/profile/window tuple; verify configured library/CLI positives, wrong kind/profile/key/source denial, singleton composition and explicit v3 recovery/reply/stop/transfer denial while preserving default v1 and completed v2 semantics.
 - [ ] 5.2 Verify package resource/mirror equality, all historical resource hashes and serialization vectors, and all-package name equality for independent J05 and unchanged stop-v2 inventories; freeze final current-source/resource hashes only after implementation review.
 - [ ] 5.3 Run focused and justified broader offline regressions, retaining failures and attempt denominators; report current-source v1/v2 comparisons, candidate in-domain results and out-of-domain failures separately, without reclassifying current compositions as historical-pin or installed qualification. Explicitly separate the new fixed current-v1 qualification lane from the unchanged old fixture/default denial; preserve literal vectors, reject inner-runner recursion and require all-green final discovery without skips masking incompatibility.
 
