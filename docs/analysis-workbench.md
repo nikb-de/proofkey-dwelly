@@ -1,6 +1,6 @@
 # Case-state analysis workbench
 
-The colleague's [case-state widget](https://github.com/nikb-de/proofkey-dwelly/tree/8fbcd1fb633efa248e4045765a7854138118127d/case-state-widget) is integrated as a **separate local development interface**. It combines the source timeline, a step-bound evidence projection, a limited offline baseline and an explicitly separate author reference. Nothing here sends messages, submits forms, invokes a paid model or changes the live Cloud SQL case store.
+The colleague's [case-state widget](https://github.com/nikb-de/proofkey-dwelly/tree/8fbcd1fb633efa248e4045765a7854138118127d/case-state-widget) is integrated as a **separate local development interface**. It combines the source timeline, a step-bound evidence projection, a limited offline baseline and an explicitly separate author reference. Nothing here sends messages, submits business forms or changes the live Cloud SQL case store. Paid model proposals are available only with explicit server-side opt-in; see [model analysis operations and contracts](model-analysis-operations.md). Offline startup below needs no provider or PostgreSQL connection.
 
 ## Run
 
@@ -30,7 +30,7 @@ The baseline is a small deterministic evidence-pattern recognizer, not an LLM an
 
 Completion recognition uses two closed full-message grammars based on the supplied fixtures. Additional or conflicting sentences abstain. This conservative implementation is a plumbing baseline, not evidence of generalization to new wording or cases.
 
-The UI labels author snapshots, generated candidate and literal comparison separately. A matching author state only means agreement with that draft annotation. It is not a calibrated judge score. The existing OpenAI/Claude/Gemini transports and paid experiments are not invoked by this surface.
+The UI labels author snapshots, generated candidate and literal comparison separately. A matching author state only means agreement with that draft annotation. It is not a calibrated judge score. The default offline path never invokes a provider. The optional model path has separate PostgreSQL jobs, receipt/usage details and safe replay; it does not invoke the legacy multi-judge benchmark or any operational adapter.
 
 ## Export for the team
 
@@ -42,7 +42,7 @@ Use a new directory: exports never overwrite an existing package. Share the enti
 
 A [checked-in development package](../datasets/case-state-widget-v1/README.md) is ready for team inspection and review. Its inputs, references and manifest have been reread and verified against the source projection.
 
-Before using these records for training/evals: have the responsible reviewer validate intended state/action and ambiguity, add independent case families, allocate splits by family, define the desired model-output contract, and build a controlled adapter. The current source format allows dynamic actor discovery and channels/timestamps absent from frozen intake v1; no silent conversion is performed.
+Before using these records for training/evals: have the responsible reviewer validate intended state/action and ambiguity, add independent case families and allocate splits by family. A controlled evidence-only state-analysis model adapter now exists, but its outputs and agreement are not validated gold labels. The current source format allows dynamic actor discovery and channels/timestamps absent from frozen intake v1; no silent conversion is performed.
 
 ## Checks
 

@@ -1,4 +1,4 @@
-"""Local analysis API. No provider transport, cloud database or execution adapter."""
+"""Loopback analysis API; paid model jobs require explicit server-side opt-in."""
 import copy
 from datetime import datetime, timezone
 import hashlib
@@ -25,6 +25,7 @@ STATIC = {'/': ('analysis.html', 'text/html'), '/source-viewer': ('index.html', 
           '/app.js': ('app.js', 'text/javascript'), '/case-002.json': ('case-002.json', 'application/json')}
 CASE = re.compile(r'/api/cases/([a-z0-9-]+)(?:/steps/(0|[1-9][0-9]*))?')
 RUN = re.compile(r'/api/runs/([a-f0-9]{32})')
+MODEL_RUN = re.compile(r'/api/model-runs/([a-f0-9]{32})')
 
 
 def _encoded(value):
@@ -175,6 +176,11 @@ class AnalysisServer(ThreadingHTTPServer):
     daemon_threads = True
     allow_reuse_address = False
 
+    def server_close(self):
+        if getattr(self, 'model_runtime', None):
+            self.model_runtime.close()
+        super().server_close()
+
 
 class Handler(BaseHTTPRequestHandler):
     server_version = 'ProofKeyAnalysis/1'
@@ -220,9 +226,17 @@ class Handler(BaseHTTPRequestHandler):
         try:
             if path.path == '/api/capabilities':
                 return self.send_body(200, {'mode': 'offline', 'live_calls': 0, 'operational_effects': 0,
-                    'model_execution': False, 'cloud_connected': False, 'training_eligible': False,
+                    'model_execution': bool(self.server.model_runtime and self.server.model_runtime.enabled),
+                    'cloud_connected': False, 'training_eligible': False,
                     'run_storage': 'local_explicit_directory' if self.server.persistent else 'temporary_session',
                     'max_runs': MAX_RUNS})
+            if path.path == '/api/model-profiles':
+                return self.send_body(200, self.server.model_runtime.profiles() if self.server.model_runtime else {'enabled': False, 'profiles': []})
+            match = MODEL_RUN.fullmatch(path.path)
+            if match:
+                if not self.server.model_runtime:
+                    return self.send_body(403, {'error': 'model_execution_disabled'})
+                return self.send_body(200, self.server.model_runtime.get(match[1]))
             if path.path == '/api/catalog':
                 return self.send_body(200, {'cases': catalog.load_catalog()})
             match = CASE.fullmatch(path.path)
@@ -247,7 +261,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if not self.guard(write=True):
             return
-        if self.path != '/api/runs':
+        if self.path not in {'/api/runs', '/api/model-runs'}:
             return self.send_body(404, {'error': 'not_found'})
         if self.headers.get('Transfer-Encoding') or len(self.headers.get_all('Content-Length', [])) != 1:
             return self.send_body(400, {'error': 'invalid_request'})
@@ -259,6 +273,18 @@ class Handler(BaseHTTPRequestHandler):
             if len(raw) != length:
                 return self.send_body(400, {'error': 'invalid_request'})
             value = _json(raw)
+            if self.path == '/api/model-runs':
+                runtime = self.server.model_runtime
+                if not runtime or not runtime.enabled:
+                    return self.send_body(403, {'error': 'model_execution_disabled'})
+                keys = self.headers.get_all('Idempotency-Key', [])
+                if len(keys) != 1 or re.fullmatch(r'[A-Za-z0-9._:-]{1,128}', keys[0]) is None:
+                    return self.send_body(400, {'error': 'invalid_idempotency_key'})
+                if type(value) is not dict or type(value.get('case_id')) is not str or type(value.get('step_index')) is not int:
+                    return self.send_body(400, {'error': 'invalid_model_request'})
+                selected = step_record(value['case_id'], value['step_index'])
+                result, created = runtime.submit(value, keys[0], selected)
+                return self.send_body(202 if created else 200, result)
             return self.send_body(201, make_run(value, self.server.runs))
         except RuntimeError:
             self.send_body(409, {'error': 'input_hash_conflict'})
@@ -266,13 +292,20 @@ class Handler(BaseHTTPRequestHandler):
             self.send_body(429, {'error': 'run_capacity'})
         except (KeyError, IndexError):
             self.send_body(404, {'error': 'not_found'})
-        except (ValueError, TypeError, RecursionError):
+        except (ValueError, TypeError, RecursionError) as error:
+            if self.path == '/api/model-runs':
+                code = str(error)
+                allowed = {'input_hash_conflict': 409, 'idempotency_conflict': 409, 'model_execution_disabled': 403,
+                           'model_credentials_unavailable': 503, 'unknown_model_profile': 400, 'invalid_model_request': 400,
+                           'invalid_model_job': 400, 'budget_exhausted': 429, 'budget_cap_changed': 409,
+                           'queue_full': 429, 'model_storage_error': 503, 'model_prompt_too_large': 413}
+                return self.send_body(allowed.get(code, 400), {'error': code if code in allowed else 'invalid_model_request'})
             self.send_body(400, {'error': 'invalid_run_request'})
         except OSError:
             self.send_body(503, {'error': 'run_storage_unavailable'})
 
 
-def create_server(*, port=8093, runs_dir=None):
+def create_server(*, port=8093, runs_dir=None, model_runtime=None, start_workers=True):
     if 'K_SERVICE' in os.environ or 'CLOUD_RUN_JOB' in os.environ:
         raise ValueError('managed_cloud_unsupported')
     if type(port) is not int or not 0 <= port <= 65535:
@@ -280,6 +313,9 @@ def create_server(*, port=8093, runs_dir=None):
     for item in catalog.load_catalog():
         catalog.get_document(item['id'])
     app = AnalysisServer(('127.0.0.1', port), Handler)
+    app.model_runtime = model_runtime
     app.persistent = runs_dir is not None
     app.runs = RunStore(runs_dir if runs_dir is not None else tempfile.mkdtemp(prefix='proofkey-analysis-'))
+    if model_runtime and start_workers:
+        model_runtime.start()
     return app
