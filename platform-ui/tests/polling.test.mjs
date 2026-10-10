@@ -66,7 +66,7 @@ test('browser polling preserves each run inspector without reopening closed sect
   try {
     const page=await browser.newPage(),errors=[],writes=[];
     page.on('pageerror',error=>errors.push(error.message));
-    const staticFiles=new Map(await Promise.all(['index.html','app.js','session.js','product.js','style.css'].map(async name=>[name,await readFile(new URL('../'+name,import.meta.url),'utf8')])));
+    const staticFiles=new Map(await Promise.all(['index.html','app.js','session.js','product.js','style.css','coordination.js','coordination-panel.js','coordination.css'].map(async name=>[name,await readFile(new URL('../'+name,import.meta.url),'utf8')])));
     let reads=0;
     const pending={run_id:'pending',case_id:'first',status:'running'};
     const done={run_id:'done',case_id:'first',status:'succeeded',candidate:{state:'waiting'}};

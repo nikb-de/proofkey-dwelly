@@ -12,7 +12,7 @@ This API records a delivery-coordination workflow in the local PostgreSQL sandbo
 
 An unknown case returns `404`. Use the existing same-origin platform boundary. POST requires `Content-Type: application/json`, `X-ProofKey-Request: platform-v1`, and `Idempotency-Key`. A missing request marker returns `403 missing_request_marker`; the marker is not an authentication credential. Keys contain 1–128 ASCII letters, digits, `.`, `_`, `:`, or `-`.
 
-Every command has exactly these common fields plus the command-specific fields below:
+Every command has exactly these common fields plus the command-specific fields below, and optionally the paired advisory model fields described later:
 
 ```json
 {
@@ -38,6 +38,7 @@ Every command has exactly these common fields plus the command-specific fields b
 | `confirm_cancellation` | `request_id`, `evidence_event_ids` | `cancellation_pending` → `awaiting_terms` | Dispatch message received after the pending request's `created_revision`; exact current request ID in both command and message text. |
 | `record_offer` | `terms`, `evidence_event_ids` | `awaiting_terms`, `awaiting_consent`, or `ready_to_book` → `awaiting_consent` | Dispatch message; creates a new offer ID and clears consent. Not allowed while booking is pending. |
 | `record_consent` | `offer_id`, `terms_hash`, `evidence_event_ids` | `awaiting_consent` or `ready_to_book` → `ready_to_book` | Customer message received after the current offer's `created_revision`; binds the exact current offer ID and hash. |
+| `record_local_acceptance` | `offer_id`, `terms_hash`, `acknowledged: true` | `awaiting_consent` → `ready_to_book` | Operator-assisted local preview only: atomically creates explicitly simulated customer evidence and the consent audit. This is not authenticated customer consent. |
 | `request_booking` | `offer_id`, `terms_hash` | `ready_to_book` → `booking_pending` | Requires current consent for the offer, no intervening canonical event since that consent's audit, and a still-future slot. Creates a local pending booking request. |
 | `confirm_booking` | `request_id`, `terms_hash`, `evidence_event_ids` | `booking_pending` → `booking_confirmed` | New Dispatch message after the request's `created_revision`; exact request ID and pending terms hash in the command and message text. |
 | `escalate` | `reason`, `evidence_event_ids` | Any initialized nonterminal phase → `escalated` | Nonblank reason of at most 2,048 characters; qualifying evidence addressed to the operator. |
@@ -66,6 +67,20 @@ Only `initialize.original_booking.terms` may retain unknown source facts as `han
 
 The server computes `terms_hash` as SHA-256 of the complete canonical JSON terms object. Every `record_offer` creates a new `offer_id`, even for identical terms, and clears consent. Use the returned hash; do not omit charge or handover when identifying an offer. Consent records its offer ID, hash, evidence, and audit revision. Any new canonical event after that revision makes a new booking request fail with `consent_stale`, including a late-arriving message with an earlier occurrence time. Refresh and obtain current acceptance evidence before trying again.
 
+### Advisory model context
+
+Any command except `initialize` and `record_local_acceptance` may include both `model_run_id` and a nonblank `model_review_note` of at most 1,000 characters. The run must be succeeded and bound to the exact current case revision, canonical snapshot hash, projected input hash and validated candidate. Label/reference data is not accepted. Every selected command evidence ID must also appear in the model candidate's `evidence_event_ids`; the normal source/actor/correlation checks still apply independently.
+
+The generic model output proposes a next step; it does not supply typed booking terms or authorize an operation. The operator chooses the command and verifies its complete structured fields. A compact `model_context` containing the run ID, source/input hashes, candidate hash and review note is persisted in the audit. No command is executed merely because a model job succeeds, a proposal is selected, a page renders or a status poll completes.
+
+Context is resolved inside the command transaction after idempotency replay and current-version checks. A historical successful replay does not depend on the model job being available again. `400 invalid_model_context` rejects malformed context, invalid candidates or unsupported field combinations; `409 model_context_unavailable` rejects absent/unfinished/failed runs, and `409 model_context_stale` rejects source mismatches. Unknown resolver errors are sanitized.
+
+### Local preview acceptance
+
+The customer preview can explicitly acknowledge the exact current offer using `record_local_acceptance`. This adds exactly two canonical events in one transaction: an explicitly labelled simulated customer message, then the normal coordination audit. Its consent includes `mode: "local_preview_simulation"` and `authenticated: false`; `consent.created_revision` equals the final audit revision. A database or validation failure leaves neither event behind. It does not request a booking or contact a carrier.
+
+The preview displays full slot/offset, handover, required attendance and charge. A stale or replaced offer cannot be accepted. A timeout retains the identical request body and idempotency key for explicit retry. A post-save refresh must contain the saved receipt or a verifiable later audit history; an older response is not presented as the current outcome.
+
 ## Reading state and freshness
 
 The aggregate contains `case_id`, `version`, `phase`, `revision`, `snapshot_hash`, `dispatch_actor_id`, `original_booking`, `offer`, `consent`, `pending_request`, `operation_receipts`, and `audit_history`; escalation additionally records its reason and evidence. `revision` and `snapshot_hash` identify the canonical head immediately after that aggregate's audit event, not necessarily the current head after later source messages.
@@ -87,6 +102,8 @@ Errors use `{"error":{"code":"..."}}`. `400` covers malformed fields/terms and m
 ## Persistence and local evidence boundary
 
 Each accepted command atomically writes a new aggregate, a clearly labelled internal canonical-case audit event, and its body-bound replay result. The audit binds the preceding source revision/hash and the configured local operator principal. Failures roll back all three and the canonical head. The operator principal is an attribution label, not customer or carrier authentication.
+
+`record_local_acceptance` additionally appends its simulated source event inside that same transaction. No schema migration is needed for these additive command/audit fields; the existing version-2 aggregate table stores them.
 
 Additive migration `tools/dwelly_platform/migrations/002_coordination.sql` creates `platform_coordination` with a sequence primary key, case foreign key, positive version, JSON record stored as text, and unique `(case_id, version)`. Existing case data and legacy rescheduling records remain available; running the platform migrator upgrades version 1 storage to version 2 without resetting it.
 

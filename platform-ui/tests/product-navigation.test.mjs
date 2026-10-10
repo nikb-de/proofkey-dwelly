@@ -12,7 +12,7 @@ async function fixture(onSecondRead=route=>route.fulfill({json:{case:detail('sec
   try {
   const page=await browser.newPage(),errors=[],writes=[];
   page.setDefaultTimeout(4000);page.on('pageerror',error=>errors.push(error.message));
-  const files=new Map(await Promise.all(['index.html','app.js','session.js','product.js'].map(async name=>[name,await readFile(new URL('../'+name,import.meta.url),'utf8')])));
+  const files=new Map(await Promise.all(['index.html','app.js','session.js','product.js','coordination.js','coordination-panel.js','coordination.css'].map(async name=>[name,await readFile(new URL('../'+name,import.meta.url),'utf8')])));
   await page.route('**/*',async route=>{
     const request=route.request(),url=new URL(request.url());
     if(request.method()!=='GET')writes.push(request.method()+' '+url.pathname);

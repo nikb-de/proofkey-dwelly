@@ -7,16 +7,20 @@ import re
 import uuid
 
 from tools.dwelly_service.cases import MAX_TEXT, _canonical, _identifier
+from tools.dwelly_analysis import model
 from .domain import check_snapshot, require
+from .models import project_snapshot
 
 
 _COMMON = {"command", "expected_revision", "snapshot_hash", "expected_workflow_version"}
+_MODEL_FIELDS = {"model_run_id", "model_review_note"}
 _PARAMETERS = {
     "initialize": {"dispatch_actor_id", "original_booking"},
     "request_cancellation": {"evidence_event_ids"},
     "confirm_cancellation": {"request_id", "evidence_event_ids"},
     "record_offer": {"terms", "evidence_event_ids"},
     "record_consent": {"offer_id", "terms_hash", "evidence_event_ids"},
+    "record_local_acceptance": {"offer_id", "terms_hash", "acknowledged"},
     "request_booking": {"offer_id", "terms_hash"},
     "confirm_booking": {"request_id", "terms_hash", "evidence_event_ids"},
     "escalate": {"reason", "evidence_event_ids"},
@@ -25,9 +29,49 @@ _PHASES = {
     "request_cancellation": {"booked"}, "confirm_cancellation": {"cancellation_pending"},
     "record_offer": {"awaiting_terms", "awaiting_consent", "ready_to_book"},
     "record_consent": {"awaiting_consent", "ready_to_book"},
+    "record_local_acceptance": {"awaiting_consent"},
     "request_booking": {"ready_to_book"}, "confirm_booking": {"booking_pending"},
     "escalate": {"booked", "cancellation_pending", "awaiting_terms", "awaiting_consent", "ready_to_book", "booking_pending"},
 }
+
+
+def _model_context(snapshot, body, resolver):
+    """Validate a frozen advisory result, never derive command authority from it."""
+    require(callable(resolver), "model_context_unavailable")
+    try:
+        job = resolver(body["model_run_id"])
+    except Exception as error:
+        code = ("model_context_stale" if str(error) in {"model_job_binding_mismatch", "snapshot_hash_mismatch"}
+                else "model_context_unavailable")
+        require(False, code)
+    require(type(job) is dict and job.get("status") == "succeeded", "model_context_unavailable")
+    require(job.get("run_id") == body["model_run_id"], "invalid_model_context")
+    require("reference" in job and job["reference"] is None, "invalid_model_context")
+    source = {"kind": "platform_case", "case_id": snapshot["case_id"], "revision": snapshot["revision"],
+              "snapshot_hash": snapshot["snapshot_hash"]}
+    projected = project_snapshot(snapshot)
+    require(job.get("case_id") == snapshot["case_id"] and
+            type(job.get("step_index")) is int and job["step_index"] == snapshot["revision"] and
+            type(job.get("source")) is dict and type(job["source"].get("revision")) is int and
+            job["source"] == source and job.get("input") == projected and
+            job.get("input_hash", projected["input_hash"]) == projected["input_hash"], "model_context_stale")
+    candidate = job.get("candidate")
+    require(type(candidate) is dict and candidate.get("schema_version") == "proofkey-step-candidate-v1",
+            "invalid_model_context")
+    require(candidate.get("input_hash") == projected["input_hash"], "model_context_stale")
+    try:
+        validated = model.parse(projected, {"text": _canonical({field: candidate[field] for field in
+            ("state", "waiting_for", "next_action", "evidence_event_ids", "uncertainty")})})
+    except (ValueError, TypeError, KeyError, RecursionError, OverflowError, UnicodeError):
+        require(False, "invalid_model_context")
+    require(candidate == validated, "invalid_model_context")
+    selected = body.get("evidence_event_ids", [])
+    require(type(selected) is list and all(type(item) is str for item in selected) and
+            set(selected) <= set(validated["evidence_event_ids"]), "invalid_model_context")
+    return {"run_id": job["run_id"], "input_hash": projected["input_hash"],
+            "source_revision": snapshot["revision"], "source_snapshot_hash": snapshot["snapshot_hash"],
+            "candidate_hash": hashlib.sha256(_canonical(validated).encode("utf-8")).hexdigest(),
+            "model_review_note": body["model_review_note"]}
 
 
 def _terms(value, now, *, historical=False):
@@ -83,12 +127,21 @@ class CoordinationMixin:
             self._history(connection, case_id)
             return self._coordination_detail(connection, case_id)
 
-    def coordination_command(self, case_id, key, body):
+    def coordination_command(self, case_id, key, body, model_resolver=None):
         with self._request(case_id, "coordination", key, body) as (connection, body, replay, save):
             if replay is not None:
                 return replay
             command = body.get("command")
-            require(type(command) is str and command in _PARAMETERS and set(body) == _COMMON | _PARAMETERS[command],
+            attached = bool(set(body) & _MODEL_FIELDS)
+            if attached:
+                require(_MODEL_FIELDS <= set(body) and command not in ("initialize", "record_local_acceptance") and
+                        type(body["model_run_id"]) is str and
+                        re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}", body["model_run_id"]) is not None and
+                        type(body["model_review_note"]) is str and body["model_review_note"].strip() and
+                        len(body["model_review_note"]) <= 1000,
+                        "invalid_model_context")
+            require(type(command) is str and command in _PARAMETERS and
+                    set(body) == _COMMON | _PARAMETERS[command] | (_MODEL_FIELDS if attached else set()),
                     "invalid_coordination_request")
             require(type(body["expected_workflow_version"]) is int and body["expected_workflow_version"] >= 0,
                     "invalid_coordination_request")
@@ -96,6 +149,8 @@ class CoordinationMixin:
             check_snapshot(snapshot, body)
             prior = self._coordination_detail(connection, case_id)
             require(body["expected_workflow_version"] == (prior["version"] if prior else 0), "workflow_conflict")
+            context = _model_context(snapshot, body, model_resolver) if attached else None
+            append_snapshot = snapshot
             now = self._now(connection)
             evidence = []
             if command == "initialize":
@@ -118,7 +173,7 @@ class CoordinationMixin:
                 state = deepcopy(prior)
                 # Identity checks precede phase checks so stale offer IDs cannot be
                 # mistaken for an acceptable reference merely due to state changes.
-                if command in ("record_consent", "request_booking"):
+                if command in ("record_consent", "record_local_acceptance", "request_booking"):
                     require(state["offer"] is not None and body["offer_id"] == state["offer"]["offer_id"] and
                             body["terms_hash"] == state["offer"]["terms_hash"], "offer_mismatch")
                 require(state["phase"] in _PHASES[command], "coordination_transition_blocked")
@@ -154,6 +209,26 @@ class CoordinationMixin:
                     state["consent"] = {"offer_id": body["offer_id"], "terms_hash": body["terms_hash"],
                                         "evidence_event_ids": evidence, "created_revision": snapshot["revision"] + 1}
                     state["phase"] = "ready_to_book"
+                elif command == "record_local_acceptance":
+                    require(body["acknowledged"] is True, "invalid_coordination_request")
+                    _terms(state["offer"]["terms"], now)
+                    simulated_id = "local-acceptance-" + uuid.uuid4().hex
+                    notice = ("LOCAL PREVIEW: Simulated customer acceptance, not authenticated customer consent. "
+                              "Operator-assisted local preview only. I acknowledge every term of offer " + body["offer_id"] +
+                              " with terms hash " + body["terms_hash"] +
+                              ". No carrier was contacted. Physical delivery is not confirmed.")
+                    append_snapshot, _ = self._append(connection, case_id, simulated_id, {
+                        "expected_revision": snapshot["revision"], "event": {
+                            "event_id": simulated_id, "occurred_at": now.isoformat(), "channel": "chat",
+                            "sender_id": snapshot["links"]["customer_id"],
+                            "recipient_ids": [snapshot["links"]["operator_id"]],
+                            "kind": "message", "text": notice, "media": None}})
+                    evidence = _evidence(append_snapshot, [simulated_id], snapshot["links"]["customer_id"],
+                                         newer_than=state["offer"]["created_revision"], used=used)
+                    state["consent"] = {"offer_id": body["offer_id"], "terms_hash": body["terms_hash"],
+                                        "evidence_event_ids": evidence, "created_revision": append_snapshot["revision"] + 1,
+                                        "mode": "local_preview_simulation", "authenticated": False}
+                    state["phase"] = "ready_to_book"
                 elif command == "request_booking":
                     require(state["consent"] is not None, "consent_required")
                     require(snapshot["revision"] == state["consent"]["created_revision"], "consent_stale")
@@ -172,6 +247,8 @@ class CoordinationMixin:
                      "source_snapshot_hash": snapshot["snapshot_hash"], "evidence_event_ids": evidence,
                      "created_at": now.isoformat(), "mode": "local_sandbox", "external_effects": 0,
                      "attestation_scope": "local_operator_attestation_not_customer_or_carrier_authentication"}
+            if context is not None:
+                audit["model_context"] = context
             if state["pending_request"]:
                 audit["request_id"] = state["pending_request"]["request_id"]
             elif "request_id" in body:
@@ -186,7 +263,7 @@ class CoordinationMixin:
             encoded_audit = _canonical(audit_text)
             require(len(encoded_audit) <= MAX_TEXT, "coordination_audit_too_large")
             updated, _ = self._append(connection, case_id, "coordination-audit-" + audit_id, {
-                "expected_revision": snapshot["revision"], "event": {"event_id": "coord-" + audit_id,
+                "expected_revision": append_snapshot["revision"], "event": {"event_id": "coord-" + audit_id,
                 "occurred_at": now.isoformat(), "channel": "internal", "sender_id": snapshot["links"]["operator_id"],
                 "recipient_ids": [], "kind": "message", "text": encoded_audit, "media": None}})
             state["revision"], state["snapshot_hash"] = updated["revision"], updated["snapshot_hash"]

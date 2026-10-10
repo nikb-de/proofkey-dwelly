@@ -4,6 +4,13 @@ const label=value=>String(value || 'Unknown').replaceAll('_',' ').replace(/^./,l
 const completed=item=>item?.states?.lifecycle==='resolved';
 const attention=item=>!completed(item) && (['in_review','awaiting_approval','ready'].includes(item?.states?.lifecycle) || ['proposed','blocked','approved'].includes(item?.states?.decision));
 
+export function createCaseRequest({caseId,orderId,customerId,operatorId,dispatchId=''}) {
+  const customer=customerId.trim(),operator=operatorId.trim(),dispatch=dispatchId.trim();
+  if(customer===operator)throw Error('Customer and operator IDs must be different.');
+  if(dispatch && (dispatch===customer || dispatch===operator))throw Error('Dispatch must be distinct from the customer and operator.');
+  return {case_id:caseId.trim(),links:{order_id:orderId.trim(),customer_id:customer,operator_id:operator},participants:[customer,operator,...(dispatch?[dispatch]:[])],language:'en'};
+}
+
 export function filterCases(cases,{query='',filter='all'}={}) {
   const needle=String(query).trim().toLocaleLowerCase('en');
   return cases.filter(item=>{
@@ -41,6 +48,10 @@ export function caseSummary(detail) {
     else if(request.status==='Rejected by operator')nextStep='Review the operator note and create a new proposal if follow-up is needed.';
     else if(request.status==='Approved by operator')nextStep='Review the approved proposal. Any sandbox execution requires a separate explicit action.';
     else nextStep='Review the current proposal, supporting evidence and customer consent before approval.';
+  }
+  if(detail.coordination){
+    title=`Delivery coordination · ${label(detail.coordination.phase)}`;
+    nextStep=({booked:'Review the customer cancellation request and its source evidence.',cancellation_pending:'Record a Dispatch cancellation readback tied to the pending request.',awaiting_terms:'Review the complete offered terms and Dispatch evidence.',awaiting_consent:'Obtain sourced customer consent for the exact offer and terms hash.',ready_to_book:'Check current consent and review a separate local booking request.',booking_pending:'Record a Dispatch booking readback tied to the request ID and terms hash.',booking_confirmed:'Review the saved local booking receipt. Physical delivery remains unconfirmed.',escalated:'Review the recorded escalation and source evidence.'})[detail.coordination.phase] || 'Review the current coordination record.';
   }
   const lastSource=[...events].reverse().find(event=>event.text && event.channel!=='internal') || [...events].reverse().find(event=>event.text);
   return {title,nextStep,owner:links(detail).operator_id || 'Not recorded',customer:links(detail).customer_id || 'Not recorded',order:links(detail).order_id || 'Not recorded',

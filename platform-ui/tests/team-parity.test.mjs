@@ -10,7 +10,7 @@ async function fixture(detail){
   const browser=await chromium.launch({headless:true,executablePath:process.env.PROOFKEY_CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
   const page=await browser.newPage({viewport:{width:1440,height:1100}}),errors=[],writes=[];
   page.on('pageerror',e=>errors.push(e.message));
-  const files=new Map(await Promise.all(['index.html','app.js','session.js','product.js','style.css'].map(async name=>[name,await readFile(new URL('../'+name,import.meta.url),'utf8')])));
+  const files=new Map(await Promise.all(['index.html','app.js','session.js','product.js','style.css','coordination.js','coordination-panel.js','coordination.css'].map(async name=>[name,await readFile(new URL('../'+name,import.meta.url),'utf8')])));
   files.set('tokens.css',await readFile(new URL('../../design/right-ontime/prototype/assets/tokens.css',import.meta.url),'utf8'));
   await page.route('**/*',async route=>{
     const req=route.request(),url=new URL(req.url());if(req.method()!=='GET')writes.push(req.method());

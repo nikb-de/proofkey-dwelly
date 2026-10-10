@@ -1,9 +1,11 @@
 import { PlatformSession, CommunicationsSession, communicationEnvelope, createAPI, needsReview, reviewedMediaMessage, normalizeMediaRun, canReview, modelStatusView, ModelPoller } from './session.js';
-import { filterCases, caseCounters, caseSummary, caseRequests } from './product.js';
+import { filterCases, caseCounters, caseSummary, caseRequests, createCaseRequest } from './product.js';
+import { createCoordinationPanel } from './coordination-panel.js';
 
 const $ = id => document.getElementById(id);
 const api = createAPI();
 const session = new PlatformSession(api, renderDetail);
+const coordinationPanel = createCoordinationPanel({root:document.getElementById('coordination-panel'),session,onMutation:loadCases});
 const communications = new CommunicationsSession(api, renderCommunications);
 let preparingImport = false;
 let cases = [], capabilities = null, activeView = 'cases', renderedCase = null, notice = '';
@@ -102,10 +104,11 @@ function activateTab(tab,{focus=false}={}) {
 function renderProductDetail(detail) {
   const summary=caseSummary(detail);
   $('case-title').textContent=summary.title;
-  $('summary-next-step').textContent=summary.sourceExcerpt || 'No original request has been recorded. Add source evidence to establish the task context.';
+  $('summary-next-step').textContent=detail.coordination?summary.nextStep:summary.sourceExcerpt || 'No original request has been recorded. Add source evidence to establish the task context.';
   $('summary-owner').textContent=summary.owner;$('summary-order').textContent=summary.order;$('summary-customer').textContent=summary.customer;
   $('control-next-step').textContent=summary.nextStep;$('control-communication').textContent=summary.externalCommunication;$('control-outcome').textContent=summary.physicalOutcome;
   $('summary-state').textContent=human(detail.states?.lifecycle || 'new');
+  $('summary-proposal').hidden=Boolean(detail.coordination);
   $('summary-source').hidden=!summary.sourceExcerpt;$('summary-source-text').textContent=summary.sourceExcerpt;
   const current=caseRequests(detail).find(request=>request.current);
   $('summary-proposal-status').textContent=current?current.status:'Not proposed';
@@ -140,6 +143,7 @@ function updateFormVisibility() {
 function renderDetail() {
   showMessages();renderCases();
   const detail=session.detail;
+  coordinationPanel.render();
   $('customer-link').href=session.selectedId?`/customer.html?case=${encodeURIComponent(session.selectedId)}`:'/customer.html';
   $('case-detail').hidden=!detail;$('empty-state').hidden=Boolean(detail);
   $('case-detail').dataset.caseId=detail?.case_id || '';
@@ -255,11 +259,21 @@ function renderDecisions(detail) {
 }
 function renderHistory(detail) {
   const parent=$('case-history');parent.replaceChildren();
-  const entries=[...detail.snapshot.events.map(e=>({time:e.occurred_at,title:`Evidence added · ${human(e.kind)}`,text:e.text || e.event_id})),...detail.decisions.map(d=>({time:d.created_at,title:`${human(d.kind)} proposal · ${human(d.action?.type)}`,text:`${d.decision_id} · revision ${d.revision}`})),...detail.reviews.map(r=>({time:r.created_at,title:`Proposal ${r.verdict==='approve'?'approved':'rejected'}`,text:r.note || r.decision_id})),...detail.actions.map(a=>({time:a.created_at,title:'Sandbox action verified',text:`${a.action_id || a.receipt_id || a.decision_id} · external effects: ${a.external_effects ?? 0}`}))];
+  const sourceEntry=event=>{
+    const entry={time:event.occurred_at,title:`Evidence added · ${human(event.kind)}`,text:event.text || event.event_id,eventId:event.event_id};
+    if(event.kind!=='message' || event.channel!=='internal' || event.sender_id!==detail.snapshot.links.operator_id)return entry;
+    let record;try{record=JSON.parse(event.text);}catch{return entry;}
+    if(!record || typeof record!=='object')return entry;
+    const audit=detail.coordination?.audit_history?.find(value=>event.event_id===`coord-${value.audit_id}`);
+    if(!audit || record.audit_id!==audit.audit_id || record.command!==audit.command || record.version!==audit.version || record.source_revision!==audit.source_revision || record.mode!=='local_sandbox' || record.external_effects!==0)return entry;
+    if(!['initialize','request_cancellation','confirm_cancellation','record_offer','record_consent','record_local_acceptance','request_booking','confirm_booking','escalate'].includes(record.command) || !['booked','cancellation_pending','awaiting_terms','awaiting_consent','ready_to_book','booking_pending','booking_confirmed','escalated'].includes(record.phase) || !Number.isInteger(record.version) || !Number.isInteger(record.source_revision))return entry;
+    return {...entry,sourceLink:true,title:`Coordination · ${human(record.command)}`,text:`Phase: ${human(record.phase)}. Workflow version ${record.version} · source revision ${record.source_revision}. Local operator record only; no carrier communication or physical delivery confirmed.`};
+  };
+  const entries=[...detail.snapshot.events.map(sourceEntry),...detail.decisions.map(d=>({time:d.created_at,title:`${human(d.kind)} proposal · ${human(d.action?.type)}`,text:`${d.decision_id} · revision ${d.revision}`})),...detail.reviews.map(r=>({time:r.created_at,title:`Proposal ${r.verdict==='approve'?'approved':'rejected'}`,text:r.note || r.decision_id})),...detail.actions.map(a=>({time:a.created_at,title:'Sandbox action verified',text:`${a.action_id || a.receipt_id || a.decision_id} · external effects: ${a.external_effects ?? 0}`}))];
   for(const run of detail.media_runs || [])entries.push({time:run.created_at || run.finished_at,title:`${run.mode==='asr'?'Audio transcription':'Image analysis'} · ${human(run.status)}`,text:`Asset ${run.asset_id} · run ${run.run_id} · human review required`});
   entries.sort((a,b)=>String(b.time||'').localeCompare(String(a.time||'')));
   if(!entries.length)empty(parent,'Case created. The first evidence event will appear here.');
-  for(const entry of entries){const item=node('article',undefined,'history-item');item.append(node('h4',entry.title),node('time',stamp(entry.time)),node('p',entry.text));parent.append(item);}
+  for(const entry of entries){const item=node('article',undefined,'history-item');item.append(node('h4',entry.title),node('time',stamp(entry.time)),node('p',entry.text));if(entry.eventId)item.dataset.eventId=entry.eventId;if(entry.sourceLink)item.append(button(`Source event ${entry.eventId}`,()=>{activateTab('sources');const source=[...document.querySelectorAll('#evidence-list [data-event-id]')].find(value=>value.dataset.eventId===entry.eventId);source?.scrollIntoView({block:'center'});},'text-button'));parent.append(item);}
 }
 function renderJobs(detail) {
   const parent=$('model-jobs'),openInspectors=new Set();
@@ -395,9 +409,7 @@ $('evidence-kind').addEventListener('change',updateFormVisibility);$('action-typ
 $('evidence-file').addEventListener('change',()=>{const draft=session.getDraft('evidence');session.setDraft('evidence',{...draft,file:$('evidence-file').files?.[0],asset:null});captureDrafts();updateFormVisibility();});
 $('model-profile').addEventListener('change',()=>{$('run-model').disabled=!$('model-profile').value || capabilities?.models?.enabled!==true;});
 $('create-case-form').addEventListener('submit',event=>{event.preventDefault();perform(async()=>{
-  const customer=$('customer-id').value.trim(),operator=$('operator-id').value.trim();
-  if(customer===operator)throw Error('Customer and operator IDs must be different.');
-  const body={case_id:$('case-id').value.trim(),links:{order_id:$('order-id').value.trim(),customer_id:customer,operator_id:operator},participants:[customer,operator],language:'en'};
+  const body=createCaseRequest({caseId:$('case-id').value,orderId:$('order-id').value,customerId:$('customer-id').value,operatorId:$('operator-id').value,dispatchId:$('dispatch-id').value});
   const signature=JSON.stringify(body);if(createAttempt?.signature!==signature)createAttempt={signature,key:uid('create')};
   const result=await api('/cases',{method:'POST',body,idempotencyKey:createAttempt.key});createAttempt=null;
   await loadCases();await selectCase(result.case?.case_id || body.case_id);$('create-case-panel').open=false;

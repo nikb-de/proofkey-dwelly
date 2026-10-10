@@ -1,8 +1,10 @@
 import {createAPI} from './session.js';
 import {CustomerSession,offeredWindows} from './customer-model.js';
+import {CustomerCoordinationSession,renderCustomerCoordination} from './customer-coordination.js';
 
 const api=createAPI(),main=document.querySelector('#main');
 const session=new CustomerSession(api,{onChange:render});
+const coordinationSession=new CustomerCoordinationSession(api,{onChange:render});
 const timezone=Intl.DateTimeFormat().resolvedOptions().timeZone || 'browser local timezone';
 let selectedId=new URLSearchParams(location.search).get('case'),cases=[],loading=true,screenError='',choice='',helpMessage='';
 const node=(tag,text,className)=>{const element=document.createElement(tag);if(text!==undefined)element.textContent=text;if(className)element.className=className;return element;};
@@ -19,7 +21,7 @@ function progress(parent,complete=false){const steps=node('div',undefined,'steps
 function card(complete=false){const element=node('section',undefined,'card');caseStrip(element);progress(element,complete);errorMessage(element);main.append(element);return element;}
 function tools(){
   const actions=node('div',undefined,'client-tools');
-  actions.append(button('Get help',()=>{helpMessage='Contact an operator in the Team workspace for help. This preview cannot send a support request.';render();},'quiet'),button('Check status',()=>perform(async()=>{loading=true;render();try{await session.load(selectedId);session.step='status';}finally{loading=false;}}),'quiet'),button('Stop new actions',()=>{helpMessage='An operator must stop ongoing work in the Team workspace. This preview has not cancelled any request, booking or delivery.';render();},'quiet'));
+  actions.append(button('Get help',()=>{helpMessage='Contact an operator in the Team workspace for help. This preview cannot send a support request.';render();},'quiet'),button('Check status',()=>perform(async()=>{await loadSelected();session.step='status';}),'quiet'),button('Stop new actions',()=>{helpMessage='An operator must stop ongoing work in the Team workspace. This preview has not cancelled any request, booking or delivery.';render();},'quiet'));
   main.append(actions);
   if(helpMessage){const notice=node('div',helpMessage,'note');notice.setAttribute('role','status');const link=node('a','Open Team workspace');link.href=teamURL();notice.append(document.createTextNode(' '),link);main.append(notice);}
 }
@@ -62,7 +64,7 @@ function status(){
   const state=session.status;intro(state.kind==='none'?'Check times and prices':'Your request is in progress','Request acknowledgement and delivery completion are separate events.');
   const content=card(true);content.id='customer-status';content.dataset.status=state.kind;content.append(node('div','…','status-mark'),node('h2',state.title),node('p',state.description));
   const list=node('dl');if(state.decision)addRow(list,'Requested time',windowLabel(state.decision.action),timezone);addRow(list,'Full surcharge','Not confirmed');addRow(list,'Carrier booking','Not confirmed');content.append(list);
-  const refresh=button(loading?'Refreshing…':'Refresh status',()=>perform(async()=>{loading=true;render();try{await session.load(selectedId);}finally{loading=false;}}),'primary');refresh.id='refresh-status';content.append(refresh);
+  const refresh=button(loading?'Refreshing…':'Refresh status',()=>perform(loadSelected),'primary');refresh.id='refresh-status';content.append(refresh);
   const actions=node('div',undefined,'actions');actions.append(button('View delivery options',()=>{session.step='choose';render();},'quiet'));content.append(actions,node('p',session.checkedAt?`Last checked ${formatDate(session.checkedAt)} · ${timezone}`:'No current read available.','small muted'));
   const details=node('details',undefined,'technical');details.append(node('summary','Operator record details'),node('p',`Last read case revision ${session.detail.snapshot.revision}`));if(session.savedOutcome)details.append(node('p',`Saved submission receipt: proposal ${session.savedOutcome.decision_id}`));if(state.decision)details.append(node('p',`Current proposal ${state.decision.decision_id}`));if(state.receipt)details.append(node('p',`Execution mode: ${state.receipt.execution_mode} · Local receipt: ${state.receipt.action_id}`));content.append(details);tools();
 }
@@ -71,7 +73,8 @@ function render(){
   const order=session.detail?.snapshot.links?.order_id;document.querySelector('#order-badge').textContent=order?`Order ${order}`:'Your delivery';document.querySelector('#order-badge').title=order?`Order ${order}`:'';
   if(!selectedId){picker();return;}
   if(!session.detail){intro('Your delivery request.','Your next step and confirmed outcome will appear here.');const content=node('section',undefined,'card');errorMessage(content);if(loading)content.append(node('p','Loading request…','loading'));else{content.append(node('p','The request could not be loaded. Check the link or choose an existing request.','muted'));const choose=node('a','Choose a request','button');choose.href='/customer.html';content.append(choose,button('Retry',()=>perform(loadSelected)));}main.append(content);return;}
+  if(coordinationSession.detail?.coordination){renderCustomerCoordination(main,coordinationSession,{onAction:perform,loading,error:screenError});return;}
   if(session.step==='review')review();else if(session.step==='status')status();else choose();
 }
-async function loadSelected(){loading=true;render();try{await session.load(selectedId);}finally{loading=false;}}
+async function loadSelected(){loading=true;render();try{await session.load(selectedId);if(session.detail.coordination)coordinationSession.accept(session.detail);}finally{loading=false;}}
 await perform(async()=>{if(selectedId)await loadSelected();else{try{const result=await api('/cases');cases=result.cases || [];}finally{loading=false;}}});

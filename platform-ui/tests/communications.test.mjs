@@ -70,7 +70,7 @@ test('browser communications imports explicitly, preserves drafts and renders un
   try {
     const page=await browser.newPage(),writes=[],errors=[];let communicationsReads=0;
     page.setDefaultTimeout(4000);page.on('pageerror',error=>errors.push(error.message));
-    const files=new Map(await Promise.all(['index.html','app.js','session.js','product.js','style.css'].map(async name=>[name,await readFile(new URL('../'+name,import.meta.url),'utf8')])));
+    const files=new Map(await Promise.all(['index.html','app.js','session.js','product.js','style.css','coordination.js','coordination-panel.js','coordination.css'].map(async name=>[name,await readFile(new URL('../'+name,import.meta.url),'utf8')])));
     const receipt={receipt_id:'receipt-1',connector_id:'local-chat',channel:'chat',delivery_id:'<script>window.injected=true</script>',conversation_id:'thread-1',status:'accepted',case_id:'first',event_ids:['event-1'],revision:1,source:'operator_import',raw_sha256:'a'.repeat(64),provenance:{normalizer_version:'test-normalizer'}};
     const value={connectors:[{id:'local-chat',channel:'chat',configured:true,route_count:1,contact_count:2,provider_connected:false}],receipts:[receipt],provider_connections:false};
     await page.route('**/*',async route=>{
@@ -126,7 +126,7 @@ test('browser accepted import refreshes the case despite inbox failure and ignor
   try {
     const page=await browser.newPage(),errors=[];let writes=0,caseReads=0,listReads=0,mode='normal',oldRoute;
     page.setDefaultTimeout(4000);page.on('pageerror',error=>errors.push(error.message));
-    const files=new Map(await Promise.all(['index.html','app.js','session.js','product.js','style.css'].map(async name=>[name,await readFile(new URL('../'+name,import.meta.url),'utf8')])));
+    const files=new Map(await Promise.all(['index.html','app.js','session.js','product.js','style.css','coordination.js','coordination-panel.js','coordination.css'].map(async name=>[name,await readFile(new URL('../'+name,import.meta.url),'utf8')])));
     const receipt={receipt_id:'receipt-accepted',connector_id:'local-chat',channel:'chat',delivery_id:'delivery-1',status:'accepted',case_id:'first',event_ids:['event-1'],revision:1,source:'operator_import'};
     const inbox={connectors:[{id:'local-chat',channel:'chat',configured:true,route_count:1,contact_count:2,provider_connected:false}],receipts:[],provider_connections:false};
     await page.route('**/*',async route=>{
