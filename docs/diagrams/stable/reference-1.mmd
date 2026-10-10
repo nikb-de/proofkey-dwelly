@@ -1,0 +1,38 @@
+%%{init: {"flowchart": {"subGraphTitleMargin": {"top": 8, "bottom": 16}}}}%%
+flowchart TB
+  subgraph U[Untrusted inputs]
+    CH[Customer and operator messages]
+    DOC[Documents, images, audio, provider prose]
+    PUB[Public cases and design documents]
+  end
+  subgraph H[Trusted host]
+    G[Ingress gateway: identity, tenant, object scope, limits]
+    J[Immutable source journal and attachment store]
+    V[Versioned decision snapshot / claim ledger]
+    M[Constrained extraction and proposal worker]
+    K[Deterministic coordinator and policy gate]
+    L[Intent journal, owner, waits and budget ledger]
+    D[Dispatcher and postcondition verifier]
+    E[Scoped receipt / operator and customer views]
+  end
+  subgraph P[Provider authority]
+    A[Six adapter surfaces]
+    SYS[Carrier, case system, booking, returns, messaging, operator queue]
+  end
+  subgraph R[Review and evaluation]
+    PACK[Process / adapter proposal]
+    TEST[Independent expectations and fault tests]
+    APPROVE[Human review and release registry]
+    REF[Hidden reference and future events]
+  end
+  CH --> G
+  DOC --> G
+  G --> J --> V
+  V --> M -->|Cited proposal, never authority| K
+  V --> K
+  K --> L --> D --> A --> SYS
+  SYS -->|Scoped original-effect readback| A --> D
+  D --> L --> E
+  PUB --> PACK --> TEST --> APPROVE
+  APPROVE -->|Pinned configuration, not case instructions| K
+  REF --> TEST

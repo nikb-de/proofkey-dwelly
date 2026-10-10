@@ -1,6 +1,6 @@
 > Historical detailed design snapshot; current status is in [compact overview](architecture.md).
 >
-> This preserves the 10 October 2026 design and source references. Duplicate PNG embeds were removed, diagram headings were shortened, sequence labels were wrapped, and the adaptation diagram was arranged vertically for readability. These presentation changes do not establish implementation or release status.
+> This preserves the 10 October 2026 design and source references. Diagrams use fixed PNG previews with linked SVG and editable sources to avoid viewer-dependent label clipping. These presentation changes do not establish implementation or release status.
 
 # Dwelly / ProofKey agent architecture
 
@@ -51,46 +51,9 @@ The public-case snapshot separately used here is [DwellyOrg/HackatonPublicCases,
 
 ## 3. Components and trust boundaries
 
-```mermaid
-%%{init: {"flowchart": {"subGraphTitleMargin": {"top": 8, "bottom": 16}}}}%%
-flowchart TB
-  subgraph U[Untrusted inputs]
-    CH[Customer and operator messages]
-    DOC[Documents, images, audio, provider prose]
-    PUB[Public cases and design documents]
-  end
-  subgraph H[Trusted host]
-    G[Ingress gateway: identity, tenant, object scope, limits]
-    J[Immutable source journal and attachment store]
-    V[Versioned decision snapshot / claim ledger]
-    M[Constrained extraction and proposal worker]
-    K[Deterministic coordinator and policy gate]
-    L[Intent journal, owner, waits and budget ledger]
-    D[Dispatcher and postcondition verifier]
-    E[Scoped receipt / operator and customer views]
-  end
-  subgraph P[Provider authority]
-    A[Six adapter surfaces]
-    SYS[Carrier, case system, booking, returns, messaging, operator queue]
-  end
-  subgraph R[Review and evaluation]
-    PACK[Process / adapter proposal]
-    TEST[Independent expectations and fault tests]
-    APPROVE[Human review and release registry]
-    REF[Hidden reference and future events]
-  end
-  CH --> G
-  DOC --> G
-  G --> J --> V
-  V --> M -->|Cited proposal, never authority| K
-  V --> K
-  K --> L --> D --> A --> SYS
-  SYS -->|Scoped original-effect readback| A --> D
-  D --> L --> E
-  PUB --> PACK --> TEST --> APPROVE
-  APPROVE -->|Pinned configuration, not case instructions| K
-  REF --> TEST
-```
+![Components and trust boundaries](diagrams/stable/reference-1.png)
+
+[Zoomable SVG](diagrams/stable/reference-1.svg) · [Editable Mermaid source](diagrams/stable/reference-1.mmd)
 
 The boxes depict the target decomposition; they do not assert that each is a deployed service. Start as a modular single process plus SQLite and a private attachment directory. Split services only when operational requirements justify it. Keep business provider state separate from the coordinator's journal: the latter cannot prove that the former changed merely by recording an intent.
 
@@ -111,28 +74,9 @@ O distinguishes the source's actual format from a useful target model. The obser
 
 ### 4.1 Identity and ontology
 
-```mermaid
-%%{init: {"themeCSS": ".edgeLabel .label { font-size: 16px !important; }"}}%%
-erDiagram
-  CASE ||--o{ TASK : coordinates
-  CASE }o--o{ BUSINESS_OBJECT : concerns
-  PARTY ||--o{ PARTICIPATION : has
-  CASE ||--o{ PARTICIPATION : scopes
-  RECORD ||--o{ ASSERTION : contains
-  RECORD }o--o{ DOCUMENT : references
-  ASSERTION }o--o{ BUSINESS_OBJECT : describes
-  ASSERTION }o--o{ ASSERTION : supports_or_conflicts
-  ASSERTION ||--o{ EVIDENCE_SPAN : grounded_in
-  AUTHORIZATION }o--|| PARTY : grants_to
-  AUTHORIZATION }o--|| BUSINESS_OBJECT : scopes
-  CONSENT }o--|| PARTY : given_by
-  ACTION }o--|| TASK : advances
-  ACTION }o--o{ AUTHORIZATION : requires
-  ACTION }o--o{ CONSENT : binds
-  ACTION ||--o{ CONFIRMATION : may_receive
-  TASK ||--o{ WAIT : retains
-  CONFIRMATION }o--|| ASSERTION : specializes
-```
+![Data ontology](diagrams/stable/reference-2.png)
+
+[Zoomable SVG](diagrams/stable/reference-2.svg) · [Editable Mermaid source](diagrams/stable/reference-2.mmd)
 
 This is a proposed relational/conceptual model, not an existing graph database schema. Begin with tables and JSON fields plus explicit foreign keys; graph storage or OWL is unnecessary for the initial scope.
 
@@ -183,48 +127,9 @@ Event 004's later selection and event 005's booking confirmation cannot enter th
 
 ## 5. Decision, waits and reliable resolution
 
-```mermaid
-sequenceDiagram
-  participant U as Customer<br/>or operator
-  participant G as Trusted gateway
-  participant K as Coordinator
-  participant M as Proposal worker
-  participant J as Journal<br/>waits
-  participant A as Adapter<br/>authority
-  U->>G: New event with transport identity and event ID
-  G->>J: Register or find event atomically
-  G->>K: Scoped source reference
-  K->>A: Read case, authority, policy and current object
-  A-->>K: Versioned facts or explicit unknown
-  K->>M: Allowed snapshot, no reference/future data
-  M-->>K: Cited facts, gaps and proposed next action
-  alt Missing choice, consent or required evidence
-    K->>J: Persist question, generation, deadline and next owner
-    K->>A: Send scoped clarification with stable key
-    A-->>K: Acknowledgement, readback checked separately
-    U->>G: Correlated reply
-    G->>K: Authenticated reply<br/>Current version
-    K->>A: Re-read affected identity, consent and material facts
-  else Unknown process, capability or specialist decision
-    K->>J: Persist handoff packet, return stage and unresolved intents
-    K->>A: Enqueue with stable packet ID
-    A-->>K: Receipt and owner, or HANDOFF_PENDING
-  end
-  opt Preconditions and validated decision permit dispatch
-    K->>K: Check current authority, consent, stop, version and budget
-    K->>J: Commit intent, exact arguments, original key and postcondition
-    K->>A: Conditional command using same original key
-    A-->>K: Ack / rejection / timeout
-    K->>A: Read original effect by full identity
-    alt Exact effect verified
-      K->>J: Commit scoped confirmation and next task
-    else Outcome unknown or conflicting
-      K->>J: Preserve UNKNOWN, owner, deadline and reconciliation debt
-      Note over K,A: No new-key retry and no automatic undo
-    end
-  end
-  K-->>U: Fact-based result, remaining obligation and next event
-```
+![Decision and execution sequence](diagrams/stable/reference-3.png)
+
+[Zoomable SVG](diagrams/stable/reference-3.svg) · [Editable Mermaid source](diagrams/stable/reference-3.mmd)
 
 The diagram is a target protocol, not evidence of live execution. A specialist handoff does not subsequently dispatch a business action until a valid decision is returned and the same gates pass again.
 
@@ -269,19 +174,9 @@ The operational provider may atomically enforce revisions that a local preflight
 
 Adaptation happens outside a running case. “Rapid” means a narrow diff with reusable tests and explicit approval, not autonomous self-modification.
 
-```mermaid
-flowchart TB
-  S[New source evidence] --> D[Source-grounded proposal]
-  D --> C[Contract and process diff]
-  C --> T[Independent fault tests]
-  T --> R[Human review]
-  R --> V[Pinned signed release]
-  V --> SH[Shadow evaluation]
-  SH --> A[Scoped activation]
-  A --> O[Observe and decide rollback]
-  T -->|Failure| D
-  SH -->|Failure| D
-```
+![Reviewed adaptation](diagrams/stable/reference-4.png)
+
+[Zoomable SVG](diagrams/stable/reference-4.svg) · [Editable Mermaid source](diagrams/stable/reference-4.mmd)
 
 A process pack should bind `pack_id/version`, source manifest, ontology/schema version, adapter versions, allowed operation set, input/output schema hashes, policy/consent interpretation, mandatory postconditions, dependency invalidation rules, waits/timeouts, test expectation version, review receipt and compatibility/migration policy. Content hashes provide change detection; they do not by themselves prove trusted authorship or human review.
 

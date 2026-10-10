@@ -9,4 +9,4 @@ Start with the [compact architecture](architecture.md): the shipped model experi
 - [Historical deterministic pilot verification](pilot-verification.md)
 - [Case-by-case reference review](verification/dwelly-reference-review-2026-10-10.md)
 
-The architecture overview uses native editable Mermaid diagrams once each. The PNGs under `diagrams/` and their render receipt are historical assets retained for provenance; they are not the current overview. The full design describes a target runtime beyond the standalone package shipped here. Passing offline tests does not establish live model quality, operational integration or submission readiness.
+The two architecture documents use fixed PNG previews under `diagrams/stable/` so the viewer's fonts cannot clip the labels. Each preview links to a zoomable SVG and editable Mermaid source. Older files directly under `diagrams/` remain historical. The full design describes a target runtime beyond the standalone package shipped here. Passing offline tests does not establish live model quality, operational integration or submission readiness.
