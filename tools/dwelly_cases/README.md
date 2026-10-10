@@ -91,4 +91,4 @@ The public API for the pilot is `propose(snapshot)` and `assess(snapshot, propos
 
 The upstream example repository does not declare a license in the inspected snapshot. Keeping local raw copies for this development request does not establish redistribution rights. Do not publish raw cases, source-derived test excerpts, private Drive files or internal evidence logs without rights review.
 
-See [verification](../../docs/verification/2026-10-10-dwelly-case-intake-pilot.md) for measured results and outstanding limits.
+See [pilot verification](../../docs/pilot-verification.md) for the historical measurements and [current model release verification](../../docs/model-release-verification.md) for the separately shipped API harness.
