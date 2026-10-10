@@ -136,7 +136,8 @@ class ModelRuntime:
         try:
             candidate = model.parse(spec['input'], response)
             receipt = model.receipt(response, spec['profile'])
-            compared = evaluation.compare(candidate, spec['reference'])
+            compared = (None if spec['reference'] is None
+                        else evaluation.compare(candidate, spec['reference']))
         except (ValueError, KeyError, TypeError, RecursionError):
             self.store.finish(job_id, token, error='invalid_model_output', status='failed')
             return True

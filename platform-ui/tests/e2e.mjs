@@ -1,0 +1,56 @@
+// Real local HTTP + PostgreSQL acceptance; never invokes a model/provider.
+import assert from 'node:assert/strict';
+import { mkdtemp } from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+const {chromium}=await import(process.env.PROOFKEY_PLAYWRIGHT_MODULE || '/Users/nbk/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright/index.mjs');
+const base=process.env.PROOFKEY_BASE_URL || 'http://127.0.0.1:8095';
+const output=process.env.PROOFKEY_QA_DIR || await mkdtemp(path.join(os.tmpdir(),'proofkey-platform-e2e-'));
+const caseId=`ui-${Date.now()}`;
+const browser=await chromium.launch({headless:true,executablePath:process.env.PROOFKEY_CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
+const page=await browser.newPage({viewport:{width:1512,height:1100}});
+const errors=[];page.on('pageerror',e=>errors.push(e.message));
+const waitWrite=route=>page.waitForResponse(r=>r.url().includes(`/cases/${caseId}/${route}`) && r.request().method()==='POST');
+async function write(route,action){const pending=waitWrite(route);await action();const response=await pending;assert.ok(response.ok(),`${route}: ${response.status()} ${await response.text()}`);await page.waitForFunction(()=>!document.getElementById('analyze-case').disabled);}
+try {
+  await page.goto(base);await page.locator('#create-case-panel summary').click();
+  await page.fill('#case-id',caseId);await page.fill('#order-id',`order-${Date.now()}`);
+  await page.locator('#create-case-form button').click();await page.locator('#case-title').filter({hasText:caseId}).waitFor();
+  assert.equal(await page.locator('#case-states .state').count(),5);
+  await page.fill('#evidence-text','Please reschedule my delivery. <script>window.sourceExecuted=true</script>');
+  await write('events',()=>page.locator('#evidence-form button').click());
+  assert.equal(await page.evaluate(()=>Boolean(window.sourceExecuted)),false);
+  await page.selectOption('#evidence-kind','photo');
+  await page.setInputFiles('#evidence-file',{name:'delivery-note.png',mimeType:'image/png',buffer:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j14sAAAAASUVORK5CYII=','base64')});
+  await page.fill('#evidence-text','Photo of the delivery note.');
+  await write('events',()=>page.locator('#evidence-form button').click());
+  assert.equal(await page.locator('#evidence-list .evidence-item').count(),2);
+  assert.equal(await page.locator('#evidence-list img').count(),1);
+  await write('analyze',()=>page.click('#analyze-case'));
+  assert.match(await page.locator('#decision-list').innerText(),/Operator review/);
+  const start=new Date(Date.now()+3*86400000);start.setHours(10,0,0,0);const end=new Date(start.getTime()+2*3600000);
+  const localInput=date=>`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}T${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
+  await page.fill('#slot-start',localInput(start));await page.fill('#slot-end',localInput(end));
+  await page.locator('[name="evidence-ref"]').first().check();
+  await write('decisions',()=>page.locator('#proposal-form button').click());
+  const proposal=page.locator('#decision-list [data-decision-id]').first();
+  await page.fill('#review-note','Customer requested this slot; original delivery address is unchanged.');
+  await page.check('#customer-consent');
+  await write('reviews',()=>proposal.locator('[data-action="approve"]').click());
+  await write('execute',()=>page.locator('#decision-list [data-decision-id]').first().locator('[data-action="execute"]').click());
+  assert.match(await page.locator('#decision-list').innerText(),/Sandbox action verified/);
+  assert.match(await page.locator('#decision-list').innerText(),/External effects: 0/);
+  const before=await page.locator('#case-history').innerText();await page.reload();await page.locator('#case-detail').waitFor({state:'visible'});
+  assert.equal(await page.locator('#case-title').textContent(),caseId);
+  assert.equal(await page.locator('#case-history').innerText(),before);
+  assert.match(await page.locator('#case-states').innerText(),/Resolved/);
+  await page.screenshot({path:path.join(output,'desktop.png'),fullPage:true});
+  const mobile=await browser.newPage({viewport:{width:390,height:844}});
+  mobile.on('pageerror',e=>errors.push(e.message));
+  await mobile.goto(`${base}/#case=${caseId}`);await mobile.locator('#case-detail').waitFor({state:'visible'});
+  await mobile.evaluate(()=>document.fonts.ready);
+  assert.equal(await mobile.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+  await mobile.screenshot({path:path.join(output,'mobile.png'),fullPage:true});
+  assert.deepEqual(errors,[]);
+  console.log(JSON.stringify({status:'passed',base,caseId,output,checks:['create','text evidence','photo evidence','deterministic analysis','bounded reschedule','consent review','sandbox execution','receipt','durable reload','mobile layout','safe source text'],liveProviderCalls:0}));
+} finally {await browser.close();}

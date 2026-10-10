@@ -83,6 +83,19 @@ class ModelServiceTests(unittest.TestCase):
         self.assertEqual(done['receipt']['request_id'], 'fixture-request')
         self.assertEqual(done['error']['phase'], 'validation')
 
+    def test_missing_reference_produces_proposal_without_fabricated_evaluation(self):
+        self.selected['reference'] = None
+        first, _ = self.submit()
+        with patch.object(model, 'request', return_value=self.response()) as request:
+            self.assertTrue(self.runtime.work_once())
+        request.assert_called_once()
+        done = self.runtime.get(first['run_id'])
+        self.assertEqual(done['status'], 'succeeded')
+        self.assertIsNotNone(done['candidate'])
+        self.assertIsNone(done['reference'])
+        self.assertIsNone(done['evaluation'])
+        self.assertEqual(done['receipt']['observed_model'], 'observed-fixture')
+
     def test_timeout_never_resends_and_retains_reservation(self):
         first, _ = self.submit()
         with patch.object(model, 'request', side_effect=ValueError('timeout')) as request:

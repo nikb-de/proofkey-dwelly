@@ -154,7 +154,9 @@ class AnalysisJobStore:
         encoded = _canonical(spec)
         try:
             required = {"input", "reference", "source", "profile", "settings", "profile_hash", "prompt_hash", "budget_key"}
-            if not required <= set(spec) or any(type(spec[field]) is not dict for field in ("input", "reference", "source", "profile", "settings")):
+            if (not required <= set(spec)
+                    or any(type(spec[field]) is not dict for field in ("input", "source", "profile", "settings"))
+                    or spec["reference"] is not None and type(spec["reference"]) is not dict):
                 raise ValueError()
             profile = spec["profile"]
             profile_id = profile["id"]

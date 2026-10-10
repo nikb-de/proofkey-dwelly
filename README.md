@@ -1,4 +1,14 @@
-# ProofKey — model-backed logistics decisions and evaluation harness
+# ProofKey — case operations platform and evaluation harness
+
+## Start here: the integrated local platform
+
+The primary product is now the [Right onTime case platform](docs/platform-operations.md): PostgreSQL case creation and evidence, independent state axes, deterministic checks, optional model analysis, photo analysis/ASR controls, human review and transactional **sandbox-only** rescheduling. All platform state names and labels are English. Evaluations remain a separate engineering workspace.
+
+Run `PYTHONPATH=.:tools:runtime/src python -m tools.dwelly_platform serve --database-url-env PROOFKEY_PLATFORM_DATABASE_URL --schema proofkey_platform_local --migrate --port 8095`, then open `http://127.0.0.1:8095/`. Providers are disabled by default; private credentials remain server-side. See [API and data boundaries](contracts/platform-v1/README.md).
+
+This is not the cloud production UI. Real carrier actions, payments, authenticated tenancy and live model/media quality are not verified. The older components below remain available and have their own boundaries; their standalone workbenches are no longer the primary platform UI.
+
+## Existing model and evaluation components
 
 Private experimental release for the Dwelly Delivery & Logistics track. **Runnable source, CLI and Docker are included.** The model proposes the next communication; three API judges assess its content. Nothing sends messages, books deliveries or transfers money.
 
