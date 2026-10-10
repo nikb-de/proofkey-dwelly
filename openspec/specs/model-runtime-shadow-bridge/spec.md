@@ -1,7 +1,8 @@
 # model-runtime-shadow-bridge Specification
 
 ## Purpose
-TBD - created by archiving change model-runtime-shadow-bridge. Update Purpose after archive.
+Preserve provenance when associating completed local model results with optional trusted runtime state, without granting authority or performing operational effects.
+
 ## Requirements
 ### Requirement: Completed drafts retain their source identity
 
@@ -52,4 +53,3 @@ The bridge SHALL apply finite input limits and use safe read-only access to sour
 #### Scenario: Input path escapes the declared artifact root
 - **WHEN** traversal, a symlink escape or an oversized source is supplied
 - **THEN** the bridge rejects the input before reading outside the authorized boundary
-

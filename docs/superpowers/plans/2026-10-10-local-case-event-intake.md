@@ -33,10 +33,10 @@ Own `tools/dwelly_service/cases.py` and `tools/dwelly_service/tests/test_cases.p
 
 Follow exact design contracts. `CaseError(ValueError).code` carries only `invalid_case_request`, `case_not_found`, `revision_not_found`, `idempotency_conflict`, `revision_conflict`, `event_conflict`, `case_capacity`, `case_storage_error`. Use transactions, canonical finite bounded JSON, revalidated readback, no raw error text. Test persistence/restart, stale concurrent appends, idempotency across later revisions, corrupt records, bounds and consistent participant links. No other production-file edits or provider calls.
 
-- [ ] Write failing tests for create/restart and immutable append using the exact documented request bodies; extend with all review-focus cases.
-- [ ] Run `python3.12 -B -m unittest discover -s tools/dwelly_service/tests -p test_cases.py -v`; confirm failure is a missing API or expected behavior.
-- [ ] Implement the above contracts using `with owner._connect() as db: db.execute("BEGIN IMMEDIATE")` around each modifying transaction; snapshots and request identities commit together.
-- [ ] Run the same suite cleanly; report red/green evidence before the controller commits only the two owned paths.
+- [x] Write failing tests for create/restart and immutable append using the exact documented request bodies; extend with all review-focus cases.
+- [x] Run `python3.12 -B -m unittest discover -s tools/dwelly_service/tests -p test_cases.py -v`; confirm failure is a missing API or expected behavior.
+- [x] Implement the above contracts using `with owner._connect() as db: db.execute("BEGIN IMMEDIATE")` around each modifying transaction; snapshots and request identities commit together.
+- [x] Run the same suite cleanly; report red/green evidence before the controller commits only the two owned paths.
 
 Minimal acceptance assertion after using the documented bodies:
 
@@ -55,19 +55,19 @@ Own `tools/dwelly_service/server.py` and new `tools/dwelly_service/tests/test_ca
 
 Task2 may develop against Task1's fixed interface, but final tests must consume actual CaseStore. Write RED tests before implementation. If partial parallel RED overlaps implementation, report it honestly.
 
-- [ ] Write a real loopback HTTP test asserting POST `/v1/cases` returns201 with the documented body and bearer token; run before adding routes.
-- [ ] Add routes calling `server.cases.create/append/get`, never `worker.wakeup` or `store.submit`.
-- [ ] Test all guards, conflicts and malformed query parameters through `http.client.HTTPConnection`; verify creation cannot bypass bearer authentication.
-- [ ] Run `python3.12 -B -m unittest discover -s tools/dwelly_service/tests -p test_case_http.py -v`, then the existing service tests; report before controller commit.
+- [x] Write a real loopback HTTP test asserting POST `/v1/cases` returns201 with the documented body and bearer token; run before adding routes.
+- [x] Add routes calling `server.cases.create/append/get`, never `worker.wakeup` or `store.submit`.
+- [x] Test all guards, conflicts and malformed query parameters through `http.client.HTTPConnection`; verify creation cannot bypass bearer authentication.
+- [x] Run `python3.12 -B -m unittest discover -s tools/dwelly_service/tests -p test_case_http.py -v`, then the existing service tests; report before controller commit.
 
 ## Task 3 — Controller integration and documentation
 
 Create `.env.example` and ignored private `.env`, neither with real secrets; document explicit shell loading (no new dotenv behavior), reserved cloud values, local endpoints and remaining boundaries in service docs. Add an offline demo using synthetic identifiers and no providers. Run all case tests + existing service tests + bridge regressions. Independent review exact diff; no pushes or deployment. Archive only if accepted.
 
-- [ ] Verify `.env` is ignored and mode0600; `zsh -n .env .env.example` succeeds without reading secrets to output.
-- [ ] Run `python3.12 -B -W error::ResourceWarning -m unittest discover -s tools/dwelly_service/tests -q` and the82-test bridge suite in the documented runtime environment.
-- [ ] Review the diff independently; fix findings and rerun affected tests.
-- [ ] Run `openspec validate local-case-event-intake --strict`, then archive only after implementation and review evidence are complete.
+- [x] Verify `.env` is ignored and mode0600; `zsh -n .env .env.example` succeeds without reading secrets to output.
+- [x] Run `python3.12 -B -W error::ResourceWarning -m unittest discover -s tools/dwelly_service/tests -q` and the82-test bridge suite in the documented runtime environment.
+- [x] Review the diff independently; fix findings and rerun affected tests.
+- [x] Run `openspec validate local-case-event-intake --strict`, then archive only after implementation and review evidence are complete.
 
 ## Follow-on, not completion claims
 

@@ -1,7 +1,8 @@
 # local-case-event-intake Specification
 
 ## Purpose
-TBD - created by archiving change local-case-event-intake. Update Purpose after archive.
+Accept bounded local case information as immutable, replay-safe revisions while keeping analysis, identity verification and operational authorization explicit and separate.
+
 ## Requirements
 ### Requirement: Revisioned local input
 The service SHALL accept closed bounded JSON case declarations and events over its existing authenticated local HTTP boundary, persisting immutable canonical snapshots in its private SQLite database. Declared links SHALL NOT be runtime bindings or authentication evidence.
@@ -37,4 +38,3 @@ The existing fixed-bundle jobs, explicit live opt-in, local ownership and cloud 
 #### Scenario: Intake without model execution
 - **WHEN** the service records input without live opt-in
 - **THEN** existing job counts, provider budget and runtime state remain unchanged
-

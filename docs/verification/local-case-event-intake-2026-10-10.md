@@ -1,6 +1,6 @@
 # Local case/event intake verification
 
-Date:2026-10-10. Implementation commits: `7bd5fbd` (contracts/persistence), `cb39227` (HTTP integration). No external provider calls, deployments or business operations.
+Date: 2026-10-10. Implementation commits: `7bd5fbd` (contracts/persistence), `cb39227` (HTTP integration). No external provider calls, deployments or business operations.
 
 ## Controller verification
 
@@ -9,7 +9,7 @@ python3.12 -B -W error::ResourceWarning -m unittest discover \
   -s tools/dwelly_service/tests -p 'test_*.py' -q
 ```
 
-Result: **63 passed in32.851s**:19case-store tests,19real loopback HTTP tests and25existing service tests. No skips. Includes restart/idempotency, stale concurrent appends, malformed and oversized inputs, actual256case/128event bounds, corrupt readback, auth/host/origin checks, and absence of job/provider/budget activity during intake.
+Result: **63 passed in 32.851s**: 19 case-store tests, 19 real loopback HTTP tests and 25 existing service tests. No skips. Includes restart/idempotency, stale concurrent appends, malformed and oversized inputs, actual 256-case / 128-event bounds, corrupt readback, auth/host/origin checks, and absence of job/provider/budget activity during intake.
 
 ```sh
 PYTHONPATH=runtime/src:runtime/tests \
@@ -18,13 +18,13 @@ PYTHONPATH=runtime/src:runtime/tests \
   -s tools/dwelly_bridge/tests -p 'test_*.py' -q
 ```
 
-Result: **82 passed in2.025s**, no skips, including actual runtime shadow composition. This checks existing shadow behavior after the local-service addition; it does not execute a business workflow from a newly ingested case.
+Result: **82 passed in 2.025s**, no skips, including actual runtime shadow composition. This checks existing shadow behavior after the local-service addition; it does not execute a business workflow from a newly ingested case.
 
-`openspec validate local-case-event-intake --strict`, `git diff --check`, `.env` Git-ignore check, shell syntax check and0600permission check also passed.
+`openspec validate local-case-event-intake --strict`, `git diff --check`, `.env` Git-ignore check, shell syntax check and `0600` permission check also passed.
 
 ## Review status
 
-Independent task reviews accepted both contracts/storage and HTTP integration without actionable findings. Controller verified the final combined service and shadow suites. Final whole-change review accepted the exact09d4a82..3a29b46diff for this local intake scope, with no Critical, Important or Minor findings. This is not approval for automatic analysis or operational effects.
+Independent task reviews accepted both contracts/storage and HTTP integration without actionable findings. Controller verified the final combined service and shadow suites. Final whole-change review accepted the exact `09d4a82..3a29b46` diff for this local intake scope, with no Critical, Important or Minor findings. This is not approval for automatic analysis or operational effects.
 
 ## Precise boundary
 

@@ -54,9 +54,11 @@ Kinds are `message`, `photo`, `voice_message`, `call_recording`. Photos accept P
 
 ## Next steps and decisions
 
-1. Connect new revisions to a bounded analysis job; reject results for stale snapshots.
-2. Make typed reschedule/clarify/escalate proposals, then preview through the existing deterministic policy gate.
-3. Permit sandbox rescheduling only with current identity, consent, ownership, policy version and verified readback.
-4. Process actual authorized English media with source hashes and extraction receipts.
+These are planned, not implemented by this intake increment:
+
+1. Add a separate revision-analysis job type and transactional outbox. The existing worker processes its startup benchmark bundle; do not fabricate benchmark IDs or conversation stages to route local events through it. Keep job status outside immutable case snapshots.
+2. Bind each analysis to `case_id`, `revision`, `snapshot_hash` and analysis configuration. Retain late results as historical if the case head advances; never publish an older answer as current. Intake-only mode remains the default until analysis is explicitly enabled.
+3. Produce a typed, non-executing reschedule preview with evidence references, requested window, missing facts and approval requirements. Unknown slot availability, consent, identity or policy must stay unknown. A local scheduling fixture and explicit timezone are needed before normalizing dates such as “tomorrow”.
+4. Only then connect a trusted sandbox host to the existing deterministic policy gate. Recheck the current revision, identity, consent, ownership and approved policy before an action; verify original-effect readback before reporting success. Process actual authorized English media through a bounded asset store with source hashes and extraction receipts, separately from metadata intake.
 
 Training examples may generate policy candidates. The designated human owner approves a version before it becomes policy; neither examples nor LLM judges grant execution rights. No additional user decision is needed to keep developing the local stand. Real system credentials, actual policy approvals and cloud target remain future inputs.

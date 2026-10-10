@@ -12,6 +12,8 @@
 
 **Delivery:** Implemented, independently reviewed and archived on2026-10-10. Exact verification and remaining boundaries: `docs/verification/model-runtime-shadow-bridge-2026-10-10.md`.
 
+**Corrective isolation task:** Full regression later exposed an expanded frozen package closure. See `openspec/changes/shadow-runtime-package-isolation/`. Add `tools/dwelly_bridge/tests/test_runtime_packaging.py` first: import the fixed qualification script by file path and call `current_preflight` on the canonical checkout; observe the package-closure failure. Move only the optional resolver from `runtime/src/proofkey/shadow.py` to `tools/dwelly_bridge/runtime_binding.py`, change its three imports to absolute `proofkey.*`, and update its two test callers and public README. Do not modify any frozen source hash, fixture or closure guard. Run all bridge tests plus `test_shadow_binding`, then the two previously failing `WindowReadinessRunnerTests` (`test_untracked_executing_helper_is_inventoried`, `test_wrong_import_origin`). Require fresh independent review and archive the fix; do not relabel the old full-suite failure as success.
+
 ## Global Constraints
 
 - No live API, cloud deploy, external messaging, runtime execution, mutation of source service state, or runtime checkpoint/budget/ownership updates.
@@ -36,7 +38,7 @@
 
 **Interfaces:** `ShadowError(ValueError)` exposes a bounded `code`. `load_source(service_root, job_id, case_id)` returns a frozen `SourceRecord` with `job_id`, `case_id`, `snapshot_hash`, `proposal_hash`, `receipt_hash`, `source_hash`, `provenance`, `source_mode`, `verifier_version`, and a `summary()` returning these values only. Define errors and source record in `source.py` so later tasks can import them. No external calls.
 
-- [ ] Write source tests using a real temporary JobStore and real offline run_experiment output, then close the store before reading. Assert no source file hash changes and the baseline verifier version is present. For live fixtures, manually build a coherent saved request/response/proposal attempt using existing prompt/parse functions without sending it; label it a test fixture.
+- [x] Write source tests using a real temporary JobStore and real offline run_experiment output, then close the store before reading. Assert no source file hash changes and the baseline verifier version is present. For live fixtures, manually build a coherent saved request/response/proposal attempt using existing prompt/parse functions without sending it; label it a test fixture.
 
 ```python
 def test_source_does_not_accept_a_different_attempt(self):
@@ -47,9 +49,9 @@ def test_source_does_not_accept_a_different_attempt(self):
     self.assertEqual(raised.exception.code, "source_linkage_invalid")
 ```
 
-- [ ] Run `/Users/nbk/.local/bin/python3.12 -B -m unittest tools.dwelly_bridge.tests.test_source -v`; record RED. Implement exact source linkage: read queue.sqlite3 through SQLite URI mode=ro/query_only, job complete, valid finite spec, start/terminal mode and case count agree; enumerate at most 50 exact snapshot/proposal IDs; verify frozen input/proposal sets and summary hash. For live output compare saved request key/provider/model/system/prompt with config and snapshot, parse receipt text, validate it and require the exact resulting envelope. For baseline compare the exact existing deterministic proposal and compute a current verifier source hash; source_mode records the experiment's mode, provenance records baseline or historical_live_api. Hash bounded canonical source evidence into source_hash. Reject unsupported source versions.
-- [ ] Use no-follow regular-file reads and finite limits (4 MiB JSON, 50 cases); verify service database/root ownership and no group/world writable roots. Preserve input as immutable canonical bytes or scalar fields; do not expose mutable raw source dictionaries in SourceRecord. Test malformed JSON, unknown fields where contracts are closed, incomplete jobs, foreign case, wrong prompt/model, altered set, traversal/symlink/oversize and successful baseline/live fixture.
-- [ ] Run source tests GREEN and existing model/service tests once. Write report including exact RED/GREEN commands and results. Do not commit or touch other files.
+- [x] Run `/Users/nbk/.local/bin/python3.12 -B -m unittest tools.dwelly_bridge.tests.test_source -v`; record RED. Implement exact source linkage: read queue.sqlite3 through SQLite URI mode=ro/query_only, job complete, valid finite spec, start/terminal mode and case count agree; enumerate at most 50 exact snapshot/proposal IDs; verify frozen input/proposal sets and summary hash. For live output compare saved request key/provider/model/system/prompt with config and snapshot, parse receipt text, validate it and require the exact resulting envelope. For baseline compare the exact existing deterministic proposal and compute a current verifier source hash; source_mode records the experiment's mode, provenance records baseline or historical_live_api. Hash bounded canonical source evidence into source_hash. Reject unsupported source versions.
+- [x] Use no-follow regular-file reads and finite limits (4 MiB JSON, 50 cases); verify service database/root ownership and no group/world writable roots. Preserve input as immutable canonical bytes or scalar fields; do not expose mutable raw source dictionaries in SourceRecord. Test malformed JSON, unknown fields where contracts are closed, incomplete jobs, foreign case, wrong prompt/model, altered set, traversal/symlink/oversize and successful baseline/live fixture.
+- [x] Run source tests GREEN and existing model/service tests once. Write report including exact RED/GREEN commands and results. Do not commit or touch other files.
 
 ### Task 2: Optional host-owned runtime binding resolver
 
@@ -59,7 +61,7 @@ def test_source_does_not_accept_a_different_attempt(self):
 
 The optional resolver also exposes `shadow_protected_roots`, a read-only tuple containing the canonical main runtime database parent obtained from its existing connection. Missing/unavailable database identity fails closed. The bridge uses this path metadata only to prohibit shadow-storage overlap, not as authority or in public output.
 
-- [ ] Write a real CaseStore fixture test before implementation: create admitted synthetic state through existing harness helpers, capture the exact checkpoint, construct trusted registration, and assert returned case/object/principal/revisions/version/hash agree. Mutate generation or checkpoint through supported fixture APIs and assert rejected. Denied authorization and absent mapping must not disclose target data.
+- [x] Write a real CaseStore fixture test before implementation: create admitted synthetic state through existing harness helpers, capture the exact checkpoint, construct trusted registration, and assert returned case/object/principal/revisions/version/hash agree. Mutate generation or checkpoint through supported fixture APIs and assert rejected. Denied authorization and absent mapping must not disclose target data.
 
 ```python
 def test_denied_scope_does_not_disclose_binding(self):
@@ -68,9 +70,9 @@ def test_denied_scope_does_not_disclose_binding(self):
     self.assertEqual(result, {"status": "rejected", "reason": "scope_denied"})
 ```
 
-- [ ] Run with `.superpowers/sdd/2026-10-08-proofkey-runtime/api-env.GEsSnS/bin/python -B -m unittest discover -s runtime/tests -p test_shadow_binding.py -v` and `PYTHONPATH=runtime/src`; record RED. Implement resolver as a thread-owned read transaction over the already-open CaseStore; refuse existing transactions/active execution contexts. Call existing checkpoint and original_request validation inside the same read snapshot; do not construct a new CaseStore, invoke a gateway, consume budgets or execute a workflow. Roll back read transaction on errors; restore connection state. Compare all registered fields plus source snapshot identity and check timezone-aware clock. If safe snapshot access cannot be implemented without changing journal.py, report before widening scope.
-- [ ] Test copied/invalid registrations, no mutation of runtime table content, no dangling transaction, stopped case, expired checkpoint, callback exception, wrong auth, stale version and valid point-in-time association. Gate actual binding on trusted callback literal True. Hash using runtime identity.fingerprint over canonical model dumps.
-- [ ] Run focused runtime tests and relevant journal/contract tests without launching the multi-hour complete runtime suite. Report the omitted full-suite limitation. Do not commit or touch other files.
+- [x] Run with `.superpowers/sdd/2026-10-08-proofkey-runtime/api-env.GEsSnS/bin/python -B -m unittest discover -s runtime/tests -p test_shadow_binding.py -v` and `PYTHONPATH=runtime/src`; record RED. Implement resolver as a thread-owned read transaction over the already-open CaseStore; refuse existing transactions/active execution contexts. Call existing checkpoint and original_request validation inside the same read snapshot; do not construct a new CaseStore, invoke a gateway, consume budgets or execute a workflow. Roll back read transaction on errors; restore connection state. Compare all registered fields plus source snapshot identity and check timezone-aware clock. If safe snapshot access cannot be implemented without changing journal.py, report before widening scope.
+- [x] Test copied/invalid registrations, no mutation of runtime table content, no dangling transaction, stopped case, expired checkpoint, callback exception, wrong auth, stale version and valid point-in-time association. Gate actual binding on trusted callback literal True. Hash using runtime identity.fingerprint over canonical model dumps.
+- [x] Run focused runtime tests and relevant journal/contract tests without launching the multi-hour complete runtime suite. Report the omitted full-suite limitation. Do not commit or touch other files.
 
 ### Task 3: Durable shadow record store
 
@@ -78,7 +80,7 @@ def test_denied_scope_does_not_disclose_binding(self):
 
 **Interfaces:** `ShadowStore(root)` owns only its private SQLite database. `record(identity: dict, content: dict) -> dict` atomically stores or retrieves one record. Identity contains service namespace, job ID, source case ID and target identity (unmapped or case/object/principal/request identity); content contains validated shadow record fields. Store computes `import_id` from canonical identity, compares a canonical content fingerprint excluding only target.checked_at, and returns the original complete record on an identical repeat. Changed content under the same identity raises ValueError with code `idempotency_conflict`. Store errors are bounded ValueError codes. No imports of source.py required.
 
-- [ ] Write failing tests for identical repeat, changed-content conflict, reopening, and concurrent independent processes recording the same identity; assert one row and identical complete return values.
+- [x] Write failing tests for identical repeat, changed-content conflict, reopening, and concurrent independent processes recording the same identity; assert one row and identical complete return values.
 
 ```python
 def test_repeat_preserves_first_observation(self):
@@ -89,8 +91,8 @@ def test_repeat_preserves_first_observation(self):
     self.assertEqual(store.record(self.identity, changed_time), first)
 ```
 
-- [ ] Run `/Users/nbk/.local/bin/python3.12 -B -m unittest tools.dwelly_bridge.tests.test_store -v`; record RED. Implement finite canonical JSON validation, maximum 64 KiB identity/content, private owned non-symlink directory, regular owned single-link database, SQLite FULL synchronous transactions, atomic unique identity insertion and conflict detection. Reject symlink database/journal/WAL/SHM, world/group accessible existing output directories instead of chmodding foreign inputs, special files, NaN and invalid JSON object shapes. Close connections promptly; expose no secret/body data in errors.
-- [ ] Test bounds, aliases/hard links, unsafe directories and malformed values. Allow in-process independent instances/concurrent processes safely. Run GREEN. No source/runtime state access and no commits.
+- [x] Run `/Users/nbk/.local/bin/python3.12 -B -m unittest tools.dwelly_bridge.tests.test_store -v`; record RED. Implement finite canonical JSON validation, maximum 64 KiB identity/content, private owned non-symlink directory, regular owned single-link database, SQLite FULL synchronous transactions, atomic unique identity insertion and conflict detection. Reject symlink database/journal/WAL/SHM, world/group accessible existing output directories instead of chmodding foreign inputs, special files, NaN and invalid JSON object shapes. Close connections promptly; expose no secret/body data in errors.
+- [x] Test bounds, aliases/hard links, unsafe directories and malformed values. Allow in-process independent instances/concurrent processes safely. Run GREEN. No source/runtime state access and no commits.
 
 ### Task 4: Idempotent bridge API, CLI and acceptance smoke
 
@@ -100,7 +102,7 @@ def test_repeat_preserves_first_observation(self):
 
 When configured, a resolver must supply finite canonical `shadow_protected_roots`. Reject missing/invalid roots and any shadow output root equal to, inside, or above source or protected runtime roots before creating output storage. The default unmapped CLI has no runtime roots.
 
-- [ ] Write failing tests for default unmapped, bound result via a controlled host resolver, sanitized rejected errors, repeated identical import and changed content conflict. A record contains `schema_version=dwelly-shadow-record-v1`, `status`, `reason`, `source` from summary(), `target` or null, `effects=[]`, `authorization=False`, `import_id`. It does not copy the draft text. Stable logical import identity derives from service namespace, job/case and registered target identity (or unmapped); content fingerprint also includes the complete source/target except checked_at so rechecking an identical binding is idempotent. Retain first observation time; a changed checkpoint is a conflict, not silently another success.
+- [x] Write failing tests for default unmapped, bound result via a controlled host resolver, sanitized rejected errors, repeated identical import and changed content conflict. A record contains `schema_version=dwelly-shadow-record-v1`, `status`, `reason`, `source` from summary(), `target` or null, `effects=[]`, `authorization=False`, `import_id`. It does not copy the draft text. Stable logical import identity derives from service namespace, job/case and registered target identity (or unmapped); content fingerprint also includes the complete source/target except checked_at so rechecking an identical binding is idempotent. Retain first observation time; a changed checkpoint is a conflict, not silently another success.
 
 ```python
 def test_default_import_is_unmapped_and_repeatable(self):
@@ -112,6 +114,6 @@ def test_default_import_is_unmapped_and_repeatable(self):
     self.assertEqual(first["effects"], [])
 ```
 
-- [ ] Use ShadowStore for persistence. Output storage must not overlap source or optional runtime state. Validate exact resolver shape/finite fields and reject unknown status, invented fields or invalid target hashes/timestamps. Invalid source imports return rejected sanitized status at CLI without persisting untrusted payload. No raw exception strings in output.
-- [ ] Test concurrent imports with independent processes, restart persistence, source/target changes, denied resolver, symlinked output and no source mutations. Prove no network/provider/effect path is reached with a real offline service job and forbidden-call hooks; pair hooks with source/runtime before/after hashes. Run CLI in a subprocess against real artifacts. Keep errors machine-readable and nonzero for rejected; unmapped is a successful shadow observation.
-- [ ] Document exact local commands, approved scope, how trusted in-process host composition differs from CLI unmapped mode, and why this is not operational planning. Run all tools test modules, new runtime resolver tests, and an offline no-network smoke. Add verification receipt, independently review, then archive this scoped change only after fixes. Do not push or deploy.
+- [x] Use ShadowStore for persistence. Output storage must not overlap source or optional runtime state. Validate exact resolver shape/finite fields and reject unknown status, invented fields or invalid target hashes/timestamps. Invalid source imports return rejected sanitized status at CLI without persisting untrusted payload. No raw exception strings in output.
+- [x] Test concurrent imports with independent processes, restart persistence, source/target changes, denied resolver, symlinked output and no source mutations. Prove no network/provider/effect path is reached with a real offline service job and forbidden-call hooks; pair hooks with source/runtime before/after hashes. Run CLI in a subprocess against real artifacts. Keep errors machine-readable and nonzero for rejected; unmapped is a successful shadow observation.
+- [x] Document exact local commands, approved scope, how trusted in-process host composition differs from CLI unmapped mode, and why this is not operational planning. Run all tools test modules, new runtime resolver tests, and an offline no-network smoke. Add verification receipt, independently review, then archive this scoped change only after fixes. Do not push or deploy.
