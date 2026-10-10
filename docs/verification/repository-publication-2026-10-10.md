@@ -4,7 +4,15 @@
 
 Branch: `codex/proofkey-main-integration`. The publication includes the pending product/coordination commits, the clean mobile showcase and its two 40-second films, original model/case receipts, provider-envelope correction, tests and archived specifications. The publication inventory is in [PUBLICATION.md](../demos/2026-10-10-case-001-terms/PUBLICATION.md).
 
-No merge into `main`, deployment or new model call is part of this publication. Local intermediate/rejected media and runtime state are not included. Historical failures in the selected evaluation evidence remain visible.
+The initial publication did not merge into `main`. The user subsequently authorized a main-branch merge with preference for our tooling. This does not authorize a deployment or new model call. Local intermediate/rejected media and runtime state are not included. Historical failures in the selected evaluation evidence remain visible.
+
+## Main integration follow-up
+
+Main revision `c1c8539725a42162b452c8125e747afdf4b16580` merged without Git conflicts. Its case data and annotations were preserved byte-for-byte. The first merged-tree backend run exposed a stale catalog binding: the team's 002-N4 source had changed while its platform manifest hash had not. That run reported 15 failures, 377 passes and 372 subtest passes; the catalog regression reproduced the same hash rejection independently.
+
+The repair updates only the changed source hash and repins the team snapshot to the merged main revision. All 51 source documents, 286 cutoffs and 50 source families are retained; legacy pins, runtime policy and historical evaluation receipts are unchanged. The user-authorized merge does not erase or convert the broader runtime limitation below into a pass.
+
+Post-repair backend/model/analysis verification: **390 passed, 384 subtests passed**, zero failures or skips (110.79 seconds). Additional E2E harness verification: **96 passed, 3 skipped** without the database variable, followed by the exact three database recovery tests with PostgreSQL enabled: **3 passed**. No live model calls were made. The merged-tree browser suite passed **100/100** before this manifest-only repair; UI code was unchanged by the repair. The main data/widget checks passed five legacy assertion scripts, 46 Node tests, seven negative-pipeline tests and five context-training tests. Independent read-only review confirmed every team source hash and the absence of source-data or application-logic changes.
 
 ## Completed checks
 

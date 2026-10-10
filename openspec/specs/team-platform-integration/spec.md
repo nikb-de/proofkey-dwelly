@@ -20,7 +20,7 @@ An incoming message MAY identify the current actor as a primary recipient or an 
 - **THEN** bounded visible evidence is available for analysis and hidden future/answer data remains excluded.
 
 #### Scenario: Current expanded catalog
-- **WHEN** the catalog loads the pinned main revision `c361245eaad4361f7b886adc56f05dd56d4807b3`
+- **WHEN** the catalog loads the pinned main revision `c1c8539725a42162b452c8125e747afdf4b16580`
 - **THEN** it exposes 51 team documents with 286 cutoffs and preserves the legacy three documents with 16 cutoffs as a separate export group.
 
 ### Requirement: Verify integration without live effects
