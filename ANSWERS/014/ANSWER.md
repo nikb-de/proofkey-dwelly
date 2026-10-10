@@ -37,3 +37,7 @@ Status: `failed`. Error: `invalid_model_output`.
 ```json
 null
 ```
+
+## Post-run review
+
+A [human-reviewed correction](REVIEW.md) addresses the identified issue. It is separate from the original frozen result above.

@@ -72,3 +72,7 @@ Status: `succeeded`. Error: `None`.
   "waiting_for": []
 }
 ```
+
+## Post-run review
+
+A [human-reviewed correction](REVIEW.md) addresses the identified issue. It is separate from the original frozen result above.

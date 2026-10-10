@@ -54,6 +54,72 @@ class RealityTests(unittest.TestCase):
         self.assertIn('Exact unknown.',answer)
         self.assertIn('Business operations executed: 0',answer)
 
+    def test_formatter_displays_proposed_actors_and_waiting_names(self):
+        evidence={'our_actor_id':'desk','actors':[{'id':'desk','name':'Desk'}, {'id':'customer','name':'Customer'}]}
+        record={'status':'succeeded','error':None,'candidate':{'state':'waiting','waiting_for':['customer'],
+            'next_action':{'type':'wait','target_actor_id':'customer','description':'Await reply.'}}}
+        answer=self.api().format_answer('001',record,{'input_hash':'abc'},evidence)
+        self.assertIn('Proposed action type: `wait`',answer)
+        self.assertIn('Proposed target: `customer` — Customer',answer)
+        self.assertIn('Our actor: `desk` — Desk',answer)
+        self.assertIn('Waiting for: `customer` — Customer',answer)
+        self.assertNotIn('REVIEW: self_target',answer)
+
+    def test_self_target_review_is_display_only_and_action_specific(self):
+        api=self.api()
+        for kind in ('propose_forwarding','request_information','request_readback','operator_review'):
+            with self.subTest(kind=kind):
+                record={'candidate':{'next_action':{'type':kind,'target_actor_id':'desk'}}}
+                original=json.dumps(record)
+                warnings=api._review_warnings(record,{'our_actor_id':'desk'})
+                self.assertEqual(bool(warnings),kind!='operator_review')
+                self.assertEqual(json.dumps(record),original)
+        self.assertEqual(api._review_warnings({'candidate':{'next_action':{
+            'type':'propose_forwarding','target_actor_id':'customer'}}},{'our_actor_id':'desk'}),[])
+
+    def test_failed_response_diagnostics_distinguish_json_and_contract(self):
+        api=self.api()
+        for text,expected in (('{broken','invalid_json_output'),('{}','rejected_output_contract'),
+                              ('```json\n{}\n```','rejected_output_contract')):
+            with self.subTest(text=text):
+                record={'status':'failed','candidate':None,'error':'invalid_model_output','response':{'text':text}}
+                original=json.dumps(record)
+                answer=api.format_answer('001',record,{'input_hash':'abc'})
+                self.assertIn('REVIEW: '+expected,answer)
+                self.assertIn('Status: `failed`. Error: `invalid_model_output`',answer)
+                self.assertEqual(json.dumps(record),original)
+
+    def test_export_retained_025_and_014_exposes_defects_without_repair(self):
+        api=self.api(); prepared=self.root/'retained'; profile='anthropic-claude-sonnet-5-5'
+        items=[]; originals={}
+        for case_id in ('025','014'):
+            source=api.ROOT/'ANSWERS'/case_id
+            evidence=json.loads((source/'INPUT.json').read_text())
+            record=json.loads((source/'SOURCE_RESULT.json').read_text())
+            originals[case_id]=record
+            items.append({'case_id':case_id,'input_hash':evidence['input_hash']})
+            api.save(prepared/'inputs'/(case_id+'.json'),evidence)
+            api.save(prepared/'runs'/profile/case_id/'result.json',record)
+        api.save(prepared/'manifest.json',{'cases':items,'source_commit':'retained',
+            'code_commit':'retained','code_files':{},'source_files':{}})
+        output=self.root/'exported'
+        result=api.export(prepared,output,profile)
+        self.assertEqual(result['exported_cases'],2)
+        answer=(output/'025/ANSWER.md').read_text()
+        self.assertIn('Proposed action type: `propose_forwarding`',answer)
+        self.assertIn('Proposed target: `actor-02` — Vellora escalation desk',answer)
+        self.assertIn('Our actor: `actor-02` — Vellora escalation desk',answer)
+        self.assertIn('REVIEW: self_target',answer)
+        answer=(output/'014/ANSWER.md').read_text()
+        self.assertIn('REVIEW: invalid_json_output',answer)
+        self.assertIn('No accepted model output.',answer)
+        self.assertIn('Status: `failed`. Error: `invalid_model_output`',answer)
+        for case_id,original in originals.items():
+            self.assertEqual(json.loads((output/case_id/'SOURCE_RESULT.json').read_text()),original)
+            self.assertEqual(json.loads((api.ROOT/'ANSWERS'/case_id/'SOURCE_RESULT.json').read_text()),original)
+            candidate=json.loads((output/case_id/'ANSWER.md').read_text().split('## Exact retained candidate\n\n```json\n')[1].split('\n```')[0])
+            self.assertEqual(candidate,original['candidate'])
+
     def test_deadline_record_has_zero_dispatch_attempts(self):
         self.prepare(); api=self.api()
         evidence=json.loads((self.root/'prepared/inputs/001.json').read_text())
