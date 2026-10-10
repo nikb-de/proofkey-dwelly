@@ -1,0 +1,298 @@
+{
+ "case_id": "003",
+ "lang": "en",
+ "title": "003 · Driver locked out at a gated building",
+ "initial_explanation": "We are the coordinator, Iona Quill. The case comes from dispatch at Plover Arc Logistics. From the case card: the courier with DL-003 is outside a gated building during the booked window, and no permitted access arrangement has been recorded yet.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "dispatch",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: arrange permitted access for the driver through the recipient, without asking for permanent credentials.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "dispatch": {
+   "name": "Dispatch",
+   "organization": "Plover Arc Logistics",
+   "role": "dispatch",
+   "responsibility": "Escalated the driver's access problem to the desk.",
+   "from_start": true,
+   "source_names": [
+    "Dispatch, Plover Arc Logistics"
+   ]
+  },
+  "driver": {
+   "name": "Fen Orlo",
+   "organization": "Plover Arc Logistics",
+   "role": "driver",
+   "responsibility": "Carry DL-003 and report whether access was obtained and the parcel handed over.",
+   "from_start": false,
+   "source_names": [
+    "Route driver Fen Orlo, Plover Arc Logistics"
+   ]
+  },
+  "recipient": {
+   "name": "Elva Kesh",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Let the driver into the building by a permitted method and receive the parcel.",
+   "from_start": false,
+   "source_names": [
+    "Elva Kesh, recipient"
+   ]
+  }
+ },
+ "goal": "Arrange permitted access for the courier at the gated building through the recipient, without requesting permanent credentials, and get the driver's confirmation of access and handover.",
+ "limits": [
+  "Do not request or store permanent credentials.",
+  "Count the handover only on the driver's actual record."
+ ],
+ "intake": {
+  "summary": "Get the courier with DL-003 into a gated building: no permitted access arrangement is recorded.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The courier is outside a gated building and no permitted access arrangement is recorded.",
+  "facts": [
+   {"id": "f1", "text": "The case concerns shipment DL-003.", "source": {"type": "case_card", "id": "003"}},
+   {"id": "f2", "text": "The courier is outside a gated building during the booked window.", "source": {"type": "case_card", "id": "003"}},
+   {"id": "f3", "text": "No permitted access arrangement has been recorded yet.", "source": {"type": "case_card", "id": "003"}}
+  ],
+  "success_criteria": [
+   {"id": "c1", "description": "The recipient has agreed a permitted way to let the driver in, without sharing a permanent code."},
+   {"id": "c2", "description": "The driver has confirmed that access was obtained."},
+   {"id": "c3", "description": "The driver has confirmed the handover of DL-003 with an actual record."}
+  ],
+  "agent_state": {"status": "ready", "waiting_for": [], "next_action": "Take in incoming information on the case."},
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": null,
+  "annotations": []
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Driver report",
+   "title": "Driver waits outside the shut gate",
+   "explanation": "Fen is at the address with the parcel, but the pedestrian gate is shut and there are no public access instructions. Fen has not left the parcel, so a permitted way in is still needed.",
+   "conversation_id": "driver",
+   "facts_upsert": [
+    {"id": "f2", "text": "Driver Fen Orlo is at 7 Sedgeglass Mews with DL-003; the pedestrian gate is shut.", "source": {"type": "message", "id": "001"}},
+    {"id": "f4", "text": "There are no public access instructions at the gate.", "source": {"type": "message", "id": "001"}},
+    {"id": "f5", "text": "The driver is waiting outside and has not left the parcel.", "source": {"type": "message", "id": "001"}}
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {"status": "ready", "waiting_for": [], "next_action": "Find a permitted way to get the driver through the gate without permanent credentials."},
+   "blocker": "The pedestrian gate is shut and no permitted access arrangement is recorded.",
+   "status": "context_received",
+   "next_step": null,
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Dispatch request",
+   "title": "Dispatch asks us to call Elva Kesh",
+   "explanation": "Dispatch names the recipient, the channel to use and the limit: no reusable gate code. The driver can wait until 10:00 UTC, so we call Elva now.",
+   "conversation_id": "dispatch",
+   "facts_upsert": [
+    {"id": "f6", "text": "Dispatch asks us to contact recipient Elva Kesh on the verified order callback route.", "source": {"type": "message", "id": "002"}},
+    {"id": "f7", "text": "Dispatch instructs us not to request a reusable gate code.", "source": {"type": "message", "id": "002"}},
+    {"id": "f8", "text": "The driver can wait until 10:00 UTC.", "source": {"type": "message", "id": "002"}}
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "dispatch",
+     "to_actor": "coordinator",
+     "responsible_actor": "coordinator",
+     "purpose": "Contact recipient Elva Kesh on the verified order callback route to get the driver in, without requesting a reusable gate code.",
+     "expected_response": "A permitted access arrangement for the driver.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": ["002"]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Let the driver through the gate by a permitted method, without sharing a reusable gate code.",
+     "expected_response": "How the driver will be let in.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": ["002"]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {"status": "ready", "waiting_for": [], "next_action": "Call Elva Kesh on the verified order callback route and ask Elva to let the driver in, without asking for a reusable gate code."},
+   "blocker": "The driver is outside the shut gate; the recipient has not been reached. The driver can wait until 10:00 UTC.",
+   "status": "escalated",
+   "next_step": {"type": "action", "responsible_actor": "recipient", "request_id": "r1", "description": "Let the driver through the gate by a permitted method before 10:00 UTC."},
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "Our call",
+   "title": "We ask Elva to admit the driver",
+   "explanation": "We offered two permitted ways in, the intercom or meeting the driver at the gate, and asked Elva not to share a permanent code. Now we wait for Elva's answer on the call.",
+   "conversation_id": "recipient",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Admit the driver now using the intercom, or come to the gate; do not share a permanent code.",
+     "expected_response": "How the driver will be let in.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": ["002", "003"]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [{"actor_id": "recipient", "request_id": "r1", "expected": "Whether Elva will admit the driver via the intercom or come to the gate"}],
+    "next_action": "Once Elva answers, get the driver's confirmation of access and handover."
+   },
+   "blocker": "The driver is still outside the shut gate.",
+   "status": "awaiting_confirmation",
+   "next_step": {"type": "action", "responsible_actor": "recipient", "request_id": "r1", "description": "Wait for Elva to admit the driver via the intercom or come to the gate."},
+   "result": null,
+   "decision": {
+    "required": true,
+    "question": "How will the recipient let the driver in?",
+    "options": [
+     {"id": "o1", "label": "Admit the driver using the intercom", "conditions": "No permanent code is shared."},
+     {"id": "o2", "label": "Come to the gate", "conditions": "No permanent code is shared."}
+    ],
+    "decision_maker": "recipient",
+    "selected_option": null,
+    "reason": null
+   },
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "Recipient reply",
+   "title": "Elva will release the gate",
+   "explanation": "Elva agreed a permitted way in without any code being shared. A promise to open the gate is not yet access or a handover: only the driver can confirm those.",
+   "conversation_id": "recipient",
+   "facts_upsert": [
+    {"id": "f3", "text": "Elva Kesh can see the courier on the intercom and will release the gate and meet the courier in the lobby now.", "source": {"type": "message", "id": "004"}}
+   ],
+   "requests_upsert": {
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Admit the driver now using the intercom, or come to the gate; do not share a permanent code.",
+     "expected_response": "How the driver will be let in.",
+     "status": "answered",
+     "response": "Elva will release the gate and meet the courier in the lobby now.",
+     "evidence_event_ids": ["002", "003", "004"]
+    }
+   },
+   "criteria_met": [{"id": "c1", "evidence_event_ids": ["004"]}],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Get the driver's confirmation that access was obtained and DL-003 was handed over.",
+    "note": "No message from us to the driver or dispatch after the call is recorded. So in this snapshot the agent is not given waiting status: there is no evidence that a request to the driver was sent."
+   },
+   "blocker": "Access and handover are not yet confirmed by the driver.",
+   "status": "awaiting_confirmation",
+   "next_step": {"type": "confirmation", "responsible_actor": "driver", "request_id": null, "description": "The driver's confirmation of gate access and the DL-003 handover."},
+   "result": null,
+   "decision": {
+    "required": true,
+    "question": "How will the recipient let the driver in?",
+    "options": [
+     {"id": "o1", "label": "Admit the driver using the intercom", "conditions": "No permanent code is shared."},
+     {"id": "o2", "label": "Come to the gate", "conditions": "No permanent code is shared."}
+    ],
+    "decision_maker": "recipient",
+    "selected_option": "o1",
+    "reason": "Elva can see the courier on the intercom and will release the gate, then meet the courier in the lobby."
+   },
+   "annotations_add": []
+  },
+  {
+   "event_id": "005",
+   "label": "Driver confirms",
+   "title": "Driver confirms access and handover",
+   "explanation": "The driver's own record shows access from inside and the handover with a matching scan, so the coordination task can be closed.",
+   "conversation_id": "driver",
+   "facts_upsert": [
+    {"id": "f2", "text": "Gate access was granted from inside; Elva Kesh met the driver in the lobby.", "source": {"type": "message", "id": "005"}},
+    {"id": "f5", "text": "Elva Kesh received DL-003 at 09:48 UTC; the matching handover scan is complete.", "source": {"type": "message", "id": "005"}}
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "dispatch",
+     "to_actor": "coordinator",
+     "responsible_actor": "coordinator",
+     "purpose": "Contact recipient Elva Kesh on the verified order callback route to get the driver in, without requesting a reusable gate code.",
+     "expected_response": "A permitted access arrangement for the driver.",
+     "status": "completed",
+     "response": "Elva released the gate from inside and met the driver in the lobby.",
+     "responded_by": "driver",
+     "evidence_event_ids": ["002", "003", "004", "005"]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Admit the driver now using the intercom, or come to the gate; do not share a permanent code.",
+     "expected_response": "How the driver will be let in.",
+     "status": "completed",
+     "response": "Gate access was granted from inside; Elva met the driver in the lobby.",
+     "evidence_event_ids": ["002", "003", "004", "005"]
+    }
+   },
+   "criteria_met": [
+    {"id": "c2", "evidence_event_ids": ["005"]},
+    {"id": "c3", "evidence_event_ids": ["005"]}
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Coordination task complete: the driver confirmed access from inside and the handover with a matching scan."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "Elva Kesh released the gate from inside and received DL-003 in the lobby at 09:48 UTC; the matching handover scan is complete.",
+    "confirmed_by": "driver",
+    "evidence_event_ids": ["005"],
+    "remaining_work": "Nothing further for the desk. The handover rests on the driver's record and scan; no permanent gate code was requested in the recorded call."
+   },
+   "annotations_add": [
+    {
+     "id": "driver-own-report",
+     "kind": "context",
+     "title": "What Fen knew before reporting",
+     "text": "Fen saw the gate access granted from inside and met Elva in the lobby in person. Elva let the courier in directly after seeing them on the intercom (004), so no message from us to Fen was needed for this step; the report does not refer to a request from us.",
+     "before_message_id": "005",
+     "source_event_ids": ["004", "005"]
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,614 @@
+{
+ "case_id": "011-N2",
+ "lang": "en",
+ "title": "011-N2 · Depot leaves locate task unstarted",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Mera Olt. From the case card: tracking for DL-011 stopped at the arrival scan, so the depot must locate the actual parcel rather than repeat the public tracking status.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get the depot to physically locate the parcel and provide a fresh scan with its location.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Mera Olt",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Raise the question of whether the parcel is actually at the depot.",
+   "from_start": true,
+   "source_names": [
+    "Mera Olt, recipient"
+   ]
+  },
+  "tracking_support": {
+   "name": "Tracking support",
+   "organization": "Plover Arc Logistics",
+   "role": "carrier",
+   "responsibility": "Report what the tracking system shows for the shipment.",
+   "from_start": false,
+   "source_names": [
+    "Tracking support, Plover Arc Logistics"
+   ]
+  },
+  "depot": {
+   "name": "Destination depot",
+   "organization": "Plover Arc Logistics",
+   "role": "depot",
+   "responsibility": "Physically locate the parcel and provide a new scan with its storage position.",
+   "from_start": false,
+   "source_names": [
+    "Destination depot, Plover Arc Logistics"
+   ]
+  },
+  "branch_system": {
+   "name": "Depot work queue",
+   "organization": "Plover Arc Logistics",
+   "role": "system",
+   "from_start": false,
+   "source_names": [
+    "Depot work queue, Plover Arc Logistics"
+   ],
+   "responsibility": "Report or handle the state within the scope stated in the source message; no wider authority is inferred."
+  }
+ },
+ "goal": "Get the destination depot to physically locate DL-011 and provide a fresh scan with its verified location.",
+ "limits": [
+  "Do not present a physical depot scan as proof of dispatch or delivery.",
+  "Do not treat a reminder or silence as consent, a booking or execution."
+ ],
+ "intake": {
+  "summary": "DL-011: tracking has not updated after the depot arrival scan; the actual parcel needs to be located.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "Tracking stopped at the arrival scan; the parcel's actual location is not confirmed.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-011.",
+    "source": {
+     "type": "case_card",
+     "id": "011"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "Tracking stopped at the arrival scan.",
+    "source": {
+     "type": "case_card",
+     "id": "011"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The depot must locate the actual parcel rather than repeat the public tracking status.",
+    "source": {
+     "type": "case_card",
+     "id": "011"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The depot has physically located the parcel and given its verified location."
+   },
+   {
+    "id": "c2",
+    "description": "The depot has made a fresh scan of the parcel."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/011/N2-NO_REPLY",
+  "branch_id": "011-N2",
+  "derived_from_case": "011",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "NO_REPLY",
+  "expected_decision": "WAIT_WITH_DEADLINE",
+  "workflow_sheet": "B",
+  "branch_label": "Depot leaves locate task unstarted",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "03e01b25efdec7449d00c92cbe83a7ac20f319fc9299fde731e34a018db98931",
+   "history.md": "db4a9983a8a614fb37c4a5c836478364dac5273d319a7c8d163ddbc989343f4d"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Tracking email",
+   "title": "Tracking support reports the last scan",
+   "explanation": "Tracking support can only repeat the system status: the depot arrival scan, and no confirmed storage position. Only the depot can say where the parcel actually is.",
+   "conversation_id": "tracking",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "DL-011 last public scan: destination depot arrival at 06:15 UTC on 2026-02-12.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f4",
+     "text": "No sort or route scan is visible.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "Tracking support's system does not currently confirm the storage position.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Take in the recipient's question; the parcel's actual location can be confirmed only by the depot."
+   },
+   "blocker": "The last public scan is the depot arrival; the storage position is not confirmed.",
+   "status": "context_received",
+   "next_step": null,
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client question",
+   "title": "Mera asks if the parcel is at the depot",
+   "explanation": "Mera asks about the physical parcel, not the tracker status, and tracking support cannot confirm the storage position. So the next step is a physical search and new scan by the destination depot.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f6",
+     "text": "The recipient says the tracker has not changed since early this morning.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f7",
+     "text": "The recipient asks whether the parcel is actually at the depot.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "information",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "depot",
+     "purpose": "Check whether the parcel is actually at the depot.",
+     "expected_response": "The parcel's actual location.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "depot",
+     "responsible_actor": "depot",
+     "purpose": "Physically locate DL-011 and provide a new scan with its storage position.",
+     "expected_response": "A new scan with the storage position.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask the destination depot to physically locate DL-011 and provide a new scan with its storage position."
+   },
+   "blocker": "Nobody has physically confirmed that the parcel is at the depot.",
+   "status": "escalated",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "depot",
+    "request_id": "r1",
+    "description": "Physically locate DL-011 and provide a new scan with its storage position."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "tracker-context",
+     "kind": "context",
+     "title": "What Mera saw before asking",
+     "text": "Mera has been watching the public tracker. Per message 001, its last public scan is the destination depot arrival at 06:15 UTC; what Mera saw is known only from her own words in message 002.",
+     "before_message_id": "002",
+     "source_event_ids": [
+      "001",
+      "002"
+     ]
+    }
+   ]
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We ask the depot for a physical scan",
+   "explanation": "We asked the depot to find the parcel itself, because the arrival status alone does not answer Mera's question. Now we wait for the depot's scan.",
+   "conversation_id": "depot",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "depot",
+     "responsible_actor": "depot",
+     "purpose": "Physically locate DL-011 and provide a new scan with its storage position.",
+     "expected_response": "A new scan with the storage position.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "depot",
+      "request_id": "r1",
+      "expected": "New scan with the storage position"
+     }
+    ],
+    "next_action": "Once the depot answers, check that the location comes from a new physical scan."
+   },
+   "blocker": "The depot has not yet located the parcel.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "depot",
+    "request_id": "r1",
+    "description": "Wait for the depot's new scan and storage position."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "New escalation",
+   "title": "Depot leaves locate task unstarted",
+   "explanation": "Send one reminder with the recorded deadline and consequence. Do not treat a reminder or silence as consent, a booking or execution.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Depot work queue reports: DL-011 locate task, opened 09:25 UTC: status open, not started.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Depot work queue reports: No comment from the destination depot.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Depot work queue reports: Tasks not started by the 14:00 UTC shift change are carried to the next shift.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "confirmation",
+     "from_actor": "coordinator",
+     "to_actor": "depot",
+     "responsible_actor": "depot",
+     "purpose": "Send one reminder on the same Depot work queue task asking the destination depot for the physical scan and storage position before the 14:00 UTC shift change, and record the depot as owner with that deadline.",
+     "expected_response": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Send one reminder on the same Depot work queue task asking the destination depot for the physical scan and storage position before the 14:00 UTC shift change, and record the depot as owner with that deadline."
+   },
+   "blocker": "The new escalation requires a scoped response. DL-011 locate task, opened 09:25 UTC: status open, not started. No comment from the destination depot. Tasks not started by the 14:00 UTC shift change are carried to the next shift.",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Send one reminder on the same Depot work queue task asking the destination depot for the physical scan and storage position before the 14:00 UTC shift change, and record the depot as owner with that deadline."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "004",
+     "source_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c1",
+    "c2"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "wait_with_deadline",
+      "action": "Send one reminder on the same Depot work queue task asking the destination depot for the physical scan and storage position before the 14:00 UTC shift change, and record the depot as owner with that deadline.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "open a second task, and tell Mera the parcel is at the depot on the strength of the 06:15 arrival scan.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "011-N2"
+    },
+    "summary": "Send one reminder with the recorded deadline and consequence.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Send one reminder with the recorded deadline and consequence."
+   }
+  },
+  {
+   "event_id": "005",
+   "label": "Desk response",
+   "title": "Send one reminder with the recorded deadline and consequence",
+   "explanation": "The desk sends the recorded response. Do not treat a reminder or silence as consent, a booking or execution.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "confirmation",
+     "from_actor": "coordinator",
+     "to_actor": "depot",
+     "responsible_actor": "depot",
+     "purpose": "Send one reminder on the same Depot work queue task asking the destination depot for the physical scan and storage position before the 14:00 UTC shift change, and record the depot as owner with that deadline.",
+     "expected_response": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "depot",
+      "request_id": "branch_request",
+      "expected": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "confirmation",
+    "responsible_actor": "depot",
+    "request_id": "branch_request",
+    "description": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "wait_with_deadline",
+      "action": "Send one reminder on the same Depot work queue task asking the destination depot for the physical scan and storage position before the 14:00 UTC shift change, and record the depot as owner with that deadline.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "open a second task, and tell Mera the parcel is at the depot on the strength of the 06:15 arrival scan.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "wait_with_deadline",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. At 13:52 UTC we found DL-011 on inbound shelf B-04 and scanned the label. The new location scan is now visible. It has not been sorted or allocated to a van. This confirms its position at the depot, not dispatch or delivery.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Destination depot reports: At 13:52 UTC we found DL-011 on inbound shelf B-04 and scanned the label.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Destination depot reports: The new location scan is now visible.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Destination depot reports: It has not been sorted or allocated to a van.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_4",
+     "text": "Destination depot reports: This confirms its position at the depot, not dispatch or delivery.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "confirmation",
+     "from_actor": "coordinator",
+     "to_actor": "depot",
+     "responsible_actor": "depot",
+     "purpose": "Send one reminder on the same Depot work queue task asking the destination depot for the physical scan and storage position before the 14:00 UTC shift change, and record the depot as owner with that deadline.",
+     "expected_response": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking.",
+     "status": "answered",
+     "response": "At 13:52 UTC we found DL-011 on inbound shelf B-04 and scanned the label. The new location scan is now visible. It has not been sorted or allocated to a van. This confirms its position at the depot, not dispatch or delivery.",
+     "evidence_event_ids": [
+      "004",
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "At 13:52 UTC we found DL-011 on inbound shelf B-04 and scanned the label. The new location scan is now visible. It has not been sorted or allocated to a van. This confirms its position at the depot, not dispatch or delivery.",
+    "confirmed_by": "depot",
+    "evidence_event_ids": [
+     "006"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not open a second task, and do not tell Mera the parcel is at the depot on the strength of the 06:15 arrival scan."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "wait_with_deadline",
+      "action": "Send one reminder on the same Depot work queue task asking the destination depot for the physical scan and storage position before the 14:00 UTC shift change, and record the depot as owner with that deadline.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "open a second task, and tell Mera the parcel is at the depot on the strength of the 06:15 arrival scan.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "wait_with_deadline",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

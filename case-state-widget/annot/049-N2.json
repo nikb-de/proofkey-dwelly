@@ -1,0 +1,584 @@
+{
+ "case_id": "049-N2",
+ "lang": "en",
+ "title": "049-N2 · Customer wants refund plus goodwill waiver",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Vera Senn, finance coordinator at Mossline Press. From the case card: two invoice lines have the same shipment, service and date, and the authorised billing team must confirm the duplication and issue a credit note and revised balance.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "customer",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get billing's review of the matching invoice lines and, if the duplicate is confirmed, the credit note and revised balance.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "customer": {
+   "name": "Vera Senn",
+   "organization": "Mossline Press",
+   "role": "customer",
+   "responsibility": "Raise the matching invoice lines for review on behalf of Mossline Press.",
+   "from_start": true,
+   "source_names": [
+    "Vera Senn, Mossline Press finance coordinator"
+   ]
+  },
+  "billing": {
+   "name": "Business billing",
+   "organization": "Plover Arc Logistics",
+   "role": "billing",
+   "responsibility": "Review the two matching lines and, if the duplicate is confirmed, issue the credit note and revised balance.",
+   "from_start": false,
+   "source_names": [
+    "Business billing, Plover Arc Logistics"
+   ]
+  }
+ },
+ "goal": "Get the authorised billing team to confirm the duplication on the DL-049 invoice and issue a credit note and a revised balance.",
+ "limits": [
+  "Do not present the credit note as cash received; it is an accounting adjustment.",
+  "Do not state a revised balance other than the invoice total minus the credited amount.",
+  "Do not promise or perform the prohibited request."
+ ],
+ "intake": {
+  "summary": "Two invoice lines for DL-049 match on shipment, service and date: get billing to confirm the duplicate and issue a credit note and revised balance.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "Two invoice lines match on shipment, service and date; billing has not confirmed a duplicate.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-049.",
+    "source": {
+     "type": "case_card",
+     "id": "049"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "Two invoice lines have the same shipment, service and date.",
+    "source": {
+     "type": "case_card",
+     "id": "049"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The authorised billing team must confirm the duplication and issue a credit note and a revised balance.",
+    "source": {
+     "type": "case_card",
+     "id": "049"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The authorised billing team has confirmed the duplicate line."
+   },
+   {
+    "id": "c2",
+    "description": "The billing team has issued a credit note for the confirmed duplicate."
+   },
+   {
+    "id": "c3",
+    "description": "The revised invoice balance reconciles with the invoice total minus the credit."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/049/N2-OUT_OF_POLICY_ASK",
+  "branch_id": "049-N2",
+  "derived_from_case": "049",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "OUT_OF_POLICY_ASK",
+  "expected_decision": "DECLINE_EXPLAIN",
+  "workflow_sheet": "A",
+  "branch_label": "Customer wants refund plus goodwill waiver",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "5b623be222d1555ea40779d2d0e9b345f733a1f67ab8ad549f11177360dfb503",
+   "history.md": "9f18c30894b1278f7ae4a818cedf9978fd489468e2ebd3a5e7f94a511eda60c3"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Client invoice",
+   "title": "Vera shares an invoice with two matching lines",
+   "explanation": "INV-049 has two identical GBP 18.00 lines for the same DL-049 service and date, and no second service is listed. The authorised billing team has to confirm a duplicate, so the lines need billing's review.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "Invoice INV-049 has two delivery service lines for DL-049 dated 2026-03-22, each GBP 18.00; the invoice total is GBP 36.00.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f4",
+     "text": "Both lines have the same service key; no separate service is listed.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Get the authorised billing team to review the two matching INV-049 lines."
+   },
+   "blocker": "INV-049 shows two matching GBP 18.00 lines; billing has not confirmed a duplicate.",
+   "status": "context_received",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": null,
+    "description": "Arrange billing's review of the two matching lines."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Vera asks for a billing review before paying",
+   "explanation": "Vera wants the duplicate reviewed before Mossline Press pays, and nothing has been paid yet. We ask Plover Arc's business billing to review the two lines and, if the duplicate is confirmed, issue the authorised credit and revised balance.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f5",
+     "text": "Mossline Press has not paid either line.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "customer",
+     "to_actor": "coordinator",
+     "responsible_actor": "billing",
+     "purpose": "Have billing review the duplicate line before Mossline Press pays INV-049.",
+     "expected_response": "Billing's review of the duplicate line.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "billing",
+     "responsible_actor": "billing",
+     "purpose": "Review INV-049's two GBP 18.00 lines for the same DL-049 delivery service and date and confirm whether the second is a duplicate.",
+     "expected_response": "Billing's finding on the duplicate.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r2": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "billing",
+     "responsible_actor": "billing",
+     "purpose": "If the duplicate is confirmed, issue the authorised credit and the revised invoice balance.",
+     "expected_response": "The credit note reference and the revised amount due.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Email Plover Arc business billing to review the two GBP 18.00 lines and, if the duplicate is confirmed, issue the authorised credit and revised balance."
+   },
+   "blocker": "Billing has not reviewed the matching lines; Mossline Press wants the review before paying.",
+   "status": "escalated",
+   "next_step": {
+    "type": "verification",
+    "responsible_actor": "billing",
+    "request_id": "r1",
+    "description": "Ask billing to review the two matching lines."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We ask billing to review the two lines",
+   "explanation": "We named the invoice, both GBP 18.00 lines, the shipment and the date, and asked for the authorised credit and revised balance only if the duplicate is confirmed. Now we wait for billing.",
+   "conversation_id": "billing",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "billing",
+     "responsible_actor": "billing",
+     "purpose": "Review INV-049's two GBP 18.00 lines for the same DL-049 delivery service and date and confirm whether the second is a duplicate.",
+     "expected_response": "Billing's finding on the duplicate.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    },
+    "r2": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "billing",
+     "responsible_actor": "billing",
+     "purpose": "If the duplicate is confirmed, issue the authorised credit and the revised invoice balance.",
+     "expected_response": "The credit note reference and the revised amount due.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "billing",
+      "request_id": "r1",
+      "expected": "Finding on the duplicate line"
+     },
+     {
+      "actor_id": "billing",
+      "request_id": "r2",
+      "expected": "Credit note and revised balance, if the duplicate is confirmed"
+     }
+    ],
+    "next_action": "Once billing replies, check that the revised balance equals the invoice total minus the credit."
+   },
+   "blocker": "Billing's review is requested but not yet received.",
+   "status": "awaiting_verification",
+   "next_step": {
+    "type": "verification",
+    "responsible_actor": "billing",
+    "request_id": "r1",
+    "description": "Wait for billing's review of the two lines."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "New escalation",
+   "title": "Customer wants refund plus goodwill waiver",
+   "explanation": "Explain the policy boundary and the permitted next step. Do not promise or perform the prohibited request.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Vera Senn reports: While billing looks at it, please ask them to pay the duplicate GBP 18.00 back to our bank, and to waive the other line as goodwill for the trouble.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Vera Senn reports: Then we owe nothing.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "customer",
+     "responsible_actor": "customer",
+     "purpose": "Reply to Vera in the business portal that nothing has been paid so there is nothing to refund, that the desk cannot ask for a goodwill waiver, and that billing's review can credit a confirmed duplicate.",
+     "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Reply to Vera in the business portal that nothing has been paid so there is nothing to refund, that the desk cannot ask for a goodwill waiver, and that billing's review can credit a confirmed duplicate."
+   },
+   "blocker": "The new escalation requires a scoped response. While billing looks at it, please ask them to pay the duplicate GBP 18.00 back to our bank, and to waive the other line as goodwill for the trouble. Then we owe nothing.",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Reply to Vera in the business portal that nothing has been paid so there is nothing to refund, that the desk cannot ask for a goodwill waiver, and that billing's review can credit a confirmed duplicate."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "004",
+     "source_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c1",
+    "c2",
+    "c3"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "decline_explain",
+      "action": "Reply to Vera in the business portal that nothing has been paid so there is nothing to refund, that the desk cannot ask for a goodwill waiver, and that billing's review can credit a confirmed duplicate.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Ask billing for a GBP 18.00 refund, or for a waiver that would take INV-049 to GBP 0.00.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "049-N2"
+    },
+    "summary": "Explain the policy boundary and the permitted next step.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Explain the policy boundary and the permitted next step."
+   }
+  },
+  {
+   "event_id": "005",
+   "label": "Desk response",
+   "title": "Explain the policy boundary and the permitted next step",
+   "explanation": "The desk sends the recorded response. Do not promise or perform the prohibited request.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "customer",
+     "responsible_actor": "customer",
+     "purpose": "Reply to Vera in the business portal that nothing has been paid so there is nothing to refund, that the desk cannot ask for a goodwill waiver, and that billing's review can credit a confirmed duplicate.",
+     "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+     "status": "answered",
+     "response": "Neither line on INV-049 has been paid, so there is nothing to refund. We cannot ask billing to waive the other GBP 18.00 line as goodwill. Billing's review can credit a confirmed duplicate, which would leave GBP 18.00 due on the GBP 36.00 invoice.",
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Record any incoming follow-through within its stated scope; do not initiate a prohibited change.",
+    "note": "The outgoing record communicates a boundary or notification. No unrecorded request or acknowledgement is assumed."
+   },
+   "blocker": null,
+   "status": "in_progress",
+   "next_step": null,
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "decline_explain",
+      "action": "Reply to Vera in the business portal that nothing has been paid so there is nothing to refund, that the desk cannot ask for a goodwill waiver, and that billing's review can credit a confirmed duplicate.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Ask billing for a GBP 18.00 refund, or for a waiver that would take INV-049 to GBP 0.00.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "decline_explain",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. Understood. We will not ask for a refund or a waiver. We will wait for billing's review of INV-049 and pay only the revised balance it shows. Nothing has been paid, and no credit is confirmed yet.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Vera Senn reports: Understood.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Vera Senn reports: We will not ask for a refund or a waiver.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Vera Senn reports: We will wait for billing's review of INV-049 and pay only the revised balance it shows.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_4",
+     "text": "Vera Senn reports: Nothing has been paid, and no credit is confirmed yet.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "customer",
+     "responsible_actor": "customer",
+     "purpose": "Reply to Vera in the business portal that nothing has been paid so there is nothing to refund, that the desk cannot ask for a goodwill waiver, and that billing's review can credit a confirmed duplicate.",
+     "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+     "status": "answered",
+     "response": "Understood. We will not ask for a refund or a waiver. We will wait for billing's review of INV-049 and pay only the revised balance it shows. Nothing has been paid, and no credit is confirmed yet.",
+     "evidence_event_ids": [
+      "004",
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "Understood. We will not ask for a refund or a waiver. We will wait for billing's review of INV-049 and pay only the revised balance it shows. Nothing has been paid, and no credit is confirmed yet.",
+    "confirmed_by": "customer",
+    "evidence_event_ids": [
+     "006"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Ask billing for a GBP 18.00 refund, or for a waiver that would take INV-049 to GBP 0.00."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "decline_explain",
+      "action": "Reply to Vera in the business portal that nothing has been paid so there is nothing to refund, that the desk cannot ask for a goodwill waiver, and that billing's review can credit a confirmed duplicate.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Ask billing for a GBP 18.00 refund, or for a waiver that would take INV-049 to GBP 0.00.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "decline_explain",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ],
+ "source_attachments": []
+}

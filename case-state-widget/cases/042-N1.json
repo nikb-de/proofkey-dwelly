@@ -1,0 +1,1808 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "042-N1 · Planner quotes a range above limit",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Voren Tesk, receiving coordinator at Fenwick Spur. From the case card: the consignee has no forklift for the pallet delivery DL-042, and the carrier planner can offer a tail-lift service only under the confirmed pallet and site conditions.",
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/042/N1-AMBIGUOUS_REPLY",
+  "branch_id": "042-N1",
+  "derived_from_case": "042",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "AMBIGUOUS_REPLY",
+  "expected_decision": "GET_OPTIONS",
+  "workflow_sheet": "B",
+  "branch_label": "Planner quotes a range above limit",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "c3eaaae471394f0f6ec06ab577b72d72bb5756d88c789167eac5aeb36f56fd3a",
+   "history.md": "ee131f12d3dbfd89ba5a24265c4510772d658c7cdb1cce7517e3cc5cb30ba300"
+  }
+ },
+ "initial_state": {
+  "case_id": "042-N1",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "consignee",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: get the carrier planner to arrange a suitable unloading service within the consignee's authorised cost."
+   },
+   "consignee": {
+    "name": "Voren Tesk",
+    "organization": "Fenwick Spur",
+    "role": "recipient",
+    "is_us": false,
+    "responsibility": "Authorise the extra unloading service cost within the booking account's limit."
+   }
+  },
+  "goal": "Get the carrier planner's confirmation of a suitable unloading vehicle for DL-042 at a service cost within the consignee's authorised limit.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The carrier planner has confirmed a suitable vehicle for unloading DL-042.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The planner has confirmed an agreed service cost within the consignee's authorised limit.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The consignee has no forklift, and no unloading service is arranged.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-042.",
+    "source": {
+     "type": "case_card",
+     "id": "042"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The consignee has no forklift.",
+    "source": {
+     "type": "case_card",
+     "id": "042"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The carrier planner can offer a tail-lift service only under the confirmed pallet and site conditions.",
+    "source": {
+     "type": "case_card",
+     "id": "042"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Give no manual-lifting advice.",
+   "Do not treat planner allocation or authorised cost as payment or completed unloading.",
+   "Do not act on obsolete options or carry consent over to a new offer."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Booking record",
+    "title": "Verified booking record for DL-042",
+    "timestamp": "2026-03-15 09:00:00 UTC",
+    "actor_id": "account_services",
+    "message_id": "001"
+   },
+   "explanation": "The verified record gives the pallet and site conditions the planner needs and Voren Tesk's spending authority of up to GBP 30.00. Consignee staff are not authorised to unload the pallet manually.",
+   "state_after": {
+    "case_id": "042-N1",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "consignee",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the carrier planner to arrange a suitable unloading service within the consignee's authorised cost."
+     },
+     "consignee": {
+      "name": "Voren Tesk",
+      "organization": "Fenwick Spur",
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Authorise the extra unloading service cost within the booking account's limit."
+     },
+     "account_services": {
+      "name": "Freight account services",
+      "organization": "Plover Arc Logistics",
+      "role": "account_team",
+      "is_us": false,
+      "responsibility": "Provide the verified booking record: pallet, site conditions and the coordinator's spending authority."
+     }
+    },
+    "goal": "Get the carrier planner's confirmation of a suitable unloading vehicle for DL-042 at a service cost within the consignee's authorised limit.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Take in Voren's request on DL-042."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The carrier planner has confirmed a suitable vehicle for unloading DL-042.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The planner has confirmed an agreed service cost within the consignee's authorised limit.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-15 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "042-N1"
+     },
+     "context_message_id": "001",
+     "summary": "Arrange suitable unloading for pallet delivery DL-042: the consignee has no forklift.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The consignee has no forklift, and no unloading service is arranged.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-042.",
+      "source": {
+       "type": "case_card",
+       "id": "042"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The consignee declares no forklift, a level hard-surfaced delivery bay and clear vehicle access.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The carrier planner can offer a tail-lift service only under the confirmed pallet and site conditions.",
+      "source": {
+       "type": "case_card",
+       "id": "042"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Verified booking record DL-042: one 280 kg pallet.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Registered coordinator Voren Tesk has a verified business-portal channel and spending authority for up to GBP 30.00 total additional unloading cost.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Consignee staff are not authorised to manually unload the pallet.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {},
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": null,
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "account": {
+      "participants": [
+       "coordinator",
+       "account_services"
+      ],
+      "channel": "Freight portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "account",
+      "event_id": "001",
+      "timestamp": "2026-03-15 09:00:00 UTC",
+      "from_actor": "account_services",
+      "to_actor": "coordinator",
+      "channel": "Freight portal",
+      "body": "Inline verified booking record DL-042: one 280 kg pallet; consignee declares no forklift, level hard-surfaced delivery bay and clear vehicle access. Registered coordinator Voren Tesk has a verified business-portal channel and spending authority for up to GBP 30.00 total additional unloading cost. Consignee staff are not authorised to manually unload the pallet."
+     }
+    ],
+    "limits": [
+     "Give no manual-lifting advice.",
+     "Do not treat planner allocation or authorised cost as payment or completed unloading.",
+     "Do not act on obsolete options or carry consent over to a new offer."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client request",
+    "title": "Voren authorises up to GBP 30.00",
+    "timestamp": "2026-03-15 09:10:00 UTC",
+    "actor_id": "consignee",
+    "message_id": "002"
+   },
+   "explanation": "Voren confirmed the GBP 30.00 limit and asked for the carrier's suitable option if it fits. The conditions and the authority are verified, so we can ask the freight planner to arrange unloading.",
+   "state_after": {
+    "case_id": "042-N1",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "consignee",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the carrier planner to arrange a suitable unloading service within the consignee's authorised cost."
+     },
+     "consignee": {
+      "name": "Voren Tesk",
+      "organization": "Fenwick Spur",
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Authorise the extra unloading service cost within the booking account's limit."
+     },
+     "account_services": {
+      "name": "Freight account services",
+      "organization": "Plover Arc Logistics",
+      "role": "account_team",
+      "is_us": false,
+      "responsibility": "Provide the verified booking record: pallet, site conditions and the coordinator's spending authority."
+     },
+     "planner": {
+      "name": "Freight planner",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Allocate a suitable vehicle and unloading crew for DL-042 and state the service cost."
+     }
+    },
+    "goal": "Get the carrier planner's confirmation of a suitable unloading vehicle for DL-042 at a service cost within the consignee's authorised limit.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Send the freight planner the pallet and site conditions and Voren's GBP 30.00 authority, and ask for a suitable unloading service."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The carrier planner has confirmed a suitable vehicle for unloading DL-042.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The planner has confirmed an agreed service cost within the consignee's authorised limit.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-15 09:00:00 UTC",
+     "escalated_at": "2026-03-15 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "042-N1"
+     },
+     "context_message_id": "001",
+     "summary": "Arrange suitable unloading for pallet delivery DL-042: the consignee has no forklift.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "No unloading service is arranged for DL-042.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-042.",
+      "source": {
+       "type": "case_card",
+       "id": "042"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The consignee declares no forklift, a level hard-surfaced delivery bay and clear vehicle access.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The carrier planner can offer a tail-lift service only under the confirmed pallet and site conditions.",
+      "source": {
+       "type": "case_card",
+       "id": "042"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Verified booking record DL-042: one 280 kg pallet.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Registered coordinator Voren Tesk has a verified business-portal channel and spending authority for up to GBP 30.00 total additional unloading cost.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Consignee staff are not authorised to manually unload the pallet.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Voren asks us to arrange the carrier's suitable option if it fits within GBP 30.00 total extra service cost.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "consignee",
+      "to_actor": "coordinator",
+      "responsible_actor": "planner",
+      "purpose": "Arrange the carrier's suitable unloading option if it fits within GBP 30.00 total extra service cost.",
+      "expected_response": "A suitable carrier service within the limit.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "planner",
+      "responsible_actor": "planner",
+      "purpose": "Arrange an appropriate unloading service for DL-042 within GBP 30.00 total extra cost.",
+      "expected_response": "The allocated service, its time and its cost.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "planner",
+     "request_id": "r1",
+     "description": "Arrange a suitable unloading service within GBP 30.00."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "account": {
+      "participants": [
+       "coordinator",
+       "account_services"
+      ],
+      "channel": "Freight portal"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "consignee"
+      ],
+      "channel": "Business portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "account",
+      "event_id": "001",
+      "timestamp": "2026-03-15 09:00:00 UTC",
+      "from_actor": "account_services",
+      "to_actor": "coordinator",
+      "channel": "Freight portal",
+      "body": "Inline verified booking record DL-042: one 280 kg pallet; consignee declares no forklift, level hard-surfaced delivery bay and clear vehicle access. Registered coordinator Voren Tesk has a verified business-portal channel and spending authority for up to GBP 30.00 total additional unloading cost. Consignee staff are not authorised to manually unload the pallet."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-15 09:10:00 UTC",
+      "from_actor": "consignee",
+      "to_actor": "coordinator",
+      "channel": "Business portal",
+      "body": "Our booking account authorises me to accept up to GBP 30.00 total extra service cost. Please arrange the carrier’s suitable option if it fits that limit."
+     }
+    ],
+    "limits": [
+     "Give no manual-lifting advice.",
+     "Do not treat planner allocation or authorised cost as payment or completed unloading.",
+     "Do not act on obsolete options or carry consent over to a new offer."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our request",
+    "title": "We ask the planner to arrange unloading",
+    "timestamp": "2026-03-15 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We passed the planner the verified pallet and bay conditions, the lack of a consignee forklift and Voren's GBP 30.00 authority. Now we wait for the allocated service and its cost.",
+   "state_after": {
+    "case_id": "042-N1",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "consignee",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the carrier planner to arrange a suitable unloading service within the consignee's authorised cost."
+     },
+     "consignee": {
+      "name": "Voren Tesk",
+      "organization": "Fenwick Spur",
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Authorise the extra unloading service cost within the booking account's limit."
+     },
+     "account_services": {
+      "name": "Freight account services",
+      "organization": "Plover Arc Logistics",
+      "role": "account_team",
+      "is_us": false,
+      "responsibility": "Provide the verified booking record: pallet, site conditions and the coordinator's spending authority."
+     },
+     "planner": {
+      "name": "Freight planner",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Allocate a suitable vehicle and unloading crew for DL-042 and state the service cost."
+     }
+    },
+    "goal": "Get the carrier planner's confirmation of a suitable unloading vehicle for DL-042 at a service cost within the consignee's authorised limit.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "planner",
+       "request_id": "r1",
+       "expected": "Suitable unloading service and its cost for DL-042"
+      }
+     ],
+     "next_action": "Once allocated, check the cost against the GBP 30.00 authority."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The carrier planner has confirmed a suitable vehicle for unloading DL-042.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The planner has confirmed an agreed service cost within the consignee's authorised limit.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-15 09:00:00 UTC",
+     "escalated_at": "2026-03-15 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "042-N1"
+     },
+     "context_message_id": "001",
+     "summary": "Arrange suitable unloading for pallet delivery DL-042: the consignee has no forklift.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The planner has not yet allocated an unloading service.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-042.",
+      "source": {
+       "type": "case_card",
+       "id": "042"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The consignee declares no forklift, a level hard-surfaced delivery bay and clear vehicle access.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The carrier planner can offer a tail-lift service only under the confirmed pallet and site conditions.",
+      "source": {
+       "type": "case_card",
+       "id": "042"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Verified booking record DL-042: one 280 kg pallet.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Registered coordinator Voren Tesk has a verified business-portal channel and spending authority for up to GBP 30.00 total additional unloading cost.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Consignee staff are not authorised to manually unload the pallet.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Voren asks us to arrange the carrier's suitable option if it fits within GBP 30.00 total extra service cost.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "consignee",
+      "to_actor": "coordinator",
+      "responsible_actor": "planner",
+      "purpose": "Arrange the carrier's suitable unloading option if it fits within GBP 30.00 total extra service cost.",
+      "expected_response": "A suitable carrier service within the limit.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "planner",
+      "responsible_actor": "planner",
+      "purpose": "Arrange an appropriate unloading service for DL-042 within GBP 30.00 total extra cost.",
+      "expected_response": "The allocated service, its time and its cost.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_confirmation",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "planner",
+     "request_id": "r1",
+     "description": "Wait for the planner to allocate an unloading service."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "account": {
+      "participants": [
+       "coordinator",
+       "account_services"
+      ],
+      "channel": "Freight portal"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "consignee"
+      ],
+      "channel": "Business portal"
+     },
+     "planner": {
+      "participants": [
+       "coordinator",
+       "planner"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "account",
+      "event_id": "001",
+      "timestamp": "2026-03-15 09:00:00 UTC",
+      "from_actor": "account_services",
+      "to_actor": "coordinator",
+      "channel": "Freight portal",
+      "body": "Inline verified booking record DL-042: one 280 kg pallet; consignee declares no forklift, level hard-surfaced delivery bay and clear vehicle access. Registered coordinator Voren Tesk has a verified business-portal channel and spending authority for up to GBP 30.00 total additional unloading cost. Consignee staff are not authorised to manually unload the pallet."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-15 09:10:00 UTC",
+      "from_actor": "consignee",
+      "to_actor": "coordinator",
+      "channel": "Business portal",
+      "body": "Our booking account authorises me to accept up to GBP 30.00 total extra service cost. Please arrange the carrier’s suitable option if it fits that limit."
+     },
+     {
+      "conversation_id": "planner",
+      "event_id": "003",
+      "timestamp": "2026-03-15 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "planner",
+      "channel": "Email",
+      "body": "Please arrange an appropriate unloading service for DL-042, one 280 kg pallet at the declared level hard-surfaced bay. No consignee forklift. Verified coordinator Voren authorises up to GBP 30.00 total extra cost."
+     }
+    ],
+    "limits": [
+     "Give no manual-lifting advice.",
+     "Do not treat planner allocation or authorised cost as payment or completed unloading.",
+     "Do not act on obsolete options or carry consent over to a new offer."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "New escalation",
+    "title": "Planner quotes a range above limit",
+    "timestamp": "2026-03-15 09:45:00 UTC",
+    "actor_id": "planner",
+    "message_id": "004"
+   },
+   "explanation": "Obtain current permitted options from the responsible service. Do not act on obsolete options or carry consent over to a new offer.",
+   "state_after": {
+    "case_id": "042-N1",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "consignee",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the carrier planner to arrange a suitable unloading service within the consignee's authorised cost."
+     },
+     "consignee": {
+      "name": "Voren Tesk",
+      "organization": "Fenwick Spur",
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Authorise the extra unloading service cost within the booking account's limit."
+     },
+     "account_services": {
+      "name": "Freight account services",
+      "organization": "Plover Arc Logistics",
+      "role": "account_team",
+      "is_us": false,
+      "responsibility": "Provide the verified booking record: pallet, site conditions and the coordinator's spending authority."
+     },
+     "planner": {
+      "name": "Freight planner",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Allocate a suitable vehicle and unloading crew for DL-042 and state the service cost."
+     }
+    },
+    "goal": "Obtain current permitted options from the responsible service.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Email the freight planner asking for a fixed total for the DL-042 unloading service, or an option capped at GBP 30.00, and object to booking on an open price at 12:00 UTC."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The responsible party states the current options or confirms the permitted terms; acceptance and execution remain separate.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-15 09:00:00 UTC",
+     "escalated_at": "2026-03-15 09:45:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "042-N1"
+     },
+     "context_message_id": "001",
+     "summary": "Obtain current permitted options from the responsible service.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The new escalation requires a scoped response. We can do DL-042 with a tail-lift vehicle. Price depends on crew time on site, usually GBP 22.00 to GBP 34.00 in total. I will pencil it in for tomorrow morning and book it at 12:00 UTC today unless you object.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-042.",
+      "source": {
+       "type": "case_card",
+       "id": "042"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The consignee declares no forklift, a level hard-surfaced delivery bay and clear vehicle access.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The carrier planner can offer a tail-lift service only under the confirmed pallet and site conditions.",
+      "source": {
+       "type": "case_card",
+       "id": "042"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Verified booking record DL-042: one 280 kg pallet.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Registered coordinator Voren Tesk has a verified business-portal channel and spending authority for up to GBP 30.00 total additional unloading cost.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Consignee staff are not authorised to manually unload the pallet.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Voren asks us to arrange the carrier's suitable option if it fits within GBP 30.00 total extra service cost.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Freight planner reports: We can do DL-042 with a tail-lift vehicle.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Freight planner reports: Price depends on crew time on site, usually GBP 22.00 to GBP 34.00 in total.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Freight planner reports: I will pencil it in for tomorrow morning and book it at 12:00 UTC today unless you object.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "consignee",
+      "to_actor": "coordinator",
+      "responsible_actor": "planner",
+      "purpose": "Arrange the carrier's suitable unloading option if it fits within GBP 30.00 total extra service cost.",
+      "expected_response": "A suitable carrier service within the limit.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "planner",
+      "responsible_actor": "planner",
+      "purpose": "Arrange an appropriate unloading service for DL-042 within GBP 30.00 total extra cost.",
+      "expected_response": "The allocated service, its time and its cost.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "planner",
+      "responsible_actor": "planner",
+      "purpose": "Email the freight planner asking for a fixed total for the DL-042 unloading service, or an option capped at GBP 30.00, and object to booking on an open price at 12:00 UTC.",
+      "expected_response": "The responsible party states the current options or confirms the permitted terms; acceptance and execution remain separate.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "get_options",
+       "action": "Email the freight planner asking for a fixed total for the DL-042 unloading service, or an option capped at GBP 30.00, and object to booking on an open price at 12:00 UTC.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Let the booking stand because the lower end of the range fits, treating the GBP 30.00 limit as approval of whatever the final cost turns out to be.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "action_required",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": "branch_request",
+     "description": "Email the freight planner asking for a fixed total for the DL-042 unloading service, or an option capped at GBP 30.00, and object to booking on an open price at 12:00 UTC."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "account": {
+      "participants": [
+       "coordinator",
+       "account_services"
+      ],
+      "channel": "Freight portal"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "consignee"
+      ],
+      "channel": "Business portal"
+     },
+     "planner": {
+      "participants": [
+       "coordinator",
+       "planner"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "planner"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "account",
+      "event_id": "001",
+      "timestamp": "2026-03-15 09:00:00 UTC",
+      "from_actor": "account_services",
+      "to_actor": "coordinator",
+      "channel": "Freight portal",
+      "body": "Inline verified booking record DL-042: one 280 kg pallet; consignee declares no forklift, level hard-surfaced delivery bay and clear vehicle access. Registered coordinator Voren Tesk has a verified business-portal channel and spending authority for up to GBP 30.00 total additional unloading cost. Consignee staff are not authorised to manually unload the pallet."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-15 09:10:00 UTC",
+      "from_actor": "consignee",
+      "to_actor": "coordinator",
+      "channel": "Business portal",
+      "body": "Our booking account authorises me to accept up to GBP 30.00 total extra service cost. Please arrange the carrier’s suitable option if it fits that limit."
+     },
+     {
+      "conversation_id": "planner",
+      "event_id": "003",
+      "timestamp": "2026-03-15 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "planner",
+      "channel": "Email",
+      "body": "Please arrange an appropriate unloading service for DL-042, one 280 kg pallet at the declared level hard-surfaced bay. No consignee forklift. Verified coordinator Voren authorises up to GBP 30.00 total extra cost."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "004",
+      "timestamp": "2026-03-15 09:45:00 UTC",
+      "from_actor": "planner",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "We can do DL-042 with a tail-lift vehicle. Price depends on crew time on site, usually GBP 22.00 to GBP 34.00 in total. I will pencil it in for tomorrow morning and book it at 12:00 UTC today unless you object."
+     }
+    ],
+    "limits": [
+     "Give no manual-lifting advice.",
+     "Do not treat planner allocation or authorised cost as payment or completed unloading.",
+     "Do not act on obsolete options or carry consent over to a new offer."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "The carrier planner has confirmed a suitable vehicle for unloading DL-042.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The planner has confirmed an agreed service cost within the consignee's authorised limit.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "005",
+    "type": "message_sent",
+    "label": "Desk response",
+    "title": "Obtain current permitted options from the responsible service",
+    "timestamp": "2026-03-15 10:00:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "005"
+   },
+   "explanation": "The desk sends the recorded response. Do not act on obsolete options or carry consent over to a new offer.",
+   "state_after": {
+    "case_id": "042-N1",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "consignee",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the carrier planner to arrange a suitable unloading service within the consignee's authorised cost."
+     },
+     "consignee": {
+      "name": "Voren Tesk",
+      "organization": "Fenwick Spur",
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Authorise the extra unloading service cost within the booking account's limit."
+     },
+     "account_services": {
+      "name": "Freight account services",
+      "organization": "Plover Arc Logistics",
+      "role": "account_team",
+      "is_us": false,
+      "responsibility": "Provide the verified booking record: pallet, site conditions and the coordinator's spending authority."
+     },
+     "planner": {
+      "name": "Freight planner",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Allocate a suitable vehicle and unloading crew for DL-042 and state the service cost."
+     }
+    },
+    "goal": "Obtain current permitted options from the responsible service.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "planner",
+       "request_id": "branch_request",
+       "expected": "The responsible party states the current options or confirms the permitted terms; acceptance and execution remain separate."
+      }
+     ],
+     "next_action": "Record the reply or scoped confirmation before closing this branch."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The responsible party states the current options or confirms the permitted terms; acceptance and execution remain separate.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-15 09:00:00 UTC",
+     "escalated_at": "2026-03-15 09:45:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "042-N1"
+     },
+     "context_message_id": "001",
+     "summary": "Obtain current permitted options from the responsible service.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The scoped reply or confirmation has not yet been recorded.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-042.",
+      "source": {
+       "type": "case_card",
+       "id": "042"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The consignee declares no forklift, a level hard-surfaced delivery bay and clear vehicle access.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The carrier planner can offer a tail-lift service only under the confirmed pallet and site conditions.",
+      "source": {
+       "type": "case_card",
+       "id": "042"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Verified booking record DL-042: one 280 kg pallet.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Registered coordinator Voren Tesk has a verified business-portal channel and spending authority for up to GBP 30.00 total additional unloading cost.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Consignee staff are not authorised to manually unload the pallet.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Voren asks us to arrange the carrier's suitable option if it fits within GBP 30.00 total extra service cost.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Freight planner reports: We can do DL-042 with a tail-lift vehicle.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Freight planner reports: Price depends on crew time on site, usually GBP 22.00 to GBP 34.00 in total.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Freight planner reports: I will pencil it in for tomorrow morning and book it at 12:00 UTC today unless you object.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "consignee",
+      "to_actor": "coordinator",
+      "responsible_actor": "planner",
+      "purpose": "Arrange the carrier's suitable unloading option if it fits within GBP 30.00 total extra service cost.",
+      "expected_response": "A suitable carrier service within the limit.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "planner",
+      "responsible_actor": "planner",
+      "purpose": "Arrange an appropriate unloading service for DL-042 within GBP 30.00 total extra cost.",
+      "expected_response": "The allocated service, its time and its cost.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "planner",
+      "responsible_actor": "planner",
+      "purpose": "Email the freight planner asking for a fixed total for the DL-042 unloading service, or an option capped at GBP 30.00, and object to booking on an open price at 12:00 UTC.",
+      "expected_response": "The responsible party states the current options or confirms the permitted terms; acceptance and execution remain separate.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "004",
+       "005"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "get_options",
+       "action": "Email the freight planner asking for a fixed total for the DL-042 unloading service, or an option capped at GBP 30.00, and object to booking on an open price at 12:00 UTC.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Let the booking stand because the lower end of the range fits, treating the GBP 30.00 limit as approval of whatever the final cost turns out to be.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "get_options",
+     "reason": "The recorded outgoing message takes this permitted response."
+    },
+    "status": "awaiting_response",
+    "next_step": {
+     "type": "information",
+     "responsible_actor": "planner",
+     "request_id": "branch_request",
+     "description": "The responsible party states the current options or confirms the permitted terms; acceptance and execution remain separate."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "account": {
+      "participants": [
+       "coordinator",
+       "account_services"
+      ],
+      "channel": "Freight portal"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "consignee"
+      ],
+      "channel": "Business portal"
+     },
+     "planner": {
+      "participants": [
+       "coordinator",
+       "planner"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "planner"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "account",
+      "event_id": "001",
+      "timestamp": "2026-03-15 09:00:00 UTC",
+      "from_actor": "account_services",
+      "to_actor": "coordinator",
+      "channel": "Freight portal",
+      "body": "Inline verified booking record DL-042: one 280 kg pallet; consignee declares no forklift, level hard-surfaced delivery bay and clear vehicle access. Registered coordinator Voren Tesk has a verified business-portal channel and spending authority for up to GBP 30.00 total additional unloading cost. Consignee staff are not authorised to manually unload the pallet."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-15 09:10:00 UTC",
+      "from_actor": "consignee",
+      "to_actor": "coordinator",
+      "channel": "Business portal",
+      "body": "Our booking account authorises me to accept up to GBP 30.00 total extra service cost. Please arrange the carrier’s suitable option if it fits that limit."
+     },
+     {
+      "conversation_id": "planner",
+      "event_id": "003",
+      "timestamp": "2026-03-15 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "planner",
+      "channel": "Email",
+      "body": "Please arrange an appropriate unloading service for DL-042, one 280 kg pallet at the declared level hard-surfaced bay. No consignee forklift. Verified coordinator Voren authorises up to GBP 30.00 total extra cost."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "004",
+      "timestamp": "2026-03-15 09:45:00 UTC",
+      "from_actor": "planner",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "We can do DL-042 with a tail-lift vehicle. Price depends on crew time on site, usually GBP 22.00 to GBP 34.00 in total. I will pencil it in for tomorrow morning and book it at 12:00 UTC today unless you object."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-03-15 10:00:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "planner",
+      "channel": "Email",
+      "body": "Please do not book the DL-042 tail-lift at 12:00 UTC on an open price. Verified coordinator Voren Tesk authorises up to GBP 30.00 total extra cost, and a range of GBP 22.00 to GBP 34.00 can exceed that. Can you give a fixed total for the DL-042 unloading service, or an option capped at GBP 30.00?"
+     }
+    ],
+    "limits": [
+     "Give no manual-lifting advice.",
+     "Do not treat planner allocation or authorised cost as payment or completed unloading.",
+     "Do not act on obsolete options or carry consent over to a new offer."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "The carrier planner has confirmed a suitable vehicle for unloading DL-042.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The planner has confirmed an agreed service cost within the consignee's authorised limit.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "006",
+    "type": "message_received",
+    "label": "Scoped confirmation",
+    "title": "Follow-through confirms the branch outcome",
+    "timestamp": "2026-03-15 10:35:00 UTC",
+    "actor_id": "planner",
+    "message_id": "006"
+   },
+   "explanation": "Record what the responding party actually confirms. Fixed total for DL-042: GBP 26.00 for a tail-lift vehicle and trained unloading crew on 2026-03-16, 09:00 to 12:00 UTC. The open-price pencil booking is withdrawn. GBP 26.00 is within the recorded GBP 30.00 authority. This is not payment, and no unloading has occurred.",
+   "state_after": {
+    "case_id": "042-N1",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "consignee",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the carrier planner to arrange a suitable unloading service within the consignee's authorised cost."
+     },
+     "consignee": {
+      "name": "Voren Tesk",
+      "organization": "Fenwick Spur",
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Authorise the extra unloading service cost within the booking account's limit."
+     },
+     "account_services": {
+      "name": "Freight account services",
+      "organization": "Plover Arc Logistics",
+      "role": "account_team",
+      "is_us": false,
+      "responsibility": "Provide the verified booking record: pallet, site conditions and the coordinator's spending authority."
+     },
+     "planner": {
+      "name": "Freight planner",
+      "organization": "Plover Arc Logistics",
+      "role": "dispatch",
+      "is_us": false,
+      "responsibility": "Allocate a suitable vehicle and unloading crew for DL-042 and state the service cost."
+     }
+    },
+    "goal": "Obtain current permitted options from the responsible service.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The responsible party states the current options or confirms the permitted terms; acceptance and execution remain separate.",
+      "status": "met",
+      "evidence_event_ids": [
+       "005",
+       "006"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-15 09:00:00 UTC",
+     "escalated_at": "2026-03-15 09:45:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "042-N1"
+     },
+     "context_message_id": "001",
+     "summary": "Obtain current permitted options from the responsible service.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-042.",
+      "source": {
+       "type": "case_card",
+       "id": "042"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The consignee declares no forklift, a level hard-surfaced delivery bay and clear vehicle access.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The carrier planner can offer a tail-lift service only under the confirmed pallet and site conditions.",
+      "source": {
+       "type": "case_card",
+       "id": "042"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Verified booking record DL-042: one 280 kg pallet.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Registered coordinator Voren Tesk has a verified business-portal channel and spending authority for up to GBP 30.00 total additional unloading cost.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Consignee staff are not authorised to manually unload the pallet.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Voren asks us to arrange the carrier's suitable option if it fits within GBP 30.00 total extra service cost.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Freight planner reports: We can do DL-042 with a tail-lift vehicle.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Freight planner reports: Price depends on crew time on site, usually GBP 22.00 to GBP 34.00 in total.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Freight planner reports: I will pencil it in for tomorrow morning and book it at 12:00 UTC today unless you object.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_outcome_1",
+      "text": "Freight planner reports: Fixed total for DL-042: GBP 26.00 for a tail-lift vehicle and trained unloading crew on 2026-03-16, 09:00 to 12:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_2",
+      "text": "Freight planner reports: The open-price pencil booking is withdrawn.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_3",
+      "text": "Freight planner reports: GBP 26.00 is within the recorded GBP 30.00 authority.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_4",
+      "text": "Freight planner reports: This is not payment, and no unloading has occurred.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "consignee",
+      "to_actor": "coordinator",
+      "responsible_actor": "planner",
+      "purpose": "Arrange the carrier's suitable unloading option if it fits within GBP 30.00 total extra service cost.",
+      "expected_response": "A suitable carrier service within the limit.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "planner",
+      "responsible_actor": "planner",
+      "purpose": "Arrange an appropriate unloading service for DL-042 within GBP 30.00 total extra cost.",
+      "expected_response": "The allocated service, its time and its cost.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "planner",
+      "responsible_actor": "planner",
+      "purpose": "Email the freight planner asking for a fixed total for the DL-042 unloading service, or an option capped at GBP 30.00, and object to booking on an open price at 12:00 UTC.",
+      "expected_response": "The responsible party states the current options or confirms the permitted terms; acceptance and execution remain separate.",
+      "status": "answered",
+      "response": "Fixed total for DL-042: GBP 26.00 for a tail-lift vehicle and trained unloading crew on 2026-03-16, 09:00 to 12:00 UTC. The open-price pencil booking is withdrawn. GBP 26.00 is within the recorded GBP 30.00 authority. This is not payment, and no unloading has occurred.",
+      "evidence_event_ids": [
+       "004",
+       "005",
+       "006"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "get_options",
+       "action": "Email the freight planner asking for a fixed total for the DL-042 unloading service, or an option capped at GBP 30.00, and object to booking on an open price at 12:00 UTC.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Let the booking stand because the lower end of the range fits, treating the GBP 30.00 limit as approval of whatever the final cost turns out to be.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "get_options",
+     "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "Fixed total for DL-042: GBP 26.00 for a tail-lift vehicle and trained unloading crew on 2026-03-16, 09:00 to 12:00 UTC. The open-price pencil booking is withdrawn. GBP 26.00 is within the recorded GBP 30.00 authority. This is not payment, and no unloading has occurred.",
+     "confirmed_by": "planner",
+     "evidence_event_ids": [
+      "006"
+     ],
+     "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Let the booking stand because the lower end of the range fits, treating the GBP 30.00 limit as approval of whatever the final cost turns out to be."
+    },
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "account": {
+      "participants": [
+       "coordinator",
+       "account_services"
+      ],
+      "channel": "Freight portal"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "consignee"
+      ],
+      "channel": "Business portal"
+     },
+     "planner": {
+      "participants": [
+       "coordinator",
+       "planner"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "planner"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "account",
+      "event_id": "001",
+      "timestamp": "2026-03-15 09:00:00 UTC",
+      "from_actor": "account_services",
+      "to_actor": "coordinator",
+      "channel": "Freight portal",
+      "body": "Inline verified booking record DL-042: one 280 kg pallet; consignee declares no forklift, level hard-surfaced delivery bay and clear vehicle access. Registered coordinator Voren Tesk has a verified business-portal channel and spending authority for up to GBP 30.00 total additional unloading cost. Consignee staff are not authorised to manually unload the pallet."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-15 09:10:00 UTC",
+      "from_actor": "consignee",
+      "to_actor": "coordinator",
+      "channel": "Business portal",
+      "body": "Our booking account authorises me to accept up to GBP 30.00 total extra service cost. Please arrange the carrier’s suitable option if it fits that limit."
+     },
+     {
+      "conversation_id": "planner",
+      "event_id": "003",
+      "timestamp": "2026-03-15 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "planner",
+      "channel": "Email",
+      "body": "Please arrange an appropriate unloading service for DL-042, one 280 kg pallet at the declared level hard-surfaced bay. No consignee forklift. Verified coordinator Voren authorises up to GBP 30.00 total extra cost."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "004",
+      "timestamp": "2026-03-15 09:45:00 UTC",
+      "from_actor": "planner",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "We can do DL-042 with a tail-lift vehicle. Price depends on crew time on site, usually GBP 22.00 to GBP 34.00 in total. I will pencil it in for tomorrow morning and book it at 12:00 UTC today unless you object."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-03-15 10:00:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "planner",
+      "channel": "Email",
+      "body": "Please do not book the DL-042 tail-lift at 12:00 UTC on an open price. Verified coordinator Voren Tesk authorises up to GBP 30.00 total extra cost, and a range of GBP 22.00 to GBP 34.00 can exceed that. Can you give a fixed total for the DL-042 unloading service, or an option capped at GBP 30.00?"
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "006",
+      "timestamp": "2026-03-15 10:35:00 UTC",
+      "from_actor": "planner",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Fixed total for DL-042: GBP 26.00 for a tail-lift vehicle and trained unloading crew on 2026-03-16, 09:00 to 12:00 UTC. The open-price pencil booking is withdrawn. GBP 26.00 is within the recorded GBP 30.00 authority. This is not payment, and no unloading has occurred."
+     }
+    ],
+    "limits": [
+     "Give no manual-lifting advice.",
+     "Do not treat planner allocation or authorised cost as payment or completed unloading.",
+     "Do not act on obsolete options or carry consent over to a new offer."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "The carrier planner has confirmed a suitable vehicle for unloading DL-042.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The planner has confirmed an agreed service cost within the consignee's authorised limit.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  }
+ ]
+}

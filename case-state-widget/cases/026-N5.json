@@ -1,0 +1,2361 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "026-N5 · Redelivery scan, recipient has nothing",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Neris Fawn, the intended recipient. From the case card: carrier review has located the misdelivered parcel DL-026, and recovery should be managed by the carrier without exposing the other household's details.",
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/026/N5-CONFLICTING_RECORDS",
+  "branch_id": "026-N5",
+  "derived_from_case": "026",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003",
+   "004"
+  ],
+  "diverges_after_event": "004",
+  "failure_mode": "CONFLICTING_RECORDS",
+  "expected_decision": "RECONCILE_CONFLICT",
+  "workflow_sheet": "E",
+  "branch_label": "Redelivery scan, recipient has nothing",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "1c84121edbb41e05bdd50d3e923172e4775f5abde083a909c829779d45118ec1",
+   "history.md": "37f406f3aa48551660ac2d7e7375ec746cba39778b6254d715cef2965ddfb40f"
+  }
+ },
+ "initial_state": {
+  "case_id": "026-N5",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "recipient",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Get the carrier to recover and correctly redeliver DL-026 and obtain confirmation of the corrected handover and receipt."
+   },
+   "recipient": {
+    "name": "Neris Fawn",
+    "organization": null,
+    "role": "recipient",
+    "is_us": false,
+    "responsibility": "Ask for carrier recovery and redelivery, and confirm receipt."
+   }
+  },
+  "goal": "Get the carrier to recover DL-026 and redeliver it to the intended recipient, with the carrier's record of the corrected handover and the recipient's confirmation of receipt, without exposing the other household's details.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The carrier has recovered the parcel from the wrong stop.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The carrier has recorded the corrected handover to the intended recipient.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c3",
+    "description": "The intended recipient has confirmed receipt.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The parcel is at the wrong address and has not been recovered.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-026.",
+    "source": {
+     "type": "case_card",
+     "id": "026"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "Carrier review has located the misdelivered parcel.",
+    "source": {
+     "type": "case_card",
+     "id": "026"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "Recovery should be managed by the carrier without exposing the other household's details.",
+    "source": {
+     "type": "case_card",
+     "id": "026"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Do not reveal the wrong-address resident's name, address or contact details.",
+   "Make no claim about the quality of the contents.",
+   "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Carrier email",
+    "title": "Carrier locates DL-026 at the wrong stop",
+    "timestamp": "2026-02-27 09:00:00 UTC",
+    "actor_id": "investigations",
+    "message_id": "001"
+   },
+   "explanation": "The carrier found the sealed parcel at the wrong stop, and only its recovery team holds the other household's contact details. Recovery therefore goes through the carrier's recovery team.",
+   "state_after": {
+    "case_id": "026-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Get the carrier to recover and correctly redeliver DL-026 and obtain confirmation of the corrected handover and receipt."
+     },
+     "recipient": {
+      "name": "Neris Fawn",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask for carrier recovery and redelivery, and confirm receipt."
+     },
+     "investigations": {
+      "name": "Delivery investigations",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Review the misdelivery and locate DL-026."
+     },
+     "recovery": {
+      "name": "Recovery team",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Recover DL-026 from the wrong stop, redeliver it to the verified order address and record the corrected handover; holds the third-party contact details."
+     }
+    },
+    "goal": "Get the carrier to recover DL-026 and redeliver it to the intended recipient, with the carrier's record of the corrected handover and the recipient's confirmation of receipt, without exposing the other household's details.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask the recovery team to recover the parcel and redeliver it to the intended recipient."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The carrier has recovered the parcel from the wrong stop.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The carrier has recorded the corrected handover to the intended recipient.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The intended recipient has confirmed receipt.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-27 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "026-N5"
+     },
+     "context_message_id": "001",
+     "summary": "DL-026 was handed over at the wrong address: get the carrier to recover it and redeliver it to the intended recipient.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The parcel is at the wrong stop and has not been recovered.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-026.",
+      "source": {
+       "type": "case_card",
+       "id": "026"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-026 was handed over at the wrong stop; the carrier contacted that address using carrier records and located the sealed parcel.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Recovery should be managed by the carrier without exposing the other household's details.",
+      "source": {
+       "type": "case_card",
+       "id": "026"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Third-party contact details are restricted to the carrier's recovery team.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "recovery",
+      "responsible_actor": "recovery",
+      "purpose": "Recover DL-026 from the wrong stop and redeliver it to the intended recipient, keeping the other household's details within the recovery team.",
+      "expected_response": "Confirmation of the corrected handover.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "001"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "recovery",
+     "request_id": "r1",
+     "description": "Ask the recovery team to recover and redeliver DL-026."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "investigations": {
+      "participants": [
+       "coordinator",
+       "investigations"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "investigations",
+      "event_id": "001",
+      "timestamp": "2026-02-27 09:00:00 UTC",
+      "from_actor": "investigations",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-026 was handed over at the wrong stop. We contacted that address using carrier records and located the sealed parcel. Third-party contact details are restricted to our recovery team."
+     }
+    ],
+    "limits": [
+     "Do not reveal the wrong-address resident's name, address or contact details.",
+     "Make no claim about the quality of the contents.",
+     "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client request",
+    "title": "Neris asks for carrier recovery and redelivery",
+    "timestamp": "2026-02-27 09:10:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "002"
+   },
+   "explanation": "Neris wants the carrier to recover the parcel and deliver it to the verified address, and will not contact the other household personally. That matches the carrier-managed recovery, so we send the request to the recovery team.",
+   "state_after": {
+    "case_id": "026-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Get the carrier to recover and correctly redeliver DL-026 and obtain confirmation of the corrected handover and receipt."
+     },
+     "recipient": {
+      "name": "Neris Fawn",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask for carrier recovery and redelivery, and confirm receipt."
+     },
+     "investigations": {
+      "name": "Delivery investigations",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Review the misdelivery and locate DL-026."
+     },
+     "recovery": {
+      "name": "Recovery team",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Recover DL-026 from the wrong stop, redeliver it to the verified order address and record the corrected handover; holds the third-party contact details."
+     }
+    },
+    "goal": "Get the carrier to recover DL-026 and redeliver it to the intended recipient, with the carrier's record of the corrected handover and the recipient's confirmation of receipt, without exposing the other household's details.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Email the recovery team to arrange recovery and redelivery to Neris's verified order address and to confirm the corrected handover."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The carrier has recovered the parcel from the wrong stop.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The carrier has recorded the corrected handover to the intended recipient.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The intended recipient has confirmed receipt.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-27 09:00:00 UTC",
+     "escalated_at": "2026-02-27 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "026-N5"
+     },
+     "context_message_id": "001",
+     "summary": "DL-026 was handed over at the wrong address: get the carrier to recover it and redeliver it to the intended recipient.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The parcel is at the wrong stop and has not been recovered.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-026.",
+      "source": {
+       "type": "case_card",
+       "id": "026"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-026 was handed over at the wrong stop; the carrier contacted that address using carrier records and located the sealed parcel.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Recovery should be managed by the carrier without exposing the other household's details.",
+      "source": {
+       "type": "case_card",
+       "id": "026"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Third-party contact details are restricted to the carrier's recovery team.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The recipient asks the carrier to recover the parcel and deliver it to the recipient's verified address.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient does not want to contact the other household.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "recovery",
+      "responsible_actor": "recovery",
+      "purpose": "Recover DL-026 from the wrong stop and redeliver it to the intended recipient, keeping the other household's details within the recovery team.",
+      "expected_response": "Confirmation of the corrected handover.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "001"
+      ]
+     },
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "recovery",
+      "purpose": "Have the carrier recover the parcel and deliver it to the recipient's verified address.",
+      "expected_response": "The parcel delivered to the verified address.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "recovery",
+     "request_id": "r1",
+     "description": "Ask the recovery team to recover and redeliver DL-026."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "other-household-context",
+      "kind": "context",
+      "title": "What Neris knew before her message",
+      "text": "Neris refers to the other household, so Neris knows the parcel went to another household. How Neris learned this is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "investigations": {
+      "participants": [
+       "coordinator",
+       "investigations"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "investigations",
+      "event_id": "001",
+      "timestamp": "2026-02-27 09:00:00 UTC",
+      "from_actor": "investigations",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-026 was handed over at the wrong stop. We contacted that address using carrier records and located the sealed parcel. Third-party contact details are restricted to our recovery team."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-27 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Please have the carrier recover my parcel and deliver it to my verified address. I do not want to contact the other household myself."
+     }
+    ],
+    "limits": [
+     "Do not reveal the wrong-address resident's name, address or contact details.",
+     "Make no claim about the quality of the contents.",
+     "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our request",
+    "title": "We ask the recovery team to redeliver",
+    "timestamp": "2026-02-27 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We asked for carrier recovery and redelivery to the verified order address, kept the other household's details with the recovery team and asked for confirmation of the corrected handover. Now we wait for the recovery team.",
+   "state_after": {
+    "case_id": "026-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Get the carrier to recover and correctly redeliver DL-026 and obtain confirmation of the corrected handover and receipt."
+     },
+     "recipient": {
+      "name": "Neris Fawn",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask for carrier recovery and redelivery, and confirm receipt."
+     },
+     "investigations": {
+      "name": "Delivery investigations",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Review the misdelivery and locate DL-026."
+     },
+     "recovery": {
+      "name": "Recovery team",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Recover DL-026 from the wrong stop, redeliver it to the verified order address and record the corrected handover; holds the third-party contact details."
+     }
+    },
+    "goal": "Get the carrier to recover DL-026 and redeliver it to the intended recipient, with the carrier's record of the corrected handover and the recipient's confirmation of receipt, without exposing the other household's details.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "recovery",
+       "request_id": "r1",
+       "expected": "Recovery, redelivery and confirmation of the corrected handover"
+      }
+     ],
+     "next_action": "Once the recovery team confirms the handover, get the recipient's confirmation of receipt."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The carrier has recovered the parcel from the wrong stop.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The carrier has recorded the corrected handover to the intended recipient.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The intended recipient has confirmed receipt.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-27 09:00:00 UTC",
+     "escalated_at": "2026-02-27 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "026-N5"
+     },
+     "context_message_id": "001",
+     "summary": "DL-026 was handed over at the wrong address: get the carrier to recover it and redeliver it to the intended recipient.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The parcel has not been recovered or redelivered.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-026.",
+      "source": {
+       "type": "case_card",
+       "id": "026"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-026 was handed over at the wrong stop; the carrier contacted that address using carrier records and located the sealed parcel.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Recovery should be managed by the carrier without exposing the other household's details.",
+      "source": {
+       "type": "case_card",
+       "id": "026"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Third-party contact details are restricted to the carrier's recovery team.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The recipient asks the carrier to recover the parcel and deliver it to the recipient's verified address.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient does not want to contact the other household.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "recovery",
+      "responsible_actor": "recovery",
+      "purpose": "Recover DL-026 and redeliver it to Neris's verified order address, keeping the other household's details within the recovery team.",
+      "expected_response": "Confirmation of the corrected handover.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "001",
+       "003"
+      ]
+     },
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "recovery",
+      "purpose": "Have the carrier recover the parcel and deliver it to the recipient's verified address.",
+      "expected_response": "The parcel delivered to the verified address.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_confirmation",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "recovery",
+     "request_id": "r1",
+     "description": "Wait for the recovery team to recover and redeliver DL-026."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "other-household-context",
+      "kind": "context",
+      "title": "What Neris knew before her message",
+      "text": "Neris refers to the other household, so Neris knows the parcel went to another household. How Neris learned this is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "investigations": {
+      "participants": [
+       "coordinator",
+       "investigations"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "recovery": {
+      "participants": [
+       "coordinator",
+       "recovery"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "investigations",
+      "event_id": "001",
+      "timestamp": "2026-02-27 09:00:00 UTC",
+      "from_actor": "investigations",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-026 was handed over at the wrong stop. We contacted that address using carrier records and located the sealed parcel. Third-party contact details are restricted to our recovery team."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-27 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Please have the carrier recover my parcel and deliver it to my verified address. I do not want to contact the other household myself."
+     },
+     {
+      "conversation_id": "recovery",
+      "event_id": "003",
+      "timestamp": "2026-02-27 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recovery",
+      "channel": "Email",
+      "body": "Arrange carrier recovery and correct redelivery of DL-026 to Neris’s verified order address. Keep the other household’s details within your team and confirm the corrected handover."
+     }
+    ],
+    "limits": [
+     "Do not reveal the wrong-address resident's name, address or contact details.",
+     "Make no claim about the quality of the contents.",
+     "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "Carrier confirmation",
+    "title": "Recovery team confirms the corrected handover",
+    "timestamp": "2026-02-28 13:20:00 UTC",
+    "actor_id": "recovery",
+    "message_id": "004"
+   },
+   "explanation": "The carrier recovered the parcel, handed it to Neris at the correct address and corrected the stop record. Receipt still needs Neris's own confirmation.",
+   "state_after": {
+    "case_id": "026-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Get the carrier to recover and correctly redeliver DL-026 and obtain confirmation of the corrected handover and receipt."
+     },
+     "recipient": {
+      "name": "Neris Fawn",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask for carrier recovery and redelivery, and confirm receipt."
+     },
+     "investigations": {
+      "name": "Delivery investigations",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Review the misdelivery and locate DL-026."
+     },
+     "recovery": {
+      "name": "Recovery team",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Recover DL-026 from the wrong stop, redeliver it to the verified order address and record the corrected handover; holds the third-party contact details."
+     }
+    },
+    "goal": "Get the carrier to recover DL-026 and redeliver it to the intended recipient, with the carrier's record of the corrected handover and the recipient's confirmation of receipt, without exposing the other household's details.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Get Neris's confirmation that she received DL-026.",
+     "note": "No message from us asking Neris to confirm receipt is recorded. So in this snapshot the agent is still preparing that step; it is not given waiting status without evidence that the request was sent."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The carrier has recovered the parcel from the wrong stop.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The carrier has recorded the corrected handover to the intended recipient.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c3",
+      "description": "The intended recipient has confirmed receipt.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-27 09:00:00 UTC",
+     "escalated_at": "2026-02-27 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "026-N5"
+     },
+     "context_message_id": "001",
+     "summary": "DL-026 was handed over at the wrong address: get the carrier to recover it and redeliver it to the intended recipient.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The carrier has confirmed the handover; the recipient has not yet confirmed receipt.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-026.",
+      "source": {
+       "type": "case_card",
+       "id": "026"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-026 was handed over at the wrong stop; the carrier contacted that address using carrier records and located the sealed parcel.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Recovery should be managed by the carrier without exposing the other household's details.",
+      "source": {
+       "type": "case_card",
+       "id": "026"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Third-party contact details are restricted to the carrier's recovery team.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The recipient asks the carrier to recover the parcel and deliver it to the recipient's verified address.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient does not want to contact the other household.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The carrier's driver recovered DL-026 and handed it to Neris at the correct order address at 13:10 UTC on 2026-02-28.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The incorrect stop record is corrected; recovery and redelivery scans are present.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "recovery",
+      "responsible_actor": "recovery",
+      "purpose": "Recover DL-026 and redeliver it to Neris's verified order address, keeping the other household's details within the recovery team.",
+      "expected_response": "Confirmation of the corrected handover.",
+      "status": "completed",
+      "response": "Recovered and handed to Neris at the correct order address at 13:10 UTC on 2026-02-28; stop record corrected; recovery and redelivery scans present.",
+      "evidence_event_ids": [
+       "001",
+       "003",
+       "004"
+      ]
+     },
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "recovery",
+      "purpose": "Have the carrier recover the parcel and deliver it to the recipient's verified address.",
+      "expected_response": "The parcel delivered to the verified address.",
+      "status": "completed",
+      "response": "The carrier recovered DL-026 and handed it to Neris at the correct order address at 13:10 UTC on 2026-02-28.",
+      "responded_by": "recovery",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r2": {
+      "type": "confirmation",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Confirm receipt of DL-026.",
+      "expected_response": "The recipient's confirmation of receipt.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_confirmation",
+    "next_step": {
+     "type": "confirmation",
+     "responsible_actor": "recipient",
+     "request_id": "r2",
+     "description": "Get the recipient's confirmation of receipt."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "other-household-context",
+      "kind": "context",
+      "title": "What Neris knew before her message",
+      "text": "Neris refers to the other household, so Neris knows the parcel went to another household. How Neris learned this is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "missing-receipt-request",
+      "kind": "gap",
+      "title": "Next action · us → Neris",
+      "text": "The carrier recorded the corrected handover. We now have to ask Neris to confirm receipt of DL-026; after sending, the agent waits for Neris's confirmation. At this step no such message is recorded in the history, and the carrier's record by itself is not the recipient's confirmation.",
+      "source_event_ids": [
+       "004"
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "recipient",
+       "type": "confirmation",
+       "purpose": "Confirm that DL-026 was received at the correct order address."
+      }
+     }
+    ],
+    "conversations": {
+     "investigations": {
+      "participants": [
+       "coordinator",
+       "investigations"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "recovery": {
+      "participants": [
+       "coordinator",
+       "recovery"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "investigations",
+      "event_id": "001",
+      "timestamp": "2026-02-27 09:00:00 UTC",
+      "from_actor": "investigations",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-026 was handed over at the wrong stop. We contacted that address using carrier records and located the sealed parcel. Third-party contact details are restricted to our recovery team."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-27 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Please have the carrier recover my parcel and deliver it to my verified address. I do not want to contact the other household myself."
+     },
+     {
+      "conversation_id": "recovery",
+      "event_id": "003",
+      "timestamp": "2026-02-27 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recovery",
+      "channel": "Email",
+      "body": "Arrange carrier recovery and correct redelivery of DL-026 to Neris’s verified order address. Keep the other household’s details within your team and confirm the corrected handover."
+     },
+     {
+      "conversation_id": "recovery",
+      "event_id": "004",
+      "timestamp": "2026-02-28 13:20:00 UTC",
+      "from_actor": "recovery",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Our driver recovered DL-026 and handed it to Neris at the correct order address at 13:10 UTC on 2026-02-28. The incorrect stop record is corrected; recovery and redelivery scans are present."
+     }
+    ],
+    "limits": [
+     "Do not reveal the wrong-address resident's name, address or contact details.",
+     "Make no claim about the quality of the contents.",
+     "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "005",
+    "type": "message_received",
+    "label": "New escalation",
+    "title": "Redelivery scan, recipient has nothing",
+    "timestamp": "2026-02-28 13:35:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "005"
+   },
+   "explanation": "Keep both records and request evidence from their owner. Do not erase either conflicting record or infer a finding before the owner supplies evidence.",
+   "state_after": {
+    "case_id": "026-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Get the carrier to recover and correctly redeliver DL-026 and obtain confirmation of the corrected handover and receipt."
+     },
+     "recipient": {
+      "name": "Neris Fawn",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask for carrier recovery and redelivery, and confirm receipt."
+     },
+     "investigations": {
+      "name": "Delivery investigations",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Review the misdelivery and locate DL-026."
+     },
+     "recovery": {
+      "name": "Recovery team",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Recover DL-026 from the wrong stop, redeliver it to the verified order address and record the corrected handover; holds the third-party contact details."
+     }
+    },
+    "goal": "Keep both records and request evidence from their owner.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Keep both the carrier's 13:10 handover record and Neris's report, and ask the Recovery team, Plover Arc Logistics, what handover evidence supports the 13:10 redelivery."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The carrier has recovered the parcel from the wrong stop.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The carrier has recorded the corrected handover to the intended recipient.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-27 09:00:00 UTC",
+     "escalated_at": "2026-02-28 13:35:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "026-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Keep both records and request evidence from their owner.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The new escalation requires a scoped response. Tracking now says DL-026 was delivered to me at 13:10 UTC today. Nobody has come to my door and I have been home all day. I do not have the parcel.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-026.",
+      "source": {
+       "type": "case_card",
+       "id": "026"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-026 was handed over at the wrong stop; the carrier contacted that address using carrier records and located the sealed parcel.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Recovery should be managed by the carrier without exposing the other household's details.",
+      "source": {
+       "type": "case_card",
+       "id": "026"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Third-party contact details are restricted to the carrier's recovery team.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The recipient asks the carrier to recover the parcel and deliver it to the recipient's verified address.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient does not want to contact the other household.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The carrier's driver recovered DL-026 and handed it to Neris at the correct order address at 13:10 UTC on 2026-02-28.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The incorrect stop record is corrected; recovery and redelivery scans are present.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Neris Fawn reports: Tracking now says DL-026 was delivered to me at 13:10 UTC today.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Neris Fawn reports: Nobody has come to my door and I have been home all day.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Neris Fawn reports: I do not have the parcel.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "recovery",
+      "responsible_actor": "recovery",
+      "purpose": "Recover DL-026 and redeliver it to Neris's verified order address, keeping the other household's details within the recovery team.",
+      "expected_response": "Confirmation of the corrected handover.",
+      "status": "completed",
+      "response": "Recovered and handed to Neris at the correct order address at 13:10 UTC on 2026-02-28; stop record corrected; recovery and redelivery scans present.",
+      "evidence_event_ids": [
+       "001",
+       "003",
+       "004"
+      ]
+     },
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "recovery",
+      "purpose": "Have the carrier recover the parcel and deliver it to the recipient's verified address.",
+      "expected_response": "The parcel delivered to the verified address.",
+      "status": "completed",
+      "response": "The carrier recovered DL-026 and handed it to Neris at the correct order address at 13:10 UTC on 2026-02-28.",
+      "responded_by": "recovery",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r2": {
+      "type": "confirmation",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Confirm receipt of DL-026.",
+      "expected_response": "The recipient's confirmation of receipt.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "recovery",
+      "responsible_actor": "recovery",
+      "purpose": "Keep both the carrier's 13:10 handover record and Neris's report, and ask the Recovery team, Plover Arc Logistics, what handover evidence supports the 13:10 redelivery.",
+      "expected_response": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "005"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "reconcile_conflict",
+       "action": "Keep both the carrier's 13:10 handover record and Neris's report, and ask the Recovery team, Plover Arc Logistics, what handover evidence supports the 13:10 redelivery.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "tell Neris that the redelivery scan proves she received the parcel, and tell her it is lost.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "verification_required",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": "branch_request",
+     "description": "Keep both the carrier's 13:10 handover record and Neris's report, and ask the Recovery team, Plover Arc Logistics, what handover evidence supports the 13:10 redelivery."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "other-household-context",
+      "kind": "context",
+      "title": "What Neris knew before her message",
+      "text": "Neris refers to the other household, so Neris knows the parcel went to another household. How Neris learned this is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "missing-receipt-request",
+      "kind": "context",
+      "title": "Unrecorded parent action",
+      "text": "A separate record of this parent action is absent. The branch does not by itself establish that it occurred. The next action is now the scoped branch response. The carrier recorded the corrected handover. We now have to ask Neris to confirm receipt of DL-026; after sending, the agent waits for Neris's confirmation. At this step no such message is recorded in the history, and the carrier's record by itself is not the recipient's confirmation.",
+      "source_event_ids": [
+       "004"
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "recipient",
+       "type": "confirmation",
+       "purpose": "Confirm that DL-026 was received at the correct order address."
+      },
+      "before_message_id": "005"
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "investigations": {
+      "participants": [
+       "coordinator",
+       "investigations"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "recovery": {
+      "participants": [
+       "coordinator",
+       "recovery"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "investigations",
+      "event_id": "001",
+      "timestamp": "2026-02-27 09:00:00 UTC",
+      "from_actor": "investigations",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-026 was handed over at the wrong stop. We contacted that address using carrier records and located the sealed parcel. Third-party contact details are restricted to our recovery team."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-27 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Please have the carrier recover my parcel and deliver it to my verified address. I do not want to contact the other household myself."
+     },
+     {
+      "conversation_id": "recovery",
+      "event_id": "003",
+      "timestamp": "2026-02-27 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recovery",
+      "channel": "Email",
+      "body": "Arrange carrier recovery and correct redelivery of DL-026 to Neris’s verified order address. Keep the other household’s details within your team and confirm the corrected handover."
+     },
+     {
+      "conversation_id": "recovery",
+      "event_id": "004",
+      "timestamp": "2026-02-28 13:20:00 UTC",
+      "from_actor": "recovery",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Our driver recovered DL-026 and handed it to Neris at the correct order address at 13:10 UTC on 2026-02-28. The incorrect stop record is corrected; recovery and redelivery scans are present."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "005",
+      "timestamp": "2026-02-28 13:35:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Tracking now says DL-026 was delivered to me at 13:10 UTC today. Nobody has come to my door and I have been home all day. I do not have the parcel."
+     }
+    ],
+    "limits": [
+     "Do not reveal the wrong-address resident's name, address or contact details.",
+     "Make no claim about the quality of the contents.",
+     "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c3",
+      "description": "The intended recipient has confirmed receipt.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "006",
+    "type": "message_sent",
+    "label": "Desk response",
+    "title": "Keep both records and request evidence from their owner",
+    "timestamp": "2026-02-28 13:50:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "006"
+   },
+   "explanation": "The desk sends the recorded response. Do not erase either conflicting record or infer a finding before the owner supplies evidence.",
+   "state_after": {
+    "case_id": "026-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Get the carrier to recover and correctly redeliver DL-026 and obtain confirmation of the corrected handover and receipt."
+     },
+     "recipient": {
+      "name": "Neris Fawn",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask for carrier recovery and redelivery, and confirm receipt."
+     },
+     "investigations": {
+      "name": "Delivery investigations",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Review the misdelivery and locate DL-026."
+     },
+     "recovery": {
+      "name": "Recovery team",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Recover DL-026 from the wrong stop, redeliver it to the verified order address and record the corrected handover; holds the third-party contact details."
+     }
+    },
+    "goal": "Keep both records and request evidence from their owner.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "recovery",
+       "request_id": "branch_request",
+       "expected": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit."
+      }
+     ],
+     "next_action": "Record the reply or scoped confirmation before closing this branch."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The carrier has recovered the parcel from the wrong stop.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The carrier has recorded the corrected handover to the intended recipient.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-27 09:00:00 UTC",
+     "escalated_at": "2026-02-28 13:35:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "026-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Keep both records and request evidence from their owner.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The scoped reply or confirmation has not yet been recorded.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-026.",
+      "source": {
+       "type": "case_card",
+       "id": "026"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-026 was handed over at the wrong stop; the carrier contacted that address using carrier records and located the sealed parcel.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Recovery should be managed by the carrier without exposing the other household's details.",
+      "source": {
+       "type": "case_card",
+       "id": "026"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Third-party contact details are restricted to the carrier's recovery team.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The recipient asks the carrier to recover the parcel and deliver it to the recipient's verified address.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient does not want to contact the other household.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The carrier's driver recovered DL-026 and handed it to Neris at the correct order address at 13:10 UTC on 2026-02-28.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The incorrect stop record is corrected; recovery and redelivery scans are present.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Neris Fawn reports: Tracking now says DL-026 was delivered to me at 13:10 UTC today.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Neris Fawn reports: Nobody has come to my door and I have been home all day.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Neris Fawn reports: I do not have the parcel.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "recovery",
+      "responsible_actor": "recovery",
+      "purpose": "Recover DL-026 and redeliver it to Neris's verified order address, keeping the other household's details within the recovery team.",
+      "expected_response": "Confirmation of the corrected handover.",
+      "status": "completed",
+      "response": "Recovered and handed to Neris at the correct order address at 13:10 UTC on 2026-02-28; stop record corrected; recovery and redelivery scans present.",
+      "evidence_event_ids": [
+       "001",
+       "003",
+       "004"
+      ]
+     },
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "recovery",
+      "purpose": "Have the carrier recover the parcel and deliver it to the recipient's verified address.",
+      "expected_response": "The parcel delivered to the verified address.",
+      "status": "completed",
+      "response": "The carrier recovered DL-026 and handed it to Neris at the correct order address at 13:10 UTC on 2026-02-28.",
+      "responded_by": "recovery",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r2": {
+      "type": "confirmation",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Confirm receipt of DL-026.",
+      "expected_response": "The recipient's confirmation of receipt.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "recovery",
+      "responsible_actor": "recovery",
+      "purpose": "Keep both the carrier's 13:10 handover record and Neris's report, and ask the Recovery team, Plover Arc Logistics, what handover evidence supports the 13:10 redelivery.",
+      "expected_response": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "005",
+       "006"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "reconcile_conflict",
+       "action": "Keep both the carrier's 13:10 handover record and Neris's report, and ask the Recovery team, Plover Arc Logistics, what handover evidence supports the 13:10 redelivery.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "tell Neris that the redelivery scan proves she received the parcel, and tell her it is lost.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "reconcile_conflict",
+     "reason": "The recorded outgoing message takes this permitted response."
+    },
+    "status": "awaiting_verification",
+    "next_step": {
+     "type": "verification",
+     "responsible_actor": "recovery",
+     "request_id": "branch_request",
+     "description": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "other-household-context",
+      "kind": "context",
+      "title": "What Neris knew before her message",
+      "text": "Neris refers to the other household, so Neris knows the parcel went to another household. How Neris learned this is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "missing-receipt-request",
+      "kind": "context",
+      "title": "Unrecorded parent action",
+      "text": "A separate record of this parent action is absent. The branch does not by itself establish that it occurred. The next action is now the scoped branch response. The carrier recorded the corrected handover. We now have to ask Neris to confirm receipt of DL-026; after sending, the agent waits for Neris's confirmation. At this step no such message is recorded in the history, and the carrier's record by itself is not the recipient's confirmation.",
+      "source_event_ids": [
+       "004"
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "recipient",
+       "type": "confirmation",
+       "purpose": "Confirm that DL-026 was received at the correct order address."
+      },
+      "before_message_id": "005"
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "investigations": {
+      "participants": [
+       "coordinator",
+       "investigations"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "recovery": {
+      "participants": [
+       "coordinator",
+       "recovery"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "recovery"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "investigations",
+      "event_id": "001",
+      "timestamp": "2026-02-27 09:00:00 UTC",
+      "from_actor": "investigations",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-026 was handed over at the wrong stop. We contacted that address using carrier records and located the sealed parcel. Third-party contact details are restricted to our recovery team."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-27 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Please have the carrier recover my parcel and deliver it to my verified address. I do not want to contact the other household myself."
+     },
+     {
+      "conversation_id": "recovery",
+      "event_id": "003",
+      "timestamp": "2026-02-27 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recovery",
+      "channel": "Email",
+      "body": "Arrange carrier recovery and correct redelivery of DL-026 to Neris’s verified order address. Keep the other household’s details within your team and confirm the corrected handover."
+     },
+     {
+      "conversation_id": "recovery",
+      "event_id": "004",
+      "timestamp": "2026-02-28 13:20:00 UTC",
+      "from_actor": "recovery",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Our driver recovered DL-026 and handed it to Neris at the correct order address at 13:10 UTC on 2026-02-28. The incorrect stop record is corrected; recovery and redelivery scans are present."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "005",
+      "timestamp": "2026-02-28 13:35:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Tracking now says DL-026 was delivered to me at 13:10 UTC today. Nobody has come to my door and I have been home all day. I do not have the parcel."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "006",
+      "timestamp": "2026-02-28 13:50:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recovery",
+      "channel": "Email",
+      "body": "DL-026: your record says your driver handed it to Neris Fawn at the correct order address at 13:10 UTC today. At 13:35 UTC Neris reported that nobody came to her door, she has been home all day, and she does not have the parcel. We are keeping both accounts. What handover evidence supports the 13:10 UTC redelivery?"
+     }
+    ],
+    "limits": [
+     "Do not reveal the wrong-address resident's name, address or contact details.",
+     "Make no claim about the quality of the contents.",
+     "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c3",
+      "description": "The intended recipient has confirmed receipt.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "007",
+    "type": "message_received",
+    "label": "Scoped confirmation",
+    "title": "Follow-through confirms the branch outcome",
+    "timestamp": "2026-02-28 14:30:00 UTC",
+    "actor_id": "recovery",
+    "message_id": "007"
+   },
+   "explanation": "Record what the responding party actually confirms. Both accounts are logged against DL-026. For the 13:10 UTC redelivery we hold a recovery scan, a redelivery scan and the driver's device location. No signature or photo was captured. We are reviewing them with the driver. None of this yet establishes receipt, loss or fault.",
+   "state_after": {
+    "case_id": "026-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Get the carrier to recover and correctly redeliver DL-026 and obtain confirmation of the corrected handover and receipt."
+     },
+     "recipient": {
+      "name": "Neris Fawn",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask for carrier recovery and redelivery, and confirm receipt."
+     },
+     "investigations": {
+      "name": "Delivery investigations",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Review the misdelivery and locate DL-026."
+     },
+     "recovery": {
+      "name": "Recovery team",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Recover DL-026 from the wrong stop, redeliver it to the verified order address and record the corrected handover; holds the third-party contact details."
+     }
+    },
+    "goal": "Keep both records and request evidence from their owner.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The carrier has recovered the parcel from the wrong stop.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The carrier has recorded the corrected handover to the intended recipient.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+      "status": "met",
+      "evidence_event_ids": [
+       "006",
+       "007"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-27 09:00:00 UTC",
+     "escalated_at": "2026-02-28 13:35:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "026-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Keep both records and request evidence from their owner.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-026.",
+      "source": {
+       "type": "case_card",
+       "id": "026"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-026 was handed over at the wrong stop; the carrier contacted that address using carrier records and located the sealed parcel.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Recovery should be managed by the carrier without exposing the other household's details.",
+      "source": {
+       "type": "case_card",
+       "id": "026"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Third-party contact details are restricted to the carrier's recovery team.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The recipient asks the carrier to recover the parcel and deliver it to the recipient's verified address.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The recipient does not want to contact the other household.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The carrier's driver recovered DL-026 and handed it to Neris at the correct order address at 13:10 UTC on 2026-02-28.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The incorrect stop record is corrected; recovery and redelivery scans are present.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Neris Fawn reports: Tracking now says DL-026 was delivered to me at 13:10 UTC today.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Neris Fawn reports: Nobody has come to my door and I have been home all day.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Neris Fawn reports: I do not have the parcel.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_outcome_1",
+      "text": "Recovery team reports: Both accounts are logged against DL-026.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     },
+     {
+      "id": "branch_outcome_2",
+      "text": "Recovery team reports: For the 13:10 UTC redelivery we hold a recovery scan, a redelivery scan and the driver's device location.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     },
+     {
+      "id": "branch_outcome_3",
+      "text": "Recovery team reports: No signature or photo was captured.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     },
+     {
+      "id": "branch_outcome_4",
+      "text": "Recovery team reports: We are reviewing them with the driver.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     },
+     {
+      "id": "branch_outcome_5",
+      "text": "Recovery team reports: None of this yet establishes receipt, loss or fault.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "recovery",
+      "responsible_actor": "recovery",
+      "purpose": "Recover DL-026 and redeliver it to Neris's verified order address, keeping the other household's details within the recovery team.",
+      "expected_response": "Confirmation of the corrected handover.",
+      "status": "completed",
+      "response": "Recovered and handed to Neris at the correct order address at 13:10 UTC on 2026-02-28; stop record corrected; recovery and redelivery scans present.",
+      "evidence_event_ids": [
+       "001",
+       "003",
+       "004"
+      ]
+     },
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "recovery",
+      "purpose": "Have the carrier recover the parcel and deliver it to the recipient's verified address.",
+      "expected_response": "The parcel delivered to the verified address.",
+      "status": "completed",
+      "response": "The carrier recovered DL-026 and handed it to Neris at the correct order address at 13:10 UTC on 2026-02-28.",
+      "responded_by": "recovery",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r2": {
+      "type": "confirmation",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Confirm receipt of DL-026.",
+      "expected_response": "The recipient's confirmation of receipt.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "recovery",
+      "responsible_actor": "recovery",
+      "purpose": "Keep both the carrier's 13:10 handover record and Neris's report, and ask the Recovery team, Plover Arc Logistics, what handover evidence supports the 13:10 redelivery.",
+      "expected_response": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+      "status": "answered",
+      "response": "Both accounts are logged against DL-026. For the 13:10 UTC redelivery we hold a recovery scan, a redelivery scan and the driver's device location. No signature or photo was captured. We are reviewing them with the driver. None of this yet establishes receipt, loss or fault.",
+      "evidence_event_ids": [
+       "005",
+       "006",
+       "007"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "reconcile_conflict",
+       "action": "Keep both the carrier's 13:10 handover record and Neris's report, and ask the Recovery team, Plover Arc Logistics, what handover evidence supports the 13:10 redelivery.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "tell Neris that the redelivery scan proves she received the parcel, and tell her it is lost.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "reconcile_conflict",
+     "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "Both accounts are logged against DL-026. For the 13:10 UTC redelivery we hold a recovery scan, a redelivery scan and the driver's device location. No signature or photo was captured. We are reviewing them with the driver. None of this yet establishes receipt, loss or fault.",
+     "confirmed_by": "recovery",
+     "evidence_event_ids": [
+      "007"
+     ],
+     "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not tell Neris that the redelivery scan proves she received the parcel, and do not tell her it is lost."
+    },
+    "annotations": [
+     {
+      "id": "other-household-context",
+      "kind": "context",
+      "title": "What Neris knew before her message",
+      "text": "Neris refers to the other household, so Neris knows the parcel went to another household. How Neris learned this is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "missing-receipt-request",
+      "kind": "context",
+      "title": "Unrecorded parent action",
+      "text": "A separate record of this parent action is absent. The branch does not by itself establish that it occurred. The next action is now the scoped branch response. The carrier recorded the corrected handover. We now have to ask Neris to confirm receipt of DL-026; after sending, the agent waits for Neris's confirmation. At this step no such message is recorded in the history, and the carrier's record by itself is not the recipient's confirmation.",
+      "source_event_ids": [
+       "004"
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "recipient",
+       "type": "confirmation",
+       "purpose": "Confirm that DL-026 was received at the correct order address."
+      },
+      "before_message_id": "005"
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "investigations": {
+      "participants": [
+       "coordinator",
+       "investigations"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "recovery": {
+      "participants": [
+       "coordinator",
+       "recovery"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "recovery"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "investigations",
+      "event_id": "001",
+      "timestamp": "2026-02-27 09:00:00 UTC",
+      "from_actor": "investigations",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-026 was handed over at the wrong stop. We contacted that address using carrier records and located the sealed parcel. Third-party contact details are restricted to our recovery team."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-27 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Please have the carrier recover my parcel and deliver it to my verified address. I do not want to contact the other household myself."
+     },
+     {
+      "conversation_id": "recovery",
+      "event_id": "003",
+      "timestamp": "2026-02-27 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recovery",
+      "channel": "Email",
+      "body": "Arrange carrier recovery and correct redelivery of DL-026 to Neris’s verified order address. Keep the other household’s details within your team and confirm the corrected handover."
+     },
+     {
+      "conversation_id": "recovery",
+      "event_id": "004",
+      "timestamp": "2026-02-28 13:20:00 UTC",
+      "from_actor": "recovery",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Our driver recovered DL-026 and handed it to Neris at the correct order address at 13:10 UTC on 2026-02-28. The incorrect stop record is corrected; recovery and redelivery scans are present."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "005",
+      "timestamp": "2026-02-28 13:35:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Tracking now says DL-026 was delivered to me at 13:10 UTC today. Nobody has come to my door and I have been home all day. I do not have the parcel."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "006",
+      "timestamp": "2026-02-28 13:50:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recovery",
+      "channel": "Email",
+      "body": "DL-026: your record says your driver handed it to Neris Fawn at the correct order address at 13:10 UTC today. At 13:35 UTC Neris reported that nobody came to her door, she has been home all day, and she does not have the parcel. We are keeping both accounts. What handover evidence supports the 13:10 UTC redelivery?"
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "007",
+      "timestamp": "2026-02-28 14:30:00 UTC",
+      "from_actor": "recovery",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Both accounts are logged against DL-026. For the 13:10 UTC redelivery we hold a recovery scan, a redelivery scan and the driver's device location. No signature or photo was captured. We are reviewing them with the driver. None of this yet establishes receipt, loss or fault."
+     }
+    ],
+    "limits": [
+     "Do not reveal the wrong-address resident's name, address or contact details.",
+     "Make no claim about the quality of the contents.",
+     "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c3",
+      "description": "The intended recipient has confirmed receipt.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  }
+ ]
+}

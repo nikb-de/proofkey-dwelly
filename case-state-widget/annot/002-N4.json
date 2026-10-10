@@ -1,0 +1,832 @@
+{
+ "case_id": "002-N4",
+ "lang": "en",
+ "title": "002-N4 · Form failure: did the correction save?",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Tarin Mave. The participants, goal and initial problem are known from the case card.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get the missing details and confirmation that the change is done.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Tarin Mave",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Provide the details needed to clarify the address.",
+   "from_start": true,
+   "source_names": [
+    "Tarin Mave, recipient"
+   ]
+  },
+  "address_desk": {
+   "name": "Address desk",
+   "organization": "Plover Arc Logistics",
+   "role": "address_desk",
+   "responsibility": "Apply the address correction and confirm the result.",
+   "from_start": false,
+   "source_names": [
+    "Address desk, Plover Arc Logistics"
+   ]
+  },
+  "correction_form": {
+   "name": "Address correction form",
+   "organization": "Plover Arc Logistics",
+   "role": "system",
+   "responsibility": "Report the technical result of the form submission; the auto-reply does not confirm that the change was saved.",
+   "from_start": false,
+   "source_names": [
+    "Address desk correction form, Plover Arc Logistics"
+   ]
+  }
+ },
+ "goal": "Clarify the incomplete address and get the address hold on DL-002 cleared.",
+ "limits": [
+  "Do not resubmit the correction until the saved outcome is verified.",
+  "Do not claim the hold is cleared without confirmation from the address desk."
+ ],
+ "intake": {
+  "summary": "Clarify the address for shipment DL-002: the order has no apartment number.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The address is incomplete and needs clarification.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-002.",
+    "source": {
+     "type": "case_card",
+     "id": "002"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The address is incomplete; the shipment is paused until it is clarified.",
+    "source": {
+     "type": "case_card",
+     "id": "002"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The recipient has provided the apartment number."
+   },
+   {
+    "id": "c2",
+    "description": "The address desk has confirmed the address correction."
+   },
+   {
+    "id": "c3",
+    "description": "The address hold is cleared."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "annotations": [],
+  "state_set": {}
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Address desk email",
+   "title": "Address desk gives the hold reason",
+   "explanation": "The recipient knows the missing detail; no extra identity check is needed here.",
+   "conversation_id": "service",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "The order has no apartment number; the address hold is in place.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f3",
+     "text": "Address on the order: 18 Copperfin Court, Merrow Quay.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f4",
+     "text": "The recipient's order-linked portal session was verified by the account team.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Clarify the apartment number.",
+     "expected_response": "The apartment number.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "001"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask the recipient for the missing apartment number."
+   },
+   "blocker": "The order is missing the apartment number.",
+   "status": "context_received",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Confirm the apartment number through the verified order portal."
+   },
+   "result": null,
+   "decision": {
+    "required": false,
+    "question": null,
+    "options": [],
+    "decision_maker": null,
+    "selected_option": null,
+    "reason": null
+   },
+   "annotations_add": [],
+   "state_set": {}
+  },
+  {
+   "event_id": "002",
+   "label": "Client question",
+   "title": "Client asks what needs clarifying",
+   "explanation": "Event 001 tells us which field is missing, so we can ask a specific question.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f5",
+     "text": "The recipient confirmed that the building is correct.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f8",
+     "text": "The recipient says that, before asking, they saw the status \"address clarification required\" on the tracking page. When the status appeared is unknown.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "information",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "coordinator",
+     "purpose": "Explain what information is needed to clarify the address.",
+     "expected_response": "Name the missing information.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Reply to Tarin: the apartment number is needed."
+   },
+   "blocker": "The order is missing the apartment number.",
+   "status": "escalated",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Confirm the apartment number through the verified order portal."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "tracking-context",
+     "kind": "context",
+     "title": "What Tarin saw before asking",
+     "text": "Tracking page: \"address clarification required\". Taken from Tarin's words in message 002. When the status appeared is unknown; no separate notification about it is recorded in the history.",
+     "before_message_id": "002",
+     "source_event_ids": [
+      "002"
+     ]
+    }
+   ],
+   "state_set": {}
+  },
+  {
+   "event_id": "003",
+   "label": "Our question",
+   "title": "Our question to the client",
+   "explanation": "We asked only for the missing field. Entry codes and other household details are not needed.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Clarify the apartment number.",
+     "expected_response": "The apartment number.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "001",
+      "003"
+     ]
+    },
+    "r0": {
+     "type": "information",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "coordinator",
+     "purpose": "Explain what information is needed to clarify the address.",
+     "expected_response": "Name the missing information.",
+     "status": "answered",
+     "response": "The apartment number needs to be confirmed.",
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "recipient",
+      "request_id": "r1",
+      "expected": "Apartment number"
+     }
+    ],
+    "next_action": "Once answered, pass the clarified address to the address desk."
+   },
+   "blocker": "The order is missing the apartment number.",
+   "status": "awaiting_response",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "recipient",
+    "request_id": "r1",
+    "description": "Wait for the apartment number from the recipient."
+   },
+   "result": null,
+   "annotations_add": [],
+   "state_set": {}
+  },
+  {
+   "event_id": "004",
+   "label": "Client reply",
+   "title": "Apartment number received",
+   "explanation": "We have the information, but receiving the number does not mean the address is corrected.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f6",
+     "text": "The recipient gave Apartment 4B and asked for it to be added to DL-002; the street and building remain unchanged.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Clarify the apartment number.",
+     "expected_response": "The apartment number.",
+     "status": "answered",
+     "response": "4B",
+     "evidence_event_ids": [
+      "001",
+      "003",
+      "004"
+     ]
+    },
+    "r2": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "address_desk",
+     "purpose": "Add Apartment 4B to the shipment, keeping the street and building.",
+     "expected_response": "The corrected shipment address.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    },
+    "r3": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "address_desk",
+     "responsible_actor": "address_desk",
+     "purpose": "Add Apartment 4B to DL-002, keeping the street and building, and clear the address hold.",
+     "expected_response": "Confirmation that the correction is applied and the hold is cleared.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "c1",
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Send the correction to the address desk, then wait for confirmation that it is applied and the hold is cleared.",
+    "note": "Sending the request to the address desk and the wait that follows are not recorded as separate events. So in this snapshot the agent is still preparing the handoff; it is not given waiting status without evidence that the request was sent."
+   },
+   "blocker": "Apartment number received; the correction and the hold release are not yet confirmed.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "address_desk",
+    "request_id": "r3",
+    "description": "Send the correction to the address desk and get confirmation that Apartment 4B is added and the hold is cleared."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "missing-service-request",
+     "kind": "gap",
+     "title": "Next action · us → address desk",
+     "text": "Tarin gave Apartment 4B. We now have to send the correction to the address desk and ask it to clear the hold; after sending, the agent waits for the address desk's confirmation. At this step the sending is not yet recorded in the history, and the recipient's answer by itself does not change the shipment address.",
+     "source_event_ids": [
+      "004"
+     ],
+     "implied_action": {
+      "from_actor": "coordinator",
+      "to_actor": "address_desk",
+      "type": "action",
+      "purpose": "Add Apartment 4B to DL-002, keeping the street and building, and clear the address hold."
+     }
+    }
+   ],
+   "state_set": {}
+  },
+  {
+   "event_id": "005",
+   "label": "Form failure",
+   "title": "Form reports an error; correction outcome unknown",
+   "explanation": "A session error does not prove the entry was not saved. First we need to check the state with the address desk.",
+   "conversation_id": "form",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "The last confirmed state is an address hold; its current state after the form submission is unknown.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "f3",
+     "text": "The order previously had an address with no apartment. The saved address after the correction attempt has not been checked yet.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "f9",
+     "text": "The auto-reply says the correction with Apartment 4B was submitted at 09:54, the session expired and no correction reference was issued; the data may have saved.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r2": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "address_desk",
+     "purpose": "Add Apartment 4B to the shipment, keeping the street and building.",
+     "expected_response": "The corrected shipment address.",
+     "status": "outcome_unknown",
+     "response": null,
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    },
+    "r3": {
+     "type": "confirmation",
+     "from_actor": "coordinator",
+     "to_actor": "address_desk",
+     "responsible_actor": "address_desk",
+     "purpose": "Get confirmation that the correction is applied and the hold is cleared.",
+     "expected_response": "Confirmation from the address desk.",
+     "status": "superseded",
+     "response": null,
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    },
+    "r4": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "address_desk",
+     "responsible_actor": "address_desk",
+     "purpose": "Establish the outcome of the first submission before making any further change.",
+     "expected_response": "The saved address, the hold status and the outcome of the first attempt.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "c4",
+     "description": "The address desk has established the outcome of the first attempt and confirmed a single correction entry."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Email the address desk to check the saved address and the hold. Do not resubmit the correction until they reply."
+   },
+   "blocker": "The form submission outcome is unknown: the change may have saved before the session expired.",
+   "status": "verification_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "r4",
+    "description": "Ask the address desk for the saved state."
+   },
+   "result": null,
+   "decision": {
+    "required": true,
+    "question": "Can the correction be resubmitted after the session error?",
+    "options": [
+     {
+      "id": "verify_saved_state",
+      "action": "First check the saved address and the hold with the address desk.",
+      "allowed": true,
+      "reason": "The form may have saved the change before the error."
+     },
+     {
+      "id": "resubmit_now",
+      "action": "Resubmit the correction right away.",
+      "allowed": false,
+      "reason": "The outcome of the first attempt is unknown; a resubmission could create a duplicate change."
+     },
+     {
+      "id": "claim_success",
+      "action": "Tell the client the hold is cleared.",
+      "allowed": false,
+      "reason": "There is no confirmation of the saved address or the cleared hold."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "annotations_add": [
+    {
+     "id": "missing-service-request",
+     "kind": "context",
+     "title": "Unrecorded parent action",
+     "text": "A separate record of this parent action is absent. The branch does not by itself establish that it occurred. The next action is now the scoped branch response. Tarin gave Apartment 4B. We now have to send the correction to the address desk and ask it to clear the hold; after sending, the agent waits for the address desk's confirmation. At this step the sending is not yet recorded in the history, and the recipient's answer by itself does not change the shipment address.",
+     "source_event_ids": [
+      "004"
+     ],
+     "implied_action": {
+      "from_actor": "coordinator",
+      "to_actor": "address_desk",
+      "type": "action",
+      "purpose": "Add Apartment 4B to DL-002, keeping the street and building, and clear the address hold."
+     },
+     "before_message_id": "005"
+    },
+    {
+     "id": "reported-form-submission",
+     "kind": "context",
+     "title": "Form submission known from the auto-reply",
+     "text": "Auto-reply 005 reports a submission at 09:54. The history has no separate record of the submission; the outcome is still unknown. No extra message on our behalf has been added.",
+     "before_message_id": "005",
+     "source_event_ids": [
+      "005"
+     ]
+    }
+   ],
+   "state_set": {},
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "002-N4"
+    },
+    "summary": "Check the outcome of the DL-002 correction after the form error and get confirmation of the address and the cleared hold."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Verify, don't resubmit",
+   "title": "Check requested; waiting on the address desk",
+   "explanation": "The request checks the outcome of the previous action. It is not a second request to change the address.",
+   "conversation_id": "service",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r4": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "address_desk",
+     "responsible_actor": "address_desk",
+     "purpose": "Establish the outcome of the first submission before making any further change.",
+     "expected_response": "The saved address, the hold status and the outcome of the first attempt.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "address_desk",
+      "request_id": "r4",
+      "expected": "DL-002's saved address, the hold status and the outcome of the first attempt."
+     }
+    ],
+    "next_action": "If the correction saved, record the confirmation. If the address desk confirms it did not save, make one corrective submission and wait for confirmation.",
+    "note": "We are not resubmitting the correction yet. The recipient's answer is not enough here: the address desk is the one that knows the state of the record."
+   },
+   "blocker": "The form submission outcome is unknown: the change may have saved before the session expired.",
+   "status": "awaiting_verification",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "address_desk",
+    "request_id": "r4",
+    "description": "Wait for the result of the check on the first attempt."
+   },
+   "result": null,
+   "decision": {
+    "required": true,
+    "question": "Can the correction be resubmitted after the session error?",
+    "options": [
+     {
+      "id": "verify_saved_state",
+      "action": "First check the saved address and the hold with the address desk.",
+      "allowed": true,
+      "reason": "The form may have saved the change before the error."
+     },
+     {
+      "id": "resubmit_now",
+      "action": "Resubmit the correction right away.",
+      "allowed": false,
+      "reason": "The outcome of the first attempt is unknown; a resubmission could create a duplicate change."
+     },
+     {
+      "id": "claim_success",
+      "action": "Tell the client the hold is cleared.",
+      "allowed": false,
+      "reason": "There is no confirmation of the saved address or the cleared hold."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "verify_saved_state",
+    "reason": "A request for the current state was sent without making another change."
+   },
+   "annotations_add": [],
+   "state_set": {}
+  },
+  {
+   "event_id": "007",
+   "label": "Outcome verified",
+   "title": "Address desk confirms the first attempt saved",
+   "explanation": "The address desk's confirmation removes the uncertainty. All of the case's criteria are met; physical delivery remains outside its scope.",
+   "conversation_id": "service",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "The address hold is cleared.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "f3",
+     "text": "Saved address: Apartment 4B, 18 Copperfin Court, Merrow Quay.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "f10",
+     "text": "The address desk confirmed that the 09:54 correction saved before the session closed; there is one entry in the system.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "f7",
+     "text": "DL-002 has not left the depot.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r2": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "address_desk",
+     "purpose": "Add Apartment 4B to the shipment, keeping the street and building.",
+     "expected_response": "The corrected shipment address.",
+     "status": "completed",
+     "response": "Apartment 4B saved by the first attempt; hold cleared.",
+     "evidence_event_ids": [
+      "004",
+      "005",
+      "007"
+     ]
+    },
+    "r3": {
+     "type": "confirmation",
+     "from_actor": "coordinator",
+     "to_actor": "address_desk",
+     "responsible_actor": "address_desk",
+     "purpose": "Get confirmation that the correction is applied and the hold is cleared.",
+     "expected_response": "Confirmation from the address desk.",
+     "status": "answered",
+     "response": "Outcome confirmed in the reply to check r4.",
+     "evidence_event_ids": [
+      "004",
+      "007"
+     ]
+    },
+    "r4": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "address_desk",
+     "responsible_actor": "address_desk",
+     "purpose": "Establish the outcome of the first submission before making any further change.",
+     "expected_response": "The saved address, the hold status and the outcome of the first attempt.",
+     "status": "answered",
+     "response": "Address includes 4B; the 09:54 correction saved, one entry, hold cleared.",
+     "evidence_event_ids": [
+      "005",
+      "006",
+      "007"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "c2",
+     "evidence_event_ids": [
+      "007"
+     ]
+    },
+    {
+     "id": "c3",
+     "evidence_event_ids": [
+      "007"
+     ]
+    },
+    {
+     "id": "c4",
+     "evidence_event_ids": [
+      "007"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "The outcome of the first attempt is verified, the address is corrected and the hold is cleared. No resubmission is needed; delivery has not happened yet."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "Confirmed that the correction saved before the session error. The address includes 4B, the hold is cleared, and there is one correction entry.",
+    "confirmed_by": "address_desk",
+    "evidence_event_ids": [
+     "007"
+    ],
+    "remaining_work": "Onward transport and delivery: the shipment is still at the depot."
+   },
+   "decision": {
+    "required": false,
+    "question": "Can the correction be resubmitted after the session error?",
+    "options": [
+     {
+      "id": "verify_saved_state",
+      "action": "First check the saved address and the hold with the address desk.",
+      "allowed": true,
+      "reason": "The form may have saved the change before the error."
+     },
+     {
+      "id": "resubmit_now",
+      "action": "Resubmit the correction right away.",
+      "allowed": false,
+      "reason": "The outcome of the first attempt is unknown; a resubmission could create a duplicate change."
+     },
+     {
+      "id": "claim_success",
+      "action": "Tell the client the hold is cleared.",
+      "allowed": false,
+      "reason": "There is no confirmation of the saved address or the cleared hold."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "verify_saved_state",
+    "reason": "The check confirmed the first attempt saved; no further change is needed."
+   },
+   "annotations_add": [],
+   "state_set": {}
+  }
+ ],
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_commit": "553b4bcd84e4e7290f68a2b157d137625a92f53f",
+  "source_path": "data/negative-branches-001-050/_source/002.json",
+  "branch_id": "002-N4",
+  "history_path": "data/negative-branches-001-050/002/N4-CHANNEL_FAILURE/history.md",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003",
+   "004"
+  ],
+  "note": "Alternative synthetic continuation. No separate form-submission step was invented: the 09:54 time becomes known from auto-reply 005.",
+  "diverges_after_event": "004",
+  "source_sha256": {
+   "index.md": "06f6a36e2394c6357bd67e467f47be14055f767b14d94f2e8ca309bd2e104568",
+   "history.md": "886641a4642c63a2aa96ba522692e71d0e4980a667a603c96eb8112a7404cdfe"
+  }
+ }
+}

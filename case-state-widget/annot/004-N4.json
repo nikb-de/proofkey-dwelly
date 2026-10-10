@@ -1,0 +1,656 @@
+{
+ "case_id": "004-N4",
+ "lang": "en",
+ "title": "004-N4 · Recipient demands exact call interval and time",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Oren Sile. From the case card: the route for DL-004 is booked and the driver has not yet departed; the customer needs time to move from a nearby studio to the delivery door.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: pass the recipient's callback request to dispatch and get confirmation that it is recorded.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Oren Sile",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Say how and when the driver should call before arrival.",
+   "from_start": true,
+   "source_names": [
+    "Oren Sile, recipient"
+   ]
+  },
+  "dispatch": {
+   "name": "Dispatch",
+   "organization": "Plover Arc Logistics",
+   "role": "dispatch",
+   "responsibility": "Record the call request on the route and confirm it.",
+   "from_start": false,
+   "source_names": [
+    "Dispatch, Plover Arc Logistics"
+   ]
+  }
+ },
+ "goal": "Get dispatch to record the recipient's request for a call shortly before arrival on DL-004 and confirm that it is recorded.",
+ "limits": [
+  "Do not treat the recorded instruction as proof that the driver called.",
+  "Do not treat the recorded instruction as proof of arrival.",
+  "Do not promise or perform the prohibited request."
+ ],
+ "intake": {
+  "summary": "Add a call shortly before arrival to DL-004 so the recipient can walk over from a nearby studio.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The customer needs time to reach the delivery door; no advance call is arranged.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-004.",
+    "source": {
+     "type": "case_card",
+     "id": "004"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The route is booked; the driver has not yet departed.",
+    "source": {
+     "type": "case_card",
+     "id": "004"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The customer needs time to move from a nearby studio to the delivery door.",
+    "source": {
+     "type": "case_card",
+     "id": "004"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The recipient has stated which contact the driver should call."
+   },
+   {
+    "id": "c2",
+    "description": "Dispatch has confirmed that the call request is recorded on the DL-004 route."
+   },
+   {
+    "id": "c3",
+    "description": "Dispatch has confirmed that the request is visible to the assigned driver."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": null,
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/004/N4-OUT_OF_POLICY_ASK",
+  "branch_id": "004-N4",
+  "derived_from_case": "004",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003",
+   "004"
+  ],
+  "diverges_after_event": "004",
+  "failure_mode": "OUT_OF_POLICY_ASK",
+  "expected_decision": "DECLINE_EXPLAIN",
+  "workflow_sheet": "A",
+  "branch_label": "Recipient demands exact call interval and time",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "927a22a3820342e8a02b577c1705ca2e740573edc8b287e3907efcd3b6af1648",
+   "history.md": "e0cbd3b138a4ab0b9a55abe15c6f32be6db0bf700b371623d625cb4bbebbf5eb"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Dispatch email",
+   "title": "Dispatch can add a call request",
+   "explanation": "Dispatch can add a call request on the verified number already in the order record, but cannot guarantee an exact advance interval. We take in the recipient's request before asking dispatch to record anything.",
+   "conversation_id": "dispatch",
+   "facts_upsert": [
+    {
+     "id": "f4",
+     "text": "DL-004 is on the 2026-02-06 afternoon route.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "Dispatch can add a call request using the verified number already in the order record.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f6",
+     "text": "Dispatch cannot guarantee an exact advance interval before arrival.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Take in the recipient's request before asking dispatch to record a call."
+   },
+   "blocker": "The customer needs time to reach the delivery door; no advance call is recorded on the route.",
+   "status": "context_received",
+   "next_step": null,
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Oren asks for a call before arrival",
+   "explanation": "Oren asks for a call on the saved order contact, which matches what dispatch can add. No contact change is needed, so we can pass the request straight to dispatch.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f3",
+     "text": "Oren works in the studio next door and needs a few minutes to walk over.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f7",
+     "text": "Oren asks the driver to call shortly before arriving, using the saved order contact.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "dispatch",
+     "purpose": "Arrange for the driver to call the saved order contact shortly before arrival.",
+     "expected_response": "A call request recorded on the route.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "dispatch",
+     "responsible_actor": "dispatch",
+     "purpose": "Record Oren's request on DL-004: call the verified saved order contact shortly before arrival.",
+     "expected_response": "Confirmation that the call request is recorded.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c1",
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask dispatch to record Oren's request on DL-004: call the verified saved order contact shortly before arrival."
+   },
+   "blocker": "The call request is not yet recorded on the route.",
+   "status": "escalated",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "dispatch",
+    "request_id": "r1",
+    "description": "Record the call request on the DL-004 route."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We ask dispatch to record the call",
+   "explanation": "We asked for a call on the verified saved contact if route conditions allow, and stated that no contact change is requested. Now we wait for dispatch to confirm the record.",
+   "conversation_id": "dispatch",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "dispatch",
+     "responsible_actor": "dispatch",
+     "purpose": "Record Oren's request on DL-004: call the verified saved order contact shortly before arrival, if route conditions allow; no contact change.",
+     "expected_response": "Confirmation that the call request is recorded.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "dispatch",
+      "request_id": "r1",
+      "expected": "Confirmation that the call request is recorded on DL-004"
+     }
+    ],
+    "next_action": "Once dispatch confirms, close the coordination task without treating it as a call or an arrival."
+   },
+   "blocker": "The call request is not yet confirmed as recorded.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "dispatch",
+    "request_id": "r1",
+    "description": "Wait for dispatch to confirm the call request is recorded."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "Confirmation",
+   "title": "Dispatch saves the callback request",
+   "explanation": "Dispatch confirmed the request is on the route card and visible to the driver, so the coordination task can be closed. No call or arrival has happened yet.",
+   "conversation_id": "dispatch",
+   "facts_upsert": [
+    {
+     "id": "f4",
+     "text": "The DL-004 route is still scheduled for 2026-02-06; no arrival or call has occurred yet.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "f8",
+     "text": "The callback request is saved on the DL-004 route card and visible to the assigned driver.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "dispatch",
+     "purpose": "Arrange for the driver to call the saved order contact shortly before arrival.",
+     "expected_response": "A call request recorded on the route.",
+     "status": "completed",
+     "response": "The callback request is saved on the DL-004 route card; no call has occurred yet.",
+     "responded_by": "dispatch",
+     "evidence_event_ids": [
+      "002",
+      "004"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "dispatch",
+     "responsible_actor": "dispatch",
+     "purpose": "Record Oren's request on DL-004: call the verified saved order contact shortly before arrival, if route conditions allow; no contact change.",
+     "expected_response": "Confirmation that the call request is recorded.",
+     "status": "completed",
+     "response": "Saved on the DL-004 route card and visible to the assigned driver.",
+     "evidence_event_ids": [
+      "002",
+      "003",
+      "004"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c2",
+     "evidence_event_ids": [
+      "004"
+     ]
+    },
+    {
+     "id": "c3",
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Coordination task complete: dispatch confirmed the callback request is recorded and visible to the driver. The call and the arrival are not part of this case's success criteria."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "Dispatch saved Oren's callback request on the DL-004 route card; it is visible to the assigned driver.",
+    "confirmed_by": "dispatch",
+    "evidence_event_ids": [
+     "004"
+    ],
+    "remaining_work": "The route is still scheduled for 2026-02-06; neither the call nor the arrival has happened, and the recorded instruction is not proof of either. No exact advance interval is guaranteed."
+   },
+   "annotations_add": []
+  },
+  {
+   "event_id": "005",
+   "label": "New escalation",
+   "title": "Recipient demands exact call interval and time",
+   "explanation": "Explain the policy boundary and the permitted next step. Do not promise or perform the prohibited request.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Oren Sile reports: Thanks.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Oren Sile reports: Please make sure the driver calls exactly 15 minutes before arriving, and tell me now roughly what time that will be tomorrow so I can plan my studio session.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Tell Oren in the Customer portal that Dispatch cannot guarantee an exact advance interval or give an arrival time, and that the saved call request to his verified number is what is in place.",
+     "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Tell Oren in the Customer portal that Dispatch cannot guarantee an exact advance interval or give an arrival time, and that the saved call request to his verified number is what is in place."
+   },
+   "blocker": "The new escalation requires a scoped response. Thanks. Please make sure the driver calls exactly 15 minutes before arriving, and tell me now roughly what time that will be tomorrow so I can plan my studio session.",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Tell Oren in the Customer portal that Dispatch cannot guarantee an exact advance interval or give an arrival time, and that the saved call request to his verified number is what is in place."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "005",
+     "source_event_ids": [
+      "005"
+     ]
+    }
+   ],
+   "criteria_retire": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "decline_explain",
+      "action": "Tell Oren in the Customer portal that Dispatch cannot guarantee an exact advance interval or give an arrival time, and that the saved call request to his verified number is what is in place.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Promise a 15-minute call or an arrival time, or ask Dispatch to set a fixed interval.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "004-N4"
+    },
+    "summary": "Explain the policy boundary and the permitted next step.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Explain the policy boundary and the permitted next step."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Desk response",
+   "title": "Explain the policy boundary and the permitted next step",
+   "explanation": "The desk sends the recorded response. Do not promise or perform the prohibited request.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Tell Oren in the Customer portal that Dispatch cannot guarantee an exact advance interval or give an arrival time, and that the saved call request to his verified number is what is in place.",
+     "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+     "status": "answered",
+     "response": "Dispatch cannot guarantee an exact advance interval for the call, and we cannot give you an arrival time for 2026-02-06. What is in place is the saved request on the route card for the driver to call your verified number shortly before arrival, if route conditions allow.",
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Record any incoming follow-through within its stated scope; do not initiate a prohibited change.",
+    "note": "The outgoing record communicates a boundary or notification. No unrecorded request or acknowledgement is assumed."
+   },
+   "blocker": null,
+   "status": "in_progress",
+   "next_step": null,
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "decline_explain",
+      "action": "Tell Oren in the Customer portal that Dispatch cannot guarantee an exact advance interval or give an arrival time, and that the saved call request to his verified number is what is in place.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Promise a 15-minute call or an arrival time, or ask Dispatch to set a fixed interval.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "decline_explain",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "007",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. Understood. Please keep the saved request as it is. I will stay near the studio during the afternoon. I know no call time or arrival time is fixed.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Oren Sile reports: Understood.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Oren Sile reports: Please keep the saved request as it is.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Oren Sile reports: I will stay near the studio during the afternoon.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_4",
+     "text": "Oren Sile reports: I know no call time or arrival time is fixed.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Tell Oren in the Customer portal that Dispatch cannot guarantee an exact advance interval or give an arrival time, and that the saved call request to his verified number is what is in place.",
+     "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+     "status": "answered",
+     "response": "Understood. Please keep the saved request as it is. I will stay near the studio during the afternoon. I know no call time or arrival time is fixed.",
+     "evidence_event_ids": [
+      "005",
+      "006",
+      "007"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "006",
+      "007"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "Understood. Please keep the saved request as it is. I will stay near the studio during the afternoon. I know no call time or arrival time is fixed.",
+    "confirmed_by": "recipient",
+    "evidence_event_ids": [
+     "007"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Promise a 15-minute call or an arrival time, or ask Dispatch to set a fixed interval."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "decline_explain",
+      "action": "Tell Oren in the Customer portal that Dispatch cannot guarantee an exact advance interval or give an arrival time, and that the saved call request to his verified number is what is in place.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Promise a 15-minute call or an arrival time, or ask Dispatch to set a fixed interval.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "decline_explain",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

@@ -1,0 +1,2334 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "039-N3 · Sealed original opened before collection",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Dessa Kelm. From the case card: a delayed original and a replacement have both reached the customer, and the merchant must choose which unit to return and authorise its collection.",
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/039/N3-STALE_STATE",
+  "branch_id": "039-N3",
+  "derived_from_case": "039",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003",
+   "004"
+  ],
+  "diverges_after_event": "004",
+  "failure_mode": "STALE_STATE",
+  "expected_decision": "GET_OPTIONS",
+  "workflow_sheet": "B",
+  "branch_label": "Sealed original opened before collection",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "f0cef29d39a5b8c7b72b1c7ac055dd6a21be01a09ec76ed86aa5efd3b4416b6c",
+   "history.md": "184a7c18b9eb0736894111e1ed134b0895e385f98c2de05dc6305201328716d2"
+  }
+ },
+ "initial_state": {
+  "case_id": "039-N3",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "customer",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: get the merchant's authorisation and collection for the duplicate unit and confirmation that the order quantities are reconciled."
+   },
+   "customer": {
+    "name": "Dessa Kelm",
+    "organization": null,
+    "role": "customer",
+    "is_us": false,
+    "responsibility": "Say which unit she keeps and which one is the duplicate to return."
+   }
+  },
+  "goal": "Get the merchant's authorisation and carrier collection for the duplicate unit, and its confirmation that the order quantities are reconciled.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The merchant has authorised the return of the agreed duplicate unit and scheduled its collection.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The merchant has confirmed that the duplicate was collected.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c3",
+    "description": "The merchant has confirmed that the order quantities are reconciled.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "Two units reached the customer; the merchant has not chosen which unit to return or authorised its collection.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The primary task reference is TG-039.",
+    "source": {
+     "type": "case_card",
+     "id": "039"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "A delayed original and a replacement have both reached the customer.",
+    "source": {
+     "type": "case_card",
+     "id": "039"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The merchant must choose which unit to return and authorise its collection.",
+    "source": {
+     "type": "case_card",
+     "id": "039"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Treat carrier recovery as reconciling the duplicate quantity only.",
+   "Do not assert warehouse inspection or product quality.",
+   "Do not act on obsolete options or carry consent over to a new offer."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Merchant email",
+    "title": "Two handover scans for a one-unit order",
+    "timestamp": "2026-03-12 09:00:00 UTC",
+    "actor_id": "reconciliation",
+    "message_id": "001"
+   },
+   "explanation": "TG-039 ordered one floor light, but both the original DL-039-O and the replacement DL-039-R have handover scans. The customer must not be charged for a duplicate without the merchant's authorised reconciliation, so the return has to go through the merchant.",
+   "state_after": {
+    "case_id": "039-N3",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the merchant's authorisation and collection for the duplicate unit and confirmation that the order quantities are reconciled."
+     },
+     "customer": {
+      "name": "Dessa Kelm",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Say which unit she keeps and which one is the duplicate to return."
+     },
+     "reconciliation": {
+      "name": "Order reconciliation",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Reconcile the order quantities for TG-039 and any duplicate charge."
+     }
+    },
+    "goal": "Get the merchant's authorisation and carrier collection for the duplicate unit, and its confirmation that the order quantities are reconciled.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Take in the customer's request about the duplicate."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The merchant has authorised the return of the agreed duplicate unit and scheduled its collection.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The merchant has confirmed that the duplicate was collected.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The merchant has confirmed that the order quantities are reconciled.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-12 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "039-N3"
+     },
+     "context_message_id": "001",
+     "summary": "Arrange an authorised return of the duplicate unit: the delayed original and the replacement for TG-039 have both reached the customer.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "One unit was ordered, but two have handover scans; no duplicate return is authorised.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The primary task reference is TG-039.",
+      "source": {
+       "type": "case_card",
+       "id": "039"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Original DL-039-O and replacement DL-039-R both have handover scans.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The merchant must choose which unit to return and authorise its collection.",
+      "source": {
+       "type": "case_card",
+       "id": "039"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "TG-039 ordered one floor light.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The customer should not be charged for a duplicate without the merchant's authorised reconciliation.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {},
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": null,
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "reconciliation": {
+      "participants": [
+       "coordinator",
+       "reconciliation"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "reconciliation",
+      "event_id": "001",
+      "timestamp": "2026-03-12 09:00:00 UTC",
+      "from_actor": "reconciliation",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "TG-039 ordered one floor light. Original DL-039-O and replacement DL-039-R now both have handover scans. Customer should not be charged for a duplicate without our authorised reconciliation."
+     }
+    ],
+    "limits": [
+     "Treat carrier recovery as reconciling the duplicate quantity only.",
+     "Do not assert warehouse inspection or product quality.",
+     "Do not act on obsolete options or carry consent over to a new offer."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client request",
+    "title": "Dessa asks how to return the duplicate",
+    "timestamp": "2026-03-12 09:10:00 UTC",
+    "actor_id": "customer",
+    "message_id": "002"
+   },
+   "explanation": "Dessa kept the replacement and left the original carton sealed, so she treats the sealed original as the duplicate. The merchant chooses and authorises the return, so we ask them to authorise the original's return and arrange collection.",
+   "state_after": {
+    "case_id": "039-N3",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the merchant's authorisation and collection for the duplicate unit and confirmation that the order quantities are reconciled."
+     },
+     "customer": {
+      "name": "Dessa Kelm",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Say which unit she keeps and which one is the duplicate to return."
+     },
+     "reconciliation": {
+      "name": "Order reconciliation",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Reconcile the order quantities for TG-039 and any duplicate charge."
+     },
+     "duplicate_returns": {
+      "name": "Duplicate returns",
+      "organization": "Tallowmere Goods",
+      "role": "returns_desk",
+      "is_us": false,
+      "responsibility": "Choose and authorise the duplicate return and arrange its carrier collection."
+     }
+    },
+    "goal": "Get the merchant's authorisation and carrier collection for the duplicate unit, and its confirmation that the order quantities are reconciled.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask the merchant's duplicate returns team to authorise the return of the sealed original DL-039-O and arrange collection."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The merchant has authorised the return of the agreed duplicate unit and scheduled its collection.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The merchant has confirmed that the duplicate was collected.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The merchant has confirmed that the order quantities are reconciled.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-12 09:00:00 UTC",
+     "escalated_at": "2026-03-12 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "039-N3"
+     },
+     "context_message_id": "001",
+     "summary": "Arrange an authorised return of the duplicate unit: the delayed original and the replacement for TG-039 have both reached the customer.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The merchant has not authorised a duplicate return or arranged collection.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The primary task reference is TG-039.",
+      "source": {
+       "type": "case_card",
+       "id": "039"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Original DL-039-O and replacement DL-039-R both have handover scans.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The merchant must choose which unit to return and authorise its collection.",
+      "source": {
+       "type": "case_card",
+       "id": "039"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "TG-039 ordered one floor light.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The customer should not be charged for a duplicate without the merchant's authorised reconciliation.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Dessa received both floor lights, kept the replacement and left the original carton sealed.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "information",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "duplicate_returns",
+      "purpose": "Tell Dessa how to return the duplicate floor light.",
+      "expected_response": "Authorised return instructions for the duplicate.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "duplicate_returns",
+      "responsible_actor": "duplicate_returns",
+      "purpose": "Authorise the return of the sealed original DL-039-O, with Dessa keeping DL-039-R, and arrange carrier collection.",
+      "expected_response": "Return authorisation and a collection booking.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which unit should be returned as the duplicate?",
+     "options": [
+      {
+       "id": "o1",
+       "label": "Sealed original DL-039-O",
+       "conditions": "Dessa left the original carton sealed."
+      },
+      {
+       "id": "o2",
+       "label": "Replacement DL-039-R",
+       "conditions": "Dessa has kept the replacement."
+      }
+     ],
+     "decision_maker": "duplicate_returns",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "permission",
+     "responsible_actor": "duplicate_returns",
+     "request_id": "r1",
+     "description": "Authorise the return of the sealed original DL-039-O and arrange carrier collection."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "reconciliation": {
+      "participants": [
+       "coordinator",
+       "reconciliation"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "reconciliation",
+      "event_id": "001",
+      "timestamp": "2026-03-12 09:00:00 UTC",
+      "from_actor": "reconciliation",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "TG-039 ordered one floor light. Original DL-039-O and replacement DL-039-R now both have handover scans. Customer should not be charged for a duplicate without our authorised reconciliation."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-12 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Both floor lights arrived. I have kept the replacement and left the original carton sealed. Please tell me how to return the duplicate."
+     }
+    ],
+    "limits": [
+     "Treat carrier recovery as reconciling the duplicate quantity only.",
+     "Do not assert warehouse inspection or product quality.",
+     "Do not act on obsolete options or carry consent over to a new offer."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our request",
+    "title": "We ask to authorise return of the original",
+    "timestamp": "2026-03-12 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We asked the merchant to authorise the return of the sealed original DL-039-O with Dessa keeping DL-039-R, to arrange carrier collection and to confirm the reconciled quantity after pickup. Now we wait for the authorisation.",
+   "state_after": {
+    "case_id": "039-N3",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the merchant's authorisation and collection for the duplicate unit and confirmation that the order quantities are reconciled."
+     },
+     "customer": {
+      "name": "Dessa Kelm",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Say which unit she keeps and which one is the duplicate to return."
+     },
+     "reconciliation": {
+      "name": "Order reconciliation",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Reconcile the order quantities for TG-039 and any duplicate charge."
+     },
+     "duplicate_returns": {
+      "name": "Duplicate returns",
+      "organization": "Tallowmere Goods",
+      "role": "returns_desk",
+      "is_us": false,
+      "responsibility": "Choose and authorise the duplicate return and arrange its carrier collection."
+     }
+    },
+    "goal": "Get the merchant's authorisation and carrier collection for the duplicate unit, and its confirmation that the order quantities are reconciled.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "duplicate_returns",
+       "request_id": "r1",
+       "expected": "Return authorisation and collection booking for DL-039-O"
+      },
+      {
+       "actor_id": "duplicate_returns",
+       "request_id": "r2",
+       "expected": "Reconciled quantity for TG-039 after pickup"
+      }
+     ],
+     "next_action": "Once authorised, pass the return details to Dessa, then wait for the pickup and the reconciled quantity."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The merchant has authorised the return of the agreed duplicate unit and scheduled its collection.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The merchant has confirmed that the duplicate was collected.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The merchant has confirmed that the order quantities are reconciled.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-12 09:00:00 UTC",
+     "escalated_at": "2026-03-12 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "039-N3"
+     },
+     "context_message_id": "001",
+     "summary": "Arrange an authorised return of the duplicate unit: the delayed original and the replacement for TG-039 have both reached the customer.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The merchant has not yet authorised the return or arranged collection.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The primary task reference is TG-039.",
+      "source": {
+       "type": "case_card",
+       "id": "039"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Original DL-039-O and replacement DL-039-R both have handover scans.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The merchant must choose which unit to return and authorise its collection.",
+      "source": {
+       "type": "case_card",
+       "id": "039"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "TG-039 ordered one floor light.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The customer should not be charged for a duplicate without the merchant's authorised reconciliation.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Dessa received both floor lights, kept the replacement and left the original carton sealed.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "information",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "duplicate_returns",
+      "purpose": "Tell Dessa how to return the duplicate floor light.",
+      "expected_response": "Authorised return instructions for the duplicate.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "duplicate_returns",
+      "responsible_actor": "duplicate_returns",
+      "purpose": "Authorise the return of the sealed original DL-039-O, with Dessa keeping DL-039-R, and arrange carrier collection.",
+      "expected_response": "Return authorisation and a collection booking.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "r2": {
+      "type": "confirmation",
+      "from_actor": "coordinator",
+      "to_actor": "duplicate_returns",
+      "responsible_actor": "duplicate_returns",
+      "purpose": "Confirm the reconciled order quantity after pickup.",
+      "expected_response": "The reconciled quantity for TG-039 after pickup.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "003"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which unit should be returned as the duplicate?",
+     "options": [
+      {
+       "id": "o1",
+       "label": "Sealed original DL-039-O",
+       "conditions": "Dessa left the original carton sealed."
+      },
+      {
+       "id": "o2",
+       "label": "Replacement DL-039-R",
+       "conditions": "Dessa has kept the replacement."
+      }
+     ],
+     "decision_maker": "duplicate_returns",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_response",
+    "next_step": {
+     "type": "permission",
+     "responsible_actor": "duplicate_returns",
+     "request_id": "r1",
+     "description": "Wait for the return authorisation and collection booking."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "reconciliation": {
+      "participants": [
+       "coordinator",
+       "reconciliation"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     },
+     "returns": {
+      "participants": [
+       "coordinator",
+       "duplicate_returns"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "reconciliation",
+      "event_id": "001",
+      "timestamp": "2026-03-12 09:00:00 UTC",
+      "from_actor": "reconciliation",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "TG-039 ordered one floor light. Original DL-039-O and replacement DL-039-R now both have handover scans. Customer should not be charged for a duplicate without our authorised reconciliation."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-12 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Both floor lights arrived. I have kept the replacement and left the original carton sealed. Please tell me how to return the duplicate."
+     },
+     {
+      "conversation_id": "returns",
+      "event_id": "003",
+      "timestamp": "2026-03-12 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "duplicate_returns",
+      "channel": "Email",
+      "body": "Please authorise the return of the sealed original unit DL-039-O. Dessa will retain DL-039-R. Arrange carrier collection and confirm the reconciled quantity after pickup."
+     }
+    ],
+    "limits": [
+     "Treat carrier recovery as reconciling the duplicate quantity only.",
+     "Do not assert warehouse inspection or product quality.",
+     "Do not act on obsolete options or carry consent over to a new offer."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "Authorisation",
+    "title": "Merchant authorises return DR-039",
+    "timestamp": "2026-03-12 09:50:00 UTC",
+    "actor_id": "duplicate_returns",
+    "message_id": "004"
+   },
+   "explanation": "The merchant chose the sealed original: return DR-039 for DL-039-O is authorised at no charge with collection on 2026-03-13, 10:00–12:00 UTC, and DL-039-R stays with Dessa. Dessa asked us how to return the duplicate, so our next move is to pass her these details; the reconciled quantity can only come after pickup.",
+   "state_after": {
+    "case_id": "039-N3",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the merchant's authorisation and collection for the duplicate unit and confirmation that the order quantities are reconciled."
+     },
+     "customer": {
+      "name": "Dessa Kelm",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Say which unit she keeps and which one is the duplicate to return."
+     },
+     "reconciliation": {
+      "name": "Order reconciliation",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Reconcile the order quantities for TG-039 and any duplicate charge."
+     },
+     "duplicate_returns": {
+      "name": "Duplicate returns",
+      "organization": "Tallowmere Goods",
+      "role": "returns_desk",
+      "is_us": false,
+      "responsibility": "Choose and authorise the duplicate return and arrange its carrier collection."
+     }
+    },
+    "goal": "Get the merchant's authorisation and carrier collection for the duplicate unit, and its confirmation that the order quantities are reconciled.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Tell Dessa that return DR-039 is authorised for the sealed original DL-039-O at no charge, with collection on 2026-03-13, 10:00–12:00 UTC, and that she keeps DL-039-R. Then wait for the merchant's confirmation of the pickup and the reconciled quantity.",
+     "note": "The reply to Dessa is not yet recorded in the history, so the agent is not shown waiting on it. Our request for the reconciled quantity (r2) stays open with the merchant; it can only be answered after the pickup."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The merchant has authorised the return of the agreed duplicate unit and scheduled its collection.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The merchant has confirmed that the duplicate was collected.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The merchant has confirmed that the order quantities are reconciled.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-12 09:00:00 UTC",
+     "escalated_at": "2026-03-12 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "039-N3"
+     },
+     "context_message_id": "001",
+     "summary": "Arrange an authorised return of the duplicate unit: the delayed original and the replacement for TG-039 have both reached the customer.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "Dessa does not have the authorised return details yet; the duplicate has not been collected and the order quantity is not reconciled.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The primary task reference is TG-039.",
+      "source": {
+       "type": "case_card",
+       "id": "039"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Original DL-039-O and replacement DL-039-R both have handover scans.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The merchant must choose which unit to return and authorise its collection.",
+      "source": {
+       "type": "case_card",
+       "id": "039"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "TG-039 ordered one floor light.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The customer should not be charged for a duplicate without the merchant's authorised reconciliation.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Dessa received both floor lights, kept the replacement and left the original carton sealed.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Duplicate return DR-039 is authorised for DL-039-O at no charge.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "Collection of DL-039-O is scheduled for 2026-03-13, 10:00–12:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "Dessa keeps DL-039-R.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "information",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "duplicate_returns",
+      "purpose": "Tell Dessa how to return the duplicate floor light.",
+      "expected_response": "Authorised return instructions for the duplicate.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "duplicate_returns",
+      "responsible_actor": "duplicate_returns",
+      "purpose": "Authorise the return of the sealed original DL-039-O, with Dessa keeping DL-039-R, and arrange carrier collection.",
+      "expected_response": "Return authorisation and a collection booking.",
+      "status": "answered",
+      "response": "DR-039 authorised for DL-039-O at no charge; collection 2026-03-13, 10:00–12:00 UTC; keep DL-039-R.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     },
+     "r2": {
+      "type": "confirmation",
+      "from_actor": "coordinator",
+      "to_actor": "duplicate_returns",
+      "responsible_actor": "duplicate_returns",
+      "purpose": "Confirm the reconciled order quantity after pickup.",
+      "expected_response": "The reconciled quantity for TG-039 after pickup.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "003"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which unit should be returned as the duplicate?",
+     "options": [
+      {
+       "id": "o1",
+       "label": "Sealed original DL-039-O",
+       "conditions": "Dessa left the original carton sealed."
+      },
+      {
+       "id": "o2",
+       "label": "Replacement DL-039-R",
+       "conditions": "Dessa has kept the replacement."
+      }
+     ],
+     "decision_maker": "duplicate_returns",
+     "selected_option": "o1",
+     "reason": "Duplicate return DR-039 is authorised for DL-039-O; Dessa keeps DL-039-R."
+    },
+    "status": "action_required",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": null,
+     "description": "Pass Dessa the authorised return details and the collection window."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "missing-customer-reply",
+      "kind": "gap",
+      "title": "Next action · us → Dessa",
+      "text": "Return DR-039 is authorised with collection on 2026-03-13, 10:00–12:00 UTC. Dessa asked us how to return the duplicate, so we now have to pass her these details; then the sealed original can be ready for the carrier in that window. At this step the reply is not yet recorded in the history.",
+      "source_event_ids": [
+       "002",
+       "004"
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "customer",
+       "type": "action",
+       "purpose": "Give Dessa the authorised return DR-039 for the sealed original DL-039-O and the collection window, 2026-03-13 10:00–12:00 UTC; she keeps DL-039-R."
+      }
+     }
+    ],
+    "conversations": {
+     "reconciliation": {
+      "participants": [
+       "coordinator",
+       "reconciliation"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     },
+     "returns": {
+      "participants": [
+       "coordinator",
+       "duplicate_returns"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "reconciliation",
+      "event_id": "001",
+      "timestamp": "2026-03-12 09:00:00 UTC",
+      "from_actor": "reconciliation",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "TG-039 ordered one floor light. Original DL-039-O and replacement DL-039-R now both have handover scans. Customer should not be charged for a duplicate without our authorised reconciliation."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-12 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Both floor lights arrived. I have kept the replacement and left the original carton sealed. Please tell me how to return the duplicate."
+     },
+     {
+      "conversation_id": "returns",
+      "event_id": "003",
+      "timestamp": "2026-03-12 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "duplicate_returns",
+      "channel": "Email",
+      "body": "Please authorise the return of the sealed original unit DL-039-O. Dessa will retain DL-039-R. Arrange carrier collection and confirm the reconciled quantity after pickup."
+     },
+     {
+      "conversation_id": "returns",
+      "event_id": "004",
+      "timestamp": "2026-03-12 09:50:00 UTC",
+      "from_actor": "duplicate_returns",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Duplicate return DR-039 authorised for DL-039-O at no charge, collection 2026-03-13 10:00–12:00 UTC. Keep DL-039-R."
+     }
+    ],
+    "limits": [
+     "Treat carrier recovery as reconciling the duplicate quantity only.",
+     "Do not assert warehouse inspection or product quality.",
+     "Do not act on obsolete options or carry consent over to a new offer."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "005",
+    "type": "message_received",
+    "label": "New escalation",
+    "title": "Sealed original opened before collection",
+    "timestamp": "2026-03-12 16:20:00 UTC",
+    "actor_id": "customer",
+    "message_id": "005"
+   },
+   "explanation": "Obtain current permitted options from the responsible service. Do not act on obsolete options or carry consent over to a new offer.",
+   "state_after": {
+    "case_id": "039-N3",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the merchant's authorisation and collection for the duplicate unit and confirmation that the order quantities are reconciled."
+     },
+     "customer": {
+      "name": "Dessa Kelm",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Say which unit she keeps and which one is the duplicate to return."
+     },
+     "reconciliation": {
+      "name": "Order reconciliation",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Reconcile the order quantities for TG-039 and any duplicate charge."
+     },
+     "duplicate_returns": {
+      "name": "Duplicate returns",
+      "organization": "Tallowmere Goods",
+      "role": "returns_desk",
+      "is_us": false,
+      "responsibility": "Choose and authorise the duplicate return and arrange its carrier collection."
+     }
+    },
+    "goal": "Obtain current permitted options from the responsible service.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Email Duplicate returns that DL-039-O is no longer sealed, reported untouched by Dessa, and ask whether DR-039 and its no-charge terms still apply to the opened unit before the collection runs."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The merchant has authorised the return of the agreed duplicate unit and scheduled its collection.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The responsible party states the current options or confirms the permitted terms; acceptance and execution remain separate.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-12 09:00:00 UTC",
+     "escalated_at": "2026-03-12 16:20:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "039-N3"
+     },
+     "context_message_id": "001",
+     "summary": "Obtain current permitted options from the responsible service.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The new escalation requires a scoped response. I opened the original carton this afternoon to check it was the same model. The light is untouched and back in its box, but the factory seal is broken. Is tomorrow's collection still fine?",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The primary task reference is TG-039.",
+      "source": {
+       "type": "case_card",
+       "id": "039"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Original DL-039-O and replacement DL-039-R both have handover scans.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The merchant must choose which unit to return and authorise its collection.",
+      "source": {
+       "type": "case_card",
+       "id": "039"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "TG-039 ordered one floor light.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The customer should not be charged for a duplicate without the merchant's authorised reconciliation.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Dessa received both floor lights, kept the replacement and left the original carton sealed.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Duplicate return DR-039 is authorised for DL-039-O at no charge.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "Collection of DL-039-O is scheduled for 2026-03-13, 10:00–12:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "Dessa keeps DL-039-R.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Dessa Kelm reports: I opened the original carton this afternoon to check it was the same model.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Dessa Kelm reports: The light is untouched and back in its box, but the factory seal is broken.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Dessa Kelm reports: Is tomorrow's collection still fine?",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "information",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "duplicate_returns",
+      "purpose": "Tell Dessa how to return the duplicate floor light.",
+      "expected_response": "Authorised return instructions for the duplicate.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "duplicate_returns",
+      "responsible_actor": "duplicate_returns",
+      "purpose": "Authorise the return of the sealed original DL-039-O, with Dessa keeping DL-039-R, and arrange carrier collection.",
+      "expected_response": "Return authorisation and a collection booking.",
+      "status": "answered",
+      "response": "DR-039 authorised for DL-039-O at no charge; collection 2026-03-13, 10:00–12:00 UTC; keep DL-039-R.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     },
+     "r2": {
+      "type": "confirmation",
+      "from_actor": "coordinator",
+      "to_actor": "duplicate_returns",
+      "responsible_actor": "duplicate_returns",
+      "purpose": "Confirm the reconciled order quantity after pickup.",
+      "expected_response": "The reconciled quantity for TG-039 after pickup.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "duplicate_returns",
+      "responsible_actor": "duplicate_returns",
+      "purpose": "Email Duplicate returns that DL-039-O is no longer sealed, reported untouched by Dessa, and ask whether DR-039 and its no-charge terms still apply to the opened unit before the collection runs.",
+      "expected_response": "The responsible party states the current options or confirms the permitted terms; acceptance and execution remain separate.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "005"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "get_options",
+       "action": "Email Duplicate returns that DL-039-O is no longer sealed, reported untouched by Dessa, and ask whether DR-039 and its no-charge terms still apply to the opened unit before the collection runs.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "tell Dessa that DR-039 stands unchanged; the desk requested it for a sealed original.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "action_required",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": "branch_request",
+     "description": "Email Duplicate returns that DL-039-O is no longer sealed, reported untouched by Dessa, and ask whether DR-039 and its no-charge terms still apply to the opened unit before the collection runs."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "missing-customer-reply",
+      "kind": "context",
+      "title": "Unrecorded parent action",
+      "text": "A separate record of this parent action is absent. The branch does not by itself establish that it occurred. The next action is now the scoped branch response. Return DR-039 is authorised with collection on 2026-03-13, 10:00–12:00 UTC. Dessa asked us how to return the duplicate, so we now have to pass her these details; then the sealed original can be ready for the carrier in that window. At this step the reply is not yet recorded in the history.",
+      "source_event_ids": [
+       "002",
+       "004"
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "customer",
+       "type": "action",
+       "purpose": "Give Dessa the authorised return DR-039 for the sealed original DL-039-O and the collection window, 2026-03-13 10:00–12:00 UTC; she keeps DL-039-R."
+      },
+      "before_message_id": "005"
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "reconciliation": {
+      "participants": [
+       "coordinator",
+       "reconciliation"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     },
+     "returns": {
+      "participants": [
+       "coordinator",
+       "duplicate_returns"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "reconciliation",
+      "event_id": "001",
+      "timestamp": "2026-03-12 09:00:00 UTC",
+      "from_actor": "reconciliation",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "TG-039 ordered one floor light. Original DL-039-O and replacement DL-039-R now both have handover scans. Customer should not be charged for a duplicate without our authorised reconciliation."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-12 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Both floor lights arrived. I have kept the replacement and left the original carton sealed. Please tell me how to return the duplicate."
+     },
+     {
+      "conversation_id": "returns",
+      "event_id": "003",
+      "timestamp": "2026-03-12 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "duplicate_returns",
+      "channel": "Email",
+      "body": "Please authorise the return of the sealed original unit DL-039-O. Dessa will retain DL-039-R. Arrange carrier collection and confirm the reconciled quantity after pickup."
+     },
+     {
+      "conversation_id": "returns",
+      "event_id": "004",
+      "timestamp": "2026-03-12 09:50:00 UTC",
+      "from_actor": "duplicate_returns",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Duplicate return DR-039 authorised for DL-039-O at no charge, collection 2026-03-13 10:00–12:00 UTC. Keep DL-039-R."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "005",
+      "timestamp": "2026-03-12 16:20:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I opened the original carton this afternoon to check it was the same model. The light is untouched and back in its box, but the factory seal is broken. Is tomorrow's collection still fine?"
+     }
+    ],
+    "limits": [
+     "Treat carrier recovery as reconciling the duplicate quantity only.",
+     "Do not assert warehouse inspection or product quality.",
+     "Do not act on obsolete options or carry consent over to a new offer."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c2",
+      "description": "The merchant has confirmed that the duplicate was collected.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "The merchant has confirmed that the order quantities are reconciled.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "006",
+    "type": "message_sent",
+    "label": "Desk response",
+    "title": "Obtain current permitted options from the responsible service",
+    "timestamp": "2026-03-12 16:35:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "006"
+   },
+   "explanation": "The desk sends the recorded response. Do not act on obsolete options or carry consent over to a new offer.",
+   "state_after": {
+    "case_id": "039-N3",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the merchant's authorisation and collection for the duplicate unit and confirmation that the order quantities are reconciled."
+     },
+     "customer": {
+      "name": "Dessa Kelm",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Say which unit she keeps and which one is the duplicate to return."
+     },
+     "reconciliation": {
+      "name": "Order reconciliation",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Reconcile the order quantities for TG-039 and any duplicate charge."
+     },
+     "duplicate_returns": {
+      "name": "Duplicate returns",
+      "organization": "Tallowmere Goods",
+      "role": "returns_desk",
+      "is_us": false,
+      "responsibility": "Choose and authorise the duplicate return and arrange its carrier collection."
+     }
+    },
+    "goal": "Obtain current permitted options from the responsible service.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "duplicate_returns",
+       "request_id": "branch_request",
+       "expected": "The responsible party states the current options or confirms the permitted terms; acceptance and execution remain separate."
+      }
+     ],
+     "next_action": "Record the reply or scoped confirmation before closing this branch."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The merchant has authorised the return of the agreed duplicate unit and scheduled its collection.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The responsible party states the current options or confirms the permitted terms; acceptance and execution remain separate.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-12 09:00:00 UTC",
+     "escalated_at": "2026-03-12 16:20:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "039-N3"
+     },
+     "context_message_id": "001",
+     "summary": "Obtain current permitted options from the responsible service.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The scoped reply or confirmation has not yet been recorded.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The primary task reference is TG-039.",
+      "source": {
+       "type": "case_card",
+       "id": "039"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Original DL-039-O and replacement DL-039-R both have handover scans.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The merchant must choose which unit to return and authorise its collection.",
+      "source": {
+       "type": "case_card",
+       "id": "039"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "TG-039 ordered one floor light.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The customer should not be charged for a duplicate without the merchant's authorised reconciliation.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Dessa received both floor lights, kept the replacement and left the original carton sealed.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Duplicate return DR-039 is authorised for DL-039-O at no charge.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "Collection of DL-039-O is scheduled for 2026-03-13, 10:00–12:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "Dessa keeps DL-039-R.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Dessa Kelm reports: I opened the original carton this afternoon to check it was the same model.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Dessa Kelm reports: The light is untouched and back in its box, but the factory seal is broken.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Dessa Kelm reports: Is tomorrow's collection still fine?",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "information",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "duplicate_returns",
+      "purpose": "Tell Dessa how to return the duplicate floor light.",
+      "expected_response": "Authorised return instructions for the duplicate.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "duplicate_returns",
+      "responsible_actor": "duplicate_returns",
+      "purpose": "Authorise the return of the sealed original DL-039-O, with Dessa keeping DL-039-R, and arrange carrier collection.",
+      "expected_response": "Return authorisation and a collection booking.",
+      "status": "answered",
+      "response": "DR-039 authorised for DL-039-O at no charge; collection 2026-03-13, 10:00–12:00 UTC; keep DL-039-R.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     },
+     "r2": {
+      "type": "confirmation",
+      "from_actor": "coordinator",
+      "to_actor": "duplicate_returns",
+      "responsible_actor": "duplicate_returns",
+      "purpose": "Confirm the reconciled order quantity after pickup.",
+      "expected_response": "The reconciled quantity for TG-039 after pickup.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "duplicate_returns",
+      "responsible_actor": "duplicate_returns",
+      "purpose": "Email Duplicate returns that DL-039-O is no longer sealed, reported untouched by Dessa, and ask whether DR-039 and its no-charge terms still apply to the opened unit before the collection runs.",
+      "expected_response": "The responsible party states the current options or confirms the permitted terms; acceptance and execution remain separate.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "005",
+       "006"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "get_options",
+       "action": "Email Duplicate returns that DL-039-O is no longer sealed, reported untouched by Dessa, and ask whether DR-039 and its no-charge terms still apply to the opened unit before the collection runs.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "tell Dessa that DR-039 stands unchanged; the desk requested it for a sealed original.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "get_options",
+     "reason": "The recorded outgoing message takes this permitted response."
+    },
+    "status": "awaiting_response",
+    "next_step": {
+     "type": "information",
+     "responsible_actor": "duplicate_returns",
+     "request_id": "branch_request",
+     "description": "The responsible party states the current options or confirms the permitted terms; acceptance and execution remain separate."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "missing-customer-reply",
+      "kind": "context",
+      "title": "Unrecorded parent action",
+      "text": "A separate record of this parent action is absent. The branch does not by itself establish that it occurred. The next action is now the scoped branch response. Return DR-039 is authorised with collection on 2026-03-13, 10:00–12:00 UTC. Dessa asked us how to return the duplicate, so we now have to pass her these details; then the sealed original can be ready for the carrier in that window. At this step the reply is not yet recorded in the history.",
+      "source_event_ids": [
+       "002",
+       "004"
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "customer",
+       "type": "action",
+       "purpose": "Give Dessa the authorised return DR-039 for the sealed original DL-039-O and the collection window, 2026-03-13 10:00–12:00 UTC; she keeps DL-039-R."
+      },
+      "before_message_id": "005"
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "reconciliation": {
+      "participants": [
+       "coordinator",
+       "reconciliation"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     },
+     "returns": {
+      "participants": [
+       "coordinator",
+       "duplicate_returns"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "duplicate_returns"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "reconciliation",
+      "event_id": "001",
+      "timestamp": "2026-03-12 09:00:00 UTC",
+      "from_actor": "reconciliation",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "TG-039 ordered one floor light. Original DL-039-O and replacement DL-039-R now both have handover scans. Customer should not be charged for a duplicate without our authorised reconciliation."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-12 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Both floor lights arrived. I have kept the replacement and left the original carton sealed. Please tell me how to return the duplicate."
+     },
+     {
+      "conversation_id": "returns",
+      "event_id": "003",
+      "timestamp": "2026-03-12 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "duplicate_returns",
+      "channel": "Email",
+      "body": "Please authorise the return of the sealed original unit DL-039-O. Dessa will retain DL-039-R. Arrange carrier collection and confirm the reconciled quantity after pickup."
+     },
+     {
+      "conversation_id": "returns",
+      "event_id": "004",
+      "timestamp": "2026-03-12 09:50:00 UTC",
+      "from_actor": "duplicate_returns",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Duplicate return DR-039 authorised for DL-039-O at no charge, collection 2026-03-13 10:00–12:00 UTC. Keep DL-039-R."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "005",
+      "timestamp": "2026-03-12 16:20:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I opened the original carton this afternoon to check it was the same model. The light is untouched and back in its box, but the factory seal is broken. Is tomorrow's collection still fine?"
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "006",
+      "timestamp": "2026-03-12 16:35:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "duplicate_returns",
+      "channel": "Email",
+      "body": "The customer reports opening the original DL-039-O carton this afternoon to check it was the same light. The light is reported untouched and back in its box, but the factory seal is broken. Please confirm whether DR-039 and its no-charge terms still apply to the opened unit before the collection on 2026-03-13, 10:00–12:00 UTC."
+     }
+    ],
+    "limits": [
+     "Treat carrier recovery as reconciling the duplicate quantity only.",
+     "Do not assert warehouse inspection or product quality.",
+     "Do not act on obsolete options or carry consent over to a new offer."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c2",
+      "description": "The merchant has confirmed that the duplicate was collected.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "The merchant has confirmed that the order quantities are reconciled.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "007",
+    "type": "message_received",
+    "label": "Scoped confirmation",
+    "title": "Follow-through confirms the branch outcome",
+    "timestamp": "2026-03-12 17:30:00 UTC",
+    "actor_id": "duplicate_returns",
+    "message_id": "007"
+   },
+   "explanation": "Record what the responding party actually confirms. DR-039 stands for the opened DL-039-O at no charge, and collection remains 2026-03-13, 10:00–12:00 UTC. This does not confirm collection, condition on arrival or reconciliation of TG-039.",
+   "state_after": {
+    "case_id": "039-N3",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the merchant's authorisation and collection for the duplicate unit and confirmation that the order quantities are reconciled."
+     },
+     "customer": {
+      "name": "Dessa Kelm",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Say which unit she keeps and which one is the duplicate to return."
+     },
+     "reconciliation": {
+      "name": "Order reconciliation",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Reconcile the order quantities for TG-039 and any duplicate charge."
+     },
+     "duplicate_returns": {
+      "name": "Duplicate returns",
+      "organization": "Tallowmere Goods",
+      "role": "returns_desk",
+      "is_us": false,
+      "responsibility": "Choose and authorise the duplicate return and arrange its carrier collection."
+     }
+    },
+    "goal": "Obtain current permitted options from the responsible service.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The merchant has authorised the return of the agreed duplicate unit and scheduled its collection.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The responsible party states the current options or confirms the permitted terms; acceptance and execution remain separate.",
+      "status": "met",
+      "evidence_event_ids": [
+       "006",
+       "007"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-12 09:00:00 UTC",
+     "escalated_at": "2026-03-12 16:20:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "039-N3"
+     },
+     "context_message_id": "001",
+     "summary": "Obtain current permitted options from the responsible service.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The primary task reference is TG-039.",
+      "source": {
+       "type": "case_card",
+       "id": "039"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Original DL-039-O and replacement DL-039-R both have handover scans.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The merchant must choose which unit to return and authorise its collection.",
+      "source": {
+       "type": "case_card",
+       "id": "039"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "TG-039 ordered one floor light.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The customer should not be charged for a duplicate without the merchant's authorised reconciliation.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Dessa received both floor lights, kept the replacement and left the original carton sealed.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Duplicate return DR-039 is authorised for DL-039-O at no charge.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "Collection of DL-039-O is scheduled for 2026-03-13, 10:00–12:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "Dessa keeps DL-039-R.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Dessa Kelm reports: I opened the original carton this afternoon to check it was the same model.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Dessa Kelm reports: The light is untouched and back in its box, but the factory seal is broken.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Dessa Kelm reports: Is tomorrow's collection still fine?",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_outcome_1",
+      "text": "Duplicate returns reports: DR-039 stands for the opened DL-039-O at no charge, and collection remains 2026-03-13, 10:00–12:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     },
+     {
+      "id": "branch_outcome_2",
+      "text": "Duplicate returns reports: This does not confirm collection, condition on arrival or reconciliation of TG-039.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "information",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "duplicate_returns",
+      "purpose": "Tell Dessa how to return the duplicate floor light.",
+      "expected_response": "Authorised return instructions for the duplicate.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "duplicate_returns",
+      "responsible_actor": "duplicate_returns",
+      "purpose": "Authorise the return of the sealed original DL-039-O, with Dessa keeping DL-039-R, and arrange carrier collection.",
+      "expected_response": "Return authorisation and a collection booking.",
+      "status": "answered",
+      "response": "DR-039 authorised for DL-039-O at no charge; collection 2026-03-13, 10:00–12:00 UTC; keep DL-039-R.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     },
+     "r2": {
+      "type": "confirmation",
+      "from_actor": "coordinator",
+      "to_actor": "duplicate_returns",
+      "responsible_actor": "duplicate_returns",
+      "purpose": "Confirm the reconciled order quantity after pickup.",
+      "expected_response": "The reconciled quantity for TG-039 after pickup.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "duplicate_returns",
+      "responsible_actor": "duplicate_returns",
+      "purpose": "Email Duplicate returns that DL-039-O is no longer sealed, reported untouched by Dessa, and ask whether DR-039 and its no-charge terms still apply to the opened unit before the collection runs.",
+      "expected_response": "The responsible party states the current options or confirms the permitted terms; acceptance and execution remain separate.",
+      "status": "answered",
+      "response": "DR-039 stands for the opened DL-039-O at no charge, and collection remains 2026-03-13, 10:00–12:00 UTC. This does not confirm collection, condition on arrival or reconciliation of TG-039.",
+      "evidence_event_ids": [
+       "005",
+       "006",
+       "007"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "get_options",
+       "action": "Email Duplicate returns that DL-039-O is no longer sealed, reported untouched by Dessa, and ask whether DR-039 and its no-charge terms still apply to the opened unit before the collection runs.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "tell Dessa that DR-039 stands unchanged; the desk requested it for a sealed original.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "get_options",
+     "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "DR-039 stands for the opened DL-039-O at no charge, and collection remains 2026-03-13, 10:00–12:00 UTC. This does not confirm collection, condition on arrival or reconciliation of TG-039.",
+     "confirmed_by": "duplicate_returns",
+     "evidence_event_ids": [
+      "007"
+     ],
+     "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not tell Dessa that DR-039 stands unchanged; the desk requested it for a sealed original."
+    },
+    "annotations": [
+     {
+      "id": "missing-customer-reply",
+      "kind": "context",
+      "title": "Unrecorded parent action",
+      "text": "A separate record of this parent action is absent. The branch does not by itself establish that it occurred. The next action is now the scoped branch response. Return DR-039 is authorised with collection on 2026-03-13, 10:00–12:00 UTC. Dessa asked us how to return the duplicate, so we now have to pass her these details; then the sealed original can be ready for the carrier in that window. At this step the reply is not yet recorded in the history.",
+      "source_event_ids": [
+       "002",
+       "004"
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "customer",
+       "type": "action",
+       "purpose": "Give Dessa the authorised return DR-039 for the sealed original DL-039-O and the collection window, 2026-03-13 10:00–12:00 UTC; she keeps DL-039-R."
+      },
+      "before_message_id": "005"
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "reconciliation": {
+      "participants": [
+       "coordinator",
+       "reconciliation"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     },
+     "returns": {
+      "participants": [
+       "coordinator",
+       "duplicate_returns"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "duplicate_returns"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "reconciliation",
+      "event_id": "001",
+      "timestamp": "2026-03-12 09:00:00 UTC",
+      "from_actor": "reconciliation",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "TG-039 ordered one floor light. Original DL-039-O and replacement DL-039-R now both have handover scans. Customer should not be charged for a duplicate without our authorised reconciliation."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-12 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Both floor lights arrived. I have kept the replacement and left the original carton sealed. Please tell me how to return the duplicate."
+     },
+     {
+      "conversation_id": "returns",
+      "event_id": "003",
+      "timestamp": "2026-03-12 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "duplicate_returns",
+      "channel": "Email",
+      "body": "Please authorise the return of the sealed original unit DL-039-O. Dessa will retain DL-039-R. Arrange carrier collection and confirm the reconciled quantity after pickup."
+     },
+     {
+      "conversation_id": "returns",
+      "event_id": "004",
+      "timestamp": "2026-03-12 09:50:00 UTC",
+      "from_actor": "duplicate_returns",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Duplicate return DR-039 authorised for DL-039-O at no charge, collection 2026-03-13 10:00–12:00 UTC. Keep DL-039-R."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "005",
+      "timestamp": "2026-03-12 16:20:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I opened the original carton this afternoon to check it was the same model. The light is untouched and back in its box, but the factory seal is broken. Is tomorrow's collection still fine?"
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "006",
+      "timestamp": "2026-03-12 16:35:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "duplicate_returns",
+      "channel": "Email",
+      "body": "The customer reports opening the original DL-039-O carton this afternoon to check it was the same light. The light is reported untouched and back in its box, but the factory seal is broken. Please confirm whether DR-039 and its no-charge terms still apply to the opened unit before the collection on 2026-03-13, 10:00–12:00 UTC."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "007",
+      "timestamp": "2026-03-12 17:30:00 UTC",
+      "from_actor": "duplicate_returns",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DR-039 stands for the opened DL-039-O at no charge, and collection remains 2026-03-13, 10:00–12:00 UTC. This does not confirm collection, condition on arrival or reconciliation of TG-039."
+     }
+    ],
+    "limits": [
+     "Treat carrier recovery as reconciling the duplicate quantity only.",
+     "Do not assert warehouse inspection or product quality.",
+     "Do not act on obsolete options or carry consent over to a new offer."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c2",
+      "description": "The merchant has confirmed that the duplicate was collected.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "The merchant has confirmed that the order quantities are reconciled.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  }
+ ]
+}

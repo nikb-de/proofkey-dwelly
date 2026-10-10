@@ -1,0 +1,532 @@
+{
+ "case_id": "004-N1",
+ "lang": "en",
+ "title": "004-N1 · Recipient asks for an unverified new number",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Oren Sile. From the case card: the route for DL-004 is booked and the driver has not yet departed; the customer needs time to move from a nearby studio to the delivery door.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: pass the recipient's callback request to dispatch and get confirmation that it is recorded.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Oren Sile",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Say how and when the driver should call before arrival.",
+   "from_start": true,
+   "source_names": [
+    "Oren Sile, recipient"
+   ]
+  },
+  "dispatch": {
+   "name": "Dispatch",
+   "organization": "Plover Arc Logistics",
+   "role": "dispatch",
+   "responsibility": "Record the call request on the route and confirm it.",
+   "from_start": false,
+   "source_names": [
+    "Dispatch, Plover Arc Logistics"
+   ]
+  }
+ },
+ "goal": "Get dispatch to record the recipient's request for a call shortly before arrival on DL-004 and confirm that it is recorded.",
+ "limits": [
+  "Do not treat the recorded instruction as proof that the driver called.",
+  "Do not treat the recorded instruction as proof of arrival.",
+  "Do not promise or perform the prohibited request."
+ ],
+ "intake": {
+  "summary": "Add a call shortly before arrival to DL-004 so the recipient can walk over from a nearby studio.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The customer needs time to reach the delivery door; no advance call is arranged.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-004.",
+    "source": {
+     "type": "case_card",
+     "id": "004"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The route is booked; the driver has not yet departed.",
+    "source": {
+     "type": "case_card",
+     "id": "004"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The customer needs time to move from a nearby studio to the delivery door.",
+    "source": {
+     "type": "case_card",
+     "id": "004"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The recipient has stated which contact the driver should call."
+   },
+   {
+    "id": "c2",
+    "description": "Dispatch has confirmed that the call request is recorded on the DL-004 route."
+   },
+   {
+    "id": "c3",
+    "description": "Dispatch has confirmed that the request is visible to the assigned driver."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": null,
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/004/N1-SNAPSHOT_CONFLICT",
+  "branch_id": "004-N1",
+  "derived_from_case": "004",
+  "retained_public_events": [
+   "001",
+   "002"
+  ],
+  "diverges_after_event": "002",
+  "failure_mode": "SNAPSHOT_CONFLICT",
+  "expected_decision": "DECLINE_EXPLAIN",
+  "workflow_sheet": "A",
+  "branch_label": "Recipient asks for an unverified new number",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "156cace08844affc905af7f9564b43d72ef2e63cc68fa15130eb710e5eeea5f0",
+   "history.md": "50a3b421415d8a873ba5f56b37845dfddf8088b9b353b85ba3a98b48f6b3aa2e"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Dispatch email",
+   "title": "Dispatch can add a call request",
+   "explanation": "Dispatch can add a call request on the verified number already in the order record, but cannot guarantee an exact advance interval. We take in the recipient's request before asking dispatch to record anything.",
+   "conversation_id": "dispatch",
+   "facts_upsert": [
+    {
+     "id": "f4",
+     "text": "DL-004 is on the 2026-02-06 afternoon route.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "Dispatch can add a call request using the verified number already in the order record.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f6",
+     "text": "Dispatch cannot guarantee an exact advance interval before arrival.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Take in the recipient's request before asking dispatch to record a call."
+   },
+   "blocker": "The customer needs time to reach the delivery door; no advance call is recorded on the route.",
+   "status": "context_received",
+   "next_step": null,
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Oren asks for a call before arrival",
+   "explanation": "Oren asks for a call on the saved order contact, which matches what dispatch can add. No contact change is needed, so we can pass the request straight to dispatch.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f3",
+     "text": "Oren works in the studio next door and needs a few minutes to walk over.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f7",
+     "text": "Oren asks the driver to call shortly before arriving, using the saved order contact.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "dispatch",
+     "purpose": "Arrange for the driver to call the saved order contact shortly before arrival.",
+     "expected_response": "A call request recorded on the route.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "dispatch",
+     "responsible_actor": "dispatch",
+     "purpose": "Record Oren's request on DL-004: call the verified saved order contact shortly before arrival.",
+     "expected_response": "Confirmation that the call request is recorded.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c1",
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask dispatch to record Oren's request on DL-004: call the verified saved order contact shortly before arrival."
+   },
+   "blocker": "The call request is not yet recorded on the route.",
+   "status": "escalated",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "dispatch",
+    "request_id": "r1",
+    "description": "Record the call request on the DL-004 route."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "New escalation",
+   "title": "Recipient asks for an unverified new number",
+   "explanation": "Explain the policy boundary and the permitted next step. Do not promise or perform the prohibited request.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Oren Sile reports: Correction: please do not use my saved number, that phone stays switched off at work.",
+     "source": {
+      "type": "message",
+      "id": "003"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Oren Sile reports: Have the driver call the studio's front desk line instead.",
+     "source": {
+      "type": "message",
+      "id": "003"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Oren Sile reports: It is not on the order yet; I can send it here.",
+     "source": {
+      "type": "message",
+      "id": "003"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Tell Oren in the Customer portal that Dispatch can add a call request only to the verified number already in the order record, and ask whether he wants it on that number.",
+     "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "003"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Tell Oren in the Customer portal that Dispatch can add a call request only to the verified number already in the order record, and ask whether he wants it on that number."
+   },
+   "blocker": "The new escalation requires a scoped response. Correction: please do not use my saved number, that phone stays switched off at work. Have the driver call the studio's front desk line instead. It is not on the order yet; I can send it here.",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Tell Oren in the Customer portal that Dispatch can add a call request only to the verified number already in the order record, and ask whether he wants it on that number."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "003",
+     "source_event_ids": [
+      "003"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c2",
+    "c3"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "decline_explain",
+      "action": "Tell Oren in the Customer portal that Dispatch can add a call request only to the verified number already in the order record, and ask whether he wants it on that number.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Collect the studio line and pass it to Dispatch or the driver, or record it on the route card.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "004-N1"
+    },
+    "summary": "Explain the policy boundary and the permitted next step.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Explain the policy boundary and the permitted next step."
+   }
+  },
+  {
+   "event_id": "004",
+   "label": "Desk response",
+   "title": "Explain the policy boundary and the permitted next step",
+   "explanation": "The desk sends the recorded response. Do not promise or perform the prohibited request.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Tell Oren in the Customer portal that Dispatch can add a call request only to the verified number already in the order record, and ask whether he wants it on that number.",
+     "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "003",
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "recipient",
+      "request_id": "branch_request",
+      "expected": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_response",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "recipient",
+    "request_id": "branch_request",
+    "description": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "decline_explain",
+      "action": "Tell Oren in the Customer portal that Dispatch can add a call request only to the verified number already in the order record, and ask whether he wants it on that number.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Collect the studio line and pass it to Dispatch or the driver, or record it on the route card.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "decline_explain",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "005",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. Yes, please add the call request to the saved number on my order. I will keep that phone with me tomorrow afternoon. I understand no call has been arranged yet.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Oren Sile reports: Yes, please add the call request to the saved number on my order.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Oren Sile reports: I will keep that phone with me tomorrow afternoon.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Oren Sile reports: I understand no call has been arranged yet.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Tell Oren in the Customer portal that Dispatch can add a call request only to the verified number already in the order record, and ask whether he wants it on that number.",
+     "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+     "status": "answered",
+     "response": "Yes, please add the call request to the saved number on my order. I will keep that phone with me tomorrow afternoon. I understand no call has been arranged yet.",
+     "evidence_event_ids": [
+      "003",
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "Yes, please add the call request to the saved number on my order. I will keep that phone with me tomorrow afternoon. I understand no call has been arranged yet.",
+    "confirmed_by": "recipient",
+    "evidence_event_ids": [
+     "005"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Collect the studio line and pass it to Dispatch or the driver, or record it on the route card."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "decline_explain",
+      "action": "Tell Oren in the Customer portal that Dispatch can add a call request only to the verified number already in the order record, and ask whether he wants it on that number.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Collect the studio line and pass it to Dispatch or the driver, or record it on the route card.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "decline_explain",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

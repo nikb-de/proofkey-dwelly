@@ -1,0 +1,616 @@
+{
+ "case_id": "019-N1",
+ "lang": "en",
+ "title": "019-N1 · Tracker shows arrival estimate during suspension",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Tessa Jorn. From the case card: an operator weather decision suspends the route for DL-019, and our task is to relay a verified update and review time, not to invent a replacement arrival estimate.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get dispatch's approved update and relay it to the recipient without promising an arrival time.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Tessa Jorn",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Asks whether DL-019 is coming today and when to expect an update.",
+   "from_start": true,
+   "source_names": [
+    "Tessa Jorn, recipient"
+   ]
+  },
+  "route_safety": {
+   "name": "Route safety control",
+   "organization": "Plover Arc Logistics",
+   "role": "safety_desk",
+   "responsibility": "Reports the weather suspension of route MQ-19 and the review time.",
+   "from_start": false,
+   "source_names": [
+    "Route safety control, Plover Arc Logistics"
+   ]
+  },
+  "dispatch": {
+   "name": "Dispatch",
+   "organization": "Plover Arc Logistics",
+   "role": "dispatch",
+   "responsibility": "Provide the approved disruption update and the next review time for DL-019.",
+   "from_start": false,
+   "source_names": [
+    "Dispatch, Plover Arc Logistics"
+   ]
+  }
+ },
+ "goal": "Get dispatch's verified disruption update and review time for DL-019 and relay it to the recipient without an unapproved arrival estimate.",
+ "limits": [
+  "Do not invent a replacement arrival estimate.",
+  "Do not present the review time as a route-restart time.",
+  "Do not present the review time as a guaranteed delivery time.",
+  "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+ ],
+ "intake": {
+  "summary": "Weather has suspended the route for DL-019; relay a verified update and review time to the recipient.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The route is suspended by weather; no verified update is available to relay.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-019.",
+    "source": {
+     "type": "case_card",
+     "id": "019"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "An operator weather decision suspends the route.",
+    "source": {
+     "type": "case_card",
+     "id": "019"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "Dispatch has provided an approved disruption update and the next review time."
+   },
+   {
+    "id": "c2",
+    "description": "The verified suspension notice and review time have been sent to the recipient."
+   },
+   {
+    "id": "c3",
+    "description": "The update to the recipient contains no arrival promise that dispatch has not approved."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/019/N1-CONFLICTING_RECORDS",
+  "branch_id": "019-N1",
+  "derived_from_case": "019",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "CONFLICTING_RECORDS",
+  "expected_decision": "RECONCILE_CONFLICT",
+  "workflow_sheet": "E",
+  "branch_label": "Tracker shows arrival estimate during suspension",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "a9ed1c2f0d12cd30396c20981ca0f687988e6b7c38b221c46f845051731e6c28",
+   "history.md": "22fb295f4ded31ff3791501019c7258bf7a490b9606597c522863eb1729765aa"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Safety email",
+   "title": "Route MQ-19 suspended by severe weather",
+   "explanation": "Route safety control reports the suspension and says dispatch will review conditions at 15:00 UTC; no delivery estimate is approved. Any customer update has to come from dispatch's approved wording.",
+   "conversation_id": "safety",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "Route MQ-19 is suspended due to severe weather.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f3",
+     "text": "DL-019 is secure in depot stock.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f4",
+     "text": "Dispatch will review conditions at 15:00 UTC today.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "There is no approved delivery estimate.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "dispatch",
+     "responsible_actor": "dispatch",
+     "purpose": "Get the approved disruption wording and next review time for DL-019.",
+     "expected_response": "An approved customer update and the next review time.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "001"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask dispatch for the approved disruption update and next review time for DL-019."
+   },
+   "blocker": "Route MQ-19 is suspended; there is no approved delivery estimate.",
+   "status": "context_received",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "dispatch",
+    "request_id": "r1",
+    "description": "Provide the approved disruption update and next review time for DL-019."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client question",
+   "title": "Tessa asks whether the parcel comes today",
+   "explanation": "Tessa wants to know about delivery today and when an update will come. We answer only with a dispatch-approved update, so we ask dispatch first.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f6",
+     "text": "The recipient says they saw the weather alert.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "information",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "coordinator",
+     "purpose": "Tell the recipient whether the parcel is coming today and when to expect an update.",
+     "expected_response": "A verified delivery status and update time.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask dispatch for the approved disruption update and next review time for DL-019."
+   },
+   "blocker": "The recipient wants a status; no dispatch-approved update is available to relay yet.",
+   "status": "escalated",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "dispatch",
+    "request_id": "r1",
+    "description": "Provide the approved disruption update and next review time for DL-019."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "weather-alert-context",
+     "kind": "context",
+     "title": "What Tessa knew before writing",
+     "text": "Tessa says they saw the weather alert. Where and when the alert was seen is not recorded in the history.",
+     "before_message_id": "002",
+     "source_event_ids": [
+      "002"
+     ]
+    }
+   ]
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We ask dispatch for approved wording",
+   "explanation": "We asked for the approved disruption wording and review time and said we need a verified update, not an unapproved arrival estimate. Now we wait for dispatch.",
+   "conversation_id": "dispatch",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "dispatch",
+     "responsible_actor": "dispatch",
+     "purpose": "Get the approved disruption wording and next review time for DL-019.",
+     "expected_response": "An approved customer update and the next review time.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "001",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "dispatch",
+      "request_id": "r1",
+      "expected": "Approved disruption wording and next review time"
+     }
+    ],
+    "next_action": "Once dispatch replies, relay the approved update to Tessa."
+   },
+   "blocker": "No dispatch-approved update is available to relay yet.",
+   "status": "awaiting_response",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "dispatch",
+    "request_id": "r1",
+    "description": "Wait for dispatch's approved wording and review time."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "New escalation",
+   "title": "Tracker shows arrival estimate during suspension",
+   "explanation": "Keep both records and request evidence from their owner. Do not erase either conflicting record or infer a finding before the owner supplies evidence.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Tessa Jorn reports: The tracker has just changed to 'Out for delivery, arriving 12:00–14:00'.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Tessa Jorn reports: The weather alert said the route is suspended.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Tessa Jorn reports: Which is right?",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_4",
+     "text": "Tessa Jorn reports: Should I stay in?",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "dispatch",
+     "responsible_actor": "dispatch",
+     "purpose": "Keep both records and ask Dispatch by email which status of DL-019 is current and whether the 12:00–14:00 estimate is approved, telling Tessa only that it is being checked.",
+     "expected_response": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Keep both records and ask Dispatch by email which status of DL-019 is current and whether the 12:00–14:00 estimate is approved, telling Tessa only that it is being checked."
+   },
+   "blocker": "The new escalation requires a scoped response. The tracker has just changed to 'Out for delivery, arriving 12:00–14:00'. The weather alert said the route is suspended. Which is right? Should I stay in?",
+   "status": "verification_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Keep both records and ask Dispatch by email which status of DL-019 is current and whether the 12:00–14:00 estimate is approved, telling Tessa only that it is being checked."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "004",
+     "source_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c1",
+    "c2",
+    "c3"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "reconcile_conflict",
+      "action": "Keep both records and ask Dispatch by email which status of DL-019 is current and whether the 12:00–14:00 estimate is approved, telling Tessa only that it is being checked.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "tell Tessa to expect DL-019 between 12:00 and 14:00 because the tracker shows it.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "019-N1"
+    },
+    "summary": "Keep both records and request evidence from their owner.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Keep both records and request evidence from their owner."
+   }
+  },
+  {
+   "event_id": "005",
+   "label": "Desk response",
+   "title": "Keep both records and request evidence from their owner",
+   "explanation": "The desk sends the recorded response. Do not erase either conflicting record or infer a finding before the owner supplies evidence.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "dispatch",
+     "responsible_actor": "dispatch",
+     "purpose": "Keep both records and ask Dispatch by email which status of DL-019 is current and whether the 12:00–14:00 estimate is approved, telling Tessa only that it is being checked.",
+     "expected_response": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "dispatch",
+      "request_id": "branch_request",
+      "expected": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_verification",
+   "next_step": {
+    "type": "verification",
+    "responsible_actor": "dispatch",
+    "request_id": "branch_request",
+    "description": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "reconcile_conflict",
+      "action": "Keep both records and ask Dispatch by email which status of DL-019 is current and whether the 12:00–14:00 estimate is approved, telling Tessa only that it is being checked.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "tell Tessa to expect DL-019 between 12:00 and 14:00 because the tracker shows it.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "reconcile_conflict",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. The 'Out for delivery' entry for DL-019 was generated in error and is being withdrawn. Route MQ-19 remains suspended and DL-019 is in depot stock. Approved wording: the route is suspended, the parcel remains at the depot and conditions will be reviewed at 15:00 UTC. No delivery estimate is approved.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Dispatch reports: The 'Out for delivery' entry for DL-019 was generated in error and is being withdrawn.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Dispatch reports: Route MQ-19 remains suspended and DL-019 is in depot stock.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Dispatch reports: Approved wording: the route is suspended, the parcel remains at the depot and conditions will be reviewed at 15:00 UTC.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_4",
+     "text": "Dispatch reports: No delivery estimate is approved.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "dispatch",
+     "responsible_actor": "dispatch",
+     "purpose": "Keep both records and ask Dispatch by email which status of DL-019 is current and whether the 12:00–14:00 estimate is approved, telling Tessa only that it is being checked.",
+     "expected_response": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+     "status": "answered",
+     "response": "The 'Out for delivery' entry for DL-019 was generated in error and is being withdrawn. Route MQ-19 remains suspended and DL-019 is in depot stock. Approved wording: the route is suspended, the parcel remains at the depot and conditions will be reviewed at 15:00 UTC. No delivery estimate is approved.",
+     "evidence_event_ids": [
+      "004",
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "The 'Out for delivery' entry for DL-019 was generated in error and is being withdrawn. Route MQ-19 remains suspended and DL-019 is in depot stock. Approved wording: the route is suspended, the parcel remains at the depot and conditions will be reviewed at 15:00 UTC. No delivery estimate is approved.",
+    "confirmed_by": "dispatch",
+    "evidence_event_ids": [
+     "006"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not tell Tessa to expect DL-019 between 12:00 and 14:00 because the tracker shows it."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "reconcile_conflict",
+      "action": "Keep both records and ask Dispatch by email which status of DL-019 is current and whether the 12:00–14:00 estimate is approved, telling Tessa only that it is being checked.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "tell Tessa to expect DL-019 between 12:00 and 14:00 because the tracker shows it.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "reconcile_conflict",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

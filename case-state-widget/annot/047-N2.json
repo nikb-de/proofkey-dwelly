@@ -1,0 +1,660 @@
+{
+ "case_id": "047-N2",
+ "lang": "en",
+ "title": "047-N2 · Customer portal shows a different total",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Teren Osk, the recipient. From the case card: the carrier issued an import charge on DL-047 that the recipient does not understand; billing must explain the lines, and the desk cannot waive them or invent tax rules.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get billing's itemised explanation of the charge and pass it to the recipient without implying payment or waiver.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "recipient": {
+   "name": "Teren Osk",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Ask for an explanation of the import charge before deciding what to do.",
+   "from_start": true,
+   "source_names": [
+    "Teren Osk, recipient"
+   ]
+  },
+  "import_support": {
+   "name": "Import support",
+   "organization": "Plover Arc Logistics",
+   "role": "carrier",
+   "responsibility": "Report the charge notice total and where the itemisation is held.",
+   "from_start": false,
+   "source_names": [
+    "Import support, Plover Arc Logistics"
+   ]
+  },
+  "billing": {
+   "name": "Import billing",
+   "organization": "Plover Arc Logistics",
+   "role": "billing",
+   "responsibility": "Explain the charge lines and the total for this charge notice.",
+   "from_start": false,
+   "source_names": [
+    "Import billing, Plover Arc Logistics"
+   ]
+  }
+ },
+ "goal": "Get the carrier's billing team to supply an itemised breakdown of the import charge and pass it to the recipient, without implying payment or waiver.",
+ "limits": [
+  "Do not invent statutory rates.",
+  "Do not send payment links.",
+  "Do not treat the explanation as settlement or release of goods.",
+  "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+ ],
+ "intake": {
+  "summary": "Explain the carrier-issued import charge on DL-047 to the recipient.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The recipient does not understand the import charge, and the desk has no itemisation.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-047.",
+    "source": {
+     "type": "case_card",
+     "id": "047"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The carrier issued an import charge that the recipient does not understand.",
+    "source": {
+     "type": "case_card",
+     "id": "047"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "Billing must explain the charge lines; the desk cannot waive them or invent tax rules.",
+    "source": {
+     "type": "case_card",
+     "id": "047"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "Billing has supplied an itemised explanation of the charge lines, including the total."
+   },
+   {
+    "id": "c2",
+    "description": "The breakdown has been passed to the recipient."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/047/N2-CONFLICTING_RECORDS",
+  "branch_id": "047-N2",
+  "derived_from_case": "047",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003",
+   "004"
+  ],
+  "diverges_after_event": "004",
+  "failure_mode": "CONFLICTING_RECORDS",
+  "expected_decision": "RECONCILE_CONFLICT",
+  "workflow_sheet": "E",
+  "branch_label": "Customer portal shows a different total",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "18354de8ac225b559dde463eb087e614c9f21aecc05bba8b08a9426c6d09d9bc",
+   "history.md": "dc9b9c938782662fc262cd2f9eac870bbadd629a27fe0e2217b426ca8b808d82"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Carrier email",
+   "title": "Import support reports the charge total",
+   "explanation": "We know the total of charge notice IC-047, but the itemisation is held by the carrier's billing team. Only billing can explain the lines, so the next step is a request to billing.",
+   "conversation_id": "import_support",
+   "facts_upsert": [
+    {
+     "id": "f4",
+     "text": "Charge notice IC-047 for DL-047 totals GBP 32.00.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "The itemisation is held by the carrier's billing team.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f6",
+     "text": "This is a fictional operator notice; payment is not confirmed.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "billing",
+     "responsible_actor": "billing",
+     "purpose": "Get the itemised explanation of IC-047 for DL-047, including the total.",
+     "expected_response": "An itemised breakdown of IC-047 with the total.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "001"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask the carrier's billing team for the itemised explanation of IC-047."
+   },
+   "blocker": "The desk has only the IC-047 total; the itemisation is held by billing.",
+   "status": "context_received",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "billing",
+    "request_id": "r1",
+    "description": "Provide the itemised explanation of IC-047, including the total."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Teren asks what the GBP 32.00 covers",
+   "explanation": "Teren wants to know which part of the charge is handling and which is the import assessment before deciding what to do. Only billing holds the itemisation, so we ask billing for information, not for payment authorisation.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f7",
+     "text": "The recipient asks for the GBP 32.00 charge to be explained before deciding what to do, and does not understand which part is handling and which is the import assessment.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "information",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "billing",
+     "purpose": "Explain the GBP 32.00 charge: which part is handling and which part is the import assessment.",
+     "expected_response": "A breakdown of the charge into handling and import assessment.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask import billing for the itemised explanation of IC-047, including the total, as a request for information, not payment authorisation."
+   },
+   "blocker": "The recipient does not understand the charge; the itemisation is held by billing.",
+   "status": "escalated",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "billing",
+    "request_id": "r1",
+    "description": "Provide the itemised explanation of IC-047, including the total."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "charge-context",
+     "kind": "context",
+     "title": "What Teren knew before the message",
+     "text": "Teren refers to a GBP 32.00 charge, so Teren already knows the charge total. How Teren was notified of it is not recorded in the history.",
+     "before_message_id": "002",
+     "source_event_ids": [
+      "002"
+     ]
+    }
+   ]
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We ask billing for the itemisation",
+   "explanation": "We asked billing for the itemised explanation of IC-047 with the total, through Teren's verified order thread, and stated that this is not payment authorisation. Now we wait for billing.",
+   "conversation_id": "billing",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "billing",
+     "responsible_actor": "billing",
+     "purpose": "Provide the itemised explanation for IC-047 / DL-047 through Teren's verified order thread, including the total; this is a request for information, not payment authorisation.",
+     "expected_response": "An itemised breakdown of IC-047 with the total.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "001",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "billing",
+      "request_id": "r1",
+      "expected": "Itemised breakdown of IC-047 with the total"
+     }
+    ],
+    "next_action": "Once billing replies, make sure Teren receives the breakdown."
+   },
+   "blocker": "Billing has not yet supplied the itemisation.",
+   "status": "awaiting_response",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "billing",
+    "request_id": "r1",
+    "description": "Wait for billing's itemised explanation of IC-047."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "Billing reply",
+   "title": "Billing itemises IC-047",
+   "explanation": "Billing split the GBP 32.00 into the import assessment and carrier handling and stated that nothing is paid or waived. The breakdown was addressed to us, so the next step is to pass it to Teren.",
+   "conversation_id": "billing",
+   "facts_upsert": [
+    {
+     "id": "f8",
+     "text": "IC-047 breakdown: fictional import assessment GBP 20.00; carrier handling GBP 12.00; total GBP 32.00.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "f9",
+     "text": "The assessment line is recorded from this shipment's broker notice; it is not advice about general tax rates.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "f6",
+     "text": "No payment or waiver is posted.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "billing",
+     "responsible_actor": "billing",
+     "purpose": "Provide the itemised explanation for IC-047 / DL-047 through Teren's verified order thread, including the total; this is a request for information, not payment authorisation.",
+     "expected_response": "An itemised breakdown of IC-047 with the total.",
+     "status": "answered",
+     "response": "Import assessment GBP 20.00; carrier handling GBP 12.00; total GBP 32.00. No payment or waiver is posted.",
+     "evidence_event_ids": [
+      "001",
+      "003",
+      "004"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c1",
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Send Teren the IC-047 breakdown in the customer portal and state that it is not a payment or waiver."
+   },
+   "blocker": "Teren has not yet been sent the breakdown.",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": null,
+    "description": "Pass billing's breakdown of IC-047 to Teren."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "005",
+   "label": "New escalation",
+   "title": "Customer portal shows a different total",
+   "explanation": "Keep both records and request evidence from their owner. Do not erase either conflicting record or infer a finding before the owner supplies evidence.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Teren Osk reports: My portal now shows IC-047 as GBP 34.00 due, not GBP 32.00.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Teren Osk reports: It changed this morning.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Teren Osk reports: Which amount is the charge I am asking about?",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "billing",
+     "responsible_actor": "billing",
+     "purpose": "Ask Import billing by email which IC-047 total is current, GBP 32.00 or GBP 34.00, and what the GBP 2.00 difference is, keeping both records on file.",
+     "expected_response": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask Import billing by email which IC-047 total is current, GBP 32.00 or GBP 34.00, and what the GBP 2.00 difference is, keeping both records on file."
+   },
+   "blocker": "The new escalation requires a scoped response. My portal now shows IC-047 as GBP 34.00 due, not GBP 32.00. It changed this morning. Which amount is the charge I am asking about?",
+   "status": "verification_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Ask Import billing by email which IC-047 total is current, GBP 32.00 or GBP 34.00, and what the GBP 2.00 difference is, keeping both records on file."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "005",
+     "source_event_ids": [
+      "005"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c2"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "reconcile_conflict",
+      "action": "Ask Import billing by email which IC-047 total is current, GBP 32.00 or GBP 34.00, and what the GBP 2.00 difference is, keeping both records on file.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Send Teren the GBP 32.00 breakdown as final, or explain the GBP 2.00 difference yourself, for example as storage.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "047-N2"
+    },
+    "summary": "Keep both records and request evidence from their owner.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Keep both records and request evidence from their owner."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Desk response",
+   "title": "Keep both records and request evidence from their owner",
+   "explanation": "The desk sends the recorded response. Do not erase either conflicting record or infer a finding before the owner supplies evidence.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "billing",
+     "responsible_actor": "billing",
+     "purpose": "Ask Import billing by email which IC-047 total is current, GBP 32.00 or GBP 34.00, and what the GBP 2.00 difference is, keeping both records on file.",
+     "expected_response": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "billing",
+      "request_id": "branch_request",
+      "expected": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_verification",
+   "next_step": {
+    "type": "verification",
+    "responsible_actor": "billing",
+    "request_id": "branch_request",
+    "description": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "reconcile_conflict",
+      "action": "Ask Import billing by email which IC-047 total is current, GBP 32.00 or GBP 34.00, and what the GBP 2.00 difference is, keeping both records on file.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Send Teren the GBP 32.00 breakdown as final, or explain the GBP 2.00 difference yourself, for example as storage.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "reconcile_conflict",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "007",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. The current IC-047 total is GBP 32.00: import assessment GBP 20.00 and carrier handling GBP 12.00. The GBP 34.00 in the customer portal included a GBP 2.00 notice fee added in error, now removed. This explains the charge; no payment or waiver is posted.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Import billing reports: The current IC-047 total is GBP 32.00: import assessment GBP 20.00 and carrier handling GBP 12.00.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Import billing reports: The GBP 34.00 in the customer portal included a GBP 2.00 notice fee added in error, now removed.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Import billing reports: This explains the charge; no payment or waiver is posted.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "verification",
+     "from_actor": "coordinator",
+     "to_actor": "billing",
+     "responsible_actor": "billing",
+     "purpose": "Ask Import billing by email which IC-047 total is current, GBP 32.00 or GBP 34.00, and what the GBP 2.00 difference is, keeping both records on file.",
+     "expected_response": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+     "status": "answered",
+     "response": "The current IC-047 total is GBP 32.00: import assessment GBP 20.00 and carrier handling GBP 12.00. The GBP 34.00 in the customer portal included a GBP 2.00 notice fee added in error, now removed. This explains the charge; no payment or waiver is posted.",
+     "evidence_event_ids": [
+      "005",
+      "006",
+      "007"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "006",
+      "007"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "The current IC-047 total is GBP 32.00: import assessment GBP 20.00 and carrier handling GBP 12.00. The GBP 34.00 in the customer portal included a GBP 2.00 notice fee added in error, now removed. This explains the charge; no payment or waiver is posted.",
+    "confirmed_by": "billing",
+    "evidence_event_ids": [
+     "007"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Send Teren the GBP 32.00 breakdown as final, or explain the GBP 2.00 difference yourself, for example as storage."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "reconcile_conflict",
+      "action": "Ask Import billing by email which IC-047 total is current, GBP 32.00 or GBP 34.00, and what the GBP 2.00 difference is, keeping both records on file.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Send Teren the GBP 32.00 breakdown as final, or explain the GBP 2.00 difference yourself, for example as storage.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "reconcile_conflict",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

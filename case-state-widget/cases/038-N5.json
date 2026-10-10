@@ -1,0 +1,2075 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "038-N5 · Customer cancels the approved reshipment",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Sella Nove. From the case card: the failed original delivery of DL-038 is physically back at the merchant, and the customer still wants the item and has confirmed the existing delivery details.",
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/038/N5-CUSTOMER_CANCELS",
+  "branch_id": "038-N5",
+  "derived_from_case": "038",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003",
+   "004"
+  ],
+  "diverges_after_event": "004",
+  "failure_mode": "CUSTOMER_CANCELS",
+  "expected_decision": "RECORD_STOP",
+  "workflow_sheet": "F",
+  "branch_label": "Customer cancels the approved reshipment",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "a7777ef77aef791c4ce0a18facb128cb77037f25e935ebfb073a15055072f8f5",
+   "history.md": "ae800dbba996f19c672d683a8ad42441a47d3a99dc1cc71fc9a8e35506b9accb"
+  }
+ },
+ "initial_state": {
+  "case_id": "038-N5",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "customer",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: get the merchant's approval to reship the order to the customer's verified destination."
+   },
+   "customer": {
+    "name": "Sella Nove",
+    "organization": null,
+    "role": "customer",
+    "is_us": false,
+    "responsibility": "Confirm that she still wants the order and that the stored destination is correct."
+   }
+  },
+  "goal": "Get the merchant's approval to reship the returned order to the customer's verified destination and a new shipment reference.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The merchant has approved reshipment to the customer's verified destination.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The merchant has confirmed a new shipment reference with the confirmed destination.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The failed original delivery is back at the merchant, and the customer still wants the item.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-038.",
+    "source": {
+     "type": "case_card",
+     "id": "038"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The failed original delivery is physically back at the merchant.",
+    "source": {
+     "type": "case_card",
+     "id": "038"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The customer still wants the item and has confirmed the existing delivery details.",
+    "source": {
+     "type": "case_card",
+     "id": "038"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Do not treat the new shipment reference as proof of dispatch or receipt.",
+   "Do not reuse the old delivered status for the new shipment.",
+   "Do not start further actions or assume that a stop undoes an executed action."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Warehouse email",
+    "title": "Warehouse confirms the item is back",
+    "timestamp": "2026-03-11 09:00:00 UTC",
+    "actor_id": "warehouse",
+    "message_id": "001"
+   },
+   "explanation": "The warehouse confirmed that DL-038 is back in stock and reshippable, and that the account team authenticated Sella's order-portal session with a stored destination. A new dispatch needs merchant approval, so the reshipment has to go through the merchant.",
+   "state_after": {
+    "case_id": "038-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the merchant's approval to reship the order to the customer's verified destination."
+     },
+     "customer": {
+      "name": "Sella Nove",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Confirm that she still wants the order and that the stored destination is correct."
+     },
+     "warehouse": {
+      "name": "Warehouse returns",
+      "organization": "Tallowmere Goods",
+      "role": "warehouse",
+      "is_us": false,
+      "responsibility": "Confirm that the returned item is back in stock and reshippable."
+     }
+    },
+    "goal": "Get the merchant's approval to reship the returned order to the customer's verified destination and a new shipment reference.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Take in the customer's request on DL-038."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The merchant has approved reshipment to the customer's verified destination.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The merchant has confirmed a new shipment reference with the confirmed destination.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-11 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "038-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Reship the DL-038 order to the customer's verified destination: the original delivery failed and the item is back at the merchant.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "A new dispatch of the returned item requires merchant approval.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-038.",
+      "source": {
+       "type": "case_card",
+       "id": "038"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-038 for TG-038 is physically back in the warehouse stock after failed delivery and return-to-sender.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The customer still wants the item and has confirmed the existing delivery details.",
+      "source": {
+       "type": "case_card",
+       "id": "038"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The item is accepted as reshippable.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The account team has authenticated Sella's order-portal session; the stored destination is Apartment 2, 31 Rillstone Walk, Merrow Quay.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "A new dispatch requires merchant approval.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {},
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": null,
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "warehouse": {
+      "participants": [
+       "coordinator",
+       "warehouse"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "warehouse",
+      "event_id": "001",
+      "timestamp": "2026-03-11 09:00:00 UTC",
+      "from_actor": "warehouse",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-038 for TG-038 is physically back in our stock after failed delivery and return-to-sender. Item accepted as reshippable. Our account team has authenticated Sella’s order-portal session; stored destination is Apartment 2, 31 Rillstone Walk, Merrow Quay. A new dispatch requires merchant approval."
+     }
+    ],
+    "limits": [
+     "Do not treat the new shipment reference as proof of dispatch or receipt.",
+     "Do not reuse the old delivered status for the new shipment.",
+     "Do not start further actions or assume that a stop undoes an executed action."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client request",
+    "title": "Sella confirms the address and asks for reshipment",
+    "timestamp": "2026-03-11 09:10:00 UTC",
+    "actor_id": "customer",
+    "message_id": "002"
+   },
+   "explanation": "Sella still wants the order and confirmed the stored destination in her authenticated order details; it matches the warehouse record. The item is back and reshippable, so we can ask the merchant to approve reshipment there.",
+   "state_after": {
+    "case_id": "038-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the merchant's approval to reship the order to the customer's verified destination."
+     },
+     "customer": {
+      "name": "Sella Nove",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Confirm that she still wants the order and that the stored destination is correct."
+     },
+     "warehouse": {
+      "name": "Warehouse returns",
+      "organization": "Tallowmere Goods",
+      "role": "warehouse",
+      "is_us": false,
+      "responsibility": "Confirm that the returned item is back in stock and reshippable."
+     },
+     "merchant": {
+      "name": "Reshipment authorisations",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Approve the reshipment and create the new shipment."
+     }
+    },
+    "goal": "Get the merchant's approval to reship the returned order to the customer's verified destination and a new shipment reference.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask the merchant's reshipment authorisations team to approve reshipment of TG-038 to the verified destination."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The merchant has approved reshipment to the customer's verified destination.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The merchant has confirmed a new shipment reference with the confirmed destination.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-11 09:00:00 UTC",
+     "escalated_at": "2026-03-11 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "038-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Reship the DL-038 order to the customer's verified destination: the original delivery failed and the item is back at the merchant.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "Reshipment needs merchant approval, which has not been requested yet.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-038.",
+      "source": {
+       "type": "case_card",
+       "id": "038"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-038 for TG-038 is physically back in the warehouse stock after failed delivery and return-to-sender.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Sella still wants the order and confirmed in her authenticated order details that Apartment 2, 31 Rillstone Walk, Merrow Quay is correct.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The item is accepted as reshippable.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The account team has authenticated Sella's order-portal session; the stored destination is Apartment 2, 31 Rillstone Walk, Merrow Quay.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "A new dispatch requires merchant approval.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "merchant",
+      "purpose": "Get the order reshipped to Apartment 2, 31 Rillstone Walk, Merrow Quay; Sella asks us to request the reshipment.",
+      "expected_response": "The merchant's approved reshipment to the confirmed destination.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "merchant",
+      "responsible_actor": "merchant",
+      "purpose": "Approve reshipment of TG-038 to Sella's unchanged verified destination, Apartment 2, 31 Rillstone Walk, Merrow Quay.",
+      "expected_response": "The merchant's approval of the reshipment.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "permission",
+     "responsible_actor": "merchant",
+     "request_id": "r1",
+     "description": "Approve reshipment of TG-038 to the verified destination."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "warehouse": {
+      "participants": [
+       "coordinator",
+       "warehouse"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "warehouse",
+      "event_id": "001",
+      "timestamp": "2026-03-11 09:00:00 UTC",
+      "from_actor": "warehouse",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-038 for TG-038 is physically back in our stock after failed delivery and return-to-sender. Item accepted as reshippable. Our account team has authenticated Sella’s order-portal session; stored destination is Apartment 2, 31 Rillstone Walk, Merrow Quay. A new dispatch requires merchant approval."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-11 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I still want the order. I checked my authenticated order details: Apartment 2, 31 Rillstone Walk, Merrow Quay is correct. Please ask for reshipment there."
+     }
+    ],
+    "limits": [
+     "Do not treat the new shipment reference as proof of dispatch or receipt.",
+     "Do not reuse the old delivered status for the new shipment.",
+     "Do not start further actions or assume that a stop undoes an executed action."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our request",
+    "title": "We ask the merchant to approve reshipment",
+    "timestamp": "2026-03-11 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We asked for reshipment only to the unchanged verified destination and passed on the warehouse's confirmation that the item is back and reshippable. Now we wait for the merchant's decision.",
+   "state_after": {
+    "case_id": "038-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the merchant's approval to reship the order to the customer's verified destination."
+     },
+     "customer": {
+      "name": "Sella Nove",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Confirm that she still wants the order and that the stored destination is correct."
+     },
+     "warehouse": {
+      "name": "Warehouse returns",
+      "organization": "Tallowmere Goods",
+      "role": "warehouse",
+      "is_us": false,
+      "responsibility": "Confirm that the returned item is back in stock and reshippable."
+     },
+     "merchant": {
+      "name": "Reshipment authorisations",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Approve the reshipment and create the new shipment."
+     }
+    },
+    "goal": "Get the merchant's approval to reship the returned order to the customer's verified destination and a new shipment reference.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "merchant",
+       "request_id": "r1",
+       "expected": "Approval of reshipment for TG-038"
+      }
+     ],
+     "next_action": "Once approved, record the new shipment reference."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The merchant has approved reshipment to the customer's verified destination.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The merchant has confirmed a new shipment reference with the confirmed destination.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-11 09:00:00 UTC",
+     "escalated_at": "2026-03-11 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "038-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Reship the DL-038 order to the customer's verified destination: the original delivery failed and the item is back at the merchant.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The merchant has not yet approved reshipment.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-038.",
+      "source": {
+       "type": "case_card",
+       "id": "038"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-038 for TG-038 is physically back in the warehouse stock after failed delivery and return-to-sender.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Sella still wants the order and confirmed in her authenticated order details that Apartment 2, 31 Rillstone Walk, Merrow Quay is correct.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The item is accepted as reshippable.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The account team has authenticated Sella's order-portal session; the stored destination is Apartment 2, 31 Rillstone Walk, Merrow Quay.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "A new dispatch requires merchant approval.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "merchant",
+      "purpose": "Get the order reshipped to Apartment 2, 31 Rillstone Walk, Merrow Quay; Sella asks us to request the reshipment.",
+      "expected_response": "The merchant's approved reshipment to the confirmed destination.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "merchant",
+      "responsible_actor": "merchant",
+      "purpose": "Approve reshipment of TG-038 to Sella's unchanged verified destination, Apartment 2, 31 Rillstone Walk, Merrow Quay.",
+      "expected_response": "The merchant's approval of the reshipment.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_response",
+    "next_step": {
+     "type": "permission",
+     "responsible_actor": "merchant",
+     "request_id": "r1",
+     "description": "Wait for the merchant's decision on reshipment."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "warehouse": {
+      "participants": [
+       "coordinator",
+       "warehouse"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     },
+     "merchant": {
+      "participants": [
+       "coordinator",
+       "merchant"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "warehouse",
+      "event_id": "001",
+      "timestamp": "2026-03-11 09:00:00 UTC",
+      "from_actor": "warehouse",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-038 for TG-038 is physically back in our stock after failed delivery and return-to-sender. Item accepted as reshippable. Our account team has authenticated Sella’s order-portal session; stored destination is Apartment 2, 31 Rillstone Walk, Merrow Quay. A new dispatch requires merchant approval."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-11 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I still want the order. I checked my authenticated order details: Apartment 2, 31 Rillstone Walk, Merrow Quay is correct. Please ask for reshipment there."
+     },
+     {
+      "conversation_id": "merchant",
+      "event_id": "003",
+      "timestamp": "2026-03-11 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "merchant",
+      "channel": "Email",
+      "body": "Please approve reshipment of TG-038 to Sella’s unchanged verified order destination, Apartment 2, 31 Rillstone Walk. Warehouse confirms the original item is back and reshippable."
+     }
+    ],
+    "limits": [
+     "Do not treat the new shipment reference as proof of dispatch or receipt.",
+     "Do not reuse the old delivered status for the new shipment.",
+     "Do not start further actions or assume that a stop undoes an executed action."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "Approval",
+    "title": "Merchant approves reshipment as DL-038-R",
+    "timestamp": "2026-03-11 09:50:00 UTC",
+    "actor_id": "merchant",
+    "message_id": "004"
+   },
+   "explanation": "The merchant approved reshipment at no additional charge and created DL-038-R with the confirmed destination, so the coordination task can be closed. The new parcel has not been handed to the carrier, so dispatch and receipt are still pending.",
+   "state_after": {
+    "case_id": "038-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the merchant's approval to reship the order to the customer's verified destination."
+     },
+     "customer": {
+      "name": "Sella Nove",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Confirm that she still wants the order and that the stored destination is correct."
+     },
+     "warehouse": {
+      "name": "Warehouse returns",
+      "organization": "Tallowmere Goods",
+      "role": "warehouse",
+      "is_us": false,
+      "responsibility": "Confirm that the returned item is back in stock and reshippable."
+     },
+     "merchant": {
+      "name": "Reshipment authorisations",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Approve the reshipment and create the new shipment."
+     }
+    },
+    "goal": "Get the merchant's approval to reship the returned order to the customer's verified destination and a new shipment reference.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Coordination task complete: the merchant approved reshipment and confirmed new shipment DL-038-R. Dispatch and receipt are not part of this case's success criteria."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The merchant has approved reshipment to the customer's verified destination.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The merchant has confirmed a new shipment reference with the confirmed destination.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-11 09:00:00 UTC",
+     "escalated_at": "2026-03-11 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "038-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Reship the DL-038 order to the customer's verified destination: the original delivery failed and the item is back at the merchant.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-038.",
+      "source": {
+       "type": "case_card",
+       "id": "038"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-038 for TG-038 is physically back in the warehouse stock after failed delivery and return-to-sender.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Sella still wants the order and confirmed in her authenticated order details that Apartment 2, 31 Rillstone Walk, Merrow Quay is correct.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The item is accepted as reshippable.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The account team has authenticated Sella's order-portal session; the stored destination is Apartment 2, 31 Rillstone Walk, Merrow Quay.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Reshipment is approved at no additional charge.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "New shipment DL-038-R is created for TG-038 with the confirmed destination.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The new parcel has not been handed to the carrier yet.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "merchant",
+      "responded_by": "merchant",
+      "purpose": "Get the order reshipped to Apartment 2, 31 Rillstone Walk, Merrow Quay; Sella asks us to request the reshipment.",
+      "expected_response": "The merchant's approved reshipment to the confirmed destination.",
+      "status": "completed",
+      "response": "Reshipment approved at no additional charge; new shipment DL-038-R created for TG-038 with the confirmed destination.",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "merchant",
+      "responsible_actor": "merchant",
+      "purpose": "Approve reshipment of TG-038 to Sella's unchanged verified destination, Apartment 2, 31 Rillstone Walk, Merrow Quay.",
+      "expected_response": "The merchant's approval of the reshipment.",
+      "status": "answered",
+      "response": "Reshipment approved at no additional charge; new shipment DL-038-R created for TG-038 with the confirmed destination.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "The merchant approved reshipment of TG-038 at no additional charge and created new shipment DL-038-R with the confirmed destination.",
+     "confirmed_by": "merchant",
+     "evidence_event_ids": [
+      "004"
+     ],
+     "remaining_work": "DL-038-R has not been handed to the carrier yet; dispatch and receipt by Sella remain pending. The new shipment reference does not prove dispatch or receipt, and the old shipment's delivery status must not be reused for DL-038-R."
+    },
+    "annotations": [],
+    "conversations": {
+     "warehouse": {
+      "participants": [
+       "coordinator",
+       "warehouse"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     },
+     "merchant": {
+      "participants": [
+       "coordinator",
+       "merchant"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "warehouse",
+      "event_id": "001",
+      "timestamp": "2026-03-11 09:00:00 UTC",
+      "from_actor": "warehouse",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-038 for TG-038 is physically back in our stock after failed delivery and return-to-sender. Item accepted as reshippable. Our account team has authenticated Sella’s order-portal session; stored destination is Apartment 2, 31 Rillstone Walk, Merrow Quay. A new dispatch requires merchant approval."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-11 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I still want the order. I checked my authenticated order details: Apartment 2, 31 Rillstone Walk, Merrow Quay is correct. Please ask for reshipment there."
+     },
+     {
+      "conversation_id": "merchant",
+      "event_id": "003",
+      "timestamp": "2026-03-11 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "merchant",
+      "channel": "Email",
+      "body": "Please approve reshipment of TG-038 to Sella’s unchanged verified order destination, Apartment 2, 31 Rillstone Walk. Warehouse confirms the original item is back and reshippable."
+     },
+     {
+      "conversation_id": "merchant",
+      "event_id": "004",
+      "timestamp": "2026-03-11 09:50:00 UTC",
+      "from_actor": "merchant",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Reshipment approved at no additional charge. New shipment DL-038-R is created for TG-038 with the confirmed destination. The new parcel has not been handed to the carrier yet."
+     }
+    ],
+    "limits": [
+     "Do not treat the new shipment reference as proof of dispatch or receipt.",
+     "Do not reuse the old delivered status for the new shipment.",
+     "Do not start further actions or assume that a stop undoes an executed action."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "005",
+    "type": "message_received",
+    "label": "New escalation",
+    "title": "Customer cancels the approved reshipment",
+    "timestamp": "2026-03-11 10:30:00 UTC",
+    "actor_id": "customer",
+    "message_id": "005"
+   },
+   "explanation": "Record the stop and establish what was already executed. Do not start further actions or assume that a stop undoes an executed action.",
+   "state_after": {
+    "case_id": "038-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the merchant's approval to reship the order to the customer's verified destination."
+     },
+     "customer": {
+      "name": "Sella Nove",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Confirm that she still wants the order and that the stored destination is correct."
+     },
+     "warehouse": {
+      "name": "Warehouse returns",
+      "organization": "Tallowmere Goods",
+      "role": "warehouse",
+      "is_us": false,
+      "responsibility": "Confirm that the returned item is back in stock and reshippable."
+     },
+     "merchant": {
+      "name": "Reshipment authorisations",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Approve the reshipment and create the new shipment."
+     }
+    },
+    "goal": "Record the stop and establish what was already executed.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Email Reshipment authorisations to record Sella's stop on DL-038-R, ask that it is not handed to the carrier, and ask what state it is in now."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The merchant has approved reshipment to the customer's verified destination.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The merchant has confirmed a new shipment reference with the confirmed destination.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-11 09:00:00 UTC",
+     "escalated_at": "2026-03-11 10:30:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "038-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Record the stop and establish what was already executed.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The new escalation requires a scoped response. I bought the same item elsewhere this morning. Please cancel the reshipment of TG-038 and refund me for the order.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-038.",
+      "source": {
+       "type": "case_card",
+       "id": "038"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-038 for TG-038 is physically back in the warehouse stock after failed delivery and return-to-sender.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Sella still wants the order and confirmed in her authenticated order details that Apartment 2, 31 Rillstone Walk, Merrow Quay is correct.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The item is accepted as reshippable.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The account team has authenticated Sella's order-portal session; the stored destination is Apartment 2, 31 Rillstone Walk, Merrow Quay.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Reshipment is approved at no additional charge.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "New shipment DL-038-R is created for TG-038 with the confirmed destination.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The new parcel has not been handed to the carrier yet.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Sella Nove reports: I bought the same item elsewhere this morning.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Sella Nove reports: Please cancel the reshipment of TG-038 and refund me for the order.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "merchant",
+      "responded_by": "merchant",
+      "purpose": "Get the order reshipped to Apartment 2, 31 Rillstone Walk, Merrow Quay; Sella asks us to request the reshipment.",
+      "expected_response": "The merchant's approved reshipment to the confirmed destination.",
+      "status": "completed",
+      "response": "Reshipment approved at no additional charge; new shipment DL-038-R created for TG-038 with the confirmed destination.",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "merchant",
+      "responsible_actor": "merchant",
+      "purpose": "Approve reshipment of TG-038 to Sella's unchanged verified destination, Apartment 2, 31 Rillstone Walk, Merrow Quay.",
+      "expected_response": "The merchant's approval of the reshipment.",
+      "status": "answered",
+      "response": "Reshipment approved at no additional charge; new shipment DL-038-R created for TG-038 with the confirmed destination.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     },
+     "branch_request": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "merchant",
+      "responsible_actor": "merchant",
+      "purpose": "Email Reshipment authorisations to record Sella's stop on DL-038-R, ask that it is not handed to the carrier, and ask what state it is in now.",
+      "expected_response": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "005"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "record_stop",
+       "action": "Email Reshipment authorisations to record Sella's stop on DL-038-R, ask that it is not handed to the carrier, and ask what state it is in now.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "tell Sella a refund is approved or started; cancellation and refund are separate merchant decisions.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "action_required",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": "branch_request",
+     "description": "Email Reshipment authorisations to record Sella's stop on DL-038-R, ask that it is not handed to the carrier, and ask what state it is in now."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "warehouse": {
+      "participants": [
+       "coordinator",
+       "warehouse"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     },
+     "merchant": {
+      "participants": [
+       "coordinator",
+       "merchant"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "warehouse",
+      "event_id": "001",
+      "timestamp": "2026-03-11 09:00:00 UTC",
+      "from_actor": "warehouse",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-038 for TG-038 is physically back in our stock after failed delivery and return-to-sender. Item accepted as reshippable. Our account team has authenticated Sella’s order-portal session; stored destination is Apartment 2, 31 Rillstone Walk, Merrow Quay. A new dispatch requires merchant approval."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-11 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I still want the order. I checked my authenticated order details: Apartment 2, 31 Rillstone Walk, Merrow Quay is correct. Please ask for reshipment there."
+     },
+     {
+      "conversation_id": "merchant",
+      "event_id": "003",
+      "timestamp": "2026-03-11 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "merchant",
+      "channel": "Email",
+      "body": "Please approve reshipment of TG-038 to Sella’s unchanged verified order destination, Apartment 2, 31 Rillstone Walk. Warehouse confirms the original item is back and reshippable."
+     },
+     {
+      "conversation_id": "merchant",
+      "event_id": "004",
+      "timestamp": "2026-03-11 09:50:00 UTC",
+      "from_actor": "merchant",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Reshipment approved at no additional charge. New shipment DL-038-R is created for TG-038 with the confirmed destination. The new parcel has not been handed to the carrier yet."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "005",
+      "timestamp": "2026-03-11 10:30:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I bought the same item elsewhere this morning. Please cancel the reshipment of TG-038 and refund me for the order."
+     }
+    ],
+    "limits": [
+     "Do not treat the new shipment reference as proof of dispatch or receipt.",
+     "Do not reuse the old delivered status for the new shipment.",
+     "Do not start further actions or assume that a stop undoes an executed action."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "006",
+    "type": "message_sent",
+    "label": "Desk response",
+    "title": "Record the stop and establish what was already executed",
+    "timestamp": "2026-03-11 10:45:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "006"
+   },
+   "explanation": "The desk sends the recorded response. Do not start further actions or assume that a stop undoes an executed action.",
+   "state_after": {
+    "case_id": "038-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the merchant's approval to reship the order to the customer's verified destination."
+     },
+     "customer": {
+      "name": "Sella Nove",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Confirm that she still wants the order and that the stored destination is correct."
+     },
+     "warehouse": {
+      "name": "Warehouse returns",
+      "organization": "Tallowmere Goods",
+      "role": "warehouse",
+      "is_us": false,
+      "responsibility": "Confirm that the returned item is back in stock and reshippable."
+     },
+     "merchant": {
+      "name": "Reshipment authorisations",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Approve the reshipment and create the new shipment."
+     }
+    },
+    "goal": "Record the stop and establish what was already executed.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "merchant",
+       "request_id": "branch_request",
+       "expected": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone."
+      }
+     ],
+     "next_action": "Record the reply or scoped confirmation before closing this branch."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The merchant has approved reshipment to the customer's verified destination.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The merchant has confirmed a new shipment reference with the confirmed destination.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-11 09:00:00 UTC",
+     "escalated_at": "2026-03-11 10:30:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "038-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Record the stop and establish what was already executed.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The scoped reply or confirmation has not yet been recorded.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-038.",
+      "source": {
+       "type": "case_card",
+       "id": "038"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-038 for TG-038 is physically back in the warehouse stock after failed delivery and return-to-sender.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Sella still wants the order and confirmed in her authenticated order details that Apartment 2, 31 Rillstone Walk, Merrow Quay is correct.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The item is accepted as reshippable.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The account team has authenticated Sella's order-portal session; the stored destination is Apartment 2, 31 Rillstone Walk, Merrow Quay.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Reshipment is approved at no additional charge.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "New shipment DL-038-R is created for TG-038 with the confirmed destination.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The new parcel has not been handed to the carrier yet.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Sella Nove reports: I bought the same item elsewhere this morning.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Sella Nove reports: Please cancel the reshipment of TG-038 and refund me for the order.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "merchant",
+      "responded_by": "merchant",
+      "purpose": "Get the order reshipped to Apartment 2, 31 Rillstone Walk, Merrow Quay; Sella asks us to request the reshipment.",
+      "expected_response": "The merchant's approved reshipment to the confirmed destination.",
+      "status": "completed",
+      "response": "Reshipment approved at no additional charge; new shipment DL-038-R created for TG-038 with the confirmed destination.",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "merchant",
+      "responsible_actor": "merchant",
+      "purpose": "Approve reshipment of TG-038 to Sella's unchanged verified destination, Apartment 2, 31 Rillstone Walk, Merrow Quay.",
+      "expected_response": "The merchant's approval of the reshipment.",
+      "status": "answered",
+      "response": "Reshipment approved at no additional charge; new shipment DL-038-R created for TG-038 with the confirmed destination.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     },
+     "branch_request": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "merchant",
+      "responsible_actor": "merchant",
+      "purpose": "Email Reshipment authorisations to record Sella's stop on DL-038-R, ask that it is not handed to the carrier, and ask what state it is in now.",
+      "expected_response": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "005",
+       "006"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "record_stop",
+       "action": "Email Reshipment authorisations to record Sella's stop on DL-038-R, ask that it is not handed to the carrier, and ask what state it is in now.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "tell Sella a refund is approved or started; cancellation and refund are separate merchant decisions.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "record_stop",
+     "reason": "The recorded outgoing message takes this permitted response."
+    },
+    "status": "awaiting_confirmation",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "merchant",
+     "request_id": "branch_request",
+     "description": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "warehouse": {
+      "participants": [
+       "coordinator",
+       "warehouse"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     },
+     "merchant": {
+      "participants": [
+       "coordinator",
+       "merchant"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "merchant"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "warehouse",
+      "event_id": "001",
+      "timestamp": "2026-03-11 09:00:00 UTC",
+      "from_actor": "warehouse",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-038 for TG-038 is physically back in our stock after failed delivery and return-to-sender. Item accepted as reshippable. Our account team has authenticated Sella’s order-portal session; stored destination is Apartment 2, 31 Rillstone Walk, Merrow Quay. A new dispatch requires merchant approval."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-11 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I still want the order. I checked my authenticated order details: Apartment 2, 31 Rillstone Walk, Merrow Quay is correct. Please ask for reshipment there."
+     },
+     {
+      "conversation_id": "merchant",
+      "event_id": "003",
+      "timestamp": "2026-03-11 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "merchant",
+      "channel": "Email",
+      "body": "Please approve reshipment of TG-038 to Sella’s unchanged verified order destination, Apartment 2, 31 Rillstone Walk. Warehouse confirms the original item is back and reshippable."
+     },
+     {
+      "conversation_id": "merchant",
+      "event_id": "004",
+      "timestamp": "2026-03-11 09:50:00 UTC",
+      "from_actor": "merchant",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Reshipment approved at no additional charge. New shipment DL-038-R is created for TG-038 with the confirmed destination. The new parcel has not been handed to the carrier yet."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "005",
+      "timestamp": "2026-03-11 10:30:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I bought the same item elsewhere this morning. Please cancel the reshipment of TG-038 and refund me for the order."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "006",
+      "timestamp": "2026-03-11 10:45:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "merchant",
+      "channel": "Email",
+      "body": "At 10:30 the customer asked to cancel the reshipment of TG-038, having bought the same item elsewhere. Please record the stop on DL-038-R, do not hand it to the carrier, and tell us what state it is in now. The customer also asks for a refund; that is your decision, and we have promised nothing."
+     }
+    ],
+    "limits": [
+     "Do not treat the new shipment reference as proof of dispatch or receipt.",
+     "Do not reuse the old delivered status for the new shipment.",
+     "Do not start further actions or assume that a stop undoes an executed action."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "007",
+    "type": "message_received",
+    "label": "Scoped confirmation",
+    "title": "Follow-through confirms the branch outcome",
+    "timestamp": "2026-03-11 11:15:00 UTC",
+    "actor_id": "merchant",
+    "message_id": "007"
+   },
+   "explanation": "Record what the responding party actually confirms. Stop recorded on DL-038-R at 11:00. The parcel had not left our warehouse and will not be handed to the carrier. The customer's refund request is with our refunds team; nothing is approved or paid.",
+   "state_after": {
+    "case_id": "038-N5",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the merchant's approval to reship the order to the customer's verified destination."
+     },
+     "customer": {
+      "name": "Sella Nove",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Confirm that she still wants the order and that the stored destination is correct."
+     },
+     "warehouse": {
+      "name": "Warehouse returns",
+      "organization": "Tallowmere Goods",
+      "role": "warehouse",
+      "is_us": false,
+      "responsibility": "Confirm that the returned item is back in stock and reshippable."
+     },
+     "merchant": {
+      "name": "Reshipment authorisations",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Approve the reshipment and create the new shipment."
+     }
+    },
+    "goal": "Record the stop and establish what was already executed.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The merchant has approved reshipment to the customer's verified destination.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The merchant has confirmed a new shipment reference with the confirmed destination.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone.",
+      "status": "met",
+      "evidence_event_ids": [
+       "006",
+       "007"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-11 09:00:00 UTC",
+     "escalated_at": "2026-03-11 10:30:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "038-N5"
+     },
+     "context_message_id": "001",
+     "summary": "Record the stop and establish what was already executed.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-038.",
+      "source": {
+       "type": "case_card",
+       "id": "038"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-038 for TG-038 is physically back in the warehouse stock after failed delivery and return-to-sender.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Sella still wants the order and confirmed in her authenticated order details that Apartment 2, 31 Rillstone Walk, Merrow Quay is correct.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "The item is accepted as reshippable.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The account team has authenticated Sella's order-portal session; the stored destination is Apartment 2, 31 Rillstone Walk, Merrow Quay.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Reshipment is approved at no additional charge.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "New shipment DL-038-R is created for TG-038 with the confirmed destination.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The new parcel has not been handed to the carrier yet.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Sella Nove reports: I bought the same item elsewhere this morning.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Sella Nove reports: Please cancel the reshipment of TG-038 and refund me for the order.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_outcome_1",
+      "text": "Reshipment authorisations reports: Stop recorded on DL-038-R at 11:00.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     },
+     {
+      "id": "branch_outcome_2",
+      "text": "Reshipment authorisations reports: The parcel had not left our warehouse and will not be handed to the carrier.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     },
+     {
+      "id": "branch_outcome_3",
+      "text": "Reshipment authorisations reports: The customer's refund request is with our refunds team; nothing is approved or paid.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "merchant",
+      "responded_by": "merchant",
+      "purpose": "Get the order reshipped to Apartment 2, 31 Rillstone Walk, Merrow Quay; Sella asks us to request the reshipment.",
+      "expected_response": "The merchant's approved reshipment to the confirmed destination.",
+      "status": "completed",
+      "response": "Reshipment approved at no additional charge; new shipment DL-038-R created for TG-038 with the confirmed destination.",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "merchant",
+      "responsible_actor": "merchant",
+      "purpose": "Approve reshipment of TG-038 to Sella's unchanged verified destination, Apartment 2, 31 Rillstone Walk, Merrow Quay.",
+      "expected_response": "The merchant's approval of the reshipment.",
+      "status": "answered",
+      "response": "Reshipment approved at no additional charge; new shipment DL-038-R created for TG-038 with the confirmed destination.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     },
+     "branch_request": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "merchant",
+      "responsible_actor": "merchant",
+      "purpose": "Email Reshipment authorisations to record Sella's stop on DL-038-R, ask that it is not handed to the carrier, and ask what state it is in now.",
+      "expected_response": "The responsible owner confirms the stop and the current state; completed actions are not assumed undone.",
+      "status": "completed",
+      "response": "Stop recorded on DL-038-R at 11:00. The parcel had not left our warehouse and will not be handed to the carrier. The customer's refund request is with our refunds team; nothing is approved or paid.",
+      "evidence_event_ids": [
+       "005",
+       "006",
+       "007"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "record_stop",
+       "action": "Email Reshipment authorisations to record Sella's stop on DL-038-R, ask that it is not handed to the carrier, and ask what state it is in now.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "tell Sella a refund is approved or started; cancellation and refund are separate merchant decisions.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "record_stop",
+     "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "Stop recorded on DL-038-R at 11:00. The parcel had not left our warehouse and will not be handed to the carrier. The customer's refund request is with our refunds team; nothing is approved or paid.",
+     "confirmed_by": "merchant",
+     "evidence_event_ids": [
+      "007"
+     ],
+     "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not tell Sella a refund is approved or started; cancellation and refund are separate merchant decisions."
+    },
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "warehouse": {
+      "participants": [
+       "coordinator",
+       "warehouse"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     },
+     "merchant": {
+      "participants": [
+       "coordinator",
+       "merchant"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "merchant"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "warehouse",
+      "event_id": "001",
+      "timestamp": "2026-03-11 09:00:00 UTC",
+      "from_actor": "warehouse",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-038 for TG-038 is physically back in our stock after failed delivery and return-to-sender. Item accepted as reshippable. Our account team has authenticated Sella’s order-portal session; stored destination is Apartment 2, 31 Rillstone Walk, Merrow Quay. A new dispatch requires merchant approval."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-11 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I still want the order. I checked my authenticated order details: Apartment 2, 31 Rillstone Walk, Merrow Quay is correct. Please ask for reshipment there."
+     },
+     {
+      "conversation_id": "merchant",
+      "event_id": "003",
+      "timestamp": "2026-03-11 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "merchant",
+      "channel": "Email",
+      "body": "Please approve reshipment of TG-038 to Sella’s unchanged verified order destination, Apartment 2, 31 Rillstone Walk. Warehouse confirms the original item is back and reshippable."
+     },
+     {
+      "conversation_id": "merchant",
+      "event_id": "004",
+      "timestamp": "2026-03-11 09:50:00 UTC",
+      "from_actor": "merchant",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Reshipment approved at no additional charge. New shipment DL-038-R is created for TG-038 with the confirmed destination. The new parcel has not been handed to the carrier yet."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "005",
+      "timestamp": "2026-03-11 10:30:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I bought the same item elsewhere this morning. Please cancel the reshipment of TG-038 and refund me for the order."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "006",
+      "timestamp": "2026-03-11 10:45:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "merchant",
+      "channel": "Email",
+      "body": "At 10:30 the customer asked to cancel the reshipment of TG-038, having bought the same item elsewhere. Please record the stop on DL-038-R, do not hand it to the carrier, and tell us what state it is in now. The customer also asks for a refund; that is your decision, and we have promised nothing."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "007",
+      "timestamp": "2026-03-11 11:15:00 UTC",
+      "from_actor": "merchant",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Stop recorded on DL-038-R at 11:00. The parcel had not left our warehouse and will not be handed to the carrier. The customer's refund request is with our refunds team; nothing is approved or paid."
+     }
+    ],
+    "limits": [
+     "Do not treat the new shipment reference as proof of dispatch or receipt.",
+     "Do not reuse the old delivered status for the new shipment.",
+     "Do not start further actions or assume that a stop undoes an executed action."
+    ]
+   }
+  }
+ ]
+}

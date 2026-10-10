@@ -1,0 +1,611 @@
+{
+ "case_id": "027-N2",
+ "lang": "en",
+ "title": "027-N2 · Customer offers to deliver it himself",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Tovin Esk, the reporting customer. From the case card: the customer holds a parcel that is not theirs, carrier staff will collect it using an internal label match, and the customer need not open it or deliver it elsewhere.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "customer",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Get the carrier to collect the misdelivered parcel and confirm the collection, keeping the customer's own order separate.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "customer": {
+   "name": "Tovin Esk",
+   "organization": null,
+   "role": "customer",
+   "responsibility": "Report the parcel left with them by mistake and hand it over at collection.",
+   "from_start": true,
+   "source_names": [
+    "Tovin Esk, reporting customer"
+   ]
+  },
+  "misdelivery_desk": {
+   "name": "Misdelivery desk",
+   "organization": "Plover Arc Logistics",
+   "role": "carrier",
+   "responsibility": "Match the wrong parcel to its internal label and verify the reporting customer and collection address.",
+   "from_start": false,
+   "source_names": [
+    "Misdelivery desk, Plover Arc Logistics"
+   ]
+  },
+  "collections": {
+   "name": "Misdelivery collections",
+   "organization": "Plover Arc Logistics",
+   "role": "carrier",
+   "responsibility": "Collect the wrong parcel from the reporting customer and record the collection.",
+   "from_start": false,
+   "source_names": [
+    "Misdelivery collections, Plover Arc Logistics"
+   ]
+  }
+ },
+ "goal": "Get the carrier to collect the misdelivered parcel from the reporting customer and confirm the collection, without asking the customer to open or forward it.",
+ "limits": [
+  "Do not treat collection of the wrong parcel as fulfilling the reporting customer's own order.",
+  "Do not promise or perform the prohibited request."
+ ],
+ "intake": {
+  "summary": "Tovin Esk holds someone else's parcel: arrange carrier collection under MD-027.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The customer holds a parcel that is not theirs; no collection is arranged.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns task reference MD-027.",
+    "source": {
+     "type": "case_card",
+     "id": "027"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "A customer holds a parcel that is not theirs.",
+    "source": {
+     "type": "case_card",
+     "id": "027"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "Carrier staff will collect the parcel using an internal label match; the customer need not open it or deliver it elsewhere.",
+    "source": {
+     "type": "case_card",
+     "id": "027"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The carrier has confirmed collection of the misdelivered parcel from the reporting customer."
+   },
+   {
+    "id": "c2",
+    "description": "The carrier has confirmed that the customer's own order is handled separately from the collection."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/027/N2-OUT_OF_POLICY_ASK",
+  "branch_id": "027-N2",
+  "derived_from_case": "027",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "OUT_OF_POLICY_ASK",
+  "expected_decision": "DECLINE_EXPLAIN",
+  "workflow_sheet": "A",
+  "branch_label": "Customer offers to deliver it himself",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "9b86298ee4bca5a1cbaae1655bc79bc4d5be7de7685f99bb175bb6b9b0df5924",
+   "history.md": "753f06451a1133fb75d343fd628f5f352ea1d4207aec34d48528e255336adf9c"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Carrier record",
+   "title": "Carrier matches the wrong parcel to WP-027",
+   "explanation": "The carrier has matched the parcel, verified the customer and the collection address, and allowed collection from the customer. The other recipient's address must stay out of the thread.",
+   "conversation_id": "misdelivery",
+   "facts_upsert": [
+    {
+     "id": "f4",
+     "text": "Carrier intake record MD-027 matches the wrong parcel to internal label reference WP-027.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "The reporting customer, Tovin Esk, and the collection address are verified in the carrier intake process.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f6",
+     "text": "The other recipient's address must not be copied into this thread.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f7",
+     "text": "Collection is allowed from the reporting customer.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Arrange carrier collection of WP-027 from the reporting customer."
+   },
+   "blocker": "The parcel is still with the reporting customer; no collection is arranged.",
+   "status": "context_received",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": null,
+    "description": "Arrange carrier collection of WP-027 from the reporting customer."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Tovin asks for collection of the parcel",
+   "explanation": "Tovin confirms the parcel is unopened and asks for collection; their own order is a separate problem. We ask misdelivery collections to collect it and to keep Tovin's own order on a separate track.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f8",
+     "text": "The customer says the courier left someone else's parcel and it is unopened.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f9",
+     "text": "The customer's own order has not arrived.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "customer",
+     "to_actor": "coordinator",
+     "responsible_actor": "collections",
+     "purpose": "Arrange collection of the parcel the courier left by mistake.",
+     "expected_response": "Collection of the parcel.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "collections",
+     "responsible_actor": "collections",
+     "purpose": "Collect sealed parcel WP-027 from Tovin using the verified details in MD-027, without asking Tovin to open or forward it.",
+     "expected_response": "Confirmation of collection.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r2": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "collections",
+     "responsible_actor": "collections",
+     "purpose": "Keep Tovin's own outstanding order on a separate track from the collection.",
+     "expected_response": "Confirmation that the customer's own order is tracked separately.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Email misdelivery collections to collect WP-027 from Tovin and to track Tovin's own order separately."
+   },
+   "blocker": "The parcel is still with the reporting customer; no collection is arranged.",
+   "status": "escalated",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "collections",
+    "request_id": "r1",
+    "description": "Ask misdelivery collections to collect WP-027 from Tovin."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We ask the carrier to collect WP-027",
+   "explanation": "We asked for collection using MD-027's verified address and saved contact, ruled out opening or forwarding by Tovin and asked for Tovin's own order to be tracked separately. Now we wait for misdelivery collections.",
+   "conversation_id": "collections",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "collections",
+     "responsible_actor": "collections",
+     "purpose": "Collect sealed parcel WP-027 from Tovin using MD-027's verified address and saved contact, without asking Tovin to open or forward it.",
+     "expected_response": "Confirmation of collection.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    },
+    "r2": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "collections",
+     "responsible_actor": "collections",
+     "purpose": "Keep Tovin's own outstanding order on a separate track from the collection.",
+     "expected_response": "Confirmation that the customer's own order is tracked separately.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "collections",
+      "request_id": "r1",
+      "expected": "Confirmation that WP-027 is collected"
+     },
+     {
+      "actor_id": "collections",
+      "request_id": "r2",
+      "expected": "Confirmation that Tovin's own order is tracked separately"
+     }
+    ],
+    "next_action": "Once misdelivery collections replies, record the collection."
+   },
+   "blocker": "The parcel has not been collected yet.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "collections",
+    "request_id": "r1",
+    "description": "Wait for misdelivery collections to collect WP-027."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "New escalation",
+   "title": "Customer offers to deliver it himself",
+   "explanation": "Explain the policy boundary and the permitted next step. Do not promise or perform the prohibited request.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Tovin Esk reports: The label shows the parcel belongs two streets away.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Tovin Esk reports: It would be quicker if I just drop it at that house myself this afternoon.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Tovin Esk reports: Is that fine?",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "customer",
+     "responsible_actor": "customer",
+     "purpose": "Reply to Tovin in the customer portal that carrier collection under MD-027 is the approved process, that he does not need to take the parcel anywhere, and that it should stay sealed with him until collection.",
+     "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Reply to Tovin in the customer portal that carrier collection under MD-027 is the approved process, that he does not need to take the parcel anywhere, and that it should stay sealed with him until collection."
+   },
+   "blocker": "The new escalation requires a scoped response. The label shows the parcel belongs two streets away. It would be quicker if I just drop it at that house myself this afternoon. Is that fine?",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Reply to Tovin in the customer portal that carrier collection under MD-027 is the approved process, that he does not need to take the parcel anywhere, and that it should stay sealed with him until collection."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "004",
+     "source_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c1",
+    "c2"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "decline_explain",
+      "action": "Reply to Tovin in the customer portal that carrier collection under MD-027 is the approved process, that he does not need to take the parcel anywhere, and that it should stay sealed with him until collection.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "agree to the drop-off or discuss the other recipient's address, not even to confirm the street.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "027-N2"
+    },
+    "summary": "Explain the policy boundary and the permitted next step.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Explain the policy boundary and the permitted next step."
+   }
+  },
+  {
+   "event_id": "005",
+   "label": "Desk response",
+   "title": "Explain the policy boundary and the permitted next step",
+   "explanation": "The desk sends the recorded response. Do not promise or perform the prohibited request.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "customer",
+     "responsible_actor": "customer",
+     "purpose": "Reply to Tovin in the customer portal that carrier collection under MD-027 is the approved process, that he does not need to take the parcel anywhere, and that it should stay sealed with him until collection.",
+     "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+     "status": "answered",
+     "response": "Please do not take the parcel anywhere. Under carrier record MD-027, the approved process is carrier collection from you, and you do not need to deliver it elsewhere. Keep it sealed with you until the carrier collects it. Your own missing order is a separate matter, which we have asked the carrier to track.",
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Record any incoming follow-through within its stated scope; do not initiate a prohibited change.",
+    "note": "The outgoing record communicates a boundary or notification. No unrecorded request or acknowledgement is assumed."
+   },
+   "blocker": null,
+   "status": "in_progress",
+   "next_step": null,
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "decline_explain",
+      "action": "Reply to Tovin in the customer portal that carrier collection under MD-027 is the approved process, that he does not need to take the parcel anywhere, and that it should stay sealed with him until collection.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "agree to the drop-off or discuss the other recipient's address, not even to confirm the street.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "decline_explain",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. Understood. I will keep the parcel sealed at home and wait for the carrier to collect it. I still need news on my own order.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Tovin Esk reports: Understood.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Tovin Esk reports: I will keep the parcel sealed at home and wait for the carrier to collect it.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Tovin Esk reports: I still need news on my own order.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "customer",
+     "responsible_actor": "customer",
+     "purpose": "Reply to Tovin in the customer portal that carrier collection under MD-027 is the approved process, that he does not need to take the parcel anywhere, and that it should stay sealed with him until collection.",
+     "expected_response": "The policy boundary is communicated and acknowledged, or the responsible party confirms a permitted alternative.",
+     "status": "answered",
+     "response": "Understood. I will keep the parcel sealed at home and wait for the carrier to collect it. I still need news on my own order.",
+     "evidence_event_ids": [
+      "004",
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "Understood. I will keep the parcel sealed at home and wait for the carrier to collect it. I still need news on my own order.",
+    "confirmed_by": "customer",
+    "evidence_event_ids": [
+     "006"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not agree to the drop-off or discuss the other recipient's address, not even to confirm the street."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "decline_explain",
+      "action": "Reply to Tovin in the customer portal that carrier collection under MD-027 is the approved process, that he does not need to take the parcel anywhere, and that it should stay sealed with him until collection.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "agree to the drop-off or discuss the other recipient's address, not even to confirm the street.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "decline_explain",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

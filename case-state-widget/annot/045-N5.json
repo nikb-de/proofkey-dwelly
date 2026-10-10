@@ -1,0 +1,722 @@
+{
+ "case_id": "045-N5",
+ "lang": "en",
+ "title": "045-N5 · Broker needs compliance officer review",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Ossmere Trade Desk, the appointed customs broker. From the case card: the broker's requested commercial-invoice fields for DL-045 are incomplete, and shipper provision and broker receipt are distinct from customs clearance.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "broker",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get the shipper's own commercial invoice with the broker's listed fields and the broker's confirmation that the package is complete.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "broker": {
+   "name": "Ossmere Trade Desk",
+   "organization": "Ossmere Trade Desk",
+   "role": "broker",
+   "responsibility": "List the missing invoice fields and confirm whether the received document package is complete.",
+   "from_start": true,
+   "source_names": [
+    "Ossmere Trade Desk, appointed customs broker"
+   ]
+  },
+  "shipper": {
+   "name": "Fera Noll",
+   "organization": "Mavelle Export Studio",
+   "role": "sender",
+   "responsibility": "Supply the shipper's own commercial invoice with the fields the broker listed.",
+   "from_start": false,
+   "source_names": [
+    "Fera Noll, Mavelle Export Studio shipping lead"
+   ]
+  },
+  "branch_operator": {
+   "name": "Desk operator",
+   "organization": "Rivet Delivery Desk",
+   "role": "operator",
+   "from_start": false,
+   "source_names": [
+    "Desk operator, Rivet Delivery Desk"
+   ],
+   "responsibility": "Report or handle the state within the scope stated in the source message; no wider authority is inferred."
+  }
+ },
+ "goal": "Get the authorised shipper's commercial invoice with the fields the broker listed and the broker's confirmation that the document package is received and complete, without claiming customs clearance.",
+ "limits": [
+  "Do not present the broker's field requirements as universal customs law.",
+  "Do not treat document completeness as customs clearance.",
+  "Do not grant yourself operator authority or treat registration as a decision."
+ ],
+ "intake": {
+  "summary": "Obtain the shipper's complete commercial invoice for DL-045 for the appointed customs broker.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The commercial-invoice fields requested by the broker are incomplete.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-045.",
+    "source": {
+     "type": "case_card",
+     "id": "045"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "An import broker is appointed, but its requested commercial-invoice fields are incomplete.",
+    "source": {
+     "type": "case_card",
+     "id": "045"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "Shipper provision and broker receipt are distinct from customs clearance.",
+    "source": {
+     "type": "case_card",
+     "id": "045"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The shipper has supplied its own commercial invoice."
+   },
+   {
+    "id": "c2",
+    "description": "The broker has confirmed receipt of the invoice."
+   },
+   {
+    "id": "c3",
+    "description": "The broker has confirmed that all requested fields are complete."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/045/N5-NEEDS_HUMAN",
+  "branch_id": "045-N5",
+  "derived_from_case": "045",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003",
+   "004"
+  ],
+  "diverges_after_event": "004",
+  "failure_mode": "NEEDS_HUMAN",
+  "expected_decision": "ESCALATE_OPERATOR",
+  "workflow_sheet": "E",
+  "branch_label": "Broker needs compliance officer review",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "0ae0376bccaf12fa8b63058546da7e264559f596d12381ca3c323c70b5e643c4",
+   "history.md": "fa0b2c07058dd9dcc87bd78ae4c54b6805a49073135fcff7438348832765baa9"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Broker email",
+   "title": "Broker lists the missing invoice fields",
+   "explanation": "The broker named exactly which invoice fields are missing. Only the shipper can supply its own invoice, so the next step is to get it from the shipper.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f4",
+     "text": "For DL-045 / order OS-045 the broker needs the shipper's commercial invoice showing seller, buyer, invoice date and reference, goods description, quantity, unit value, currency, total and origin declaration.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f2",
+     "text": "The fields the broker listed are the ones missing from its file.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "No clearance decision has been made.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Get the shipper's commercial invoice with the fields the broker listed."
+   },
+   "blocker": "The broker's file is missing the commercial-invoice fields it listed.",
+   "status": "context_received",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": null,
+    "description": "Get the shipper's commercial invoice with the fields the broker listed."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Broker request",
+   "title": "Broker asks us to request the invoice",
+   "explanation": "The broker names the authorised shipper and forbids filling in values or origin for them. The next step is a request to the shipper's shipping lead, Fera Noll.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f6",
+     "text": "The authorised shipper is Mavelle Export Studio.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f7",
+     "text": "The broker instructs us not to fill in values or origin on the shipper's behalf.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "broker",
+     "to_actor": "coordinator",
+     "responsible_actor": "coordinator",
+     "purpose": "Request the complete invoice from authorised shipper Mavelle Export Studio, without filling in values or origin on its behalf.",
+     "expected_response": "A request for the complete invoice sent to the shipper.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "shipper",
+     "responsible_actor": "shipper",
+     "purpose": "Supply the shipper's own commercial invoice for DL-045 / OS-045 with the fields the broker listed.",
+     "expected_response": "The shipper's issued commercial invoice with those fields.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask Fera Noll at Mavelle Export Studio for its commercial invoice with the fields the broker listed."
+   },
+   "blocker": "The broker's file is missing the commercial-invoice fields it listed.",
+   "status": "escalated",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "shipper",
+    "request_id": "r1",
+    "description": "Supply the commercial invoice with the fields the broker listed."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We ask Fera Noll for the invoice",
+   "explanation": "We passed the broker's field list to the shipper and asked for the shipper's own invoice, without filling in any values ourselves. Now we wait for the invoice.",
+   "conversation_id": "shipper",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "broker",
+     "to_actor": "coordinator",
+     "responsible_actor": "coordinator",
+     "purpose": "Request the complete invoice from authorised shipper Mavelle Export Studio, without filling in values or origin on its behalf.",
+     "expected_response": "A request for the complete invoice sent to the shipper.",
+     "status": "completed",
+     "response": "The invoice was requested from Fera Noll, Mavelle Export Studio, with the broker's field list.",
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    },
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "shipper",
+     "responsible_actor": "shipper",
+     "purpose": "Supply the shipper's own commercial invoice for DL-045 / OS-045 with seller, buyer, date/reference, description, quantity, unit value/currency/total and origin declaration.",
+     "expected_response": "The shipper's issued commercial invoice with those fields.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "shipper",
+      "request_id": "r1",
+      "expected": "The shipper's commercial invoice with the listed fields"
+     }
+    ],
+    "next_action": "Once the invoice is supplied, make sure the broker reviews it."
+   },
+   "blocker": "The shipper has not yet supplied the commercial invoice.",
+   "status": "awaiting_response",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "shipper",
+    "request_id": "r1",
+    "description": "Wait for the shipper's commercial invoice."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "Invoice supplied",
+   "title": "Fera Noll sends invoice CI-045 to the broker",
+   "explanation": "The shipper sent its own invoice CI-045 straight to the broker, with us in copy, and asked the broker to review the fields. A supplied invoice is not yet a confirmed complete package, so we wait for the broker's review.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f8",
+     "text": "The shipper supplied its issued synthetic commercial invoice CI-045 for DL-045 / OS-045 (attached to message 004) to the broker, with us in copy.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "f9",
+     "text": "CI-045 covers 12 woven pouches at GBP 8.00 each, GBP 96.00 total, made in the fictional origin jurisdiction Aster Reach.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "shipper",
+     "responsible_actor": "shipper",
+     "purpose": "Supply the shipper's own commercial invoice for DL-045 / OS-045 with seller, buyer, date/reference, description, quantity, unit value/currency/total and origin declaration.",
+     "expected_response": "The shipper's issued commercial invoice with those fields.",
+     "status": "answered",
+     "response": "Commercial invoice CI-045 supplied to the broker, with us in copy.",
+     "evidence_event_ids": [
+      "002",
+      "003",
+      "004"
+     ]
+    },
+    "r2": {
+     "type": "verification",
+     "from_actor": "shipper",
+     "to_actor": "broker",
+     "responsible_actor": "broker",
+     "purpose": "Review the fields stated in CI-045.",
+     "expected_response": "The broker's confirmation of receipt and whether the requested fields are complete.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c1",
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "broker",
+      "request_id": "r2",
+      "expected": "Confirmation that CI-045 is received and its requested fields are complete"
+     }
+    ],
+    "next_action": "Once the broker confirms, close the coordination task without claiming customs clearance.",
+    "note": "The shipper sent CI-045 directly to the broker and asked for a review, with us in copy, so no separate handoff from us is needed; the agent waits for the broker."
+   },
+   "blocker": "The broker has not yet confirmed that the document package is complete.",
+   "status": "awaiting_verification",
+   "next_step": {
+    "type": "verification",
+    "responsible_actor": "broker",
+    "request_id": "r2",
+    "description": "The broker reviews CI-045 and confirms receipt and completeness."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "005",
+   "label": "New escalation",
+   "title": "Broker needs compliance officer review",
+   "explanation": "Refer the unresolved issue to its authorised operator. Do not grant yourself operator authority or treat registration as a decision.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Ossmere Trade Desk reports: CI-045 for DL-045 states origin Aster Reach.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Ossmere Trade Desk reports: Our procedure sends goods declared from Aster Reach to a compliance officer before we accept a package.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Ossmere Trade Desk reports: I cannot mark the file complete or reject it.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_report_4",
+     "text": "Ossmere Trade Desk reports: No officer review is booked yet.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "branch_operator",
+     "responsible_actor": "branch_operator",
+     "purpose": "Escalate to the desk operator with the facts and sources: CI-045 received, origin Aster Reach, Ossmere's compliance hold, and the open question of who books the officer review and when.",
+     "expected_response": "The responsible operator acknowledges the referral or provides a scoped instruction; registration is not a substantive decision.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The responsible operator acknowledges the referral or provides a scoped instruction; registration is not a substantive decision."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Escalate to the desk operator with the facts and sources: CI-045 received, origin Aster Reach, Ossmere's compliance hold, and the open question of who books the officer review and when."
+   },
+   "blocker": "The new escalation requires a scoped response. CI-045 for DL-045 states origin Aster Reach. Our procedure sends goods declared from Aster Reach to a compliance officer before we accept a package. I cannot mark the file complete or reject it. No officer review is booked yet.",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Escalate to the desk operator with the facts and sources: CI-045 received, origin Aster Reach, Ossmere's compliance hold, and the open question of who books the officer review and when."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "005",
+     "source_event_ids": [
+      "005"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c2",
+    "c3"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "escalate_operator",
+      "action": "Escalate to the desk operator with the facts and sources: CI-045 received, origin Aster Reach, Ossmere's compliance hold, and the open question of who books the officer review and when.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Ask Fera to change the stated origin, or tell anyone the document package is complete.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "045-N5"
+    },
+    "summary": "Refer the unresolved issue to its authorised operator.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Refer the unresolved issue to its authorised operator."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Desk response",
+   "title": "Refer the unresolved issue to its authorised operator",
+   "explanation": "The desk sends the recorded response. Do not grant yourself operator authority or treat registration as a decision.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "branch_operator",
+     "responsible_actor": "branch_operator",
+     "purpose": "Escalate to the desk operator with the facts and sources: CI-045 received, origin Aster Reach, Ossmere's compliance hold, and the open question of who books the officer review and when.",
+     "expected_response": "The responsible operator acknowledges the referral or provides a scoped instruction; registration is not a substantive decision.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "branch_operator",
+      "request_id": "branch_request",
+      "expected": "The responsible operator acknowledges the referral or provides a scoped instruction; registration is not a substantive decision."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "branch_operator",
+    "request_id": "branch_request",
+    "description": "The responsible operator acknowledges the referral or provides a scoped instruction; registration is not a substantive decision."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "escalate_operator",
+      "action": "Escalate to the desk operator with the facts and sources: CI-045 received, origin Aster Reach, Ossmere's compliance hold, and the open question of who books the officer review and when.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Ask Fera to change the stated origin, or tell anyone the document package is complete.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "escalate_operator",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "007",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. Compliance officer review for DL-045 was booked by the Rivet desk operator, who owns the escalation, and completed at 11:10 UTC. The officer accepts the Aster Reach origin declaration on CI-045 for document review, and the package returns to our document check. This is not document completeness or customs clearance; charges remain undecided.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Ossmere Trade Desk reports: Compliance officer review for DL-045 was booked by the Rivet desk operator, who owns the escalation, and completed at 11:10 UTC.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Ossmere Trade Desk reports: The officer accepts the Aster Reach origin declaration on CI-045 for document review, and the package returns to our document check.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Ossmere Trade Desk reports: This is not document completeness or customs clearance; charges remain undecided.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "branch_operator",
+     "responsible_actor": "branch_operator",
+     "purpose": "Escalate to the desk operator with the facts and sources: CI-045 received, origin Aster Reach, Ossmere's compliance hold, and the open question of who books the officer review and when.",
+     "expected_response": "The responsible operator acknowledges the referral or provides a scoped instruction; registration is not a substantive decision.",
+     "status": "completed",
+     "response": "Compliance officer review for DL-045 was booked by the Rivet desk operator, who owns the escalation, and completed at 11:10 UTC. The officer accepts the Aster Reach origin declaration on CI-045 for document review, and the package returns to our document check. This is not document completeness or customs clearance; charges remain undecided.",
+     "evidence_event_ids": [
+      "005",
+      "006",
+      "007"
+     ],
+     "responded_by": "broker"
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "006",
+      "007"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "Compliance officer review for DL-045 was booked by the Rivet desk operator, who owns the escalation, and completed at 11:10 UTC. The officer accepts the Aster Reach origin declaration on CI-045 for document review, and the package returns to our document check. This is not document completeness or customs clearance; charges remain undecided.",
+    "confirmed_by": "broker",
+    "evidence_event_ids": [
+     "007"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Ask Fera to change the stated origin, or tell anyone the document package is complete."
+   },
+   "annotations_add": [
+    {
+     "id": "branch_followthrough_relay",
+     "kind": "gap",
+     "title": "Unrecorded intermediate action",
+     "text": "The follow-through is from a different party than the recorded desk response. An intermediate exchange or service-to-service relay is absent; only the final reporter’s stated outcome is confirmed.",
+     "before_message_id": "007",
+     "source_event_ids": [
+      "007"
+     ],
+     "implied_action": {
+      "from_actor": "coordinator",
+      "to_actor": "broker",
+      "type": "action",
+      "purpose": "Pass the relevant verified instruction or request to the party reporting the follow-through."
+     }
+    }
+   ],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "escalate_operator",
+      "action": "Escalate to the desk operator with the facts and sources: CI-045 received, origin Aster Reach, Ossmere's compliance hold, and the open question of who books the officer review and when.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Ask Fera to change the stated origin, or tell anyone the document package is complete.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "escalate_operator",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ],
+ "source_attachments": [
+  {
+   "event_id": "004",
+   "attachment": {
+    "name": "commercial-invoice.pdf",
+    "type": "application/pdf",
+    "url": "https://github.com/DwellyOrg/HackatonPublicCases/blob/9bcdca585955dfb930005ed742572606e68f5688/Delivery%20%26%20Logistics/045/attachments/commercial-invoice.pdf"
+   }
+  }
+ ]
+}

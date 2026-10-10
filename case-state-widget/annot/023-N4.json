@@ -1,0 +1,603 @@
+{
+ "case_id": "023-N4",
+ "lang": "en",
+ "title": "023-N4 · No acknowledgement before shift handover",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is the depot shift coordinator at Plover Arc Logistics. From the case card: an unknown leak is reported on parcel DL-023 at the depot, and the desk must escalate to qualified carrier safety staff rather than advise physical handling.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "depot",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Escalate the leak to the carrier's safety staff and get their confirmation of isolation and the next handling step.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "depot": {
+   "name": "Depot shift coordinator",
+   "organization": "Plover Arc Logistics",
+   "role": "depot",
+   "responsibility": "Report the leaking parcel and ask for the incident to be handed to the carrier's safety lead.",
+   "from_start": true,
+   "source_names": [
+    "Depot shift coordinator, Plover Arc Logistics"
+   ]
+  },
+  "safety_lead": {
+   "name": "Safety lead",
+   "organization": "Plover Arc Logistics",
+   "role": "safety_desk",
+   "responsibility": "Take control of the incident, confirm isolation and record the next handling step.",
+   "from_start": false,
+   "source_names": [
+    "Safety lead, Plover Arc Logistics"
+   ]
+  }
+ },
+ "goal": "Escalate the DL-023 leak to qualified carrier safety staff and get their confirmation that the parcel is isolated and the next handling step is recorded.",
+ "limits": [
+  "Do not identify the liquid.",
+  "Do not declare the parcel or the liquid safe.",
+  "Do not give cleanup instructions.",
+  "Emergency procedures remain with safety staff.",
+  "Do not treat a reminder or silence as consent, a booking or execution."
+ ],
+ "intake": {
+  "summary": "Leak reported on DL-023 at the depot: hand the incident to carrier safety staff.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "An unknown leak is reported on the parcel; no qualified safety staff have taken control yet.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-023.",
+    "source": {
+     "type": "case_card",
+     "id": "023"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "An unknown leak is reported on the parcel at the depot.",
+    "source": {
+     "type": "case_card",
+     "id": "023"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The desk must escalate to qualified carrier safety staff and must not advise physical handling.",
+    "source": {
+     "type": "case_card",
+     "id": "023"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "Carrier safety staff have accepted control of the incident."
+   },
+   {
+    "id": "c2",
+    "description": "Carrier safety staff have confirmed the parcel is isolated."
+   },
+   {
+    "id": "c3",
+    "description": "Carrier safety staff have recorded the next handling step."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/023/N4-NO_REPLY",
+  "branch_id": "023-N4",
+  "derived_from_case": "023",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "NO_REPLY",
+  "expected_decision": "WAIT_WITH_DEADLINE",
+  "workflow_sheet": "E",
+  "branch_label": "No acknowledgement before shift handover",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "193c4b5e4295af3b13cc944d0cb09a88a69a5dc039150ded8f43eaf0ac0595d4",
+   "history.md": "712d679fcd88f8d9d48fb68b3eabec9f0512822e1122b6e1af326c448e294f9d"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Depot report",
+   "title": "Depot reports a wet patch under DL-023",
+   "explanation": "The depot has stopped moving the parcel and staff are keeping clear, but the contents are unassessed. This is a safety matter, so our move is to escalate to carrier safety staff, not to suggest any handling.",
+   "conversation_id": "depot",
+   "facts_upsert": [
+    {
+     "id": "f4",
+     "text": "DL-023 is on receiving lane L3.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "A wet patch is visible under one carton.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f6",
+     "text": "The contents have not been assessed.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f7",
+     "text": "Staff have stopped moving the parcel and are keeping clear pending safety review.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Escalate the incident to qualified carrier safety staff; give no handling advice."
+   },
+   "blocker": "Contents are unassessed and no qualified safety staff have taken control of the incident.",
+   "status": "context_received",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": null,
+    "description": "Escalate the leak to qualified carrier safety staff."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Depot request",
+   "title": "Depot asks for its safety lead to take over",
+   "explanation": "The depot names who must take control, the safety lead, and rules out a driver or the customer. We escalate to the safety lead and ask for confirmation of isolation and the next handling step.",
+   "conversation_id": "depot",
+   "facts_upsert": [
+    {
+     "id": "f8",
+     "text": "The depot asks for its safety lead to take over the incident now.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    },
+    {
+     "id": "f9",
+     "text": "The depot asks that the incident not be routed to a driver and that the customer not be asked to collect the parcel.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "depot",
+     "to_actor": "coordinator",
+     "responsible_actor": "safety_lead",
+     "purpose": "Get the safety lead to take over the incident now, without routing it to a driver or the customer.",
+     "expected_response": "The safety lead takes control of the incident.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "safety_lead",
+     "responsible_actor": "safety_lead",
+     "purpose": "Take control of the DL-023 leak incident and confirm isolation and the next handling step.",
+     "expected_response": "Confirmation that the safety lead has taken control, the parcel is isolated, and the next handling step.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Send the safety lead an urgent escalation with the lane, the visible leak and the stopped movement; ask them to take control and confirm isolation and the next handling step."
+   },
+   "blocker": "The safety lead has not taken control of the incident yet.",
+   "status": "escalated",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "safety_lead",
+    "request_id": "r1",
+    "description": "Escalate to the safety lead and get them to take control of the incident."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "Our escalation",
+   "title": "We escalate urgently to the safety lead",
+   "explanation": "We passed on only what the depot reported and asked the safety lead to take control and confirm isolation and the next handling step. We gave no handling advice; now we wait for the safety lead.",
+   "conversation_id": "safety",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "safety_lead",
+     "responsible_actor": "safety_lead",
+     "purpose": "Take control of the DL-023 leak incident and confirm isolation and the next handling step.",
+     "expected_response": "Confirmation that the safety lead has taken control, the parcel is isolated, and the next handling step.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "safety_lead",
+      "request_id": "r1",
+      "expected": "Takeover of the incident, confirmation of isolation and the next handling step"
+     }
+    ],
+    "next_action": "Once the safety lead replies, record the confirmed isolation and the next handling step."
+   },
+   "blocker": "The safety lead has not yet confirmed taking control, isolation or the next handling step.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "safety_lead",
+    "request_id": "r1",
+    "description": "Wait for the safety lead to take control and confirm isolation and the next handling step."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "New escalation",
+   "title": "No acknowledgement before shift handover",
+   "explanation": "Send one reminder with the recorded deadline and consequence. Do not treat a reminder or silence as consent, a booking or execution.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Depot shift coordinator reports: Thirty minutes and no acknowledgement from the safety lead.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Depot shift coordinator reports: Lane L3 is still closed and staff remain clear.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Depot shift coordinator reports: My shift hands over at 10:30 UTC and I need a named safety owner on record before then.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "confirmation",
+     "from_actor": "coordinator",
+     "to_actor": "safety_lead",
+     "responsible_actor": "safety_lead",
+     "purpose": "Send one urgent reminder to the Safety lead through the safety incident queue citing the 10:30 UTC handover, record the safety lead as owner and 10:30 UTC as the deadline, and tell the depot shift coordinator that nothing is acknowledged yet.",
+     "expected_response": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Send one urgent reminder to the Safety lead through the safety incident queue citing the 10:30 UTC handover, record the safety lead as owner and 10:30 UTC as the deadline, and tell the depot shift coordinator that nothing is acknowledged yet."
+   },
+   "blocker": "The new escalation requires a scoped response. Thirty minutes and no acknowledgement from the safety lead. Lane L3 is still closed and staff remain clear. My shift hands over at 10:30 UTC and I need a named safety owner on record before then.",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Send one urgent reminder to the Safety lead through the safety incident queue citing the 10:30 UTC handover, record the safety lead as owner and 10:30 UTC as the deadline, and tell the depot shift coordinator that nothing is acknowledged yet."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "004",
+     "source_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c1",
+    "c2",
+    "c3"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "wait_with_deadline",
+      "action": "Send one urgent reminder to the Safety lead through the safety incident queue citing the 10:30 UTC handover, record the safety lead as owner and 10:30 UTC as the deadline, and tell the depot shift coordinator that nothing is acknowledged yet.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "name the desk or a driver as safety owner, and suggest moving the parcel to free the lane.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "023-N4"
+    },
+    "summary": "Send one reminder with the recorded deadline and consequence.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Send one reminder with the recorded deadline and consequence."
+   }
+  },
+  {
+   "event_id": "005",
+   "label": "Desk response",
+   "title": "Send one reminder with the recorded deadline and consequence",
+   "explanation": "The desk sends the recorded response. Do not treat a reminder or silence as consent, a booking or execution.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "confirmation",
+     "from_actor": "coordinator",
+     "to_actor": "safety_lead",
+     "responsible_actor": "safety_lead",
+     "purpose": "Send one urgent reminder to the Safety lead through the safety incident queue citing the 10:30 UTC handover, record the safety lead as owner and 10:30 UTC as the deadline, and tell the depot shift coordinator that nothing is acknowledged yet.",
+     "expected_response": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "safety_lead",
+      "request_id": "branch_request",
+      "expected": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "confirmation",
+    "responsible_actor": "safety_lead",
+    "request_id": "branch_request",
+    "description": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "wait_with_deadline",
+      "action": "Send one urgent reminder to the Safety lead through the safety incident queue citing the 10:30 UTC handover, record the safety lead as owner and 10:30 UTC as the deadline, and tell the depot shift coordinator that nothing is acknowledged yet.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "name the desk or a driver as safety owner, and suggest moving the parcel to free the lane.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "wait_with_deadline",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. Acknowledged. I own the DL-023 incident from 10:20 UTC, reference SAFE-023. The depot shift coordinator can record me as safety owner for the 10:30 UTC handover. Isolation is not yet confirmed and will be confirmed separately. Contents remain unassessed.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Safety lead reports: Acknowledged.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Safety lead reports: I own the DL-023 incident from 10:20 UTC, reference SAFE-023.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Safety lead reports: The depot shift coordinator can record me as safety owner for the 10:30 UTC handover.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_4",
+     "text": "Safety lead reports: Isolation is not yet confirmed and will be confirmed separately.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_5",
+     "text": "Safety lead reports: Contents remain unassessed.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "confirmation",
+     "from_actor": "coordinator",
+     "to_actor": "safety_lead",
+     "responsible_actor": "safety_lead",
+     "purpose": "Send one urgent reminder to the Safety lead through the safety incident queue citing the 10:30 UTC handover, record the safety lead as owner and 10:30 UTC as the deadline, and tell the depot shift coordinator that nothing is acknowledged yet.",
+     "expected_response": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking.",
+     "status": "answered",
+     "response": "Acknowledged. I own the DL-023 incident from 10:20 UTC, reference SAFE-023. The depot shift coordinator can record me as safety owner for the 10:30 UTC handover. Isolation is not yet confirmed and will be confirmed separately. Contents remain unassessed.",
+     "evidence_event_ids": [
+      "004",
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "Acknowledged. I own the DL-023 incident from 10:20 UTC, reference SAFE-023. The depot shift coordinator can record me as safety owner for the 10:30 UTC handover. Isolation is not yet confirmed and will be confirmed separately. Contents remain unassessed.",
+    "confirmed_by": "safety_lead",
+    "evidence_event_ids": [
+     "006"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not name the desk or a driver as safety owner, and do not suggest moving the parcel to free the lane."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "wait_with_deadline",
+      "action": "Send one urgent reminder to the Safety lead through the safety incident queue citing the 10:30 UTC handover, record the safety lead as owner and 10:30 UTC as the deadline, and tell the depot shift coordinator that nothing is acknowledged yet.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "name the desk or a driver as safety owner, and suggest moving the parcel to free the lane.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "wait_with_deadline",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

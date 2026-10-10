@@ -1,0 +1,724 @@
+{
+ "case_id": "043-N3",
+ "lang": "en",
+ "title": "043-N3 · Pallet rebuilt after it was measured",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Nessa Dray, shipping coordinator at Orris Span. From the case card: freight allocation for DL-043 is paused because the pallet dimensions and weight are missing, and the shipper must provide measured values before the planner allocates a vehicle.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "shipper",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get the shipper's measured pallet data and the carrier's acceptance and collection allocation.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "shipper": {
+   "name": "Nessa Dray",
+   "organization": "Orris Span",
+   "role": "sender",
+   "responsibility": "Provide the measured pallet dimensions and gross weight.",
+   "from_start": true,
+   "source_names": [
+    "Nessa Dray, Orris Span shipping coordinator"
+   ]
+  },
+  "booking_desk": {
+   "name": "Freight booking desk",
+   "organization": "Plover Arc Logistics",
+   "role": "carrier",
+   "responsibility": "Report that the pallet dimensions and weight are blank on the booking.",
+   "from_start": false,
+   "source_names": [
+    "Freight booking desk, Plover Arc Logistics"
+   ]
+  },
+  "freight_planner": {
+   "name": "Freight planner",
+   "organization": "Plover Arc Logistics",
+   "role": "dispatch",
+   "responsibility": "Accept the pallet data and allocate the collection vehicle.",
+   "from_start": false,
+   "source_names": [
+    "Freight planner, Plover Arc Logistics"
+   ]
+  }
+ },
+ "goal": "Get the shipper's measured pallet dimensions and gross weight for DL-043 and the carrier's confirmation that it accepts them and has allocated the collection.",
+ "limits": [
+  "Do not present the shipper's measurements as an independent carrier weighing.",
+  "Do not treat collection allocation as collection.",
+  "Do not choose for the customer or treat a choice as a confirmed booking."
+ ],
+ "intake": {
+  "summary": "Get measured pallet dimensions and weight for DL-043 so the carrier can allocate a collection vehicle.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "Pallet dimensions and weight are missing; freight allocation is paused.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-043.",
+    "source": {
+     "type": "case_card",
+     "id": "043"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "Freight allocation is paused because pallet dimensions and weight are missing.",
+    "source": {
+     "type": "case_card",
+     "id": "043"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The shipper must provide measured values before the planner allocates a vehicle.",
+    "source": {
+     "type": "case_card",
+     "id": "043"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The shipper has provided the measured pallet dimensions and gross weight."
+   },
+   {
+    "id": "c2",
+    "description": "The carrier has accepted the submitted measurements."
+   },
+   {
+    "id": "c3",
+    "description": "The carrier has confirmed the collection allocation."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/043/N3-STALE_STATE",
+  "branch_id": "043-N3",
+  "derived_from_case": "043",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003",
+   "004"
+  ],
+  "diverges_after_event": "004",
+  "failure_mode": "STALE_STATE",
+  "expected_decision": "ASK_CUSTOMER",
+  "workflow_sheet": "B",
+  "branch_label": "Pallet rebuilt after it was measured",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "2c48a5c51c32a6dbd16e22b15257a167b3943c3368ad057d90e5f1ac7fd50c27",
+   "history.md": "e4c4e7eea9625f32f5555e642369ba94077e5e2209e412e42f58af8875c71e24"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Carrier email",
+   "title": "Booking desk reports blank pallet fields",
+   "explanation": "The carrier cannot allocate a vehicle while the pallet size and weight are blank. Only the shipper can measure the pallet, so the next step is a question to the shipper.",
+   "conversation_id": "booking",
+   "facts_upsert": [
+    {
+     "id": "f4",
+     "text": "DL-043 has one pallet at Orris Span Fabrication.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f2",
+     "text": "The pallet's dimensions and weight fields are blank; the carrier cannot allocate a collection vehicle from an unspecified pallet size.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "shipper",
+     "responsible_actor": "shipper",
+     "purpose": "Get the measured pallet dimensions and weight for DL-043.",
+     "expected_response": "Measured pallet dimensions and weight.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "001"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask the shipper for the measured pallet dimensions and weight."
+   },
+   "blocker": "The pallet's dimensions and weight fields are blank; the carrier cannot allocate a collection vehicle.",
+   "status": "context_received",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "shipper",
+    "request_id": "r1",
+    "description": "Provide the measured pallet dimensions and weight."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client question",
+   "title": "Nessa asks which measurements are needed",
+   "explanation": "Nessa says the pallet is ready and asks what the carrier needs. Event 001 tells us the dimensions and weight are blank, so we can name the exact measurements and ask for measured values.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f5",
+     "text": "The shipper says the pallet is ready.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "information",
+     "from_actor": "shipper",
+     "to_actor": "coordinator",
+     "responsible_actor": "coordinator",
+     "purpose": "Tell the shipper which measurements the carrier needs to finish the booking.",
+     "expected_response": "The list of measurements the carrier needs.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Reply to Nessa: name the measurements the carrier needs and ask for measured values."
+   },
+   "blocker": "The pallet's dimensions and weight fields are blank; the carrier cannot allocate a collection vehicle.",
+   "status": "escalated",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "shipper",
+    "request_id": "r1",
+    "description": "Provide the measured pallet dimensions and weight."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "booking-context",
+     "kind": "context",
+     "title": "What Nessa knew before her message",
+     "text": "Nessa writes that the carrier needs measurements to finish the booking, so she knows the booking is incomplete. How she learned this is not recorded in the history.",
+     "before_message_id": "002",
+     "source_event_ids": [
+      "002"
+     ]
+    }
+   ]
+  },
+  {
+   "event_id": "003",
+   "label": "Our question",
+   "title": "We ask Nessa for measured values",
+   "explanation": "We asked for measured length, width and total height including pallet, plus gross weight including packaging. Now we wait for Nessa's measurements.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r0": {
+     "type": "information",
+     "from_actor": "shipper",
+     "to_actor": "coordinator",
+     "responsible_actor": "coordinator",
+     "purpose": "Tell the shipper which measurements the carrier needs to finish the booking.",
+     "expected_response": "The list of measurements the carrier needs.",
+     "status": "answered",
+     "response": "Measured length, width and total height including pallet, plus gross weight including packaging.",
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    },
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "shipper",
+     "responsible_actor": "shipper",
+     "purpose": "Get measured length, width and total height including pallet, plus gross weight including packaging, for DL-043.",
+     "expected_response": "Measured dimensions including pallet and gross weight including packaging.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "001",
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "shipper",
+      "request_id": "r1",
+      "expected": "Measured dimensions including pallet and gross weight including packaging"
+     }
+    ],
+    "next_action": "Once the measurements arrive, pass them to the carrier."
+   },
+   "blocker": "The measured pallet dimensions and weight have not been received.",
+   "status": "awaiting_response",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "shipper",
+    "request_id": "r1",
+    "description": "Wait for Nessa's measured dimensions and gross weight."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "Client reply",
+   "title": "Nessa sends the measured pallet data",
+   "explanation": "We have the shipper's measurements, but the carrier has not accepted them or allocated a vehicle yet. The next step is to pass them to the carrier's freight planner.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f6",
+     "text": "Measured DL-043: 120 × 100 × 145 cm including pallet, gross weight 310 kg including packaging.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "f7",
+     "text": "It is one non-stackable pallet.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "f8",
+     "text": "The weight was supplied by the shipper's calibrated warehouse scale.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "shipper",
+     "responsible_actor": "shipper",
+     "purpose": "Get measured length, width and total height including pallet, plus gross weight including packaging, for DL-043.",
+     "expected_response": "Measured dimensions including pallet and gross weight including packaging.",
+     "status": "answered",
+     "response": "120 × 100 × 145 cm including pallet; gross weight 310 kg including packaging; one non-stackable pallet.",
+     "evidence_event_ids": [
+      "001",
+      "003",
+      "004"
+     ]
+    },
+    "r2": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "freight_planner",
+     "responsible_actor": "freight_planner",
+     "purpose": "Accept the measured pallet data for DL-043 (120 × 100 × 145 cm, 310 kg gross, one non-stackable pallet) and allocate the collection vehicle.",
+     "expected_response": "Confirmation that the measurements are accepted and the collection is allocated.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_met": [
+    {
+     "id": "c1",
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Send the measurements to the carrier's freight planner, then wait for acceptance and the collection allocation.",
+    "note": "Sending the measurements to the carrier and the wait that follows are not recorded as separate events. So in this snapshot the agent is still preparing the handoff; it is not given waiting status without evidence that the request was sent."
+   },
+   "blocker": "Measurements received; the carrier has not yet accepted them or allocated the collection.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "freight_planner",
+    "request_id": "r2",
+    "description": "Pass the measurements to the freight planner and get acceptance and the collection allocation."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "missing-carrier-submission",
+     "kind": "gap",
+     "title": "Next action · us → freight planner",
+     "text": "Nessa sent the measured dimensions and gross weight to us only. We now have to submit them to the carrier and ask for acceptance and a collection allocation; after sending, the agent waits for the planner. At this step the submission is not yet recorded in the history, and the shipper's figures alone do not unblock allocation.",
+     "source_event_ids": [
+      "004"
+     ],
+     "implied_action": {
+      "from_actor": "coordinator",
+      "to_actor": "freight_planner",
+      "type": "action",
+      "purpose": "Submit Nessa's measured pallet data for DL-043 to the carrier and get acceptance and the collection allocation."
+     }
+    }
+   ]
+  },
+  {
+   "event_id": "005",
+   "label": "New escalation",
+   "title": "Pallet rebuilt after it was measured",
+   "explanation": "Obtain the authorised party’s precise choice or missing detail. Do not choose for the customer or treat a choice as a confirmed booking.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Nessa Dray reports: Update on DL-043.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Nessa Dray reports: After I measured, production added another layer of cartons to the pallet.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Nessa Dray reports: It is now taller than 145 cm and heavier than 310 kg.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    },
+    {
+     "id": "branch_report_4",
+     "text": "Nessa Dray reports: I have not re-measured or re-weighed it yet.",
+     "source": {
+      "type": "message",
+      "id": "005"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "shipper",
+     "responsible_actor": "shipper",
+     "purpose": "Ask Nessa in the business portal to re-measure the total height and re-weigh the gross weight of DL-043 as it now stands, before anything goes to the carrier.",
+     "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask Nessa in the business portal to re-measure the total height and re-weigh the gross weight of DL-043 as it now stands, before anything goes to the carrier."
+   },
+   "blocker": "The new escalation requires a scoped response. Update on DL-043. After I measured, production added another layer of cartons to the pallet. It is now taller than 145 cm and heavier than 310 kg. I have not re-measured or re-weighed it yet.",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Ask Nessa in the business portal to re-measure the total height and re-weigh the gross weight of DL-043 as it now stands, before anything goes to the carrier."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "missing-carrier-submission",
+     "kind": "context",
+     "title": "Unrecorded parent action",
+     "text": "A separate record of this parent action is absent. The branch does not by itself establish that it occurred. The next action is now the scoped branch response. Nessa sent the measured dimensions and gross weight to us only. We now have to submit them to the carrier and ask for acceptance and a collection allocation; after sending, the agent waits for the planner. At this step the submission is not yet recorded in the history, and the shipper's figures alone do not unblock allocation.",
+     "source_event_ids": [
+      "004"
+     ],
+     "implied_action": {
+      "from_actor": "coordinator",
+      "to_actor": "freight_planner",
+      "type": "action",
+      "purpose": "Submit Nessa's measured pallet data for DL-043 to the carrier and get acceptance and the collection allocation."
+     },
+     "before_message_id": "005"
+    },
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "005",
+     "source_event_ids": [
+      "005"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c2",
+    "c3"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "ask_customer",
+      "action": "Ask Nessa in the business portal to re-measure the total height and re-weigh the gross weight of DL-043 as it now stands, before anything goes to the carrier.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Send the 120 x 100 x 145 cm, 310 kg values to the carrier, or add an estimate for the extra layer.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "043-N3"
+    },
+    "summary": "Obtain the authorised party’s precise choice or missing detail.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Obtain the authorised party’s precise choice or missing detail."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Desk response",
+   "title": "Obtain the authorised party’s precise choice or missing detail",
+   "explanation": "The desk sends the recorded response. Do not choose for the customer or treat a choice as a confirmed booking.",
+   "conversation_id": "client",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "shipper",
+     "responsible_actor": "shipper",
+     "purpose": "Ask Nessa in the business portal to re-measure the total height and re-weigh the gross weight of DL-043 as it now stands, before anything goes to the carrier.",
+     "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "shipper",
+      "request_id": "branch_request",
+      "expected": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_response",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "shipper",
+    "request_id": "branch_request",
+    "description": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "ask_customer",
+      "action": "Ask Nessa in the business portal to re-measure the total height and re-weigh the gross weight of DL-043 as it now stands, before anything goes to the carrier.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Send the 120 x 100 x 145 cm, 310 kg values to the carrier, or add an estimate for the extra layer.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "ask_customer",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "007",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. Re-measured DL-043 as built: 120 x 100 x 168 cm including pallet, gross weight 352 kg including packaging, from our calibrated warehouse scale. Still one non-stackable pallet. These are our figures; the carrier has not checked them or allocated a vehicle.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Nessa Dray reports: Re-measured DL-043 as built: 120 x 100 x 168 cm including pallet, gross weight 352 kg including packaging, from our calibrated warehouse scale.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Nessa Dray reports: Still one non-stackable pallet.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    },
+    {
+     "id": "branch_outcome_3",
+     "text": "Nessa Dray reports: These are our figures; the carrier has not checked them or allocated a vehicle.",
+     "source": {
+      "type": "message",
+      "id": "007"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "shipper",
+     "responsible_actor": "shipper",
+     "purpose": "Ask Nessa in the business portal to re-measure the total height and re-weigh the gross weight of DL-043 as it now stands, before anything goes to the carrier.",
+     "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+     "status": "answered",
+     "response": "Re-measured DL-043 as built: 120 x 100 x 168 cm including pallet, gross weight 352 kg including packaging, from our calibrated warehouse scale. Still one non-stackable pallet. These are our figures; the carrier has not checked them or allocated a vehicle.",
+     "evidence_event_ids": [
+      "005",
+      "006",
+      "007"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "006",
+      "007"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "Re-measured DL-043 as built: 120 x 100 x 168 cm including pallet, gross weight 352 kg including packaging, from our calibrated warehouse scale. Still one non-stackable pallet. These are our figures; the carrier has not checked them or allocated a vehicle.",
+    "confirmed_by": "shipper",
+    "evidence_event_ids": [
+     "007"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Send the 120 x 100 x 145 cm, 310 kg values to the carrier, or add an estimate for the extra layer."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "ask_customer",
+      "action": "Ask Nessa in the business portal to re-measure the total height and re-weigh the gross weight of DL-043 as it now stands, before anything goes to the carrier.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "Send the 120 x 100 x 145 cm, 310 kg values to the carrier, or add an estimate for the extra layer.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "ask_customer",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

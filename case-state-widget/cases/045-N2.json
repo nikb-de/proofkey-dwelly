@@ -1,0 +1,1787 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "045-N2 · Invoice supplied without origin declaration",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Ossmere Trade Desk, the appointed customs broker. From the case card: the broker's requested commercial-invoice fields for DL-045 are incomplete, and shipper provision and broker receipt are distinct from customs clearance.",
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/045/N2-AMBIGUOUS_REPLY",
+  "branch_id": "045-N2",
+  "derived_from_case": "045",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "AMBIGUOUS_REPLY",
+  "expected_decision": "ASK_CUSTOMER",
+  "workflow_sheet": "A",
+  "branch_label": "Invoice supplied without origin declaration",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "71772ab1350a053205e20e368c0c27490cf0423f89f0702aba78a652c45b8679",
+   "history.md": "14b9b50258543fefa570eb5916c680eaa88cd17751e9f620ac3443cbfacfee57"
+  }
+ },
+ "initial_state": {
+  "case_id": "045-N2",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "broker",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: get the shipper's own commercial invoice with the broker's listed fields and the broker's confirmation that the package is complete."
+   },
+   "broker": {
+    "name": "Ossmere Trade Desk",
+    "organization": "Ossmere Trade Desk",
+    "role": "broker",
+    "is_us": false,
+    "responsibility": "List the missing invoice fields and confirm whether the received document package is complete."
+   }
+  },
+  "goal": "Get the authorised shipper's commercial invoice with the fields the broker listed and the broker's confirmation that the document package is received and complete, without claiming customs clearance.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The shipper has supplied its own commercial invoice.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The broker has confirmed receipt of the invoice.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c3",
+    "description": "The broker has confirmed that all requested fields are complete.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The commercial-invoice fields requested by the broker are incomplete.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-045.",
+    "source": {
+     "type": "case_card",
+     "id": "045"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "An import broker is appointed, but its requested commercial-invoice fields are incomplete.",
+    "source": {
+     "type": "case_card",
+     "id": "045"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "Shipper provision and broker receipt are distinct from customs clearance.",
+    "source": {
+     "type": "case_card",
+     "id": "045"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Do not present the broker's field requirements as universal customs law.",
+   "Do not treat document completeness as customs clearance.",
+   "Do not choose for the customer or treat a choice as a confirmed booking."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Broker email",
+    "title": "Broker lists the missing invoice fields",
+    "timestamp": "2026-03-18 09:00:00 UTC",
+    "actor_id": "broker",
+    "message_id": "001"
+   },
+   "explanation": "The broker named exactly which invoice fields are missing. Only the shipper can supply its own invoice, so the next step is to get it from the shipper.",
+   "state_after": {
+    "case_id": "045-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "broker",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the shipper's own commercial invoice with the broker's listed fields and the broker's confirmation that the package is complete."
+     },
+     "broker": {
+      "name": "Ossmere Trade Desk",
+      "organization": "Ossmere Trade Desk",
+      "role": "broker",
+      "is_us": false,
+      "responsibility": "List the missing invoice fields and confirm whether the received document package is complete."
+     }
+    },
+    "goal": "Get the authorised shipper's commercial invoice with the fields the broker listed and the broker's confirmation that the document package is received and complete, without claiming customs clearance.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Get the shipper's commercial invoice with the fields the broker listed."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The shipper has supplied its own commercial invoice.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The broker has confirmed receipt of the invoice.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The broker has confirmed that all requested fields are complete.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-18 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "045-N2"
+     },
+     "context_message_id": "001",
+     "summary": "Obtain the shipper's complete commercial invoice for DL-045 for the appointed customs broker.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The broker's file is missing the commercial-invoice fields it listed.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-045.",
+      "source": {
+       "type": "case_card",
+       "id": "045"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The fields the broker listed are the ones missing from its file.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Shipper provision and broker receipt are distinct from customs clearance.",
+      "source": {
+       "type": "case_card",
+       "id": "045"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "For DL-045 / order OS-045 the broker needs the shipper's commercial invoice showing seller, buyer, invoice date and reference, goods description, quantity, unit value, currency, total and origin declaration.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "No clearance decision has been made.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {},
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": null,
+     "description": "Get the shipper's commercial invoice with the fields the broker listed."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "client": {
+      "participants": [
+       "coordinator",
+       "broker"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "client",
+      "event_id": "001",
+      "timestamp": "2026-03-18 09:00:00 UTC",
+      "from_actor": "broker",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "For DL-045 / order OS-045 we need the shipper’s commercial invoice showing seller, buyer, invoice date and reference, goods description, quantity, unit value, currency, total and origin declaration. These are the missing fields in this file; no clearance decision has been made."
+     }
+    ],
+    "limits": [
+     "Do not present the broker's field requirements as universal customs law.",
+     "Do not treat document completeness as customs clearance.",
+     "Do not choose for the customer or treat a choice as a confirmed booking."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Broker request",
+    "title": "Broker asks us to request the invoice",
+    "timestamp": "2026-03-18 09:10:00 UTC",
+    "actor_id": "broker",
+    "message_id": "002"
+   },
+   "explanation": "The broker names the authorised shipper and forbids filling in values or origin for them. The next step is a request to the shipper's shipping lead, Fera Noll.",
+   "state_after": {
+    "case_id": "045-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "broker",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the shipper's own commercial invoice with the broker's listed fields and the broker's confirmation that the package is complete."
+     },
+     "broker": {
+      "name": "Ossmere Trade Desk",
+      "organization": "Ossmere Trade Desk",
+      "role": "broker",
+      "is_us": false,
+      "responsibility": "List the missing invoice fields and confirm whether the received document package is complete."
+     },
+     "shipper": {
+      "name": "Fera Noll",
+      "organization": "Mavelle Export Studio",
+      "role": "sender",
+      "is_us": false,
+      "responsibility": "Supply the shipper's own commercial invoice with the fields the broker listed."
+     }
+    },
+    "goal": "Get the authorised shipper's commercial invoice with the fields the broker listed and the broker's confirmation that the document package is received and complete, without claiming customs clearance.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask Fera Noll at Mavelle Export Studio for its commercial invoice with the fields the broker listed."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The shipper has supplied its own commercial invoice.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The broker has confirmed receipt of the invoice.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The broker has confirmed that all requested fields are complete.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-18 09:00:00 UTC",
+     "escalated_at": "2026-03-18 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "045-N2"
+     },
+     "context_message_id": "001",
+     "summary": "Obtain the shipper's complete commercial invoice for DL-045 for the appointed customs broker.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The broker's file is missing the commercial-invoice fields it listed.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-045.",
+      "source": {
+       "type": "case_card",
+       "id": "045"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The fields the broker listed are the ones missing from its file.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Shipper provision and broker receipt are distinct from customs clearance.",
+      "source": {
+       "type": "case_card",
+       "id": "045"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "For DL-045 / order OS-045 the broker needs the shipper's commercial invoice showing seller, buyer, invoice date and reference, goods description, quantity, unit value, currency, total and origin declaration.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "No clearance decision has been made.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The authorised shipper is Mavelle Export Studio.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The broker instructs us not to fill in values or origin on the shipper's behalf.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "broker",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Request the complete invoice from authorised shipper Mavelle Export Studio, without filling in values or origin on its behalf.",
+      "expected_response": "A request for the complete invoice sent to the shipper.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "shipper",
+      "responsible_actor": "shipper",
+      "purpose": "Supply the shipper's own commercial invoice for DL-045 / OS-045 with the fields the broker listed.",
+      "expected_response": "The shipper's issued commercial invoice with those fields.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "information",
+     "responsible_actor": "shipper",
+     "request_id": "r1",
+     "description": "Supply the commercial invoice with the fields the broker listed."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "client": {
+      "participants": [
+       "coordinator",
+       "broker"
+      ],
+      "channel": "Email",
+      "other_channels": [
+       "Broker portal"
+      ]
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "client",
+      "event_id": "001",
+      "timestamp": "2026-03-18 09:00:00 UTC",
+      "from_actor": "broker",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "For DL-045 / order OS-045 we need the shipper’s commercial invoice showing seller, buyer, invoice date and reference, goods description, quantity, unit value, currency, total and origin declaration. These are the missing fields in this file; no clearance decision has been made."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-18 09:10:00 UTC",
+      "from_actor": "broker",
+      "to_actor": "coordinator",
+      "channel": "Broker portal",
+      "body": "Please request the complete invoice from authorised shipper Mavelle Export Studio. Do not fill in values or origin on their behalf."
+     }
+    ],
+    "limits": [
+     "Do not present the broker's field requirements as universal customs law.",
+     "Do not treat document completeness as customs clearance.",
+     "Do not choose for the customer or treat a choice as a confirmed booking."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our request",
+    "title": "We ask Fera Noll for the invoice",
+    "timestamp": "2026-03-18 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We passed the broker's field list to the shipper and asked for the shipper's own invoice, without filling in any values ourselves. Now we wait for the invoice.",
+   "state_after": {
+    "case_id": "045-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "broker",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the shipper's own commercial invoice with the broker's listed fields and the broker's confirmation that the package is complete."
+     },
+     "broker": {
+      "name": "Ossmere Trade Desk",
+      "organization": "Ossmere Trade Desk",
+      "role": "broker",
+      "is_us": false,
+      "responsibility": "List the missing invoice fields and confirm whether the received document package is complete."
+     },
+     "shipper": {
+      "name": "Fera Noll",
+      "organization": "Mavelle Export Studio",
+      "role": "sender",
+      "is_us": false,
+      "responsibility": "Supply the shipper's own commercial invoice with the fields the broker listed."
+     }
+    },
+    "goal": "Get the authorised shipper's commercial invoice with the fields the broker listed and the broker's confirmation that the document package is received and complete, without claiming customs clearance.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "shipper",
+       "request_id": "r1",
+       "expected": "The shipper's commercial invoice with the listed fields"
+      }
+     ],
+     "next_action": "Once the invoice is supplied, make sure the broker reviews it."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The shipper has supplied its own commercial invoice.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The broker has confirmed receipt of the invoice.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The broker has confirmed that all requested fields are complete.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-18 09:00:00 UTC",
+     "escalated_at": "2026-03-18 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "045-N2"
+     },
+     "context_message_id": "001",
+     "summary": "Obtain the shipper's complete commercial invoice for DL-045 for the appointed customs broker.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The shipper has not yet supplied the commercial invoice.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-045.",
+      "source": {
+       "type": "case_card",
+       "id": "045"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The fields the broker listed are the ones missing from its file.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Shipper provision and broker receipt are distinct from customs clearance.",
+      "source": {
+       "type": "case_card",
+       "id": "045"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "For DL-045 / order OS-045 the broker needs the shipper's commercial invoice showing seller, buyer, invoice date and reference, goods description, quantity, unit value, currency, total and origin declaration.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "No clearance decision has been made.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The authorised shipper is Mavelle Export Studio.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The broker instructs us not to fill in values or origin on the shipper's behalf.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "broker",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Request the complete invoice from authorised shipper Mavelle Export Studio, without filling in values or origin on its behalf.",
+      "expected_response": "A request for the complete invoice sent to the shipper.",
+      "status": "completed",
+      "response": "The invoice was requested from Fera Noll, Mavelle Export Studio, with the broker's field list.",
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "shipper",
+      "responsible_actor": "shipper",
+      "purpose": "Supply the shipper's own commercial invoice for DL-045 / OS-045 with seller, buyer, date/reference, description, quantity, unit value/currency/total and origin declaration.",
+      "expected_response": "The shipper's issued commercial invoice with those fields.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_response",
+    "next_step": {
+     "type": "information",
+     "responsible_actor": "shipper",
+     "request_id": "r1",
+     "description": "Wait for the shipper's commercial invoice."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "client": {
+      "participants": [
+       "coordinator",
+       "broker"
+      ],
+      "channel": "Email",
+      "other_channels": [
+       "Broker portal"
+      ]
+     },
+     "shipper": {
+      "participants": [
+       "coordinator",
+       "shipper"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "client",
+      "event_id": "001",
+      "timestamp": "2026-03-18 09:00:00 UTC",
+      "from_actor": "broker",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "For DL-045 / order OS-045 we need the shipper’s commercial invoice showing seller, buyer, invoice date and reference, goods description, quantity, unit value, currency, total and origin declaration. These are the missing fields in this file; no clearance decision has been made."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-18 09:10:00 UTC",
+      "from_actor": "broker",
+      "to_actor": "coordinator",
+      "channel": "Broker portal",
+      "body": "Please request the complete invoice from authorised shipper Mavelle Export Studio. Do not fill in values or origin on their behalf."
+     },
+     {
+      "conversation_id": "shipper",
+      "event_id": "003",
+      "timestamp": "2026-03-18 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "shipper",
+      "channel": "Email",
+      "body": "Please supply your commercial invoice for DL-045 / OS-045 with the fields the appointed broker listed: seller, buyer, date/reference, description, quantity, unit value/currency/total and origin declaration. The broker must review it."
+     }
+    ],
+    "limits": [
+     "Do not present the broker's field requirements as universal customs law.",
+     "Do not treat document completeness as customs clearance.",
+     "Do not choose for the customer or treat a choice as a confirmed booking."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "New escalation",
+    "title": "Invoice supplied without origin declaration",
+    "timestamp": "2026-03-18 09:45:00 UTC",
+    "actor_id": "shipper",
+    "message_id": "004"
+   },
+   "explanation": "Obtain the authorised party’s precise choice or missing detail. Do not choose for the customer or treat a choice as a confirmed booking.",
+   "state_after": {
+    "case_id": "045-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "broker",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the shipper's own commercial invoice with the broker's listed fields and the broker's confirmation that the package is complete."
+     },
+     "broker": {
+      "name": "Ossmere Trade Desk",
+      "organization": "Ossmere Trade Desk",
+      "role": "broker",
+      "is_us": false,
+      "responsibility": "List the missing invoice fields and confirm whether the received document package is complete."
+     },
+     "shipper": {
+      "name": "Fera Noll",
+      "organization": "Mavelle Export Studio",
+      "role": "sender",
+      "is_us": false,
+      "responsibility": "Supply the shipper's own commercial invoice with the fields the broker listed."
+     }
+    },
+    "goal": "Obtain the authorised party’s precise choice or missing detail.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Reply to Fera Noll by email that the broker's list includes an origin declaration and ask her to provide one on the invoice."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-18 09:00:00 UTC",
+     "escalated_at": "2026-03-18 09:45:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "045-N2"
+     },
+     "context_message_id": "001",
+     "summary": "Obtain the authorised party’s precise choice or missing detail.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The new escalation requires a scoped response. Our invoice for DL-045 / OS-045 is attached with seller, buyer, date, reference, goods, quantity and values. We do not normally put an origin statement on it, as the goods come from more than one workshop. Is that enough?",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-045.",
+      "source": {
+       "type": "case_card",
+       "id": "045"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The fields the broker listed are the ones missing from its file.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Shipper provision and broker receipt are distinct from customs clearance.",
+      "source": {
+       "type": "case_card",
+       "id": "045"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "For DL-045 / order OS-045 the broker needs the shipper's commercial invoice showing seller, buyer, invoice date and reference, goods description, quantity, unit value, currency, total and origin declaration.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "No clearance decision has been made.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The authorised shipper is Mavelle Export Studio.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The broker instructs us not to fill in values or origin on the shipper's behalf.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Fera Noll reports: Our invoice for DL-045 / OS-045 is attached with seller, buyer, date, reference, goods, quantity and values.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Fera Noll reports: We do not normally put an origin statement on it, as the goods come from more than one workshop.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Fera Noll reports: Is that enough?",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "broker",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Request the complete invoice from authorised shipper Mavelle Export Studio, without filling in values or origin on its behalf.",
+      "expected_response": "A request for the complete invoice sent to the shipper.",
+      "status": "completed",
+      "response": "The invoice was requested from Fera Noll, Mavelle Export Studio, with the broker's field list.",
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "shipper",
+      "responsible_actor": "shipper",
+      "purpose": "Supply the shipper's own commercial invoice for DL-045 / OS-045 with seller, buyer, date/reference, description, quantity, unit value/currency/total and origin declaration.",
+      "expected_response": "The shipper's issued commercial invoice with those fields.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "shipper",
+      "responsible_actor": "shipper",
+      "purpose": "Reply to Fera Noll by email that the broker's list includes an origin declaration and ask her to provide one on the invoice.",
+      "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "ask_customer",
+       "action": "Reply to Fera Noll by email that the broker's list includes an origin declaration and ask her to provide one on the invoice.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Write in an origin yourself, or tell the broker the invoice is complete.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "action_required",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": "branch_request",
+     "description": "Reply to Fera Noll by email that the broker's list includes an origin declaration and ask her to provide one on the invoice."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "client": {
+      "participants": [
+       "coordinator",
+       "broker"
+      ],
+      "channel": "Email",
+      "other_channels": [
+       "Broker portal"
+      ]
+     },
+     "shipper": {
+      "participants": [
+       "coordinator",
+       "shipper"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "shipper"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "client",
+      "event_id": "001",
+      "timestamp": "2026-03-18 09:00:00 UTC",
+      "from_actor": "broker",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "For DL-045 / order OS-045 we need the shipper’s commercial invoice showing seller, buyer, invoice date and reference, goods description, quantity, unit value, currency, total and origin declaration. These are the missing fields in this file; no clearance decision has been made."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-18 09:10:00 UTC",
+      "from_actor": "broker",
+      "to_actor": "coordinator",
+      "channel": "Broker portal",
+      "body": "Please request the complete invoice from authorised shipper Mavelle Export Studio. Do not fill in values or origin on their behalf."
+     },
+     {
+      "conversation_id": "shipper",
+      "event_id": "003",
+      "timestamp": "2026-03-18 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "shipper",
+      "channel": "Email",
+      "body": "Please supply your commercial invoice for DL-045 / OS-045 with the fields the appointed broker listed: seller, buyer, date/reference, description, quantity, unit value/currency/total and origin declaration. The broker must review it."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "004",
+      "timestamp": "2026-03-18 09:45:00 UTC",
+      "from_actor": "shipper",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Our invoice for DL-045 / OS-045 is attached with seller, buyer, date, reference, goods, quantity and values. We do not normally put an origin statement on it, as the goods come from more than one workshop. Is that enough?"
+     }
+    ],
+    "limits": [
+     "Do not present the broker's field requirements as universal customs law.",
+     "Do not treat document completeness as customs clearance.",
+     "Do not choose for the customer or treat a choice as a confirmed booking."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "The shipper has supplied its own commercial invoice.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The broker has confirmed receipt of the invoice.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "The broker has confirmed that all requested fields are complete.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "005",
+    "type": "message_sent",
+    "label": "Desk response",
+    "title": "Obtain the authorised party’s precise choice or missing detail",
+    "timestamp": "2026-03-18 10:00:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "005"
+   },
+   "explanation": "The desk sends the recorded response. Do not choose for the customer or treat a choice as a confirmed booking.",
+   "state_after": {
+    "case_id": "045-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "broker",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the shipper's own commercial invoice with the broker's listed fields and the broker's confirmation that the package is complete."
+     },
+     "broker": {
+      "name": "Ossmere Trade Desk",
+      "organization": "Ossmere Trade Desk",
+      "role": "broker",
+      "is_us": false,
+      "responsibility": "List the missing invoice fields and confirm whether the received document package is complete."
+     },
+     "shipper": {
+      "name": "Fera Noll",
+      "organization": "Mavelle Export Studio",
+      "role": "sender",
+      "is_us": false,
+      "responsibility": "Supply the shipper's own commercial invoice with the fields the broker listed."
+     }
+    },
+    "goal": "Obtain the authorised party’s precise choice or missing detail.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "shipper",
+       "request_id": "branch_request",
+       "expected": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+      }
+     ],
+     "next_action": "Record the reply or scoped confirmation before closing this branch."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-18 09:00:00 UTC",
+     "escalated_at": "2026-03-18 09:45:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "045-N2"
+     },
+     "context_message_id": "001",
+     "summary": "Obtain the authorised party’s precise choice or missing detail.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The scoped reply or confirmation has not yet been recorded.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-045.",
+      "source": {
+       "type": "case_card",
+       "id": "045"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The fields the broker listed are the ones missing from its file.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Shipper provision and broker receipt are distinct from customs clearance.",
+      "source": {
+       "type": "case_card",
+       "id": "045"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "For DL-045 / order OS-045 the broker needs the shipper's commercial invoice showing seller, buyer, invoice date and reference, goods description, quantity, unit value, currency, total and origin declaration.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "No clearance decision has been made.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The authorised shipper is Mavelle Export Studio.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The broker instructs us not to fill in values or origin on the shipper's behalf.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Fera Noll reports: Our invoice for DL-045 / OS-045 is attached with seller, buyer, date, reference, goods, quantity and values.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Fera Noll reports: We do not normally put an origin statement on it, as the goods come from more than one workshop.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Fera Noll reports: Is that enough?",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "broker",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Request the complete invoice from authorised shipper Mavelle Export Studio, without filling in values or origin on its behalf.",
+      "expected_response": "A request for the complete invoice sent to the shipper.",
+      "status": "completed",
+      "response": "The invoice was requested from Fera Noll, Mavelle Export Studio, with the broker's field list.",
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "shipper",
+      "responsible_actor": "shipper",
+      "purpose": "Supply the shipper's own commercial invoice for DL-045 / OS-045 with seller, buyer, date/reference, description, quantity, unit value/currency/total and origin declaration.",
+      "expected_response": "The shipper's issued commercial invoice with those fields.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "shipper",
+      "responsible_actor": "shipper",
+      "purpose": "Reply to Fera Noll by email that the broker's list includes an origin declaration and ask her to provide one on the invoice.",
+      "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "004",
+       "005"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "ask_customer",
+       "action": "Reply to Fera Noll by email that the broker's list includes an origin declaration and ask her to provide one on the invoice.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Write in an origin yourself, or tell the broker the invoice is complete.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "ask_customer",
+     "reason": "The recorded outgoing message takes this permitted response."
+    },
+    "status": "awaiting_response",
+    "next_step": {
+     "type": "information",
+     "responsible_actor": "shipper",
+     "request_id": "branch_request",
+     "description": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "client": {
+      "participants": [
+       "coordinator",
+       "broker"
+      ],
+      "channel": "Email",
+      "other_channels": [
+       "Broker portal"
+      ]
+     },
+     "shipper": {
+      "participants": [
+       "coordinator",
+       "shipper"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "shipper"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "client",
+      "event_id": "001",
+      "timestamp": "2026-03-18 09:00:00 UTC",
+      "from_actor": "broker",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "For DL-045 / order OS-045 we need the shipper’s commercial invoice showing seller, buyer, invoice date and reference, goods description, quantity, unit value, currency, total and origin declaration. These are the missing fields in this file; no clearance decision has been made."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-18 09:10:00 UTC",
+      "from_actor": "broker",
+      "to_actor": "coordinator",
+      "channel": "Broker portal",
+      "body": "Please request the complete invoice from authorised shipper Mavelle Export Studio. Do not fill in values or origin on their behalf."
+     },
+     {
+      "conversation_id": "shipper",
+      "event_id": "003",
+      "timestamp": "2026-03-18 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "shipper",
+      "channel": "Email",
+      "body": "Please supply your commercial invoice for DL-045 / OS-045 with the fields the appointed broker listed: seller, buyer, date/reference, description, quantity, unit value/currency/total and origin declaration. The broker must review it."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "004",
+      "timestamp": "2026-03-18 09:45:00 UTC",
+      "from_actor": "shipper",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Our invoice for DL-045 / OS-045 is attached with seller, buyer, date, reference, goods, quantity and values. We do not normally put an origin statement on it, as the goods come from more than one workshop. Is that enough?"
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-03-18 10:00:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "shipper",
+      "channel": "Email",
+      "body": "The appointed broker's list for DL-045 / OS-045 includes an origin declaration on the commercial invoice. Please add Mavelle's own origin declaration to the invoice and send the revised version. We cannot write the origin in for you."
+     }
+    ],
+    "limits": [
+     "Do not present the broker's field requirements as universal customs law.",
+     "Do not treat document completeness as customs clearance.",
+     "Do not choose for the customer or treat a choice as a confirmed booking."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "The shipper has supplied its own commercial invoice.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The broker has confirmed receipt of the invoice.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "The broker has confirmed that all requested fields are complete.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "006",
+    "type": "message_received",
+    "label": "Scoped confirmation",
+    "title": "Follow-through confirms the branch outcome",
+    "timestamp": "2026-03-18 11:00:00 UTC",
+    "actor_id": "shipper",
+    "message_id": "006"
+   },
+   "explanation": "Record what the responding party actually confirms. Revised commercial invoice CI-045 for DL-045 / OS-045 is attached, with our origin declaration: made in Aster Reach. All other fields are unchanged. Ossmere Trade Desk still has to review it for completeness; nothing is cleared.",
+   "state_after": {
+    "case_id": "045-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "broker",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the shipper's own commercial invoice with the broker's listed fields and the broker's confirmation that the package is complete."
+     },
+     "broker": {
+      "name": "Ossmere Trade Desk",
+      "organization": "Ossmere Trade Desk",
+      "role": "broker",
+      "is_us": false,
+      "responsibility": "List the missing invoice fields and confirm whether the received document package is complete."
+     },
+     "shipper": {
+      "name": "Fera Noll",
+      "organization": "Mavelle Export Studio",
+      "role": "sender",
+      "is_us": false,
+      "responsibility": "Supply the shipper's own commercial invoice with the fields the broker listed."
+     }
+    },
+    "goal": "Obtain the authorised party’s precise choice or missing detail.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+    },
+    "success_criteria": [
+     {
+      "id": "branch_resolution",
+      "description": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+      "status": "met",
+      "evidence_event_ids": [
+       "005",
+       "006"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-18 09:00:00 UTC",
+     "escalated_at": "2026-03-18 09:45:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "045-N2"
+     },
+     "context_message_id": "001",
+     "summary": "Obtain the authorised party’s precise choice or missing detail.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-045.",
+      "source": {
+       "type": "case_card",
+       "id": "045"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The fields the broker listed are the ones missing from its file.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Shipper provision and broker receipt are distinct from customs clearance.",
+      "source": {
+       "type": "case_card",
+       "id": "045"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "For DL-045 / order OS-045 the broker needs the shipper's commercial invoice showing seller, buyer, invoice date and reference, goods description, quantity, unit value, currency, total and origin declaration.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "No clearance decision has been made.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The authorised shipper is Mavelle Export Studio.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The broker instructs us not to fill in values or origin on the shipper's behalf.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Fera Noll reports: Our invoice for DL-045 / OS-045 is attached with seller, buyer, date, reference, goods, quantity and values.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Fera Noll reports: We do not normally put an origin statement on it, as the goods come from more than one workshop.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Fera Noll reports: Is that enough?",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_outcome_1",
+      "text": "Fera Noll reports: Revised commercial invoice CI-045 for DL-045 / OS-045 is attached, with our origin declaration: made in Aster Reach.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_2",
+      "text": "Fera Noll reports: All other fields are unchanged.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     },
+     {
+      "id": "branch_outcome_3",
+      "text": "Fera Noll reports: Ossmere Trade Desk still has to review it for completeness; nothing is cleared.",
+      "source": {
+       "type": "message",
+       "id": "006"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "broker",
+      "to_actor": "coordinator",
+      "responsible_actor": "coordinator",
+      "purpose": "Request the complete invoice from authorised shipper Mavelle Export Studio, without filling in values or origin on its behalf.",
+      "expected_response": "A request for the complete invoice sent to the shipper.",
+      "status": "completed",
+      "response": "The invoice was requested from Fera Noll, Mavelle Export Studio, with the broker's field list.",
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "shipper",
+      "responsible_actor": "shipper",
+      "purpose": "Supply the shipper's own commercial invoice for DL-045 / OS-045 with seller, buyer, date/reference, description, quantity, unit value/currency/total and origin declaration.",
+      "expected_response": "The shipper's issued commercial invoice with those fields.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "branch_request": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "shipper",
+      "responsible_actor": "shipper",
+      "purpose": "Reply to Fera Noll by email that the broker's list includes an origin declaration and ask her to provide one on the invoice.",
+      "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+      "status": "answered",
+      "response": "Revised commercial invoice CI-045 for DL-045 / OS-045 is attached, with our origin declaration: made in Aster Reach. All other fields are unchanged. Ossmere Trade Desk still has to review it for completeness; nothing is cleared.",
+      "evidence_event_ids": [
+       "004",
+       "005",
+       "006"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "ask_customer",
+       "action": "Reply to Fera Noll by email that the broker's list includes an origin declaration and ask her to provide one on the invoice.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Write in an origin yourself, or tell the broker the invoice is complete.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "ask_customer",
+     "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "Revised commercial invoice CI-045 for DL-045 / OS-045 is attached, with our origin declaration: made in Aster Reach. All other fields are unchanged. Ossmere Trade Desk still has to review it for completeness; nothing is cleared.",
+     "confirmed_by": "shipper",
+     "evidence_event_ids": [
+      "006"
+     ],
+     "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Write in an origin yourself, or tell the broker the invoice is complete."
+    },
+    "annotations": [
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "client": {
+      "participants": [
+       "coordinator",
+       "broker"
+      ],
+      "channel": "Email",
+      "other_channels": [
+       "Broker portal"
+      ]
+     },
+     "shipper": {
+      "participants": [
+       "coordinator",
+       "shipper"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "shipper"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "client",
+      "event_id": "001",
+      "timestamp": "2026-03-18 09:00:00 UTC",
+      "from_actor": "broker",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "For DL-045 / order OS-045 we need the shipper’s commercial invoice showing seller, buyer, invoice date and reference, goods description, quantity, unit value, currency, total and origin declaration. These are the missing fields in this file; no clearance decision has been made."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-18 09:10:00 UTC",
+      "from_actor": "broker",
+      "to_actor": "coordinator",
+      "channel": "Broker portal",
+      "body": "Please request the complete invoice from authorised shipper Mavelle Export Studio. Do not fill in values or origin on their behalf."
+     },
+     {
+      "conversation_id": "shipper",
+      "event_id": "003",
+      "timestamp": "2026-03-18 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "shipper",
+      "channel": "Email",
+      "body": "Please supply your commercial invoice for DL-045 / OS-045 with the fields the appointed broker listed: seller, buyer, date/reference, description, quantity, unit value/currency/total and origin declaration. The broker must review it."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "004",
+      "timestamp": "2026-03-18 09:45:00 UTC",
+      "from_actor": "shipper",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Our invoice for DL-045 / OS-045 is attached with seller, buyer, date, reference, goods, quantity and values. We do not normally put an origin statement on it, as the goods come from more than one workshop. Is that enough?"
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-03-18 10:00:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "shipper",
+      "channel": "Email",
+      "body": "The appointed broker's list for DL-045 / OS-045 includes an origin declaration on the commercial invoice. Please add Mavelle's own origin declaration to the invoice and send the revised version. We cannot write the origin in for you."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "006",
+      "timestamp": "2026-03-18 11:00:00 UTC",
+      "from_actor": "shipper",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Revised commercial invoice CI-045 for DL-045 / OS-045 is attached, with our origin declaration: made in Aster Reach. All other fields are unchanged. Ossmere Trade Desk still has to review it for completeness; nothing is cleared."
+     }
+    ],
+    "limits": [
+     "Do not present the broker's field requirements as universal customs law.",
+     "Do not treat document completeness as customs clearance.",
+     "Do not choose for the customer or treat a choice as a confirmed booking."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c1",
+      "description": "The shipper has supplied its own commercial invoice.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c2",
+      "description": "The broker has confirmed receipt of the invoice.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "The broker has confirmed that all requested fields are complete.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "004",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,598 @@
+{
+ "case_id": "033-N6",
+ "lang": "en",
+ "title": "033-N6 · No rebooking reply before the day ends",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Virin Lask. From the case card: a scheduled collection of return RT-033 was missed, and the collection team needs a replacement window within the customer's availability.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "customer",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get RT-033 rebooked within the customer's availability and obtain the actual collection receipt.",
+   "from_start": true,
+   "source_names": [
+    "Iona Quill, Rivet Delivery Desk"
+   ]
+  },
+  "customer": {
+   "name": "Virin Lask",
+   "organization": null,
+   "role": "customer",
+   "responsibility": "Report the missed collection and give a window when the customer can be home.",
+   "from_start": true,
+   "source_names": [
+    "Virin Lask, customer"
+   ]
+  },
+  "collections": {
+   "name": "Collections control",
+   "organization": "Plover Arc Logistics",
+   "role": "dispatch",
+   "responsibility": "Rebook the missed RT-033 collection within the customer's availability.",
+   "from_start": false,
+   "source_names": [
+    "Collections control, Plover Arc Logistics"
+   ]
+  },
+  "driver": {
+   "name": "Collection driver",
+   "organization": "Plover Arc Logistics",
+   "role": "driver",
+   "responsibility": "Collect the RT-033 return from the customer and issue the carrier's collection receipt.",
+   "from_start": false,
+   "source_names": [
+    "Collection driver, Plover Arc Logistics"
+   ]
+  }
+ },
+ "goal": "Get the missed RT-033 collection rebooked within the customer's availability and obtain the actual collection receipt after pickup.",
+ "limits": [
+  "Do not treat the collection receipt as merchant receipt of the return; it establishes carrier custody only.",
+  "Do not treat the collection receipt as a refund.",
+  "Do not treat a reminder or silence as consent, a booking or execution."
+ ],
+ "intake": {
+  "summary": "Rebook the missed collection of return RT-033 within the customer's availability.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The scheduled collection was missed; no replacement window is booked.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns return RT-033.",
+    "source": {
+     "type": "case_card",
+     "id": "033"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "A scheduled return collection was missed.",
+    "source": {
+     "type": "case_card",
+     "id": "033"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The collection team has the approved return reference.",
+    "source": {
+     "type": "case_card",
+     "id": "033"
+    }
+   },
+   {
+    "id": "f4",
+    "text": "The collection team needs a replacement window within the customer's availability.",
+    "source": {
+     "type": "case_card",
+     "id": "033"
+    }
+   }
+  ],
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The collection team has confirmed a rebooked collection within the customer's availability."
+   },
+   {
+    "id": "c2",
+    "description": "The courier has confirmed the actual collection of the return."
+   },
+   {
+    "id": "c3",
+    "description": "The matching collection receipt has been issued."
+   }
+  ],
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": null,
+  "annotations": []
+ },
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/033/N6-NO_REPLY",
+  "branch_id": "033-N6",
+  "derived_from_case": "033",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003"
+  ],
+  "diverges_after_event": "003",
+  "failure_mode": "NO_REPLY",
+  "expected_decision": "WAIT_WITH_DEADLINE",
+  "workflow_sheet": "B",
+  "branch_label": "No rebooking reply before the day ends",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "640ae4b03717fb5b96c17b96bc46e2c4409ac153303d26b21dafd6d8efd1c03f",
+   "history.md": "823cd4b5d93d7db04903964da9b3bdde9d38e1c2549b84ffbc66670e5cdb25fc"
+  }
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Carrier email",
+   "title": "Collections control reports the missed collection",
+   "explanation": "The carrier confirmed the miss and that a rebooking costs nothing. A new booking still needs the customer's availability, so that is what we need next.",
+   "conversation_id": "collections",
+   "facts_upsert": [
+    {
+     "id": "f2",
+     "text": "Collection for RT-033 was missed on the previous route day; the parcel remains with the customer.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f5",
+     "text": "The approved return and packaging requirements are unchanged.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    },
+    {
+     "id": "f6",
+     "text": "Rebooking is at no charge.",
+     "source": {
+      "type": "message",
+      "id": "001"
+     }
+    }
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Find out when the customer can be home for a replacement collection."
+   },
+   "blocker": "The collection was missed; the customer's availability for a new collection is not known.",
+   "status": "context_received",
+   "next_step": {
+    "type": "information",
+    "responsible_actor": "customer",
+    "request_id": null,
+    "description": "Get the customer's availability for a replacement collection."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Virin gives a window for a new collection",
+   "explanation": "The customer gave the window unprompted and asked for a new booking within it. Only Collections control can rebook, so the next step is a rebooking request to them.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "f7",
+     "text": "The customer can be home on 2026-03-07, 10:00–14:00.",
+     "source": {
+      "type": "message",
+      "id": "002"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "action",
+     "from_actor": "customer",
+     "to_actor": "coordinator",
+     "responsible_actor": "collections",
+     "purpose": "Book another collection within 2026-03-07, 10:00–14:00.",
+     "expected_response": "A new collection booking within that window.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    },
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "collections",
+     "responsible_actor": "collections",
+     "purpose": "Rebook the RT-033 collection within 2026-03-07, 10:00–14:00.",
+     "expected_response": "Confirmation of the new collection booking.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "002"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Ask Collections control to rebook RT-033 within 2026-03-07, 10:00–14:00."
+   },
+   "blocker": "No replacement collection is booked within the customer's window.",
+   "status": "escalated",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "collections",
+    "request_id": "r1",
+    "description": "Rebook RT-033 within 2026-03-07, 10:00–14:00."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We ask to rebook and send the receipt",
+   "explanation": "We asked for a booking inside the customer's window and for the actual collection receipt after pickup, because a booking status does not show that the return was collected. Now we wait for Collections control.",
+   "conversation_id": "collections",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "action",
+     "from_actor": "coordinator",
+     "to_actor": "collections",
+     "responsible_actor": "collections",
+     "purpose": "Rebook the RT-033 collection within 2026-03-07, 10:00–14:00 UTC.",
+     "expected_response": "Confirmation of the new collection booking.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "002",
+      "003"
+     ]
+    },
+    "r2": {
+     "type": "confirmation",
+     "from_actor": "coordinator",
+     "to_actor": "collections",
+     "responsible_actor": "collections",
+     "purpose": "Provide the actual collection receipt after pickup, not just a booking status.",
+     "expected_response": "The collection receipt for RT-033.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "003"
+     ]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "collections",
+      "request_id": "r1",
+      "expected": "Confirmation of the new collection booking"
+     },
+     {
+      "actor_id": "collections",
+      "request_id": "r2",
+      "expected": "Actual collection receipt after pickup"
+     }
+    ],
+    "next_action": "Once the booking is confirmed, wait for the collection and its receipt."
+   },
+   "blocker": "No replacement collection is booked yet.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "collections",
+    "request_id": "r1",
+    "description": "Wait for Collections control to confirm the new booking."
+   },
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "New escalation",
+   "title": "No rebooking reply before the day ends",
+   "explanation": "Send one reminder with the recorded deadline and consequence. Do not treat a reminder or silence as consent, a booking or execution.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {
+     "id": "branch_report_1",
+     "text": "Virin Lask reports: It is 16:30 and I still have no booking for tomorrow.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_2",
+     "text": "Virin Lask reports: I have arranged to be home 10:00–14:00 only.",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    },
+    {
+     "id": "branch_report_3",
+     "text": "Virin Lask reports: Is someone coming?",
+     "source": {
+      "type": "message",
+      "id": "004"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "confirmation",
+     "from_actor": "coordinator",
+     "to_actor": "collections",
+     "responsible_actor": "collections",
+     "purpose": "Send Collections control one email reminder that RT-033 needs a booking inside 2026-03-07, 10:00–14:00 UTC, the only window Virin gave, and tell Virin in the Customer portal that no booking is confirmed yet.",
+     "expected_response": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": [
+      "004"
+     ]
+    }
+   },
+   "criteria_add": [
+    {
+     "id": "branch_resolution",
+     "description": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking."
+    }
+   ],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "ready",
+    "waiting_for": [],
+    "next_action": "Send Collections control one email reminder that RT-033 needs a booking inside 2026-03-07, 10:00–14:00 UTC, the only window Virin gave, and tell Virin in the Customer portal that no booking is confirmed yet."
+   },
+   "blocker": "The new escalation requires a scoped response. It is 16:30 and I still have no booking for tomorrow. I have arranged to be home 10:00–14:00 only. Is someone coming?",
+   "status": "action_required",
+   "next_step": {
+    "type": "action",
+    "responsible_actor": "coordinator",
+    "request_id": "branch_request",
+    "description": "Send Collections control one email reminder that RT-033 needs a booking inside 2026-03-07, 10:00–14:00 UTC, the only window Virin gave, and tell Virin in the Customer portal that no booking is confirmed yet."
+   },
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "branch_scope",
+     "kind": "context",
+     "title": "Alternative completion scope",
+     "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+     "before_message_id": "004",
+     "source_event_ids": [
+      "004"
+     ]
+    }
+   ],
+   "criteria_retire": [
+    "c1",
+    "c2",
+    "c3"
+   ],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "wait_with_deadline",
+      "action": "Send Collections control one email reminder that RT-033 needs a booking inside 2026-03-07, 10:00–14:00 UTC, the only window Virin gave, and tell Virin in the Customer portal that no booking is confirmed yet.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "tell Virin a collection is booked or try to book through another team; a reminder is not a booking.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": null,
+    "reason": null
+   },
+   "intake_update": {
+    "source": {
+     "type": "negative_branch",
+     "id": "033-N6"
+    },
+    "summary": "Send one reminder with the recorded deadline and consequence.",
+    "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+   },
+   "state_set": {
+    "goal": "Send one reminder with the recorded deadline and consequence."
+   }
+  },
+  {
+   "event_id": "005",
+   "label": "Desk response",
+   "title": "Send one reminder with the recorded deadline and consequence",
+   "explanation": "The desk sends the recorded response. Do not treat a reminder or silence as consent, a booking or execution.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "confirmation",
+     "from_actor": "coordinator",
+     "to_actor": "collections",
+     "responsible_actor": "collections",
+     "purpose": "Send Collections control one email reminder that RT-033 needs a booking inside 2026-03-07, 10:00–14:00 UTC, the only window Virin gave, and tell Virin in the Customer portal that no booking is confirmed yet.",
+     "expected_response": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [
+     {
+      "actor_id": "collections",
+      "request_id": "branch_request",
+      "expected": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking."
+     }
+    ],
+    "next_action": "Record the reply or scoped confirmation before closing this branch."
+   },
+   "blocker": "The scoped reply or confirmation has not yet been recorded.",
+   "status": "awaiting_confirmation",
+   "next_step": {
+    "type": "confirmation",
+    "responsible_actor": "collections",
+    "request_id": "branch_request",
+    "description": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking."
+   },
+   "result": null,
+   "annotations_add": [],
+   "decision": {
+    "required": true,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "wait_with_deadline",
+      "action": "Send Collections control one email reminder that RT-033 needs a booking inside 2026-03-07, 10:00–14:00 UTC, the only window Virin gave, and tell Virin in the Customer portal that no booking is confirmed yet.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "tell Virin a collection is booked or try to book through another team; a reminder is not a booking.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "wait_with_deadline",
+    "reason": "The recorded outgoing message takes this permitted response."
+   }
+  },
+  {
+   "event_id": "006",
+   "label": "Scoped confirmation",
+   "title": "Follow-through confirms the branch outcome",
+   "explanation": "Record what the responding party actually confirms. RT-033 is now booked for 2026-03-07, 11:00–13:00 UTC, no charge, inside the customer's window. This is a booking only; the parcel has not been collected and no receipt exists.",
+   "conversation_id": "branch_service",
+   "facts_upsert": [
+    {
+     "id": "branch_outcome_1",
+     "text": "Collections control reports: RT-033 is now booked for 2026-03-07, 11:00–13:00 UTC, no charge, inside the customer's window.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    },
+    {
+     "id": "branch_outcome_2",
+     "text": "Collections control reports: This is a booking only; the parcel has not been collected and no receipt exists.",
+     "source": {
+      "type": "message",
+      "id": "006"
+     }
+    }
+   ],
+   "requests_upsert": {
+    "branch_request": {
+     "type": "confirmation",
+     "from_actor": "coordinator",
+     "to_actor": "collections",
+     "responsible_actor": "collections",
+     "purpose": "Send Collections control one email reminder that RT-033 needs a booking inside 2026-03-07, 10:00–14:00 UTC, the only window Virin gave, and tell Virin in the Customer portal that no booking is confirmed yet.",
+     "expected_response": "The requested party replies, or the record owner confirms the deadline outcome without an assumed booking.",
+     "status": "answered",
+     "response": "RT-033 is now booked for 2026-03-07, 11:00–13:00 UTC, no charge, inside the customer's window. This is a booking only; the parcel has not been collected and no receipt exists.",
+     "evidence_event_ids": [
+      "004",
+      "005",
+      "006"
+     ]
+    }
+   },
+   "criteria_add": [],
+   "criteria_met": [
+    {
+     "id": "branch_resolution",
+     "evidence_event_ids": [
+      "005",
+      "006"
+     ]
+    }
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "RT-033 is now booked for 2026-03-07, 11:00–13:00 UTC, no charge, inside the customer's window. This is a booking only; the parcel has not been collected and no receipt exists.",
+    "confirmed_by": "collections",
+    "evidence_event_ids": [
+     "006"
+    ],
+    "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Do not tell Virin a collection is booked or try to book through another team; a reminder is not a booking."
+   },
+   "annotations_add": [],
+   "decision": {
+    "required": false,
+    "question": "Which response is permitted after this development?",
+    "options": [
+     {
+      "id": "wait_with_deadline",
+      "action": "Send Collections control one email reminder that RT-033 needs a booking inside 2026-03-07, 10:00–14:00 UTC, the only window Virin gave, and tell Virin in the Customer portal that no booking is confirmed yet.",
+      "allowed": true,
+      "reason": "This follows the recorded policy and addresses the new escalation."
+     },
+     {
+      "id": "prohibited_action",
+      "action": "tell Virin a collection is booked or try to book through another team; a reminder is not a booking.",
+      "allowed": false,
+      "reason": "The branch card expressly prohibits this action."
+     }
+    ],
+    "decision_maker": "coordinator",
+    "selected_option": "wait_with_deadline",
+    "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+   }
+  }
+ ]
+}

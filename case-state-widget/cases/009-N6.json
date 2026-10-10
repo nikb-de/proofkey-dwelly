@@ -1,0 +1,2443 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "009-N6 · Crew lost before booking retained",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Sena Korr. From the case card: a two-person furniture crew has supplied an access checklist for DL-009, and the customer must confirm it before the crew retains the booking.",
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/009/N6-STALE_STATE",
+  "branch_id": "009-N6",
+  "derived_from_case": "009",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003",
+   "004"
+  ],
+  "diverges_after_event": "004",
+  "failure_mode": "STALE_STATE",
+  "expected_decision": "ASK_CUSTOMER",
+  "workflow_sheet": "B",
+  "branch_label": "Crew lost before booking retained",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "590d5fdf792202fc155873a515f89118e206b9c030cf01e0b5200017faa43249",
+   "history.md": "71c219ae549df9425a3652d652d1a4a79be7ab5dffc6a80bdbd8afdf4e99dd1f"
+  }
+ },
+ "initial_state": {
+  "case_id": "009-N6",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "recipient",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: collect the recipient's access details and pass them to the delivery team for review."
+   },
+   "recipient": {
+    "name": "Sena Korr",
+    "organization": null,
+    "role": "recipient",
+    "is_us": false,
+    "responsibility": "Report the actual route conditions against the crew's access checklist."
+   }
+  },
+  "goal": "Get the recipient's confirmation of the access route against the crew's checklist and the delivery team's acceptance of it, so that the booking stays active.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The recipient has confirmed the route conditions against the crew's access checklist.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The delivery team has accepted the confirmed access details.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c3",
+    "description": "The delivery team has confirmed that the booking remains active.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The customer has not confirmed the crew's access checklist; the crew retains the booking only after that confirmation.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-009.",
+    "source": {
+     "type": "case_card",
+     "id": "009"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "A two-person furniture crew has supplied an access checklist.",
+    "source": {
+     "type": "case_card",
+     "id": "009"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The customer must confirm the checklist before the crew retains the booking.",
+    "source": {
+     "type": "case_card",
+     "id": "009"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Do not present the customer's measurements as a guarantee of safe unloading on arrival.",
+   "Do not choose for the customer or treat a choice as a confirmed booking."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Crew checklist",
+    "title": "Delivery team sends the access checklist",
+    "timestamp": "2026-02-10 09:00:00 UTC",
+    "actor_id": "delivery_team",
+    "message_id": "001"
+   },
+   "explanation": "The delivery team set the route requirements for the armchair. Only the recipient can say whether her route meets them, so the next step is a question to her.",
+   "state_after": {
+    "case_id": "009-N6",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: collect the recipient's access details and pass them to the delivery team for review."
+     },
+     "recipient": {
+      "name": "Sena Korr",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report the actual route conditions against the crew's access checklist."
+     },
+     "delivery_team": {
+      "name": "Furniture delivery team",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Set the access checklist, review the confirmed access details and decide whether the booking stays active."
+     }
+    },
+    "goal": "Get the recipient's confirmation of the access route against the crew's checklist and the delivery team's acceptance of it, so that the booking stays active.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask the recipient to confirm the route against the crew's checklist."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has confirmed the route conditions against the crew's access checklist.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The delivery team has accepted the confirmed access details.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The delivery team has confirmed that the booking remains active.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-10 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "009-N6"
+     },
+     "context_message_id": "001",
+     "summary": "DL-009: bulky delivery; the recipient must confirm the crew's access checklist before the crew keeps the booking.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "Nobody has confirmed that the route meets the checklist: at least 90 cm usable width, no loose obstacles, no unreported stairs.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-009.",
+      "source": {
+       "type": "case_card",
+       "id": "009"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "A two-person furniture crew has supplied an access checklist.",
+      "source": {
+       "type": "case_card",
+       "id": "009"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The customer must confirm the checklist before the crew retains the booking.",
+      "source": {
+       "type": "case_card",
+       "id": "009"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-009 is a boxed armchair, 82 cm wide.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The accepted booking needs a clear route with at least 90 cm usable width, no loose obstacles and no unreported stairs.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The checklist is the crew's requirement, not advice to move heavy furniture yourself.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Confirm whether the route has at least 90 cm usable width, no loose obstacles and no unreported stairs.",
+      "expected_response": "The route conditions against the checklist.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "001"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": {
+     "type": "information",
+     "responsible_actor": "recipient",
+     "request_id": "r1",
+     "description": "Confirm the route against the crew's access checklist."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "delivery_team": {
+      "participants": [
+       "coordinator",
+       "delivery_team"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "delivery_team",
+      "event_id": "001",
+      "timestamp": "2026-02-10 09:00:00 UTC",
+      "from_actor": "delivery_team",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-009 is a boxed armchair, 82 cm wide. Our accepted booking needs a clear route with at least 90 cm usable width, no loose obstacles and no unreported stairs. This is our crew’s checklist, not advice to move heavy furniture yourself."
+     }
+    ],
+    "limits": [
+     "Do not present the customer's measurements as a guarantee of safe unloading on arrival.",
+     "Do not choose for the customer or treat a choice as a confirmed booking."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client request",
+    "title": "Sena asks to keep the booking",
+    "timestamp": "2026-02-10 09:10:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "002"
+   },
+   "explanation": "Sena cleared the small shoes but has not confirmed the access requirements, and the crew keeps the booking only after that confirmation. So we ask her to check the route against the checklist first.",
+   "state_after": {
+    "case_id": "009-N6",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: collect the recipient's access details and pass them to the delivery team for review."
+     },
+     "recipient": {
+      "name": "Sena Korr",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report the actual route conditions against the crew's access checklist."
+     },
+     "delivery_team": {
+      "name": "Furniture delivery team",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Set the access checklist, review the confirmed access details and decide whether the booking stays active."
+     }
+    },
+    "goal": "Get the recipient's confirmation of the access route against the crew's checklist and the delivery team's acceptance of it, so that the booking stays active.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask Sena to confirm the route is at least 90 cm wide, clear of loose obstacles and free of stairs, without moving heavy items."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has confirmed the route conditions against the crew's access checklist.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The delivery team has accepted the confirmed access details.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The delivery team has confirmed that the booking remains active.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-10 09:00:00 UTC",
+     "escalated_at": "2026-02-10 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "009-N6"
+     },
+     "context_message_id": "001",
+     "summary": "DL-009: bulky delivery; the recipient must confirm the crew's access checklist before the crew keeps the booking.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "Sena has not confirmed the access requirements; putting the shoes away does not confirm the checklist.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-009.",
+      "source": {
+       "type": "case_card",
+       "id": "009"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "A two-person furniture crew has supplied an access checklist.",
+      "source": {
+       "type": "case_card",
+       "id": "009"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The customer must confirm the checklist before the crew retains the booking.",
+      "source": {
+       "type": "case_card",
+       "id": "009"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-009 is a boxed armchair, 82 cm wide.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The accepted booking needs a clear route with at least 90 cm usable width, no loose obstacles and no unreported stairs.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The checklist is the crew's requirement, not advice to move heavy furniture yourself.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient has put the small shoes away.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The recipient has not confirmed the access requirements.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "The recipient asks us to keep the delivery booking for 2026-02-11.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Confirm whether the route has at least 90 cm usable width, no loose obstacles and no unreported stairs.",
+      "expected_response": "The route conditions against the checklist.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "001"
+      ]
+     },
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "delivery_team",
+      "purpose": "Keep the delivery booking for 2026-02-11.",
+      "expected_response": "The booking stays active.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "information",
+     "responsible_actor": "recipient",
+     "request_id": "r1",
+     "description": "Confirm the route against the crew's access checklist."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "access-requirements-context",
+      "kind": "context",
+      "title": "What Sena knew before her message",
+      "text": "Sena refers to the access requirements, so she knows the crew has set them. How she learned them is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "delivery_team": {
+      "participants": [
+       "coordinator",
+       "delivery_team"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "delivery_team",
+      "event_id": "001",
+      "timestamp": "2026-02-10 09:00:00 UTC",
+      "from_actor": "delivery_team",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-009 is a boxed armchair, 82 cm wide. Our accepted booking needs a clear route with at least 90 cm usable width, no loose obstacles and no unreported stairs. This is our crew’s checklist, not advice to move heavy furniture yourself."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-10 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I have put the small shoes away but I have not confirmed the access requirements. Can you keep the delivery booking for 2026-02-11?"
+     }
+    ],
+    "limits": [
+     "Do not present the customer's measurements as a guarantee of safe unloading on arrival.",
+     "Do not choose for the customer or treat a choice as a confirmed booking."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our question",
+    "title": "We ask Sena to check the route",
+    "timestamp": "2026-02-10 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We asked for the three checklist conditions and told Sena not to move heavy items to meet them. If the route falls short, the delivery team reassesses. Now we wait for her answer.",
+   "state_after": {
+    "case_id": "009-N6",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: collect the recipient's access details and pass them to the delivery team for review."
+     },
+     "recipient": {
+      "name": "Sena Korr",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report the actual route conditions against the crew's access checklist."
+     },
+     "delivery_team": {
+      "name": "Furniture delivery team",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Set the access checklist, review the confirmed access details and decide whether the booking stays active."
+     }
+    },
+    "goal": "Get the recipient's confirmation of the access route against the crew's checklist and the delivery team's acceptance of it, so that the booking stays active.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "recipient",
+       "request_id": "r1",
+       "expected": "Route width, obstacles and stairs"
+      }
+     ],
+     "next_action": "Once Sena answers, pass her access details to the delivery team for review."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has confirmed the route conditions against the crew's access checklist.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The delivery team has accepted the confirmed access details.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The delivery team has confirmed that the booking remains active.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-10 09:00:00 UTC",
+     "escalated_at": "2026-02-10 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "009-N6"
+     },
+     "context_message_id": "001",
+     "summary": "DL-009: bulky delivery; the recipient must confirm the crew's access checklist before the crew keeps the booking.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The route has not been confirmed against the checklist.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-009.",
+      "source": {
+       "type": "case_card",
+       "id": "009"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "A two-person furniture crew has supplied an access checklist.",
+      "source": {
+       "type": "case_card",
+       "id": "009"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The customer must confirm the checklist before the crew retains the booking.",
+      "source": {
+       "type": "case_card",
+       "id": "009"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-009 is a boxed armchair, 82 cm wide.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The accepted booking needs a clear route with at least 90 cm usable width, no loose obstacles and no unreported stairs.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The checklist is the crew's requirement, not advice to move heavy furniture yourself.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient has put the small shoes away.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The recipient has not confirmed the access requirements.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "The recipient asks us to keep the delivery booking for 2026-02-11.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Confirm whether the route is at least 90 cm wide, clear of loose obstacles and free of stairs; if not, say so for the delivery team to reassess, without moving heavy items.",
+      "expected_response": "The route conditions against the checklist.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "001",
+       "003"
+      ]
+     },
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "delivery_team",
+      "purpose": "Keep the delivery booking for 2026-02-11.",
+      "expected_response": "The booking stays active.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_response",
+    "next_step": {
+     "type": "information",
+     "responsible_actor": "recipient",
+     "request_id": "r1",
+     "description": "Wait for Sena's route details."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "access-requirements-context",
+      "kind": "context",
+      "title": "What Sena knew before her message",
+      "text": "Sena refers to the access requirements, so she knows the crew has set them. How she learned them is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "delivery_team": {
+      "participants": [
+       "coordinator",
+       "delivery_team"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "delivery_team",
+      "event_id": "001",
+      "timestamp": "2026-02-10 09:00:00 UTC",
+      "from_actor": "delivery_team",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-009 is a boxed armchair, 82 cm wide. Our accepted booking needs a clear route with at least 90 cm usable width, no loose obstacles and no unreported stairs. This is our crew’s checklist, not advice to move heavy furniture yourself."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-10 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I have put the small shoes away but I have not confirmed the access requirements. Can you keep the delivery booking for 2026-02-11?"
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "003",
+      "timestamp": "2026-02-10 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Customer portal",
+      "body": "Please confirm whether the route is at least 90 cm wide, clear of loose obstacles, and free of stairs. If it is not, tell us so the delivery team can reassess; do not move heavy items to meet the checklist."
+     }
+    ],
+    "limits": [
+     "Do not present the customer's measurements as a guarantee of safe unloading on arrival.",
+     "Do not choose for the customer or treat a choice as a confirmed booking."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "Client reply",
+    "title": "Sena reports a 96 cm level route",
+    "timestamp": "2026-02-10 09:50:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "004"
+   },
+   "explanation": "Sena's details meet the checklist as written, but the delivery team decides whether to accept them and keep the booking. So her answer goes to the team for review.",
+   "state_after": {
+    "case_id": "009-N6",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: collect the recipient's access details and pass them to the delivery team for review."
+     },
+     "recipient": {
+      "name": "Sena Korr",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report the actual route conditions against the crew's access checklist."
+     },
+     "delivery_team": {
+      "name": "Furniture delivery team",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Set the access checklist, review the confirmed access details and decide whether the booking stays active."
+     }
+    },
+    "goal": "Get the recipient's confirmation of the access route against the crew's checklist and the delivery team's acceptance of it, so that the booking stays active.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Relay Sena's access confirmation to the delivery team, then wait for their review and the booking status.",
+     "note": "Relaying the confirmation to the delivery team and the wait that follows are not recorded as separate events. So in this snapshot the agent is still preparing the handoff; it is not given waiting status without evidence that the request was sent."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has confirmed the route conditions against the crew's access checklist.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The delivery team has accepted the confirmed access details.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The delivery team has confirmed that the booking remains active.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-10 09:00:00 UTC",
+     "escalated_at": "2026-02-10 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "009-N6"
+     },
+     "context_message_id": "001",
+     "summary": "DL-009: bulky delivery; the recipient must confirm the crew's access checklist before the crew keeps the booking.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The access details are received; the delivery team has not yet accepted them or confirmed the booking.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-009.",
+      "source": {
+       "type": "case_card",
+       "id": "009"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "A two-person furniture crew has supplied an access checklist.",
+      "source": {
+       "type": "case_card",
+       "id": "009"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The customer must confirm the checklist before the crew retains the booking.",
+      "source": {
+       "type": "case_card",
+       "id": "009"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-009 is a boxed armchair, 82 cm wide.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The accepted booking needs a clear route with at least 90 cm usable width, no loose obstacles and no unreported stairs.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The checklist is the crew's requirement, not advice to move heavy furniture yourself.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient has put the small shoes away.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The recipient has not confirmed the access requirements.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "The recipient asks us to keep the delivery booking for 2026-02-11.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f10",
+      "text": "The route measures 96 cm at the narrowest point.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f11",
+      "text": "The route is level from the entrance to the room, clear of loose items, and has no stairs.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Confirm whether the route is at least 90 cm wide, clear of loose obstacles and free of stairs; if not, say so for the delivery team to reassess, without moving heavy items.",
+      "expected_response": "The route conditions against the checklist.",
+      "status": "answered",
+      "response": "96 cm at the narrowest point; level from the entrance to the room; clear of loose items; no stairs.",
+      "evidence_event_ids": [
+       "001",
+       "003",
+       "004"
+      ]
+     },
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "delivery_team",
+      "purpose": "Keep the delivery booking for 2026-02-11.",
+      "expected_response": "The booking stays active.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r2": {
+      "type": "confirmation",
+      "from_actor": "coordinator",
+      "to_actor": "delivery_team",
+      "responsible_actor": "delivery_team",
+      "purpose": "Review Sena's access confirmation for DL-009 and confirm whether the booking stays active.",
+      "expected_response": "Acceptance of the access details and the booking status.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_confirmation",
+    "next_step": {
+     "type": "confirmation",
+     "responsible_actor": "delivery_team",
+     "request_id": "r2",
+     "description": "Relay Sena's access details and get the team's acceptance and booking status."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "access-requirements-context",
+      "kind": "context",
+      "title": "What Sena knew before her message",
+      "text": "Sena refers to the access requirements, so she knows the crew has set them. How she learned them is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "missing-relay",
+      "kind": "gap",
+      "title": "Next action · us → delivery team",
+      "text": "Sena reported the route conditions. We now have to relay her access confirmation to the delivery team; after sending, the agent waits for the team's review and the booking status. At this step the relay is not yet recorded in the history, and Sena's answer by itself does not keep the booking.",
+      "source_event_ids": [
+       "004"
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "delivery_team",
+       "type": "confirmation",
+       "purpose": "Relay Sena's access confirmation for DL-009 and get the team's review and booking status."
+      }
+     }
+    ],
+    "conversations": {
+     "delivery_team": {
+      "participants": [
+       "coordinator",
+       "delivery_team"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "delivery_team",
+      "event_id": "001",
+      "timestamp": "2026-02-10 09:00:00 UTC",
+      "from_actor": "delivery_team",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-009 is a boxed armchair, 82 cm wide. Our accepted booking needs a clear route with at least 90 cm usable width, no loose obstacles and no unreported stairs. This is our crew’s checklist, not advice to move heavy furniture yourself."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-10 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I have put the small shoes away but I have not confirmed the access requirements. Can you keep the delivery booking for 2026-02-11?"
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "003",
+      "timestamp": "2026-02-10 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Customer portal",
+      "body": "Please confirm whether the route is at least 90 cm wide, clear of loose obstacles, and free of stairs. If it is not, tell us so the delivery team can reassess; do not move heavy items to meet the checklist."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "004",
+      "timestamp": "2026-02-10 09:50:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The route measures 96 cm at the narrowest point, is level from the entrance to the room, and is clear of loose items. There are no stairs."
+     }
+    ],
+    "limits": [
+     "Do not present the customer's measurements as a guarantee of safe unloading on arrival.",
+     "Do not choose for the customer or treat a choice as a confirmed booking."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "005",
+    "type": "message_received",
+    "label": "New escalation",
+    "title": "Crew lost before booking retained",
+    "timestamp": "2026-02-10 10:02:00 UTC",
+    "actor_id": "delivery_team",
+    "message_id": "005"
+   },
+   "explanation": "Obtain the authorised party’s precise choice or missing detail. Do not choose for the customer or treat a choice as a confirmed booking.",
+   "state_after": {
+    "case_id": "009-N6",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: collect the recipient's access details and pass them to the delivery team for review."
+     },
+     "recipient": {
+      "name": "Sena Korr",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report the actual route conditions against the crew's access checklist."
+     },
+     "delivery_team": {
+      "name": "Furniture delivery team",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Set the access checklist, review the confirmed access details and decide whether the booking stays active."
+     }
+    },
+    "goal": "Obtain the authorised party’s precise choice or missing detail.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Tell Sena in the Customer portal that the 2026-02-11 booking was not retained and ask her to choose 2026-02-12, 08:00–12:00 or 2026-02-13, 12:00–16:00 UTC."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has confirmed the route conditions against the crew's access checklist.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-10 09:00:00 UTC",
+     "escalated_at": "2026-02-10 10:02:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "009-N6"
+     },
+     "context_message_id": "001",
+     "summary": "Obtain the authorised party’s precise choice or missing detail.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The new escalation requires a scoped response. Sena's access details for DL-009 arrived after a vehicle fault removed one of our two-person crews for 2026-02-11. That booking could not be retained. Next available two-person slots: 2026-02-12, 08:00–12:00 or 2026-02-13, 12:00–16:00 UTC.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-009.",
+      "source": {
+       "type": "case_card",
+       "id": "009"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "A two-person furniture crew has supplied an access checklist.",
+      "source": {
+       "type": "case_card",
+       "id": "009"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The customer must confirm the checklist before the crew retains the booking.",
+      "source": {
+       "type": "case_card",
+       "id": "009"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-009 is a boxed armchair, 82 cm wide.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The accepted booking needs a clear route with at least 90 cm usable width, no loose obstacles and no unreported stairs.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The checklist is the crew's requirement, not advice to move heavy furniture yourself.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient has put the small shoes away.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The recipient has not confirmed the access requirements.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "The recipient asks us to keep the delivery booking for 2026-02-11.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f10",
+      "text": "The route measures 96 cm at the narrowest point.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f11",
+      "text": "The route is level from the entrance to the room, clear of loose items, and has no stairs.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Furniture delivery team reports: Sena's access details for DL-009 arrived after a vehicle fault removed one of our two-person crews for 2026-02-11.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Furniture delivery team reports: That booking could not be retained.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Furniture delivery team reports: Next available two-person slots: 2026-02-12, 08:00–12:00 or 2026-02-13, 12:00–16:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Confirm whether the route is at least 90 cm wide, clear of loose obstacles and free of stairs; if not, say so for the delivery team to reassess, without moving heavy items.",
+      "expected_response": "The route conditions against the checklist.",
+      "status": "answered",
+      "response": "96 cm at the narrowest point; level from the entrance to the room; clear of loose items; no stairs.",
+      "evidence_event_ids": [
+       "001",
+       "003",
+       "004"
+      ]
+     },
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "delivery_team",
+      "purpose": "Keep the delivery booking for 2026-02-11.",
+      "expected_response": "The booking stays active.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r2": {
+      "type": "confirmation",
+      "from_actor": "coordinator",
+      "to_actor": "delivery_team",
+      "responsible_actor": "delivery_team",
+      "purpose": "Review Sena's access confirmation for DL-009 and confirm whether the booking stays active.",
+      "expected_response": "Acceptance of the access details and the booking status.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     "branch_request": {
+      "type": "decision",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Tell Sena in the Customer portal that the 2026-02-11 booking was not retained and ask her to choose 2026-02-12, 08:00–12:00 or 2026-02-13, 12:00–16:00 UTC.",
+      "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "005"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "ask_customer",
+       "action": "Tell Sena in the Customer portal that the 2026-02-11 booking was not retained and ask her to choose 2026-02-12, 08:00–12:00 or 2026-02-13, 12:00–16:00 UTC.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Book 2026-02-12 for her because she wanted to keep a booking, or tell her 2026-02-11 still stands.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "action_required",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": "branch_request",
+     "description": "Tell Sena in the Customer portal that the 2026-02-11 booking was not retained and ask her to choose 2026-02-12, 08:00–12:00 or 2026-02-13, 12:00–16:00 UTC."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "access-requirements-context",
+      "kind": "context",
+      "title": "What Sena knew before her message",
+      "text": "Sena refers to the access requirements, so she knows the crew has set them. How she learned them is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "missing-relay",
+      "kind": "context",
+      "title": "Unrecorded parent action",
+      "text": "A separate record of this parent action is absent. The branch does not by itself establish that it occurred. The next action is now the scoped branch response. Sena reported the route conditions. We now have to relay her access confirmation to the delivery team; after sending, the agent waits for the team's review and the booking status. At this step the relay is not yet recorded in the history, and Sena's answer by itself does not keep the booking.",
+      "source_event_ids": [
+       "004"
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "delivery_team",
+       "type": "confirmation",
+       "purpose": "Relay Sena's access confirmation for DL-009 and get the team's review and booking status."
+      },
+      "before_message_id": "005"
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "delivery_team": {
+      "participants": [
+       "coordinator",
+       "delivery_team"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "delivery_team"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "delivery_team",
+      "event_id": "001",
+      "timestamp": "2026-02-10 09:00:00 UTC",
+      "from_actor": "delivery_team",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-009 is a boxed armchair, 82 cm wide. Our accepted booking needs a clear route with at least 90 cm usable width, no loose obstacles and no unreported stairs. This is our crew’s checklist, not advice to move heavy furniture yourself."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-10 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I have put the small shoes away but I have not confirmed the access requirements. Can you keep the delivery booking for 2026-02-11?"
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "003",
+      "timestamp": "2026-02-10 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Customer portal",
+      "body": "Please confirm whether the route is at least 90 cm wide, clear of loose obstacles, and free of stairs. If it is not, tell us so the delivery team can reassess; do not move heavy items to meet the checklist."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "004",
+      "timestamp": "2026-02-10 09:50:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The route measures 96 cm at the narrowest point, is level from the entrance to the room, and is clear of loose items. There are no stairs."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-02-10 10:02:00 UTC",
+      "from_actor": "delivery_team",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Sena's access details for DL-009 arrived after a vehicle fault removed one of our two-person crews for 2026-02-11. That booking could not be retained. Next available two-person slots: 2026-02-12, 08:00–12:00 or 2026-02-13, 12:00–16:00 UTC."
+     }
+    ],
+    "limits": [
+     "Do not present the customer's measurements as a guarantee of safe unloading on arrival.",
+     "Do not choose for the customer or treat a choice as a confirmed booking."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c2",
+      "description": "The delivery team has accepted the confirmed access details.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "The delivery team has confirmed that the booking remains active.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "006",
+    "type": "message_sent",
+    "label": "Desk response",
+    "title": "Obtain the authorised party’s precise choice or missing detail",
+    "timestamp": "2026-02-10 10:17:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "006"
+   },
+   "explanation": "The desk sends the recorded response. Do not choose for the customer or treat a choice as a confirmed booking.",
+   "state_after": {
+    "case_id": "009-N6",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: collect the recipient's access details and pass them to the delivery team for review."
+     },
+     "recipient": {
+      "name": "Sena Korr",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report the actual route conditions against the crew's access checklist."
+     },
+     "delivery_team": {
+      "name": "Furniture delivery team",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Set the access checklist, review the confirmed access details and decide whether the booking stays active."
+     }
+    },
+    "goal": "Obtain the authorised party’s precise choice or missing detail.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "recipient",
+       "request_id": "branch_request",
+       "expected": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+      }
+     ],
+     "next_action": "Record the reply or scoped confirmation before closing this branch."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has confirmed the route conditions against the crew's access checklist.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-10 09:00:00 UTC",
+     "escalated_at": "2026-02-10 10:02:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "009-N6"
+     },
+     "context_message_id": "001",
+     "summary": "Obtain the authorised party’s precise choice or missing detail.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The scoped reply or confirmation has not yet been recorded.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-009.",
+      "source": {
+       "type": "case_card",
+       "id": "009"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "A two-person furniture crew has supplied an access checklist.",
+      "source": {
+       "type": "case_card",
+       "id": "009"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The customer must confirm the checklist before the crew retains the booking.",
+      "source": {
+       "type": "case_card",
+       "id": "009"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-009 is a boxed armchair, 82 cm wide.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The accepted booking needs a clear route with at least 90 cm usable width, no loose obstacles and no unreported stairs.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The checklist is the crew's requirement, not advice to move heavy furniture yourself.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient has put the small shoes away.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The recipient has not confirmed the access requirements.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "The recipient asks us to keep the delivery booking for 2026-02-11.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f10",
+      "text": "The route measures 96 cm at the narrowest point.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f11",
+      "text": "The route is level from the entrance to the room, clear of loose items, and has no stairs.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Furniture delivery team reports: Sena's access details for DL-009 arrived after a vehicle fault removed one of our two-person crews for 2026-02-11.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Furniture delivery team reports: That booking could not be retained.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Furniture delivery team reports: Next available two-person slots: 2026-02-12, 08:00–12:00 or 2026-02-13, 12:00–16:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Confirm whether the route is at least 90 cm wide, clear of loose obstacles and free of stairs; if not, say so for the delivery team to reassess, without moving heavy items.",
+      "expected_response": "The route conditions against the checklist.",
+      "status": "answered",
+      "response": "96 cm at the narrowest point; level from the entrance to the room; clear of loose items; no stairs.",
+      "evidence_event_ids": [
+       "001",
+       "003",
+       "004"
+      ]
+     },
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "delivery_team",
+      "purpose": "Keep the delivery booking for 2026-02-11.",
+      "expected_response": "The booking stays active.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r2": {
+      "type": "confirmation",
+      "from_actor": "coordinator",
+      "to_actor": "delivery_team",
+      "responsible_actor": "delivery_team",
+      "purpose": "Review Sena's access confirmation for DL-009 and confirm whether the booking stays active.",
+      "expected_response": "Acceptance of the access details and the booking status.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     "branch_request": {
+      "type": "decision",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Tell Sena in the Customer portal that the 2026-02-11 booking was not retained and ask her to choose 2026-02-12, 08:00–12:00 or 2026-02-13, 12:00–16:00 UTC.",
+      "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "005",
+       "006"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "ask_customer",
+       "action": "Tell Sena in the Customer portal that the 2026-02-11 booking was not retained and ask her to choose 2026-02-12, 08:00–12:00 or 2026-02-13, 12:00–16:00 UTC.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Book 2026-02-12 for her because she wanted to keep a booking, or tell her 2026-02-11 still stands.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "ask_customer",
+     "reason": "The recorded outgoing message takes this permitted response."
+    },
+    "status": "awaiting_decision",
+    "next_step": {
+     "type": "decision",
+     "responsible_actor": "recipient",
+     "request_id": "branch_request",
+     "description": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "access-requirements-context",
+      "kind": "context",
+      "title": "What Sena knew before her message",
+      "text": "Sena refers to the access requirements, so she knows the crew has set them. How she learned them is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "missing-relay",
+      "kind": "context",
+      "title": "Unrecorded parent action",
+      "text": "A separate record of this parent action is absent. The branch does not by itself establish that it occurred. The next action is now the scoped branch response. Sena reported the route conditions. We now have to relay her access confirmation to the delivery team; after sending, the agent waits for the team's review and the booking status. At this step the relay is not yet recorded in the history, and Sena's answer by itself does not keep the booking.",
+      "source_event_ids": [
+       "004"
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "delivery_team",
+       "type": "confirmation",
+       "purpose": "Relay Sena's access confirmation for DL-009 and get the team's review and booking status."
+      },
+      "before_message_id": "005"
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "delivery_team": {
+      "participants": [
+       "coordinator",
+       "delivery_team"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "delivery_team"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "delivery_team",
+      "event_id": "001",
+      "timestamp": "2026-02-10 09:00:00 UTC",
+      "from_actor": "delivery_team",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-009 is a boxed armchair, 82 cm wide. Our accepted booking needs a clear route with at least 90 cm usable width, no loose obstacles and no unreported stairs. This is our crew’s checklist, not advice to move heavy furniture yourself."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-10 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I have put the small shoes away but I have not confirmed the access requirements. Can you keep the delivery booking for 2026-02-11?"
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "003",
+      "timestamp": "2026-02-10 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Customer portal",
+      "body": "Please confirm whether the route is at least 90 cm wide, clear of loose obstacles, and free of stairs. If it is not, tell us so the delivery team can reassess; do not move heavy items to meet the checklist."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "004",
+      "timestamp": "2026-02-10 09:50:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The route measures 96 cm at the narrowest point, is level from the entrance to the room, and is clear of loose items. There are no stairs."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-02-10 10:02:00 UTC",
+      "from_actor": "delivery_team",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Sena's access details for DL-009 arrived after a vehicle fault removed one of our two-person crews for 2026-02-11. That booking could not be retained. Next available two-person slots: 2026-02-12, 08:00–12:00 or 2026-02-13, 12:00–16:00 UTC."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "006",
+      "timestamp": "2026-02-10 10:17:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Customer portal",
+      "body": "The delivery team tells us the 2026-02-11 booking could not be retained after a vehicle fault removed one of its two-person crews. Your access details were received. The next available slots are 2026-02-12, 08:00–12:00 UTC or 2026-02-13, 12:00–16:00 UTC. Which would you like?"
+     }
+    ],
+    "limits": [
+     "Do not present the customer's measurements as a guarantee of safe unloading on arrival.",
+     "Do not choose for the customer or treat a choice as a confirmed booking."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c2",
+      "description": "The delivery team has accepted the confirmed access details.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "The delivery team has confirmed that the booking remains active.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "007",
+    "type": "message_received",
+    "label": "Scoped confirmation",
+    "title": "Follow-through confirms the branch outcome",
+    "timestamp": "2026-02-10 11:00:00 UTC",
+    "actor_id": "delivery_team",
+    "message_id": "007"
+   },
+   "explanation": "Record what the responding party actually confirms. Following Sena's choice, DL-009 is booked for 2026-02-12, 08:00–12:00 UTC with a two-person crew. Her access confirmation is on file, subject to the crew's site assessment on arrival. This is a booking, not a delivery.",
+   "state_after": {
+    "case_id": "009-N6",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: collect the recipient's access details and pass them to the delivery team for review."
+     },
+     "recipient": {
+      "name": "Sena Korr",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Report the actual route conditions against the crew's access checklist."
+     },
+     "delivery_team": {
+      "name": "Furniture delivery team",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Set the access checklist, review the confirmed access details and decide whether the booking stays active."
+     }
+    },
+    "goal": "Obtain the authorised party’s precise choice or missing detail.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The recipient has confirmed the route conditions against the crew's access checklist.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+      "status": "met",
+      "evidence_event_ids": [
+       "006",
+       "007"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-10 09:00:00 UTC",
+     "escalated_at": "2026-02-10 10:02:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "009-N6"
+     },
+     "context_message_id": "001",
+     "summary": "Obtain the authorised party’s precise choice or missing detail.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-009.",
+      "source": {
+       "type": "case_card",
+       "id": "009"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "A two-person furniture crew has supplied an access checklist.",
+      "source": {
+       "type": "case_card",
+       "id": "009"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The customer must confirm the checklist before the crew retains the booking.",
+      "source": {
+       "type": "case_card",
+       "id": "009"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "DL-009 is a boxed armchair, 82 cm wide.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The accepted booking needs a clear route with at least 90 cm usable width, no loose obstacles and no unreported stairs.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The checklist is the crew's requirement, not advice to move heavy furniture yourself.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient has put the small shoes away.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The recipient has not confirmed the access requirements.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "The recipient asks us to keep the delivery booking for 2026-02-11.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f10",
+      "text": "The route measures 96 cm at the narrowest point.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f11",
+      "text": "The route is level from the entrance to the room, clear of loose items, and has no stairs.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Furniture delivery team reports: Sena's access details for DL-009 arrived after a vehicle fault removed one of our two-person crews for 2026-02-11.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Furniture delivery team reports: That booking could not be retained.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_3",
+      "text": "Furniture delivery team reports: Next available two-person slots: 2026-02-12, 08:00–12:00 or 2026-02-13, 12:00–16:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_outcome_1",
+      "text": "Furniture delivery team reports: Following Sena's choice, DL-009 is booked for 2026-02-12, 08:00–12:00 UTC with a two-person crew.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     },
+     {
+      "id": "branch_outcome_2",
+      "text": "Furniture delivery team reports: Her access confirmation is on file, subject to the crew's site assessment on arrival.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     },
+     {
+      "id": "branch_outcome_3",
+      "text": "Furniture delivery team reports: This is a booking, not a delivery.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Confirm whether the route is at least 90 cm wide, clear of loose obstacles and free of stairs; if not, say so for the delivery team to reassess, without moving heavy items.",
+      "expected_response": "The route conditions against the checklist.",
+      "status": "answered",
+      "response": "96 cm at the narrowest point; level from the entrance to the room; clear of loose items; no stairs.",
+      "evidence_event_ids": [
+       "001",
+       "003",
+       "004"
+      ]
+     },
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "delivery_team",
+      "purpose": "Keep the delivery booking for 2026-02-11.",
+      "expected_response": "The booking stays active.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r2": {
+      "type": "confirmation",
+      "from_actor": "coordinator",
+      "to_actor": "delivery_team",
+      "responsible_actor": "delivery_team",
+      "purpose": "Review Sena's access confirmation for DL-009 and confirm whether the booking stays active.",
+      "expected_response": "Acceptance of the access details and the booking status.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     "branch_request": {
+      "type": "decision",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "responsible_actor": "recipient",
+      "purpose": "Tell Sena in the Customer portal that the 2026-02-11 booking was not retained and ask her to choose 2026-02-12, 08:00–12:00 or 2026-02-13, 12:00–16:00 UTC.",
+      "expected_response": "The authorised party supplies the requested choice or detail, directly or as explicitly reported by the responsible service.",
+      "status": "answered",
+      "response": "Following Sena's choice, DL-009 is booked for 2026-02-12, 08:00–12:00 UTC with a two-person crew. Her access confirmation is on file, subject to the crew's site assessment on arrival. This is a booking, not a delivery.",
+      "evidence_event_ids": [
+       "005",
+       "006",
+       "007"
+      ],
+      "responded_by": "delivery_team"
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "ask_customer",
+       "action": "Tell Sena in the Customer portal that the 2026-02-11 booking was not retained and ask her to choose 2026-02-12, 08:00–12:00 or 2026-02-13, 12:00–16:00 UTC.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Book 2026-02-12 for her because she wanted to keep a booking, or tell her 2026-02-11 still stands.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "ask_customer",
+     "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "Following Sena's choice, DL-009 is booked for 2026-02-12, 08:00–12:00 UTC with a two-person crew. Her access confirmation is on file, subject to the crew's site assessment on arrival. This is a booking, not a delivery.",
+     "confirmed_by": "delivery_team",
+     "evidence_event_ids": [
+      "007"
+     ],
+     "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Book 2026-02-12 for her because she wanted to keep a booking, or tell her 2026-02-11 still stands."
+    },
+    "annotations": [
+     {
+      "id": "access-requirements-context",
+      "kind": "context",
+      "title": "What Sena knew before her message",
+      "text": "Sena refers to the access requirements, so she knows the crew has set them. How she learned them is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "missing-relay",
+      "kind": "context",
+      "title": "Unrecorded parent action",
+      "text": "A separate record of this parent action is absent. The branch does not by itself establish that it occurred. The next action is now the scoped branch response. Sena reported the route conditions. We now have to relay her access confirmation to the delivery team; after sending, the agent waits for the team's review and the booking status. At this step the relay is not yet recorded in the history, and Sena's answer by itself does not keep the booking.",
+      "source_event_ids": [
+       "004"
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "delivery_team",
+       "type": "confirmation",
+       "purpose": "Relay Sena's access confirmation for DL-009 and get the team's review and booking status."
+      },
+      "before_message_id": "005"
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     },
+     {
+      "id": "branch_followthrough_relay",
+      "kind": "gap",
+      "title": "Unrecorded intermediate action",
+      "text": "The follow-through is from a different party than the recorded desk response. An intermediate exchange or service-to-service relay is absent; only the final reporter’s stated outcome is confirmed.",
+      "before_message_id": "007",
+      "source_event_ids": [
+       "007"
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "delivery_team",
+       "type": "action",
+       "purpose": "Pass the relevant verified instruction or request to the party reporting the follow-through."
+      }
+     },
+     {
+      "id": "branch_missing_authorised_reply",
+      "kind": "gap",
+      "title": "Unrecorded intermediate action",
+      "text": "The authorised party’s separate reply is not recorded here. The service’s follow-through is indirect evidence; no extra customer message has been added.",
+      "before_message_id": "007",
+      "source_event_ids": [
+       "007"
+      ],
+      "implied_action": {
+       "from_actor": "recipient",
+       "to_actor": "coordinator",
+       "type": "decision",
+       "purpose": "Supply the authorised choice or verification before the responsible service acts."
+      }
+     }
+    ],
+    "conversations": {
+     "delivery_team": {
+      "participants": [
+       "coordinator",
+       "delivery_team"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "delivery_team"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "delivery_team",
+      "event_id": "001",
+      "timestamp": "2026-02-10 09:00:00 UTC",
+      "from_actor": "delivery_team",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-009 is a boxed armchair, 82 cm wide. Our accepted booking needs a clear route with at least 90 cm usable width, no loose obstacles and no unreported stairs. This is our crew’s checklist, not advice to move heavy furniture yourself."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-10 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I have put the small shoes away but I have not confirmed the access requirements. Can you keep the delivery booking for 2026-02-11?"
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "003",
+      "timestamp": "2026-02-10 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Customer portal",
+      "body": "Please confirm whether the route is at least 90 cm wide, clear of loose obstacles, and free of stairs. If it is not, tell us so the delivery team can reassess; do not move heavy items to meet the checklist."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "004",
+      "timestamp": "2026-02-10 09:50:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The route measures 96 cm at the narrowest point, is level from the entrance to the room, and is clear of loose items. There are no stairs."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-02-10 10:02:00 UTC",
+      "from_actor": "delivery_team",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Sena's access details for DL-009 arrived after a vehicle fault removed one of our two-person crews for 2026-02-11. That booking could not be retained. Next available two-person slots: 2026-02-12, 08:00–12:00 or 2026-02-13, 12:00–16:00 UTC."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "006",
+      "timestamp": "2026-02-10 10:17:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Customer portal",
+      "body": "The delivery team tells us the 2026-02-11 booking could not be retained after a vehicle fault removed one of its two-person crews. Your access details were received. The next available slots are 2026-02-12, 08:00–12:00 UTC or 2026-02-13, 12:00–16:00 UTC. Which would you like?"
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "007",
+      "timestamp": "2026-02-10 11:00:00 UTC",
+      "from_actor": "delivery_team",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Following Sena's choice, DL-009 is booked for 2026-02-12, 08:00–12:00 UTC with a two-person crew. Her access confirmation is on file, subject to the crew's site assessment on arrival. This is a booking, not a delivery."
+     }
+    ],
+    "limits": [
+     "Do not present the customer's measurements as a guarantee of safe unloading on arrival.",
+     "Do not choose for the customer or treat a choice as a confirmed booking."
+    ],
+    "prior_success_criteria": [
+     {
+      "id": "c2",
+      "description": "The delivery team has accepted the confirmed access details.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     },
+     {
+      "id": "c3",
+      "description": "The delivery team has confirmed that the booking remains active.",
+      "status": "pending",
+      "evidence_event_ids": [],
+      "retired_at_event": "005",
+      "reason": "Outside this negative branch coordination task; not marked as achieved."
+     }
+    ]
+   }
+  }
+ ]
+}

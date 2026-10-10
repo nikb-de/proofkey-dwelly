@@ -1,0 +1,304 @@
+{
+ "case_id": "008",
+ "lang": "en",
+ "title": "008 · Two-hour slot instead of all-day delivery",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Nemi Thale. From the case card: the small appliance on DL-008 is booked on an all-day service, and scheduling must quote available timed slots and confirm the customer's acceptance of any charge.",
+ "our_actor_id": "coordinator",
+ "client_actor_id": "recipient",
+ "actors": {
+  "coordinator": {
+   "name": "Iona Quill",
+   "organization": "Rivet Delivery Desk",
+   "role": "coordinator",
+   "responsibility": "Run the case: get scheduling's quote for a timed slot and its charge, and scheduling's confirmation of what the recipient accepts.",
+   "from_start": true,
+   "source_names": ["Iona Quill, Rivet Delivery Desk"]
+  },
+  "recipient": {
+   "name": "Nemi Thale",
+   "organization": null,
+   "role": "recipient",
+   "responsibility": "Decide whether to accept the offered slot and its charge.",
+   "from_start": true,
+   "source_names": ["Nemi Thale, recipient"]
+  },
+  "scheduling": {
+   "name": "Scheduling",
+   "organization": "Plover Arc Logistics",
+   "role": "scheduling",
+   "responsibility": "Quote live timed-slot capacity and the upgrade charge, and change the booking only after the recipient accepts.",
+   "from_start": false,
+   "source_names": ["Scheduling, Plover Arc Logistics"]
+  }
+ },
+ "goal": "Get scheduling's quote for a timed slot and its charge, and scheduling's confirmation of the slot and charge the recipient accepts.",
+ "limits": [
+  "The desk does not set prices; the charge is the one scheduling reports.",
+  "Do not assert that the charge has been paid."
+ ],
+ "intake": {
+  "summary": "DL-008: the recipient needs a defined delivery slot instead of the all-day booking; scheduling must quote timed slots and any charge.",
+  "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation.",
+  "context_message_id": "001"
+ },
+ "initial": {
+  "blocker": "The delivery is booked on an all-day service; no timed slot or charge has been quoted.",
+  "facts": [
+   {"id": "f1", "text": "The case concerns shipment DL-008.", "source": {"type": "case_card", "id": "008"}},
+   {"id": "f2", "text": "A small appliance is booked on an all-day service.", "source": {"type": "case_card", "id": "008"}},
+   {"id": "f3", "text": "Scheduling must quote available timed slots and confirm the customer's acceptance of any charge.", "source": {"type": "case_card", "id": "008"}}
+  ],
+  "success_criteria": [
+   {"id": "c1", "description": "Scheduling has quoted an available timed slot and its total charge."},
+   {"id": "c2", "description": "Scheduling has confirmed that the recipient accepted the slot and the charge."},
+   {"id": "c3", "description": "Scheduling has confirmed the booking for the accepted slot."}
+  ],
+  "agent_state": {"status": "ready", "waiting_for": [], "next_action": "Take in incoming information on the case."},
+  "status": "not_started",
+  "next_step": null,
+  "requests": {},
+  "decision": {"required": null, "question": null, "options": [], "decision_maker": null, "selected_option": null, "reason": null},
+  "annotations": []
+ },
+ "steps": [
+  {
+   "event_id": "001",
+   "label": "Scheduling email",
+   "title": "Scheduling describes the all-day booking",
+   "explanation": "Scheduling gave the current booking and said only it can quote timed capacity and the charge. Nobody has asked for a change yet, so we take in the recipient's request first.",
+   "conversation_id": "scheduling",
+   "facts_upsert": [
+    {"id": "f2", "text": "DL-008 currently has an all-day booking for 2026-02-10.", "source": {"type": "message", "id": "001"}},
+    {"id": "f4", "text": "Timed delivery may be available; only scheduling can quote live capacity and the upgrade charge.", "source": {"type": "message", "id": "001"}}
+   ],
+   "requests_upsert": {},
+   "criteria_met": [],
+   "agent_state": {"status": "ready", "waiting_for": [], "next_action": "Take in the recipient's request; any timed-slot quote has to come from scheduling."},
+   "blocker": "DL-008 is booked all day on 2026-02-10; no timed slot or charge has been quoted.",
+   "status": "context_received",
+   "next_step": null,
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "002",
+   "label": "Client request",
+   "title": "Nemi asks for a two-hour slot and its cost",
+   "explanation": "Nemi wants to know about a two-hour slot and its cost before the service changes. Only scheduling can quote capacity and the charge, so the next step is a quote request to scheduling that leaves the booking unchanged.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {"id": "f5", "text": "The recipient cannot stay in all day.", "source": {"type": "message", "id": "002"}},
+    {"id": "f6", "text": "The recipient asks us to find out whether there is a two-hour slot and what it costs before the service is changed.", "source": {"type": "message", "id": "002"}}
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "information",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "scheduling",
+     "purpose": "Find out whether a two-hour slot is available and what it costs, before the service is changed.",
+     "expected_response": "Available two-hour slot and its cost.",
+     "status": "received",
+     "response": null,
+     "evidence_event_ids": ["002"]
+    },
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "scheduling",
+     "responsible_actor": "scheduling",
+     "purpose": "Quote available two-hour windows for DL-008 on 2026-02-10 with the total upgrade charge, without changing the booking until Nemi accepts.",
+     "expected_response": "Available two-hour windows and the total upgrade charge.",
+     "status": "planned",
+     "response": null,
+     "evidence_event_ids": ["002"]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {"status": "ready", "waiting_for": [], "next_action": "Ask scheduling to quote two-hour windows for DL-008 on 2026-02-10 with the total upgrade charge, and not to change the booking until Nemi accepts."},
+   "blocker": "Nemi cannot stay in all day; no two-hour slot or charge has been quoted.",
+   "status": "escalated",
+   "next_step": {"type": "information", "responsible_actor": "scheduling", "request_id": "r1", "description": "Quote available two-hour windows for DL-008 on 2026-02-10 with the total upgrade charge."},
+   "result": null,
+   "annotations_add": [
+    {
+     "id": "all-day-context",
+     "kind": "context",
+     "title": "What Nemi knew before her message",
+     "text": "Nemi says she cannot stay in all day, so she knows the delivery is booked on an all-day service. How she learned this is not recorded in the history.",
+     "before_message_id": "002",
+     "source_event_ids": ["002"]
+    }
+   ]
+  },
+  {
+   "event_id": "003",
+   "label": "Our request",
+   "title": "We ask scheduling for a quote",
+   "explanation": "We asked only for a quote and told scheduling not to change the booking until Nemi accepts. Now we wait for scheduling's windows and charge.",
+   "conversation_id": "scheduling",
+   "facts_upsert": [],
+   "requests_upsert": {
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "scheduling",
+     "responsible_actor": "scheduling",
+     "purpose": "Quote available two-hour windows for DL-008 on 2026-02-10 with the total upgrade charge, without changing the booking until Nemi accepts.",
+     "expected_response": "Available two-hour windows and the total upgrade charge.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": ["002", "003"]
+    }
+   },
+   "criteria_met": [],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [{"actor_id": "scheduling", "request_id": "r1", "expected": "Available two-hour windows and the total upgrade charge"}],
+    "next_action": "Once scheduling quotes, get the slot and the charge to Nemi for her decision."
+   },
+   "blocker": "No two-hour slot or charge has been quoted yet.",
+   "status": "awaiting_response",
+   "next_step": {"type": "information", "responsible_actor": "scheduling", "request_id": "r1", "description": "Wait for scheduling's two-hour windows and total upgrade charge."},
+   "result": null,
+   "annotations_add": []
+  },
+  {
+   "event_id": "004",
+   "label": "Quote",
+   "title": "Scheduling offers 12:00–14:00 for GBP 6.00",
+   "explanation": "Scheduling quoted one two-hour slot with the total charge and sent the offer straight to Nemi, with us in copy. Accepting is Nemi's decision, and an offer is not yet a booking, so we wait for her answer in the booking thread.",
+   "conversation_id": "client",
+   "facts_upsert": [
+    {"id": "f7", "text": "Scheduling offers 2026-02-10, 12:00–14:00 UTC for a total upgrade charge of GBP 6.00.", "source": {"type": "message", "id": "004"}},
+    {"id": "f8", "text": "To accept, Nemi must reply in the verified booking thread before 16:00 UTC on 2026-02-09.", "source": {"type": "message", "id": "004"}},
+    {"id": "f9", "text": "Scheduling sent the offer directly to Nemi, with the desk in copy.", "source": {"type": "message", "id": "004"}}
+   ],
+   "requests_upsert": {
+    "r0": {
+     "type": "information",
+     "from_actor": "recipient",
+     "to_actor": "coordinator",
+     "responsible_actor": "scheduling",
+     "purpose": "Find out whether a two-hour slot is available and what it costs, before the service is changed.",
+     "expected_response": "Available two-hour slot and its cost.",
+     "status": "answered",
+     "response": "2026-02-10, 12:00–14:00 UTC for a total upgrade charge of GBP 6.00; sent by scheduling directly to Nemi.",
+     "responded_by": "scheduling",
+     "evidence_event_ids": ["002", "004"]
+    },
+    "r1": {
+     "type": "information",
+     "from_actor": "coordinator",
+     "to_actor": "scheduling",
+     "responsible_actor": "scheduling",
+     "purpose": "Quote available two-hour windows for DL-008 on 2026-02-10 with the total upgrade charge, without changing the booking until Nemi accepts.",
+     "expected_response": "Available two-hour windows and the total upgrade charge.",
+     "status": "answered",
+     "response": "2026-02-10, 12:00–14:00 UTC; total upgrade charge GBP 6.00.",
+     "evidence_event_ids": ["002", "003", "004"]
+    },
+    "r2": {
+     "type": "decision",
+     "from_actor": "scheduling",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Accept or decline the 2026-02-10, 12:00–14:00 UTC slot and the GBP 6.00 charge.",
+     "expected_response": "Acceptance in the verified booking thread before 16:00 UTC.",
+     "status": "awaiting_response",
+     "response": null,
+     "evidence_event_ids": ["004"]
+    }
+   },
+   "criteria_met": [{"id": "c1", "evidence_event_ids": ["004"]}],
+   "agent_state": {
+    "status": "waiting",
+    "waiting_for": [{"actor_id": "recipient", "request_id": "r2", "expected": "Acceptance of the slot and charge in the booking thread"}],
+    "next_action": "Wait for confirmation of Nemi's answer and of the booking from scheduling.",
+    "note": "Nemi answers in scheduling's booking thread, not to the desk, so her answer may reach us only through scheduling."
+   },
+   "blocker": "Nemi has not yet accepted the offered slot and charge.",
+   "status": "awaiting_decision",
+   "next_step": {"type": "decision", "responsible_actor": "recipient", "request_id": "r2", "description": "Accept or decline the 12:00–14:00 slot and the GBP 6.00 charge in the booking thread before 16:00 UTC."},
+   "result": null,
+   "decision": {
+    "required": true,
+    "question": "Should DL-008 move to the offered two-hour slot for the quoted charge?",
+    "options": [
+     {"id": "o1", "label": "Accept 2026-02-10, 12:00–14:00 UTC", "conditions": "Total upgrade charge GBP 6.00; accept in the verified booking thread before 16:00 UTC on 2026-02-09."},
+     {"id": "o2", "label": "Do not accept", "conditions": "The booking is not changed until Nemi accepts (our instruction in 003)."}
+    ],
+    "decision_maker": "recipient",
+    "selected_option": null,
+    "reason": null
+   },
+   "annotations_add": []
+  },
+  {
+   "event_id": "005",
+   "label": "Confirmation",
+   "title": "Scheduling confirms acceptance and new booking",
+   "explanation": "Scheduling confirmed both Nemi's acceptance of the slot and charge and the new booking, so the coordination task can be closed. Delivery is still pending.",
+   "conversation_id": "scheduling",
+   "facts_upsert": [
+    {"id": "f2", "text": "DL-008 is confirmed for 2026-02-10, 12:00–14:00 UTC; scheduling confirmed it at 09:48 UTC.", "source": {"type": "message", "id": "005"}},
+    {"id": "f10", "text": "Nemi accepted the 12:00–14:00 slot and the GBP 6.00 charge in the booking thread at 09:46 UTC.", "source": {"type": "message", "id": "005"}},
+    {"id": "f11", "text": "Delivery remains pending.", "source": {"type": "message", "id": "005"}}
+   ],
+   "requests_upsert": {
+    "r2": {
+     "type": "decision",
+     "from_actor": "scheduling",
+     "to_actor": "recipient",
+     "responsible_actor": "recipient",
+     "purpose": "Accept or decline the 2026-02-10, 12:00–14:00 UTC slot and the GBP 6.00 charge.",
+     "expected_response": "Acceptance in the verified booking thread before 16:00 UTC.",
+     "status": "answered",
+     "response": "Accepted the 12:00–14:00 slot and the GBP 6.00 charge at 09:46 UTC (reported by scheduling).",
+     "evidence_event_ids": ["004", "005"]
+    }
+   },
+   "criteria_met": [
+    {"id": "c2", "evidence_event_ids": ["005"]},
+    {"id": "c3", "evidence_event_ids": ["005"]}
+   ],
+   "agent_state": {
+    "status": "completed",
+    "waiting_for": [],
+    "next_action": null,
+    "note": "Coordination task complete: scheduling confirmed Nemi's acceptance and the new booking. Delivery is not part of this case's success criteria."
+   },
+   "blocker": null,
+   "status": "completed",
+   "next_step": null,
+   "result": {
+    "summary": "DL-008 moved from the all-day booking to 2026-02-10, 12:00–14:00 UTC; Nemi accepted the GBP 6.00 charge.",
+    "confirmed_by": "scheduling",
+    "evidence_event_ids": ["005"],
+    "remaining_work": "Delivery in the 12:00–14:00 slot is still pending. The desk does not assert that the GBP 6.00 charge has been paid."
+   },
+   "decision": {
+    "required": true,
+    "question": "Should DL-008 move to the offered two-hour slot for the quoted charge?",
+    "options": [
+     {"id": "o1", "label": "Accept 2026-02-10, 12:00–14:00 UTC", "conditions": "Total upgrade charge GBP 6.00; accept in the verified booking thread before 16:00 UTC on 2026-02-09."},
+     {"id": "o2", "label": "Do not accept", "conditions": "The booking is not changed until Nemi accepts (our instruction in 003)."}
+    ],
+    "decision_maker": "recipient",
+    "selected_option": "o1",
+    "reason": "No reason is given; scheduling reports that Nemi accepted in the booking thread at 09:46 UTC."
+   },
+   "annotations_add": [
+    {
+     "id": "booking-thread-gap",
+     "kind": "gap",
+     "title": "Before 005 · Nemi's acceptance in the booking thread",
+     "text": "Offer 004 → Nemi accepts in scheduling's booking thread (09:46 UTC) → scheduling rebooks (09:48 UTC) → report 005. Nemi's reply and the rebooking are not recorded as separate events; we know them only from scheduling's report in 005. Nothing was needed from us in between: the offer went to Nemi directly, and request 003 told scheduling not to change the booking until she accepts.",
+     "before_message_id": "005",
+     "source_event_ids": ["004", "005"],
+     "implied_action": {"from_actor": "recipient", "to_actor": "scheduling", "type": "decision", "purpose": "Accept the 2026-02-10, 12:00–14:00 UTC slot and the GBP 6.00 charge in the verified booking thread."}
+    }
+   ]
+  }
+ ]
+}

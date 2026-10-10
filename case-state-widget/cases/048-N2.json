@@ -1,0 +1,2376 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "048-N2 · Handover log contradicts local receipt",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Ari Veld, the recipient. From the case card: the international carrier has a recorded clearance release for DL-048, but the last-mile carrier has not yet confirmed receipt. Our task is to get the physical handover established, not to deliver the parcel.",
+ "provenance": {
+  "type": "synthetic_negative_branch",
+  "repository": "nikb-de/proofkey-dwelly",
+  "source_path": "data/negative-branches-001-050/048/N2-CONFLICTING_RECORDS",
+  "branch_id": "048-N2",
+  "derived_from_case": "048",
+  "retained_public_events": [
+   "001",
+   "002",
+   "003",
+   "004"
+  ],
+  "diverges_after_event": "004",
+  "failure_mode": "CONFLICTING_RECORDS",
+  "expected_decision": "RECONCILE_CONFLICT",
+  "workflow_sheet": "E",
+  "branch_label": "Handover log contradicts local receipt",
+  "annotation_method": "Source-grounded rule annotation with explicit branch coordination scope.",
+  "source_sha256": {
+   "index.md": "62e4de39b33bab5463fc16dc8e3405e98d846cad62663d53e924515e41fc0bfd",
+   "history.md": "15af920a2b7507ab84c5c4153ae5f9d4c876d2cf2d117e7a3cee4ea619a2de01"
+  }
+ },
+ "initial_state": {
+  "case_id": "048-N2",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "recipient",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: get the physical last-mile handover of DL-048 confirmed and obtain the matching local tracking reference."
+   },
+   "recipient": {
+    "name": "Ari Veld",
+    "organization": null,
+    "role": "recipient",
+    "is_us": false,
+    "responsibility": "Ask whether the local carrier physically has the parcel and for its local tracking reference."
+   }
+  },
+  "goal": "Get confirmation that the last-mile carrier physically has DL-048, together with a usable local tracking reference for it.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The last-mile carrier has confirmed physical receipt of DL-048.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The last-mile carrier has provided an active local tracking reference that matches DL-048.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The clearance release is recorded, but the last-mile carrier has not confirmed receipt.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-048.",
+    "source": {
+     "type": "case_card",
+     "id": "048"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The international carrier has a recorded clearance release for the shipment.",
+    "source": {
+     "type": "case_card",
+     "id": "048"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The last-mile carrier has not yet confirmed receipt.",
+    "source": {
+     "type": "case_card",
+     "id": "048"
+    }
+   },
+   {
+    "id": "f4",
+    "text": "Transfer support must establish the physical handover.",
+    "source": {
+     "type": "case_card",
+     "id": "048"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Do not treat clearance or local receipt as final delivery.",
+   "Do not promise an arrival time.",
+   "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Transfer email",
+    "title": "Transfer support reports release, no receipt",
+    "timestamp": "2026-03-21 09:00:00 UTC",
+    "actor_id": "transfer_support",
+    "message_id": "001"
+   },
+   "explanation": "Transfer support confirms the clearance release and names Plover Arc Logistics for the last mile, but no receipt by Plover Arc is visible. A release and an assignment do not show who holds the parcel, so the physical handover still has to be confirmed.",
+   "state_after": {
+    "case_id": "048-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the physical last-mile handover of DL-048 confirmed and obtain the matching local tracking reference."
+     },
+     "recipient": {
+      "name": "Ari Veld",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask whether the local carrier physically has the parcel and for its local tracking reference."
+     },
+     "transfer_support": {
+      "name": "Transfer support",
+      "organization": "Harbor Thread International",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the clearance release and the last-mile assignment for DL-048."
+     }
+    },
+    "goal": "Get confirmation that the last-mile carrier physically has DL-048, together with a usable local tracking reference for it.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Get the physical handover of DL-048 to Plover Arc Logistics confirmed; the assignment alone does not show receipt."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The last-mile carrier has confirmed physical receipt of DL-048.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The last-mile carrier has provided an active local tracking reference that matches DL-048.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-21 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "048-N2"
+     },
+     "context_message_id": "001",
+     "summary": "DL-048 is cleared, but the last-mile carrier has not confirmed receipt: establish the physical handover.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "Plover Arc Logistics is assigned the last mile, but no receipt is visible.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-048.",
+      "source": {
+       "type": "case_card",
+       "id": "048"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-048 is released for onward transport under recorded clearance reference CLR-048, 2026-03-21 07:30 UTC.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "No last-mile receipt is visible yet.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Transfer support must establish the physical handover.",
+      "source": {
+       "type": "case_card",
+       "id": "048"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The last-mile assignment is Plover Arc Logistics.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Transfer support states that clearance does not mean delivery.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {},
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": null,
+     "description": "Arrange confirmation of the physical handover to Plover Arc Logistics."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "transfer_support": {
+      "participants": [
+       "coordinator",
+       "transfer_support"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "transfer_support",
+      "event_id": "001",
+      "timestamp": "2026-03-21 09:00:00 UTC",
+      "from_actor": "transfer_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-048 is released for onward transport under recorded clearance reference CLR-048, 2026-03-21 07:30 UTC. Last-mile assignment is Plover Arc Logistics; no last-mile receipt is visible yet. Clearance does not mean delivery."
+     }
+    ],
+    "limits": [
+     "Do not treat clearance or local receipt as final delivery.",
+     "Do not promise an arrival time.",
+     "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client request",
+    "title": "Ari asks who actually has the parcel",
+    "timestamp": "2026-03-21 09:10:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "002"
+   },
+   "explanation": "Ari sees released and wants to know whether the local carrier really has the parcel, plus its tracking reference. We have neither, so we ask the Harbor Thread International transfer team to confirm the physical handover and get the matching local reference from Plover Arc.",
+   "state_after": {
+    "case_id": "048-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the physical last-mile handover of DL-048 confirmed and obtain the matching local tracking reference."
+     },
+     "recipient": {
+      "name": "Ari Veld",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask whether the local carrier physically has the parcel and for its local tracking reference."
+     },
+     "transfer_support": {
+      "name": "Transfer support",
+      "organization": "Harbor Thread International",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the clearance release and the last-mile assignment for DL-048."
+     },
+     "transfer_team": {
+      "name": "Transfer team",
+      "organization": "Harbor Thread International",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Confirm the physical last-mile handover and obtain the matching local reference from Plover Arc."
+     }
+    },
+    "goal": "Get confirmation that the last-mile carrier physically has DL-048, together with a usable local tracking reference for it.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Email the Harbor Thread International transfer team: confirm the physical handover of DL-048 and obtain the matching local reference from Plover Arc."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The last-mile carrier has confirmed physical receipt of DL-048.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The last-mile carrier has provided an active local tracking reference that matches DL-048.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-21 09:00:00 UTC",
+     "escalated_at": "2026-03-21 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "048-N2"
+     },
+     "context_message_id": "001",
+     "summary": "DL-048 is cleared, but the last-mile carrier has not confirmed receipt: establish the physical handover.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "Physical receipt by Plover Arc Logistics is unconfirmed, and there is no local tracking reference.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-048.",
+      "source": {
+       "type": "case_card",
+       "id": "048"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-048 is released for onward transport under recorded clearance reference CLR-048, 2026-03-21 07:30 UTC.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "No last-mile receipt is visible yet.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Transfer support must establish the physical handover.",
+      "source": {
+       "type": "case_card",
+       "id": "048"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The last-mile assignment is Plover Arc Logistics.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Transfer support states that clearance does not mean delivery.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient's international tracker shows released.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "transfer_team",
+      "purpose": "Find out whether the local carrier physically has DL-048 and give the recipient its local tracking reference.",
+      "expected_response": "The handover status and the local tracking reference.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "transfer_team",
+      "responsible_actor": "transfer_team",
+      "purpose": "Confirm the physical last-mile handover of DL-048 and obtain the matching local reference from Plover Arc; a planned assignment alone is not enough.",
+      "expected_response": "Confirmation of physical receipt by Plover Arc and the matching local reference.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "verification",
+     "responsible_actor": "transfer_team",
+     "request_id": "r1",
+     "description": "Ask the transfer team to confirm the physical handover and obtain the local reference."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "tracker-context",
+      "kind": "context",
+      "title": "What Ari saw before writing",
+      "text": "Ari says the international tracker shows released. When Ari saw this status is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "transfer_support": {
+      "participants": [
+       "coordinator",
+       "transfer_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "transfer_support",
+      "event_id": "001",
+      "timestamp": "2026-03-21 09:00:00 UTC",
+      "from_actor": "transfer_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-048 is released for onward transport under recorded clearance reference CLR-048, 2026-03-21 07:30 UTC. Last-mile assignment is Plover Arc Logistics; no last-mile receipt is visible yet. Clearance does not mean delivery."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-21 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "My international tracker says released. Please find out whether the local carrier actually has the parcel and give me its tracking reference."
+     }
+    ],
+    "limits": [
+     "Do not treat clearance or local receipt as final delivery.",
+     "Do not promise an arrival time.",
+     "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our request",
+    "title": "We ask the transfer team to confirm handover",
+    "timestamp": "2026-03-21 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We asked for proof of the physical handover and the matching Plover Arc reference, and said that a planned assignment is not enough. Now we wait for the answer.",
+   "state_after": {
+    "case_id": "048-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the physical last-mile handover of DL-048 confirmed and obtain the matching local tracking reference."
+     },
+     "recipient": {
+      "name": "Ari Veld",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask whether the local carrier physically has the parcel and for its local tracking reference."
+     },
+     "transfer_support": {
+      "name": "Transfer support",
+      "organization": "Harbor Thread International",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the clearance release and the last-mile assignment for DL-048."
+     },
+     "transfer_team": {
+      "name": "Transfer team",
+      "organization": "Harbor Thread International",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Confirm the physical last-mile handover and obtain the matching local reference from Plover Arc."
+     }
+    },
+    "goal": "Get confirmation that the last-mile carrier physically has DL-048, together with a usable local tracking reference for it.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "transfer_team",
+       "request_id": "r1",
+       "expected": "Physical handover confirmation and the matching local reference"
+      }
+     ],
+     "next_action": "Once the handover is confirmed, record the local reference and the handover status."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The last-mile carrier has confirmed physical receipt of DL-048.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The last-mile carrier has provided an active local tracking reference that matches DL-048.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-21 09:00:00 UTC",
+     "escalated_at": "2026-03-21 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "048-N2"
+     },
+     "context_message_id": "001",
+     "summary": "DL-048 is cleared, but the last-mile carrier has not confirmed receipt: establish the physical handover.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The handover confirmation and the local reference are requested but not yet received.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-048.",
+      "source": {
+       "type": "case_card",
+       "id": "048"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-048 is released for onward transport under recorded clearance reference CLR-048, 2026-03-21 07:30 UTC.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "No last-mile receipt is visible yet.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Transfer support must establish the physical handover.",
+      "source": {
+       "type": "case_card",
+       "id": "048"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The last-mile assignment is Plover Arc Logistics.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Transfer support states that clearance does not mean delivery.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient's international tracker shows released.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "transfer_team",
+      "purpose": "Find out whether the local carrier physically has DL-048 and give the recipient its local tracking reference.",
+      "expected_response": "The handover status and the local tracking reference.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "transfer_team",
+      "responsible_actor": "transfer_team",
+      "purpose": "Confirm the physical last-mile handover of DL-048 and obtain the matching local reference from Plover Arc; a planned assignment alone is not enough.",
+      "expected_response": "Confirmation of physical receipt by Plover Arc and the matching local reference.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_verification",
+    "next_step": {
+     "type": "verification",
+     "responsible_actor": "transfer_team",
+     "request_id": "r1",
+     "description": "Wait for confirmation of the physical handover and the local reference."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "tracker-context",
+      "kind": "context",
+      "title": "What Ari saw before writing",
+      "text": "Ari says the international tracker shows released. When Ari saw this status is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "transfer_support": {
+      "participants": [
+       "coordinator",
+       "transfer_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "transfer_team": {
+      "participants": [
+       "coordinator",
+       "transfer_team"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "transfer_support",
+      "event_id": "001",
+      "timestamp": "2026-03-21 09:00:00 UTC",
+      "from_actor": "transfer_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-048 is released for onward transport under recorded clearance reference CLR-048, 2026-03-21 07:30 UTC. Last-mile assignment is Plover Arc Logistics; no last-mile receipt is visible yet. Clearance does not mean delivery."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-21 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "My international tracker says released. Please find out whether the local carrier actually has the parcel and give me its tracking reference."
+     },
+     {
+      "conversation_id": "transfer_team",
+      "event_id": "003",
+      "timestamp": "2026-03-21 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "transfer_team",
+      "channel": "Email",
+      "body": "Please confirm DL-048’s physical last-mile handover and obtain the matching local reference from Plover Arc. A planned assignment alone is insufficient."
+     }
+    ],
+    "limits": [
+     "Do not treat clearance or local receipt as final delivery.",
+     "Do not promise an arrival time.",
+     "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "Confirmation",
+    "title": "Plover Arc confirms receipt and PA-048-L",
+    "timestamp": "2026-03-21 09:50:00 UTC",
+    "actor_id": "last_mile_intake",
+    "message_id": "004"
+   },
+   "explanation": "Plover Arc's last-mile intake confirmed physical receipt and gave an active local reference, so the coordination task is done. Route allocation and delivery are still pending.",
+   "state_after": {
+    "case_id": "048-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the physical last-mile handover of DL-048 confirmed and obtain the matching local tracking reference."
+     },
+     "recipient": {
+      "name": "Ari Veld",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask whether the local carrier physically has the parcel and for its local tracking reference."
+     },
+     "transfer_support": {
+      "name": "Transfer support",
+      "organization": "Harbor Thread International",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the clearance release and the last-mile assignment for DL-048."
+     },
+     "transfer_team": {
+      "name": "Transfer team",
+      "organization": "Harbor Thread International",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Confirm the physical last-mile handover and obtain the matching local reference from Plover Arc."
+     },
+     "last_mile_intake": {
+      "name": "Last-mile intake",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Confirm physical receipt of the parcel and the local reference that matches DL-048."
+     }
+    },
+    "goal": "Get confirmation that the last-mile carrier physically has DL-048, together with a usable local tracking reference for it.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Coordination task complete: the last-mile carrier confirmed physical receipt and an active local reference. A message passing PA-048-L to Ari is not recorded in the history. Delivery is not part of this case's success criteria."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The last-mile carrier has confirmed physical receipt of DL-048.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The last-mile carrier has provided an active local tracking reference that matches DL-048.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-21 09:00:00 UTC",
+     "escalated_at": "2026-03-21 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "048-N2"
+     },
+     "context_message_id": "001",
+     "summary": "DL-048 is cleared, but the last-mile carrier has not confirmed receipt: establish the physical handover.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-048.",
+      "source": {
+       "type": "case_card",
+       "id": "048"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-048 is released for onward transport under recorded clearance reference CLR-048, 2026-03-21 07:30 UTC.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Plover Arc Logistics confirmed physical receipt of DL-048 at its transfer bay at 09:45 UTC.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Transfer support must establish the physical handover.",
+      "source": {
+       "type": "case_card",
+       "id": "048"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The last-mile assignment is Plover Arc Logistics.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Transfer support states that clearance does not mean delivery.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient's international tracker shows released.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "International DL-048 maps to local reference PA-048-L.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "PA-048-L is active in the local order tracking view.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f10",
+      "text": "Route allocation is pending.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "transfer_team",
+      "purpose": "Find out whether the local carrier physically has DL-048 and give the recipient its local tracking reference.",
+      "expected_response": "The handover status and the local tracking reference.",
+      "status": "answered",
+      "responded_by": "last_mile_intake",
+      "response": "Plover Arc physically received DL-048 at 09:45 UTC; the local tracking reference is PA-048-L.",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r1": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "transfer_team",
+      "responsible_actor": "transfer_team",
+      "purpose": "Confirm the physical last-mile handover of DL-048 and obtain the matching local reference from Plover Arc; a planned assignment alone is not enough.",
+      "expected_response": "Confirmation of physical receipt by Plover Arc and the matching local reference.",
+      "status": "answered",
+      "responded_by": "last_mile_intake",
+      "response": "Physical receipt confirmed at the transfer bay at 09:45 UTC; DL-048 maps to PA-048-L, active in the local order tracking view; route allocation pending.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "Plover Arc Logistics confirmed physical receipt of DL-048 at 09:45 UTC; the matching local reference PA-048-L is active.",
+     "confirmed_by": "last_mile_intake",
+     "evidence_event_ids": [
+      "004"
+     ],
+     "remaining_work": "Route allocation and final delivery are pending; no arrival time is promised. Passing PA-048-L to Ari is not recorded in the history."
+    },
+    "annotations": [
+     {
+      "id": "tracker-context",
+      "kind": "context",
+      "title": "What Ari saw before writing",
+      "text": "Ari says the international tracker shows released. When Ari saw this status is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "transfer-forwarding",
+      "kind": "gap",
+      "title": "Between 003 and 004 · transfer team's request to Plover Arc",
+      "text": "We asked the Harbor Thread International transfer team to confirm the handover and obtain the matching local reference from Plover Arc. The reply came directly from Last-mile intake, Plover Arc Logistics, and answers both parts of that request: physical receipt and the local reference DL-048 maps to. This implies the transfer team passed the request on to Plover Arc, but that handoff is not recorded in the history; its time and wording are unknown.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "003",
+       "004"
+      ],
+      "implied_action": {
+       "from_actor": "transfer_team",
+       "to_actor": "last_mile_intake",
+       "type": "verification",
+       "purpose": "Confirm physical receipt of DL-048 and provide the matching local reference."
+      }
+     }
+    ],
+    "conversations": {
+     "transfer_support": {
+      "participants": [
+       "coordinator",
+       "transfer_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "transfer_team": {
+      "participants": [
+       "coordinator",
+       "transfer_team"
+      ],
+      "channel": "Email"
+     },
+     "last_mile": {
+      "participants": [
+       "coordinator",
+       "last_mile_intake"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "transfer_support",
+      "event_id": "001",
+      "timestamp": "2026-03-21 09:00:00 UTC",
+      "from_actor": "transfer_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-048 is released for onward transport under recorded clearance reference CLR-048, 2026-03-21 07:30 UTC. Last-mile assignment is Plover Arc Logistics; no last-mile receipt is visible yet. Clearance does not mean delivery."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-21 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "My international tracker says released. Please find out whether the local carrier actually has the parcel and give me its tracking reference."
+     },
+     {
+      "conversation_id": "transfer_team",
+      "event_id": "003",
+      "timestamp": "2026-03-21 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "transfer_team",
+      "channel": "Email",
+      "body": "Please confirm DL-048’s physical last-mile handover and obtain the matching local reference from Plover Arc. A planned assignment alone is insufficient."
+     },
+     {
+      "conversation_id": "last_mile",
+      "event_id": "004",
+      "timestamp": "2026-03-21 09:50:00 UTC",
+      "from_actor": "last_mile_intake",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Physical receipt confirmed at our transfer bay at 09:45 UTC. International DL-048 maps to local PA-048-L. That reference is active in the local order tracking view; route allocation is pending."
+     }
+    ],
+    "limits": [
+     "Do not treat clearance or local receipt as final delivery.",
+     "Do not promise an arrival time.",
+     "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "005",
+    "type": "message_received",
+    "label": "New escalation",
+    "title": "Handover log contradicts local receipt",
+    "timestamp": "2026-03-21 10:05:00 UTC",
+    "actor_id": "transfer_support",
+    "message_id": "005"
+   },
+   "explanation": "Keep both records and request evidence from their owner. Do not erase either conflicting record or infer a finding before the owner supplies evidence.",
+   "state_after": {
+    "case_id": "048-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the physical last-mile handover of DL-048 confirmed and obtain the matching local tracking reference."
+     },
+     "recipient": {
+      "name": "Ari Veld",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask whether the local carrier physically has the parcel and for its local tracking reference."
+     },
+     "transfer_support": {
+      "name": "Transfer support",
+      "organization": "Harbor Thread International",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the clearance release and the last-mile assignment for DL-048."
+     },
+     "transfer_team": {
+      "name": "Transfer team",
+      "organization": "Harbor Thread International",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Confirm the physical last-mile handover and obtain the matching local reference from Plover Arc."
+     },
+     "last_mile_intake": {
+      "name": "Last-mile intake",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Confirm physical receipt of the parcel and the local reference that matches DL-048."
+     }
+    },
+    "goal": "Keep both records and request evidence from their owner.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask Plover Arc last-mile intake by email for the scan evidence behind its 09:45 UTC receipt of DL-048, piece label and scan point, keeping Harbor Thread's log on file."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The last-mile carrier has confirmed physical receipt of DL-048.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The last-mile carrier has provided an active local tracking reference that matches DL-048.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-21 09:00:00 UTC",
+     "escalated_at": "2026-03-21 10:05:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "048-N2"
+     },
+     "context_message_id": "001",
+     "summary": "Keep both records and request evidence from their owner.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The new escalation requires a scoped response. Our handover log shows DL-048 still in our transfer cage at 10:00 UTC. No handover to Plover Arc is recorded today.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-048.",
+      "source": {
+       "type": "case_card",
+       "id": "048"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-048 is released for onward transport under recorded clearance reference CLR-048, 2026-03-21 07:30 UTC.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Plover Arc Logistics confirmed physical receipt of DL-048 at its transfer bay at 09:45 UTC.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Transfer support must establish the physical handover.",
+      "source": {
+       "type": "case_card",
+       "id": "048"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The last-mile assignment is Plover Arc Logistics.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Transfer support states that clearance does not mean delivery.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient's international tracker shows released.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "International DL-048 maps to local reference PA-048-L.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "PA-048-L is active in the local order tracking view.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f10",
+      "text": "Route allocation is pending.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Transfer support reports: Our handover log shows DL-048 still in our transfer cage at 10:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Transfer support reports: No handover to Plover Arc is recorded today.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "transfer_team",
+      "purpose": "Find out whether the local carrier physically has DL-048 and give the recipient its local tracking reference.",
+      "expected_response": "The handover status and the local tracking reference.",
+      "status": "answered",
+      "responded_by": "last_mile_intake",
+      "response": "Plover Arc physically received DL-048 at 09:45 UTC; the local tracking reference is PA-048-L.",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r1": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "transfer_team",
+      "responsible_actor": "transfer_team",
+      "purpose": "Confirm the physical last-mile handover of DL-048 and obtain the matching local reference from Plover Arc; a planned assignment alone is not enough.",
+      "expected_response": "Confirmation of physical receipt by Plover Arc and the matching local reference.",
+      "status": "answered",
+      "responded_by": "last_mile_intake",
+      "response": "Physical receipt confirmed at the transfer bay at 09:45 UTC; DL-048 maps to PA-048-L, active in the local order tracking view; route allocation pending.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "last_mile_intake",
+      "responsible_actor": "last_mile_intake",
+      "purpose": "Ask Plover Arc last-mile intake by email for the scan evidence behind its 09:45 UTC receipt of DL-048, piece label and scan point, keeping Harbor Thread's log on file.",
+      "expected_response": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "005"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "reconcile_conflict",
+       "action": "Ask Plover Arc last-mile intake by email for the scan evidence behind its 09:45 UTC receipt of DL-048, piece label and scan point, keeping Harbor Thread's log on file.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Send Ari PA-048-L as confirmed, or decide on your own which log is wrong.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "verification_required",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": "branch_request",
+     "description": "Ask Plover Arc last-mile intake by email for the scan evidence behind its 09:45 UTC receipt of DL-048, piece label and scan point, keeping Harbor Thread's log on file."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "tracker-context",
+      "kind": "context",
+      "title": "What Ari saw before writing",
+      "text": "Ari says the international tracker shows released. When Ari saw this status is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "transfer-forwarding",
+      "kind": "gap",
+      "title": "Between 003 and 004 · transfer team's request to Plover Arc",
+      "text": "We asked the Harbor Thread International transfer team to confirm the handover and obtain the matching local reference from Plover Arc. The reply came directly from Last-mile intake, Plover Arc Logistics, and answers both parts of that request: physical receipt and the local reference DL-048 maps to. This implies the transfer team passed the request on to Plover Arc, but that handoff is not recorded in the history; its time and wording are unknown.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "003",
+       "004"
+      ],
+      "implied_action": {
+       "from_actor": "transfer_team",
+       "to_actor": "last_mile_intake",
+       "type": "verification",
+       "purpose": "Confirm physical receipt of DL-048 and provide the matching local reference."
+      }
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "transfer_support": {
+      "participants": [
+       "coordinator",
+       "transfer_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "transfer_team": {
+      "participants": [
+       "coordinator",
+       "transfer_team"
+      ],
+      "channel": "Email"
+     },
+     "last_mile": {
+      "participants": [
+       "coordinator",
+       "last_mile_intake"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "transfer_support"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "transfer_support",
+      "event_id": "001",
+      "timestamp": "2026-03-21 09:00:00 UTC",
+      "from_actor": "transfer_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-048 is released for onward transport under recorded clearance reference CLR-048, 2026-03-21 07:30 UTC. Last-mile assignment is Plover Arc Logistics; no last-mile receipt is visible yet. Clearance does not mean delivery."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-21 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "My international tracker says released. Please find out whether the local carrier actually has the parcel and give me its tracking reference."
+     },
+     {
+      "conversation_id": "transfer_team",
+      "event_id": "003",
+      "timestamp": "2026-03-21 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "transfer_team",
+      "channel": "Email",
+      "body": "Please confirm DL-048’s physical last-mile handover and obtain the matching local reference from Plover Arc. A planned assignment alone is insufficient."
+     },
+     {
+      "conversation_id": "last_mile",
+      "event_id": "004",
+      "timestamp": "2026-03-21 09:50:00 UTC",
+      "from_actor": "last_mile_intake",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Physical receipt confirmed at our transfer bay at 09:45 UTC. International DL-048 maps to local PA-048-L. That reference is active in the local order tracking view; route allocation is pending."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-03-21 10:05:00 UTC",
+      "from_actor": "transfer_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Our handover log shows DL-048 still in our transfer cage at 10:00 UTC. No handover to Plover Arc is recorded today."
+     }
+    ],
+    "limits": [
+     "Do not treat clearance or local receipt as final delivery.",
+     "Do not promise an arrival time.",
+     "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "006",
+    "type": "message_sent",
+    "label": "Desk response",
+    "title": "Keep both records and request evidence from their owner",
+    "timestamp": "2026-03-21 10:20:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "006"
+   },
+   "explanation": "The desk sends the recorded response. Do not erase either conflicting record or infer a finding before the owner supplies evidence.",
+   "state_after": {
+    "case_id": "048-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the physical last-mile handover of DL-048 confirmed and obtain the matching local tracking reference."
+     },
+     "recipient": {
+      "name": "Ari Veld",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask whether the local carrier physically has the parcel and for its local tracking reference."
+     },
+     "transfer_support": {
+      "name": "Transfer support",
+      "organization": "Harbor Thread International",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the clearance release and the last-mile assignment for DL-048."
+     },
+     "transfer_team": {
+      "name": "Transfer team",
+      "organization": "Harbor Thread International",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Confirm the physical last-mile handover and obtain the matching local reference from Plover Arc."
+     },
+     "last_mile_intake": {
+      "name": "Last-mile intake",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Confirm physical receipt of the parcel and the local reference that matches DL-048."
+     }
+    },
+    "goal": "Keep both records and request evidence from their owner.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "last_mile_intake",
+       "request_id": "branch_request",
+       "expected": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit."
+      }
+     ],
+     "next_action": "Record the reply or scoped confirmation before closing this branch."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The last-mile carrier has confirmed physical receipt of DL-048.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The last-mile carrier has provided an active local tracking reference that matches DL-048.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-21 09:00:00 UTC",
+     "escalated_at": "2026-03-21 10:05:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "048-N2"
+     },
+     "context_message_id": "001",
+     "summary": "Keep both records and request evidence from their owner.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": "The scoped reply or confirmation has not yet been recorded.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-048.",
+      "source": {
+       "type": "case_card",
+       "id": "048"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-048 is released for onward transport under recorded clearance reference CLR-048, 2026-03-21 07:30 UTC.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Plover Arc Logistics confirmed physical receipt of DL-048 at its transfer bay at 09:45 UTC.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Transfer support must establish the physical handover.",
+      "source": {
+       "type": "case_card",
+       "id": "048"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The last-mile assignment is Plover Arc Logistics.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Transfer support states that clearance does not mean delivery.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient's international tracker shows released.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "International DL-048 maps to local reference PA-048-L.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "PA-048-L is active in the local order tracking view.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f10",
+      "text": "Route allocation is pending.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Transfer support reports: Our handover log shows DL-048 still in our transfer cage at 10:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Transfer support reports: No handover to Plover Arc is recorded today.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "transfer_team",
+      "purpose": "Find out whether the local carrier physically has DL-048 and give the recipient its local tracking reference.",
+      "expected_response": "The handover status and the local tracking reference.",
+      "status": "answered",
+      "responded_by": "last_mile_intake",
+      "response": "Plover Arc physically received DL-048 at 09:45 UTC; the local tracking reference is PA-048-L.",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r1": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "transfer_team",
+      "responsible_actor": "transfer_team",
+      "purpose": "Confirm the physical last-mile handover of DL-048 and obtain the matching local reference from Plover Arc; a planned assignment alone is not enough.",
+      "expected_response": "Confirmation of physical receipt by Plover Arc and the matching local reference.",
+      "status": "answered",
+      "responded_by": "last_mile_intake",
+      "response": "Physical receipt confirmed at the transfer bay at 09:45 UTC; DL-048 maps to PA-048-L, active in the local order tracking view; route allocation pending.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "last_mile_intake",
+      "responsible_actor": "last_mile_intake",
+      "purpose": "Ask Plover Arc last-mile intake by email for the scan evidence behind its 09:45 UTC receipt of DL-048, piece label and scan point, keeping Harbor Thread's log on file.",
+      "expected_response": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "005",
+       "006"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "reconcile_conflict",
+       "action": "Ask Plover Arc last-mile intake by email for the scan evidence behind its 09:45 UTC receipt of DL-048, piece label and scan point, keeping Harbor Thread's log on file.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Send Ari PA-048-L as confirmed, or decide on your own which log is wrong.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "reconcile_conflict",
+     "reason": "The recorded outgoing message takes this permitted response."
+    },
+    "status": "awaiting_verification",
+    "next_step": {
+     "type": "verification",
+     "responsible_actor": "last_mile_intake",
+     "request_id": "branch_request",
+     "description": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "tracker-context",
+      "kind": "context",
+      "title": "What Ari saw before writing",
+      "text": "Ari says the international tracker shows released. When Ari saw this status is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "transfer-forwarding",
+      "kind": "gap",
+      "title": "Between 003 and 004 · transfer team's request to Plover Arc",
+      "text": "We asked the Harbor Thread International transfer team to confirm the handover and obtain the matching local reference from Plover Arc. The reply came directly from Last-mile intake, Plover Arc Logistics, and answers both parts of that request: physical receipt and the local reference DL-048 maps to. This implies the transfer team passed the request on to Plover Arc, but that handoff is not recorded in the history; its time and wording are unknown.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "003",
+       "004"
+      ],
+      "implied_action": {
+       "from_actor": "transfer_team",
+       "to_actor": "last_mile_intake",
+       "type": "verification",
+       "purpose": "Confirm physical receipt of DL-048 and provide the matching local reference."
+      }
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "transfer_support": {
+      "participants": [
+       "coordinator",
+       "transfer_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "transfer_team": {
+      "participants": [
+       "coordinator",
+       "transfer_team"
+      ],
+      "channel": "Email"
+     },
+     "last_mile": {
+      "participants": [
+       "coordinator",
+       "last_mile_intake"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "transfer_support",
+       "last_mile_intake"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "transfer_support",
+      "event_id": "001",
+      "timestamp": "2026-03-21 09:00:00 UTC",
+      "from_actor": "transfer_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-048 is released for onward transport under recorded clearance reference CLR-048, 2026-03-21 07:30 UTC. Last-mile assignment is Plover Arc Logistics; no last-mile receipt is visible yet. Clearance does not mean delivery."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-21 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "My international tracker says released. Please find out whether the local carrier actually has the parcel and give me its tracking reference."
+     },
+     {
+      "conversation_id": "transfer_team",
+      "event_id": "003",
+      "timestamp": "2026-03-21 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "transfer_team",
+      "channel": "Email",
+      "body": "Please confirm DL-048’s physical last-mile handover and obtain the matching local reference from Plover Arc. A planned assignment alone is insufficient."
+     },
+     {
+      "conversation_id": "last_mile",
+      "event_id": "004",
+      "timestamp": "2026-03-21 09:50:00 UTC",
+      "from_actor": "last_mile_intake",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Physical receipt confirmed at our transfer bay at 09:45 UTC. International DL-048 maps to local PA-048-L. That reference is active in the local order tracking view; route allocation is pending."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-03-21 10:05:00 UTC",
+      "from_actor": "transfer_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Our handover log shows DL-048 still in our transfer cage at 10:00 UTC. No handover to Plover Arc is recorded today."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "006",
+      "timestamp": "2026-03-21 10:20:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "last_mile_intake",
+      "channel": "Email",
+      "body": "You confirmed physical receipt of DL-048 at your transfer bay at 09:45 UTC under PA-048-L. Harbor Thread's handover log shows DL-048 still in its transfer cage at 10:00 UTC, with no handover recorded today. Please send the scan evidence behind your 09:45 UTC receipt: piece label and scan point. We are keeping both records on file."
+     }
+    ],
+    "limits": [
+     "Do not treat clearance or local receipt as final delivery.",
+     "Do not promise an arrival time.",
+     "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "007",
+    "type": "message_received",
+    "label": "Scoped confirmation",
+    "title": "Follow-through confirms the branch outcome",
+    "timestamp": "2026-03-21 11:00:00 UTC",
+    "actor_id": "last_mile_intake",
+    "message_id": "007"
+   },
+   "explanation": "Record what the responding party actually confirms. Our 09:45 UTC receipt scan was taken at transfer bay 2 from piece label DL-048, matched to PA-048-L. Harbor Thread transfer support has checked its cage and agrees the parcel left before 09:45 UTC; its log was not updated. Both records now place DL-048 with us. Delivery and arrival time remain open.",
+   "state_after": {
+    "case_id": "048-N2",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get the physical last-mile handover of DL-048 confirmed and obtain the matching local tracking reference."
+     },
+     "recipient": {
+      "name": "Ari Veld",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask whether the local carrier physically has the parcel and for its local tracking reference."
+     },
+     "transfer_support": {
+      "name": "Transfer support",
+      "organization": "Harbor Thread International",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the clearance release and the last-mile assignment for DL-048."
+     },
+     "transfer_team": {
+      "name": "Transfer team",
+      "organization": "Harbor Thread International",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Confirm the physical last-mile handover and obtain the matching local reference from Plover Arc."
+     },
+     "last_mile_intake": {
+      "name": "Last-mile intake",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Confirm physical receipt of the parcel and the local reference that matches DL-048."
+     }
+    },
+    "goal": "Keep both records and request evidence from their owner.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Only this alternative coordination task is complete. The follow-through defines the confirmed outcome and its remaining work; archived parent criteria describe the earlier scope."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The last-mile carrier has confirmed physical receipt of DL-048.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The last-mile carrier has provided an active local tracking reference that matches DL-048.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "branch_resolution",
+      "description": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+      "status": "met",
+      "evidence_event_ids": [
+       "006",
+       "007"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-21 09:00:00 UTC",
+     "escalated_at": "2026-03-21 10:05:00 UTC",
+     "source": {
+      "type": "negative_branch",
+      "id": "048-N2"
+     },
+     "context_message_id": "001",
+     "summary": "Keep both records and request evidence from their owner.",
+     "note": "This is the alternative coordination task. Original outstanding outcomes remain open outside its completion scope."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-048.",
+      "source": {
+       "type": "case_card",
+       "id": "048"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "DL-048 is released for onward transport under recorded clearance reference CLR-048, 2026-03-21 07:30 UTC.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Plover Arc Logistics confirmed physical receipt of DL-048 at its transfer bay at 09:45 UTC.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Transfer support must establish the physical handover.",
+      "source": {
+       "type": "case_card",
+       "id": "048"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The last-mile assignment is Plover Arc Logistics.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Transfer support states that clearance does not mean delivery.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient's international tracker shows released.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "International DL-048 maps to local reference PA-048-L.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "PA-048-L is active in the local order tracking view.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f10",
+      "text": "Route allocation is pending.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "branch_report_1",
+      "text": "Transfer support reports: Our handover log shows DL-048 still in our transfer cage at 10:00 UTC.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_report_2",
+      "text": "Transfer support reports: No handover to Plover Arc is recorded today.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     },
+     {
+      "id": "branch_outcome_1",
+      "text": "Last-mile intake reports: Our 09:45 UTC receipt scan was taken at transfer bay 2 from piece label DL-048, matched to PA-048-L.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     },
+     {
+      "id": "branch_outcome_2",
+      "text": "Last-mile intake reports: Harbor Thread transfer support has checked its cage and agrees the parcel left before 09:45 UTC; its log was not updated.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     },
+     {
+      "id": "branch_outcome_3",
+      "text": "Last-mile intake reports: Both records now place DL-048 with us.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     },
+     {
+      "id": "branch_outcome_4",
+      "text": "Last-mile intake reports: Delivery and arrival time remain open.",
+      "source": {
+       "type": "message",
+       "id": "007"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "transfer_team",
+      "purpose": "Find out whether the local carrier physically has DL-048 and give the recipient its local tracking reference.",
+      "expected_response": "The handover status and the local tracking reference.",
+      "status": "answered",
+      "responded_by": "last_mile_intake",
+      "response": "Plover Arc physically received DL-048 at 09:45 UTC; the local tracking reference is PA-048-L.",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r1": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "transfer_team",
+      "responsible_actor": "transfer_team",
+      "purpose": "Confirm the physical last-mile handover of DL-048 and obtain the matching local reference from Plover Arc; a planned assignment alone is not enough.",
+      "expected_response": "Confirmation of physical receipt by Plover Arc and the matching local reference.",
+      "status": "answered",
+      "responded_by": "last_mile_intake",
+      "response": "Physical receipt confirmed at the transfer bay at 09:45 UTC; DL-048 maps to PA-048-L, active in the local order tracking view; route allocation pending.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     },
+     "branch_request": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "last_mile_intake",
+      "responsible_actor": "last_mile_intake",
+      "purpose": "Ask Plover Arc last-mile intake by email for the scan evidence behind its 09:45 UTC receipt of DL-048, piece label and scan point, keeping Harbor Thread's log on file.",
+      "expected_response": "The responsible owner supplies the requested evidence or source clarification; any unresolved discrepancy remains explicit.",
+      "status": "answered",
+      "response": "Our 09:45 UTC receipt scan was taken at transfer bay 2 from piece label DL-048, matched to PA-048-L. Harbor Thread transfer support has checked its cage and agrees the parcel left before 09:45 UTC; its log was not updated. Both records now place DL-048 with us. Delivery and arrival time remain open.",
+      "evidence_event_ids": [
+       "005",
+       "006",
+       "007"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": "Which response is permitted after this development?",
+     "options": [
+      {
+       "id": "reconcile_conflict",
+       "action": "Ask Plover Arc last-mile intake by email for the scan evidence behind its 09:45 UTC receipt of DL-048, piece label and scan point, keeping Harbor Thread's log on file.",
+       "allowed": true,
+       "reason": "This follows the recorded policy and addresses the new escalation."
+      },
+      {
+       "id": "prohibited_action",
+       "action": "Send Ari PA-048-L as confirmed, or decide on your own which log is wrong.",
+       "allowed": false,
+       "reason": "The branch card expressly prohibits this action."
+      }
+     ],
+     "decision_maker": "coordinator",
+     "selected_option": "reconcile_conflict",
+     "reason": "The follow-through confirms this scoped response. It does not imply the original task or downstream work is complete."
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "Our 09:45 UTC receipt scan was taken at transfer bay 2 from piece label DL-048, matched to PA-048-L. Harbor Thread transfer support has checked its cage and agrees the parcel left before 09:45 UTC; its log was not updated. Both records now place DL-048 with us. Delivery and arrival time remain open.",
+     "confirmed_by": "last_mile_intake",
+     "evidence_event_ids": [
+      "007"
+     ],
+     "remaining_work": "Parent criteria are historical snapshots at the scope change. The follow-through states what remains; these boundaries still apply: Must not: Send Ari PA-048-L as confirmed, or decide on your own which log is wrong."
+    },
+    "annotations": [
+     {
+      "id": "tracker-context",
+      "kind": "context",
+      "title": "What Ari saw before writing",
+      "text": "Ari says the international tracker shows released. When Ari saw this status is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "transfer-forwarding",
+      "kind": "gap",
+      "title": "Between 003 and 004 · transfer team's request to Plover Arc",
+      "text": "We asked the Harbor Thread International transfer team to confirm the handover and obtain the matching local reference from Plover Arc. The reply came directly from Last-mile intake, Plover Arc Logistics, and answers both parts of that request: physical receipt and the local reference DL-048 maps to. This implies the transfer team passed the request on to Plover Arc, but that handoff is not recorded in the history; its time and wording are unknown.",
+      "before_message_id": "004",
+      "source_event_ids": [
+       "003",
+       "004"
+      ],
+      "implied_action": {
+       "from_actor": "transfer_team",
+       "to_actor": "last_mile_intake",
+       "type": "verification",
+       "purpose": "Confirm physical receipt of DL-048 and provide the matching local reference."
+      }
+     },
+     {
+      "id": "branch_scope",
+      "kind": "context",
+      "title": "Alternative completion scope",
+      "text": "Completion covers this branch’s coordination task only. Unmet parent criteria remain in prior_success_criteria; none is treated as achieved.",
+      "before_message_id": "005",
+      "source_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "conversations": {
+     "transfer_support": {
+      "participants": [
+       "coordinator",
+       "transfer_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "transfer_team": {
+      "participants": [
+       "coordinator",
+       "transfer_team"
+      ],
+      "channel": "Email"
+     },
+     "last_mile": {
+      "participants": [
+       "coordinator",
+       "last_mile_intake"
+      ],
+      "channel": "Email"
+     },
+     "branch_service": {
+      "participants": [
+       "coordinator",
+       "transfer_support",
+       "last_mile_intake"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "transfer_support",
+      "event_id": "001",
+      "timestamp": "2026-03-21 09:00:00 UTC",
+      "from_actor": "transfer_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-048 is released for onward transport under recorded clearance reference CLR-048, 2026-03-21 07:30 UTC. Last-mile assignment is Plover Arc Logistics; no last-mile receipt is visible yet. Clearance does not mean delivery."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-21 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "My international tracker says released. Please find out whether the local carrier actually has the parcel and give me its tracking reference."
+     },
+     {
+      "conversation_id": "transfer_team",
+      "event_id": "003",
+      "timestamp": "2026-03-21 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "transfer_team",
+      "channel": "Email",
+      "body": "Please confirm DL-048’s physical last-mile handover and obtain the matching local reference from Plover Arc. A planned assignment alone is insufficient."
+     },
+     {
+      "conversation_id": "last_mile",
+      "event_id": "004",
+      "timestamp": "2026-03-21 09:50:00 UTC",
+      "from_actor": "last_mile_intake",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Physical receipt confirmed at our transfer bay at 09:45 UTC. International DL-048 maps to local PA-048-L. That reference is active in the local order tracking view; route allocation is pending."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "005",
+      "timestamp": "2026-03-21 10:05:00 UTC",
+      "from_actor": "transfer_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Our handover log shows DL-048 still in our transfer cage at 10:00 UTC. No handover to Plover Arc is recorded today."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "006",
+      "timestamp": "2026-03-21 10:20:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "last_mile_intake",
+      "channel": "Email",
+      "body": "You confirmed physical receipt of DL-048 at your transfer bay at 09:45 UTC under PA-048-L. Harbor Thread's handover log shows DL-048 still in its transfer cage at 10:00 UTC, with no handover recorded today. Please send the scan evidence behind your 09:45 UTC receipt: piece label and scan point. We are keeping both records on file."
+     },
+     {
+      "conversation_id": "branch_service",
+      "event_id": "007",
+      "timestamp": "2026-03-21 11:00:00 UTC",
+      "from_actor": "last_mile_intake",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Our 09:45 UTC receipt scan was taken at transfer bay 2 from piece label DL-048, matched to PA-048-L. Harbor Thread transfer support has checked its cage and agrees the parcel left before 09:45 UTC; its log was not updated. Both records now place DL-048 with us. Delivery and arrival time remain open."
+     }
+    ],
+    "limits": [
+     "Do not treat clearance or local receipt as final delivery.",
+     "Do not promise an arrival time.",
+     "Do not erase either conflicting record or infer a finding before the owner supplies evidence."
+    ]
+   }
+  }
+ ]
+}
