@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://proofkey.local/contracts/v1/transition.schema.json",
+  "title": "transition",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "proofkey-transition-v1"
+    },
+    "visibility": {
+      "const": "evaluator_only"
+    },
+    "transition_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+    },
+    "episode_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+    },
+    "from_input_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+    },
+    "to_input_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+    },
+    "trigger": {
+      "enum": [
+        "new_evidence",
+        "review",
+        "source_superseded"
+      ]
+    },
+    "conditions": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "source_matches"
+              },
+              "source": {
+                "$ref": "https://proofkey.local/contracts/v1/local-case.schema.json#/$defs/source"
+              }
+            },
+            "required": [
+              "type",
+              "source"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "evidence_present"
+              },
+              "event_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              }
+            },
+            "required": [
+              "type",
+              "event_ids"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "review_status"
+              },
+              "status": {
+                "enum": [
+                  "unreviewed",
+                  "in_review",
+                  "reviewed",
+                  "rejected"
+                ]
+              }
+            },
+            "required": [
+              "type",
+              "status"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "trusted_authorization_required"
+              },
+              "policy_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+              },
+              "principal_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+              }
+            },
+            "required": [
+              "type",
+              "policy_id",
+              "principal_id"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "minItems": 1
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "provenance": {
+      "$ref": "https://proofkey.local/contracts/v1/local-case.schema.json#/$defs/provenance"
+    }
+  },
+  "required": [
+    "schema_version",
+    "visibility",
+    "transition_id",
+    "episode_id",
+    "from_input_id",
+    "to_input_id",
+    "trigger",
+    "conditions",
+    "description",
+    "provenance"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "condition": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "source_matches"
+            },
+            "source": {
+              "$ref": "https://proofkey.local/contracts/v1/local-case.schema.json#/$defs/source"
+            }
+          },
+          "required": [
+            "type",
+            "source"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "evidence_present"
+            },
+            "event_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            }
+          },
+          "required": [
+            "type",
+            "event_ids"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "review_status"
+            },
+            "status": {
+              "enum": [
+                "unreviewed",
+                "in_review",
+                "reviewed",
+                "rejected"
+              ]
+            }
+          },
+          "required": [
+            "type",
+            "status"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "trusted_authorization_required"
+            },
+            "policy_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+            },
+            "principal_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+            }
+          },
+          "required": [
+            "type",
+            "policy_id",
+            "principal_id"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}

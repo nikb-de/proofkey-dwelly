@@ -1,0 +1,745 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://proofkey.local/contracts/v1/local-case.schema.json",
+  "title": "local-case",
+  "type": "object",
+  "properties": {
+    "case_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+    },
+    "links": {
+      "type": "object",
+      "properties": {
+        "order_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "customer_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "operator_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        }
+      },
+      "required": [
+        "order_id",
+        "customer_id",
+        "operator_id"
+      ],
+      "additionalProperties": false
+    },
+    "participants": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+      },
+      "uniqueItems": true,
+      "maxItems": 16,
+      "minItems": 2
+    },
+    "language": {
+      "const": "en"
+    },
+    "schema_version": {
+      "const": "dwelly-local-case-v1"
+    },
+    "source_mode": {
+      "const": "local_fixture"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 128
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "$ref": "https://proofkey.local/contracts/v1/local-case.schema.json#/$defs/event"
+      },
+      "maxItems": 128
+    },
+    "previous_snapshot_hash": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      ]
+    },
+    "snapshot_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "runtime_binding": {
+      "type": "null"
+    },
+    "needs_analysis": {
+      "const": true
+    },
+    "analysis_status": {
+      "const": "pending_not_started"
+    },
+    "authorization": {
+      "const": "unverified"
+    },
+    "operational_effects": {
+      "const": 0
+    }
+  },
+  "required": [
+    "case_id",
+    "links",
+    "participants",
+    "language",
+    "schema_version",
+    "source_mode",
+    "revision",
+    "events",
+    "previous_snapshot_hash",
+    "snapshot_hash",
+    "runtime_binding",
+    "needs_analysis",
+    "analysis_status",
+    "authorization",
+    "operational_effects"
+  ],
+  "additionalProperties": false,
+  "description": "Structural snapshot. Hash, revision/event count, linked identities and immutable history require actual CaseStore semantic checks.",
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "revision": {
+            "const": 0
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "events": {
+            "maxItems": 0
+          },
+          "previous_snapshot_hash": {
+            "type": "null"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "events": {
+            "minItems": 1
+          },
+          "previous_snapshot_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "declaration": {
+      "type": "object",
+      "properties": {
+        "case_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "links": {
+          "type": "object",
+          "properties": {
+            "order_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+            },
+            "customer_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+            },
+            "operator_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+            }
+          },
+          "required": [
+            "order_id",
+            "customer_id",
+            "operator_id"
+          ],
+          "additionalProperties": false
+        },
+        "participants": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+          },
+          "uniqueItems": true,
+          "maxItems": 16,
+          "minItems": 2
+        },
+        "language": {
+          "const": "en"
+        }
+      },
+      "required": [
+        "case_id",
+        "links",
+        "participants",
+        "language"
+      ],
+      "additionalProperties": false
+    },
+    "event": {
+      "type": "object",
+      "properties": {
+        "event_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "occurred_at": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "[T ].*[+-][0-9]{2}:[0-9]{2}$|[T ].*Z$",
+          "description": "Timezone-aware datetime.fromisoformat accepted by CaseStore. Full date validity requires CaseStore semantic validation."
+        },
+        "channel": {
+          "enum": [
+            "chat",
+            "email",
+            "phone",
+            "internal"
+          ]
+        },
+        "sender_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "recipient_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+          },
+          "uniqueItems": true,
+          "maxItems": 16
+        },
+        "kind": {
+          "enum": [
+            "message",
+            "photo",
+            "voice_message",
+            "call_recording"
+          ]
+        },
+        "text": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 4096
+        },
+        "media": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "asset_id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                "mime_type": {
+                  "enum": [
+                    "image/png",
+                    "image/jpeg"
+                  ]
+                },
+                "size_bytes": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 10485760
+                }
+              },
+              "required": [
+                "asset_id",
+                "sha256",
+                "mime_type",
+                "size_bytes"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "asset_id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                "mime_type": {
+                  "enum": [
+                    "audio/mpeg",
+                    "audio/wav",
+                    "audio/mp4",
+                    "audio/webm"
+                  ]
+                },
+                "size_bytes": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 26214400
+                }
+              },
+              "required": [
+                "asset_id",
+                "sha256",
+                "mime_type",
+                "size_bytes"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "required": [
+        "event_id",
+        "occurred_at",
+        "channel",
+        "sender_id",
+        "recipient_ids",
+        "kind",
+        "text",
+        "media"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "message"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "text": {
+                "type": "string",
+                "maxLength": 4096,
+                "pattern": "\\S"
+              },
+              "media": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "photo"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "media": {
+                "type": "object",
+                "properties": {
+                  "asset_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  "mime_type": {
+                    "enum": [
+                      "image/png",
+                      "image/jpeg"
+                    ]
+                  },
+                  "size_bytes": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10485760
+                  }
+                },
+                "required": [
+                  "asset_id",
+                  "sha256",
+                  "mime_type",
+                  "size_bytes"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "voice_message",
+                  "call_recording"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "media": {
+                "type": "object",
+                "properties": {
+                  "asset_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  "mime_type": {
+                    "enum": [
+                      "audio/mpeg",
+                      "audio/wav",
+                      "audio/mp4",
+                      "audio/webm"
+                    ]
+                  },
+                  "size_bytes": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 26214400
+                  }
+                },
+                "required": [
+                  "asset_id",
+                  "sha256",
+                  "mime_type",
+                  "size_bytes"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      ]
+    },
+    "append": {
+      "type": "object",
+      "properties": {
+        "expected_revision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "event": {
+          "$ref": "https://proofkey.local/contracts/v1/local-case.schema.json#/$defs/event"
+        }
+      },
+      "required": [
+        "expected_revision",
+        "event"
+      ],
+      "additionalProperties": false
+    },
+    "appendRequest": {
+      "type": "object",
+      "properties": {
+        "expected_revision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "event": {
+          "$ref": "https://proofkey.local/contracts/v1/local-case.schema.json#/$defs/event"
+        }
+      },
+      "required": [
+        "expected_revision",
+        "event"
+      ],
+      "additionalProperties": false
+    },
+    "snapshot": {
+      "type": "object",
+      "properties": {
+        "case_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "links": {
+          "type": "object",
+          "properties": {
+            "order_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+            },
+            "customer_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+            },
+            "operator_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+            }
+          },
+          "required": [
+            "order_id",
+            "customer_id",
+            "operator_id"
+          ],
+          "additionalProperties": false
+        },
+        "participants": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+          },
+          "uniqueItems": true,
+          "maxItems": 16,
+          "minItems": 2
+        },
+        "language": {
+          "const": "en"
+        },
+        "schema_version": {
+          "const": "dwelly-local-case-v1"
+        },
+        "source_mode": {
+          "const": "local_fixture"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 128
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "https://proofkey.local/contracts/v1/local-case.schema.json#/$defs/event"
+          },
+          "maxItems": 128
+        },
+        "previous_snapshot_hash": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          ]
+        },
+        "snapshot_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "runtime_binding": {
+          "type": "null"
+        },
+        "needs_analysis": {
+          "const": true
+        },
+        "analysis_status": {
+          "const": "pending_not_started"
+        },
+        "authorization": {
+          "const": "unverified"
+        },
+        "operational_effects": {
+          "const": 0
+        }
+      },
+      "required": [
+        "case_id",
+        "links",
+        "participants",
+        "language",
+        "schema_version",
+        "source_mode",
+        "revision",
+        "events",
+        "previous_snapshot_hash",
+        "snapshot_hash",
+        "runtime_binding",
+        "needs_analysis",
+        "analysis_status",
+        "authorization",
+        "operational_effects"
+      ],
+      "additionalProperties": false,
+      "description": "Structural snapshot. Hash, revision/event count, linked identities and immutable history require actual CaseStore semantic checks.",
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "revision": {
+                "const": 0
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "events": {
+                "maxItems": 0
+              },
+              "previous_snapshot_hash": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "events": {
+                "minItems": 1
+              },
+              "previous_snapshot_hash": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "case_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "snapshot_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "case_id",
+        "revision",
+        "snapshot_hash"
+      ],
+      "additionalProperties": false
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "source_kind": {
+          "enum": [
+            "local_fixture",
+            "synthetic",
+            "human_authored",
+            "imported"
+          ]
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "collected_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "source_kind",
+        "source_id",
+        "collected_at"
+      ],
+      "additionalProperties": false
+    },
+    "review": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "enum": [
+            "unreviewed",
+            "in_review",
+            "reviewed",
+            "rejected"
+          ]
+        },
+        "reviewer_id": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+            }
+          ]
+        },
+        "reviewed_at": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "format": "date-time"
+            }
+          ]
+        }
+      },
+      "required": [
+        "status",
+        "reviewer_id",
+        "reviewed_at"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "reviewed",
+                  "rejected"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "reviewer_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+              },
+              "reviewed_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

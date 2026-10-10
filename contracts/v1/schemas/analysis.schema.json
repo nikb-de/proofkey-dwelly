@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://proofkey.local/contracts/v1/analysis.schema.json",
+  "title": "analysis",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "proofkey-analysis-v1"
+    },
+    "analysis_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+    },
+    "source": {
+      "$ref": "https://proofkey.local/contracts/v1/local-case.schema.json#/$defs/source"
+    },
+    "status": {
+      "enum": [
+        "queued",
+        "running",
+        "completed",
+        "failed",
+        "cancelled",
+        "interrupted"
+      ]
+    },
+    "freshness": {
+      "enum": [
+        "current",
+        "superseded"
+      ]
+    },
+    "run_id": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        }
+      ]
+    },
+    "result_id": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        }
+      ]
+    },
+    "review": {
+      "$ref": "https://proofkey.local/contracts/v1/local-case.schema.json#/$defs/review"
+    },
+    "provenance": {
+      "$ref": "https://proofkey.local/contracts/v1/local-case.schema.json#/$defs/provenance"
+    },
+    "operational_effects": {
+      "const": 0
+    }
+  },
+  "required": [
+    "schema_version",
+    "analysis_id",
+    "source",
+    "status",
+    "freshness",
+    "run_id",
+    "result_id",
+    "review",
+    "provenance",
+    "operational_effects"
+  ],
+  "additionalProperties": false
+}
