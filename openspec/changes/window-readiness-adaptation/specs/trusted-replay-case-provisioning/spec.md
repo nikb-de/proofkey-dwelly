@@ -52,3 +52,9 @@ The integration helper SHALL preserve one-release composition, exact executable 
 - **WHEN** an exact completed stop-v2 composition performs its supported same-owner stop
 - **THEN** its separate stop contract remains in force unchanged
 - **AND** neither v3 implementation nor default selection removes, broadens or silently substitutes that contract.
+
+#### Scenario: Ordinary v3 execution outlasts its admission phase
+- **WHEN** an exact v3 ordinary business execution remains within its original bound UTC and monotonic parent window but its initial five-second admission phase has elapsed
+- **THEN** the ordinary execution guard SHALL enforce the original parent and association checks without treating business execution as another admission or control operation
+- **AND** initial preparation, admission sealing, route/claim/control-store operations and final observation SHALL retain their existing phase bounds
+- **AND** expired UTC or monotonic parents SHALL remain denied, 24-call/120-active-second/10-second-per-tool allowances SHALL remain unchanged, and no v1/v2 or registered-control authority SHALL be extended.
