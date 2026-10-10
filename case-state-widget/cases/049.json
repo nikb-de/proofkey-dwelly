@@ -1,0 +1,989 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "049 · Duplicate service charge on an invoice",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Vera Senn, finance coordinator at Mossline Press. From the case card: two invoice lines have the same shipment, service and date, and the authorised billing team must confirm the duplication and issue a credit note and revised balance.",
+ "initial_state": {
+  "case_id": "049",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "customer",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: get billing's review of the matching invoice lines and, if the duplicate is confirmed, the credit note and revised balance."
+   },
+   "customer": {
+    "name": "Vera Senn",
+    "organization": "Mossline Press",
+    "role": "customer",
+    "is_us": false,
+    "responsibility": "Raise the matching invoice lines for review on behalf of Mossline Press."
+   }
+  },
+  "goal": "Get the authorised billing team to confirm the duplication on the DL-049 invoice and issue a credit note and a revised balance.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The authorised billing team has confirmed the duplicate line.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The billing team has issued a credit note for the confirmed duplicate.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c3",
+    "description": "The revised invoice balance reconciles with the invoice total minus the credit.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "Two invoice lines match on shipment, service and date; billing has not confirmed a duplicate.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-049.",
+    "source": {
+     "type": "case_card",
+     "id": "049"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "Two invoice lines have the same shipment, service and date.",
+    "source": {
+     "type": "case_card",
+     "id": "049"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "The authorised billing team must confirm the duplication and issue a credit note and a revised balance.",
+    "source": {
+     "type": "case_card",
+     "id": "049"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Do not present the credit note as cash received; it is an accounting adjustment.",
+   "Do not state a revised balance other than the invoice total minus the credited amount."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Client invoice",
+    "title": "Vera shares an invoice with two matching lines",
+    "timestamp": "2026-03-22 09:00:00 UTC",
+    "actor_id": "customer",
+    "message_id": "001"
+   },
+   "explanation": "INV-049 has two identical GBP 18.00 lines for the same DL-049 service and date, and no second service is listed. The authorised billing team has to confirm a duplicate, so the lines need billing's review.",
+   "state_after": {
+    "case_id": "049",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get billing's review of the matching invoice lines and, if the duplicate is confirmed, the credit note and revised balance."
+     },
+     "customer": {
+      "name": "Vera Senn",
+      "organization": "Mossline Press",
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Raise the matching invoice lines for review on behalf of Mossline Press."
+     }
+    },
+    "goal": "Get the authorised billing team to confirm the duplication on the DL-049 invoice and issue a credit note and a revised balance.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Get the authorised billing team to review the two matching INV-049 lines."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The authorised billing team has confirmed the duplicate line.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The billing team has issued a credit note for the confirmed duplicate.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The revised invoice balance reconciles with the invoice total minus the credit.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-22 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "049"
+     },
+     "context_message_id": "001",
+     "summary": "Two invoice lines for DL-049 match on shipment, service and date: get billing to confirm the duplicate and issue a credit note and revised balance.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "INV-049 shows two matching GBP 18.00 lines; billing has not confirmed a duplicate.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-049.",
+      "source": {
+       "type": "case_card",
+       "id": "049"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Invoice INV-049 has two delivery service lines for DL-049 dated 2026-03-22, each GBP 18.00; the invoice total is GBP 36.00.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The authorised billing team must confirm the duplication and issue a credit note and a revised balance.",
+      "source": {
+       "type": "case_card",
+       "id": "049"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Both lines have the same service key; no separate service is listed.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {},
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": {
+     "type": "verification",
+     "responsible_actor": "coordinator",
+     "request_id": null,
+     "description": "Arrange billing's review of the two matching lines."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Business portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "client",
+      "event_id": "001",
+      "timestamp": "2026-03-22 09:00:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Business portal",
+      "body": "Inline invoice INV-049: line 1 delivery service DL-049, 2026-03-22, GBP 18.00; line 2 delivery service DL-049, 2026-03-22, GBP 18.00; invoice total GBP 36.00. Both lines have the same service key. No separate service is listed."
+     }
+    ],
+    "limits": [
+     "Do not present the credit note as cash received; it is an accounting adjustment.",
+     "Do not state a revised balance other than the invoice total minus the credited amount."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client request",
+    "title": "Vera asks for a billing review before paying",
+    "timestamp": "2026-03-22 09:10:00 UTC",
+    "actor_id": "customer",
+    "message_id": "002"
+   },
+   "explanation": "Vera wants the duplicate reviewed before Mossline Press pays, and nothing has been paid yet. We ask Plover Arc's business billing to review the two lines and, if the duplicate is confirmed, issue the authorised credit and revised balance.",
+   "state_after": {
+    "case_id": "049",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get billing's review of the matching invoice lines and, if the duplicate is confirmed, the credit note and revised balance."
+     },
+     "customer": {
+      "name": "Vera Senn",
+      "organization": "Mossline Press",
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Raise the matching invoice lines for review on behalf of Mossline Press."
+     },
+     "billing": {
+      "name": "Business billing",
+      "organization": "Plover Arc Logistics",
+      "role": "billing",
+      "is_us": false,
+      "responsibility": "Review the two matching lines and, if the duplicate is confirmed, issue the credit note and revised balance."
+     }
+    },
+    "goal": "Get the authorised billing team to confirm the duplication on the DL-049 invoice and issue a credit note and a revised balance.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Email Plover Arc business billing to review the two GBP 18.00 lines and, if the duplicate is confirmed, issue the authorised credit and revised balance."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The authorised billing team has confirmed the duplicate line.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The billing team has issued a credit note for the confirmed duplicate.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The revised invoice balance reconciles with the invoice total minus the credit.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-22 09:00:00 UTC",
+     "escalated_at": "2026-03-22 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "049"
+     },
+     "context_message_id": "001",
+     "summary": "Two invoice lines for DL-049 match on shipment, service and date: get billing to confirm the duplicate and issue a credit note and revised balance.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "Billing has not reviewed the matching lines; Mossline Press wants the review before paying.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-049.",
+      "source": {
+       "type": "case_card",
+       "id": "049"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Invoice INV-049 has two delivery service lines for DL-049 dated 2026-03-22, each GBP 18.00; the invoice total is GBP 36.00.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The authorised billing team must confirm the duplication and issue a credit note and a revised balance.",
+      "source": {
+       "type": "case_card",
+       "id": "049"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Both lines have the same service key; no separate service is listed.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Mossline Press has not paid either line.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "billing",
+      "purpose": "Have billing review the duplicate line before Mossline Press pays INV-049.",
+      "expected_response": "Billing's review of the duplicate line.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "responsible_actor": "billing",
+      "purpose": "Review INV-049's two GBP 18.00 lines for the same DL-049 delivery service and date and confirm whether the second is a duplicate.",
+      "expected_response": "Billing's finding on the duplicate.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r2": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "responsible_actor": "billing",
+      "purpose": "If the duplicate is confirmed, issue the authorised credit and the revised invoice balance.",
+      "expected_response": "The credit note reference and the revised amount due.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "verification",
+     "responsible_actor": "billing",
+     "request_id": "r1",
+     "description": "Ask billing to review the two matching lines."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Business portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "client",
+      "event_id": "001",
+      "timestamp": "2026-03-22 09:00:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Business portal",
+      "body": "Inline invoice INV-049: line 1 delivery service DL-049, 2026-03-22, GBP 18.00; line 2 delivery service DL-049, 2026-03-22, GBP 18.00; invoice total GBP 36.00. Both lines have the same service key. No separate service is listed."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-22 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Business portal",
+      "body": "Please ask billing to review the duplicate before we pay this invoice. We have not paid either line."
+     }
+    ],
+    "limits": [
+     "Do not present the credit note as cash received; it is an accounting adjustment.",
+     "Do not state a revised balance other than the invoice total minus the credited amount."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our request",
+    "title": "We ask billing to review the two lines",
+    "timestamp": "2026-03-22 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We named the invoice, both GBP 18.00 lines, the shipment and the date, and asked for the authorised credit and revised balance only if the duplicate is confirmed. Now we wait for billing.",
+   "state_after": {
+    "case_id": "049",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get billing's review of the matching invoice lines and, if the duplicate is confirmed, the credit note and revised balance."
+     },
+     "customer": {
+      "name": "Vera Senn",
+      "organization": "Mossline Press",
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Raise the matching invoice lines for review on behalf of Mossline Press."
+     },
+     "billing": {
+      "name": "Business billing",
+      "organization": "Plover Arc Logistics",
+      "role": "billing",
+      "is_us": false,
+      "responsibility": "Review the two matching lines and, if the duplicate is confirmed, issue the credit note and revised balance."
+     }
+    },
+    "goal": "Get the authorised billing team to confirm the duplication on the DL-049 invoice and issue a credit note and a revised balance.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "billing",
+       "request_id": "r1",
+       "expected": "Finding on the duplicate line"
+      },
+      {
+       "actor_id": "billing",
+       "request_id": "r2",
+       "expected": "Credit note and revised balance, if the duplicate is confirmed"
+      }
+     ],
+     "next_action": "Once billing replies, check that the revised balance equals the invoice total minus the credit."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The authorised billing team has confirmed the duplicate line.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The billing team has issued a credit note for the confirmed duplicate.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The revised invoice balance reconciles with the invoice total minus the credit.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-22 09:00:00 UTC",
+     "escalated_at": "2026-03-22 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "049"
+     },
+     "context_message_id": "001",
+     "summary": "Two invoice lines for DL-049 match on shipment, service and date: get billing to confirm the duplicate and issue a credit note and revised balance.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "Billing's review is requested but not yet received.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-049.",
+      "source": {
+       "type": "case_card",
+       "id": "049"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Invoice INV-049 has two delivery service lines for DL-049 dated 2026-03-22, each GBP 18.00; the invoice total is GBP 36.00.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The authorised billing team must confirm the duplication and issue a credit note and a revised balance.",
+      "source": {
+       "type": "case_card",
+       "id": "049"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Both lines have the same service key; no separate service is listed.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Mossline Press has not paid either line.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "billing",
+      "purpose": "Have billing review the duplicate line before Mossline Press pays INV-049.",
+      "expected_response": "Billing's review of the duplicate line.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "responsible_actor": "billing",
+      "purpose": "Review INV-049's two GBP 18.00 lines for the same DL-049 delivery service and date and confirm whether the second is a duplicate.",
+      "expected_response": "Billing's finding on the duplicate.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "r2": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "responsible_actor": "billing",
+      "purpose": "If the duplicate is confirmed, issue the authorised credit and the revised invoice balance.",
+      "expected_response": "The credit note reference and the revised amount due.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_verification",
+    "next_step": {
+     "type": "verification",
+     "responsible_actor": "billing",
+     "request_id": "r1",
+     "description": "Wait for billing's review of the two lines."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Business portal"
+     },
+     "billing": {
+      "participants": [
+       "coordinator",
+       "billing"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "client",
+      "event_id": "001",
+      "timestamp": "2026-03-22 09:00:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Business portal",
+      "body": "Inline invoice INV-049: line 1 delivery service DL-049, 2026-03-22, GBP 18.00; line 2 delivery service DL-049, 2026-03-22, GBP 18.00; invoice total GBP 36.00. Both lines have the same service key. No separate service is listed."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-22 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Business portal",
+      "body": "Please ask billing to review the duplicate before we pay this invoice. We have not paid either line."
+     },
+     {
+      "conversation_id": "billing",
+      "event_id": "003",
+      "timestamp": "2026-03-22 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "channel": "Email",
+      "body": "Please review INV-049’s two GBP 18.00 lines for the same DL-049 delivery service and date. If duplication is confirmed, issue the authorised credit and revised invoice balance."
+     }
+    ],
+    "limits": [
+     "Do not present the credit note as cash received; it is an accounting adjustment.",
+     "Do not state a revised balance other than the invoice total minus the credited amount."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "Credit note",
+    "title": "Billing confirms the duplicate and issues CN-049",
+    "timestamp": "2026-03-22 09:50:00 UTC",
+    "actor_id": "billing",
+    "message_id": "004"
+   },
+   "explanation": "Billing confirmed that line 2 repeats line 1, credited GBP 18.00 with CN-049 and stated GBP 18.00 due, which equals GBP 36.00 minus GBP 18.00. The coordination task is done; the revised balance is still unpaid.",
+   "state_after": {
+    "case_id": "049",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get billing's review of the matching invoice lines and, if the duplicate is confirmed, the credit note and revised balance."
+     },
+     "customer": {
+      "name": "Vera Senn",
+      "organization": "Mossline Press",
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Raise the matching invoice lines for review on behalf of Mossline Press."
+     },
+     "billing": {
+      "name": "Business billing",
+      "organization": "Plover Arc Logistics",
+      "role": "billing",
+      "is_us": false,
+      "responsibility": "Review the two matching lines and, if the duplicate is confirmed, issue the credit note and revised balance."
+     }
+    },
+    "goal": "Get the authorised billing team to confirm the duplication on the DL-049 invoice and issue a credit note and a revised balance.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Coordination task complete: billing confirmed the duplicate, issued CN-049 and stated a revised balance that reconciles. A message passing the result to Vera is not recorded in the history. Payment of the balance is not part of this case's success criteria."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The authorised billing team has confirmed the duplicate line.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The billing team has issued a credit note for the confirmed duplicate.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c3",
+      "description": "The revised invoice balance reconciles with the invoice total minus the credit.",
+      "status": "met",
+      "evidence_event_ids": [
+       "001",
+       "004"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-22 09:00:00 UTC",
+     "escalated_at": "2026-03-22 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "049"
+     },
+     "context_message_id": "001",
+     "summary": "Two invoice lines for DL-049 match on shipment, service and date: get billing to confirm the duplicate and issue a credit note and revised balance.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-049.",
+      "source": {
+       "type": "case_card",
+       "id": "049"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Invoice INV-049 has two delivery service lines for DL-049 dated 2026-03-22, each GBP 18.00; the invoice total is GBP 36.00.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "The authorised billing team must confirm the duplication and issue a credit note and a revised balance.",
+      "source": {
+       "type": "case_card",
+       "id": "049"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Both lines have the same service key; no separate service is listed.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Mossline Press has not paid either line.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Billing confirmed the duplicate: line 2 repeats line 1 and is not a second service.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Per the attached credit and revised statement, credit note CN-049 credits GBP 18.00 against INV-049.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The revised amount due on INV-049 is GBP 18.00.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "No money has been refunded because nothing was paid.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "billing",
+      "purpose": "Have billing review the duplicate line before Mossline Press pays INV-049.",
+      "expected_response": "Billing's review of the duplicate line.",
+      "status": "completed",
+      "response": "Billing confirmed the duplicate, issued CN-049 for GBP 18.00 and revised the amount due to GBP 18.00.",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r1": {
+      "type": "verification",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "responsible_actor": "billing",
+      "purpose": "Review INV-049's two GBP 18.00 lines for the same DL-049 delivery service and date and confirm whether the second is a duplicate.",
+      "expected_response": "Billing's finding on the duplicate.",
+      "status": "answered",
+      "response": "Duplicate confirmed: line 2 repeats line 1, not a second service.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     },
+     "r2": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "responsible_actor": "billing",
+      "purpose": "If the duplicate is confirmed, issue the authorised credit and the revised invoice balance.",
+      "expected_response": "The credit note reference and the revised amount due.",
+      "status": "completed",
+      "response": "CN-049 credits GBP 18.00 against INV-049; revised amount due GBP 18.00.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "Billing confirmed the duplicate line on INV-049 and issued credit note CN-049 for GBP 18.00; revised amount due GBP 18.00 (GBP 36.00 minus GBP 18.00).",
+     "confirmed_by": "billing",
+     "evidence_event_ids": [
+      "004"
+     ],
+     "remaining_work": "GBP 18.00 remains due on INV-049. CN-049 is an accounting adjustment, not cash received; nothing was refunded because nothing was paid. Passing the result to Vera is not recorded in the history."
+    },
+    "annotations": [],
+    "conversations": {
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Business portal"
+     },
+     "billing": {
+      "participants": [
+       "coordinator",
+       "billing"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "client",
+      "event_id": "001",
+      "timestamp": "2026-03-22 09:00:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Business portal",
+      "body": "Inline invoice INV-049: line 1 delivery service DL-049, 2026-03-22, GBP 18.00; line 2 delivery service DL-049, 2026-03-22, GBP 18.00; invoice total GBP 36.00. Both lines have the same service key. No separate service is listed."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-22 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Business portal",
+      "body": "Please ask billing to review the duplicate before we pay this invoice. We have not paid either line."
+     },
+     {
+      "conversation_id": "billing",
+      "event_id": "003",
+      "timestamp": "2026-03-22 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "channel": "Email",
+      "body": "Please review INV-049’s two GBP 18.00 lines for the same DL-049 delivery service and date. If duplication is confirmed, issue the authorised credit and revised invoice balance."
+     },
+     {
+      "conversation_id": "billing",
+      "event_id": "004",
+      "timestamp": "2026-03-22 09:50:00 UTC",
+      "from_actor": "billing",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Duplicate confirmed: line 2 repeats line 1, not a second service. [Credit and revised statement](attachments/credit-statement.pdf): CN-049 credits GBP 18.00 against INV-049; revised amount due GBP 18.00. No money has been refunded because nothing was paid."
+     }
+    ],
+    "limits": [
+     "Do not present the credit note as cash received; it is an accounting adjustment.",
+     "Do not state a revised balance other than the invoice total minus the credited amount."
+    ],
+    "attachments": [
+     {
+      "name": "credit-statement.pdf",
+      "type": "application/pdf",
+      "url": "https://github.com/DwellyOrg/HackatonPublicCases/blob/9bcdca585955dfb930005ed742572606e68f5688/Delivery%20%26%20Logistics/049/attachments/credit-statement.pdf"
+     }
+    ]
+   }
+  }
+ ]
+}

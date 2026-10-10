@@ -1,0 +1,1113 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "027 · Another customer's parcel",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Tovin Esk, the reporting customer. From the case card: the customer holds a parcel that is not theirs, carrier staff will collect it using an internal label match, and the customer need not open it or deliver it elsewhere.",
+ "initial_state": {
+  "case_id": "027",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "customer",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Get the carrier to collect the misdelivered parcel and confirm the collection, keeping the customer's own order separate."
+   },
+   "customer": {
+    "name": "Tovin Esk",
+    "organization": null,
+    "role": "customer",
+    "is_us": false,
+    "responsibility": "Report the parcel left with them by mistake and hand it over at collection."
+   }
+  },
+  "goal": "Get the carrier to collect the misdelivered parcel from the reporting customer and confirm the collection, without asking the customer to open or forward it.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The carrier has confirmed collection of the misdelivered parcel from the reporting customer.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The carrier has confirmed the parcel is back in carrier custody.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The customer holds a parcel that is not theirs; no collection is arranged.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns task reference MD-027.",
+    "source": {
+     "type": "case_card",
+     "id": "027"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "A customer holds a parcel that is not theirs.",
+    "source": {
+     "type": "case_card",
+     "id": "027"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "Carrier staff will collect the parcel using an internal label match; the customer need not open it or deliver it elsewhere.",
+    "source": {
+     "type": "case_card",
+     "id": "027"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Do not treat collection of the wrong parcel as fulfilling the reporting customer's own order."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Carrier record",
+    "title": "Carrier matches the wrong parcel to WP-027",
+    "timestamp": "2026-02-28 09:00:00 UTC",
+    "actor_id": "misdelivery_desk",
+    "message_id": "001"
+   },
+   "explanation": "The carrier has matched the parcel, verified the customer and the collection address, and allowed collection from the customer. The other recipient's address must stay out of the thread.",
+   "state_after": {
+    "case_id": "027",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Get the carrier to collect the misdelivered parcel and confirm the collection, keeping the customer's own order separate."
+     },
+     "customer": {
+      "name": "Tovin Esk",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Report the parcel left with them by mistake and hand it over at collection."
+     },
+     "misdelivery_desk": {
+      "name": "Misdelivery desk",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Match the wrong parcel to its internal label and verify the reporting customer and collection address."
+     }
+    },
+    "goal": "Get the carrier to collect the misdelivered parcel from the reporting customer and confirm the collection, without asking the customer to open or forward it.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Arrange carrier collection of WP-027 from the reporting customer."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The carrier has confirmed collection of the misdelivered parcel from the reporting customer.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The carrier has confirmed the parcel is back in carrier custody.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-28 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "027"
+     },
+     "context_message_id": "001",
+     "summary": "Tovin Esk holds someone else's parcel: arrange carrier collection under MD-027.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The parcel is still with the reporting customer; no collection is arranged.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns task reference MD-027.",
+      "source": {
+       "type": "case_card",
+       "id": "027"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "A customer holds a parcel that is not theirs.",
+      "source": {
+       "type": "case_card",
+       "id": "027"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Carrier staff will collect the parcel using an internal label match; the customer need not open it or deliver it elsewhere.",
+      "source": {
+       "type": "case_card",
+       "id": "027"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Carrier intake record MD-027 matches the wrong parcel to internal label reference WP-027.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The reporting customer, Tovin Esk, and the collection address are verified in the carrier intake process.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The other recipient's address must not be copied into this thread.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Collection is allowed from the reporting customer.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {},
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": null,
+     "description": "Arrange carrier collection of WP-027 from the reporting customer."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "misdelivery": {
+      "participants": [
+       "coordinator",
+       "misdelivery_desk"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "misdelivery",
+      "event_id": "001",
+      "timestamp": "2026-02-28 09:00:00 UTC",
+      "from_actor": "misdelivery_desk",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Inline minimised carrier intake record MD-027: wrong parcel matched to internal label reference WP-027; reporting customer Tovin Esk and collection address verified in the carrier intake process. Do not copy the other recipient’s address into this thread. Collection is allowed from the reporting customer."
+     }
+    ],
+    "limits": [
+     "Do not treat collection of the wrong parcel as fulfilling the reporting customer's own order."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client request",
+    "title": "Tovin asks for collection of the parcel",
+    "timestamp": "2026-02-28 09:10:00 UTC",
+    "actor_id": "customer",
+    "message_id": "002"
+   },
+   "explanation": "Tovin confirms the parcel is unopened and asks for collection; their own order is a separate problem. We ask misdelivery collections to collect it and to keep Tovin's own order on a separate track.",
+   "state_after": {
+    "case_id": "027",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Get the carrier to collect the misdelivered parcel and confirm the collection, keeping the customer's own order separate."
+     },
+     "customer": {
+      "name": "Tovin Esk",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Report the parcel left with them by mistake and hand it over at collection."
+     },
+     "misdelivery_desk": {
+      "name": "Misdelivery desk",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Match the wrong parcel to its internal label and verify the reporting customer and collection address."
+     },
+     "collections": {
+      "name": "Misdelivery collections",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Collect the wrong parcel from the reporting customer and record the collection."
+     }
+    },
+    "goal": "Get the carrier to collect the misdelivered parcel from the reporting customer and confirm the collection, without asking the customer to open or forward it.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Email misdelivery collections to collect WP-027 from Tovin and to track Tovin's own order separately."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The carrier has confirmed collection of the misdelivered parcel from the reporting customer.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The carrier has confirmed the parcel is back in carrier custody.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-28 09:00:00 UTC",
+     "escalated_at": "2026-02-28 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "027"
+     },
+     "context_message_id": "001",
+     "summary": "Tovin Esk holds someone else's parcel: arrange carrier collection under MD-027.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The parcel is still with the reporting customer; no collection is arranged.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns task reference MD-027.",
+      "source": {
+       "type": "case_card",
+       "id": "027"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "A customer holds a parcel that is not theirs.",
+      "source": {
+       "type": "case_card",
+       "id": "027"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Carrier staff will collect the parcel using an internal label match; the customer need not open it or deliver it elsewhere.",
+      "source": {
+       "type": "case_card",
+       "id": "027"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Carrier intake record MD-027 matches the wrong parcel to internal label reference WP-027.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The reporting customer, Tovin Esk, and the collection address are verified in the carrier intake process.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The other recipient's address must not be copied into this thread.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Collection is allowed from the reporting customer.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The customer says the courier left someone else's parcel and it is unopened.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "The customer's own order has not arrived.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "collections",
+      "purpose": "Arrange collection of the parcel the courier left by mistake.",
+      "expected_response": "Collection of the parcel.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "collections",
+      "responsible_actor": "collections",
+      "purpose": "Collect sealed parcel WP-027 from Tovin using the verified details in MD-027, without asking Tovin to open or forward it.",
+      "expected_response": "Confirmation of collection.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r2": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "collections",
+      "responsible_actor": "collections",
+      "purpose": "Keep Tovin's own outstanding order on a separate track from the collection.",
+      "expected_response": "Confirmation that the customer's own order is tracked separately.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "collections",
+     "request_id": "r1",
+     "description": "Ask misdelivery collections to collect WP-027 from Tovin."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "misdelivery": {
+      "participants": [
+       "coordinator",
+       "misdelivery_desk"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "misdelivery",
+      "event_id": "001",
+      "timestamp": "2026-02-28 09:00:00 UTC",
+      "from_actor": "misdelivery_desk",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Inline minimised carrier intake record MD-027: wrong parcel matched to internal label reference WP-027; reporting customer Tovin Esk and collection address verified in the carrier intake process. Do not copy the other recipient’s address into this thread. Collection is allowed from the reporting customer."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-28 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The courier left someone else’s parcel. It is unopened. Can you arrange collection? My own order has not arrived."
+     }
+    ],
+    "limits": [
+     "Do not treat collection of the wrong parcel as fulfilling the reporting customer's own order."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our request",
+    "title": "We ask the carrier to collect WP-027",
+    "timestamp": "2026-02-28 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We asked for collection using MD-027's verified address and saved contact, ruled out opening or forwarding by Tovin and asked for Tovin's own order to be tracked separately. Now we wait for misdelivery collections.",
+   "state_after": {
+    "case_id": "027",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Get the carrier to collect the misdelivered parcel and confirm the collection, keeping the customer's own order separate."
+     },
+     "customer": {
+      "name": "Tovin Esk",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Report the parcel left with them by mistake and hand it over at collection."
+     },
+     "misdelivery_desk": {
+      "name": "Misdelivery desk",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Match the wrong parcel to its internal label and verify the reporting customer and collection address."
+     },
+     "collections": {
+      "name": "Misdelivery collections",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Collect the wrong parcel from the reporting customer and record the collection."
+     }
+    },
+    "goal": "Get the carrier to collect the misdelivered parcel from the reporting customer and confirm the collection, without asking the customer to open or forward it.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "collections",
+       "request_id": "r1",
+       "expected": "Confirmation that WP-027 is collected"
+      },
+      {
+       "actor_id": "collections",
+       "request_id": "r2",
+       "expected": "Confirmation that Tovin's own order is tracked separately"
+      }
+     ],
+     "next_action": "Once misdelivery collections replies, record the collection."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The carrier has confirmed collection of the misdelivered parcel from the reporting customer.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The carrier has confirmed the parcel is back in carrier custody.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-28 09:00:00 UTC",
+     "escalated_at": "2026-02-28 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "027"
+     },
+     "context_message_id": "001",
+     "summary": "Tovin Esk holds someone else's parcel: arrange carrier collection under MD-027.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The parcel has not been collected yet.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns task reference MD-027.",
+      "source": {
+       "type": "case_card",
+       "id": "027"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "A customer holds a parcel that is not theirs.",
+      "source": {
+       "type": "case_card",
+       "id": "027"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Carrier staff will collect the parcel using an internal label match; the customer need not open it or deliver it elsewhere.",
+      "source": {
+       "type": "case_card",
+       "id": "027"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Carrier intake record MD-027 matches the wrong parcel to internal label reference WP-027.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The reporting customer, Tovin Esk, and the collection address are verified in the carrier intake process.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The other recipient's address must not be copied into this thread.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Collection is allowed from the reporting customer.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The customer says the courier left someone else's parcel and it is unopened.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "The customer's own order has not arrived.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "collections",
+      "purpose": "Arrange collection of the parcel the courier left by mistake.",
+      "expected_response": "Collection of the parcel.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "collections",
+      "responsible_actor": "collections",
+      "purpose": "Collect sealed parcel WP-027 from Tovin using MD-027's verified address and saved contact, without asking Tovin to open or forward it.",
+      "expected_response": "Confirmation of collection.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     },
+     "r2": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "collections",
+      "responsible_actor": "collections",
+      "purpose": "Keep Tovin's own outstanding order on a separate track from the collection.",
+      "expected_response": "Confirmation that the customer's own order is tracked separately.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_confirmation",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "collections",
+     "request_id": "r1",
+     "description": "Wait for misdelivery collections to collect WP-027."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "misdelivery": {
+      "participants": [
+       "coordinator",
+       "misdelivery_desk"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     },
+     "collections": {
+      "participants": [
+       "coordinator",
+       "collections"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "misdelivery",
+      "event_id": "001",
+      "timestamp": "2026-02-28 09:00:00 UTC",
+      "from_actor": "misdelivery_desk",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Inline minimised carrier intake record MD-027: wrong parcel matched to internal label reference WP-027; reporting customer Tovin Esk and collection address verified in the carrier intake process. Do not copy the other recipient’s address into this thread. Collection is allowed from the reporting customer."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-28 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The courier left someone else’s parcel. It is unopened. Can you arrange collection? My own order has not arrived."
+     },
+     {
+      "conversation_id": "collections",
+      "event_id": "003",
+      "timestamp": "2026-02-28 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "collections",
+      "channel": "Email",
+      "body": "Please collect sealed parcel WP-027 from Tovin using MD-027’s verified address and saved contact. Do not ask Tovin to open or forward it. Track their own outstanding order separately."
+     }
+    ],
+    "limits": [
+     "Do not treat collection of the wrong parcel as fulfilling the reporting customer's own order."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "Confirmation",
+    "title": "Carrier collects WP-027 from Tovin",
+    "timestamp": "2026-03-01 11:45:00 UTC",
+    "actor_id": "collections",
+    "message_id": "004"
+   },
+   "explanation": "Misdelivery collections collected the parcel, recorded receipt COL-027 and holds it again, so the coordination task is done. Tovin's own order is still under a separate trace.",
+   "state_after": {
+    "case_id": "027",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "customer",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Get the carrier to collect the misdelivered parcel and confirm the collection, keeping the customer's own order separate."
+     },
+     "customer": {
+      "name": "Tovin Esk",
+      "organization": null,
+      "role": "customer",
+      "is_us": false,
+      "responsibility": "Report the parcel left with them by mistake and hand it over at collection."
+     },
+     "misdelivery_desk": {
+      "name": "Misdelivery desk",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Match the wrong parcel to its internal label and verify the reporting customer and collection address."
+     },
+     "collections": {
+      "name": "Misdelivery collections",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Collect the wrong parcel from the reporting customer and record the collection."
+     }
+    },
+    "goal": "Get the carrier to collect the misdelivered parcel from the reporting customer and confirm the collection, without asking the customer to open or forward it.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Coordination task complete: the carrier collected WP-027 and holds it again. The customer's own order is not part of this case's success criteria."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The carrier has confirmed collection of the misdelivered parcel from the reporting customer.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The carrier has confirmed the parcel is back in carrier custody.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-28 09:00:00 UTC",
+     "escalated_at": "2026-02-28 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "027"
+     },
+     "context_message_id": "001",
+     "summary": "Tovin Esk holds someone else's parcel: arrange carrier collection under MD-027.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns task reference MD-027.",
+      "source": {
+       "type": "case_card",
+       "id": "027"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "A customer holds a parcel that is not theirs.",
+      "source": {
+       "type": "case_card",
+       "id": "027"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Carrier staff will collect the parcel using an internal label match; the customer need not open it or deliver it elsewhere.",
+      "source": {
+       "type": "case_card",
+       "id": "027"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Carrier intake record MD-027 matches the wrong parcel to internal label reference WP-027.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The reporting customer, Tovin Esk, and the collection address are verified in the carrier intake process.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "The other recipient's address must not be copied into this thread.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "Collection is allowed from the reporting customer.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "The customer says the courier left someone else's parcel and it is unopened.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "The customer's own order has not arrived.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f10",
+      "text": "WP-027 was collected from Tovin at 11:35 UTC on 2026-03-01.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f11",
+      "text": "Collection receipt COL-027 is recorded in MD-027.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f12",
+      "text": "WP-027 is back in carrier custody.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f13",
+      "text": "The customer's own delivery remains under separate trace.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "responsible_actor": "collections",
+      "purpose": "Arrange collection of the parcel the courier left by mistake.",
+      "expected_response": "Collection of the parcel.",
+      "status": "completed",
+      "response": "WP-027 collected from Tovin at 11:35 UTC on 2026-03-01.",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "collections",
+      "responsible_actor": "collections",
+      "purpose": "Collect sealed parcel WP-027 from Tovin using MD-027's verified address and saved contact, without asking Tovin to open or forward it.",
+      "expected_response": "Confirmation of collection.",
+      "status": "completed",
+      "response": "Collected at 11:35 UTC on 2026-03-01; receipt COL-027 recorded in MD-027; back in carrier custody.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     },
+     "r2": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "collections",
+      "responsible_actor": "collections",
+      "purpose": "Keep Tovin's own outstanding order on a separate track from the collection.",
+      "expected_response": "Confirmation that the customer's own order is tracked separately.",
+      "status": "completed",
+      "response": "Tovin's own delivery remains under separate trace.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "WP-027 collected from Tovin at 11:35 UTC on 2026-03-01 and back in carrier custody; receipt COL-027 recorded in MD-027.",
+     "confirmed_by": "collections",
+     "evidence_event_ids": [
+      "004"
+     ],
+     "remaining_work": "Tovin's own order has not arrived and remains under a separate trace; collecting the wrong parcel does not fulfil it."
+    },
+    "annotations": [],
+    "conversations": {
+     "misdelivery": {
+      "participants": [
+       "coordinator",
+       "misdelivery_desk"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "customer"
+      ],
+      "channel": "Customer portal"
+     },
+     "collections": {
+      "participants": [
+       "coordinator",
+       "collections"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "misdelivery",
+      "event_id": "001",
+      "timestamp": "2026-02-28 09:00:00 UTC",
+      "from_actor": "misdelivery_desk",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Inline minimised carrier intake record MD-027: wrong parcel matched to internal label reference WP-027; reporting customer Tovin Esk and collection address verified in the carrier intake process. Do not copy the other recipient’s address into this thread. Collection is allowed from the reporting customer."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-28 09:10:00 UTC",
+      "from_actor": "customer",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "The courier left someone else’s parcel. It is unopened. Can you arrange collection? My own order has not arrived."
+     },
+     {
+      "conversation_id": "collections",
+      "event_id": "003",
+      "timestamp": "2026-02-28 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "collections",
+      "channel": "Email",
+      "body": "Please collect sealed parcel WP-027 from Tovin using MD-027’s verified address and saved contact. Do not ask Tovin to open or forward it. Track their own outstanding order separately."
+     },
+     {
+      "conversation_id": "collections",
+      "event_id": "004",
+      "timestamp": "2026-03-01 11:45:00 UTC",
+      "from_actor": "collections",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "WP-027 was collected from Tovin at 11:35 UTC on 2026-03-01; receipt COL-027 is recorded in MD-027. It is back in carrier custody. Tovin’s own delivery remains under separate trace."
+     }
+    ],
+    "limits": [
+     "Do not treat collection of the wrong parcel as fulfilling the reporting customer's own order."
+    ]
+   }
+  }
+ ]
+}

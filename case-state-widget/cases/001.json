@@ -569,7 +569,7 @@
     "actor_id": "coordinator",
     "message_id": "003"
    },
-   "explanation": "Окна и отсутствие доплаты известны из письма диспетчера 001 (09:00). Мы передаём эти варианты Vessa и спрашиваем, какой забронировать. Бронирование ещё не выполнено; ждём выбор клиента.",
+   "explanation": "We named only the slots dispatch confirmed and promised no booking before she chooses. Now we wait for Vessa's reply.",
    "state_after": {
     "case_id": "001",
     "our_actor_id": "coordinator",
@@ -777,8 +777,8 @@
      {
       "id": "dispatch-options-source",
       "kind": "context",
-      "title": "Откуда взялись окна · сообщение 001",
-      "text": "Оба окна без доплаты прислал диспетчер в сообщении 001 (09:00), до обращения клиента. Здесь мы передаём готовые варианты; отдельного запроса диспетчеру между 002 и 003 в истории нет.",
+      "title": "Where the slots come from · message 001",
+      "text": "Dispatch sent both no-charge slots in message 001 (09:00), before the client wrote. Here we pass on those ready options; the history has no separate request to dispatch between 002 and 003.",
       "before_message_id": "003",
       "source_event_ids": [
        "001"
@@ -1073,8 +1073,8 @@
      {
       "id": "dispatch-options-source",
       "kind": "context",
-      "title": "Откуда взялись окна · сообщение 001",
-      "text": "Оба окна без доплаты прислал диспетчер в сообщении 001 (09:00), до обращения клиента. Здесь мы передаём готовые варианты; отдельного запроса диспетчеру между 002 и 003 в истории нет.",
+      "title": "Where the slots come from · message 001",
+      "text": "Dispatch sent both no-charge slots in message 001 (09:00), before the client wrote. Here we pass on those ready options; the history has no separate request to dispatch between 002 and 003.",
       "before_message_id": "003",
       "source_event_ids": [
        "001"
@@ -1083,11 +1083,17 @@
      {
       "id": "missing-booking-request",
       "kind": "gap",
-      "title": "Следующее действие · мы → диспетчер",
-      "text": "Клиент выбрал окно 3 февраля 15:00–18:00 UTC. Теперь мы должны передать выбор диспетчеру и запросить бронирование. После отправки агент ждёт его подтверждения. На этом шаге отправка ещё не зафиксирована в истории; выбор клиента сам по себе не меняет бронь.",
+      "title": "Next action · us → dispatch",
+      "text": "Vessa chose the 3 February 15:00–18:00 UTC slot. We now have to pass her choice to dispatch and request the booking; after sending, the agent waits for dispatch's confirmation. At this step the sending is not yet recorded in the history, and the client's choice by itself does not change the booking.",
       "source_event_ids": [
        "004"
-      ]
+      ],
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "dispatch",
+       "type": "action",
+       "purpose": "Book the slot Vessa chose and remove the morning booking."
+      }
      }
     ],
     "conversations": {
@@ -1160,7 +1166,7 @@
     "actor_id": "dispatch",
     "message_id": "005"
    },
-   "explanation": "Диспетчер подтвердил новое окно и снятие утренней брони. Его ответ 005 ссылается на наш запрос с выбором Vessa: отдельное сообщение с этим запросом в истории отсутствует. Координация завершена; сама доставка ещё не выполнена.",
+   "explanation": "Dispatch confirmed the new slot and removed the morning one, so the coordination task can be closed. The delivery itself has not happened yet.",
    "state_after": {
     "case_id": "001",
     "our_actor_id": "coordinator",
@@ -1403,8 +1409,8 @@
      {
       "id": "dispatch-options-source",
       "kind": "context",
-      "title": "Откуда взялись окна · сообщение 001",
-      "text": "Оба окна без доплаты прислал диспетчер в сообщении 001 (09:00), до обращения клиента. Здесь мы передаём готовые варианты; отдельного запроса диспетчеру между 002 и 003 в истории нет.",
+      "title": "Where the slots come from · message 001",
+      "text": "Dispatch sent both no-charge slots in message 001 (09:00), before the client wrote. Here we pass on those ready options; the history has no separate request to dispatch between 002 and 003.",
       "before_message_id": "003",
       "source_event_ids": [
        "001"
@@ -1413,12 +1419,18 @@
      {
       "id": "missing-booking-request",
       "kind": "gap",
-      "title": "Между 004 и 005 · наш запрос диспетчеру",
-      "text": "Выбор клиента → наш запрос бронирования → ожидание диспетчера → подтверждение 005. Диспетчер ссылается на наш запрос в ответе 005. Сам запрос и ожидание отдельно не записаны: точные время и текст неизвестны.",
+      "title": "Between 004 and 005 · our booking request to dispatch",
+      "text": "Client's choice → our booking request → waiting on dispatch → confirmation 005. Dispatch refers to our request in 005 (\"Following your booking request with Vessa’s selection\"), but the request and the wait are not recorded separately: their exact time and wording are unknown.",
+      "before_message_id": "005",
       "source_event_ids": [
        "005"
       ],
-      "before_message_id": "005"
+      "implied_action": {
+       "from_actor": "coordinator",
+       "to_actor": "dispatch",
+       "type": "action",
+       "purpose": "Book the slot Vessa chose and remove the morning booking."
+      }
      }
     ],
     "conversations": {

@@ -1,0 +1,1348 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "047 · Explaining a carrier import charge",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Teren Osk, the recipient. From the case card: the carrier issued an import charge on DL-047 that the recipient does not understand; billing must explain the lines, and the desk cannot waive them or invent tax rules.",
+ "initial_state": {
+  "case_id": "047",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "recipient",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: get billing's itemised explanation of the charge and pass it to the recipient without implying payment or waiver."
+   },
+   "recipient": {
+    "name": "Teren Osk",
+    "organization": null,
+    "role": "recipient",
+    "is_us": false,
+    "responsibility": "Ask for an explanation of the import charge before deciding what to do."
+   }
+  },
+  "goal": "Get the carrier's billing team to supply an itemised breakdown of the import charge and pass it to the recipient, without implying payment or waiver.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "Billing has supplied an itemised explanation of the charge lines, including the total.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The breakdown has been passed to the recipient.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The recipient does not understand the import charge, and the desk has no itemisation.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-047.",
+    "source": {
+     "type": "case_card",
+     "id": "047"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The carrier issued an import charge that the recipient does not understand.",
+    "source": {
+     "type": "case_card",
+     "id": "047"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "Billing must explain the charge lines; the desk cannot waive them or invent tax rules.",
+    "source": {
+     "type": "case_card",
+     "id": "047"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Do not invent statutory rates.",
+   "Do not send payment links.",
+   "Do not treat the explanation as settlement or release of goods."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Carrier email",
+    "title": "Import support reports the charge total",
+    "timestamp": "2026-03-20 09:00:00 UTC",
+    "actor_id": "import_support",
+    "message_id": "001"
+   },
+   "explanation": "We know the total of charge notice IC-047, but the itemisation is held by the carrier's billing team. Only billing can explain the lines, so the next step is a request to billing.",
+   "state_after": {
+    "case_id": "047",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get billing's itemised explanation of the charge and pass it to the recipient without implying payment or waiver."
+     },
+     "recipient": {
+      "name": "Teren Osk",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask for an explanation of the import charge before deciding what to do."
+     },
+     "import_support": {
+      "name": "Import support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the charge notice total and where the itemisation is held."
+     },
+     "billing": {
+      "name": "Import billing",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Explain the charge lines and the total for this charge notice."
+     }
+    },
+    "goal": "Get the carrier's billing team to supply an itemised breakdown of the import charge and pass it to the recipient, without implying payment or waiver.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask the carrier's billing team for the itemised explanation of IC-047."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "Billing has supplied an itemised explanation of the charge lines, including the total.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The breakdown has been passed to the recipient.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-20 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "047"
+     },
+     "context_message_id": "001",
+     "summary": "Explain the carrier-issued import charge on DL-047 to the recipient.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The desk has only the IC-047 total; the itemisation is held by billing.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-047.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The carrier issued an import charge that the recipient does not understand.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Billing must explain the charge lines; the desk cannot waive them or invent tax rules.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Charge notice IC-047 for DL-047 totals GBP 32.00.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The itemisation is held by the carrier's billing team.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "This is a fictional operator notice; payment is not confirmed.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "responsible_actor": "billing",
+      "purpose": "Get the itemised explanation of IC-047 for DL-047, including the total.",
+      "expected_response": "An itemised breakdown of IC-047 with the total.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "001"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": {
+     "type": "information",
+     "responsible_actor": "billing",
+     "request_id": "r1",
+     "description": "Provide the itemised explanation of IC-047, including the total."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "import_support": {
+      "participants": [
+       "coordinator",
+       "import_support"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "import_support",
+      "event_id": "001",
+      "timestamp": "2026-03-20 09:00:00 UTC",
+      "from_actor": "import_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Charge notice IC-047 for DL-047 totals GBP 32.00. The itemisation is held by our billing team. This is a fictional operator notice; payment is not confirmed."
+     }
+    ],
+    "limits": [
+     "Do not invent statutory rates.",
+     "Do not send payment links.",
+     "Do not treat the explanation as settlement or release of goods."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client request",
+    "title": "Teren asks what the GBP 32.00 covers",
+    "timestamp": "2026-03-20 09:10:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "002"
+   },
+   "explanation": "Teren wants to know which part of the charge is handling and which is the import assessment before deciding what to do. Only billing holds the itemisation, so we ask billing for information, not for payment authorisation.",
+   "state_after": {
+    "case_id": "047",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get billing's itemised explanation of the charge and pass it to the recipient without implying payment or waiver."
+     },
+     "recipient": {
+      "name": "Teren Osk",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask for an explanation of the import charge before deciding what to do."
+     },
+     "import_support": {
+      "name": "Import support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the charge notice total and where the itemisation is held."
+     },
+     "billing": {
+      "name": "Import billing",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Explain the charge lines and the total for this charge notice."
+     }
+    },
+    "goal": "Get the carrier's billing team to supply an itemised breakdown of the import charge and pass it to the recipient, without implying payment or waiver.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask import billing for the itemised explanation of IC-047, including the total, as a request for information, not payment authorisation."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "Billing has supplied an itemised explanation of the charge lines, including the total.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The breakdown has been passed to the recipient.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-20 09:00:00 UTC",
+     "escalated_at": "2026-03-20 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "047"
+     },
+     "context_message_id": "001",
+     "summary": "Explain the carrier-issued import charge on DL-047 to the recipient.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The recipient does not understand the charge; the itemisation is held by billing.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-047.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The carrier issued an import charge that the recipient does not understand.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Billing must explain the charge lines; the desk cannot waive them or invent tax rules.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Charge notice IC-047 for DL-047 totals GBP 32.00.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The itemisation is held by the carrier's billing team.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "This is a fictional operator notice; payment is not confirmed.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient asks for the GBP 32.00 charge to be explained before deciding what to do, and does not understand which part is handling and which is the import assessment.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "responsible_actor": "billing",
+      "purpose": "Get the itemised explanation of IC-047 for DL-047, including the total.",
+      "expected_response": "An itemised breakdown of IC-047 with the total.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "001"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "billing",
+      "purpose": "Explain the GBP 32.00 charge: which part is handling and which part is the import assessment.",
+      "expected_response": "A breakdown of the charge into handling and import assessment.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "information",
+     "responsible_actor": "billing",
+     "request_id": "r1",
+     "description": "Provide the itemised explanation of IC-047, including the total."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "charge-context",
+      "kind": "context",
+      "title": "What Teren knew before the message",
+      "text": "Teren refers to a GBP 32.00 charge, so Teren already knows the charge total. How Teren was notified of it is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "import_support": {
+      "participants": [
+       "coordinator",
+       "import_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "import_support",
+      "event_id": "001",
+      "timestamp": "2026-03-20 09:00:00 UTC",
+      "from_actor": "import_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Charge notice IC-047 for DL-047 totals GBP 32.00. The itemisation is held by our billing team. This is a fictional operator notice; payment is not confirmed."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-20 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Please explain the GBP 32.00 charge before I decide what to do. I do not understand which part is handling and which part is the import assessment."
+     }
+    ],
+    "limits": [
+     "Do not invent statutory rates.",
+     "Do not send payment links.",
+     "Do not treat the explanation as settlement or release of goods."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our request",
+    "title": "We ask billing for the itemisation",
+    "timestamp": "2026-03-20 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We asked billing for the itemised explanation of IC-047 with the total, through Teren's verified order thread, and stated that this is not payment authorisation. Now we wait for billing.",
+   "state_after": {
+    "case_id": "047",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get billing's itemised explanation of the charge and pass it to the recipient without implying payment or waiver."
+     },
+     "recipient": {
+      "name": "Teren Osk",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask for an explanation of the import charge before deciding what to do."
+     },
+     "import_support": {
+      "name": "Import support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the charge notice total and where the itemisation is held."
+     },
+     "billing": {
+      "name": "Import billing",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Explain the charge lines and the total for this charge notice."
+     }
+    },
+    "goal": "Get the carrier's billing team to supply an itemised breakdown of the import charge and pass it to the recipient, without implying payment or waiver.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "billing",
+       "request_id": "r1",
+       "expected": "Itemised breakdown of IC-047 with the total"
+      }
+     ],
+     "next_action": "Once billing replies, make sure Teren receives the breakdown."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "Billing has supplied an itemised explanation of the charge lines, including the total.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The breakdown has been passed to the recipient.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-20 09:00:00 UTC",
+     "escalated_at": "2026-03-20 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "047"
+     },
+     "context_message_id": "001",
+     "summary": "Explain the carrier-issued import charge on DL-047 to the recipient.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "Billing has not yet supplied the itemisation.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-047.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The carrier issued an import charge that the recipient does not understand.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Billing must explain the charge lines; the desk cannot waive them or invent tax rules.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Charge notice IC-047 for DL-047 totals GBP 32.00.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The itemisation is held by the carrier's billing team.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "This is a fictional operator notice; payment is not confirmed.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient asks for the GBP 32.00 charge to be explained before deciding what to do, and does not understand which part is handling and which is the import assessment.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "responsible_actor": "billing",
+      "purpose": "Provide the itemised explanation for IC-047 / DL-047 through Teren's verified order thread, including the total; this is a request for information, not payment authorisation.",
+      "expected_response": "An itemised breakdown of IC-047 with the total.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "001",
+       "003"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "billing",
+      "purpose": "Explain the GBP 32.00 charge: which part is handling and which part is the import assessment.",
+      "expected_response": "A breakdown of the charge into handling and import assessment.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_response",
+    "next_step": {
+     "type": "information",
+     "responsible_actor": "billing",
+     "request_id": "r1",
+     "description": "Wait for billing's itemised explanation of IC-047."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "charge-context",
+      "kind": "context",
+      "title": "What Teren knew before the message",
+      "text": "Teren refers to a GBP 32.00 charge, so Teren already knows the charge total. How Teren was notified of it is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "import_support": {
+      "participants": [
+       "coordinator",
+       "import_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "billing": {
+      "participants": [
+       "coordinator",
+       "billing"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "import_support",
+      "event_id": "001",
+      "timestamp": "2026-03-20 09:00:00 UTC",
+      "from_actor": "import_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Charge notice IC-047 for DL-047 totals GBP 32.00. The itemisation is held by our billing team. This is a fictional operator notice; payment is not confirmed."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-20 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Please explain the GBP 32.00 charge before I decide what to do. I do not understand which part is handling and which part is the import assessment."
+     },
+     {
+      "conversation_id": "billing",
+      "event_id": "003",
+      "timestamp": "2026-03-20 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "channel": "Email",
+      "body": "Please provide the itemised explanation for IC-047 / DL-047 through Teren’s verified order thread, including the total. This is a request for information, not payment authorisation."
+     }
+    ],
+    "limits": [
+     "Do not invent statutory rates.",
+     "Do not send payment links.",
+     "Do not treat the explanation as settlement or release of goods."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "Billing reply",
+    "title": "Billing itemises IC-047",
+    "timestamp": "2026-03-20 09:50:00 UTC",
+    "actor_id": "billing",
+    "message_id": "004"
+   },
+   "explanation": "Billing split the GBP 32.00 into the import assessment and carrier handling and stated that nothing is paid or waived. The breakdown was addressed to us, so the next step is to pass it to Teren.",
+   "state_after": {
+    "case_id": "047",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get billing's itemised explanation of the charge and pass it to the recipient without implying payment or waiver."
+     },
+     "recipient": {
+      "name": "Teren Osk",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask for an explanation of the import charge before deciding what to do."
+     },
+     "import_support": {
+      "name": "Import support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the charge notice total and where the itemisation is held."
+     },
+     "billing": {
+      "name": "Import billing",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Explain the charge lines and the total for this charge notice."
+     }
+    },
+    "goal": "Get the carrier's billing team to supply an itemised breakdown of the import charge and pass it to the recipient, without implying payment or waiver.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Send Teren the IC-047 breakdown in the customer portal and state that it is not a payment or waiver."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "Billing has supplied an itemised explanation of the charge lines, including the total.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The breakdown has been passed to the recipient.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-20 09:00:00 UTC",
+     "escalated_at": "2026-03-20 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "047"
+     },
+     "context_message_id": "001",
+     "summary": "Explain the carrier-issued import charge on DL-047 to the recipient.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "Teren has not yet been sent the breakdown.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-047.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The carrier issued an import charge that the recipient does not understand.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Billing must explain the charge lines; the desk cannot waive them or invent tax rules.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Charge notice IC-047 for DL-047 totals GBP 32.00.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The itemisation is held by the carrier's billing team.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "No payment or waiver is posted.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient asks for the GBP 32.00 charge to be explained before deciding what to do, and does not understand which part is handling and which is the import assessment.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "IC-047 breakdown: fictional import assessment GBP 20.00; carrier handling GBP 12.00; total GBP 32.00.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "The assessment line is recorded from this shipment's broker notice; it is not advice about general tax rates.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "responsible_actor": "billing",
+      "purpose": "Provide the itemised explanation for IC-047 / DL-047 through Teren's verified order thread, including the total; this is a request for information, not payment authorisation.",
+      "expected_response": "An itemised breakdown of IC-047 with the total.",
+      "status": "answered",
+      "response": "Import assessment GBP 20.00; carrier handling GBP 12.00; total GBP 32.00. No payment or waiver is posted.",
+      "evidence_event_ids": [
+       "001",
+       "003",
+       "004"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "billing",
+      "purpose": "Explain the GBP 32.00 charge: which part is handling and which part is the import assessment.",
+      "expected_response": "A breakdown of the charge into handling and import assessment.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "action_required",
+    "next_step": {
+     "type": "information",
+     "responsible_actor": "coordinator",
+     "request_id": "r0",
+     "description": "Pass billing's breakdown of IC-047 to Teren."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "charge-context",
+      "kind": "context",
+      "title": "What Teren knew before the message",
+      "text": "Teren refers to a GBP 32.00 charge, so Teren already knows the charge total. How Teren was notified of it is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "import_support": {
+      "participants": [
+       "coordinator",
+       "import_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "billing": {
+      "participants": [
+       "coordinator",
+       "billing"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "import_support",
+      "event_id": "001",
+      "timestamp": "2026-03-20 09:00:00 UTC",
+      "from_actor": "import_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Charge notice IC-047 for DL-047 totals GBP 32.00. The itemisation is held by our billing team. This is a fictional operator notice; payment is not confirmed."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-20 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Please explain the GBP 32.00 charge before I decide what to do. I do not understand which part is handling and which part is the import assessment."
+     },
+     {
+      "conversation_id": "billing",
+      "event_id": "003",
+      "timestamp": "2026-03-20 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "channel": "Email",
+      "body": "Please provide the itemised explanation for IC-047 / DL-047 through Teren’s verified order thread, including the total. This is a request for information, not payment authorisation."
+     },
+     {
+      "conversation_id": "billing",
+      "event_id": "004",
+      "timestamp": "2026-03-20 09:50:00 UTC",
+      "from_actor": "billing",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Inline IC-047 breakdown: fictional import assessment GBP 20.00; carrier handling GBP 12.00; total GBP 32.00. The assessment line is recorded from this shipment’s broker notice, not advice about general tax rates. No payment or waiver is posted."
+     }
+    ],
+    "limits": [
+     "Do not invent statutory rates.",
+     "Do not send payment links.",
+     "Do not treat the explanation as settlement or release of goods."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "005",
+    "type": "message_sent",
+    "label": "Our answer",
+    "title": "We send Teren the breakdown",
+    "timestamp": "2026-03-20 10:05:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "005"
+   },
+   "explanation": "We passed billing's breakdown to Teren and said it only explains the notice, with no payment or waiver made. Both criteria are met; the decision on the charge stays with Teren.",
+   "state_after": {
+    "case_id": "047",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: get billing's itemised explanation of the charge and pass it to the recipient without implying payment or waiver."
+     },
+     "recipient": {
+      "name": "Teren Osk",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Ask for an explanation of the import charge before deciding what to do."
+     },
+     "import_support": {
+      "name": "Import support",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Report the charge notice total and where the itemisation is held."
+     },
+     "billing": {
+      "name": "Import billing",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Explain the charge lines and the total for this charge notice."
+     }
+    },
+    "goal": "Get the carrier's billing team to supply an itemised breakdown of the import charge and pass it to the recipient, without implying payment or waiver.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Coordination task complete: billing supplied the IC-047 breakdown and we passed it to Teren. Payment, waiver, settlement and release of goods are not part of this case's success criteria."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "Billing has supplied an itemised explanation of the charge lines, including the total.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The breakdown has been passed to the recipient.",
+      "status": "met",
+      "evidence_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-03-20 09:00:00 UTC",
+     "escalated_at": "2026-03-20 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "047"
+     },
+     "context_message_id": "001",
+     "summary": "Explain the carrier-issued import charge on DL-047 to the recipient.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-047.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The carrier issued an import charge that the recipient does not understand.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "Billing must explain the charge lines; the desk cannot waive them or invent tax rules.",
+      "source": {
+       "type": "case_card",
+       "id": "047"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Charge notice IC-047 for DL-047 totals GBP 32.00.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "The itemisation is held by the carrier's billing team.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "No payment or waiver is posted.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient asks for the GBP 32.00 charge to be explained before deciding what to do, and does not understand which part is handling and which is the import assessment.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "IC-047 breakdown: fictional import assessment GBP 20.00; carrier handling GBP 12.00; total GBP 32.00.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "The assessment line is recorded from this shipment's broker notice; it is not advice about general tax rates.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r1": {
+      "type": "information",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "responsible_actor": "billing",
+      "purpose": "Provide the itemised explanation for IC-047 / DL-047 through Teren's verified order thread, including the total; this is a request for information, not payment authorisation.",
+      "expected_response": "An itemised breakdown of IC-047 with the total.",
+      "status": "answered",
+      "response": "Import assessment GBP 20.00; carrier handling GBP 12.00; total GBP 32.00. No payment or waiver is posted.",
+      "evidence_event_ids": [
+       "001",
+       "003",
+       "004"
+      ]
+     },
+     "r0": {
+      "type": "information",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "billing",
+      "purpose": "Explain the GBP 32.00 charge: which part is handling and which part is the import assessment.",
+      "expected_response": "A breakdown of the charge into handling and import assessment.",
+      "status": "answered",
+      "response": "Billing's breakdown of IC-047: GBP 20.00 import assessment plus GBP 12.00 handling, total GBP 32.00. This explains the notice only; no payment or waiver has been made.",
+      "evidence_event_ids": [
+       "002",
+       "004",
+       "005"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "Billing itemised IC-047 as GBP 20.00 import assessment plus GBP 12.00 handling, total GBP 32.00, and the breakdown was passed to Teren.",
+     "confirmed_by": "billing",
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ],
+     "remaining_work": "Teren's decision on the charge. No payment or waiver has been made; the explanation is not settlement or release of goods."
+    },
+    "annotations": [
+     {
+      "id": "charge-context",
+      "kind": "context",
+      "title": "What Teren knew before the message",
+      "text": "Teren refers to a GBP 32.00 charge, so Teren already knows the charge total. How Teren was notified of it is not recorded in the history.",
+      "before_message_id": "002",
+      "source_event_ids": [
+       "002"
+      ]
+     }
+    ],
+    "conversations": {
+     "import_support": {
+      "participants": [
+       "coordinator",
+       "import_support"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "billing": {
+      "participants": [
+       "coordinator",
+       "billing"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "import_support",
+      "event_id": "001",
+      "timestamp": "2026-03-20 09:00:00 UTC",
+      "from_actor": "import_support",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Charge notice IC-047 for DL-047 totals GBP 32.00. The itemisation is held by our billing team. This is a fictional operator notice; payment is not confirmed."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-03-20 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Please explain the GBP 32.00 charge before I decide what to do. I do not understand which part is handling and which part is the import assessment."
+     },
+     {
+      "conversation_id": "billing",
+      "event_id": "003",
+      "timestamp": "2026-03-20 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "billing",
+      "channel": "Email",
+      "body": "Please provide the itemised explanation for IC-047 / DL-047 through Teren’s verified order thread, including the total. This is a request for information, not payment authorisation."
+     },
+     {
+      "conversation_id": "billing",
+      "event_id": "004",
+      "timestamp": "2026-03-20 09:50:00 UTC",
+      "from_actor": "billing",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Inline IC-047 breakdown: fictional import assessment GBP 20.00; carrier handling GBP 12.00; total GBP 32.00. The assessment line is recorded from this shipment’s broker notice, not advice about general tax rates. No payment or waiver is posted."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "005",
+      "timestamp": "2026-03-20 10:05:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Customer portal",
+      "body": "Billing supplied IC-047’s breakdown: GBP 20.00 import assessment plus GBP 12.00 handling, total GBP 32.00. This explains the notice only; no payment or waiver has been made."
+     }
+    ],
+    "limits": [
+     "Do not invent statutory rates.",
+     "Do not send payment links.",
+     "Do not treat the explanation as settlement or release of goods."
+    ]
+   }
+  }
+ ]
+}

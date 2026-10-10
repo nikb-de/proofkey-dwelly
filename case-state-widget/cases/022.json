@@ -1,0 +1,1032 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "022 · Broken lamp replacement",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Remi Dask. From the case card: the merchant has already reviewed its inline damage-inspection record for DL-022, and the next action is a replacement request to the party authorised to approve it.",
+ "initial_state": {
+  "case_id": "022",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "recipient",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: request the replacement the recipient chose and get the merchant's confirmation of a replacement order."
+   },
+   "recipient": {
+    "name": "Remi Dask",
+    "organization": null,
+    "role": "recipient",
+    "is_us": false,
+    "responsibility": "Choose between a replacement and a refund for the broken lamp."
+   }
+  },
+  "goal": "Get the merchant's approval of a replacement from the party authorised to give it, and its confirmation of the replacement order and reference.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The party authorised by the merchant has approved the replacement.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The merchant has confirmed a replacement order and its reference.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "A replacement has not yet been requested from the party authorised to approve it.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-022.",
+    "source": {
+     "type": "case_card",
+     "id": "022"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The merchant has already reviewed its inline damage-inspection record.",
+    "source": {
+     "type": "case_card",
+     "id": "022"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "A replacement has to be requested from the party authorised to approve it.",
+    "source": {
+     "type": "case_card",
+     "id": "022"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Do not treat merchant approval as replacement dispatch or receipt.",
+   "Do not treat reserved stock as replacement dispatch or receipt."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Merchant email",
+    "title": "Merchant accepts the lamp damage",
+    "timestamp": "2026-02-23 09:00:00 UTC",
+    "actor_id": "damage_assessor",
+    "message_id": "001"
+   },
+   "explanation": "The damage assessor accepted the broken lamp for replacement assessment, but no replacement approval is recorded. Approval has to come from the party authorised to give it.",
+   "state_after": {
+    "case_id": "022",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: request the replacement the recipient chose and get the merchant's confirmation of a replacement order."
+     },
+     "recipient": {
+      "name": "Remi Dask",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Choose between a replacement and a refund for the broken lamp."
+     },
+     "damage_assessor": {
+      "name": "Damage assessor",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Review the lamp damage against the inspection record and accept it for replacement assessment."
+     }
+    },
+    "goal": "Get the merchant's approval of a replacement from the party authorised to give it, and its confirmation of the replacement order and reference.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Request replacement approval from the party authorised to give it, using the accepted inspection record."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The party authorised by the merchant has approved the replacement.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The merchant has confirmed a replacement order and its reference.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-23 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "022"
+     },
+     "context_message_id": "001",
+     "summary": "DL-022 item arrived broken; the merchant has reviewed the inspection record, and a replacement must be requested from the party authorised to approve it.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "Replacement approval is not yet recorded.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-022.",
+      "source": {
+       "type": "case_card",
+       "id": "022"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Inline inspection record TG-022: the ceramic table lamp arrived with a separated base; the recipient's report was reviewed against the merchant's returned-item inspection.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "A replacement has to be requested from the party authorised to approve it.",
+      "source": {
+       "type": "case_card",
+       "id": "022"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Damage is accepted for replacement assessment.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Dispatch DL-022 has completed.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Replacement approval is not yet recorded.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {},
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": null,
+     "description": "Request replacement approval using the accepted inspection record."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "assessor": {
+      "participants": [
+       "coordinator",
+       "damage_assessor"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "assessor",
+      "event_id": "001",
+      "timestamp": "2026-02-23 09:00:00 UTC",
+      "from_actor": "damage_assessor",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Inline inspection record TG-022: ceramic table lamp arrived with a separated base; recipient report reviewed against our returned-item inspection. Damage accepted for replacement assessment. Dispatch DL-022 has completed; replacement approval is not yet recorded."
+     }
+    ],
+    "limits": [
+     "Do not treat merchant approval as replacement dispatch or receipt.",
+     "Do not treat reserved stock as replacement dispatch or receipt."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client request",
+    "title": "Remi chooses the same lamp over a refund",
+    "timestamp": "2026-02-23 09:10:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "002"
+   },
+   "explanation": "Remi wants a replacement with the same lamp, not a refund. We send the request to the merchant's replacement authorisations team with the accepted inspection record.",
+   "state_after": {
+    "case_id": "022",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: request the replacement the recipient chose and get the merchant's confirmation of a replacement order."
+     },
+     "recipient": {
+      "name": "Remi Dask",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Choose between a replacement and a refund for the broken lamp."
+     },
+     "damage_assessor": {
+      "name": "Damage assessor",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Review the lamp damage against the inspection record and accept it for replacement assessment."
+     },
+     "replacement_auth": {
+      "name": "Replacement authorisations",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Approve the lamp replacement and create the replacement order."
+     }
+    },
+    "goal": "Get the merchant's approval of a replacement from the party authorised to give it, and its confirmation of the replacement order and reference.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Ask the merchant's replacement authorisations team to approve a like-for-like lamp replacement for TG-022."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The party authorised by the merchant has approved the replacement.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The merchant has confirmed a replacement order and its reference.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-23 09:00:00 UTC",
+     "escalated_at": "2026-02-23 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "022"
+     },
+     "context_message_id": "001",
+     "summary": "DL-022 item arrived broken; the merchant has reviewed the inspection record, and a replacement must be requested from the party authorised to approve it.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "Replacement approval is not yet recorded.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-022.",
+      "source": {
+       "type": "case_card",
+       "id": "022"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Inline inspection record TG-022: the ceramic table lamp arrived with a separated base; the recipient's report was reviewed against the merchant's returned-item inspection.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "A replacement has to be requested from the party authorised to approve it.",
+      "source": {
+       "type": "case_card",
+       "id": "022"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Damage is accepted for replacement assessment.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Dispatch DL-022 has completed.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Replacement approval is not yet recorded.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient prefers the same lamp rather than a refund.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "replacement_auth",
+      "purpose": "Get the merchant to approve a replacement with the same lamp instead of a refund.",
+      "expected_response": "Merchant approval of the replacement.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "replacement_auth",
+      "responsible_actor": "replacement_auth",
+      "purpose": "Approve a like-for-like lamp replacement for TG-022 using the accepted inspection record.",
+      "expected_response": "Approval and the replacement order reference.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Replacement with the same lamp or a refund?",
+     "options": [
+      {
+       "id": "o1",
+       "label": "Replacement with the same lamp",
+       "conditions": "Needs approval from the merchant."
+      },
+      {
+       "id": "o2",
+       "label": "Refund",
+       "conditions": "Named by the recipient as the alternative; its terms are not stated in the history."
+      }
+     ],
+     "decision_maker": "recipient",
+     "selected_option": "o1",
+     "reason": "The recipient prefers the same lamp rather than a refund."
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "permission",
+     "responsible_actor": "replacement_auth",
+     "request_id": "r1",
+     "description": "Approve a like-for-like lamp replacement for TG-022."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "assessor": {
+      "participants": [
+       "coordinator",
+       "damage_assessor"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "assessor",
+      "event_id": "001",
+      "timestamp": "2026-02-23 09:00:00 UTC",
+      "from_actor": "damage_assessor",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Inline inspection record TG-022: ceramic table lamp arrived with a separated base; recipient report reviewed against our returned-item inspection. Damage accepted for replacement assessment. Dispatch DL-022 has completed; replacement approval is not yet recorded."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-23 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I would prefer the same lamp rather than a refund. Please ask the merchant to approve a replacement."
+     }
+    ],
+    "limits": [
+     "Do not treat merchant approval as replacement dispatch or receipt.",
+     "Do not treat reserved stock as replacement dispatch or receipt."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our request",
+    "title": "We ask for replacement approval",
+    "timestamp": "2026-02-23 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We asked the authorised team for a like-for-like replacement, citing the accepted inspection record and Remi's choice. Now we wait for their answer.",
+   "state_after": {
+    "case_id": "022",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: request the replacement the recipient chose and get the merchant's confirmation of a replacement order."
+     },
+     "recipient": {
+      "name": "Remi Dask",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Choose between a replacement and a refund for the broken lamp."
+     },
+     "damage_assessor": {
+      "name": "Damage assessor",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Review the lamp damage against the inspection record and accept it for replacement assessment."
+     },
+     "replacement_auth": {
+      "name": "Replacement authorisations",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Approve the lamp replacement and create the replacement order."
+     }
+    },
+    "goal": "Get the merchant's approval of a replacement from the party authorised to give it, and its confirmation of the replacement order and reference.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "replacement_auth",
+       "request_id": "r1",
+       "expected": "Replacement approval and order reference"
+      }
+     ],
+     "next_action": "Once approved, record the replacement order reference."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The party authorised by the merchant has approved the replacement.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The merchant has confirmed a replacement order and its reference.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-23 09:00:00 UTC",
+     "escalated_at": "2026-02-23 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "022"
+     },
+     "context_message_id": "001",
+     "summary": "DL-022 item arrived broken; the merchant has reviewed the inspection record, and a replacement must be requested from the party authorised to approve it.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "Replacement approval is not yet recorded.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-022.",
+      "source": {
+       "type": "case_card",
+       "id": "022"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Inline inspection record TG-022: the ceramic table lamp arrived with a separated base; the recipient's report was reviewed against the merchant's returned-item inspection.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "A replacement has to be requested from the party authorised to approve it.",
+      "source": {
+       "type": "case_card",
+       "id": "022"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Damage is accepted for replacement assessment.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Dispatch DL-022 has completed.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Replacement approval is not yet recorded.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient prefers the same lamp rather than a refund.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "replacement_auth",
+      "purpose": "Get the merchant to approve a replacement with the same lamp instead of a refund.",
+      "expected_response": "Merchant approval of the replacement.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "replacement_auth",
+      "responsible_actor": "replacement_auth",
+      "purpose": "Approve a like-for-like lamp replacement for TG-022 using the accepted inspection record.",
+      "expected_response": "Approval and the replacement order reference.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Replacement with the same lamp or a refund?",
+     "options": [
+      {
+       "id": "o1",
+       "label": "Replacement with the same lamp",
+       "conditions": "Needs approval from the merchant."
+      },
+      {
+       "id": "o2",
+       "label": "Refund",
+       "conditions": "Named by the recipient as the alternative; its terms are not stated in the history."
+      }
+     ],
+     "decision_maker": "recipient",
+     "selected_option": "o1",
+     "reason": "The recipient prefers the same lamp rather than a refund."
+    },
+    "status": "awaiting_response",
+    "next_step": {
+     "type": "permission",
+     "responsible_actor": "replacement_auth",
+     "request_id": "r1",
+     "description": "Wait for the replacement approval."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "assessor": {
+      "participants": [
+       "coordinator",
+       "damage_assessor"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "approvals": {
+      "participants": [
+       "coordinator",
+       "replacement_auth"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "assessor",
+      "event_id": "001",
+      "timestamp": "2026-02-23 09:00:00 UTC",
+      "from_actor": "damage_assessor",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Inline inspection record TG-022: ceramic table lamp arrived with a separated base; recipient report reviewed against our returned-item inspection. Damage accepted for replacement assessment. Dispatch DL-022 has completed; replacement approval is not yet recorded."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-23 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I would prefer the same lamp rather than a refund. Please ask the merchant to approve a replacement."
+     },
+     {
+      "conversation_id": "approvals",
+      "event_id": "003",
+      "timestamp": "2026-02-23 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "replacement_auth",
+      "channel": "Email",
+      "body": "Please approve a like-for-like lamp replacement for TG-022 using your accepted inspection record. Remi has selected replacement in the order thread."
+     }
+    ],
+    "limits": [
+     "Do not treat merchant approval as replacement dispatch or receipt.",
+     "Do not treat reserved stock as replacement dispatch or receipt."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "Approval",
+    "title": "Merchant approves replacement TG-022-R",
+    "timestamp": "2026-02-23 09:50:00 UTC",
+    "actor_id": "replacement_auth",
+    "message_id": "004"
+   },
+   "explanation": "The authorised team approved the replacement and gave the order reference, so the coordination task can be closed. The replacement parcel has not been dispatched yet.",
+   "state_after": {
+    "case_id": "022",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: request the replacement the recipient chose and get the merchant's confirmation of a replacement order."
+     },
+     "recipient": {
+      "name": "Remi Dask",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Choose between a replacement and a refund for the broken lamp."
+     },
+     "damage_assessor": {
+      "name": "Damage assessor",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Review the lamp damage against the inspection record and accept it for replacement assessment."
+     },
+     "replacement_auth": {
+      "name": "Replacement authorisations",
+      "organization": "Tallowmere Goods",
+      "role": "merchant",
+      "is_us": false,
+      "responsibility": "Approve the lamp replacement and create the replacement order."
+     }
+    },
+    "goal": "Get the merchant's approval of a replacement from the party authorised to give it, and its confirmation of the replacement order and reference.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Coordination task complete: the merchant approved the replacement and confirmed order TG-022-R. Replacement dispatch and receipt are not part of this case's success criteria."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The party authorised by the merchant has approved the replacement.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The merchant has confirmed a replacement order and its reference.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-23 09:00:00 UTC",
+     "escalated_at": "2026-02-23 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "022"
+     },
+     "context_message_id": "001",
+     "summary": "DL-022 item arrived broken; the merchant has reviewed the inspection record, and a replacement must be requested from the party authorised to approve it.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-022.",
+      "source": {
+       "type": "case_card",
+       "id": "022"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Inline inspection record TG-022: the ceramic table lamp arrived with a separated base; the recipient's report was reviewed against the merchant's returned-item inspection.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "A replacement has to be requested from the party authorised to approve it.",
+      "source": {
+       "type": "case_card",
+       "id": "022"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Damage is accepted for replacement assessment.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Dispatch DL-022 has completed.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Replacement is approved: replacement order TG-022-R is created for the same lamp at no additional charge.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "The recipient prefers the same lamp rather than a refund.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "Stock has been reserved for the replacement.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "No replacement parcel has been dispatched yet.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "replacement_auth",
+      "purpose": "Get the merchant to approve a replacement with the same lamp instead of a refund.",
+      "expected_response": "Merchant approval of the replacement.",
+      "status": "completed",
+      "response": "Approved: replacement order TG-022-R for the same lamp at no additional charge.",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r1": {
+      "type": "permission",
+      "from_actor": "coordinator",
+      "to_actor": "replacement_auth",
+      "responsible_actor": "replacement_auth",
+      "purpose": "Approve a like-for-like lamp replacement for TG-022 using the accepted inspection record.",
+      "expected_response": "Approval and the replacement order reference.",
+      "status": "answered",
+      "response": "Approved; replacement order TG-022-R created for the same lamp at no additional charge; stock reserved.",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": true,
+     "question": "Replacement with the same lamp or a refund?",
+     "options": [
+      {
+       "id": "o1",
+       "label": "Replacement with the same lamp",
+       "conditions": "Needs approval from the merchant."
+      },
+      {
+       "id": "o2",
+       "label": "Refund",
+       "conditions": "Named by the recipient as the alternative; its terms are not stated in the history."
+      }
+     ],
+     "decision_maker": "recipient",
+     "selected_option": "o1",
+     "reason": "The recipient prefers the same lamp rather than a refund."
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "Replacement approved: order TG-022-R for the same lamp at no additional charge; stock reserved.",
+     "confirmed_by": "replacement_auth",
+     "evidence_event_ids": [
+      "004"
+     ],
+     "remaining_work": "Replacement dispatch and receipt: no replacement parcel has been dispatched yet."
+    },
+    "annotations": [],
+    "conversations": {
+     "assessor": {
+      "participants": [
+       "coordinator",
+       "damage_assessor"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "approvals": {
+      "participants": [
+       "coordinator",
+       "replacement_auth"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "assessor",
+      "event_id": "001",
+      "timestamp": "2026-02-23 09:00:00 UTC",
+      "from_actor": "damage_assessor",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Inline inspection record TG-022: ceramic table lamp arrived with a separated base; recipient report reviewed against our returned-item inspection. Damage accepted for replacement assessment. Dispatch DL-022 has completed; replacement approval is not yet recorded."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-23 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "I would prefer the same lamp rather than a refund. Please ask the merchant to approve a replacement."
+     },
+     {
+      "conversation_id": "approvals",
+      "event_id": "003",
+      "timestamp": "2026-02-23 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "replacement_auth",
+      "channel": "Email",
+      "body": "Please approve a like-for-like lamp replacement for TG-022 using your accepted inspection record. Remi has selected replacement in the order thread."
+     },
+     {
+      "conversation_id": "approvals",
+      "event_id": "004",
+      "timestamp": "2026-02-23 09:50:00 UTC",
+      "from_actor": "replacement_auth",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "Approved. Replacement order TG-022-R is created for the same lamp at no additional charge. Stock has been reserved; no replacement parcel has been dispatched yet."
+     }
+    ],
+    "limits": [
+     "Do not treat merchant approval as replacement dispatch or receipt.",
+     "Do not treat reserved stock as replacement dispatch or receipt."
+    ]
+   }
+  }
+ ]
+}

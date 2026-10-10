@@ -1,0 +1,1303 @@
+{
+ "schema_version": "case-step-viewer/1.0",
+ "title": "006 · Redirect to a pickup point",
+ "initial_explanation": "We are the coordinator, Iona Quill. The client is Pella Rusk. From the case card: the customer has already selected an available staffed pickup point for DL-006, and routing confirms the parcel is eligible for redirection before delivery.",
+ "initial_state": {
+  "case_id": "006",
+  "our_actor_id": "coordinator",
+  "client_actor_id": "recipient",
+  "actors": {
+   "coordinator": {
+    "name": "Iona Quill",
+    "organization": "Rivet Delivery Desk",
+    "role": "coordinator",
+    "is_us": true,
+    "responsibility": "Run the case: pass the customer's choice to routing, get the pickup point's confirmation and give the customer the collection instructions."
+   },
+   "recipient": {
+    "name": "Pella Rusk",
+    "organization": null,
+    "role": "recipient",
+    "is_us": false,
+    "responsibility": "Choose the pickup point instead of home delivery and collect the parcel there."
+   }
+  },
+  "goal": "Get DL-006 redirected to the customer's chosen pickup point, get the pickup point's confirmation that the parcel is available, and give the customer the collection instructions.",
+  "agent_state": {
+   "status": "ready",
+   "waiting_for": [],
+   "next_action": "Take in incoming information on the case."
+  },
+  "success_criteria": [
+   {
+    "id": "c1",
+    "description": "The customer's choice of pickup point is recorded in writing.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c2",
+    "description": "The pickup point has confirmed the parcel is physically there and available for collection.",
+    "status": "pending",
+    "evidence_event_ids": []
+   },
+   {
+    "id": "c3",
+    "description": "The customer has been sent the collection instructions confirmed by the pickup point.",
+    "status": "pending",
+    "evidence_event_ids": []
+   }
+  ],
+  "intake": null,
+  "blocker": "The parcel is not yet redirected to the selected pickup point.",
+  "facts": [
+   {
+    "id": "f1",
+    "text": "The case concerns shipment DL-006.",
+    "source": {
+     "type": "case_card",
+     "id": "006"
+    }
+   },
+   {
+    "id": "f2",
+    "text": "The customer has already selected an available staffed pickup point.",
+    "source": {
+     "type": "case_card",
+     "id": "006"
+    }
+   },
+   {
+    "id": "f3",
+    "text": "Routing confirms the parcel is eligible for redirection before delivery.",
+    "source": {
+     "type": "case_card",
+     "id": "006"
+    }
+   }
+  ],
+  "requests": {},
+  "decision": {
+   "required": null,
+   "question": null,
+   "options": [],
+   "decision_maker": null,
+   "selected_option": null,
+   "reason": null
+  },
+  "status": "not_started",
+  "next_step": null,
+  "result": null,
+  "annotations": [],
+  "conversations": {},
+  "messages": [],
+  "limits": [
+   "Do not treat ready for collection as collected.",
+   "Do not invent a universal identification requirement."
+  ]
+ },
+ "steps": [
+  {
+   "event": {
+    "id": "001",
+    "type": "message_received",
+    "label": "Routing email",
+    "title": "Routing confirms the counter has space",
+    "timestamp": "2026-02-07 09:00:00 UTC",
+    "actor_id": "routing",
+    "message_id": "001"
+   },
+   "explanation": "Routing can redirect DL-006 without charge, and Copperfin Counter has space, but the transfer needs the customer's recorded choice. We take in that choice before asking routing to act.",
+   "state_after": {
+    "case_id": "006",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: pass the customer's choice to routing, get the pickup point's confirmation and give the customer the collection instructions."
+     },
+     "recipient": {
+      "name": "Pella Rusk",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Choose the pickup point instead of home delivery and collect the parcel there."
+     },
+     "routing": {
+      "name": "Routing",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Redirect the eligible parcel to the chosen pickup point on the customer's recorded choice."
+     }
+    },
+    "goal": "Get DL-006 redirected to the customer's chosen pickup point, get the pickup point's confirmation that the parcel is available, and give the customer the collection instructions.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Take in the customer's recorded choice of pickup point; routing needs it before transfer."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The customer's choice of pickup point is recorded in writing.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c2",
+      "description": "The pickup point has confirmed the parcel is physically there and available for collection.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The customer has been sent the collection instructions confirmed by the pickup point.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-07 09:00:00 UTC",
+     "escalated_at": null,
+     "source": {
+      "type": "case_card",
+      "id": "006"
+     },
+     "context_message_id": "001",
+     "summary": "Redirect DL-006 from home delivery to the staffed pickup point the customer selected.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "Routing cannot transfer the parcel without the customer's recorded choice.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-006.",
+      "source": {
+       "type": "case_card",
+       "id": "006"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "The customer has already selected an available staffed pickup point.",
+      "source": {
+       "type": "case_card",
+       "id": "006"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "DL-006 is redirectable without charge before route release.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Copperfin Counter has space and is open 10:00–18:00 UTC on 2026-02-08.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Routing needs the customer's recorded choice before transfer.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     }
+    ],
+    "requests": {},
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "context_received",
+    "next_step": null,
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "routing": {
+      "participants": [
+       "coordinator",
+       "routing"
+      ],
+      "channel": "Email"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "routing",
+      "event_id": "001",
+      "timestamp": "2026-02-07 09:00:00 UTC",
+      "from_actor": "routing",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-006 is redirectable without charge before route release. Copperfin Counter has space and is open 10:00–18:00 UTC on 2026-02-08. We need the customer’s recorded choice before transfer."
+     }
+    ],
+    "limits": [
+     "Do not treat ready for collection as collected.",
+     "Do not invent a universal identification requirement."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "002",
+    "type": "message_received",
+    "label": "Client choice",
+    "title": "Pella chooses Copperfin Counter",
+    "timestamp": "2026-02-07 09:10:00 UTC",
+    "actor_id": "recipient",
+    "message_id": "002"
+   },
+   "explanation": "Pella's portal message is the recorded choice routing asked for. We can pass it to routing and ask for the redirect.",
+   "state_after": {
+    "case_id": "006",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: pass the customer's choice to routing, get the pickup point's confirmation and give the customer the collection instructions."
+     },
+     "recipient": {
+      "name": "Pella Rusk",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Choose the pickup point instead of home delivery and collect the parcel there."
+     },
+     "routing": {
+      "name": "Routing",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Redirect the eligible parcel to the chosen pickup point on the customer's recorded choice."
+     }
+    },
+    "goal": "Get DL-006 redirected to the customer's chosen pickup point, get the pickup point's confirmation that the parcel is available, and give the customer the collection instructions.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Pass Pella's choice to routing and ask for DL-006 to be redirected to Copperfin Counter."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The customer's choice of pickup point is recorded in writing.",
+      "status": "met",
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The pickup point has confirmed the parcel is physically there and available for collection.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The customer has been sent the collection instructions confirmed by the pickup point.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-07 09:00:00 UTC",
+     "escalated_at": "2026-02-07 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "006"
+     },
+     "context_message_id": "001",
+     "summary": "Redirect DL-006 from home delivery to the staffed pickup point the customer selected.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The parcel is not yet redirected to Copperfin Counter.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-006.",
+      "source": {
+       "type": "case_card",
+       "id": "006"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Pella asks to send DL-006 to Copperfin Counter rather than home.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "DL-006 is redirectable without charge before route release.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Copperfin Counter has space and is open 10:00–18:00 UTC on 2026-02-08.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Routing needs the customer's recorded choice before transfer.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Pella can collect at Copperfin Counter on 2026-02-08.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "routing",
+      "purpose": "Send DL-006 to Copperfin Counter instead of Pella's home.",
+      "expected_response": "The parcel at Copperfin Counter, available for collection.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "routing",
+      "responsible_actor": "routing",
+      "purpose": "Redirect DL-006 to Copperfin Counter on Pella's recorded choice.",
+      "expected_response": "Confirmation that the counter has the parcel.",
+      "status": "planned",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "escalated",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "routing",
+     "request_id": "r1",
+     "description": "Redirect DL-006 to Copperfin Counter."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "routing": {
+      "participants": [
+       "coordinator",
+       "routing"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "routing",
+      "event_id": "001",
+      "timestamp": "2026-02-07 09:00:00 UTC",
+      "from_actor": "routing",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-006 is redirectable without charge before route release. Copperfin Counter has space and is open 10:00–18:00 UTC on 2026-02-08. We need the customer’s recorded choice before transfer."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-07 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Please send DL-006 to Copperfin Counter, rather than my home. I can collect there on 2026-02-08."
+     }
+    ],
+    "limits": [
+     "Do not treat ready for collection as collected.",
+     "Do not invent a universal identification requirement."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "003",
+    "type": "message_sent",
+    "label": "Our request",
+    "title": "We ask routing to redirect DL-006",
+    "timestamp": "2026-02-07 09:25:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "003"
+   },
+   "explanation": "We passed on Pella's choice and asked to be told only once the counter physically has the parcel, so a redirect order is not mistaken for arrival. Now we wait.",
+   "state_after": {
+    "case_id": "006",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: pass the customer's choice to routing, get the pickup point's confirmation and give the customer the collection instructions."
+     },
+     "recipient": {
+      "name": "Pella Rusk",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Choose the pickup point instead of home delivery and collect the parcel there."
+     },
+     "routing": {
+      "name": "Routing",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Redirect the eligible parcel to the chosen pickup point on the customer's recorded choice."
+     }
+    },
+    "goal": "Get DL-006 redirected to the customer's chosen pickup point, get the pickup point's confirmation that the parcel is available, and give the customer the collection instructions.",
+    "agent_state": {
+     "status": "waiting",
+     "waiting_for": [
+      {
+       "actor_id": "routing",
+       "request_id": "r1",
+       "expected": "Notice that Copperfin Counter has physically received DL-006"
+      }
+     ],
+     "next_action": "Once the counter has the parcel, send Pella the collection instructions."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The customer's choice of pickup point is recorded in writing.",
+      "status": "met",
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The pickup point has confirmed the parcel is physically there and available for collection.",
+      "status": "pending",
+      "evidence_event_ids": []
+     },
+     {
+      "id": "c3",
+      "description": "The customer has been sent the collection instructions confirmed by the pickup point.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-07 09:00:00 UTC",
+     "escalated_at": "2026-02-07 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "006"
+     },
+     "context_message_id": "001",
+     "summary": "Redirect DL-006 from home delivery to the staffed pickup point the customer selected.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "The parcel is not yet at Copperfin Counter.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-006.",
+      "source": {
+       "type": "case_card",
+       "id": "006"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Pella asks to send DL-006 to Copperfin Counter rather than home.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "DL-006 is redirectable without charge before route release.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Copperfin Counter has space and is open 10:00–18:00 UTC on 2026-02-08.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Routing needs the customer's recorded choice before transfer.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Pella can collect at Copperfin Counter on 2026-02-08.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "routing",
+      "purpose": "Send DL-006 to Copperfin Counter instead of Pella's home.",
+      "expected_response": "The parcel at Copperfin Counter, available for collection.",
+      "status": "received",
+      "response": null,
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "routing",
+      "responsible_actor": "routing",
+      "purpose": "Redirect eligible parcel DL-006 to Copperfin Counter, as Pella chose in the verified order thread, and notify us only when the counter has physically received it.",
+      "expected_response": "Notice that the counter has physically received the parcel.",
+      "status": "awaiting_response",
+      "response": null,
+      "evidence_event_ids": [
+       "002",
+       "003"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "awaiting_confirmation",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "routing",
+     "request_id": "r1",
+     "description": "Wait for notice that the counter has physically received DL-006."
+    },
+    "result": null,
+    "annotations": [],
+    "conversations": {
+     "routing": {
+      "participants": [
+       "coordinator",
+       "routing"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "routing",
+      "event_id": "001",
+      "timestamp": "2026-02-07 09:00:00 UTC",
+      "from_actor": "routing",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-006 is redirectable without charge before route release. Copperfin Counter has space and is open 10:00–18:00 UTC on 2026-02-08. We need the customer’s recorded choice before transfer."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-07 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Please send DL-006 to Copperfin Counter, rather than my home. I can collect there on 2026-02-08."
+     },
+     {
+      "conversation_id": "routing",
+      "event_id": "003",
+      "timestamp": "2026-02-07 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "routing",
+      "channel": "Email",
+      "body": "Pella has chosen Copperfin Counter in the verified order thread. Please redirect eligible parcel DL-006 and notify us only when the counter has physically received it."
+     }
+    ],
+    "limits": [
+     "Do not treat ready for collection as collected.",
+     "Do not invent a universal identification requirement."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "004",
+    "type": "message_received",
+    "label": "Counter confirms",
+    "title": "Copperfin Counter scans DL-006 in",
+    "timestamp": "2026-02-08 14:25:00 UTC",
+    "actor_id": "pickup_point",
+    "message_id": "004"
+   },
+   "explanation": "The counter itself confirms physical receipt and gives the collection deadline and requirements. Ready for collection is not collected, so our next step is to send Pella the instructions.",
+   "state_after": {
+    "case_id": "006",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: pass the customer's choice to routing, get the pickup point's confirmation and give the customer the collection instructions."
+     },
+     "recipient": {
+      "name": "Pella Rusk",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Choose the pickup point instead of home delivery and collect the parcel there."
+     },
+     "routing": {
+      "name": "Routing",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Redirect the eligible parcel to the chosen pickup point on the customer's recorded choice."
+     },
+     "pickup_point": {
+      "name": "Copperfin Counter supervisor",
+      "organization": "Copperfin Counter",
+      "role": "pickup_point",
+      "is_us": false,
+      "responsibility": "Confirm the physical receipt of the parcel and state the collection terms."
+     }
+    },
+    "goal": "Get DL-006 redirected to the customer's chosen pickup point, get the pickup point's confirmation that the parcel is available, and give the customer the collection instructions.",
+    "agent_state": {
+     "status": "ready",
+     "waiting_for": [],
+     "next_action": "Send Pella the collection instructions: the deadline, the collection reference and the identification stated in the order notice."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The customer's choice of pickup point is recorded in writing.",
+      "status": "met",
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The pickup point has confirmed the parcel is physically there and available for collection.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c3",
+      "description": "The customer has been sent the collection instructions confirmed by the pickup point.",
+      "status": "pending",
+      "evidence_event_ids": []
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-07 09:00:00 UTC",
+     "escalated_at": "2026-02-07 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "006"
+     },
+     "context_message_id": "001",
+     "summary": "Redirect DL-006 from home delivery to the staffed pickup point the customer selected.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": "Pella has not yet been sent the collection instructions.",
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-006.",
+      "source": {
+       "type": "case_card",
+       "id": "006"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Pella asks to send DL-006 to Copperfin Counter rather than home.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "DL-006 is redirectable without charge before route release.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Copperfin Counter has space and is open 10:00–18:00 UTC on 2026-02-08.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Routing needs the customer's recorded choice before transfer.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Pella can collect at Copperfin Counter on 2026-02-08.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "DL-006 was scanned into Copperfin Counter's staffed stock at 14:20 UTC.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "DL-006 is available for collection until 2026-02-10, 18:00.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "The customer must bring the collection reference and the identification specified in the order notice.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "routing",
+      "purpose": "Send DL-006 to Copperfin Counter instead of Pella's home.",
+      "expected_response": "The parcel at Copperfin Counter, available for collection.",
+      "status": "completed",
+      "response": "DL-006 is at Copperfin Counter and available for collection until 2026-02-10, 18:00.",
+      "responded_by": "pickup_point",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "routing",
+      "responsible_actor": "routing",
+      "purpose": "Redirect eligible parcel DL-006 to Copperfin Counter, as Pella chose in the verified order thread, and notify us only when the counter has physically received it.",
+      "expected_response": "Notice that the counter has physically received the parcel.",
+      "status": "completed",
+      "response": "Copperfin Counter scanned DL-006 into its staffed stock at 14:20 UTC.",
+      "responded_by": "pickup_point",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "action_required",
+    "next_step": {
+     "type": "action",
+     "responsible_actor": "coordinator",
+     "request_id": null,
+     "description": "Send Pella the collection instructions confirmed by the counter."
+    },
+    "result": null,
+    "annotations": [
+     {
+      "id": "missing-redirect-record",
+      "kind": "gap",
+      "title": "Gap in the source history",
+      "text": "Routing's redirect of DL-006 is not recorded as a separate event, and routing sent no reply of its own. The counter's scan in message 004 shows the parcel arrived.",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "routing": {
+      "participants": [
+       "coordinator",
+       "routing"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "pickup_point": {
+      "participants": [
+       "coordinator",
+       "pickup_point"
+      ],
+      "channel": "Pickup-point portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "routing",
+      "event_id": "001",
+      "timestamp": "2026-02-07 09:00:00 UTC",
+      "from_actor": "routing",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-006 is redirectable without charge before route release. Copperfin Counter has space and is open 10:00–18:00 UTC on 2026-02-08. We need the customer’s recorded choice before transfer."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-07 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Please send DL-006 to Copperfin Counter, rather than my home. I can collect there on 2026-02-08."
+     },
+     {
+      "conversation_id": "routing",
+      "event_id": "003",
+      "timestamp": "2026-02-07 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "routing",
+      "channel": "Email",
+      "body": "Pella has chosen Copperfin Counter in the verified order thread. Please redirect eligible parcel DL-006 and notify us only when the counter has physically received it."
+     },
+     {
+      "conversation_id": "pickup_point",
+      "event_id": "004",
+      "timestamp": "2026-02-08 14:25:00 UTC",
+      "from_actor": "pickup_point",
+      "to_actor": "coordinator",
+      "channel": "Pickup-point portal",
+      "body": "DL-006 was scanned into our staffed stock at 14:20 UTC. It is available for collection until 2026-02-10, 18:00. Bring the collection reference and the identification specified in the order notice."
+     }
+    ],
+    "limits": [
+     "Do not treat ready for collection as collected.",
+     "Do not invent a universal identification requirement."
+    ]
+   }
+  },
+  {
+   "event": {
+    "id": "005",
+    "type": "message_sent",
+    "label": "Our notice",
+    "title": "We send Pella the collection instructions",
+    "timestamp": "2026-02-08 14:35:00 UTC",
+    "actor_id": "coordinator",
+    "message_id": "005"
+   },
+   "explanation": "Pella now has the counter's confirmation, the hours, the deadline and the reference and identification from the order notice. This closes the coordination task; the collection itself is still ahead.",
+   "state_after": {
+    "case_id": "006",
+    "our_actor_id": "coordinator",
+    "client_actor_id": "recipient",
+    "actors": {
+     "coordinator": {
+      "name": "Iona Quill",
+      "organization": "Rivet Delivery Desk",
+      "role": "coordinator",
+      "is_us": true,
+      "responsibility": "Run the case: pass the customer's choice to routing, get the pickup point's confirmation and give the customer the collection instructions."
+     },
+     "recipient": {
+      "name": "Pella Rusk",
+      "organization": null,
+      "role": "recipient",
+      "is_us": false,
+      "responsibility": "Choose the pickup point instead of home delivery and collect the parcel there."
+     },
+     "routing": {
+      "name": "Routing",
+      "organization": "Plover Arc Logistics",
+      "role": "carrier",
+      "is_us": false,
+      "responsibility": "Redirect the eligible parcel to the chosen pickup point on the customer's recorded choice."
+     },
+     "pickup_point": {
+      "name": "Copperfin Counter supervisor",
+      "organization": "Copperfin Counter",
+      "role": "pickup_point",
+      "is_us": false,
+      "responsibility": "Confirm the physical receipt of the parcel and state the collection terms."
+     }
+    },
+    "goal": "Get DL-006 redirected to the customer's chosen pickup point, get the pickup point's confirmation that the parcel is available, and give the customer the collection instructions.",
+    "agent_state": {
+     "status": "completed",
+     "waiting_for": [],
+     "next_action": null,
+     "note": "Coordination task complete: the counter confirmed the parcel is available and Pella was sent the collection instructions. Collection is not part of this case's success criteria."
+    },
+    "success_criteria": [
+     {
+      "id": "c1",
+      "description": "The customer's choice of pickup point is recorded in writing.",
+      "status": "met",
+      "evidence_event_ids": [
+       "002"
+      ]
+     },
+     {
+      "id": "c2",
+      "description": "The pickup point has confirmed the parcel is physically there and available for collection.",
+      "status": "met",
+      "evidence_event_ids": [
+       "004"
+      ]
+     },
+     {
+      "id": "c3",
+      "description": "The customer has been sent the collection instructions confirmed by the pickup point.",
+      "status": "met",
+      "evidence_event_ids": [
+       "005"
+      ]
+     }
+    ],
+    "intake": {
+     "created_at": "2026-02-07 09:00:00 UTC",
+     "escalated_at": "2026-02-07 09:10:00 UTC",
+     "source": {
+      "type": "case_card",
+      "id": "006"
+     },
+     "context_message_id": "001",
+     "summary": "Redirect DL-006 from home delivery to the staffed pickup point the customer selected.",
+     "note": "Creation time is taken from the case card. The history has no separate system event for ticket creation."
+    },
+    "blocker": null,
+    "facts": [
+     {
+      "id": "f1",
+      "text": "The case concerns shipment DL-006.",
+      "source": {
+       "type": "case_card",
+       "id": "006"
+      }
+     },
+     {
+      "id": "f2",
+      "text": "Pella asks to send DL-006 to Copperfin Counter rather than home.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f3",
+      "text": "DL-006 is redirectable without charge before route release.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f4",
+      "text": "Copperfin Counter has space and is open 10:00–18:00 UTC on 2026-02-08.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f5",
+      "text": "Routing needs the customer's recorded choice before transfer.",
+      "source": {
+       "type": "message",
+       "id": "001"
+      }
+     },
+     {
+      "id": "f6",
+      "text": "Pella can collect at Copperfin Counter on 2026-02-08.",
+      "source": {
+       "type": "message",
+       "id": "002"
+      }
+     },
+     {
+      "id": "f7",
+      "text": "DL-006 was scanned into Copperfin Counter's staffed stock at 14:20 UTC.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f8",
+      "text": "DL-006 is available for collection until 2026-02-10, 18:00.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f9",
+      "text": "The customer must bring the collection reference and the identification specified in the order notice.",
+      "source": {
+       "type": "message",
+       "id": "004"
+      }
+     },
+     {
+      "id": "f10",
+      "text": "We told Pella to collect during 10:00–18:00 UTC by 2026-02-10 at 18:00, using the reference in the order notice and its stated identification requirement.",
+      "source": {
+       "type": "message",
+       "id": "005"
+      }
+     }
+    ],
+    "requests": {
+     "r0": {
+      "type": "action",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "responsible_actor": "routing",
+      "purpose": "Send DL-006 to Copperfin Counter instead of Pella's home.",
+      "expected_response": "The parcel at Copperfin Counter, available for collection.",
+      "status": "completed",
+      "response": "DL-006 is at Copperfin Counter and available for collection until 2026-02-10, 18:00.",
+      "responded_by": "pickup_point",
+      "evidence_event_ids": [
+       "002",
+       "004"
+      ]
+     },
+     "r1": {
+      "type": "action",
+      "from_actor": "coordinator",
+      "to_actor": "routing",
+      "responsible_actor": "routing",
+      "purpose": "Redirect eligible parcel DL-006 to Copperfin Counter, as Pella chose in the verified order thread, and notify us only when the counter has physically received it.",
+      "expected_response": "Notice that the counter has physically received the parcel.",
+      "status": "completed",
+      "response": "Copperfin Counter scanned DL-006 into its staffed stock at 14:20 UTC.",
+      "responded_by": "pickup_point",
+      "evidence_event_ids": [
+       "002",
+       "003",
+       "004"
+      ]
+     }
+    },
+    "decision": {
+     "required": false,
+     "question": null,
+     "options": [],
+     "decision_maker": null,
+     "selected_option": null,
+     "reason": null
+    },
+    "status": "completed",
+    "next_step": null,
+    "result": {
+     "summary": "DL-006 is at Copperfin Counter and available until 2026-02-10, 18:00; Pella has been sent the collection instructions.",
+     "confirmed_by": "pickup_point",
+     "evidence_event_ids": [
+      "004",
+      "005"
+     ],
+     "remaining_work": "Pella has not collected the parcel yet; ready for collection is not collected. The identification requirement is the one stated in the order notice."
+    },
+    "annotations": [
+     {
+      "id": "missing-redirect-record",
+      "kind": "gap",
+      "title": "Gap in the source history",
+      "text": "Routing's redirect of DL-006 is not recorded as a separate event, and routing sent no reply of its own. The counter's scan in message 004 shows the parcel arrived.",
+      "source_event_ids": [
+       "004"
+      ]
+     }
+    ],
+    "conversations": {
+     "routing": {
+      "participants": [
+       "coordinator",
+       "routing"
+      ],
+      "channel": "Email"
+     },
+     "client": {
+      "participants": [
+       "coordinator",
+       "recipient"
+      ],
+      "channel": "Customer portal"
+     },
+     "pickup_point": {
+      "participants": [
+       "coordinator",
+       "pickup_point"
+      ],
+      "channel": "Pickup-point portal"
+     }
+    },
+    "messages": [
+     {
+      "conversation_id": "routing",
+      "event_id": "001",
+      "timestamp": "2026-02-07 09:00:00 UTC",
+      "from_actor": "routing",
+      "to_actor": "coordinator",
+      "channel": "Email",
+      "body": "DL-006 is redirectable without charge before route release. Copperfin Counter has space and is open 10:00–18:00 UTC on 2026-02-08. We need the customer’s recorded choice before transfer."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "002",
+      "timestamp": "2026-02-07 09:10:00 UTC",
+      "from_actor": "recipient",
+      "to_actor": "coordinator",
+      "channel": "Customer portal",
+      "body": "Please send DL-006 to Copperfin Counter, rather than my home. I can collect there on 2026-02-08."
+     },
+     {
+      "conversation_id": "routing",
+      "event_id": "003",
+      "timestamp": "2026-02-07 09:25:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "routing",
+      "channel": "Email",
+      "body": "Pella has chosen Copperfin Counter in the verified order thread. Please redirect eligible parcel DL-006 and notify us only when the counter has physically received it."
+     },
+     {
+      "conversation_id": "pickup_point",
+      "event_id": "004",
+      "timestamp": "2026-02-08 14:25:00 UTC",
+      "from_actor": "pickup_point",
+      "to_actor": "coordinator",
+      "channel": "Pickup-point portal",
+      "body": "DL-006 was scanned into our staffed stock at 14:20 UTC. It is available for collection until 2026-02-10, 18:00. Bring the collection reference and the identification specified in the order notice."
+     },
+     {
+      "conversation_id": "client",
+      "event_id": "005",
+      "timestamp": "2026-02-08 14:35:00 UTC",
+      "from_actor": "coordinator",
+      "to_actor": "recipient",
+      "channel": "Customer portal",
+      "body": "Copperfin Counter confirms DL-006 is ready. Collect during 10:00–18:00 UTC by 2026-02-10 at 18:00, using the reference in your order notice and its stated identification requirement."
+     }
+    ],
+    "limits": [
+     "Do not treat ready for collection as collected.",
+     "Do not invent a universal identification requirement."
+    ]
+   }
+  }
+ ]
+}
