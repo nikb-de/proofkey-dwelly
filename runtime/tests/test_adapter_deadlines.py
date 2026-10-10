@@ -29,10 +29,12 @@ class DeadlineFaultWorld(SimulatedWorld):
     """Test driver: move the shared clock at selected real transaction boundaries."""
     fault_point = None
     advance_seconds = 2
+    expired_point = None
 
     def expire(self, point):
         if self.fault_point == point:
             self.fault_point = None
+            self.expired_point = point
             self._clock.advance(self.advance_seconds)
 
     @contextmanager
@@ -53,8 +55,8 @@ class DeadlineFaultWorld(SimulatedWorld):
         self.expire("identity")
         return result
 
-    def _effect_observations(self, connection, intent, values):
-        result = super()._effect_observations(connection, intent, values)
+    def _effect_observation_data(self, connection, intent, values):
+        result = super()._effect_observation_data(connection, intent, values)
         self.expire("observations")
         return result
 
@@ -140,6 +142,8 @@ class AdapterDeadlineTests(unittest.TestCase):
                 intent = self.intent()
                 self.world.fault_point = point
                 result = self.dispatch(intent, deadline=NOW + timedelta(seconds=1))
+                self.assertEqual(self.world.expired_point, point, "real transaction expiry hook did not fire")
+                self.assertEqual(self.clock.now(), NOW + timedelta(seconds=self.world.advance_seconds))
                 self.assertEqual(result.status, "rejected")
                 self.assertEqual(self.world.effect_count("reschedule"), 0)
                 with sqlite3.connect(self.path) as connection:

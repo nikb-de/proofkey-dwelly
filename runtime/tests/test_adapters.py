@@ -434,15 +434,17 @@ class AdapterTests(unittest.TestCase):
         for advance, request_seconds in [(11, 7200), (2, 1)]:
             with self.subTest(advance=advance, request_seconds=request_seconds):
                 clock = FakeClock()
+                initial_now = clock.now()
                 expired = []
+                phase = "setup"
 
                 class ExpiringFenceWorld(SimulatedWorld):
                     @contextmanager
                     def _connect(self):
                         with super()._connect() as connection:
                             def trace(statement):
-                                if statement.startswith("SELECT * FROM final_rejections") and not expired:
-                                    expired.append(True)
+                                if phase == "read" and statement.startswith("SELECT * FROM final_rejections") and not expired:
+                                    expired.append(phase)
                                     clock.advance(advance)
 
                             connection.set_trace_callback(trace)
@@ -451,13 +453,19 @@ class AdapterTests(unittest.TestCase):
                 world = ExpiringFenceWorld(Path(self.folder.name) / f"fence-expiry-{advance}.sqlite", FIXTURE, clock=clock)
                 intent = make_intent(expected_revisions=world.material_revisions())
                 world.set_fault("reschedule", "business_rejection")
-                self.assertEqual(world.bundle().scheduling.reschedule(intent).status, "rejected")
+                dispatch = world.bundle().scheduling.reschedule(intent)
+                self.assertEqual(expired, [], "read expiry fault fired during setup dispatch")
+                self.assertEqual(clock.now(), initial_now)
+                self.assertEqual(dispatch.status, "rejected")
+                self.assertEqual(dispatch.reason, "business_rejected")
                 world.set_fault("read_schedule", "terminal_not_executed")
                 request = ReadRequest(case_id="C1", object_id="O1", caller_id="U1", proof_reference="synthetic-proof",
                                       purpose="reconcile", deadline=clock.now() + timedelta(seconds=request_seconds),
                                       target=self.original(intent))
+                phase = "read"
                 reply = world.bundle().scheduling.read_schedule(request)
                 self.assertTrue(expired, "real provider rejection-fence lookup did not run")
+                self.assertEqual(expired, ["read"])
                 self.assertEqual(reply.nonexecution.status, "unknown")
                 self.assertEqual(reply.observations, [])
                 self.assertIsNone(reply.action_id)
