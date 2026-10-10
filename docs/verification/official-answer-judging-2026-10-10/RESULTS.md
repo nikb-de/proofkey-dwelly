@@ -2,9 +2,10 @@
 
 **Status: completed, uncalibrated post-hoc model assessment.** No official answer or score was changed. No comparison to human ground truth was performed; human calibration is `NOT_RUN`. The earlier action-only pilot does not qualify this whole-answer framing.
 
-This assessment did not change official answers. A concurrent teammate later added
-separate review footers on `main`; they are not part of this assessment. Exact answer
-links below are pinned to the original commit. See [INTEGRATION.md](INTEGRATION.md).
+This assessment did not change official answers. A concurrent teammate added and
+then reverted separate review footers on `main`; neither change is part of this
+assessment. Exact answer links below are pinned to the original commit. See
+[INTEGRATION.md](INTEGRATION.md).
 
 UTC start: `2026-10-10T15:50:43.851624+00:00`. UTC final recorded summary: `2026-10-10T15:53:28.864009+00:00`.
 

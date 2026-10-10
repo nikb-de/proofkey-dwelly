@@ -8,14 +8,15 @@ While the assessment ran, teammate commit
 `fc842ea1a4d1062ef458f8902d3bb7059dc89b2b` reached remote `main`. It added nine
 separate `REVIEW.md` proposals, links to those reviews in nine `ANSWER.md` files,
 a comparison report, and runtime changes for future execution. It did not replace
-the retained candidate JSON or the original answer body. This work was merged
-without overwriting it. The new human review notes were **not** supplied to the
-three judges and are **not** assessed or endorsed by their scores.
+the retained candidate JSON or the original answer body. The teammate then reverted
+that change in `da18c52`; both commits were integrated without overriding their work.
+The human review notes were **not** supplied to the three judges and are **not**
+assessed or endorsed by their scores.
 
 Therefore the audit's 346-unchanged-files statement applies to the local
-assessment execution against the original snapshot. Current `main` contains
-later review footers; it is not byte-identical to that snapshot. Report answer
-links are commit-pinned, and exact reviewed bytes remain under `packet-final/frozen/`.
+assessment execution against the original snapshot. After the teammate revert,
+the `ANSWERS/` tree is byte-identical to that snapshot again. Report answer links
+remain commit-pinned, and exact reviewed bytes remain under `packet-final/frozen/`.
 No original response, prompt, candidate, judgment, or frozen manifest was changed
 to accommodate the concurrent commit.
 

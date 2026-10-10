@@ -7,9 +7,9 @@ preparation packets are superseded, made zero API calls and are excluded from
 the published package.
 
 The evaluated answers are pinned to `cebf1b2b9520bcae260f1b8c2a50443490f97969`,
-not whichever text is currently on `main`. A concurrent teammate commit added
-separate human review notes after that snapshot. See [INTEGRATION.md](INTEGRATION.md)
-for the distinction and the exact reproducible assessment revision.
+not whichever text is currently on `main`. Concurrent teammate commits added
+and then reverted separate human review notes. See [INTEGRATION.md](INTEGRATION.md)
+for that history and the exact reproducible assessment revision.
 
 Completed: 90 attempts and retained responses, 87 valid judgments, 84 scored
 judgments, three abstentions for case 014, and three malformed Anthropic
