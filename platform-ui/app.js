@@ -1,8 +1,10 @@
-import { PlatformSession, createAPI, needsReview, reviewedMediaMessage, normalizeMediaRun, canReview, modelStatusView, ModelPoller } from './session.js';
+import { PlatformSession, CommunicationsSession, communicationEnvelope, createAPI, needsReview, reviewedMediaMessage, normalizeMediaRun, canReview, modelStatusView, ModelPoller } from './session.js';
 
 const $ = id => document.getElementById(id);
 const api = createAPI();
 const session = new PlatformSession(api, renderDetail);
+const communications = new CommunicationsSession(api, renderCommunications);
+let preparingImport = false;
 let cases = [], capabilities = null, activeView = 'cases', renderedCase = null, notice = '';
 let createAttempt = null;
 const mediaReviewed = new Set();
@@ -97,7 +99,7 @@ function renderDetail() {
   for(const key of ['lifecycle','evidence','analysis','decision','action']){const d=node('div',undefined,'state');d.append(node('dt',human(key)),node('dd',human(detail.states[key])));states.append(d);}
   const sender=$('evidence-sender'),currentSender=changed?session.getDraft('evidence').sender:sender.value;sender.replaceChildren();
   for(const id of snapshot.participants){const o=node('option',id);o.value=id;sender.append(o);}sender.value=currentSender && snapshot.participants.includes(currentSender)?currentSender:snapshot.links.customer_id;
-  renderEvidence(detail);renderDecisions(detail);renderHistory(detail);renderJobs(detail);
+  renderEvidence(detail);renderDecisions(detail);renderHistory(detail);renderJobs(detail);renderCaseCommunications(detail);
   for(const selector of ['#create-case-form button','#evidence-form button','#proposal-form button','#analyze-case','#refresh-case'])document.querySelector(selector).disabled=session.busy;
   $('run-model').disabled=session.busy || !$('model-profile').value || capabilities?.models?.enabled!==true;
 }
@@ -210,7 +212,7 @@ function renderJobs(detail) {
     if(card.dataset.jobId)for(const inspector of card.querySelectorAll('details[data-inspector][open]'))openInspectors.add(JSON.stringify([card.dataset.jobId,inspector.dataset.inspector]));
   }
   parent.replaceChildren();parent.dataset.caseId=detail.case_id;
-  modelPoller.watch({caseId:activeView==='integrations'?null:detail.case_id,generation:session.generation,jobs:detail.model_jobs || []});
+  modelPoller.watch({caseId:['cases','queue'].includes(activeView)?detail.case_id:null,generation:session.generation,jobs:detail.model_jobs || []});
   for(const entry of detail.model_jobs || []){
     const id=entry.run_id || entry.job_id || entry.id,job=entry,view=modelStatusView(job,detail.snapshot);const item=node('div',undefined,'job-item');item.dataset.runId=id || '';item.dataset.jobId=id || '';
     item.append(node('strong',`Model run · ${human(view.transport)}`,'model-transport'),node('p',id || 'Run recorded'));
@@ -234,6 +236,63 @@ function renderJobs(detail) {
     if(id)item.append(button('Refresh run',()=>perform(()=>session.reload())));parent.append(item);
   }
 }
+function communicationReceipt(receipt,{allowRetry=false}={}) {
+  const item=node('article',undefined,'communication-receipt');item.dataset.receiptId=receipt.receipt_id;
+  item.append(node('span',human(receipt.status),`tag ${receipt.status==='accepted'?'positive':'pending'}`),node('h4',`${human(receipt.channel)} · ${receipt.connector_id}`),node('p',`Delivery ${receipt.delivery_id}`),node('p',`Receipt ${receipt.receipt_id}`,'hint'));
+  if(receipt.reason)item.append(node('p',`Reason: ${human(receipt.reason)}`,'communication-reason'));
+  if(receipt.case_id)item.append(node('p',`Case ${receipt.case_id} · revision ${receipt.revision ?? 'not reported'}`));
+  item.append(node('p',`Source: ${human(receipt.source)} · ${stamp(receipt.received_at)}`,'hint'));
+  if(receipt.raw_sha256)item.append(node('p',`Canonical envelope SHA-256: ${receipt.raw_sha256}`,'hint'));
+  if(receipt.event_ids?.length)item.append(node('p',`Evidence events: ${receipt.event_ids.join(', ')}`,'hint'));
+  if(receipt.provenance){const details=node('details');details.append(node('summary','Source provenance'),node('pre',JSON.stringify(receipt.provenance,null,2)));item.append(details);}
+  if(receipt.status==='accepted' && receipt.case_id){const open=button('Open case',()=>{document.querySelector('[data-view="cases"]').click();selectCase(receipt.case_id);});open.disabled=communications.busy;item.append(open);}
+  if(allowRetry && receipt.status==='quarantined'){
+    const retry=button('Retry quarantined import',()=>perform(()=>writeCommunication(()=>communications.retry(receipt.receipt_id))));retry.dataset.action='retry';retry.disabled=communications.busy || preparingImport;item.append(retry);
+  }
+  return item;
+}
+function renderCaseCommunications(detail) {
+  const parent=$('case-communications');parent.replaceChildren();
+  if(!detail.communications?.length)return;
+  const details=node('details');details.append(node('summary',`Inbound source provenance · ${detail.communications.length}`));
+  for(const receipt of detail.communications)details.append(communicationReceipt(receipt));parent.append(details);
+}
+function renderCommunications() {
+  const value=communications.value,busy=communications.busy || preparingImport;
+  $('communications-loading').textContent=communications.loading?'Refreshing local inbox…':value?'Local receipt history. No automatic provider activity.':'Open Communications to load the local inbox.';
+  const select=$('communication-connector'),selected=select.value;select.replaceChildren(node('option','Select a configured connector'));select.firstChild.value='';
+  const connectors=$('communication-connectors');connectors.replaceChildren();
+  for(const connector of value?.connectors || []){
+    const option=node('option',`${connector.id} · ${human(connector.channel)}`);option.value=connector.id;option.disabled=connector.configured!==true;select.append(option);
+    const card=node('article',undefined,'card');card.append(node('h3',human(connector.channel)),node('p',connector.id),node('span','Provider disconnected','tag'),node('p',`${connector.route_count ?? 0} configured routes · ${connector.contact_count ?? 0} mapped contacts`),node('p','Trusted local mappings only. No mailbox or account connection.','hint'));connectors.append(card);
+  }
+  select.value=selected;
+  if(value && !value.connectors?.length)empty(connectors,'No inbound connectors configured. Configure trusted routes outside this UI.');
+  for(const field of $('communication-form').querySelectorAll('input,textarea,select,button'))field.disabled=busy;
+  $('communication-import').disabled=busy || !select.value;
+  $('refresh-communications').disabled=busy || communications.loading;
+  const email=$('communication-format').value==='eml';$('communication-email-fields').hidden=!email;$('communication-json-fields').hidden=email;
+  $('communication-json').required=!email;
+  for(const id of ['communication-delivery','communication-conversation','communication-file'])$(id).required=email;
+  const parent=$('communication-receipts');parent.replaceChildren();const receipts=value?.receipts || [];
+  $('communication-count').textContent=String(receipts.length);
+  if(value && !receipts.length)empty(parent,'No inbound deliveries yet. Import a source envelope to begin.');
+  for(const receipt of receipts)parent.append(communicationReceipt(receipt,{allowRetry:true}));
+  const last=communications.lastReceipt;
+  $('communication-outcome').textContent=last?`${human(last.status)} · receipt ${last.receipt_id}${last.reason?` · ${human(last.reason)}`:''}. Source input retained.`:'';
+}
+async function writeCommunication(action) {
+  captureDrafts();const receipt=await action();
+  const refreshes=[['inbox',communications.load()]];
+  if(receipt?.status==='accepted'){
+    refreshes.push(['case list',loadCases()]);
+    if(session.selectedId===receipt.case_id)refreshes.push(['selected case',session.reload()]);
+  }
+  const outcomes=await Promise.allSettled(refreshes.map(([,promise])=>promise));
+  const failed=refreshes.filter((_,index)=>outcomes[index].status==='rejected').map(([label])=>label);
+  if(failed.length)throw Error(`${human(receipt.status)} receipt ${receipt.receipt_id} is saved. Refresh failed for: ${failed.join(', ')}. Use the corresponding Refresh control; do not re-import. Your source input is retained.`);
+  return receipt;
+}
 function renderCapabilities() {
   const select=$('model-profile');select.replaceChildren(node('option','No model selected'));select.firstChild.value='';
   for(const model of capabilities?.models?.profiles || []){const available=capabilities?.models?.enabled===true && model.available;const option=node('option',`${model.label || model.id}${available?'':' · unavailable'}`);option.value=model.id;option.disabled=!available;select.append(option);}
@@ -245,10 +304,22 @@ function renderCapabilities() {
 }
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{
   activeView=b.dataset.view;document.querySelectorAll('[data-view]').forEach(n=>n.classList.toggle('active',n===b));
-  $('integrations-view').hidden=activeView!=='integrations';$('cases-view').hidden=activeView==='integrations';
-  $('page-title').textContent=activeView==='integrations'?'Connected, with control.':activeView==='queue'?'Decisions that need you.':'A clear next step.';
+  $('integrations-view').hidden=activeView!=='integrations';$('communications-view').hidden=activeView!=='communications';$('cases-view').hidden=!['cases','queue'].includes(activeView);
+  $('page-title').textContent=activeView==='communications'?'Every message, traceable.':activeView==='integrations'?'Connected, with control.':activeView==='queue'?'Decisions that need you.':'A clear next step.';
   renderCases();if(session.detail)renderJobs(session.detail);
+  if(activeView==='communications')perform(()=>communications.load());
 }));
+$('refresh-communications').addEventListener('click',()=>perform(()=>communications.load()));
+for(const id of ['communication-format','communication-connector'])$(id).addEventListener('change',renderCommunications);
+$('communication-form').addEventListener('submit',event=>{event.preventDefault();perform(async()=>{
+  if(preparingImport || communications.busy)return;
+  const connector=$('communication-connector').value;
+  if(!connector)throw Error('Select a configured connector.');
+  const input={format:$('communication-format').value,jsonText:$('communication-json').value,deliveryId:$('communication-delivery').value,conversationId:$('communication-conversation').value,file:$('communication-file').files?.[0]};
+  preparingImport=true;renderCommunications();
+  try {const envelope=await communicationEnvelope(input);await writeCommunication(()=>communications.import(connector,envelope));}
+  finally{preparingImport=false;renderCommunications();}
+});});
 $('refresh-list').addEventListener('click',()=>perform(loadCases));
 $('refresh-case').addEventListener('click',()=>perform(async()=>{captureDrafts();await session.reload();await loadCases();},'Case refreshed. Your drafts are retained.'));
 for(const id of ['evidence-form','proposal-form'])$(id).addEventListener('input',captureDrafts);

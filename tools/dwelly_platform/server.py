@@ -38,8 +38,8 @@ def project_model_states(detail):
     return detail
 
 
-def capabilities(bridge, media=None):
-    return {'schema_version':'proofkey-platform-capabilities-v1',
+def capabilities(bridge, media=None, channels=None):
+    result = {'schema_version':'proofkey-platform-capabilities-v1',
         'execution_mode':'local_sandbox','external_effects':0,
         'authentication':'trusted_local_operator_not_production_auth',
         'models':bridge.profiles(),
@@ -52,6 +52,11 @@ def capabilities(bridge, media=None):
             {'id':'returns','label':'Returns','status':'not_connected','mode':'interface_only'},
             {'id':'messaging','label':'Customer messaging','status':'not_connected','mode':'interface_only'},
             {'id':'operator','label':'Operator inbox','status':'connected','mode':'local_review_queue'}]}
+    result['communications'] = {'connectors':channels.capabilities() if channels else [],
+                                'provider_connections':False,'outbound_enabled':False}
+    if channels is not None:
+        result['adapters'][4].update(status='sandbox',mode='local_ingress')
+    return result
 
 
 class PlatformServer(ThreadingHTTPServer):
@@ -119,19 +124,21 @@ class Handler(BaseHTTPRequestHandler):
         code = getattr(error, 'code', error.args[0] if error.args else None)
         if type(code) is not str:
             code = None
-        missing = {'case_not_found','revision_not_found','asset_not_found','decision_not_found','model_job_not_found','job_not_found','run_not_found'}
+        missing = {'case_not_found','revision_not_found','asset_not_found','decision_not_found','model_job_not_found','job_not_found','run_not_found','receipt_not_found'}
         conflict = {'idempotency_conflict','revision_conflict','snapshot_conflict','snapshot_hash_mismatch',
                     'action_blocked','approval_required','decision_stale','stale_decision','model_execution_disabled',
                     'model_credentials_unavailable','model_job_binding_mismatch','asset_processing_disabled',
                     'case_capacity','asset_capacity','budget_exceeded','not_approved','consent_required',
                     'decision_superseded','already_executed','media_budget_exceeded',
                     'event_conflict','media_processing_disabled','media_budget_exhausted',
-                    'media_budget_cap_changed','budget_exhausted','budget_cap_changed','queue_full'}
+                    'media_budget_cap_changed','budget_exhausted','budget_cap_changed','queue_full',
+                    'delivery_conflict','inbox_capacity','receipt_not_quarantined','communications_not_configured'}
         invalid = {'invalid_case_request','invalid_request','invalid_content_type','request_too_large','duplicate_key',
                    'invalid_model_request','invalid_media','invalid_asset','invalid_asset_type','evidence_not_found',
                    'invalid_platform_request','invalid_review','invalid_action','invalid_slot','invalid_media_request',
                    'asset_too_large','asset_mismatch','invalid_model_job','media_mode_mismatch',
-                   'media_too_large','media_dimensions_exceeded','media_duration_exceeded'}
+                   'media_too_large','media_dimensions_exceeded','media_duration_exceeded',
+                   'invalid_envelope','invalid_identity','envelope_too_large','unknown_connector'}
         if code in missing: status = 404
         elif code in conflict: status = 409
         # Only documented public codes may cross the HTTP boundary. A database
@@ -153,6 +160,8 @@ class Handler(BaseHTTPRequestHandler):
             result['model_jobs'] = jobs
         if self.server.media is not None:
             result['media_runs'] = self.server.media.list(case_id)
+        if self.server.channels is not None:
+            result['communications'] = self.server.channels.provenance(case_id)
         return project_model_states(result)
 
     def do_GET(self):
@@ -160,7 +169,11 @@ class Handler(BaseHTTPRequestHandler):
         path = urlsplit(self.path).path
         try:
             if path == '/healthz': return self._send(200, {'status':'ok','mode':'local_sandbox'})
-            if path == '/api/platform/capabilities': return self._send(200, capabilities(self.server.bridge,self.server.media))
+            if path == '/api/platform/capabilities': return self._send(200, capabilities(self.server.bridge,self.server.media,self.server.channels))
+            if path == '/api/platform/communications':
+                channels = self.server.channels
+                return self._send(200, {'connectors':channels.capabilities() if channels else [],
+                                       'receipts':channels.list() if channels else [],'provider_connections':False})
             if path == '/api/platform/cases':
                 summaries = self.server.store.list_cases()
                 for summary in summaries:
@@ -203,6 +216,18 @@ class Handler(BaseHTTPRequestHandler):
         try:
             key = self.headers.get('Idempotency-Key'); _key(key)
             path = urlsplit(self.path).path
+            if path == '/api/platform/communications/import':
+                from tools.dwelly_channels.contracts import MAX_ENVELOPE_BYTES
+                if self.server.channels is None: raise ValueError('communications_not_configured')
+                body = self._body(MAX_ENVELOPE_BYTES + 1024)
+                if set(body) != {'connector_id','envelope'}: raise ValueError('invalid_request')
+                receipt = self.server.channels.ingest(body['connector_id'],body['envelope'],source='operator_import')
+                return self._send(200, {'receipt':receipt})
+            receipt_path = re.fullmatch(r'/api/platform/communications/([a-f0-9]{32})/retry',path)
+            if receipt_path:
+                if self.server.channels is None: raise ValueError('communications_not_configured')
+                if self._body(1024) != {}: raise ValueError('invalid_request')
+                return self._send(200, {'receipt':self.server.channels.retry(receipt_path[1])})
             if path == '/api/platform/cases':
                 snapshot, created = self.server.store.create(key,self._body(16384))
                 return self._send(201 if created else 200, {'case':self._detail(snapshot['case_id'])})
@@ -230,9 +255,10 @@ class Handler(BaseHTTPRequestHandler):
             self._error(error)
 
 
-def create_server(store, *, host='127.0.0.1', port=8095, bridge=None, media=None):
+def create_server(store, *, host='127.0.0.1', port=8095, bridge=None, media=None, channels=None):
     if host != '127.0.0.1' or any(os.environ.get(name) for name in ('K_SERVICE','FUNCTION_TARGET','CLOUD_RUN_JOB')):
         raise ValueError('local_trust_boundary_only')
     server = PlatformServer((host,port),Handler)
     server.store, server.bridge, server.media = store, bridge or ModelBridge(store), media
+    server.channels = channels
     return server

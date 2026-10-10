@@ -2,7 +2,7 @@
 
 ## Start here: the integrated local platform
 
-The primary product is now the [Right onTime case platform](docs/platform-operations.md): PostgreSQL case creation and evidence, independent state axes, deterministic checks, optional model analysis, photo analysis/ASR controls, human review and transactional **sandbox-only** rescheduling. All platform state names and labels are English. Evaluations remain a separate engineering workspace.
+The primary product is now the [Right onTime case platform](docs/platform-operations.md): PostgreSQL case creation and evidence, independent state axes, deterministic checks, optional model analysis, photo analysis/ASR controls, human review and transactional **sandbox-only** rescheduling. [Inbound communications](docs/inbound-communications.md) adds local email/chat/transcript/recording ingress, quarantine and signed pseudo-provider webhooks; real channel accounts remain disconnected. All platform state names and labels are English. Evaluations remain a separate engineering workspace.
 
 Run `PYTHONPATH=.:tools:runtime/src python -m tools.dwelly_platform serve --database-url-env PROOFKEY_PLATFORM_DATABASE_URL --schema proofkey_platform_local --migrate --port 8095`, then open `http://127.0.0.1:8095/`. Providers are disabled by default; private credentials remain server-side. See [API and data boundaries](contracts/platform-v1/README.md).
 

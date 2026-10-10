@@ -20,6 +20,8 @@ PYTHONPATH=.:tools:runtime/src python -m tools.dwelly_platform serve \
 
 Open `http://127.0.0.1:8095/`. The default is no model dispatch and no media dispatch. Historical model/media records remain readable without enabling new calls. Migration is explicit and additive; it does not clear cases.
 
+Add `--channel-config tools/dwelly_channels/examples/channels.local.json` for the **Communications** workspace and local email/chat/phone ingress. Optional `--channel-port 8096` starts a separate signed loopback listener; it requires signing secrets from the environment. See [inbound communications](inbound-communications.md) for exact contracts, setup and boundaries. This does not connect any real mailbox, messenger or telephone account.
+
 For an authorized provider experiment, add `--allow-live` for case reasoning and/or `--allow-media` for photo analysis/ASR. Optional `--provider-env-file .env` uses the existing non-executing, allowlisted loader. The configured example case models are not recommendations or claims of account access. `--image-model` and `--asr-model` control media models. Keys stay server-side.
 
 Media uses a conservative full USD25 reservation per provider/model/experiment, so only one new request per model is admitted until a more precise accounting policy is implemented. The CLI connects media and text to the same durable model-budget ledger: existing text reservations can block a media run, and vice versa. Failed/unknown requests retain their reservation; retrying with a new key is not a way around the budget. Reuse `--budget-scope` across restarts of the same experiment. This is a local reservation limit, not a billing-system guarantee; also set provider-side limits.
@@ -72,6 +74,7 @@ All machine states, UI labels, errors and decisions are English. Original source
 | Decision | `none`, `proposed`, `blocked`, `approved`, `rejected`, `superseded` | Current revision-bound proposal/review |
 | Action | `none`, `verified` | This slice has atomic local effects; external asynchronous action states remain future integration work |
 | Media run | `running`, `succeeded`, `failed`, `outcome_unknown` | Explicit extraction, never evidence authenticity or identity verification |
+| Inbound receipt | `accepted`, `quarantined` | Durable evidence admission, never sender identity proof or case resolution |
 
 History retains all proposals and receipts. A `verified` historical sandbox action can remain visible when newer evidence makes the case unresolved again. `resolved` means the current local sandbox workflow succeeded, not delivery confirmation from a real carrier.
 
@@ -95,7 +98,7 @@ The deterministic baseline intentionally asks for information/review rather than
 | Delivery operations | Interface only; no real carrier |
 | Scheduling | Transactional PostgreSQL sandbox |
 | Returns | Interface only; human review |
-| Customer messaging | Interface only; no sends |
+| Customer messaging | Optional local inbound email/chat/phone harness; no real account or outbound sends/calls |
 | Operator inbox | Local review queue |
 
 ## Media limits and controls

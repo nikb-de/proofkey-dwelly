@@ -123,6 +123,58 @@ export function createAPI(fetcher = globalThis.fetch.bind(globalThis)) {
   };
 }
 
+export async function communicationEnvelope({format,jsonText,deliveryId,conversationId,file}) {
+  const requiredId=(value,name)=>{if(typeof value!=='string' || !value.trim())throw Error(`Add a ${name} ID.`);return value;};
+  if(format==='eml'){
+    requiredId(deliveryId,'delivery');requiredId(conversationId,'conversation');
+    if(!file)throw Error('Choose a raw .eml file.');
+    if(!file.size || file.size>26*1024*1024)throw Error('Raw email must be non-empty and no larger than 26 MiB.');
+    const bytes=new Uint8Array(await file.arrayBuffer());let binary='';
+    for(let offset=0;offset<bytes.length;offset+=32768)binary+=String.fromCharCode(...bytes.subarray(offset,offset+32768));
+    return {schema_version:'proofkey-inbound-v1',delivery_id:deliveryId,conversation_id:conversationId,format:'email',payload:{raw_base64:btoa(binary)}};
+  }
+  if(format!=='json')throw Error('Choose JSON or raw email.');
+  if(new TextEncoder().encode(jsonText || '').length>40*1024*1024)throw Error('The envelope must be no larger than 40 MiB.');
+  let value;try{value=JSON.parse(jsonText);}catch{throw Error('Enter a valid JSON envelope.');}
+  const fields=['schema_version','delivery_id','conversation_id','format','payload'];
+  if(!value || typeof value!=='object' || Array.isArray(value) || Object.keys(value).length!==fields.length || fields.some(key=>!Object.hasOwn(value,key)))throw Error('Use exactly the five inbound envelope fields.');
+  if(value.schema_version!=='proofkey-inbound-v1')throw Error('Use schema_version proofkey-inbound-v1.');
+  requiredId(value.delivery_id,'delivery');requiredId(value.conversation_id,'conversation');
+  if(!['message','transcript','media','email'].includes(value.format) || !value.payload || typeof value.payload!=='object' || Array.isArray(value.payload))throw Error('The envelope format or payload is invalid.');
+  return value;
+}
+
+export class CommunicationsSession {
+  constructor(api,onChange=()=>{}) {
+    this.api=api;this.onChange=onChange;this.value=null;this.generation=0;
+    this.busy=false;this.loading=false;this.error='';this.lastReceipt=null;this.pending=new Map();
+  }
+  async load() {
+    const generation=++this.generation;this.loading=true;this.error='';this.onChange();
+    try {
+      const value=await this.api('/communications',{method:'GET'});
+      if(generation===this.generation)this.value=value;
+      return value;
+    } catch(error){
+      if(generation!==this.generation)return;
+      this.error=error.message;throw error;
+    }
+    finally{if(generation===this.generation){this.loading=false;this.onChange();}}
+  }
+  import(connectorId,envelope) {return this.write('/communications/import',{connector_id:connectorId,envelope});}
+  retry(receiptId) {return this.write(`/communications/${encodeURIComponent(receiptId)}/retry`,{});}
+  async write(path,body) {
+    if(this.busy)throw Error('A communications request is already in progress.');
+    const signature=JSON.stringify([path,body]),key=this.pending.get(signature) || requestId();
+    this.pending.set(signature,key);this.busy=true;this.error='';this.onChange();
+    try {
+      const result=await this.api(path,{method:'POST',body,idempotencyKey:key});
+      this.pending.delete(signature);this.lastReceipt=result.receipt;return result.receipt;
+    } catch(error){this.error=error.message;throw error;}
+    finally{this.busy=false;this.onChange();}
+  }
+}
+
 export class PlatformSession {
   constructor(api, onChange = () => {}) {
     this.api=api; this.onChange=onChange; this.selectedId=null; this.detail=null;

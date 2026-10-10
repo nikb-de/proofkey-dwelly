@@ -241,19 +241,31 @@ class PlatformStore(postgres.PostgresCaseStore):
 
     def put_asset(self, case_id, key, mime, filename, data):
         self._validate_asset(mime, filename, data)
+        with self._transaction(write=True) as connection:
+            return self._put_asset(connection, case_id, key, mime, filename, data)
+
+    def _put_asset(self, connection, case_id, key, mime, filename, data):
+        """Store an asset within the caller's canonical write transaction."""
+        _identifier(case_id)
+        _key(key)
+        self._validate_asset(mime, filename, data)
         sha256 = hashlib.sha256(data).hexdigest()
         body = {"mime_type": mime, "filename": filename, "sha256": sha256, "size_bytes": len(data)}
-        with self._request(case_id, "asset", key, body) as (connection, body, replay, save):
-            if replay is not None:
-                return replay
-            total = connection.execute("SELECT COALESCE(sum(size_bytes),0) FROM platform_assets WHERE case_id=?", (case_id,)).fetchone()[0]
-            require(total + len(data) <= 100 * 1024 * 1024, "asset_capacity")
-            safe_name = re.sub(r"[^A-Za-z0-9._-]", "_", filename.replace("\\", "/").split("/")[-1])[:128].strip(".") or "attachment"
-            descriptor = {"asset_id": uuid.uuid4().hex, "sha256": sha256, "mime_type": mime, "size_bytes": len(data)}
-            connection.execute("INSERT INTO platform_assets (asset_id,case_id,sha256,mime_type,size_bytes,filename,data) VALUES (?,?,?,?,?,?,?)",
-                               (descriptor["asset_id"], case_id, sha256, mime, len(data), safe_name, data))
-            save(descriptor)
-            return descriptor
+        body, encoded = _bounded_json(body)
+        self._history(connection, case_id)
+        scope = "asset:" + case_id
+        row = connection.execute("SELECT body,result FROM platform_requests WHERE scope=? AND idempotency_key=?", (scope, key)).fetchone()
+        if row:
+            require(row["body"] == encoded, "idempotency_conflict")
+            return json.loads(row["result"])
+        total = connection.execute("SELECT COALESCE(sum(size_bytes),0) FROM platform_assets WHERE case_id=?", (case_id,)).fetchone()[0]
+        require(total + len(data) <= 100 * 1024 * 1024, "asset_capacity")
+        safe_name = re.sub(r"[^A-Za-z0-9._-]", "_", filename.replace("\\", "/").split("/")[-1])[:128].strip(".") or "attachment"
+        descriptor = {"asset_id": uuid.uuid4().hex, "sha256": sha256, "mime_type": mime, "size_bytes": len(data)}
+        connection.execute("INSERT INTO platform_assets (asset_id,case_id,sha256,mime_type,size_bytes,filename,data) VALUES (?,?,?,?,?,?,?)",
+                           (descriptor["asset_id"], case_id, sha256, mime, len(data), safe_name, data))
+        connection.execute("INSERT INTO platform_requests VALUES (?,?,?,?)", (scope, key, encoded, _canonical(descriptor)))
+        return descriptor
 
     def get_asset(self, case_id, asset_id):
         _identifier(case_id)

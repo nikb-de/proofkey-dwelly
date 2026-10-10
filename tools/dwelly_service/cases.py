@@ -280,28 +280,40 @@ class CaseStore:
     def append(self, case_id, key, body):
         _identifier(case_id)
         _key(key)
-        body, encoded = _bounded_json(body)
+        body, _encoded = _bounded_json(body)
         with self._transaction(write=True) as connection:
-            history = self._history(connection, case_id)
-            current = history[-1]
-            _append_request(body, current["participants"])
-            existing = self._retry(connection, "append:" + case_id, key, encoded)
-            if existing is not None:
-                return existing, False
-            if any(item["event_id"] == body["event"]["event_id"] for item in current["events"]):
-                raise CaseError("event_conflict")
-            if body["expected_revision"] != current["revision"]:
-                raise CaseError("revision_conflict")
-            if current["revision"] >= MAX_EVENTS:
-                raise CaseError("case_capacity")
-            declaration = {field: current[field] for field in DECLARATION_FIELDS}
-            value = _snapshot(declaration, current["events"] + [body["event"]], current["snapshot_hash"])
-            connection.execute("INSERT INTO case_snapshots VALUES (?, ?, ?)", (case_id, value["revision"], _canonical(value)))
-            connection.execute("UPDATE case_heads SET current_revision=? WHERE case_id=?", (value["revision"], case_id))
-            connection.execute("INSERT INTO case_requests VALUES (?, ?, ?, ?, ?)",
-                               ("append:" + case_id, key, encoded, case_id, value["revision"]))
-            self._after_revision(connection, value)
-            return self._history(connection, case_id)[-1], True
+            return self._append(connection, case_id, key, body)
+
+    def _append(self, connection, case_id, key, body):
+        """Append using an already-held canonical write transaction.
+
+        Callers own the transaction and its write lock; this never opens another
+        connection. The public append and atomic inbound promotion share all
+        validation, immutable snapshots, idempotency, and outbox hooks here.
+        """
+        _identifier(case_id)
+        _key(key)
+        body, encoded = _bounded_json(body)
+        history = self._history(connection, case_id)
+        current = history[-1]
+        _append_request(body, current["participants"])
+        existing = self._retry(connection, "append:" + case_id, key, encoded)
+        if existing is not None:
+            return existing, False
+        if any(item["event_id"] == body["event"]["event_id"] for item in current["events"]):
+            raise CaseError("event_conflict")
+        if body["expected_revision"] != current["revision"]:
+            raise CaseError("revision_conflict")
+        if current["revision"] >= MAX_EVENTS:
+            raise CaseError("case_capacity")
+        declaration = {field: current[field] for field in DECLARATION_FIELDS}
+        value = _snapshot(declaration, current["events"] + [body["event"]], current["snapshot_hash"])
+        connection.execute("INSERT INTO case_snapshots VALUES (?, ?, ?)", (case_id, value["revision"], _canonical(value)))
+        connection.execute("UPDATE case_heads SET current_revision=? WHERE case_id=?", (value["revision"], case_id))
+        connection.execute("INSERT INTO case_requests VALUES (?, ?, ?, ?, ?)",
+                           ("append:" + case_id, key, encoded, case_id, value["revision"]))
+        self._after_revision(connection, value)
+        return self._history(connection, case_id)[-1], True
 
     def get(self, case_id, revision=None):
         _identifier(case_id)
