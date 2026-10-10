@@ -12,6 +12,8 @@ Start with [model quickstart](tools/dwelly_model/README.md), [local asynchronous
 - Three separately attributable API judge seats with eight anchored rubrics, abstention and critical-failure reporting.
 - A CLI, Docker build, offline tests, immutable experiment artifacts and conservative per-model spend reservations.
 - A local authenticated job service with persistent queue, proposal readback, cancellation and optional evaluation; bounded parallel provider calls run inside one active experiment. See [service boundaries and commands](docs/model-service.md).
+- A [local case/event pseudo API](docs/local-case-intake.md) with immutable revisions and declared JSON relationships. New input remains pending analysis; media is metadata-only.
+- An optional [read-only shadow bridge](tools/dwelly_bridge/README.md) for validated model-result/runtime associations. It grants no execution authority.
 
 Google Cloud deployment is **prepared, not performed**: the [Cloud Run Job template](deploy/cloud-run/README.md) is offline-only. The local queue must not be deployed as a durable Cloud Run HTTP service; live cloud requests fail closed until external durable admission and artifact storage exist.
 

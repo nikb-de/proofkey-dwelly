@@ -1,6 +1,6 @@
 # Parallel model service
 
-The model service is a single-operator local queue for unsent contact proposals. It persists jobs and a shared conservative spending ledger on a local POSIX filesystem, then overlaps bounded model requests inside one active job. It sends no customer messages, books no delivery and transfers no money. The separate `runtime/` harness is not invoked by this service.
+The model service is a single-operator local queue for unsent contact proposals. It persists jobs and a shared conservative spending ledger on a local POSIX filesystem, then overlaps bounded model requests inside one active job. It sends no customer messages, books no delivery and transfers no money. The separate `runtime/` harness is not invoked by this service. The [local case/event input guide](local-case-intake.md) describes the separate revisioned pseudo-API and private `.env` setup; new input remains pending until an analysis consumer is connected.
 
 ## Boundary and status
 

@@ -1,6 +1,6 @@
 # Local model/runtime shadow bridge — verification
 
-Verified on 2026-10-10, implementation through `0e8e170`, Python3.12. Local-only; no provider calls, customer actions, deployment or remote publication.
+Verified on 2026-10-10, implementation through `0e8e170`, Python 3.12. Local-only; no provider calls, customer actions, deployment or remote publication.
 
 ## Delivered
 
@@ -13,15 +13,15 @@ Verified on 2026-10-10, implementation through `0e8e170`, Python3.12. Local-only
 
 | Suite | Result |
 | --- | --- |
-| `tools/dwelly_bridge/tests` with runtime on PYTHONPATH |82passed, no skips,2.146s |
-| Runtime `test_shadow_binding test_journal test_contracts test_execution_context_storage` |114passed,2.159s |
-| Existing model tests |74passed,0.715s |
-| Existing case-import tests |58passed,0.902s |
-| Existing service tests |25passed,9.686s |
+| `tools/dwelly_bridge/tests` with runtime on PYTHONPATH |82 passed, no skips, 2.146s |
+| Runtime `test_shadow_binding test_journal test_contracts test_execution_context_storage` |114 passed, 2.159s |
+| Existing model tests |74 passed, 0.715s |
+| Existing case-import tests |58 passed, 0.902s |
+| Existing service tests |25 passed, 9.686s |
 
 All commands used `-B -W error::ResourceWarning -m unittest`. For bridge/runtime tests the interpreter was the existing environment `.superpowers/sdd/2026-10-08-proofkey-runtime/api-env.GEsSnS/bin/python` and `PYTHONPATH=runtime/src:runtime/tests`. Other suites used `python3.12`. Exact portable commands are in `tools/dwelly_bridge/README.md`.
 
-These are353test executions across the listed suites, not semantic-case accuracy measurements. The older full runtime suite is still running independently and is not evidence for this change; it was not duplicated.
+These are 353 test executions across the listed suites, not semantic-case accuracy measurements. The older full runtime suite is still running independently and is not evidence for this change; it was not duplicated.
 
 ## Review and fixes
 
