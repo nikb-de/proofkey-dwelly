@@ -1,5 +1,6 @@
 """Independent synthetic provider controls and original outcome assertions."""
 import copy
+from datetime import datetime
 import hashlib
 import json
 import sqlite3
@@ -324,8 +325,10 @@ class PacketSourceTests(unittest.TestCase):
         with sqlite3.connect(self.db) as connection:
             stored = json.loads(connection.execute("SELECT observations FROM effects").fetchone()[0])
         observation = next(item for item in stored if item["fact"] == "packet_content_receipt")
-        self.assertEqual(observation["value"]["stored_at"], observation["provider_at"])
-        self.assertEqual(observation["observed_at"], observation["provider_at"])
+        self.assertEqual(datetime.fromisoformat(observation["value"]["stored_at"]),
+                         datetime.fromisoformat(observation["provider_at"]))
+        self.assertEqual(datetime.fromisoformat(observation["observed_at"]),
+                         datetime.fromisoformat(observation["provider_at"]))
         read = self.read(intent)
         self.assertEqual(verify(intent, read, profile=self.profile).status, "verified")
         receipt = next(obs for obs in read.observations if obs.fact == "packet_content_receipt")
