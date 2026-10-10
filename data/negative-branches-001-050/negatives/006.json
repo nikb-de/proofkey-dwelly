@@ -1,0 +1,116 @@
+{
+  "case": "006",
+  "title": "Customer requests collection from a staffed pickup point",
+  "snapshot": "Routing says DL-006 can be redirected without charge before route release, Copperfin Counter has space and is open 10:00–18:00 UTC on 2026-02-08, and the customer's recorded choice is needed. Pella Rusk asks in the Customer portal to send DL-006 there instead of her home.",
+  "recorded_action": "Iona Quill emailed Routing to redirect DL-006 to Copperfin Counter on Pella's recorded choice and to notify the desk only once the counter had physically received it.",
+  "negatives": [
+    {
+      "id": "006-N1",
+      "label": "Parcel released before free redirect applied",
+      "failure_mode": "STALE_STATE",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-07 09:48:00 UTC",
+        "channel": "Email",
+        "from": "Routing, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "DL-006 was released to today's home-delivery route at 09:20, before your request reached us, so the free redirect no longer applies. We can still divert it to Copperfin Counter after release for GBP 4.50, or the home attempt goes ahead today."
+      },
+      "expected_decision": "ASK_CUSTOMER",
+      "sheet": "B",
+      "expected_action": "Tell Pella in the Customer portal that the free redirect has lapsed and ask whether she wants the GBP 4.50 diversion to Copperfin Counter or the home attempt today.",
+      "must_not": "Accept the GBP 4.50 charge for her because she already chose the counter, or tell her the free redirect went through.",
+      "done_means": "Pella's choice in the portal and Routing's confirmation close the branch; neither shows the counter has received the parcel."
+    },
+    {
+      "id": "006-N2",
+      "label": "Routing ticket creation failed",
+      "failure_mode": "CHANNEL_FAILURE",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-07 09:27:00 UTC",
+        "channel": "Email",
+        "from": "Routing request system, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Automatic reply. Your message about DL-006 was received at 09:25. Ticket creation failed with a system error, so no reference number was issued. Your request may not appear in the Routing queue."
+      },
+      "expected_decision": "VERIFY_FIRST",
+      "sheet": "R",
+      "expected_action": "Ask Routing in Dispatch chat what DL-006's saved destination shows now, and state that no second redirect request will be sent until that is known.",
+      "must_not": "Email the redirect request again, or tell Pella the parcel is on its way to Copperfin Counter.",
+      "done_means": "Routing states DL-006's saved destination; if the redirect is absent, one request follows and is confirmed once, and none of this shows the counter has the parcel."
+    },
+    {
+      "id": "006-N3",
+      "label": "Two redirect requests open two transfers",
+      "failure_mode": "DUPLICATE_REQUEST",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-07 09:52:00 UTC",
+        "channel": "Email",
+        "from": "Routing, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "We now hold two redirect requests for DL-006 to Copperfin Counter: yours from 09:25 and one Pella submitted herself on our tracking page at 09:18. Each has opened its own transfer task. Please tell us how to proceed."
+      },
+      "expected_decision": "RESOLVE_DUPLICATE",
+      "sheet": "F",
+      "expected_action": "Tell Routing by Email that both requests carry Pella's same choice, and ask it to link the desk's request to her 09:18 request and run one transfer only.",
+      "must_not": "Let both transfer tasks run, or cancel both and leave DL-006 on the home route.",
+      "done_means": "Routing confirms one transfer task and the duplicate closed; the counter's physical receipt is still unconfirmed."
+    },
+    {
+      "id": "006-N4",
+      "label": "Customer withdraws the redirect",
+      "failure_mode": "CUSTOMER_CANCELS",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-07 09:40:00 UTC",
+        "channel": "Customer portal",
+        "from": "Pella Rusk, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Please stop the redirect. My plans have changed and I will be at home for the original delivery after all. Do not send DL-006 to Copperfin Counter."
+      },
+      "expected_decision": "RECORD_STOP",
+      "sheet": "F",
+      "expected_action": "Email Routing that Pella has withdrawn the redirect and no further change is to be made, and ask whether the transfer to Copperfin Counter was already applied.",
+      "must_not": "Ask Routing to send DL-006 back to her home as a fresh change, or tell Pella it will come to her house, before Routing reports what was executed.",
+      "done_means": "Routing reports DL-006's actual destination; if the transfer was applied, any reversal is a separate request, and nothing is delivered."
+    },
+    {
+      "id": "006-N5",
+      "label": "Tracking shows home delivery after counter intake",
+      "failure_mode": "CONFLICTING_RECORDS",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-02-08 14:40:00 UTC",
+        "channel": "Customer portal",
+        "from": "Pella Rusk, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "My tracking page still says DL-006 is out for delivery to my home address today. I have heard nothing from the counter. Where is it? I do not want to travel to Copperfin Counter for nothing."
+      },
+      "expected_decision": "RECONCILE_CONFLICT",
+      "sheet": "E",
+      "expected_action": "Ask Routing by Email for DL-006's saved destination and scan history, keep the counter's 14:20 intake and the tracking status side by side, and tell Pella only that the records are being checked.",
+      "must_not": "Send Pella to the counter on the strength of the counter scan alone, or tell her the parcel is out for home delivery.",
+      "done_means": "Routing reports the destination and scans and both records are on file; this does not show which status was wrong, and ready for collection is not collected."
+    },
+    {
+      "id": "006-N6",
+      "label": "Third party asks counter for release",
+      "failure_mode": "UNAUTHORISED_REPLY",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-02-08 15:05:00 UTC",
+        "channel": "Pickup-point portal",
+        "from": "Copperfin Counter supervisor",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "A man at our desk says he is Pella Rusk's husband. He has the DL-006 collection reference on his phone but no identification in her name. He asks you to authorise release to him. Can you confirm?"
+      },
+      "expected_decision": "SEPARATE_AUTHORITY",
+      "sheet": "A",
+      "expected_action": "Tell the Copperfin Counter supervisor in the Pickup-point portal that the desk cannot authorise release to anyone and that collection follows the requirement stated in the order notice, and confirm nothing about Pella for the visitor.",
+      "must_not": "Authorise release to the man, or confirm Pella's identity, address or household to the counter on his behalf.",
+      "done_means": "The counter applies its own collection rule; this does not prove collection or the man's identity."
+    }
+  ]
+}

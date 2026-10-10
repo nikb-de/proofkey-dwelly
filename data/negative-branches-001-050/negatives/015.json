@@ -1,0 +1,98 @@
+{
+  "case": "015",
+  "title": "Parcel has been routed to the wrong local depot",
+  "snapshot": "Routing control confirms that DL-015 is at North Sedgeglass depot by routing error, while its destination Merrow Quay is served by East Copperfin depot, and no delivery attempt is scheduled. Kiva Rell, the recipient, asks for the parcel to reach the local depot before delivery is arranged.",
+  "recorded_action": "Iona emailed Routing control to transfer DL-015 from North Sedgeglass to East Copperfin and to send the destination receipt scan rather than a planned linehaul entry.",
+  "negatives": [
+    {
+      "id": "015-N1",
+      "label": "Transfer intake outage loses requests",
+      "failure_mode": "CHANNEL_FAILURE",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-16 11:20:00 UTC",
+        "channel": "Email",
+        "from": "Routing control, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Notice: our transfer request intake failed between 09:00 and 11:00 UTC today. Emails received in that period may not have created transfer requests. Do not assume a request sent then is queued."
+      },
+      "expected_decision": "VERIFY_FIRST",
+      "sheet": "R",
+      "expected_action": "Ask Routing control by email whether a transfer request for DL-015 from North Sedgeglass to East Copperfin is saved, and submit it once only if it is absent.",
+      "must_not": "Do not resend the transfer request without checking, which could create two transfer movements, and do not tell Kiva that the transfer is under way.",
+      "done_means": "Routing control confirms one saved transfer request with a reference; this proves the request exists, not that DL-015 has left North Sedgeglass or reached East Copperfin."
+    },
+    {
+      "id": "015-N2",
+      "label": "Linehaul record contradicts shelf check",
+      "failure_mode": "CONFLICTING_RECORDS",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-16 16:40:00 UTC",
+        "channel": "Email",
+        "from": "Routing control, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Our transfer record shows DL-015 loaded on the 14:30 UTC linehaul from North Sedgeglass to East Copperfin. The North Sedgeglass shelf check at 15:50 UTC still lists DL-015 on its outbound shelf. We have not resolved which is correct."
+      },
+      "expected_decision": "RECONCILE_CONFLICT",
+      "sheet": "E",
+      "expected_action": "Keep both records and ask Routing control by email for a physical scan of DL-015 at North Sedgeglass, or on arrival at East Copperfin, before anything is reported to Kiva.",
+      "must_not": "Do not tell Kiva that the parcel is on its way to East Copperfin because the linehaul record says it was loaded.",
+      "done_means": "A physical scan at one depot fixes the location; only an East Copperfin receipt scan proves the transfer, and neither proves delivery."
+    },
+    {
+      "id": "015-N3",
+      "label": "Second transfer request from phone call",
+      "failure_mode": "DUPLICATE_REQUEST",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-16 10:05:00 UTC",
+        "channel": "Email",
+        "from": "Routing control, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "We now hold two transfer requests for DL-015: yours at 09:25 UTC and one from Tracking support at 09:40 UTC after a call from Kiva Rell. Both ask for transfer to East Copperfin. Both are open."
+      },
+      "expected_decision": "RESOLVE_DUPLICATE",
+      "sheet": "F",
+      "expected_action": "Ask Routing control by email to link the 09:40 request to the 09:25 request and run one transfer of DL-015 to East Copperfin.",
+      "must_not": "Do not let both requests run, which could book two linehaul movements, and do not close the original request in favour of the copy.",
+      "done_means": "Routing control confirms one open transfer with the other linked or closed; this settles the duplicate, not East Copperfin receipt."
+    },
+    {
+      "id": "015-N4",
+      "label": "Recipient stops transfer to collect",
+      "failure_mode": "CUSTOMER_CANCELS",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-16 10:30:00 UTC",
+        "channel": "Customer portal",
+        "from": "Kiva Rell, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Please stop the transfer. North Sedgeglass is near my work and I would rather collect DL-015 there today. Do not move it."
+      },
+      "expected_decision": "RECORD_STOP",
+      "sheet": "F",
+      "expected_action": "Record the stop with Routing control by email, forbid new transfer actions on DL-015, and ask what had already been executed before the stop.",
+      "must_not": "Do not tell Kiva that collection at North Sedgeglass is possible, and do not ask Routing control to reverse a movement already under way.",
+      "done_means": "Routing control confirms the stop and the actual state of DL-015; this does not authorise collection at North Sedgeglass or undo any movement already executed."
+    },
+    {
+      "id": "015-N5",
+      "label": "Torn label blocks relabelling",
+      "failure_mode": "PHYSICAL_FAILURE",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-16 13:10:00 UTC",
+        "channel": "Email",
+        "from": "Routing control, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "North Sedgeglass found DL-015 for the transfer, but the address label is torn and the destination line is unreadable. It cannot be relabelled for East Copperfin until the Address desk confirms the destination from the order record. It has not moved."
+      },
+      "expected_decision": "REQUEST_ACTION",
+      "sheet": "C",
+      "expected_action": "Ask the Address desk by email to confirm DL-015's destination from the order record directly to Routing control so the parcel can be relabelled for East Copperfin.",
+      "must_not": "Do not ask Kiva to type the address into the portal for relabelling, and do not pass Routing control an address taken from the case messages.",
+      "done_means": "The Address desk confirms the destination and Routing control reports the relabel; this does not prove the transfer or East Copperfin receipt."
+    }
+  ]
+}

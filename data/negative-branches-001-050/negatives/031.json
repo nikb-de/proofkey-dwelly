@@ -1,0 +1,116 @@
+{
+  "case": "031",
+  "title": "Return approved but the customer has no return label",
+  "snapshot": "Tallowmere Goods approved return RT-031 for TG-031 / DL-031, but the label field is empty and only its authorised label team can issue the label. Kessa Ulm asks the desk to obtain the printable return label.",
+  "recorded_action": "Iona Quill emailed the Return label team, Tallowmere Goods, asking it to issue the missing printable label for RT-031, matching TG-031 and DL-031, in the verified returns thread.",
+  "negatives": [
+    {
+      "id": "031-N1",
+      "label": "Label generation times out mid-request",
+      "failure_mode": "CHANNEL_FAILURE",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-03-04 09:41:00 UTC",
+        "channel": "Email",
+        "from": "Return label team, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Automated notice. Your request for RT-031 was received at 09:25. Label generation stopped at 09:40 with error LBL-TIMEOUT. This notice cannot show whether a label was saved against RT-031. No file is attached."
+      },
+      "expected_decision": "VERIFY_FIRST",
+      "sheet": "R",
+      "expected_action": "Email the Return label team in the verified returns thread and ask what the RT-031 label field shows now, stating that no second label request will be sent until that is known.",
+      "must_not": "Do not resend the label request or tell Kessa a label is coming; a blind resubmission can leave two labels against RT-031.",
+      "done_means": "The label team reports the saved state of RT-031, one label or none followed by one resubmission; this still does not prove Kessa can print it, has dropped the parcel off or will be refunded."
+    },
+    {
+      "id": "031-N2",
+      "label": "Approval re-saved with two return methods",
+      "failure_mode": "STALE_STATE",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-03-04 09:48:00 UTC",
+        "channel": "Email",
+        "from": "Return label team, Tallowmere Goods",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Returns support re-saved RT-031 at 09:35. The label type now depends on the return method, and the record offers two: drop-off at a staffed counter, or doorstep collection booked separately. We generate one label for the method the customer chooses. Nothing has been issued yet."
+      },
+      "expected_decision": "ASK_CUSTOMER",
+      "sheet": "B",
+      "expected_action": "Ask Kessa in the Customer portal one question: staffed counter drop-off or doorstep collection for RT-031, noting that collection would still need its own booking.",
+      "must_not": "Do not pick a method for Kessa or ask for both labels; the original request did not cover a method choice.",
+      "done_means": "Kessa's choice is recorded and the label team issues one label for that method; a collection label is not a booked collection, and neither proves the parcel has left Kessa."
+    },
+    {
+      "id": "031-N3",
+      "label": "Carrier offers its own generic label",
+      "failure_mode": "UNAUTHORISED_REPLY",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-03-04 09:52:00 UTC",
+        "channel": "Email",
+        "from": "Returns desk, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "We see RT-031 waiting in the shared returns queue. We can print a generic Plover Arc returns label without a Tallowmere label number and send it straight to the customer's email today. Reply yes and we will issue it."
+      },
+      "expected_decision": "SEPARATE_AUTHORITY",
+      "sheet": "A",
+      "expected_action": "Reply to the Returns desk by email that it must not issue or send any label to Kessa, and keep the request with the Return label team, Tallowmere Goods, the only authorised issuer for RT-031.",
+      "must_not": "Do not accept the generic label or share Kessa's email address; a label not issued against RT-031 by the authorised team is not the approved return label.",
+      "done_means": "The Returns desk confirms it has issued nothing and the label team's response is still awaited; this does not prove any label exists for RT-031."
+    },
+    {
+      "id": "031-N4",
+      "label": "Issued label carries mismatched references",
+      "failure_mode": "CONFLICTING_RECORDS",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-03-04 10:02:00 UTC",
+        "channel": "Customer portal",
+        "from": "Kessa Ulm, customer",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "I opened RL-031. It shows RT-031, but the order line reads TG-013 and the original shipment reads DL-013. My order is TG-031. Is this the right label, or should I print it anyway?"
+      },
+      "expected_decision": "RECONCILE_CONFLICT",
+      "sheet": "E",
+      "expected_action": "Email the Return label team in the verified returns thread with both readings, RL-031 showing TG-013 / DL-013 against approved RT-031 for TG-031 / DL-031, ask it to verify the label against the return record, and tell Kessa to hold the label until then.",
+      "must_not": "Do not tell Kessa to use RL-031 because RT-031 matches, and do not order a replacement label before the label team has checked which record is right.",
+      "done_means": "The label team states whether RL-031 is correct or replaced, with references that match RT-031; this still does not prove drop-off, merchant receipt or refund."
+    },
+    {
+      "id": "031-N5",
+      "label": "Customer withdraws before the label arrives",
+      "failure_mode": "CUSTOMER_CANCELS",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-03-04 09:40:00 UTC",
+        "channel": "Customer portal",
+        "from": "Kessa Ulm, customer",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "I have decided to keep the item after all. Please stop the label request for RT-031. I do not need a label any more."
+      },
+      "expected_decision": "RECORD_STOP",
+      "sheet": "F",
+      "expected_action": "Email the Return label team in the verified returns thread to record Kessa's stop, ask it to issue nothing further, and ask whether a label was already saved against RT-031.",
+      "must_not": "Do not tell Kessa the approved return is cancelled or ask for RT-031 to be withdrawn; the stop covers the desk's label request, and the approval belongs to Returns support, Tallowmere Goods.",
+      "done_means": "The label team confirms the stop and states whether a label already exists; this does not cancel RT-031 and says nothing about refund."
+    },
+    {
+      "id": "031-N6",
+      "label": "Customer asks to count label as return",
+      "failure_mode": "OUT_OF_POLICY_ASK",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-03-04 10:00:00 UTC",
+        "channel": "Customer portal",
+        "from": "Kessa Ulm, customer",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "I have RL-031 now. I will not get to a drop-off until next week. Can you mark the return as received today so my refund starts now?"
+      },
+      "expected_decision": "DECLINE_EXPLAIN",
+      "sheet": "A",
+      "expected_action": "Reply to Kessa in the Customer portal that the desk cannot record a return as received or start a refund, that RL-031 only lets the parcel be prepared under RT-031, and that receipt and refund follow from the merchant once the parcel goes by the approved drop-off route.",
+      "must_not": "Do not record receipt, ask Tallowmere to start a refund, or suggest a refund date; a printed label is not a return.",
+      "done_means": "Kessa acknowledges and the parcel is still with Kessa; nothing about drop-off, merchant receipt or refund is established."
+    }
+  ]
+}

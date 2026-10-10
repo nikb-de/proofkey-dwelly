@@ -1,0 +1,98 @@
+{
+  "case": "002",
+  "title": "Apartment number missing from the delivery address",
+  "snapshot": "DL-002 is on an incomplete-address hold because 18 Copperfin Court, Merrow Quay has several apartments and the order has none; the account team verified the recipient's order-linked portal session. Tarin Mave asks in the Customer portal what is needed.",
+  "recorded_action": "Iona Quill asked Tarin Mave in the Customer portal to confirm the apartment number only, stating that no entry codes or household details were needed.",
+  "negatives": [
+    {
+      "id": "002-N1",
+      "label": "Escalation came from an unverified guest link",
+      "failure_mode": "SNAPSHOT_CONFLICT",
+      "insert_after": "002",
+      "new_event": {
+        "timestamp": "2026-02-03 09:16:00 UTC",
+        "channel": "Email",
+        "from": "Address desk, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Correction to our 09:00 note on DL-002. The 09:10 portal message was sent from a guest tracking link, not from the order-linked session our account team verified. The verified session has shown no activity today. The hold reason is unchanged."
+      },
+      "expected_decision": "SEPARATE_AUTHORITY",
+      "sheet": "A",
+      "expected_action": "Ask for the apartment number only in the verified order-linked portal session, and tell the guest-link sender only that address details are handled in the order-linked account.",
+      "must_not": "Ask the guest-link sender for the apartment number, or confirm the building, street or hold reason to it.",
+      "done_means": "An apartment number arrives from the verified session and the Address desk applies it; this does not establish who used the guest link."
+    },
+    {
+      "id": "002-N2",
+      "label": "Door description instead of apartment number",
+      "failure_mode": "AMBIGUOUS_REPLY",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-03 09:42:00 UTC",
+        "channel": "Customer portal",
+        "from": "Tarin Mave, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "It is the top-floor flat on the left as you come up the stairs, the one with the green door. There is no number on the door itself, but the driver cannot miss it."
+      },
+      "expected_decision": "ASK_CUSTOMER",
+      "sheet": "A",
+      "expected_action": "Ask Tarin in the Customer portal for the apartment number or name as shown on the building's bell panel or post boxes, and nothing else.",
+      "must_not": "Send 'top floor, left, green door' to the Address desk as the apartment, or ask for an entry code, phone number or floor plan.",
+      "done_means": "Tarin gives an apartment identifier in the thread; the hold stays until the Address desk applies it, and nothing is delivered."
+    },
+    {
+      "id": "002-N3",
+      "label": "No apartment number before label cut-off",
+      "failure_mode": "NO_REPLY",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-03 13:00:00 UTC",
+        "channel": "Email",
+        "from": "Address desk, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "DL-002 still has no apartment number. Route labels for tomorrow's loading close at 16:00 UTC today. If no correction is recorded by then, DL-002 stays on hold in the depot and misses that loading."
+      },
+      "expected_decision": "WAIT_WITH_DEADLINE",
+      "sheet": "B",
+      "expected_action": "Send Tarin one reminder in the Customer portal asking for the apartment number before 16:00 UTC, stating that otherwise DL-002 stays on hold, and record the Address desk as owner of that deadline.",
+      "must_not": "Chase Tarin through another channel or number, or ask the Address desk to release DL-002 with the building address only.",
+      "done_means": "Tarin's apartment number is recorded before 16:00, or the Address desk records the missed loading; neither is a delivery."
+    },
+    {
+      "id": "002-N4",
+      "label": "Correction form session expired mid-submission",
+      "failure_mode": "CHANNEL_FAILURE",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-02-03 09:57:00 UTC",
+        "channel": "Email",
+        "from": "Address desk correction form, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Automatic response. Your address correction for DL-002, Apartment 4B, submitted at 09:54, ended with 'Session expired'. The form may have saved before the session closed. No correction reference was issued."
+      },
+      "expected_decision": "VERIFY_FIRST",
+      "sheet": "R",
+      "expected_action": "Email the Address desk asking what DL-002's saved address and hold status show now, and state that no second correction will be submitted until that is known.",
+      "must_not": "Resubmit Apartment 4B through the form, or tell Tarin the hold is cleared.",
+      "done_means": "The Address desk states the saved address; if 4B is absent, one correction follows and is confirmed once, and a corrected address is not a delivery."
+    },
+    {
+      "id": "002-N5",
+      "label": "Stated apartment missing from building register",
+      "failure_mode": "CONFLICTING_RECORDS",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-02-03 10:08:00 UTC",
+        "channel": "Email",
+        "from": "Address desk, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "We have the correction request for DL-002, Apartment 4B. Our building register for 18 Copperfin Court lists apartments 1A to 3D only, with no fourth floor. We have not applied the correction. The address hold remains."
+      },
+      "expected_decision": "RECONCILE_CONFLICT",
+      "sheet": "A",
+      "expected_action": "Email the Address desk keeping the recipient's statement and the register entry both on file, unchanged, and ask which verification step it uses when a stated apartment is missing from its register.",
+      "must_not": "Tell Tarin that 4B does not exist or show her the register's apartment list, or ask the Address desk to apply 4B regardless.",
+      "done_means": "The Address desk reports its verification result and the address held on DL-002; this does not show which record was wrong, and nothing is delivered."
+    }
+  ]
+}

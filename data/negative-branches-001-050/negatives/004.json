@@ -1,0 +1,116 @@
+{
+  "case": "004",
+  "title": "Recipient requests a call shortly before arrival",
+  "snapshot": "DL-004 is on the 2026-02-06 afternoon route; Dispatch can add a call request to the verified number already in the order record but cannot guarantee an exact advance interval. Oren Sile asks for a call shortly before arrival on his saved order contact.",
+  "recorded_action": "Iona Quill asked Dispatch in Dispatch chat to record a call to the verified saved order contact shortly before arrival, if route conditions allow, with no contact change.",
+  "negatives": [
+    {
+      "id": "004-N1",
+      "label": "Recipient asks for an unverified new number",
+      "failure_mode": "SNAPSHOT_CONFLICT",
+      "insert_after": "002",
+      "new_event": {
+        "timestamp": "2026-02-05 09:16:00 UTC",
+        "channel": "Customer portal",
+        "from": "Oren Sile, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Correction: please do not use my saved number, that phone stays switched off at work. Have the driver call the studio's front desk line instead. It is not on the order yet; I can send it here."
+      },
+      "expected_decision": "DECLINE_EXPLAIN",
+      "sheet": "A",
+      "expected_action": "Tell Oren in the Customer portal that Dispatch can add a call request only to the verified number already in the order record, and ask whether he wants it on that number.",
+      "must_not": "Collect the studio line and pass it to Dispatch or the driver, or record it on the route card.",
+      "done_means": "Oren accepts or declines the call request on the verified number; no unverified number reaches the order, and no call has occurred."
+    },
+    {
+      "id": "004-N2",
+      "label": "Callback request lost in channel rebuild",
+      "failure_mode": "CHANNEL_FAILURE",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-05 09:26:00 UTC",
+        "channel": "Dispatch chat",
+        "from": "Dispatch chat system, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Message from Iona Quill, Rivet Delivery Desk, to Dispatch: send status unknown. The 2026-02-06 afternoon route channel was being rebuilt at 09:25, and messages from that minute may not have reached the route card queue. No read receipt is recorded."
+      },
+      "expected_decision": "VERIFY_FIRST",
+      "sheet": "R",
+      "expected_action": "Email Dispatch asking whether the DL-004 route card already shows a call request to the verified saved number, and state that no second request will be sent until that is known.",
+      "must_not": "Repost the call request in Dispatch chat, or tell Oren it has been recorded.",
+      "done_means": "Dispatch states what the route card shows; if absent, one request follows and is confirmed once, and a saved instruction is not a call or an arrival."
+    },
+    {
+      "id": "004-N3",
+      "label": "Parcel moved to another route",
+      "failure_mode": "STALE_STATE",
+      "insert_after": "003",
+      "new_event": {
+        "timestamp": "2026-02-05 09:41:00 UTC",
+        "channel": "Dispatch chat",
+        "from": "Dispatch, Plover Arc Logistics",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Before we save anything: DL-004 was moved this morning from the 2026-02-06 afternoon route to the 2026-02-07 morning route after a vehicle change. Call requests are added per route. Nothing is on the new route card yet."
+      },
+      "expected_decision": "ASK_CUSTOMER",
+      "sheet": "B",
+      "expected_action": "Tell Oren in the Customer portal that DL-004 is now on the 2026-02-07 morning route and ask whether he still wants the call request on that route.",
+      "must_not": "Add the call request to the 2026-02-07 route without his answer, or tell him the delivery is still on 2026-02-06.",
+      "done_means": "Oren answers and Dispatch confirms what the new route card holds; that is not a call or an arrival."
+    },
+    {
+      "id": "004-N4",
+      "label": "Recipient demands exact call interval and time",
+      "failure_mode": "OUT_OF_POLICY_ASK",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-02-05 10:05:00 UTC",
+        "channel": "Customer portal",
+        "from": "Oren Sile, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Thanks. Please make sure the driver calls exactly 15 minutes before arriving, and tell me now roughly what time that will be tomorrow so I can plan my studio session."
+      },
+      "expected_decision": "DECLINE_EXPLAIN",
+      "sheet": "A",
+      "expected_action": "Tell Oren in the Customer portal that Dispatch cannot guarantee an exact advance interval or give an arrival time, and that the saved call request to his verified number is what is in place.",
+      "must_not": "Promise a 15-minute call or an arrival time, or ask Dispatch to set a fixed interval.",
+      "done_means": "Oren acknowledges; the route card is unchanged, and no call or arrival has occurred."
+    },
+    {
+      "id": "004-N5",
+      "label": "Studio asks to receive the parcel",
+      "failure_mode": "UNAUTHORISED_REPLY",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-02-05 11:20:00 UTC",
+        "channel": "Email",
+        "from": "Studio reception, sender not on the DL-004 order",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "Oren works in our studio next door. He asked us to tell you that if he does not answer the driver's call, the driver should leave DL-004 at our front desk. Please add this to the delivery and send us the route time."
+      },
+      "expected_decision": "SEPARATE_AUTHORITY",
+      "sheet": "A",
+      "expected_action": "Tell Oren in the Customer portal that a third party asked for a delivery change and that only his own request there can be considered, and send the studio no shipment details.",
+      "must_not": "Add a leave-at-studio instruction to the route card, or send the route time to the studio.",
+      "done_means": "Oren replies in the portal or nothing changes; the route card keeps only the call request, which is not proof of a call or an arrival."
+    },
+    {
+      "id": "004-N6",
+      "label": "Attempt recorded but no call received",
+      "failure_mode": "CONFLICTING_RECORDS",
+      "insert_after": "004",
+      "new_event": {
+        "timestamp": "2026-02-06 15:40:00 UTC",
+        "channel": "Customer portal",
+        "from": "Oren Sile, recipient",
+        "to": "Iona Quill, Rivet Delivery Desk",
+        "text": "The tracking page says the driver attempted delivery at 14:52 and nobody answered. No one called me. My saved number shows no missed calls today, and I was in the studio next door all afternoon."
+      },
+      "expected_decision": "RECONCILE_CONFLICT",
+      "sheet": "E",
+      "expected_action": "Ask Dispatch in Dispatch chat for the driver's attempt record and the call log for the verified saved number on DL-004, and keep Oren's statement beside them without overwriting either.",
+      "must_not": "Tell Oren the driver did call because the instruction was on the route card, or book a redelivery without his choice.",
+      "done_means": "Dispatch supplies the attempt record and call log and both accounts are on file; a logged call does not prove Oren was reachable, and no finding is made."
+    }
+  ]
+}
