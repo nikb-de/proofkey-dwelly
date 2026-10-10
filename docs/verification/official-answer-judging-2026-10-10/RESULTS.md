@@ -2,6 +2,10 @@
 
 **Status: completed, uncalibrated post-hoc model assessment.** No official answer or score was changed. No comparison to human ground truth was performed; human calibration is `NOT_RUN`. The earlier action-only pilot does not qualify this whole-answer framing.
 
+This assessment did not change official answers. A concurrent teammate later added
+separate review footers on `main`; they are not part of this assessment. Exact answer
+links below are pinned to the original commit. See [INTEGRATION.md](INTEGRATION.md).
+
 UTC start: `2026-10-10T15:50:43.851624+00:00`. UTC final recorded summary: `2026-10-10T15:53:28.864009+00:00`.
 
 All 90/90 scheduled API attempts have retained responses: 87 schema-valid judgments, 84 scored judgments, three abstentions, and three malformed judgments. There are zero missing response records, transport failures, retries, substitutions or safety-stop events.

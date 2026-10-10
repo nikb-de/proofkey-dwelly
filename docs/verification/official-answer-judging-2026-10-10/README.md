@@ -6,6 +6,11 @@ frozen input is [packet-final](packet-final/manifest.json). Earlier local
 preparation packets are superseded, made zero API calls and are excluded from
 the published package.
 
+The evaluated answers are pinned to `cebf1b2b9520bcae260f1b8c2a50443490f97969`,
+not whichever text is currently on `main`. A concurrent teammate commit added
+separate human review notes after that snapshot. See [INTEGRATION.md](INTEGRATION.md)
+for the distinction and the exact reproducible assessment revision.
+
 Completed: 90 attempts and retained responses, 87 valid judgments, 84 scored
 judgments, three abstentions for case 014, and three malformed Anthropic
 judgments retained without repair. See [RESULTS.md](RESULTS.md) and the
@@ -60,6 +65,10 @@ python3 -B docs/verification/official-answer-judging-2026-10-10/judge.py verify 
 Only after explicit live authorization, pass `run --live --env-file` with the
 private environment file path. Never include credentials in a packet. A rerun
 does not retry persisted intents, including unknown outcomes.
+
+The canonical packet's `verify` command intentionally rejects a checkout whose
+original answer bytes have changed. Use the assessment revision documented in
+[INTEGRATION.md](INTEGRATION.md); do not repair the frozen hashes to match later notes.
 
 The live [summary](packet-final/live/summary.json), [all results](packet-final/live/results.json)
 and [RESULTS.md](RESULTS.md) separate valid/scored coverage, abstentions,

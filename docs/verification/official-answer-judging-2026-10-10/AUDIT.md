@@ -10,6 +10,10 @@ Audited the final packet and completed 90-record run on 2026-10-10. This auditor
 - All **152 packet artifact hashes** verified, including all **120 original files**: `INPUT.json`, `ANSWER.md`, `REASONING.md`, and `SOURCE_RESULT.json` for each of 30 cases. Frozen copies equal original bytes.
 - The independent pre-audit inventory at `/tmp/proofkey-answers-before-judging-20261010.json` covers **346 files** under `ANSWERS/`. At the completed-run check, every path and SHA256 was unchanged: zero additions, removals, or changed files.
 
+This statement is scoped to the completed assessment checkout. A subsequent merge
+preserved a teammate's concurrent review footers, which were not part of the assessed
+snapshot. [INTEGRATION.md](INTEGRATION.md) records the original and assessment revisions.
+
 ## Judge boundary
 
 - Every transmitted payload contains exactly the original `INPUT.json`, `ANSWER.md`, and `REASONING.md` UTF-8 strings; the exact retained `candidate`; and only `status`, `error`, `dispatch_attempts`, and `external_effects` from the result envelope. Full `SOURCE_RESULT.json` is retained offline, not transmitted.
