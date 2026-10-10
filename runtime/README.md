@@ -8,6 +8,8 @@ The default executable exposes two registered **synthetic replay** examples. Rec
 
 ## Start here
 
+- **Import Dwelly public examples:** the separate [offline case-intake pilot](../tools/dwelly_cases/README.md) creates leakage-safe logistics snapshots and unsent next-action drafts. It is not a new registered runtime or a semantic-quality qualification.
+
 - **Run the existing demo:** use the two source-checkout examples below with already installed dependencies and separate fresh state directories.
 - **Use an installed package:** see [Installed target](#installed-target). Package-owned data no longer depends on the source checkout.
 - **Connect a system:** first read the [support and evidence map](#support-and-evidence-map). Six interfaces exist; no native logistics connection is established. The default public path accepts two fixed cases, not an arbitrary profile.

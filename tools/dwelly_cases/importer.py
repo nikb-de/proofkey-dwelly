@@ -4,11 +4,13 @@ Only the snapshot crosses the proposed-agent boundary. Index text, reference
 actions, full-source hashes and later evidence are deliberately evaluator-only.
 """
 from datetime import datetime, timezone
+from contextlib import contextmanager
 from hashlib import sha256
 import json
 from pathlib import Path, PurePosixPath
 import re
 import shutil
+import tempfile
 from urllib.parse import unquote, urlsplit
 
 TRACK = "Delivery & Logistics"
@@ -45,6 +47,10 @@ def read_bytes(path):
 
 def local_links(text, case):
     """Validate every local link; external references are never fetched."""
+    if (re.search(r"^\s*\[[^\]\n]+\]:", text, re.M)
+            or re.search(r"\[[^\]\n]*\]\s*\[[^\]\n]*\]", text)
+            or re.search(r"<[^>]*\b(?:href|src)\s*=", text, re.I)):
+        raise ValueError("unsupported_link_markup")
     found = []
     for raw in LINK.findall(text):
         target = urlsplit(raw.strip())
@@ -90,6 +96,8 @@ def parse_events(text):
             if not field or field[1] in values:
                 raise ValueError("invalid_event_metadata")
             values[field[1]] = field[2].strip()
+            if not values[field[1]]:
+                raise ValueError("blank_event_metadata")
         if set(values) != {"Stage", "Channel", "From", "To"} or not separator or not body.strip():
             raise ValueError("missing_event_metadata_or_body")
         if values["Stage"] not in STAGES:
@@ -113,6 +121,32 @@ def parse_events(text):
     return events, cutoff
 
 
+def case_files(case):
+    """Bound traversal and bytes before reading any case payload."""
+    files, pending, count, size = [], [(case, 0)], 0, 0
+    while pending:
+        directory, depth = pending.pop()
+        for path in directory.iterdir():
+            count += 1
+            if count > 128 or path.is_symlink():
+                raise ValueError("invalid_case_file_inventory")
+            if path.is_dir():
+                if depth >= 8:
+                    raise ValueError("case_directory_depth_exceeded")
+                pending.append((path, depth + 1))
+            elif path.is_file():
+                length = path.stat().st_size
+                size += length
+                if length > MAX_FILE_BYTES or size > MAX_TOTAL_BYTES or len(files) >= 64:
+                    raise ValueError("case_file_budget_exceeded")
+                files.append(path)
+            else:
+                raise ValueError("source_not_regular_file")
+    if len(files) < 2:
+        raise ValueError("invalid_case_file_inventory")
+    return sorted(files)
+
+
 def parse_case(case_dir):
     case = Path(case_dir)
     if case.is_symlink() or not case.is_dir() or not re.fullmatch(r"\d{3}", case.name):
@@ -120,9 +154,7 @@ def parse_case(case_dir):
     if case.parent.name != TRACK or case.parent.is_symlink():
         raise ValueError("unsupported_track")
     case = case.resolve()
-    files = sorted(path for path in case.rglob("*") if not path.is_dir() or path.is_symlink())
-    if not 2 <= len(files) <= 64 or any(path.is_symlink() for path in case.rglob("*")):
-        raise ValueError("invalid_case_file_inventory")
+    files = case_files(case)
     source_bytes = {path.relative_to(case).as_posix(): read_bytes(path) for path in files}
     if "history.md" not in source_bytes or "index.md" not in source_bytes:
         raise ValueError("missing_case_documents")
@@ -176,6 +208,34 @@ def write_json(path, value):
         stream.write(canonical_bytes(value) + b"\n")
 
 
+@contextmanager
+def new_output(output):
+    """Reserve exclusively; publish a completed sibling tree in one rename.
+
+    On abrupt process death an empty reservation/staging tree can remain, but
+    no partial final bundle becomes readable. A subsequent run uses a fresh
+    destination; automatic crash cleanup is intentionally not claimed.
+    """
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.mkdir(mode=0o700)
+    identity = (output.stat().st_dev, output.stat().st_ino)
+    staging = None
+    try:
+        staging = Path(tempfile.mkdtemp(prefix=f".{output.name}.building-", dir=output.parent))
+        yield staging
+        if (output.is_symlink() or not output.is_dir()
+                or (output.stat().st_dev, output.stat().st_ino) != identity or any(output.iterdir())):
+            raise ValueError("output_reservation_changed")
+        staging.replace(output)
+        staging = None
+    finally:
+        if staging is not None and staging.exists():
+            shutil.rmtree(staging)
+        if (output.is_dir() and not output.is_symlink()
+                and (output.stat().st_dev, output.stat().st_ino) == identity and not any(output.iterdir())):
+            output.rmdir()
+
+
 def import_cases(source, output, expected_cases=50):
     source, output = prepare_destination(source, output)
     track = source / TRACK
@@ -186,6 +246,13 @@ def import_cases(source, output, expected_cases=50):
     folders = sorted(p for p in track.iterdir() if re.fullmatch(r"\d{3}", p.name))
     if len(folders) != expected_cases:
         raise ValueError("case_count_mismatch")
+    total_size = 0
+    for folder in folders:
+        if folder.is_symlink() or not folder.is_dir():
+            raise ValueError("invalid_case_directory")
+        total_size += sum(path.stat().st_size for path in case_files(folder))
+        if total_size > MAX_TOTAL_BYTES:
+            raise ValueError("dataset_too_large")
     parsed = [parse_case(folder) for folder in folders]
     inventory = [entry for _, _, item in parsed for entry in item["files"]]
     if sum(f["size"] for f in inventory) > MAX_TOTAL_BYTES:
@@ -198,26 +265,24 @@ def import_cases(source, output, expected_cases=50):
                 "files": inventory, "source_inventory_hash": digest(inventory),
                 "case_ids": [s["case_id"] for s, _, _ in parsed],
                 "qualification": "development_only_unqualified", "heldout_cases": 0}
-    output.parent.mkdir(parents=True, exist_ok=True)
-    output.mkdir()  # Exclusive reservation: never replace a pre-existing destination.
-    try:
+    with new_output(output) as staging:
         for entry in inventory:
             data = read_bytes(source / entry["path"])
             if sha256(data).hexdigest() != entry["sha256"]:
                 raise ValueError("source_changed_during_import")
-            destination = output / "raw" / entry["path"]
+            destination = staging / "raw" / entry["path"]
             destination.parent.mkdir(parents=True, exist_ok=True)
             with destination.open("xb") as stream:
                 stream.write(data)
         ledger = []
         for snapshot, reference, _ in parsed:
             case_id = snapshot["case_id"]
-            write_json(output / "agent" / f"{case_id}.json", snapshot)
-            write_json(output / "evaluation" / f"{case_id}.json", reference)
+            write_json(staging / "agent" / f"{case_id}.json", snapshot)
+            write_json(staging / "evaluation" / f"{case_id}.json", reference)
             for attachment in snapshot["attachments"]:
                 relative = attachment["path"]
-                original = output / "raw" / TRACK / case_id[-3:] / relative
-                destination = output / "agent/assets" / case_id / relative
+                original = staging / "raw" / TRACK / case_id[-3:] / relative
+                destination = staging / "agent/assets" / case_id / relative
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(original, destination)
             ledger.append({"case_id": case_id, "origin": "local_public_synthetic",
@@ -227,11 +292,8 @@ def import_cases(source, output, expected_cases=50):
                            "required_behavior": "source-grounded next communication; no operational effect",
                            "ambiguity": "recorded_action_is_not_unique_ground_truth",
                            "exclusion": "semantic_quality_unassessed", "tags": ["logistics", "synthetic"]})
-        with (output / "ledger.jsonl").open("xb") as stream:
+        with (staging / "ledger.jsonl").open("xb") as stream:
             for row in ledger:
                 stream.write(canonical_bytes(row) + b"\n")
-        write_json(output / "manifest.json", manifest)  # Completion marker is written last.
-    except BaseException:
-        shutil.rmtree(output)
-        raise
+        write_json(staging / "manifest.json", manifest)
     return manifest

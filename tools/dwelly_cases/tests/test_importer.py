@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from tools.dwelly_cases.tests.fixtures import make_source
 
@@ -128,6 +129,48 @@ class ImporterTests(unittest.TestCase):
         path.write_text(path.read_text().replace("09:02:00", "09:01:00"))
         snapshot, _, _ = importer.parse_case(self.case)
         self.assertEqual([e["event_id"] for e in snapshot["events"]], ["event-001", "event-002"])
+
+    def test_rejects_alternate_link_syntax_instead_of_skipping_validation(self):
+        path = self.case / "history.md"
+        original = path.read_text()
+        for markup in ('[doc][escape]\n\n[escape]: ../private.txt',
+                       '<a href="../private.txt">doc</a>', '[x][bad]\n\n[bad]: javascript:alert(1)'):
+            path.write_text(original + markup)
+            with self.assertRaises(ValueError):
+                importer.parse_case(self.case)
+
+    def test_rejects_blank_required_metadata(self):
+        path = self.case / "history.md"
+        original = path.read_text()
+        for field, value in (("Channel", "Email"), ("From", "Dispatch"), ("To", "Desk")):
+            path.write_text(original.replace(f"**{field}:** {value}", f"**{field}:**    ", 1))
+            with self.assertRaises(ValueError):
+                importer.parse_case(self.case)
+
+    def test_dataset_budget_checked_before_reading_payloads(self):
+        with patch.object(importer, "MAX_TOTAL_BYTES", 64), patch.object(
+                importer, "read_bytes", side_effect=AssertionError("payload should not be read")):
+            with self.assertRaises(ValueError):
+                importer.import_cases(self.source, self.root / "out", expected_cases=1)
+
+    def test_mid_export_error_leaves_no_final_or_staged_bundle(self):
+        output = self.root / "out"
+        with patch.object(importer, "write_json", side_effect=OSError("simulated disk error")):
+            with self.assertRaises(OSError):
+                importer.import_cases(self.source, output, expected_cases=1)
+        self.assertFalse(output.exists())
+        self.assertEqual(list(self.root.glob(".out.building-*")), [])
+
+    def test_final_directory_contains_no_partial_files_during_export(self):
+        output = self.root / "out"
+        real_write = importer.write_json
+        def check_staging(path, value):
+            self.assertTrue(output.is_dir())
+            self.assertEqual(list(output.iterdir()), [])
+            return real_write(path, value)
+        with patch.object(importer, "write_json", side_effect=check_staging):
+            importer.import_cases(self.source, output, expected_cases=1)
+        self.assertTrue((output / "manifest.json").exists())
 
 
 if __name__ == "__main__":
