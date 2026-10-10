@@ -1,5 +1,0 @@
-- [ ] Merge widget catalog and extended validation.
-- [ ] Integrate namespaced team catalog and evidence semantics.
-- [ ] Resolve remaining platform conflicts and preserve both trees.
-- [ ] Run tests, independent review and offline E2E.
-- [ ] Archive specification and merge verified integration.

@@ -47,7 +47,7 @@ PYTHONPATH=.:tools:runtime/src:runtime/tests \
   datasets/team-handoff-v1/tests tests/test_dataset_export.py tests/test_cloud_case_smoke.py -q
 ```
 
-The independent full runtime suite is recorded separately on completion. Earlier runs during integration are not counted as final: one loaded pre-fix export code and failed the old count; another was interrupted when replaced by the stable-tree run.
+The additional full legacy runtime sweep was still running when the owner explicitly requested immediate merge. It is **not a completed verification or a merge gate**; no full-runtime success is claimed. The relevant backend, frontend, selected-source and browser integration checks above are complete. Live LLM quality validation is still separate. Earlier runs during integration are not counted as final: one loaded pre-fix export code and failed the old count; another was interrupted when replaced by the stable-tree run.
 
 ## Decisions
 
