@@ -154,4 +154,4 @@ Total events: 4 or 5. Event 001 is always from the carrier side (a team, an oper
 
 ## Output
 
-Write the two files directly to `~/dwelly-hackathon/generated-cases/Delivery & Logistics/0NN/`. Create the folder. Do not write anything else. Do not run any script from the public cases repository; only read its files.
+Write the two files directly to `Delivery & Logistics/0NN/ (relative to this folder's parent)`. Create the folder. Do not write anything else. Do not run any script from the public cases repository; only read its files.
