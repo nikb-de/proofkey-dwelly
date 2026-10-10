@@ -63,7 +63,9 @@ Observed: **58 tests passed**. A fresh closing-checkpoint invocation on 10 Octob
 
 Controls separate known-valid, wrong-route, missing/malformed, unsupported-completion and unknown-role outputs. Swapped/repeated assessor order is tested. These controls qualify those narrow checks only, not a semantic judge. An independent agent reviewed the importer and final boundaries; the author applied the final fixes and reran tests. A fresh read-only post-fix review independently checked all 106 raw files against the pinned source, all 50 snapshots/references, saved proposals/assessments and aggregate hashes, and byte-identical repeat outputs. It reported no further findings in that offline scope. This is not production or semantic-quality certification.
 
-The existing full runtime regression is **still running; no final PASS or FAIL has been observed**. At the 10 October 2026, 09:30:45 UTC checkpoint, process 56503 had run for 16 minutes 37 seconds; its log contained 776 completed `... ok` entries and was executing `test_observed_stop_v2.test_stop_first_never_constructs_runtime`. This count is progress only, not the suite total or a completed regression result.
+Historical checkpoint: at 10 October 2026, 09:30:45 UTC the full runtime regression was still running. Process 56503 had run for 16 minutes 37 seconds; its log contained 776 completed `... ok` entries and was executing `test_observed_stop_v2.test_stop_first_never_constructs_runtime`. That count was progress only.
+
+Later result: the run completed with 1,963 tests and two package-closure failures from the separate optional shadow helper. Isolation was corrected without repinning runtime source. Both original failed tests subsequently passed (2 tests, 816.825s); [full correction receipt](model-runtime-shadow-bridge-2026-10-10.md). No replacement full-suite pass is claimed.
 
 ```sh
 PYTHONDONTWRITEBYTECODE=1 \
@@ -71,7 +73,7 @@ PYTHONDONTWRITEBYTECODE=1 \
   -m unittest discover -s runtime/tests -p 'test_*.py' -v
 ```
 
-The retained, still-appending log is `.superpowers/sdd/2026-10-10-dwelly-case-intake-pilot/runtime-regression.log`. Do not start a duplicate suite. OpenSpec closure and the remaining final-verification checklist stay pending until the actual final footer is inspected. Runtime executable/package files are unchanged by this slice; `runtime/README.md` only links the separate tool.
+The historical log is `.superpowers/sdd/2026-10-10-dwelly-case-intake-pilot/runtime-regression.log`. Runtime executable/package files are unchanged by this slice; `runtime/README.md` only links the separate tool.
 
 ## Architecture companion
 

@@ -1,6 +1,6 @@
 # Local model/runtime shadow bridge — verification
 
-Verified on 2026-10-10, implementation through `0e8e170`, Python 3.12. Local-only; no provider calls, customer actions, deployment or remote publication.
+Verified on 2026-10-10, original implementation through `0e8e170`, with the package-isolation correction through `56da15b`. Python 3.12. Local-only; no provider calls, customer actions, deployment or remote publication.
 
 ## Delivered
 
@@ -9,7 +9,7 @@ Verified on 2026-10-10, implementation through `0e8e170`, Python 3.12. Local-onl
 - Durable private shadow records with retry identity, conflict rejection and zero business effects.
 - CLI deliberately has no resolver injection or user-supplied runtime authority; normal CLI result is `unmapped`.
 
-## Fresh controller verification
+## Original delivery verification
 
 | Suite | Result |
 | --- | --- |
@@ -21,7 +21,23 @@ Verified on 2026-10-10, implementation through `0e8e170`, Python 3.12. Local-onl
 
 All commands used `-B -W error::ResourceWarning -m unittest`. For bridge/runtime tests the interpreter was the existing environment `.superpowers/sdd/2026-10-08-proofkey-runtime/api-env.GEsSnS/bin/python` and `PYTHONPATH=runtime/src:runtime/tests`. Other suites used `python3.12`. Exact portable commands are in `tools/dwelly_bridge/README.md`.
 
-These are 353 test executions across the listed suites, not semantic-case accuracy measurements. The older full runtime suite is still running independently and is not evidence for this change; it was not duplicated.
+These are 353 test executions across the listed suites, not semantic-case accuracy measurements. The older full runtime suite subsequently finished with 1,963 tests and two package-closure failures. That historical run was not a pass and was not duplicated.
+
+## Package-isolation correction
+
+The optional resolver initially expanded the runtime's registered 86-file package to 87 files. `f9e34cd` moved it to `tools/dwelly_bridge/runtime_binding.py` without changing the frozen package, its fixture or any registered hash. Review then caught that its tests still depended on root-directory imports; `56da15b` moved all 28 tests alongside the companion and added a standalone runtime-discovery regression. The regression was observed failing before the test move and passing afterward. Independent rereview accepted the correction with no remaining findings.
+
+Fresh controller results after the correction:
+
+| Check | Result |
+| --- | --- |
+| All bridge tests with optional runtime | 112 passed, no skips, 2.222s |
+| Bridge with `-S` and no `PYTHONPATH` | 112 collected: 82 executed, 30 explicit optional-runtime skips; 1.482s |
+| `test_journal test_contracts test_execution_context_storage`, launched from `runtime/` | 86 passed, no skips, 1.440s |
+| Unmodified canonical qualification control | 156/156 passed; `source_stable=true` |
+| Original two failed qualification tests, session 17076 | 2 passed, 816.825s, exit 0 |
+
+Both original failed qualification tests now pass. Their canonical source-hold phase completed before the runtime test file was moved; subsequent qualification ran in isolated copied roots. Exact command and output: [session 17076 log](../../outputs/proofkey-shadow-package-isolation-2026-10-10/original-two-tests-session-17076.log). No new full-suite pass is claimed. The current portable bridge commands are in `tools/dwelly_bridge/README.md`; the old `test_shadow_binding` path above describes the original delivery only.
 
 ## Review and fixes
 
