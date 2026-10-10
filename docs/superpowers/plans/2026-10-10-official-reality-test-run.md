@@ -14,7 +14,7 @@ pilot run independently; official outputs never select prompt revisions.
 **Tech Stack:** Existing Python provider/model contract, local PDF text extraction,
 native macOS Vision OCR and append-only local budget records.
 
-**Spec:** `openspec/changes/official-reality-test-run/specs/reality-test-execution/spec.md`.
+**Living spec:** `openspec/specs/reality-test-execution/spec.md`.
 
 ## Global constraints
 - Source revision: `ce84e8c0d8f7f8ddacd8d8fcfe53516c22885db7`.
@@ -32,17 +32,27 @@ native macOS Vision OCR and append-only local budget records.
 - Every answer links to the actual input and result, including failed calls.
 
 ## Parallel execution
-- [ ] Extraction: tests first for traversal, symlinks, overwrite and extraction errors;
+- [x] Extraction: tests first for traversal, symlinks, overwrite and extraction errors;
   run `python3 -m unittest discover -s tools/dwelly_evidence_extract/tests -v`.
-- [ ] Runner: tests first for chronology, hidden/future evidence, input integrity,
+- [x] Runner: tests first for chronology, hidden/future evidence, input integrity,
   retries and failure export; run
   `python3 -m unittest discover -s tools/dwelly_reality/tests -v`.
-- [ ] Preparation: freeze all 30 cases, exact baseline prompt, profiles and sidecars;
+- [x] Preparation: freeze all 30 cases, exact baseline prompt, profiles and sidecars;
   verify source counts, hashes and missing extraction inventory before paid calls.
-- [ ] Execution: explicit live opt-in, maximum three concurrent calls, retain
+- [x] Execution: explicit live opt-in, maximum three concurrent calls, retain
   every intent and response, export `ANSWERS/001` through `ANSWERS/030`.
-- [ ] Calibration: repeat fixed development controls, report valid coverage,
+- [x] Calibration: repeat fixed development controls, report valid coverage,
   critical-failure flips, abstentions and score spread; no official-case tuning.
-- [ ] Publication: scan new artifacts for credentials, verify answer/source links,
+- [x] Publication: scan new artifacts for credentials, verify answer/source links,
   update submission status from receipts, commit source and actual outputs,
   then archive the completed OpenSpec change.
+
+Published results in commit `8f74816` to `main`. Unauthenticated readback of
+cases 001, 014, 030 and the judge report returned HTTP 200 with exact local
+bytes. Official run: 30 calls, 29 parsed candidates, one retained failure;
+judge pilot: 108 valid judgments, 105 scored and three abstentions. No business
+effects. Nine runner, six extraction, nine pilot, 75 model and 58 case tests
+passed. Source/output whitespace remains untouched for evidence fidelity.
+The archived change's new living specification passes strict validation. The
+repository-wide specification check is 33/34: the unchanged older
+`mobile-case-recording` specification lacks a required Purpose heading.
