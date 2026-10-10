@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.12 standard library, unittest, Docker.
 
-**Spec:** `openspec/changes/dwelly-model-release/design.md`.
+**Spec:** `openspec/specs/dwelly-model-evaluation/spec.md`; design retained in `openspec/changes/archive/2026-10-10-dwelly-model-release/design.md` after closure.
 
 ## Global Constraints
 - No operational effects; all outputs are proposed_unsent and effects=[]; no private source uploads.
@@ -50,5 +50,5 @@
 - [x] Write subprocess help/offline/preflight tests and run to fail.
 - [x] Add commands preflight, dry-run and run with --live; support explicit model configs and bounded case count.
 - [x] Run package suite plus existing 58 intake tests and Docker build/offline smoke.
-- [ ] Independently review diff and source package; publish allowlisted files to private repo and verify bytes.
-- [ ] Record live/API limitations and archive only completed scope.
+- [x] Independently review diff and source package; publish allowlisted files to private repo and verify bytes. Release 7c4318c1a105d55de9d0d0c3f7c8743f082e77cf; all 363 files match candidate hashes/sizes.
+- [x] Record live/API limitations and archive only completed implementation scope. All three API credentials were unavailable; zero live model calls and no semantic-quality result. Team data and human calibration remain pending operational work.
