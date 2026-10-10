@@ -51,4 +51,10 @@ The additional full legacy runtime sweep was still running when the owner explic
 
 ## Decisions
 
+## Final upstream refresh
+
+Immediately before publication, upstream advanced again to `c361245eaad4361f7b886adc56f05dd56d4807b3` with its authored-case review corrections. That commit was merged without rewriting its JSON. The team manifest was repinned to these bytes; JavaScript validates all 51 documents and the team still has 286 cutoffs. The focused Python team/source/export tests were rerun against this refreshed snapshot. The 778-test full integration pass above preceded this data-only refresh; it is not presented as a new full rerun against c361245.
+
+## Decisions and boundaries
+
 Disjoint widget and Python work ran in parallel, with only the coordinator committing. Team sources are namespaced rather than replacing legacy fixtures. Empty copied-recipient lists remain valid according to the published schema. Incoming CC is evidence, never authority. Browser QA samples first/last team states to remain below the local 256-run store; Python checks every cutoff. No production deployment, credentials change, paid provider call or logistics action was performed.

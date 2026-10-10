@@ -20,7 +20,7 @@ An incoming message MAY identify the current actor as a primary recipient or an 
 - **THEN** bounded visible evidence is available for analysis and hidden future/answer data remains excluded.
 
 #### Scenario: Current expanded catalog
-- **WHEN** the catalog loads the pinned main revision `4fa3f4d0196db82e0816909590d176b0eb0c4e5e`
+- **WHEN** the catalog loads the pinned main revision `c361245eaad4361f7b886adc56f05dd56d4807b3`
 - **THEN** it exposes 51 team documents with 286 cutoffs and preserves the legacy three documents with 16 cutoffs as a separate export group.
 
 ### Requirement: Verify integration without live effects
@@ -29,4 +29,3 @@ The integration SHALL pass local tests and scripted end-to-end flows before merg
 #### Scenario: Offline integration verification
 - **WHEN** verification runs
 - **THEN** no paid provider call or production operational effect is issued.
-
