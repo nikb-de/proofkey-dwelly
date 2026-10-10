@@ -1,6 +1,6 @@
 # Installed offline resources — verification
 
-Status: **J13 complete** for the bounded target. Package repair, final installed execution, full regression suite, current-code factory qualification and independent review passed. The [OpenSpec child is archived](../../openspec/changes/archive/2026-10-09-installed-offline-resources/tasks.md), with its three requirements in the [living specification](../../openspec/specs/installed-offline-resources/spec.md). J14 and the wider program remain open. This report is evidence, not a success flag consumed by the runtime.
+Status: **J13 complete** for the bounded target. Package repair, final installed execution, full regression suite, current-code factory qualification and independent review passed. The OpenSpec child is archived (historical worklog retained in Git history), with its three requirements in the [living specification](../../openspec/specs/installed-offline-resources/spec.md). J14 and the wider program remain open. This report is evidence, not a success flag consumed by the runtime.
 
 ## Scope
 

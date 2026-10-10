@@ -1,5 +1,0 @@
-- [x] Add model-context validation/provenance and atomic local acceptance with PostgreSQL tests.
-- [x] Add Team workflow controls and model-review context with frontend tests.
-- [x] Add Customer complete-offer/local-acceptance preview with frontend tests.
-- [x] Integrate routes/assets/capabilities and real HTTP workflow tests.
-- [x] Run independent review, regression and browser checks; archive specification.

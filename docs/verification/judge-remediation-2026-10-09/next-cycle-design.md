@@ -8,7 +8,7 @@ The user asked to continue implementation, then run the same multi-judge assessm
 
 Pre-cycle baseline: `ecf36acdb3ebad7a33ef2257adb583356934c0ff`, with documentation/archive `0628652ec3b373d58a3538a3b4a2a68cb933ba61` and a passed 1,685-test run. Those historical receipts remain unchanged.
 
-Verified current runtime: `40138e1433b9f7ba782385124727dd2ea842f97f`. The complete 1,693-test run passed in 888.064 test seconds with zero errors/failures/skips and 246 stable runtime files; the separate current-source factory qualifier passed 37/37 tests with eight artifact hashes independently checked. Eight J-items are closed and 24 remain open; [this leaf is archived](../../../openspec/changes/archive/2026-10-09-registry-commitments-and-short-parent-evidence/tasks.md), with strict OpenSpec validation 6/6 passed. See [verification](../2026-10-09-registry-commitments.md). This is not a production or event-readiness claim.
+Verified current runtime: `40138e1433b9f7ba782385124727dd2ea842f97f`. The complete 1,693-test run passed in 888.064 test seconds with zero errors/failures/skips and 246 stable runtime files; the separate current-source factory qualifier passed 37/37 tests with eight artifact hashes independently checked. Eight J-items are closed and 24 remain open; this leaf is archived (historical worklog retained in Git history), with strict OpenSpec validation 6/6 passed. See [verification](../2026-10-09-registry-commitments.md). This is not a production or event-readiness claim.
 
 ## J22: public immutable commitment inventory
 

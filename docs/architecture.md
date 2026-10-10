@@ -1,6 +1,6 @@
 # Dwelly / ProofKey architecture
 
-10 October 2026. A compact overview of the shipped experiment and the proposed operational system. The [detailed design snapshot](architecture-reference.md) retains source references and implementation requirements.
+10 October 2026. A compact overview of the shipped experiment and the proposed operational system. The [living platform requirements](../openspec/specs/unified-case-platform/spec.md) describe the integrated platform behavior.
 
 ## 1. What is shipped
 
@@ -38,6 +38,6 @@ Start with a small mapping or one new operation that can reuse existing contract
 
 ## 5. Evidence and next gates
 
-Use the [package guide](../tools/dwelly_model/README.md) for local commands and API configuration, and the [verification record](model-release-verification.md) for measured results and limits. The [data guide](../data/dwelly-public-cases/README.md) describes provenance and development-only use. Consult the [reference design](architecture-reference.md) for ontology, adapter contracts, failure handling and source traceability.
+Use the [package guide](../tools/dwelly_model/README.md) for local commands and API configuration, and the [verification record](model-release-verification.md) for measured results and limits. The [data guide](../data/dwelly-public-cases/README.md) describes provenance and development-only use. Consult the [platform API contract](../contracts/platform-v1/README.md) for current state and API boundaries.
 
 Next evidence needed: the team's independent evaluation cases and permitted real examples, explicit judge controls and calibration, human-reviewed proposal quality on new cases, and a separately qualified provider integration. A bounded general prompt candidate for the observed failures is proposed, not implemented or evaluated. The completed development run, offline tests and model agreement do not establish these broader results.

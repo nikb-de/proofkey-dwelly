@@ -1,115 +1,150 @@
-# ProofKey — case operations platform and evaluation harness
+# ProofKey / Right onTime
 
-## Start here: the integrated local platform
+An evidence-backed case operations platform for delivery exceptions, built by **Sunday Grind** for the **Delivery & Logistics** track. The product keeps customer requests, delivery terms, model proposals, human decisions and action receipts together without treating a proposed action as an executed one.
 
-The primary product is now the [Right onTime case platform](docs/platform-operations.md): PostgreSQL case creation and evidence, independent state axes, deterministic checks, optional model analysis, photo analysis/ASR controls, human review and transactional **sandbox-only** rescheduling. [Inbound communications](docs/inbound-communications.md) adds local email/chat/transcript/recording ingress, quarantine and signed pseudo-provider webhooks; real channel accounts remain disconnected. All platform state names and labels are English. Evaluations remain a separate engineering workspace.
-
-Run `PYTHONPATH=.:tools:runtime/src python -m tools.dwelly_platform serve --database-url-env PROOFKEY_PLATFORM_DATABASE_URL --schema proofkey_platform_local --migrate --port 8095`, then open `http://127.0.0.1:8095/`. Providers are disabled by default; private credentials remain server-side. See [API and data boundaries](contracts/platform-v1/README.md).
-
-Use the [authored-case E2E runbook](docs/case-model-e2e.md) to replay existing histories through the platform and check coordination state, waiting party, current/stale binding, retained jobs and no duplicate dispatch. The UI now observes model jobs by read-only polling. [Verification and explicit limits](docs/verification/case-model-e2e-2026-10-10/README.md) separate real HTTP/PostgreSQL/browser execution with scripted responses from still-unavailable live-provider validation.
-
-This is not the cloud production UI. Real carrier actions, payments, authenticated tenancy and live model/media quality are not verified. The older components below remain available and have their own boundaries; their standalone workbenches are no longer the primary platform UI.
-
-## Existing model and evaluation components
-
-Private experimental release for the Dwelly Delivery & Logistics track. **Runnable source, CLI and Docker are included.** The model proposes the next communication; three API judges assess its content. Nothing sends messages, books deliveries or transfers money.
-
-Start with [model quickstart](tools/dwelly_model/README.md), [local asynchronous service](docs/model-service.md), [team data intake](docs/model-team-intake.md), [architecture](docs/architecture.md) and [raw/agent/evaluation data](data/dwelly-public-cases/README.md). There is no complete hackathon submission, video, live logistics integration or human-validated model-quality claim.
-
-For parallel UI, backend and E2E/evals work, use the [team contract v1](contracts/v1/README.md) and [state/storage architecture](docs/architecture/team-contract-v1.md). The [Right onTime design](design/right-ontime/prototype/index.html) now has a separate [local case and file intake workbench](design/right-ontime/prototype/intake.html); browser-local storage is not server upload or automatic analysis.
-
-The team's step-by-step data now has a separate [case-state analysis workbench](docs/analysis-workbench.md): source timeline, evidence-only step projection, offline state baseline, unreviewed author reference and export. Run `python3 -m tools.dwelly_analysis serve --port 8093` and open `http://127.0.0.1:8093`. Offline remains the default. Optional [transactional model analysis](docs/model-analysis-operations.md) connects the UI to configured OpenAI/Anthropic/Gemini transports through durable PostgreSQL jobs, retained budgets and single-dispatch recovery. It is not connected to the Cloud SQL case outbox or business actions. Its [analysis contract](contracts/analysis-v1/README.md) is separate from frozen intake v1 and the legacy model runner. Real provider verification is pending credentials; mocked integration tests are not model-quality evidence.
-
-The shared-backend path has a separate [PostgreSQL case API and Docker setup](deploy/postgres/README.md): immutable v1 cases, atomic analysis intents and fenced leases. A **private case-storage pilot is deployed on Cloud Run + Cloud SQL** in `genaide/europe-west2`; see the [live verification and limits](docs/verification/cloud-case-pilot-2026-10-10.md) and [current architecture graphic](docs/architecture/proofkey-readiness-2026-10-10.png). The browser, model worker and operational runtime are not connected to it. See [what changes for training/evals](docs/architecture/postgres-case-backend.md); the legacy SQLite benchmark remains local-only.
+Start with the local platform below. Submission status and the A–G requirements are recorded in [SUBMISSION.md](SUBMISSION.md), with scope and checks in the [submission audit](docs/submission-audit-2026-10-10.md). Watch the [product video](DEMO/Right-onTime-FINAL-1080p.mp4).
 
 ## 1. What we built
 
-- A bounded importer for 50 public fictional logistics cases, separating visible input from future answers.
-- The original deterministic baseline for comparison.
-- A model proposer with OpenAI, Anthropic and Gemini API transports; the example selects OpenAI.
-- Three separately attributable API judge seats with eight anchored rubrics, abstention and critical-failure reporting.
-- A CLI, Docker build, offline tests, immutable experiment artifacts and conservative per-model spend reservations.
-- A local authenticated job service with persistent queue, proposal readback, cancellation and optional evaluation; bounded parallel provider calls run inside one active experiment. See [service boundaries and commands](docs/model-service.md).
-- A [local case/event pseudo API](docs/local-case-intake.md) with immutable revisions and declared JSON relationships. New input remains pending analysis; media is metadata-only.
-- An optional [read-only shadow bridge](tools/dwelly_bridge/README.md) for validated model-result/runtime associations. It grants no execution authority.
+- A Team workspace for cases, evidence, requests, ownership, model runs and review history.
+- A Customer view for reviewing offered delivery terms and recording a preference or acceptance against the current offer.
+- A Preparation workspace for inspecting six adapter surfaces and exporting a local configuration draft.
+- A PostgreSQL backend with immutable case revisions, source hashes, durable model jobs, budget reservations and stale-result checks.
+- A cancellation, negotiation and booking workflow with explicit consent, local pseudo-Dispatch receipts, and a sandbox scheduler.
+- Optional text-model reasoning, photo analysis and speech transcription; all provider calls are disabled by default.
+- Separate development datasets, model/judge evaluation tools and a synthetic operational runtime.
 
-The **model harness is not deployed**: its legacy [Cloud Run Job template](deploy/cloud-run/README.md) is offline-only, separate from the deployed case-storage pilot. The local model queue must not be deployed as a durable Cloud Run HTTP service; live model requests fail closed until external durable admission and artifact storage exist.
-
-The separate [operational runtime source](runtime/README.md) is included, with synthetic rescheduling/refusal examples and six adapter interfaces. It is not connected to the model harness or case API; native logistics integrations remain unimplemented.
+The integrated product is a **local demonstration**, not a production logistics service. A local booking receipt does not establish a booking with a real carrier; coordination completion does not establish physical delivery. See the [platform guide](docs/platform-operations.md), [API contract](contracts/platform-v1/README.md) and [runtime scope](runtime/README.md).
 
 ## 2. Operational problem
 
-Logistics requests contain conflicting messages, missing evidence and unclear permission. A good next step must identify the correct party, ask for exactly what is missing, preserve useful details and avoid claiming that a requested action already happened. The harness separates a proposal, an evaluation and authority to execute.
+A delivery exception often arrives across several messages: cancel an old slot, find an alternative, check who must be present, agree a price, obtain consent and wait for Dispatch. Lost context can cause an agent to book an unacceptable slot, reuse consent after terms change, or announce success before the carrier confirms anything.
+
+ProofKey preserves the evidence available at each step and distinguishes **request → proposed terms → explicit agreement → action request → confirmation**. The operator can see who is waiting on whom, what is missing and which exact evidence supports the next step.
 
 ## 3. Architecture
 
-```text
-Public source history
-  ├── decision-time snapshot → model proposer → frozen unsent proposal
-  └── separate reference action ─────────────────────┐
-                                                   ↓
-                      OpenAI + Claude + Gemini API judges
-                                                   ↓
-                      provisional scores / disagreements / errors
+```mermaid
+flowchart LR
+  Team[Team and Customer UI] --> API[Loopback platform API]
+  API --> DB[(PostgreSQL: cases, evidence, revisions)]
+  DB --> Projection[Evidence-only projection]
+  Projection --> Jobs[Durable model jobs and budget admission]
+  Jobs --> Models[Optional model APIs]
+  Models --> Proposal[Candidate and provider receipt]
+  Proposal --> Team
+  Team --> Review[Human review and consent record]
+  Review --> Gate[Deterministic revision, terms and policy checks]
+  Gate --> Sandbox[Local pseudo-Dispatch and sandbox scheduler]
+  Sandbox --> Receipt[Stored local effect and confirmation receipt]
+  Receipt --> DB
 ```
 
-Judges see anonymized proposed communications, visible evidence and optionally a recorded next-action example. They never receive later confirmations. The reference is not a unique gold answer. Source text and model scores cannot grant execution authority. See [architecture](docs/architecture.md).
+Deterministic code owns schema validation, revision/hash binding, offer freshness, consent and policy checks, idempotency, budget admission and local effect recording. Models propose interpretations and next steps; they cannot grant authority or execute business actions. Photo/ASR output remains a draft derivative until explicitly reviewed. Incoming text is evidence, not an instruction to change system policy.
 
-## 4. How to run
+Six integration surfaces exist: case/CRM, delivery, scheduling, returns, messaging and operator inbox. In the main platform, case records and the scheduler use local PostgreSQL; Dispatch and communication paths are local simulations or interfaces. No real courier, mailbox, telephone or payment account is connected. The separate [private cloud case-storage pilot](docs/verification/cloud-case-pilot-2026-10-10.md) is not the integrated product deployment.
 
-Python 3.11+; no third-party Python packages required.
+## 4. Reproducible setup and run
+
+Run from the repository root. Prerequisites: **Python 3.12**, **uv**, **Docker Engine**, a modern browser and an available loopback port 8095. The example below starts PostgreSQL 17 on loopback port 54329. Internet access is needed for the first package/image download. No model API key is needed for the default local workflow. Optional audio validation requires `ffprobe` on `PATH`.
+
+### Install Python dependencies
 
 ```sh
-python3 -B -m tools.dwelly_model --help
-python3 -B -m tools.dwelly_model dry-run \
-  --config tools/dwelly_model/config.example.json \
-  --bundle data/dwelly-public-cases --output /tmp/proofkey-offline-new --limit 2
-docker build -t proofkey-model:0.1 .
-docker run --rm proofkey-model:0.1 --help
+uv venv --python 3.12 .venv
+. .venv/bin/activate
+uv pip install --require-hashes -r requirements-postgres.lock
+uv pip install -r requirements-platform.txt
 ```
 
-Then configure credentials and explicitly choose `run --live`; see [full commands, volumes and limits](tools/dwelly_model/README.md). Output paths must be new. A dry-run uses the baseline and never claims model participation.
+The PostgreSQL dependencies are pinned with artifact hashes. The optional image dependency is version-pinned in [requirements-platform.txt](requirements-platform.txt). The explicit `uv` environment setup also works with uv-managed Python installations whose shortcut cannot bootstrap `python -m venv`. The separate runtime has its own [installation and dependency instructions](runtime/README.md); it is not required to start this UI.
+
+### Start a fresh local database
+
+The following is a first-start example. Use a new container/volume name if those names already exist. Keep the generated password in your private secret store for subsequent sessions; changing the environment variable later does not change an existing database's password.
+
+```sh
+export POSTGRES_PASSWORD="$(openssl rand -hex 32)"
+docker run -d --name proofkey-platform-db \
+  -p 127.0.0.1:54329:5432 \
+  -e POSTGRES_USER=proofkey -e POSTGRES_DB=proofkey -e POSTGRES_PASSWORD \
+  --mount type=volume,source=proofkey-platform-postgres,target=/var/lib/postgresql/data \
+  postgres:17.11-bookworm@sha256:639ab7ceb90e13123085b741fb31ef493fba25463002f6da665352e7b534b652
+docker exec proofkey-platform-db pg_isready -U proofkey -d proofkey
+```
+
+Wait until `pg_isready` reports accepting connections before continuing. An existing PostgreSQL instance may be used instead by supplying its connection string privately.
+
+### Start the product
+
+```sh
+export PROOFKEY_PLATFORM_DATABASE_URL="postgresql://proofkey:${POSTGRES_PASSWORD}@127.0.0.1:54329/proofkey"
+PYTHONPATH=.:tools:runtime/src python -m tools.dwelly_platform serve \
+  --database-url-env PROOFKEY_PLATFORM_DATABASE_URL \
+  --schema proofkey_platform_local --migrate --port 8095
+```
+
+Open [http://127.0.0.1:8095/](http://127.0.0.1:8095/). `--migrate` creates or updates the selected schema without clearing cases. The Team, Customer and Preparation pages share this local API. The server intentionally uses a trusted local operator model; keep it on loopback.
+
+For a scripted case, in another terminal with the same virtual environment active:
+
+```sh
+python -m tools.dwelly_platform.terms_demo \
+  --base-url http://127.0.0.1:8095 \
+  --case-id "demo-terms-$(date +%s)" \
+  --anchor-date "$(python -c 'from datetime import date, timedelta; print(date.today() + timedelta(days=1))')"
+```
+
+This creates a disclosed, date-shifted development replay in the local database. Its customer/Dispatch records are scripted operator attestations, with **zero model calls and zero external effects**. Open the resulting case in Team to inspect the request, terms, consent and confirmation history. It is not an official Reality Test result. See the [scenario packet](docs/demos/2026-10-10-case-001-terms/README.md).
+
+Stop the server with Ctrl-C. `docker stop proofkey-platform-db` preserves the named database volume; `docker start proofkey-platform-db` resumes it. Do not delete the volume as part of routine shutdown.
+
+### Optional services and verification
+
+- [Local inbound email/chat/phone harness](docs/inbound-communications.md): add `--channel-config tools/dwelly_channels/examples/channels.local.json`; signed webhooks additionally need their configured secret environment variables and `--channel-port`. No real channel account is connected.
+- [Offline case analysis workbench](docs/analysis-workbench.md): `python -m tools.dwelly_analysis serve --port 8093`. This is a separate UI, not the primary product.
+- [Legacy model/evaluation CLI](tools/dwelly_model/README.md): `python -B -m tools.dwelly_model --help`; its `dry-run` uses a deterministic baseline, not a model.
+- [Separate case-only Docker API](deploy/postgres/README.md): `compose.postgres.yaml` runs the older API, not the integrated platform UI.
+
+For platform checks against a disposable PostgreSQL schema, the test DSN must permit schema creation and removal:
+
+```sh
+PROOFKEY_TEST_DATABASE_URL="$PROOFKEY_PLATFORM_DATABASE_URL" \
+  PYTHONPATH=.:tools:runtime/src python -m unittest discover -s tools/dwelly_platform/tests -v
+```
+
+Database tests are skipped when the test DSN is absent; skips do not demonstrate database behavior. Browser and scripted-transport E2E setup is in [the E2E runbook](docs/case-model-e2e.md). Tests and local simulations do not establish real carrier integration or model accuracy.
 
 ## 5. Models, APIs and external services
 
-The example configuration selects `gpt-4.1-mini` for proposals and the OpenAI judge, `claude-sonnet-4-6` for the Anthropic judge, and `gemini-2.5-flash` for the Gemini judge. These are configurable example IDs, not a guarantee of account access or a claim about the best current model. Provider-reported identity is preserved separately from the request.
+The platform's **active default configuration** is [model-profiles.example.json](tools/dwelly_analysis/model-profiles.example.json): `gpt-4.1-mini`, `claude-sonnet-4-6` and `gemini-2.5-flash`. The separately selectable [current profiles](tools/dwelly_analysis/model-profiles.current.json) contain `gpt-6.1-sol`, `claude-sonnet-5-5` and `gemini-3.8-flash`; they are not automatically selected. The [model-choice note](docs/releases/2026-10-10-model-choice/README.md) records a Claude Sonnet 5.5 fallback decision, not an activated deployment or a proven evaluation winner.
 
-Required environment variables for the example configuration: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY` and `ANTHROPIC_WORKSPACE_ID`. For an Anthropic key already scoped to one workspace, remove that seat's `workspace_id_env` field if an explicit workspace header is unnecessary; see [workspace setup](tools/dwelly_model/README.md). Never commit key values or the actual workspace ID. `preflight` checks presence only, not validity or balance. API transports use fixed HTTPS endpoints and do not retry or substitute models. The OpenAI producer/judge family relationship is disclosed in each experiment.
+Text transports use OpenAI, Anthropic and Gemini APIs. Their environment variables are `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY` and, when required by the configured Anthropic profile, `ANTHROPIC_WORKSPACE_ID`. Optional media defaults are OpenAI `gpt-4.1` for image analysis and `whisper-1` for ASR. Requested IDs are configuration; only retained provider responses establish an observed model identity.
 
-The CLI reserves up to USD 25 per provider/model per experiment, including repeats and proposer/judge calls using the same model. The local service reuses one persistent ledger across its jobs and restarts instead of resetting the cap for each submission. These are conservative local limits under configured prices, not account-level provider billing caps. The service defaults to proposal-only; three-judge assessment is opt-in.
+New provider calls require explicit server startup flags: `--allow-live` for text reasoning and `--allow-media` for image/ASR. `--model-config` selects another text profile file; `--image-model` and `--asr-model` select media IDs. `--provider-env-file .env` loads allowlisted credentials without executing the file. Use [.env.platform.example](.env.platform.example) as a template; keep actual values in an ignored private file or secret store, never browser code or Git. Check account access, applicable pricing and data terms before authorizing paid calls.
+
+Durable reservations limit each configured provider/model scope to USD 25. Reuse the same `--budget-scope` across restarts of one experiment. Media currently reserves the full USD 25 per request; unknown/failed requests retain their reservation. These are conservative application limits, not exact invoices or provider-enforced billing caps. No provider call is needed to inspect recorded results or the default demonstration.
 
 ## 6. Assumptions and data
 
-All 50 included public cases are fictional, English, already-seen development examples. Raw Markdown contains future information: **do not give the entire repository to an agent**. Only the selected `agent/<case>.json` is proposal input. The six attachments occur after the original cutoff, and are not initial model inputs.
+The included Dwelly public examples, authored case-state annotations and synthetic extensions are **development material**. They are already seen and do not constitute an unseen benchmark. Author labels and model-judge scores are not human-validated ground truth.
 
-Team-owned independent evaluation cases and real data remain pending. Follow [the intake contract](docs/model-team-intake.md) for 10–20 new eval cases and 10–20 appropriately permitted/redacted real examples. Do not upload private Drive originals or real data merely because they are accessible locally.
+Only a selected, revision-bound evidence projection belongs in a model input. Raw narrative files may contain later outcomes; reference actions, labels and future continuations must remain outside the proposer input. Preserve case-family grouping when designing evaluation splits. Identity, consent and original evidence authenticity are not established merely by their presence in a submitted JSON record.
+
+On 10 October 2026, the user confirmed that the organisers permitted publication of the provided Dwelly cases and derivatives. This is recorded as user-attested permission, not an independently inspected licence or a grant to re-license those materials. Their original terms remain separate from the application-code licence. See [public case provenance](data/dwelly-public-cases/README.md), [team catalog](datasets/team-widget-v1/README.md), [independent-case intake](docs/model-team-intake.md) and [licence status](LICENSE-STATUS.md).
 
 ## 7. Known limitations and evidence
 
-The saved historical baseline had 50 valid drafts and 11/50 routing matches; this is **not semantic accuracy**. Its results stay in [pilot/](data/dwelly-public-cases/pilot). New model quality must be read from actual experiment receipts, not inferred from passing unit tests or a Docker build.
+- Local state, pseudo-Dispatch receipts and sandbox bookings are implemented. Production authentication/tenancy, real carriers, outbound messages, payments and end-to-end cloud operation are not verified.
+- [Scripted-transport E2E evidence](docs/verification/case-model-e2e-2026-10-10/README.md) covers real local HTTP, PostgreSQL, workers and browser behavior while substituting the external model response.
+- [A separate live-provider rerun](docs/verification/platform-live-e2e-2026-10-10-rerun/README.md) records 15 provider attempts, 13 retained responses and 12 accepted candidates. It found state/action errors and incomplete responses. Accepted JSON is not proof of a correct business decision.
+- [The legacy 50-case development experiment](docs/model-release-verification.md) includes 142/150 scored judge outputs and eight Gemini errors. Uncalibrated judge scores and exposed cases cannot establish held-out accuracy.
+- Media validation and review controls exist; meaningful image/audio quality, evidence authenticity and general operational reliability are not established by those controls.
+- The official unseen Reality Test is not evidenced in [ANSWERS](ANSWERS/README.md). Do not replace missing or unsuccessful system outputs with human-written successes.
+- Apache-2.0 applies to eligible original application code. The recorded organiser permission covers the provided Dwelly cases and derivatives; third-party code, services and other materials retain their own terms. [NOTICE.md](NOTICE.md) and [LICENSE-STATUS.md](LICENSE-STATUS.md) distinguish that permission from independently verified licensing.
 
-The [current verification record](docs/model-release-verification.md) now includes the completed 50-case development experiment: 50 structurally valid proposals, 200 API attempts, 142/150 scored judge outputs, eight Gemini errors, no abstentions and zero business effects. USD 3.5423817 was reserved under a USD 5 per-provider/model cap; this is not an invoice. Earlier verification recorded 60 model tests, 58 intake tests, an offline 50-case Docker run and a two-case live smoke.
+## 8. What we would do next
 
-An internal assistant spot-check found wrong-party routing, a false date-boundary claim, an invented attachment and unsupported service options; see [observed semantic failures](docs/model-release-verification.md#observed-semantic-failures). On one faulty proposal, OpenAI awarded all eight maximum scores while Claude flagged a critical error. Structurally valid outputs and judge agreement do not establish correctness.
+Retain the final audited source/video hashes and third-party notices. Launch post links are recorded in [SUBMISSION.md](SUBMISSION.md). Run the actual unseen cases through the frozen submitted system and preserve every outcome, including failures and escalations.
 
-Eight rubric scores assess next action, routing, required details, grounding, authority/consent, fabrication, escalation and clarity. All are provisional model judgments. No human calibration, untouched holdout, semantic safety certification, meaningful vision/audio or operational execution is claimed. Missing/error/abstaining judge seats never become zero scores or successes. Read [release verification](docs/model-release-verification.md) for the actual available evidence.
-
-This private release does not resolve ownership or redistribution rights for upstream examples. [Licence status](LICENSE-STATUS.md) remains applicable; model service/output terms are separate. Standard-library code introduces no provider SDK dependency. The Docker base image has its own terms.
-
-## 8. Next steps
-
-Collect the team's independent evaluation cases and permitted real examples, calibrate judges against explicit correct and incorrect controls, and test a bounded general prompt candidate for routing, policy boundaries and unsupported claims. That candidate has not been implemented or evaluated. Obtain human review before asserting correctness. A bridge to the execution runtime, native adapters, demo video and unseen challenge submission remain separate work.
-
-## 9. Dataset authoring and new scenarios
-
-- [Decision-episode authoring kit](docs/dataset-drafts/2026-10-10-decision-episodes/README.md): Russian team brief, generator prompt, six-stage input contract, 19 synthetic decision snapshots, separate labels/futures and eight review rubrics. All examples are development drafts, not a held-out benchmark or a runtime integration.
-- [Synthetic cases 051–100](data/synthetic-cases-051-100/README.md): 50 additional narrative scenarios. Run the documented import before passing them to the model CLI; their CSV decision taxonomy is separate from the runner's action schema.
-- [Negative branches for 001–050](data/negative-branches-001-050/README.md): the team's separately authored alternative continuations. They are preserved unchanged by the decision-draft update; no new validation or model-quality claim about them is implied here.
-
-All three collections need source-family grouping and reviewed labels before train/test use. Do not give a proposer the repository, label files, reference actions or future continuations.
-
-## 10. Case state visualization
-
-[Case State Widget](case-state-widget/README.md) is a standalone JSON-driven replay viewer: step controls, agent actions and waiting states, state diffs, a unified message timeline and evidence-backed completion criteria. The GitHub-backed catalog reads annotated JSON from [case-state-widget/cases](case-state-widget/cases/README.md) and refreshes without deployment. Its backend retains an explicit draft-PR endpoint; the current viewer does not expose a PR button. See [GitHub setup](case-state-widget/GITHUB.md). The server archive remains a fallback.
-
-The [pinned team analysis catalog](datasets/team-widget-v1/README.md) exposes cases 001–050 plus the 002-N4 branch as 51 namespaced documents and 286 cutoffs, alongside the original three fixtures / 16 cutoffs. The analysis workbench consumes selected visible evidence, including copied recipients and untrusted author limits. It does not send messages or execute business actions. Source labels remain unreviewed development annotations, not ground truth. The library server and analysis server intentionally have separate APIs.
+For product development, validate the state/action contract with independent cases and human reviewers; measure routing, groundedness and authority errors; then connect authenticated tenant identities and one real carrier adapter with explicit action authority and authoritative readback. Production hosting, durable media storage/retention, operational recovery and model-quality acceptance require separate verification.

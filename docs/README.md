@@ -1,6 +1,6 @@
 # Project documents
 
-Start with the [compact architecture](architecture.md): the shipped model experiment, the proposed integration harness, and the next evidence needed. The [detailed design reference](architecture-reference.md) retains the original ontology, workflows, sources and requirements.
+Start with the [compact architecture](architecture.md), the [platform operations guide](platform-operations.md), and the [platform API contract](../contracts/platform-v1/README.md). The historical detailed design reference is retained in Git history.
 
 - [Model CLI and Docker guide](../tools/dwelly_model/README.md)
 - [Current release verification](model-release-verification.md)

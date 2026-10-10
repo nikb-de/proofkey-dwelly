@@ -2,7 +2,7 @@
 
 The canonical input remains `contracts/v1`: declarations and append-only events, unchanged. Platform projections are separate `proofkey-platform-case-v1` records with `snapshot`, `states`, `decisions`, `reviews`, `actions`, `assets`, `model_jobs`, `media_runs` (when configured), and `external_effects:0`.
 
-The exact routes/request bodies are specified in the [archived design](../../openspec/changes/archive/2026-10-10-unified-case-platform/design.md); [living requirements](../../openspec/specs/unified-case-platform/spec.md) and [platform-operations](../../docs/platform-operations.md) describe behavior and usage.
+Routes and request bodies are described in the [platform operations guide](../../docs/platform-operations.md); [living requirements](../../openspec/specs/unified-case-platform/spec.md) define the required behavior.
 
 [states.schema.json](states.schema.json) is the machine-readable projection contract. [state-machines.json](state-machines.json) describes the independent transitions and admission guards; the deterministic runtime remains the authority for actual transitions, not a model-written status string.
 

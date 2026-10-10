@@ -1,5 +1,0 @@
-- [x] Merge widget catalog and extended validation.
-- [x] Integrate namespaced team catalog and evidence semantics.
-- [x] Resolve remaining platform conflicts and preserve both trees.
-- [x] Run relevant tests, independent review and offline E2E (778 Python tests, 797 subtests, 79 Node tests and browser E2E passed). Owner requested immediate merge; the additional full legacy runtime sweep is not a merge gate and remains unverified.
-- [x] Archive specification and merge verified integration.

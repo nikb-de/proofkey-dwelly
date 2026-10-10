@@ -255,7 +255,7 @@ remediation register therefore keeps J07 open.
 
 ## Specification closure
 
-Strict child validation passed before archival. The [completed child](../../openspec/changes/archive/2026-10-10-observed-route-stop-v2/tasks.md)
+Strict child validation passed before archival. The completed child (historical worklog retained in Git history)
 is archived with all tasks complete. Six added requirements are in the
 [living stop specification](../../openspec/specs/observed-route-stop-v2/spec.md),
 and two modified provisioning requirements are in the

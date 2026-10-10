@@ -57,7 +57,7 @@ The final full suite ran on `git archive` of `7b4c6e2`: **1,798 tests passed, ze
 
 The [final receipt](../../outputs/proofkey-safe-trace-full-7b4c6e2/receipt.json), [complete test log](../../outputs/proofkey-safe-trace-full-7b4c6e2/stderr.txt), [stdout](../../outputs/proofkey-safe-trace-full-7b4c6e2/stdout.txt) and [source inventory](../../outputs/proofkey-safe-trace-full-7b4c6e2/source-before.json) are retained. Archive SHA-256: `70119802243ec8c1cf929411d937bebc0fa05272c18addfec54ef198ea604763`. Both before/after inventory files hash to `ea93958ae10e8ebc629c47ed25250d01fa5cc2e44a82998a4addf082adad81ec`; stderr hashes to `f7664fa92a040723f80746cc76073b9ddb621be571142c20e67eb40c6a39b52b`, stdout to `6f0db3c23c92f74304ab26470c33f4be8c227af80f7c11a3e5f88b7011a22477`.
 
-The receipt SHA-256 is `1adbeeebbf53a81ad36b918e3045e50daf6a9899b5a0f9b4ad686daaf83b2685`. Strict change validation passed. The [completed child](../../openspec/changes/archive/2026-10-09-safe-evidence-trace/tasks.md) was archived with all four requirements synced to the [living specification](../../openspec/specs/safe-evidence-trace/spec.md). The archive's date uses the CLI's UTC date, while this report uses the London event date.
+The receipt SHA-256 is `1adbeeebbf53a81ad36b918e3045e50daf6a9899b5a0f9b4ad686daaf83b2685`. Strict change validation passed. The completed child (historical worklog retained in Git history) was archived with all four requirements synced to the [living specification](../../openspec/specs/safe-evidence-trace/spec.md). The archive's date uses the CLI's UTC date, while this report uses the London event date.
 
 ## Retained review records
 

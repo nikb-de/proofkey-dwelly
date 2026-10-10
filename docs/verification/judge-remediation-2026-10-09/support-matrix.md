@@ -36,7 +36,7 @@ Candidate `80e0d6f` passed four fresh installed new-case positions and seven
 negative positions. Scoped final-fix re-review and frozen regression passed:
 1,769 tests run, 1,768 passed, one environment-dependent macOS alias skip,
 zero failures/errors; the skipped test separately passed with inherited macOS
-TMPDIR. Strict prearchive validation passed; [J06 is closed and archived](../../../openspec/changes/archive/2026-10-09-trusted-replay-case-provisioning/tasks.md) for this bounded hook. The [living specification](../../../openspec/specs/trusted-replay-case-provisioning/spec.md) contains its six requirements.
+TMPDIR. Strict prearchive validation passed; J06 is closed and archived (historical worklog retained in Git history) for this bounded hook. The [living specification](../../../openspec/specs/trusted-replay-case-provisioning/spec.md) contains its six requirements.
 See [J06 verification](../2026-10-09-trusted-replay-cases.md) for all five
 attempts (16/20 positive complete-check passes, 34/35 negatives), exact target,
 hashes, return-initiation boundary and remaining

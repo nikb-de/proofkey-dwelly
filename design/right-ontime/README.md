@@ -11,10 +11,10 @@ No server, account, installation or internet is needed to explore it.
 - [Customer experience](prototype/client.html): delivery choices, reviewed consent, outcomes and help.
 - [Brand assets and usage](brand/USAGE.txt): selected Forward Fold vectors, palette and local font locations.
 - [Detailed handoff and demo routes](prototype/README.txt).
-- [Workflow-to-screen coverage](verification/BASELINE-COVERAGE.md): 38 mapped frames and 24 transitions.
-- [Baseline semantic audit](verification/BASELINE-REVIEW.md): all eight identified findings resolved in v4.
-- [Final brand review](prototype/evidence/brand-review.txt): latest refinement and unchanged behavior.
-- [Fresh check evidence](prototype/evidence/): interaction, adverse-path and identity checks plus screenshots.
+- Workflow-to-screen coverage (historical worklog retained in Git history): 38 mapped frames and 24 transitions.
+- Baseline semantic audit (historical worklog retained in Git history): all eight identified findings resolved in v4.
+- Final brand review (historical worklog retained in Git history): latest refinement and unchanged behavior.
+- Fresh check evidence (historical worklog retained in Git history): interaction, adverse-path and identity checks plus screenshots.
 
 GitHub displays source files; download the folder to interact with the HTML prototype. This repository is not a deployed website.
 

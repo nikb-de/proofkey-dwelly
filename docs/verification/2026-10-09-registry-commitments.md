@@ -25,7 +25,7 @@ The timing cases retain the original 120-second parent window. At real engine re
 | Complete host-admission module | 38 tests passed in 164.894 s, unchanged restored production timing |
 | Root complete runtime | 1,693 tests passed in 888.064 test seconds; zero errors/failures/skips; frozen HEAD and all 246 runtime files stable |
 | Root fresh-process factory qualification | All 37 planned tests executed and passed; 246 source hashes stable; eight artifact hashes independently checked; non-v1 remains unavailable and staging remains `staged_simulation` |
-| OpenSpec archival | [Only the J22/J32 leaf archived](../../openspec/changes/archive/2026-10-09-registry-commitments-and-short-parent-evidence/tasks.md); strict all-spec validation 6/6 passed; unfinished parents remain open |
+| OpenSpec archival | Only the J22/J32 leaf archived (historical worklog retained in Git history); strict all-spec validation 6/6 passed; unfinished parents remain open |
 
 Raw new candidate evidence is under `outputs/proofkey_runtime_panel_2026-10-09_r2/`. The full-suite receipt is `full-suite/receipt.json`; its raw stderr SHA-256 is `a2db2ecba8bfbca6de0a8ddd787edc8892817c03bdd7ab277d59ec0d8f2033d5`. The qualifier manifest is `qualification/manifest.json`, SHA-256 `88ade45391358687930486ee36e7acc22d9459059b0589a4018728a772c5432c`; independent readback is `qualification/independent-readback.json`. The suite wrapper elapsed 889.552 seconds; the test runner reported 888.064 seconds above.
 

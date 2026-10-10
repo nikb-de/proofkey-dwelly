@@ -4,7 +4,7 @@ Date: 9 October 2026. Status: **complete and archived**. Only this bounded facto
 
 ## Scope and candidate
 
-The user approved the two-task [implementation plan](../superpowers/plans/2026-10-09-synthetic-factory-registration.md). Runtime candidate: `ecf36ac` on `codex/proofkey-runtime`, in the existing linked worktree. The primary checkout was not modified.
+The user approved the two-task implementation plan (historical worklog retained in Git history). Runtime candidate: `ecf36ac` on `codex/proofkey-runtime`, in the existing linked worktree. The primary checkout was not modified.
 
 | Commit | Change |
 | --- | --- |
@@ -85,4 +85,4 @@ This is local controlled synthetic evidence with simulated approval. It establis
 
 Original five-provider scores and evidence are unchanged; no new score is inferred. **J01 and J02 are closed on their narrow criteria**, giving six closed and 26 open items in the [complete register](judge-remediation-2026-10-09/README.md). Broader J27/J30 audits, J22 public commitment inventory, J32 short-parent timing coverage, packaging/integration and all human/external gates remain open. Only the completed factory-registration leaf may be archived; both parent changes remain open.
 
-The validated OpenSpec archive is [2026-10-09-synthetic-factory-implementation-registration](../../openspec/changes/archive/2026-10-09-synthetic-factory-implementation-registration/). Its four requirements are now in the [living specification](../../openspec/specs/synthetic-factory-registration/spec.md). Neither `proofkey-v21-harness-contracts` nor `judge-remediation-program` was archived.
+The validated OpenSpec archive is 2026-10-09-synthetic-factory-implementation-registration (historical worklog retained in Git history). Its four requirements are now in the [living specification](../../openspec/specs/synthetic-factory-registration/spec.md). Neither `proofkey-v21-harness-contracts` nor `judge-remediation-program` was archived.

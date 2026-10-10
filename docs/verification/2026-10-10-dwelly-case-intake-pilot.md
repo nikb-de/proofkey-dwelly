@@ -77,7 +77,7 @@ The historical log is `.superpowers/sdd/2026-10-10-dwelly-case-intake-pilot/runt
 
 ## Architecture companion
 
-The [detailed architecture](../architecture/dwelly-agent-architecture-2026-10-10.md) incorporates all four current files from the supplied Drive folder. It separates the implemented offline pilot and synthetic runtime from proposed semantic reasoning, authenticated ingress and native adapters. A 19-row source-to-design-to-test matrix marks existing test hooks separately from missing acceptance tests.
+The detailed architecture (historical worklog retained in Git history) incorporates all four current files from the supplied Drive folder. It separates the implemented offline pilot and synthetic runtime from proposed semantic reasoning, authenticated ingress and native adapters. A 19-row source-to-design-to-test matrix marks existing test hooks separately from missing acceptance tests.
 
 All four Mermaid diagrams were parsed and rendered with Mermaid 11 in headless Chrome 155.0.8059.40 and visually inspected. One sequence-diagram punctuation error and one attachment-case enumeration error were corrected. The render receipt and images are local at `outputs/architecture-verified-OiUWxH/`; the receipt's document digest identifies the rendered diagram version. Rendering is presentation QA, not validation of the proposed live architecture.
 

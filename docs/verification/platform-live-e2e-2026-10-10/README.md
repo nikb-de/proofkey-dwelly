@@ -12,7 +12,7 @@ Date: 2026-10-10. Base commit: `8f6a530f9503e9ae30fbadcaef96033b317fa6ff`, plus 
 |---|---|---|
 | Backend | 307 tests + 42 subtests passed, zero failures/skips | [Backend report](backend/REPORT.md), [JUnit](backend/junit.xml) |
 | UI | Four browser E2Es passed; 28 targeted tests passed | [UI report and screenshots](ui/README.md) |
-| Fix regression | 122 tests + 222 subtests passed; this overlaps other suites and is not an additional independent denominator | [Fix plan and results](../../superpowers/plans/2026-10-10-openai-json-input-envelope.md) |
+| Fix regression | 122 tests + 222 subtests passed; this overlaps other suites and is not an additional independent denominator | Fix plan and results (historical worklog retained in Git history) |
 | Live Claude | 16/16 model responses available; 8/16 cutoffs matched the strict current ledger; 432 operational assertions passed | [Full report](live/anthropic-claude-sonnet-4-6-full/report.md) |
 | Live Gemini | 5/16 cutoffs attempted: 3 matched, 1 ledger mismatch, 1 incomplete response; 11 not run after stop | [Full report](live/gemini-2-5-flash-full/report.md) |
 | Live OpenAI, after fix | 2/16 cutoffs attempted: 1 ledger mismatch, 1 invalid model output rejected; 14 not run after stop | [Full report](live/openai-gpt-4-1-mini-fixed-full/report.md) |

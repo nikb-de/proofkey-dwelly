@@ -85,6 +85,6 @@ registered-admission feature, not overall production or hackathon readiness.
 The exact implementation contract is
 [`registered-host-admission.md`](../../openspec/changes/proofkey-v21-harness-contracts/registered-host-admission.md);
 the execution plan is
-[`2026-10-09-registered-host-admission.md`](../superpowers/plans/2026-10-09-registered-host-admission.md).
+`2026-10-09-registered-host-admission.md` (historical worklog retained in Git history).
 Original test streams, baseline archive, independent probes and review snapshots
 are retained locally under `.superpowers/sdd/2026-10-08-proofkey-runtime/`.
