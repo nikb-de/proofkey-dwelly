@@ -19,6 +19,7 @@ RESOURCES = {
     "resources/profiles/flat-v1.2.json": "faafa410d3e736a5e1177a9b2b9a9783271854cfad5cc358f1ef3e6705a37778",
     "resources/profiles/flat-v1.3.json": "8fcd07924f5518ffa6e8b7cfcb3d773e8ba9f10d48458031132f8749c177a940",
     "resources/profiles/flat-v1.4.json": "cc21da123bb5c2347f9e8363952541f9d7739e7c2e1b8a76ec0423133871a54a",
+    "resources/profiles/flat-window-readiness-v1.json": "19e2cb56c5a7353406020ee06e1b7bf750f27e59e304ffdcbd48ac36963427a7",
     "resources/profiles/nested-v1.json": "ea8451fe41fb2549a22904f7c11cfdd8f96306a95dbd8ba3ded93a3ff19b8cef",
     "resources/profiles/nested-v1.1.json": "cec02aae538b9139526e89fecdd57887a47bb1cb44640ec29ec5edeb46c4cd82",
     "resources/profiles/nested-v1.2.json": "5561191419d0fa2b85a6c354cff1a45f6e74c4a8fc2c2555bb24ba0da4e465f9",
@@ -89,7 +90,7 @@ from proofkey.journal import CaseStore
 package = Path(proofkey.__file__).resolve().parent
 assert package.parent.name == "site-packages"
 before = {str(p.relative_to(package)): p.read_bytes() for p in package.rglob("*") if p.is_file()}
-names = ["flat-v1", "flat-v1.1", "flat-v1.2", "flat-v1.3", "flat-v1.4",
+names = ["flat-v1", "flat-v1.1", "flat-v1.2", "flat-v1.3", "flat-v1.4", "flat-window-readiness-v1",
          "nested-v1", "nested-v1.1", "nested-v1.2", "nested-v1.3", "nested-v1.4"]
 for name in names:
     profile = load_profile(name)
@@ -115,7 +116,7 @@ after = {str(p.relative_to(package)): p.read_bytes() for p in package.rglob("*")
 assert before == after
 print(json.dumps({"profiles": names, "releases": release_ids, "journal_created": database.is_file()}))
 ''')
-        self.assertEqual(len(result["profiles"]), 10)
+        self.assertEqual(len(result["profiles"]), 11)
         self.assertEqual(result["releases"], ["host-window-replay-v1", "host-goods-replay-v1"])
         self.assertTrue(result["journal_created"])
 

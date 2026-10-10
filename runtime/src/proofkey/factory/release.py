@@ -88,6 +88,8 @@ def stage_release(factory, review_packet, human_approval, pending_intents):
                  "migration_unavailable", "authenticated_actual_review_unavailable",
                  "actual_coding_agent_unestablished", "http_transport_integration_unavailable",
                  "changed_process_adapter_dispatch_unavailable", "600_second_drill_unestablished")
+        if "process_delta_registration" in body:
+            unmet = tuple(item for item in unmet if item != "changed_process_adapter_dispatch_unavailable")
         manifest = dict(domain="proofkey-staged-simulation-v1", status="staged_simulation",
             proposal_hash=proposal.proposal_hash, regression_hash=expected.regression_hash,
             profile_hash=candidate.release_hash, profile_id=candidate.profile_id, profile_version=candidate.version,
@@ -101,6 +103,8 @@ def stage_release(factory, review_packet, human_approval, pending_intents):
             unmet_requirements=list(unmet), staged_at=factory.context.now.isoformat())
         if "implementation_registration" in body:
             manifest["implementation_registration"] = body["implementation_registration"]
+        if "process_delta_registration" in body:
+            manifest["process_delta_registration"] = body["process_delta_registration"]
         receipt = ReleaseReceipt(version=candidate.version, release_hash=fingerprint(manifest),
             proposal_hash=proposal.proposal_hash, regression_hash=expected.regression_hash,
             profile_hash=candidate.release_hash, process_hash=candidate.process_hash, policy_hash=candidate.policy_hash,

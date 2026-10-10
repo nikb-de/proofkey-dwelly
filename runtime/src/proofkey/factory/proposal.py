@@ -8,7 +8,9 @@ import re
 from ..contracts import (AdaptationProposal, EnvironmentProfile, AdaptationDiff,
                          MigrationPlan, ReviewPacket, HumanReviewApproval)
 from ..identity import fingerprint, validate_json
-from ..profiles import validate_profile
+from ..profiles import (validate_profile, load_profile, is_window_readiness_profile,
+                        _window_readiness_profile_data, WINDOW_READINESS_FACTORY_KEY,
+                        WINDOW_READINESS_IMPLEMENTATION_PATHS)
 
 MAX_BYTES = 2 * 1024 * 1024
 # Exact canonical reviewed flat-v1.3 supplement; hashes bind bytes, not origin.
@@ -107,16 +109,28 @@ def _validate_candidate(baseline, candidate, supplement):
         raise FactoryDenied("reused_profile_identity")
 
 
-def _material_proposal(material, implementation_registration=None):
+def _material_proposal(material, implementation_registration=None, process_delta_registration=None):
     try:
+        if implementation_registration is not None and process_delta_registration is not None:
+            raise FactoryDenied("conflicting_implementation_registrations")
         if type(material) is not ProposalMaterial or type(material.adapter_sources) is not tuple:
             raise FactoryDenied("invalid_material")
+        if process_delta_registration is not None:
+            process_delta_registration = _normalize_window_registration(process_delta_registration)
+            _window_sources(material.adapter_sources)
         baseline = validate_profile(EnvironmentProfile.model_validate(decode(material.baseline)))
         candidate = validate_profile(EnvironmentProfile.model_validate(decode(material.candidate)))
         supplement = validate_profile(EnvironmentProfile.model_validate(decode(material.reviewed_supplement)))
         if supplement.version != "v1.3" or supplement.release_hash != REGISTERED_SUPPLEMENT_HASH:
             raise FactoryDenied("untrusted_supplement")
-        _validate_candidate(baseline, candidate, supplement)
+        if process_delta_registration is None:
+            _validate_candidate(baseline, candidate, supplement)
+        elif (baseline.release_hash != process_delta_registration.baseline_hash or
+                not is_window_readiness_profile(candidate) or
+                candidate.release_hash != process_delta_registration.candidate_hash or
+                candidate.process_hash != process_delta_registration.process_hash or
+                candidate.policy_hash != process_delta_registration.policy_hash):
+            raise FactoryDenied("unsupported_candidate")
         source, tests, agent = decode(material.source), decode(material.tests), decode(material.agent)
         if not all(type(item) is dict for item in (source, tests, agent)):
             raise FactoryDenied("invalid_material")
@@ -156,7 +170,8 @@ def _material_proposal(material, implementation_registration=None):
         if not adapters or len({entry["path"] for entry in adapters}) != len(adapters):
             raise FactoryDenied("invalid_adapter_sources" if implementation_registration is None
                                 else "unsupported_adapter_implementation")
-        pins = (REGISTERED_IMPLEMENTATIONS if implementation_registration is None
+        pins = (process_delta_registration.implementations if process_delta_registration is not None
+                else REGISTERED_IMPLEMENTATIONS if implementation_registration is None
                 else implementation_registration.implementations)
         if {entry["path"]: entry["sha256"] for entry in adapters} != dict(pins):
             raise FactoryDenied("unsupported_adapter_implementation")
@@ -180,6 +195,8 @@ def _material_proposal(material, implementation_registration=None):
                 "provenance": implementation_registration.provenance,
                 "inventory_sha256": sha256(canonical(registered_pins)).hexdigest(),
             }
+        if process_delta_registration is not None:
+            body["process_delta_registration"] = _window_registration_commitment(process_delta_registration)
         proposal = AdaptationProposal(**{key: body[key] for key in (
             "proposal_id", "source_hash", "baseline_hash", "diff", "test_hash", "migration", "agent_hash")},
             proposal_hash=fingerprint(body))
@@ -268,6 +285,74 @@ def _normalize_registration(registration):
                                                tuple(sorted(pins)))
 
 
+@dataclass(frozen=True, slots=True)
+class WindowReadinessRegistrationV1:
+    registration_id: str
+    provenance: str
+    host_factory_key: str
+    baseline_hash: str
+    candidate_hash: str
+    process_hash: str
+    policy_hash: str
+    implementations: tuple[tuple[str, str], ...]
+
+
+def _normalize_window_registration(registration):
+    if registration is None:
+        return None
+    if type(registration) is not WindowReadinessRegistrationV1:
+        raise FactoryDenied("invalid_process_delta_registration")
+    expected = _window_readiness_profile_data(load_profile("flat-v1.3"))
+    fields = dict(
+        registration_id="synthetic-window-readiness-delta-v1",
+        provenance="local_controlled_synthetic",
+        host_factory_key=WINDOW_READINESS_FACTORY_KEY,
+        baseline_hash=REGISTERED_SUPPLEMENT_HASH, candidate_hash=expected["release_hash"],
+        process_hash=expected["process_hash"], policy_hash=expected["policy_hash"])
+    if any(type(getattr(registration, key, None)) is not str or getattr(registration, key) != value
+           for key, value in fields.items()):
+        raise FactoryDenied("invalid_process_delta_registration")
+    pins = getattr(registration, "implementations", None)
+    if type(pins) is not tuple or len(pins) != len(WINDOW_READINESS_IMPLEMENTATION_PATHS):
+        raise FactoryDenied("invalid_process_delta_registration")
+    detached = []
+    for pair, path in zip(pins, WINDOW_READINESS_IMPLEMENTATION_PATHS):
+        if (type(pair) is not tuple or len(pair) != 2 or type(pair[0]) is not str or
+                pair[0] != path or type(pair[1]) is not str or
+                re.fullmatch("[0-9a-f]{64}", pair[1]) is None):
+            raise FactoryDenied("invalid_process_delta_registration")
+        detached.append((pair[0], pair[1]))
+    return WindowReadinessRegistrationV1(**fields, implementations=tuple(detached))
+
+
+def _window_sources(sources):
+    """Bound and detach source bytes before interpreting any JSON material."""
+    if type(sources) is not tuple:
+        raise FactoryDenied("invalid_adapter_sources")
+    detached, total = [], 0
+    for pair in sources:
+        if (type(pair) is not tuple or len(pair) != 2 or type(pair[0]) is not str or
+                type(pair[1]) is not bytes or not pair[1]):
+            raise FactoryDenied("invalid_adapter_sources")
+        total += len(pair[1])
+        if len(pair[1]) > 1048576 or total > 8388608:
+            raise FactoryDenied("material_limit_exceeded")
+        detached.append((pair[0], pair[1]))
+    if tuple(path for path, _ in detached) != WINDOW_READINESS_IMPLEMENTATION_PATHS:
+        raise FactoryDenied("unsupported_adapter_implementation")
+    return tuple(detached)
+
+
+def _window_registration_commitment(registration):
+    inventory = [{"path": path, "sha256": digest} for path, digest in registration.implementations]
+    body = {name: getattr(registration, name) for name in (
+        "registration_id", "provenance", "host_factory_key", "baseline_hash",
+        "candidate_hash", "process_hash", "policy_hash")}
+    body["inventory_sha256"] = sha256(canonical(inventory)).hexdigest()
+    body["registration_sha256"] = sha256(canonical(body)).hexdigest()
+    return body
+
+
 @dataclass(frozen=True)
 class FactoryContext:
     materials: tuple[ProposalMaterial, ...]
@@ -277,6 +362,7 @@ class FactoryContext:
     inventory: OriginalInventory | None
     now: datetime
     implementation_registration: SyntheticImplementationRegistration | None = None
+    process_delta_registration: WindowReadinessRegistrationV1 | None = None
 
 
 class AdaptationFactory:
@@ -286,10 +372,13 @@ class AdaptationFactory:
         if type(context) is not FactoryContext or any(type(getattr(context, field)) is not tuple for field in
                 ("materials", "regressions", "runners", "reviews")):
             raise FactoryDenied("trusted_context_unavailable")
+        if context.implementation_registration is not None and context.process_delta_registration is not None:
+            raise FactoryDenied("conflicting_implementation_registrations")
         if (type(context.now) is not datetime or context.now.tzinfo is None or len(context.materials) > 32 or
                 len(context.regressions) > 128 or len(context.reviews) > 128 or len(context.runners) > 128):
             raise FactoryDenied("invalid_context")
         registration = _normalize_registration(context.implementation_registration)
+        window_registration = _normalize_window_registration(context.process_delta_registration)
         if any(type(runner) is not RunnerIdentity or any(type(getattr(runner, name)) is not str for name in
                ("runner_id", "provenance", "suite_hash")) for runner in context.runners):
             raise FactoryDenied("runner_untrusted")
@@ -304,9 +393,11 @@ class AdaptationFactory:
         for material in context.materials:
             if type(material) is not ProposalMaterial:
                 raise FactoryDenied("invalid_material")
+            if window_registration is not None:
+                material = replace(material, adapter_sources=_window_sources(material.adapter_sources))
             normalized = replace(material, **{field: canonical(decode(getattr(material, field))) for field in
                 ("source", "baseline", "candidate", "tests", "agent", "diff", "migration", "reviewed_supplement")})
-            _material_proposal(normalized, registration)
+            _material_proposal(normalized, registration, window_registration)
             materials.append(normalized)
         if len({material.proposal_id for material in materials}) != len(materials):
             raise FactoryDenied("duplicate_registration")
@@ -319,7 +410,8 @@ class AdaptationFactory:
         if len(reviews) != len(context.reviews):
             raise FactoryDenied("approval_untrusted")
         self._context = replace(context, materials=tuple(materials), regressions=regressions, reviews=reviews,
-                                inventory=inventory, implementation_registration=registration)
+                                inventory=inventory, implementation_registration=registration,
+                                process_delta_registration=window_registration)
 
     @property
     def context(self):
@@ -329,7 +421,8 @@ class AdaptationFactory:
         if type(proposal) is not AdaptationProposal:
             raise FactoryDenied("proposal_mismatch")
         for material in self.context.materials:
-            expected, candidate, baseline, body = _material_proposal(material, self.context.implementation_registration)
+            expected, candidate, baseline, body = _material_proposal(
+                material, self.context.implementation_registration, self.context.process_delta_registration)
             if expected.proposal_hash == proposal.proposal_hash:
                 if wire(expected) != wire(proposal):
                     raise FactoryDenied("proposal_mismatch")
@@ -338,7 +431,8 @@ class AdaptationFactory:
 
     def _proposal_hash(self, proposal_hash):
         for material in self.context.materials:
-            proposal, _, _, _ = _material_proposal(material, self.context.implementation_registration)
+            proposal, _, _, _ = _material_proposal(
+                material, self.context.implementation_registration, self.context.process_delta_registration)
             if proposal.proposal_hash == proposal_hash:
                 return proposal
         raise FactoryDenied("proposal_unregistered")
@@ -352,7 +446,8 @@ class AdaptationFactory:
                 and canonical(decode(material.baseline)) == baseline_bytes]
             if len(matches) != 1:
                 raise FactoryDenied("proposal_material_unregistered")
-            return _material_proposal(matches[0], self.context.implementation_registration)[0]
+            return _material_proposal(matches[0], self.context.implementation_registration,
+                                      self.context.process_delta_registration)[0]
         except FactoryDenied:
             raise
         except (ValueError, TypeError, AttributeError):
@@ -382,9 +477,9 @@ class AdaptationFactory:
             raise FactoryDenied("failed_regression")
         if evidence["result"] != "passed":
             raise FactoryDenied("regression_unavailable")
-        # This reviewed provider implementation only dispatches process v1.
-        # A claimed runner pass cannot make a known unavailable dispatch native.
-        if any(spec.version != "v1" for spec in candidate.processes.values()):
+        # Preserve the legacy denial order; only the registered delta continues.
+        if self.context.process_delta_registration is None and any(
+                spec.version != "v1" for spec in candidate.processes.values()):
             raise FactoryDenied("regression_unavailable")
         try:
             time = datetime.fromisoformat(evidence["executed_at"])
@@ -400,6 +495,10 @@ class AdaptationFactory:
                 raise FactoryDenied("regression_coverage_incomplete")
         except (ValueError, TypeError, KeyError):
             raise FactoryDenied("invalid_regression") from None
+        # Only the exact retained J05 semantic registration admits its sole v2 process.
+        if any(spec.version != "v1" for spec in candidate.processes.values()):
+            if self.context.process_delta_registration is None or not is_window_readiness_profile(candidate):
+                raise FactoryDenied("regression_unavailable")
         return ReviewPacket(proposal_hash=exact.proposal_hash, regression_hash=regression_receipt,
             affected_pending_contracts=exact.migration.affected_contracts, proposed_profile=candidate,
             proposed_processes=candidate.processes, compatibility=exact.migration)
