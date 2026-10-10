@@ -15,3 +15,16 @@ Run unit tests with `node --test tools/intake-model.test.mjs`. Run browser check
 Run `node tools/check-intake-storage.mjs` for transactional failure, duplicate/stale input, quota, staged selection, audio and export checks. `node tools/capture-intake.mjs` regenerates desktop and 360px sample-photo screenshots under `outputs/right-ontime-intake-2026-10-10`; override `INTAKE_SCREENSHOT_DIR` for a different output directory. Capture uses fresh browser contexts and locally generated sample bytes.
 
 Additional participant IDs are optional, comma-separated and validated against the same ID rules. Each evidence submission has an explicit timezone-aware ISO occurrence timestamp; it defaults to now but can record an earlier source message. Source timestamps never reorder committed history.
+
+Recipients are explicitly selected for each source event. The visible default is an empty list, meaning no recipient is recorded; case membership never implies receipt of a message. Write failures retain the selected recipients and draft. If a write commits but the screen refresh fails, the draft is consumed, the saved status is explicit, and editing remains disabled until the saved case is reloaded.
+
+Complete intake verification (with the Playwright environment configured as above):
+
+```sh
+node --test tools/intake-model.test.mjs
+node tools/check-intake.mjs
+node tools/check-intake-storage.mjs
+node tools/check-intake-recovery.mjs
+```
+
+The recovery suite injects post-commit read failures for both case creation and evidence append, verifies reload without a duplicate write, and checks explicit recipient subsets/empty lists through failed writes, persistence and JSON export.
