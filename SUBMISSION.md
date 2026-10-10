@@ -22,7 +22,7 @@ Status: **incomplete; not submitted**. The GitHub destination is a private docum
 
 - [x] Create and verify a private personal GitHub preparation destination.
 - [x] Prepare a finite local scaffold allowlist and separate source review snapshot.
-- [ ] Upload and verify the six-file documentation scaffold in the private repository.
+- [x] Upload and verify the six-file documentation scaffold in the private repository.
 - [ ] Establish rights for every selected code, data, test and media file; complete dependency notices.
 - [ ] Include the reviewed runnable source, configuration and reproducible instructions.
 - [ ] Include the standard Apache-2.0 `LICENSE` for eligible code after the rights review.
