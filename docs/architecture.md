@@ -8,14 +8,9 @@ The standalone [model package](../tools/dwelly_model/README.md) prepares next-ac
 
 The [release verification](model-release-verification.md) records 41 model tests and 58 intake tests passing, plus an offline Docker run over all 50 cases. That run used the deterministic baseline: no model answers, API calls or scored judge results. Actual API experiments were not run because credentials were unavailable. Semantic quality and unseen accuracy remain unestablished.
 
-```mermaid
-flowchart TB
-  D[50 development cases] --> S[Decision-time snapshot]
-  S --> P[Proposal runner]
-  P --> F[Frozen proposal]
-  F --> J[Three API judge adapters]
-  J --> R[Scores or missing results]
-```
+![Experiment flow](diagrams/stable/overview-1.png)
+
+[Zoomable SVG](diagrams/stable/overview-1.svg) · [Editable Mermaid source](diagrams/stable/overview-1.mmd)
 
 The package does not send customer messages, change bookings, create returns or move money. The separate operational runtime is not shipped in this release.
 
@@ -23,16 +18,9 @@ The package does not send customer messages, change bookings, create returns or 
 
 The proposed integration harness coordinates cases through six adapter surfaces: case, delivery, scheduling, returns, messaging and operator handoff. Typed interfaces and synthetic runtime evidence do not establish six working provider integrations.
 
-```mermaid
-flowchart TB
-  I[Authenticated event] --> E[Evidence snapshot]
-  E --> P[Model proposal]
-  P --> G[Deterministic gate]
-  G --> J[Durable intent]
-  J --> A[Six adapter surfaces]
-  A --> V[Original-effect readback]
-  V --> O[Verified result or owned wait]
-```
+![Target operational flow](diagrams/stable/overview-2.png)
+
+[Zoomable SVG](diagrams/stable/overview-2.svg) · [Editable Mermaid source](diagrams/stable/overview-2.mmd)
 
 The model proposes. The gate checks authority, consent, current state and budget. A provider acknowledgement does not prove an effect; verification requires the original operation's readback. Unknown outcomes retain an owner and a reconciliation path.
 
