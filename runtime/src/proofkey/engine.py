@@ -26,6 +26,7 @@ from .processing_orchestration import ProcessingOrchestrator
 from .processing_summary import (ProcessingAttemptSummaryV1, ProcessingEntryNoteV1,
                                  ProcessingSummaryV1)
 from .evidence.processing_contracts import canonical
+from .profiles import is_window_readiness_profile
 
 
 _BUSINESS = {"reschedule_window": "reschedule", "reschedule_exact": "reschedule",
@@ -414,6 +415,49 @@ class WorkflowEngine:
         self.store.save_checkpoint(updated)
         return self.store.checkpoint(checkpoint.binding.case_id)
 
+    def _save_window_readiness(self, expected: PhaseCheckpoint, **changes) -> PhaseCheckpoint:
+        """Fence readiness advancement and its observation merge in one commit."""
+        fences = ("binding", "phase", "next_gate", "profile_version", "process_version", "policy_version",
+                  "ownership_state", "ownership_state_revision", "ownership_epoch", "deadline", "stop")
+        with self.store._transaction():
+            current = self.store.checkpoint(expected.binding.case_id)
+            if any(getattr(current, key) != getattr(expected, key) for key in fences):
+                raise GateDenied("scope_denied")
+            if (current.stop.requested or self.gateway._timing is None
+                    or self.gateway._timing.remaining_seconds(current.deadline) <= 0):
+                raise GateDenied("scope_denied")
+            if self.gateway._admission_owner is not None:
+                self.gateway._admission_owner.guard_execution(self.gateway._timing.execution, self.gateway)
+            if "observations" in changes:
+                indexed = qualified_observations(self.profile, current.binding.object_id, current.observations)
+                indexed.update(qualified_observations(self.profile, current.binding.object_id, changes["observations"]))
+                changes = {**changes, "observations": list(indexed.values())}
+            return self._save(current, **changes)
+
+    def _window_readiness(self, checkpoint: PhaseCheckpoint, request: CanonicalRequest) -> PhaseCheckpoint:
+        try:
+            self._selected(checkpoint, "read_authority")
+            checkpoint = self._save_window_readiness(checkpoint, next_gate="read_authority")
+            observations = self.gateway.read_window_readiness(request.case_id)
+            latest = self.gateway._window_readiness_checkpoint(request.case_id, checkpoint)
+            indexed = qualified_observations(self.profile, request.object_id, latest.observations)
+            indexed.update(qualified_observations(self.profile, request.object_id, observations))
+            merged = list(indexed.values())
+            facts = self._graph_facts(latest.model_copy(update={"observations": merged}), request)
+            target = self.process.next_phase("window_readiness", "read_authority", facts)
+            if target != "window_gate":
+                raise GateDenied("scope_denied")
+            return self._save_window_readiness(latest, observations=observations,
+                phase=target, next_gate=target, processing_status="pending")
+        except (GateDenied, BudgetExceeded):
+            # Only annotate a still-current readiness phase; no stale captured
+            # state, expired admission, or save failure authorizes advancement.
+            with self.store._transaction():
+                current = self.store.checkpoint(request.case_id)
+                if current.phase != "window_readiness" or current.stop.requested:
+                    return current
+                return self._save(current, processing_status="unavailable")
+
     def _records(self, checkpoint):
         return {r.intent.operation: r for r in self.store.intents(checkpoint.binding.case_id)
                 if r.intent.binding == checkpoint.binding}
@@ -616,6 +660,8 @@ class WorkflowEngine:
         phase = checkpoint.phase
         if checkpoint.stop.requested:
             return checkpoint
+        if phase == "window_readiness" and is_window_readiness_profile(self.profile):
+            return self._window_readiness(checkpoint, request)
         spec = self.profile.processes[request.kind]
         declared = {edge.operation for edge in spec.edges if edge.origin == phase}
         wait = next((w for w in spec.waits if w.phase == phase), None)

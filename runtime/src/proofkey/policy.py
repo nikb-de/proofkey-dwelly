@@ -6,7 +6,7 @@ from .contracts import (ActionProposal, AuthContext, AuthorityObservation, Canon
 from .identity import request_fingerprint
 from .journal import IntentRecord
 from .process import ProcessController, material_fields
-from .profiles import requires_completed_service
+from .profiles import is_window_readiness_profile, requires_completed_service
 from .verifier import expected_facts
 from .packet_contracts import (PACKET_FIELDS, packet_enabled, validate_packet_arguments,
                                validate_packet_policy, validate_packet_scope)
@@ -225,6 +225,9 @@ class PolicyGate:
                         raise GateDenied("scope_denied")
                     start, end = _interval(slots[slot].get("start"), slots[slot].get("end"))
                     if request.kind == "reschedule_window":
+                        if is_window_readiness_profile(self.profile) and (
+                                type(values.get("scheduling.slot")) is not str or values["scheduling.slot"] != "S0"):
+                            raise GateDenied("scope_denied")
                         lower, upper = _interval(request.arguments.get("window_start"), request.arguments.get("window_end"))
                         if request.consent_mode != "window" or start < lower or end > upper:
                             raise GateDenied("scope_denied")

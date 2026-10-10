@@ -8,7 +8,7 @@ from dataclasses import dataclass
 
 from pydantic import TypeAdapter
 
-from .contracts import (ActionProposal, AuthContext, AuthorityReadback, CanonicalRequest, EffectIntent, Hash, Identifier,
+from .contracts import (ActionProposal, AuthContext, AuthorityObservation, AuthorityReadback, CanonicalRequest, EffectIntent, Hash, Identifier,
                         NonnegativeInt, OwnerState, PhaseCheckpoint, ReadRequest, RequestBinding,
                         ReadTarget, Revision, RevisionVector, RoleAllowance, StopState, VerificationResult)
 from .identity import fingerprint, request_fingerprint, stable_action_id
@@ -24,6 +24,7 @@ from .execution_consumer import ExecutionTiming
 from .ownership_contracts import OwnershipPacketV1, OwnershipGrantV1, ownership_enabled
 from .ownership_gateway import OwnershipGateway
 from .processing import RoleAdmissionLimits, freeze_processing_allowances
+from .profiles import is_window_readiness_profile
 
 
 @dataclass(frozen=True)
@@ -281,6 +282,53 @@ class ActionGateway(OwnershipGateway):
         return self._facts(intent.binding, required_fields(self.profile, intent.operation) | OWNER_FIELDS,
                            deadline=intent.deadline, purpose=self._material_purpose(intent.operation),
                            validators=self._source_validators(intent.binding, checkpoint, packet=True) if dynamic else None)
+
+    def _window_readiness_checkpoint(self, case_id: str, expected: PhaseCheckpoint | None = None) -> PhaseCheckpoint:
+        """Recheck this finite source-read entry without changing the journal."""
+        if get_ident() != self._owner_thread or not self._execution_active or self._timing is None:
+            raise GateDenied("scope_denied")
+        self._authenticated()
+        checkpoint = self._active(case_id)
+        checkpoint, original = self._configured_original(checkpoint.binding)
+        if (not is_window_readiness_profile(self.profile) or original.kind != "reschedule_window"
+                or checkpoint.process_version != "v2-window-readiness" or checkpoint.policy_version != "v1"
+                or checkpoint.phase != "window_readiness" or checkpoint.next_gate != "read_authority"
+                or checkpoint.ownership_state != "accepted" or checkpoint.stop.requested
+                or self._timing.remaining_seconds(checkpoint.deadline) <= 0):
+            raise GateDenied("scope_denied")
+        fences = ("binding", "phase", "next_gate", "profile_version", "process_version", "policy_version",
+                  "ownership_state", "ownership_state_revision", "ownership_epoch", "deadline", "stop")
+        if expected is not None and any(getattr(checkpoint, key) != getattr(expected, key) for key in fences):
+            raise GateDenied("scope_denied")
+        if self._admission_owner is not None:
+            self._admission_owner.guard_execution(self._timing.execution, self)
+        return checkpoint
+
+    def read_window_readiness(self, case_id: str) -> tuple[AuthorityObservation, ...]:
+        """Read the exact candidate's identity, owner and S0 with four leases."""
+        checkpoint = self._window_readiness_checkpoint(case_id)
+        validators = self._source_validators(checkpoint.binding, checkpoint)
+        ordinary_owner = validators["ownership"]
+
+        def strict_owner(reply):
+            current = {o.authority + "." + o.fact: o.value for o in reply.observations}
+            for key, schema in (("ownership.owner", Identifier), ("ownership.state", OwnerState),
+                                ("ownership.state_revision", Revision), ("ownership.epoch", NonnegativeInt)):
+                TypeAdapter(schema).validate_python(current[key], strict=True)
+            if current["ownership.owner"] != self.auth.caller_id:
+                raise GateDenied("scope_denied")
+            ordinary_owner(reply)
+
+        validators["ownership"] = strict_owner
+        identity = self._facts(checkpoint.binding, IDENTITY_FIELDS | OWNER_FIELDS,
+            deadline=checkpoint.deadline, purpose="window_readiness_identity", validators=validators)
+        self._window_readiness_checkpoint(case_id, checkpoint)
+        slot = self._facts(checkpoint.binding, {"scheduling.slot"},
+            deadline=checkpoint.deadline, purpose="window_readiness")
+        if len(slot) != 1 or type(slot[0].value) is not str or slot[0].value != "S0":
+            raise GateDenied("scope_denied")
+        self._window_readiness_checkpoint(case_id, checkpoint)
+        return identity + slot
 
     def _material_purpose(self, operation):
         return "operator_packet" if operation == "enqueue_handoff" and packet_enabled(self.profile) else "material_authority"
