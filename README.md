@@ -6,6 +6,8 @@ The primary product is now the [Right onTime case platform](docs/platform-operat
 
 Run `PYTHONPATH=.:tools:runtime/src python -m tools.dwelly_platform serve --database-url-env PROOFKEY_PLATFORM_DATABASE_URL --schema proofkey_platform_local --migrate --port 8095`, then open `http://127.0.0.1:8095/`. Providers are disabled by default; private credentials remain server-side. See [API and data boundaries](contracts/platform-v1/README.md).
 
+Use the [authored-case E2E runbook](docs/case-model-e2e.md) to replay existing histories through the platform and check coordination state, waiting party, current/stale binding, retained jobs and no duplicate dispatch. The UI now observes model jobs by read-only polling. [Verification and explicit limits](docs/verification/case-model-e2e-2026-10-10/README.md) separate real HTTP/PostgreSQL/browser execution with scripted responses from still-unavailable live-provider validation.
+
 This is not the cloud production UI. Real carrier actions, payments, authenticated tenancy and live model/media quality are not verified. The older components below remain available and have their own boundaries; their standalone workbenches are no longer the primary platform UI.
 
 ## Existing model and evaluation components

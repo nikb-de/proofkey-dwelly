@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const source = await readFile(new URL('../session.js', import.meta.url), 'utf8').catch(() => 'export class PlatformSession {}');
-const { PlatformSession, createAPI, needsReview, reviewedMediaMessage, canReview } = await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
+const { PlatformSession, createAPI, needsReview, reviewedMediaMessage, canReview, modelStatusView } = await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
 const detail = (id, revision = 0) => ({schema_version:'proofkey-platform-case-v1',case_id:id,snapshot:{case_id:id,revision,snapshot_hash:'a'.repeat(64),events:[]},states:{lifecycle:'new',evidence:'empty',analysis:'not_started',decision:'none',action:'none'},decisions:[],reviews:[],actions:[],assets:[],model_jobs:[],external_effects:0});
 const deferred = () => {let resolve; const promise = new Promise(r => {resolve=r;}); return {promise,resolve};};
 
@@ -95,4 +95,29 @@ test('current blocked actions may be rejected, follow-up acknowledged, but refun
   assert.equal(canReview({action:{type:'operator_review'},checks:[{passed:false}]},'approve'),true);
   assert.equal(canReview({action:{type:'request_information'},checks:[{passed:false}]},'approve'),true);
   assert.equal(canReview({action:{type:'reschedule_delivery'},checks:[{passed:false}]},'approve'),false);
+});
+
+const modelSnapshot={case_id:'model-case',revision:2,snapshot_hash:'b'.repeat(64)};
+const modelJob=(status='succeeded')=>({schema_version:'proofkey-model-job-v1',run_id:'run1',case_id:'model-case',status,step_index:2,input_hash:'c'.repeat(64),input:{case_id:'model-case',step_index:2,input_hash:'c'.repeat(64)},source:{kind:'platform_case',case_id:'model-case',revision:2,snapshot_hash:'b'.repeat(64)},candidate:status==='succeeded'?{schema_version:'proofkey-step-candidate-v1',input_hash:'c'.repeat(64),state:'waiting',waiting_for:['courier'],next_action:{type:'wait',target_actor_id:'courier',description:'Wait for confirmation.'},operational_effects:0}:null,transaction:{dispatch_attempts:1,automatic_retries:0,operational_effects:0}});
+
+test('bound successful model view separates coordination from transport and exposes real counters',()=>{
+  assert.deepEqual(modelStatusView(modelJob(),modelSnapshot),{current:true,transport:'succeeded',coordination:'waiting',waitingFor:['courier'],proposedAction:{type:'wait',target_actor_id:'courier',description:'Wait for confirmation.'},dispatchAttempts:1,automaticRetries:0,operationalEffects:0});
+});
+
+test('pending and failed transport never display a coordination result or invented counters',()=>{
+  for(const status of ['queued','running','response_received','failed','outcome_unknown']){
+    const job=modelJob(status);job.candidate=modelJob().candidate;delete job.transaction;
+    const view=modelStatusView(job,modelSnapshot);
+    assert.equal(view.transport,status);assert.equal(view.coordination,null);assert.deepEqual(view.waitingFor,[]);
+    assert.equal(view.proposedAction,null);assert.equal(view.dispatchAttempts,null);assert.equal(view.automaticRetries,null);assert.equal(view.operationalEffects,null);
+  }
+});
+
+test('stale, cross-case and incorrectly hashed candidates cannot appear current',()=>{
+  const jobs=[modelJob(),modelJob(),modelJob(),modelJob(),modelJob()];
+  jobs[0].source.snapshot_hash='d'.repeat(64);jobs[1].source.case_id='another';jobs[2].candidate.input_hash='d'.repeat(64);jobs[3].input.input_hash='d'.repeat(64);delete jobs[4].source;
+  for(const job of jobs){const view=modelStatusView(job,modelSnapshot);assert.equal(view.current,false);assert.equal(view.coordination,null);assert.deepEqual(view.waitingFor,[]);}
+  const completed=modelJob();completed.candidate.state='completed';completed.candidate.waiting_for=[];completed.candidate.next_action={type:'none',target_actor_id:null,description:'No next action.'};
+  assert.equal(modelStatusView(completed,modelSnapshot).coordination,'completed');
+  assert.equal(modelSnapshot.revision,2);
 });

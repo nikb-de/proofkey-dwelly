@@ -1,5 +1,83 @@
 const requestId = () => globalThis.crypto?.randomUUID?.() || `request-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
+const pendingModelStates = new Set(['queued','running','response_received']);
+
+export function modelStatusView(job, snapshot) {
+  const source=job.source, input=job.input, candidate=job.candidate;
+  const hash=value=>typeof value==='string' && /^[a-f0-9]{64}$/.test(value);
+  const current=Boolean(source?.kind==='platform_case' && job.case_id===snapshot.case_id &&
+    source.case_id===snapshot.case_id && source.revision===snapshot.revision &&
+    hash(snapshot.snapshot_hash) && source.snapshot_hash===snapshot.snapshot_hash &&
+    input?.case_id===snapshot.case_id && input.step_index===snapshot.revision &&
+    hash(job.input_hash) && input.input_hash===job.input_hash &&
+    (!candidate || (candidate.schema_version==='proofkey-step-candidate-v1' && candidate.input_hash===job.input_hash)));
+  const visible=current && job.status==='succeeded' && candidate;
+  const counter=value=>Number.isInteger(value) && value>=0?value:null;
+  return {current,transport:job.status || 'unavailable',coordination:visible?candidate.state:null,
+    waitingFor:visible && Array.isArray(candidate.waiting_for)?candidate.waiting_for.filter(v=>typeof v==='string'):[],
+    proposedAction:visible?candidate.next_action:null,
+    dispatchAttempts:counter(job.transaction?.dispatch_attempts),
+    automaticRetries:counter(job.transaction?.automatic_retries),
+    operationalEffects:counter(job.transaction?.operational_effects)};
+}
+
+export class ModelPoller {
+  constructor({api,onUpdate=()=>{},onError=()=>{},intervalMs=2000,maxPolls=120,
+    schedule=globalThis.setTimeout.bind(globalThis),cancel=globalThis.clearTimeout.bind(globalThis)}) {
+    this.api=api;this.onUpdate=onUpdate;this.onError=onError;
+    this.intervalMs=Math.min(30000,Math.max(1000,intervalMs));
+    this.maxPolls=Math.min(300,Math.max(1,maxPolls));
+    this.schedule=schedule;this.cancel=cancel;this.records=new Map();this.epoch=0;this.key=null;this.disposed=false;
+  }
+  watch({caseId,generation,jobs=[]}) {
+    if(this.disposed)return;
+    const key=caseId?`${caseId}:${generation}`:null;
+    if(this.key!==key){this.stop();this.key=key;}
+    if(!caseId)return;
+    const ids=new Set(jobs.map(job=>job.run_id || job.job_id).filter(Boolean));
+    for(const [id,record] of this.records)if(!ids.has(id)){this.cancel(record.timer);this.records.delete(id);}
+    for(const job of jobs){
+      const id=job.run_id || job.job_id;if(!id)continue;
+      const existing=this.records.get(id);
+      if(!pendingModelStates.has(job.status)){
+        if(existing){this.cancel(existing.timer);existing.status='done';}
+        continue;
+      }
+      if(existing)continue;
+      const record={id,caseId,epoch:this.epoch,status:'observing',attempts:0,error:'',timer:null};
+      this.records.set(id,record);this.queue(record);
+    }
+  }
+  getState(id) {const record=this.records.get(id);return record?{status:record.status,error:record.error,attempts:record.attempts}:null;}
+  active(record) {return !this.disposed && record.epoch===this.epoch && this.records.get(record.id)===record;}
+  queue(record) {record.timer=this.schedule(()=>this.poll(record),this.intervalMs);}
+  async poll(record) {
+    if(!this.active(record) || record.status!=='observing')return;
+    record.timer=null;record.attempts++;
+    try {
+      const job=await this.api(`/model-runs/${encodeURIComponent(record.id)}`,{method:'GET'});
+      if(!this.active(record) || record.status!=='observing')return;
+      if(job.run_id!==record.id || job.case_id!==record.caseId)throw Error('Model response does not match the selected case and run.');
+      const pending=pendingModelStates.has(job.status);
+      if(!pending)record.status='done';
+      else if(record.attempts>=this.maxPolls){record.status='paused';record.error='Observation limit reached. Refresh run to continue.';}
+      this.onUpdate(job,{caseId:record.caseId,runId:record.id});
+      if(this.active(record) && record.status==='observing')this.queue(record);
+    } catch(error) {
+      if(!this.active(record))return;
+      record.status='paused';record.error=error.message || 'Model observation failed.';
+      this.onError(error,{caseId:record.caseId,runId:record.id});
+    }
+  }
+  retry(id) {
+    const record=this.records.get(id);
+    if(!record || this.disposed)return;
+    this.cancel(record.timer);record.error='';record.attempts=0;record.status='observing';this.queue(record);
+  }
+  stop() {this.epoch++;for(const record of this.records.values())this.cancel(record.timer);this.records.clear();this.key=null;}
+  dispose() {this.stop();this.disposed=true;}
+}
+
 export function needsReview(item) {
   return item.states?.lifecycle !== 'resolved' && (
     ['in_review','awaiting_approval','ready'].includes(item.states?.lifecycle) ||

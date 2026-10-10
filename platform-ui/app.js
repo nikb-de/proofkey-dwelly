@@ -1,13 +1,26 @@
-import { PlatformSession, createAPI, needsReview, reviewedMediaMessage, normalizeMediaRun, canReview } from './session.js';
+import { PlatformSession, createAPI, needsReview, reviewedMediaMessage, normalizeMediaRun, canReview, modelStatusView, ModelPoller } from './session.js';
 
 const $ = id => document.getElementById(id);
 const api = createAPI();
 const session = new PlatformSession(api, renderDetail);
 let cases = [], capabilities = null, activeView = 'cases', renderedCase = null, notice = '';
 let createAttempt = null;
-const jobStatus = new Map();
 const mediaReviewed = new Set();
 const mediaDraftEvents = new Map();
+function createModelPoller() {
+  return new ModelPoller({api,onUpdate(job,{caseId}){
+    if(session.selectedId!==caseId || !session.detail)return;
+    const index=session.detail.model_jobs.findIndex(value=>(value.run_id || value.job_id)===job.run_id);
+    if(index<0)return;
+    session.detail.model_jobs[index]=job;
+    renderJobs(session.detail);
+    // Refresh the server's case-state projection once on completion, never submit.
+    if(!['queued','running','response_received'].includes(job.status) && !session.busy)session.reload().catch(()=>{});
+  },onError(){if(session.detail)renderJobs(session.detail);}});
+}
+let modelPoller=createModelPoller();
+window.addEventListener('pagehide',()=>modelPoller.dispose());
+window.addEventListener('pageshow',event=>{if(event.persisted){modelPoller=createModelPoller();renderDetail();}});
 const human = value => String(value ?? 'Unknown').replaceAll('_',' ').replace(/^./,c=>c.toUpperCase());
 const stamp = value => value ? new Date(value).toLocaleString('en-GB') : '';
 const uid = prefix => `${prefix}-${crypto.randomUUID()}`;
@@ -73,7 +86,7 @@ function renderDetail() {
   showMessages();renderCases();
   const detail=session.detail;
   $('case-detail').hidden=!detail;$('empty-state').hidden=Boolean(detail);
-  if(!detail)return;
+  if(!detail){modelPoller.watch({caseId:null,generation:session.generation,jobs:[]});return;}
   const snapshot=detail.snapshot;
   const changed=renderedCase!==detail.case_id;
   if(changed){renderedCase=detail.case_id;restoreDrafts(detail);}
@@ -192,19 +205,33 @@ function renderHistory(detail) {
   for(const entry of entries){const item=node('article',undefined,'history-item');item.append(node('h4',entry.title),node('time',stamp(entry.time)),node('p',entry.text));parent.append(item);}
 }
 function renderJobs(detail) {
-  const parent=$('model-jobs');parent.replaceChildren();
+  const parent=$('model-jobs'),openInspectors=new Set();
+  if(parent.dataset.caseId===detail.case_id)for(const card of parent.children){
+    if(card.dataset.jobId)for(const inspector of card.querySelectorAll('details[data-inspector][open]'))openInspectors.add(JSON.stringify([card.dataset.jobId,inspector.dataset.inspector]));
+  }
+  parent.replaceChildren();parent.dataset.caseId=detail.case_id;
+  modelPoller.watch({caseId:activeView==='integrations'?null:detail.case_id,generation:session.generation,jobs:detail.model_jobs || []});
   for(const entry of detail.model_jobs || []){
-    const id=entry.run_id || entry.job_id || entry.id;const job=entry.status ? entry : jobStatus.get(id) || entry;const item=node('div',undefined,'job-item');
-    item.append(node('strong',`Model run · ${job.status ? human(job.status) : 'Refresh to check status'}`),node('p',id || 'Run recorded'));
+    const id=entry.run_id || entry.job_id || entry.id,job=entry,view=modelStatusView(job,detail.snapshot);const item=node('div',undefined,'job-item');item.dataset.runId=id || '';item.dataset.jobId=id || '';
+    item.append(node('strong',`Model run · ${human(view.transport)}`,'model-transport'),node('p',id || 'Run recorded'));
     const revision=job.source?.revision ?? job.step_index ?? job.revision;
-    const current=revision===detail.snapshot.revision && (!job.source?.snapshot_hash || job.source.snapshot_hash===detail.snapshot.snapshot_hash);
-    item.append(node('p',`Input revision ${revision ?? 'unknown'} · ${current?'Current evidence':'Stale or unverified input'}`));
+    item.append(node('p',`Input revision ${revision ?? 'unknown'} · ${view.current?'Current evidence':'Stale or unverified input'}`,'model-binding'));
+    item.append(node('p',`Coordination: ${view.coordination?human(view.coordination):'Not available for the current evidence'}`,'model-coordination'));
+    if(view.waitingFor.length)item.append(node('p',`Waiting for: ${view.waitingFor.join(', ')}`,'model-waiting'));
+    if(view.proposedAction){item.append(node('p',`Proposed action: ${human(view.proposedAction.type)}${view.proposedAction.target_actor_id?` → ${view.proposedAction.target_actor_id}`:''}`,'model-action'));item.append(node('p',view.proposedAction.description,'hint'));}
+    const count=value=>value===null?'not reported':String(value);
+    item.append(node('p',`Dispatch attempts: ${count(view.dispatchAttempts)} · Automatic retries: ${count(view.automaticRetries)} · Operational effects: ${count(view.operationalEffects)}`,'model-counters'));
+    if(view.operationalEffects>0)item.append(node('p','Reported effects require operator investigation. No action was triggered by observation.','model-warning'));
     if(job.receipt)item.append(node('p',`Provider: ${job.receipt.provider || 'not reported'} · requested model: ${job.receipt.requested_model || 'not reported'} · observed model: ${job.receipt.observed_model || 'not reported'}`));
     else item.append(node('p','Provider receipt not yet available.'));
     item.append(node('p',job.evaluation==null?'Evaluation unavailable: no reference label is supplied.':'Evaluation record available; this does not establish calibrated accuracy.','hint'));
-    if(job.candidate){const more=node('details');more.append(node('summary','Model proposal (requires review)'),node('pre',JSON.stringify(job.candidate,null,2)));item.append(more);}
+    if(job.candidate){const more=node('details');more.dataset.inspector='proposal';more.open=openInspectors.has(JSON.stringify([id,'proposal']));more.append(node('summary',view.current?'Model proposal (requires review)':'Historical or unverified model proposal'),node('pre',JSON.stringify(job.candidate,null,2)));item.append(more);}
+    const raw=node('details');raw.dataset.inspector='run';raw.open=openInspectors.has(JSON.stringify([id,'run']));raw.append(node('summary','Full model run and receipt'),node('pre',JSON.stringify(job,null,2)));item.append(raw);
     if(job.error)item.append(node('p',typeof job.error==='string'?job.error:JSON.stringify(job.error)));
-    if(id)item.append(button('Refresh run',()=>perform(async()=>{jobStatus.set(id,await api(`/model-runs/${encodeURIComponent(id)}`));await session.reload();})));parent.append(item);
+    const polling=modelPoller.getState(id);
+    if(polling?.status==='observing')item.append(node('p','Observing status every 2 seconds · read-only','model-poll-status hint'));
+    if(polling?.status==='paused')item.append(node('p',`Observation paused: ${polling.error} Use Refresh run to resume.`,'model-poll-status model-warning'));
+    if(id)item.append(button('Refresh run',()=>perform(()=>session.reload())));parent.append(item);
   }
 }
 function renderCapabilities() {
@@ -220,7 +247,7 @@ document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',(
   activeView=b.dataset.view;document.querySelectorAll('[data-view]').forEach(n=>n.classList.toggle('active',n===b));
   $('integrations-view').hidden=activeView!=='integrations';$('cases-view').hidden=activeView==='integrations';
   $('page-title').textContent=activeView==='integrations'?'Connected, with control.':activeView==='queue'?'Decisions that need you.':'A clear next step.';
-  renderCases();
+  renderCases();if(session.detail)renderJobs(session.detail);
 }));
 $('refresh-list').addEventListener('click',()=>perform(loadCases));
 $('refresh-case').addEventListener('click',()=>perform(async()=>{captureDrafts();await session.reload();await loadCases();},'Case refreshed. Your drafts are retained.'));
@@ -254,7 +281,7 @@ $('evidence-form').addEventListener('submit',event=>{event.preventDefault();perf
   await loadCases();
 },'Evidence saved to the case.');});
 $('analyze-case').addEventListener('click',()=>perform(async()=>{const s=session.detail.snapshot;await session.mutate('analyze',{expected_revision:s.revision,snapshot_hash:s.snapshot_hash,mode:'deterministic'});await loadCases();},'Analysis recorded. Review the proposed next step.'));
-$('run-model').addEventListener('click',()=>perform(async()=>{const s=session.detail.snapshot;const result=await session.mutate('model-runs',{expected_revision:s.revision,snapshot_hash:s.snapshot_hash,model_profile_id:$('model-profile').value});if(result.run_id)jobStatus.set(result.run_id,result);await loadCases();renderDetail();},'Model run requested. Refresh its status to inspect the result.'));
+$('run-model').addEventListener('click',()=>perform(async()=>{const s=session.detail.snapshot;await session.mutate('model-runs',{expected_revision:s.revision,snapshot_hash:s.snapshot_hash,model_profile_id:$('model-profile').value});await loadCases();renderDetail();},'Model run requested. Status is observed without submitting another run.'));
 $('proposal-form').addEventListener('submit',event=>{event.preventDefault();perform(async()=>{
   captureDrafts();const s=session.detail.snapshot,p=session.getDraft('proposal');const action={type:p.type};
   if(p.type==='reschedule_delivery'){
