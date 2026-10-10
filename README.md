@@ -2,7 +2,7 @@
 
 Private experimental release for the Dwelly Delivery & Logistics track. **Runnable source, CLI and Docker are included.** The model proposes the next communication; three API judges assess its content. Nothing sends messages, books deliveries or transfers money.
 
-Start with [model quickstart](tools/dwelly_model/README.md), [team data intake](docs/model-team-intake.md), [architecture](docs/architecture.md) and [raw/agent/evaluation data](data/dwelly-public-cases/README.md). There is no complete hackathon submission, video, live logistics integration or human-validated model-quality claim.
+Start with [model quickstart](tools/dwelly_model/README.md), [local asynchronous service](docs/model-service.md), [team data intake](docs/model-team-intake.md), [architecture](docs/architecture.md) and [raw/agent/evaluation data](data/dwelly-public-cases/README.md). There is no complete hackathon submission, video, live logistics integration or human-validated model-quality claim.
 
 ## 1. What we built
 
@@ -11,6 +11,9 @@ Start with [model quickstart](tools/dwelly_model/README.md), [team data intake](
 - A model proposer with OpenAI, Anthropic and Gemini API transports; the example selects OpenAI.
 - Three separately attributable API judge seats with eight anchored rubrics, abstention and critical-failure reporting.
 - A CLI, Docker build, offline tests, immutable experiment artifacts and conservative per-model spend reservations.
+- A local authenticated job service with persistent queue, proposal readback, cancellation and optional evaluation; bounded parallel provider calls run inside one active experiment. See [service boundaries and commands](docs/model-service.md).
+
+Google Cloud deployment is **prepared, not performed**: the [Cloud Run Job template](deploy/cloud-run/README.md) is offline-only. The local queue must not be deployed as a durable Cloud Run HTTP service; live cloud requests fail closed until external durable admission and artifact storage exist.
 
 The separate operational runtime is **not included**. Its synthetic rescheduling/refusal examples and six adapter interfaces are described only in the architecture.
 
@@ -53,7 +56,7 @@ The example configuration selects `gpt-4.1-mini` for proposals and the OpenAI ju
 
 Required environment variables for the example configuration: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY` and `ANTHROPIC_WORKSPACE_ID`. For an Anthropic key already scoped to one workspace, remove that seat's `workspace_id_env` field if an explicit workspace header is unnecessary; see [workspace setup](tools/dwelly_model/README.md). Never commit key values or the actual workspace ID. `preflight` checks presence only, not validity or balance. API transports use fixed HTTPS endpoints and do not retry or substitute models. The OpenAI producer/judge family relationship is disclosed in each experiment.
 
-The application reserves up to USD 25 per provider/model per experiment, including repeats and proposer/judge calls using the same model. This is a conservative local limit under configured prices, not an account-level provider billing cap.
+The CLI reserves up to USD 25 per provider/model per experiment, including repeats and proposer/judge calls using the same model. The local service reuses one persistent ledger across its jobs and restarts instead of resetting the cap for each submission. These are conservative local limits under configured prices, not account-level provider billing caps. The service defaults to proposal-only; three-judge assessment is opt-in.
 
 ## 6. Assumptions and data
 

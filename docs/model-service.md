@@ -27,19 +27,24 @@ Snapshot validation, hashing, queue ownership, budget admission, schema validati
 
 ## Run locally
 
-Use Python 3.11 or newer from the repository root. Set a private token of at least 16 characters without whitespace. Generate it in the current shell or load it from your private secret store; never commit its value. The default server binds to loopback and starts without permission for live provider calls.
+Use Python 3.11 or newer from the repository root. Point `PROOFKEY_BUNDLE` at an already imported bundle containing `manifest.json`, `ledger.jsonl` and `agent/`; the raw source-case directory is a different input format. The current working tree's imported bundle is `outputs/dwelly-intake-2026-10-10-final`. A packaged release may instead include `data/dwelly-public-cases`; that path is not present in every source checkout.
+
+Set a private token of at least 16 characters without whitespace. Generate it in the current shell or load it from your private secret store; never commit its value. The default server binds to loopback and starts without permission for live provider calls.
 
 ```sh
+PROOFKEY_REPO="$(pwd -P)"
+PROOFKEY_BUNDLE="$PROOFKEY_REPO/outputs/dwelly-intake-2026-10-10-final"
 export PROOFKEY_SERVICE_TOKEN="$(openssl rand -hex 32)"
 PROOFKEY_STATE="$(mktemp -d)"
+PROOFKEY_STATE="$(cd "$PROOFKEY_STATE" && pwd -P)"
 chmod 700 "$PROOFKEY_STATE"
 python3 -B -m tools.dwelly_service \
-  --bundle "$PWD/data/dwelly-public-cases" \
-  --config "$PWD/tools/dwelly_model/config.example.json" \
+  --bundle "$PROOFKEY_BUNDLE" \
+  --config "$PROOFKEY_REPO/tools/dwelly_model/config.example.json" \
   --state-dir "$PROOFKEY_STATE"
 ```
 
-Keep the state directory for restarts. It contains the SQLite queue, shared budget, evidence and raw provider receipts; protect it as private data. Run only one service owner against it. Never put state inside the input bundle or put inputs inside state. Inputs/config are fixed by the operator at startup; clients cannot submit file paths, provider configuration or secrets.
+Keep the state directory for restarts. Paths must be canonical with no symlink ancestors; the example resolves the temporary directory because macOS commonly exposes it through `/var`, a symlink to `/private/var`. The state contains the SQLite queue, shared budget, evidence and raw provider receipts; protect it as private data. Run only one service owner against it. Never put state inside the input bundle or put inputs inside state. Inputs/config are fixed by the operator at startup; clients cannot submit file paths, provider configuration or secrets.
 
 `--allow-live` is a separate startup opt-in. Live jobs additionally require `"mode":"live"` in the submission and the configured provider credentials in the server environment. Startup opt-in permits spending under the configured ledger; it does not validate credentials, prices, balance, provider availability or human acceptance. Shared reservations are not a provider billing cap and are retained after unknown outcomes or errors.
 
@@ -72,7 +77,9 @@ curl --fail-with-body -X POST "http://127.0.0.1:8080/v1/jobs/$PROOFKEY_JOB_ID/ca
 
 Submit only the documented fields: `mode` (`dry_run` or `live`), `limit` (1–50), `evaluate` (Boolean), `max_parallel_requests` (1–16), and `per_provider_limit` (1–8). Identical submissions with the same idempotency key return the same job; a changed body with that key is a conflict. The server commits the submission before acknowledging it.
 
-Status polling returns state and progress counts, not raw prompts/replies. The authenticated `/proposals` route retrieves the actual unsent drafts for operator review. States are `queued`, `running`, `completed`, `cancelled`, `failed` and `interrupted`. The summary route returns a validated summary only when available. Cancellation stops new admission, drains requests already sent, and retains their evidence and reservations. It cannot revoke a provider request or promise a refund. On restart, queued jobs can run; previously running work is reconciled to valid terminal evidence or marked interrupted, never automatically replayed.
+Status polling returns state and progress counts, not raw prompts/replies. The authenticated `/proposals` route retrieves the actual unsent drafts for operator review. States are `queued`, `running`, `completed`, `cancelled`, `failed` and `interrupted`. The summary route returns a validated summary only when available. Cancellation stops new admission, drains requests already sent, and retains their evidence and reservations. It cannot revoke a provider request or promise a refund.
+
+On restart, queued offline jobs can run. Existing live jobs remain queued when the current startup omits `--allow-live`; they do not block offline jobs. A later startup with explicit `--allow-live` may resume those queued live jobs, so review the retained queue before enabling live execution. Previously running work is reconciled to valid terminal evidence or marked interrupted, never automatically replayed.
 
 ## Local Docker service
 
@@ -85,7 +92,7 @@ docker run --rm --name proofkey-service \
   -p 127.0.0.1:8080:8080 \
   -e PROOFKEY_SERVICE_TOKEN \
   --mount type=volume,source=proofkey-service-state,target=/state \
-  --mount "type=bind,source=$PWD/data/dwelly-public-cases,target=/input/bundle,readonly" \
+  --mount "type=bind,source=$PROOFKEY_BUNDLE,target=/input/bundle,readonly" \
   --mount "type=bind,source=$PWD/tools/dwelly_model/config.example.json,target=/input/config.json,readonly" \
   proofkey-service:local
 ```
