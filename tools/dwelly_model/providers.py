@@ -83,16 +83,21 @@ def complete(config: dict, system: str, prompt: str, max_output_tokens: int = 20
     Missing usage or model identity remains ``None``; it is never inferred from
     the request. All failures are sanitized and no failed request is retried.
     """
-    allowed = {"provider", "model", "api_key_env", "input_usd_per_million", "output_usd_per_million"}
+    allowed = {"provider", "model", "api_key_env", "workspace_id_env",
+               "input_usd_per_million", "output_usd_per_million"}
     if not isinstance(config, dict) or set(config) - allowed:
         raise ProviderError("invalid_config")
     provider = config.get("provider")
     model = config.get("model")
     env_name = config.get("api_key_env")
+    workspace_env = config.get("workspace_id_env")
     if (provider not in ("openai", "anthropic", "gemini")
             or not isinstance(model, str) or not model.strip() or len(model) > 256
             or any(ord(char) < 32 for char in model)
             or not isinstance(env_name, str) or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", env_name)
+            or ("workspace_id_env" in config
+                and (provider != "anthropic" or not isinstance(workspace_env, str)
+                     or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", workspace_env)))
             or not isinstance(system, str) or not isinstance(prompt, str)
             or not isinstance(max_output_tokens, int) or isinstance(max_output_tokens, bool)
             or max_output_tokens <= 0 or not isinstance(timeout, (int, float))
@@ -103,6 +108,13 @@ def complete(config: dict, system: str, prompt: str, max_output_tokens: int = 20
         raise ProviderError("missing_api_key")
     if "\r" in secret or "\n" in secret:
         raise ProviderError("invalid_api_key")
+    workspace_id = None
+    if workspace_env is not None:
+        workspace_id = os.environ.get(workspace_env)
+        if not workspace_id:
+            raise ProviderError("missing_workspace_id")
+        if not re.fullmatch(r"wrkspc_[A-Za-z0-9]{1,128}", workspace_id):
+            raise ProviderError("invalid_workspace_id")
     headers = {"Content-Type": "application/json", "Accept": "application/json"}
     if provider == "openai":
         url = "https://api.openai.com/v1/responses"
@@ -113,6 +125,8 @@ def complete(config: dict, system: str, prompt: str, max_output_tokens: int = 20
     elif provider == "anthropic":
         url = "https://api.anthropic.com/v1/messages"
         headers.update({"x-api-key": secret, "anthropic-version": "2023-06-01"})
+        if workspace_id is not None:
+            headers["anthropic-workspace-id"] = workspace_id
         payload = {"model": model, "system": system,
                    "messages": [{"role": "user", "content": prompt}], "max_tokens": max_output_tokens}
     else:

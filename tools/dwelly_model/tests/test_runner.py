@@ -146,6 +146,14 @@ class RunnerTests(unittest.TestCase):
         self.assertTrue(all(frozen for _, frozen in observed[1:]))
         for payload, _ in observed:
             self.assertNotIn("SECRET_FUTURE", json.dumps(payload))
+            if "input" in payload:
+                self.assertIn("json", payload["input"].lower())
+        recorded_requests = [json.loads(path.read_text())
+                             for path in (self.output / "requests").glob("*.json")]
+        self.assertCountEqual(
+            [(item["system"], item["prompt"]) for item in recorded_requests if item["provider"] == "openai"],
+            [(payload["instructions"], payload["input"]) for payload, _ in observed if "input" in payload],
+        )
         for payload, _ in observed[1:]:
             # Model selection is transport metadata; the actual judge content has no producer metadata.
             if "input" in payload:
@@ -155,7 +163,8 @@ class RunnerTests(unittest.TestCase):
             else:
                 prompt = payload["contents"][0]["parts"][0]["text"]
             body = json.loads(prompt)
-            self.assertEqual(set(body), {"visible_snapshot", "proposal"})
+            self.assertEqual(set(body), {"output_format", "visible_snapshot", "proposal"})
+            self.assertEqual(body["output_format"], "json_object")
             self.assertEqual(set(body["proposal"]), {"action"})
         proposal = json.loads((self.output / "proposals/delivery-logistics-001.json").read_text())
         self.assertEqual(proposal["action"]["message"], "Do you prefer 15:00 or 17:00?")

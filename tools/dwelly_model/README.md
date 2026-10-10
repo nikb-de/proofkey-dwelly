@@ -16,6 +16,10 @@ The output directory must not exist. `preflight` makes no API requests and exits
 
 Set `OPENAI_API_KEY`, `ANTHROPIC_API_KEY` and `GEMINI_API_KEY` in your shell or private secret manager. Do not put keys into config, commits or chat. The example model IDs and prices are editable: check current provider availability/prices before live execution. API access/billing is separate from availability in a chat application.
 
+The example Anthropic seat also names `ANTHROPIC_WORKSPACE_ID`. For an organizational/multi-workspace key, set that variable to the workspace ID shown in Claude Console → Settings → Workspaces. The runner passes it only in the `anthropic-workspace-id` header. For a key already scoped to one workspace, remove `workspace_id_env` from that seat if you do not need an explicit header. Keep the actual workspace ID in your private environment, not public config. Missing configured values and malformed IDs stop the Anthropic request before HTTP dispatch. [Anthropic workspace selection](https://platform.claude.com/docs/en/manage-claude/authentication#select-a-workspace).
+
+`preflight` reports missing workspace variable names separately from API key names; it is presence-only, not a validation of values, permissions, credit balance or network access. Both proposal and judge inputs explicitly name JSON output format before reservation and recording, so saved prompts match the actual OpenAI JSON-mode input. [OpenAI JSON mode](https://developers.openai.com/api/docs/guides/structured-outputs#json-mode).
+
 ```sh
 python3 -B -m tools.dwelly_model run --live \
   --config tools/dwelly_model/config.example.json \
@@ -46,6 +50,8 @@ The model receives only validated decision-time events. It does not receive inde
 Eight rubric dimensions score 0–4: next action, routing, required details, grounding, authority/consent, no fabrication, escalation and clarity. Critical failures and abstentions remain separate from numeric means. Missing/invalid judges never count as zero or success. Model agreement is not ground truth or execution authorization. The example uses OpenAI for both proposer and one judge: this family relationship is not independent and must be considered when interpreting agreement.
 
 Retained outputs include exact prompts/receipts as produced by the runner, proposal identity, scores, missing/error status, budget reservations and a summary. They can contain case text. Keep real-data outputs private and redact/review before publication. Never embed a provider credential in source case text; no system can promise to sanitize an arbitrary secret echoed from its input.
+
+For model replies only, the runner accepts bare JSON or one complete outer `json` Markdown fence (LF or CRLF). It retains the original reply in the receipt and still applies strict JSON decoding and the full proposal/judgment schema. It does not extract objects from prose, repair invalid JSON, accept multiple response blocks, or relax source/config parsing.
 
 All 50 public cases are already-exposed **development** examples. New evaluation cases and real examples must come from the team: [intake contract](../../docs/model-team-intake.md). No unseen test accuracy, human calibration, vision/audio understanding or real provider integration is claimed.
 
