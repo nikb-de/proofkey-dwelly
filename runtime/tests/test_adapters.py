@@ -12,6 +12,8 @@ import unittest
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
+from pydantic import ValidationError
+
 from proofkey.contracts import ReadRequest, ReadTarget, RevisionVector
 from support import DEADLINE, FakeClock, make_binding, make_intent, load_test_profile
 
@@ -135,6 +137,82 @@ class AdapterTests(unittest.TestCase):
         reply = self.dispatch(self.intent())
         self.assertEqual(reply.status, "rejected")
         self.assertEqual(self.world.effect_count("reschedule"), 0)
+
+    def legacy_world_with_packet_revision(self, revision):
+        self._fresh_count += 1
+        root = Path(self.folder.name) / f"optional-revision-{self._fresh_count}"
+        root.mkdir()
+        fixture = json.loads(FIXTURE.read_text())
+        fixture["facts"]["operator.packet_id"] = {
+            "case_id": "C1", "object_id": "O1", "value": "P1", "revision": revision,
+            "evidence_ref": "synthetic-provider:operator.packet_id",
+        }
+        fixture_path = root / "fixture.json"
+        fixture_path.write_text(json.dumps(fixture))
+        self.clock = FakeClock()
+        database = root / "world.sqlite"
+        self.world = SimulatedWorld(database, fixture_path, clock=self.clock)
+        self.bundle = self.world.bundle()
+        return database
+
+    @staticmethod
+    def legacy_dispatch_snapshot(database):
+        with sqlite3.connect(database) as connection:
+            return (
+                connection.execute("SELECT * FROM facts ORDER BY case_id,object_id,identity").fetchall(),
+                connection.execute("SELECT COUNT(*) FROM effects").fetchone()[0],
+                connection.execute("SELECT COUNT(*) FROM final_rejections").fetchone()[0],
+            )
+
+    def test_invalid_optional_observation_revision_rolls_back_legacy_dispatch(self):
+        for operation in ("enqueue_handoff", "transfer_owner"):
+            for revision in ("", " \t "):
+                with self.subTest(operation=operation, revision=revision):
+                    database = self.legacy_world_with_packet_revision(revision)
+                    self.world.set_fault("transfer_owner", "owner_accepted")
+                    intent = self.intent(operation)
+                    self.assertNotIn("operator.packet_id", intent.expected_revisions.revisions)
+                    before, effects, rejections = self.legacy_dispatch_snapshot(database)
+                    self.assertEqual((effects, rejections), (0, 0))
+                    with self.assertRaises(ValidationError) as raised:
+                        self.dispatch(intent)
+                    self.assertEqual([error["loc"] for error in raised.exception.errors()], [("revision",)])
+                    after, effects, rejections = self.legacy_dispatch_snapshot(database)
+                    self.assertEqual(after, before)
+                    self.assertEqual((effects, rejections), (0, 0))
+
+    def test_valid_optional_observation_revision_preserves_legacy_original(self):
+        for operation, read_method, stage in (
+                ("enqueue_handoff", "read_receipt", "queued"),
+                ("transfer_owner", "read_owner", "accepted")):
+            with self.subTest(operation=operation):
+                database = self.legacy_world_with_packet_revision("v1")
+                self.world.set_fault("transfer_owner", "owner_accepted")
+                intent = self.intent(operation)
+                self.assertNotIn("operator.packet_id", intent.expected_revisions.revisions)
+                before, effects, rejections = self.legacy_dispatch_snapshot(database)
+                self.assertEqual((effects, rejections), (0, 0))
+                self.assertEqual(self.dispatch(intent).status, "acknowledged")
+                after, effects, rejections = self.legacy_dispatch_snapshot(database)
+                self.assertEqual((effects, rejections), (1, 0))
+                original = self.read(read_method, self.original(intent))
+                self.assertEqual(original.action_id, intent.action_id)
+                self.assertEqual(original.stage, stage)
+                packet = next(item for item in original.observations
+                              if item.authority == "operator" and item.fact == "packet_id")
+                self.assertEqual((packet.value, packet.revision), ("P1", "v1"))
+                if operation == "enqueue_handoff":
+                    self.assertEqual(after, before)
+                else:
+                    before_by_fact = {row[2]: (json.loads(row[3]), row[4]) for row in before}
+                    after_by_fact = {row[2]: (json.loads(row[3]), row[4]) for row in after}
+                    for fact, old, new in (
+                            ("ownership.state", ("accepted", "v1"), ("accepted", "v2")),
+                            ("ownership.state_revision", ("v1", "v1"), ("v2", "v2")),
+                            ("ownership.owner", ("U1", "v1"), ("OP2", "v2")),
+                            ("ownership.epoch", (0, "v1"), (1, "v2"))):
+                        self.assertEqual(before_by_fact[fact], old)
+                        self.assertEqual(after_by_fact[fact], new)
 
     def test_timeout_after_commit_preserves_original_readback_without_resend(self):
         intent = self.intent()

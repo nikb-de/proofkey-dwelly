@@ -526,7 +526,10 @@ class SimulatedWorld:
                 if self._now() >= tool_deadline:
                     connection.rollback()
                     return reject("deadline_expired")
-                observations = self._effect_observation_data(connection, intent, values)
+                observations = (self._effect_observation_data(connection, intent, values)
+                                if window_envelope else
+                                [item.model_dump(mode="json")
+                                 for item in self._effect_observations(connection, intent, values)])
                 connection.execute("INSERT INTO effects VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                     (account, intent.provider_key, intent.binding.case_id, intent.binding.object_id, operation,
                      intent.binding.generation, intent.action_id, intent.argument_fingerprint, identity_hash,
