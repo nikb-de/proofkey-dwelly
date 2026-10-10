@@ -47,6 +47,4 @@ Every input case receives ANSWER.md and REASONING.md, including failed/missing c
 
 The accepted model schema contains only coordination state, waiting targets, one proposed next action, visible evidence references and uncertainty. A successful parse proves conformity to that schema, not the correctness of the decision. ANSWER.md displays the exact proposed action and actual dispatch count separately from business activity. Rescheduling, refusal/return, customer contact and operator escalation remain proposals: this runner performs no courier, booking, return, messaging or payment operation. Physical delivery is never inferred. Failed and incomplete responses remain failures in the exported files.
 
-Fresh exports also show the proposed action type, target and waiting actors by ID and source-declared name, alongside our actor. Display-only `REVIEW` warnings flag forwarding/information/readback requests targeting our own actor and distinguish undecodable JSON from decoded responses rejected by the submitted output contract. They do not amend candidates, statuses, errors, prompts or retained responses. Existing `ANSWERS` remain the original frozen export.
-
 Verification: `python -B -m unittest discover -s tools/dwelly_reality/tests -v`. Network tests use replaced transport boundaries and are not live provider evidence.
