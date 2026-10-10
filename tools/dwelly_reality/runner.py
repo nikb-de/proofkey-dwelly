@@ -315,32 +315,7 @@ def _quote(value):
     return '\n'.join('> '+line for line in str(value).splitlines())+'\n'
 
 
-def _review_warnings(record, evidence):
-    """Display-only diagnostics; never amend the retained result or candidate."""
-    warnings=[]
-    candidate=record.get('candidate')
-    if candidate and evidence:
-        action=candidate.get('next_action',{})
-        if (action.get('type') in {'propose_forwarding','request_information','request_readback'}
-                and action.get('target_actor_id')==evidence.get('our_actor_id')):
-            warnings.append('REVIEW: self_target — '+action['type']+
-                ' targets our_actor_id; review the recipient before any operation.')
-    if not candidate and record.get('error')=='invalid_model_output':
-        response=record.get('response') or {}
-        text=response.get('text')
-        if not isinstance(text,str):
-            warnings.append('REVIEW: missing_response_text — no retained model text is available for diagnosis.')
-        else:
-            try:
-                model._model_json(text)
-            except (ValueError,TypeError,RecursionError,OverflowError,UnicodeError):
-                warnings.append('REVIEW: invalid_json_output — retained response cannot be decoded by the submitted JSON decoder.')
-            else:
-                warnings.append('REVIEW: rejected_output_contract — JSON decoded, but the submitted schema or contract checks rejected it.')
-    return warnings
-
-
-def format_answer(case_id,record,item,evidence=None):
+def format_answer(case_id,record,item):
     candidate=record.get('candidate')
     action=candidate.get('next_action',{}) if candidate else {}
     answer='# ANSWER — '+case_id+'\n\n'
@@ -353,17 +328,6 @@ def format_answer(case_id,record,item,evidence=None):
     answer+='\n## Decision (proposed)\n\n'
     answer+=_quote(action.get('description','No accepted model output.'))
     answer+='\nState: `'+str(candidate.get('state'))+'`.\n' if candidate else '\nState: unavailable.\n'
-    if candidate:
-        actors={actor['id']:actor['name'] for actor in (evidence or {}).get('actors',[])}
-        def actor_label(actor_id):
-            if actor_id is None: return '`null`'
-            return '`'+str(actor_id)+'` — '+actors.get(actor_id,'name unavailable')
-        answer+='\nProposed action type: `'+str(action.get('type'))+'`. Proposed target: '+actor_label(action.get('target_actor_id'))+'.\n'
-        if evidence:
-            answer+='Our actor: '+actor_label(evidence.get('our_actor_id'))+'.\n'
-        waiting=candidate.get('waiting_for',[])
-        answer+='Waiting for: '+('; '.join(actor_label(actor_id) for actor_id in waiting) if waiting else '`[]`')+'.\n'
-        answer+='These fields describe a proposal; no message or business operation was executed.\n'
     answer+='\n## Actions actually taken\n\nProvider dispatch attempts: '+str(record.get('dispatch_attempts','not recorded'))+'. Model analysis only. Business operations executed: 0.\n\n'
     answer+='## Escalation\n\n'
     answer+=_quote(action.get('description')) if action.get('type')=='operator_review' else 'No explicit operator-review action was proposed in the accepted output.\n'
@@ -371,11 +335,6 @@ def format_answer(case_id,record,item,evidence=None):
     uncertainties=candidate.get('uncertainty',[]) if candidate else []
     answer+='\n'.join(_quote(value) for value in uncertainties) if uncertainties else 'No uncertainty text was retained.\n'
     answer+='\n## Errors and final observed status\n\nStatus: `'+record['status']+'`. Error: `'+str(record.get('error'))+'`.\n\n'
-    warnings=_review_warnings(record,evidence)
-    if warnings:
-        answer+='## REVIEW warnings (local diagnostics)\n\n'
-        answer+='\n'.join('- '+warning for warning in warnings)+'\n\n'
-        answer+='These warnings do not alter the retained status, error or candidate.\n\n'
     answer+='[Retained call result](SOURCE_RESULT.json)'
     if record['status']!='missing': answer+=' · [Wire trace](WIRE.JSON) · [Dispatch intent](INTENT.JSON)'
     answer+='\n\n'
@@ -392,11 +351,11 @@ def export(prepared,output,profile_id):
         path=prepared/'runs'/profile_id/case_id/'result.json'
         record=json.loads(path.read_text()) if path.exists() else {'status':'missing','candidate':None,'error':'no_retained_result','response':None,'dispatch_attempts':0}
         candidate=record.get('candidate')
-        evidence=json.loads((prepared/'inputs'/(case_id+'.json')).read_text())
-        answer=format_answer(case_id,record,item,evidence)
+        answer=format_answer(case_id,record,item)
         rationale={'evidence_event_ids':candidate.get('evidence_event_ids',[]) if candidate else [],
                    'uncertainty':candidate.get('uncertainty',[]) if candidate else []}
         reasoning='# REASONING — '+case_id+'\n\nThe submitted model contract has no rationale field. These are only its recorded evidence references and uncertainty; no reasoning is reconstructed.\n\n```json\n'+json.dumps(rationale,ensure_ascii=False,indent=2)+'\n```\n'
+        evidence=json.loads((prepared/'inputs'/(case_id+'.json')).read_text())
         by_id={message['event_id']:message for message in evidence['messages']}
         for event_id in rationale['evidence_event_ids']:
             message=by_id.get(event_id)

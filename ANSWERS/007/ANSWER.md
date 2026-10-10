@@ -76,7 +76,3 @@ Status: `succeeded`. Error: `None`.
   "waiting_for": []
 }
 ```
-
-## Post-run review
-
-A [human-reviewed routing correction](REVIEW.md) is separate from the original frozen result above.
