@@ -1,6 +1,6 @@
 # Submission preparation
 
-Status: **incomplete; not submitted**. The GitHub destination is a private documentation scaffold, so it does not yet meet the guide's requirement for one public repository accessible without permission.
+Status: **incomplete; not submitted**. The GitHub destination is a private development package containing architecture, copied public development data and preserved pilot outputs. It does not yet meet the guide's requirement for one public repository accessible without permission, and does not include runnable project source.
 
 | Field | Current value |
 |---|---|
@@ -23,21 +23,22 @@ Status: **incomplete; not submitted**. The GitHub destination is a private docum
 
 This is the user-provided Sunday Grind roster, not a claim about commit contributions or verified event registration.
 
-| Name supplied by the team | GitHub handle | Repository access status as of 10 October 2026, 09:24 UTC | Event registration |
+| Name supplied by the team | GitHub handle | Repository access status as of 10 October 2026, 09:29 UTC | Event registration |
 |---|---|---|---|
 | Nikita Bakanchev | [nikb-de](https://github.com/nikb-de) | Existing repository owner | Unverified |
 | Alisher Zhuraev | [zalisher](https://github.com/zalisher) | Collaborator invitation sent; pending acceptance | Unverified |
-| Alex Malyshev | [leadcard](https://github.com/leadcard) | Collaborator invitation sent; pending acceptance | Unverified |
-| Alexander Turilin | [aturilin](https://github.com/aturilin) | Collaborator invitation sent; pending acceptance | Unverified |
+| Alex Malyshev | [leadcard](https://github.com/leadcard) | Accepted collaborator; read/write | Unverified |
+| Alexander Turilin | [aturilin](https://github.com/aturilin) | Accepted collaborator; read/write | Unverified |
 | Maria Shchur | [MariaShchur](https://github.com/MariaShchur) | Collaborator invitation sent; pending acceptance | Unverified |
 
-The four invitations are for normal collaborators on this private personal repository: read/write access upon acceptance, not ownership or administrator access. Invitation acceptance and event registration are separate checks.
+The four requested invitations are for normal collaborators on this private personal repository: read/write access upon acceptance, not ownership or administrator access. Two have accepted and two remain pending at the timestamp above. Invitation acceptance and event registration are separate checks.
 
 ## Checklist
 
 - [x] Create and verify a private personal GitHub preparation destination.
 - [x] Prepare a finite local scaffold allowlist and separate source review snapshot.
 - [x] Upload and verify the six-file documentation scaffold in the private repository.
+- [x] Include the user-authorized private development-data package and architecture documentation.
 - [ ] Establish rights for every selected code, data, test and media file; complete dependency notices.
 - [ ] Include the reviewed runnable source, configuration and reproducible instructions.
 - [ ] Include the standard Apache-2.0 `LICENSE` for eligible code after the rights review.
