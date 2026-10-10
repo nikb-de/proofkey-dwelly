@@ -6,7 +6,7 @@
 
 The standalone [model package](../tools/dwelly_model/README.md) prepares next-action proposals and supports three API judge adapters: OpenAI, Anthropic and Gemini. It uses the [50 public Delivery & Logistics cases](../data/dwelly-public-cases/README.md) as already-exposed development data.
 
-The [release verification](model-release-verification.md) records 41 model tests and 58 intake tests passing, plus an offline Docker run over all 50 cases. That run used the deterministic baseline: no model answers, API calls or scored judge results. Actual API experiments were not run because credentials were unavailable. Semantic quality and unseen accuracy remain unestablished.
+The [release verification](model-release-verification.md) records 60 model tests and 58 intake tests passing, plus an offline Docker run over all 50 cases. That offline run used the deterministic baseline: no model answers, API calls or scored judge results. A separate two-case live smoke received eight responses: two valid proposals and six valid judge outputs across OpenAI, Anthropic and Gemini, with zero business effects. This establishes request compatibility on those cases; calibrated judging, semantic quality and unseen accuracy remain unestablished.
 
 ![Experiment flow](diagrams/stable/overview-1.png)
 
@@ -40,4 +40,4 @@ Start with a small mapping or one new operation that can reuse existing contract
 
 Use the [package guide](../tools/dwelly_model/README.md) for local commands and API configuration, and the [verification record](model-release-verification.md) for measured results and limits. The [data guide](../data/dwelly-public-cases/README.md) describes provenance and development-only use. Consult the [reference design](architecture-reference.md) for ontology, adapter contracts, failure handling and source traceability.
 
-Next evidence needed: actual provider receipts for the proposal/judge experiment; human-reviewed proposal quality on new cases; and a separately qualified provider integration. Offline tests and model agreement establish none of these by themselves.
+Next evidence needed: the complete 50-case model experiment, the team's independent evaluation cases and permitted real examples, human-reviewed proposal quality on new cases, and a separately qualified provider integration. The two-case smoke, offline tests and model agreement do not establish these broader results.

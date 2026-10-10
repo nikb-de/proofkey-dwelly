@@ -31,7 +31,7 @@ User-supplied roster, not a claim of commit contribution or event registration. 
 ## Release evidence and remaining work
 
 - Runnable source, configuration, CLI/Docker and offline tests: included; see [verification](docs/model-release-verification.md).
-- Three-provider API experiment: implemented, but no live execution without runtime API credentials. Missing judges never become passing scores.
+- Three-provider API smoke: two public development cases produced eight received responses, two valid proposals and six valid judge outputs with zero business effects; see [current verification](docs/model-release-verification.md). This verifies request compatibility, not calibrated judging or model quality. The full 50-case model experiment remains pending. Missing judges never become passing scores.
 - Standard Apache-2.0 licence: included for eligible original code only. Rights for all data, source-derived test excerpts, media and contributions remain a public-release gate; see [licence status](LICENSE-STATUS.md).
 - Public development examples: already seen, not official challenge results. Human-calibrated evaluation and the team's 10–20 independent eval cases plus 10–20 permitted real examples remain pending.
 - Demo video, source/video freeze, unseen-case answers, public launch posts, final metadata and actual submission remain pending.
